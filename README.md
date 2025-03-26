@@ -76,7 +76,7 @@ Acknowledgements
 	•	Laravel for being an amazing framework for web development.
 	•	Vue.js for making the frontend so interactive and fun to work with.
 
-email: govindaroy.ofc94@gmail.com
+email: govindaroy.ofc94@gmail.com <br>
 	•	Inertia.js for seamlessly bridging backend and frontend.
 	•	Vite for providing lightning-fast development.
 	•	TailwindCSS for a simple yet elegant design.
