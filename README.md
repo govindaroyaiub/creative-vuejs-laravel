@@ -1,4 +1,4 @@
-CMS System for File Transfers and Creative Management
+CMS System for File Transfers and Creative Management (Still in development)
 
 A CMS system built with Laravel, Vue.js, Vite, and Inertia.js to manage creative assets and file transfers. This project allows users to upload, manage, and transfer various types of creatives such as HTML5 banners, videos, GIFs, and social media images. It also supports file transfers and bill management.
 
