@@ -7,8 +7,7 @@ import { Bolt, BadgeX, BadgePlus, ArrowBigLeft, ArrowBigRight } from 'lucide-vue
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { usePage } from '@inertiajs/vue3';
-
-const { fileTransfers } = usePage().props;
+import { ref, computed } from "vue";
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -17,7 +16,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-import { ref, computed } from "vue";
+const { fileTransfers } = usePage().props;
 
 const searchQuery = ref("");
 const currentPage = ref(1);
@@ -38,12 +37,6 @@ const filteredTransfers = computed(() => {
 const totalPages = computed(() => {
   return Math.ceil(fileTransfers.length / itemsPerPage);
 });
-
-// Edit file transfer
-const editTransfer = (id) => {
-  console.log("Edit Transfer: " + id);
-  // Implement redirection to the edit page if needed
-};
 
 // Delete file transfer
 const deleteTransfer = async (id) => {
@@ -108,13 +101,30 @@ const previousPage = () => {
     currentPage.value--;
   }
 };
+
 </script>
+
+<style scoped>
+    /* Transition Effect */
+    .fade-enter-active, .fade-leave-active {
+    transition: opacity 1s ease;
+    }
+
+    .fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+    opacity: 0;
+    }
+</style>
 
 <template>
     <Head title="File Transfers" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6">
+            <transition name="fade" @before-leave="beforeLeave" @after-leave="afterLeave">
+                <div v-if="flashMessage" class="bg-green-500 text-white p-3 rounded-md mb-4">
+                {{ flashMessage }}
+                </div>
+            </transition>
             <!-- Search and Add Button Row -->
             <div class="flex justify-between items-center mb-4">
                 <!-- Search Bar -->
@@ -146,7 +156,14 @@ const previousPage = () => {
                     </thead>
 
                     <!-- Table Body -->
-                    <tbody>
+                    <tbody v-if="filteredTransfers.length === 0">
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                                No data available.
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody v-else>
                         <tr
                         v-for="(fileTransfer, index) in filteredTransfers"
                         :key="fileTransfer.id"
@@ -165,12 +182,12 @@ const previousPage = () => {
                             <span class="text-gray-500 text-sm">{{ fileTransfer.created_at }}</span>
                         </td>
                         <td class="px-6 py-4 text-center">
-                            <button
+                            <a
                             class="text-blue-500 hover:text-blue-700 transition mr-1"
-                            @click="editTransfer(fileTransfer.id)"
+                            :href="`/file-transfers-edit/${fileTransfer.id}`"
                             >
                             <Bolt class="w-8 h-8 inline-block" />
-                            </button>
+                            </a>
                             <button
                             class="text-red-500 hover:text-red-700 transition"
                             @click="deleteTransfer(fileTransfer.id)"
@@ -250,4 +267,10 @@ export default {
         }
     }
 };
+
+import { computed } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+
+const page = usePage();
+const flashMessage = computed(() => page.props.flash || '');
 </script>

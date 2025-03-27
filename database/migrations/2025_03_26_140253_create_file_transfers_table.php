@@ -15,7 +15,7 @@ class CreateFileTransfersTable extends Migration
             $table->string('name');
             $table->string('client');
             $table->integer('user_id');
-            $table->string('file_path');
+            $table->text('file_path');
             $table->timestamps();
         });
     }

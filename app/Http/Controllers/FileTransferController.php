@@ -1,10 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\FileTransfer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\File;
+use Inertia\Inertia;
+use App\Models\FileTransfer;
 
 class FileTransferController extends Controller
 {
@@ -57,7 +60,54 @@ class FileTransferController extends Controller
         $fileTransfer->save();
 
         // Return response (could be a redirect or success message)
-        return redirect()->route('file-transfers')->with('success', 'Files uploaded successfully!');
+        return Redirect::route('file-transfers')->with('success', $fileTransfer->name.' ('.$fileTransfer->client.')'.' uploaded successfully!');
+    }
+
+    public function updateTransferFiles(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'client' => 'required|string|max:255',
+            'file' => 'nullable|array',
+            'file.*' => 'mimes:zip|max:10240',
+        ]);
+
+        $fileTransfer = FileTransfer::findOrFail($id);
+
+        // Delete old files if new ones are uploaded
+        if ($request->hasFile('file')) {
+            $oldFiles = explode(',', $fileTransfer->file_path);
+            foreach ($oldFiles as $oldFile) {
+                $filePath = public_path($oldFile);
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+
+            // Upload new files
+            $filePaths = [];
+            foreach ($request->file('file') as $file) {
+                $uniqueName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $destinationPath = public_path('Transfer Files');
+                $file->move($destinationPath, $uniqueName);
+                $filePaths[] = 'Transfer Files/' . $uniqueName;
+            }
+
+            $fileTransfer->file_path = implode(',', $filePaths);
+        }
+
+        // Update fields
+        $fileTransfer->name = $request->input('name');
+        $fileTransfer->client = $request->input('client');
+        $fileTransfer->save();
+
+        return response()->json([
+            'message' => 'File transfer updated successfully!',
+            'file_paths' => array_map(function ($path) {
+                // Remove "Transfer Files/" from each path
+                return str_replace('Transfer Files/', '', $path);
+            }, explode(',', $fileTransfer->file_path)), // Split file paths and apply transformation
+        ]);
     }
 
     public function destroyTransferFiles($id)
