@@ -137,7 +137,7 @@ const getTransferLink = async (id) => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6">
-            <transition name="fade" @before-leave="beforeLeave" @after-leave="afterLeave">
+            <transition name="fade">
                 <div v-if="flashMessage" class="bg-green-500 text-white p-3 rounded-md mb-4">
                 {{ flashMessage }}
                 </div>
