@@ -90,10 +90,10 @@ const handleSubmit = async () => {
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+      <form @submit.prevent="handleSubmit" class="space-y-6 w-full max-w-2xl mx-auto" enctype="multipart/form-data">
         <div v-if="successMessage" class="bg-green-500 text-white p-3 rounded-md mb-4">
             {{ successMessage }}
         </div>
-      <form @submit.prevent="handleSubmit" class="space-y-6 w-full max-w-2xl mx-auto" enctype="multipart/form-data">
         <input type="hidden" name="_token" value="{{ csrf_token() }}" />
         <input type="hidden" name="_method" value="PUT">
         <!-- Name Field -->

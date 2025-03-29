@@ -2,8 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-// import PlaceholderPattern from '../components/PlaceholderPattern.vue';
-import { Bolt, BadgeX, BadgePlus, ArrowBigLeft, ArrowBigRight } from 'lucide-vue-next';
+import { Bolt, BadgeX, BadgePlus, ArrowBigLeft, ArrowBigRight, Share2 } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { usePage } from '@inertiajs/vue3';
@@ -102,6 +101,24 @@ const previousPage = () => {
   }
 };
 
+const copySuccess = ref(false);
+
+const getTransferLink = async (id) => {
+  const url = `${window.location.origin}/file-transfers-view/${id}`;
+
+  try {
+    await navigator.clipboard.writeText(url);
+    copySuccess.value = true;
+
+    // Hide message after 2 seconds
+    setTimeout(() => {
+      copySuccess.value = false;
+    }, 3000);
+  } catch (error) {
+    console.error("Failed to copy URL:", error);
+  }
+};
+
 </script>
 
 <style scoped>
@@ -125,6 +142,11 @@ const previousPage = () => {
                 {{ flashMessage }}
                 </div>
             </transition>
+
+            <div v-if="copySuccess" class="bg-green-500 text-white p-3 rounded-md mb-4">
+                URL Copied!
+            </div>
+
             <!-- Search and Add Button Row -->
             <div class="flex justify-between items-center mb-4">
                 <!-- Search Bar -->
@@ -171,7 +193,7 @@ const previousPage = () => {
                         >
                         <td class="px-6 py-4 text-gray-900 dark:text-gray-100">{{ index + 1 }}</td>
                         <td class="px-6 py-4 text-gray-900 dark:text-gray-100">
-                            <a :href="`/file-transfers/${fileTransfer.id}`" target="_blank" class="text-blue-500 hover:text-blue-700">
+                            <a :href="`/file-transfers-view/${fileTransfer.id}`" target="_blank" class="text-blue-500 hover:text-blue-700">
                             {{ fileTransfer.name }}
                             </a>
                         </td>
@@ -182,6 +204,12 @@ const previousPage = () => {
                             <span class="text-gray-500 text-sm">{{ fileTransfer.created_at }}</span>
                         </td>
                         <td class="px-6 py-4 text-center">
+                            <button
+                            class="text-green-500 hover:text-green-700 transition mr-1"
+                            @click="getTransferLink(fileTransfer.id)"
+                            >
+                            <Share2 class="w-8 h-8 inline-block" />
+                            </button>
                             <a
                             class="text-blue-500 hover:text-blue-700 transition mr-1"
                             :href="`/file-transfers-edit/${fileTransfer.id}`"
