@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-import { Bolt, BadgeX, BadgePlus, ArrowBigLeft, ArrowBigRight, Share2 } from 'lucide-vue-next';
+import { Settings, CircleX, CirclePlus, ArrowBigLeft, ArrowBigRight, Share2 } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import { usePage } from '@inertiajs/vue3';
@@ -159,7 +159,7 @@ const getTransferLink = async (id) => {
 
                 <!-- Add Button -->
                 <a :href="route('file-transfers-add')" class="ml-4 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600">
-                    <BadgePlus class="w-8 h-8 inline-block" />
+                    <CirclePlus class="w-6 h-6 inline-block" />
                 </a>
             </div>
 
@@ -214,13 +214,13 @@ const getTransferLink = async (id) => {
                             class="text-blue-500 hover:text-blue-700 transition mr-1"
                             :href="`/file-transfers-edit/${fileTransfer.id}`"
                             >
-                            <Bolt class="w-8 h-8 inline-block" />
+                            <Settings class="w-8 h-8 inline-block" />
                             </a>
                             <button
                             class="text-red-500 hover:text-red-700 transition"
                             @click="deleteTransfer(fileTransfer.id)"
                             >
-                            <BadgeX class="w-8 h-8 inline-block" />
+                            <CircleX class="w-8 h-8 inline-block" />
                             </button>
                         </td>
                         </tr>
@@ -235,7 +235,7 @@ const getTransferLink = async (id) => {
                     @click="previousPage"
                     class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
                 >
-                    <ArrowBigLeft class="w-8 h-8 inline-block" />
+                    <ArrowBigLeft class="w-6 h-6 inline-block" />
                 </button>
 
                 <div class="flex items-center space-x-2">
@@ -247,7 +247,7 @@ const getTransferLink = async (id) => {
                     @click="nextPage"
                     class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
                 >
-                    <ArrowBigRight class="w-8 h-8 inline-block" />
+                    <ArrowBigRight class="w-6 h-6 inline-block" />
                 </button>
             </div>
         </div>
