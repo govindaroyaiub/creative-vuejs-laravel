@@ -2,8 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Models\FileTransfer;
+use App\Models\FileTransfer;    
+use App\Models\BannerSize;
 use App\Http\Controllers\FileTransferController;
+use App\Http\Controllers\BannerSizeController;
 
 
 Route::get('/', function () {
@@ -72,12 +74,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('previews');
 
     Route::get('/banner-sizes', function(){
-        return Inertia::render('BannerSizes/Index');
+        $bannerSizes = BannerSize::orderBy('width', 'ASC')->get();
+
+        return Inertia::render('BannerSizes/Index', [
+            'bannerSizes' => $bannerSizes,
+            'flash' => session('success'), // Pass flash message explicitly
+        ]);
     })->name('banner-sizes-index');
 
     Route::get('/banner-sizes-create', function(){
-        return Inertia::render('BannerSizes/Create');
+        return Inertia::render('BannerSizes/Create', [
+            'flash' => session('success'), // Pass flash message explicitly
+        ]);
     })->name('banner-sizes-create');
+
+    Route::post('/banner-sizes-create-post', [BannerSizeController::class, 'create'])->name('banner-sizes-create-post');
+
 });
 
 Route::get('/file-transfers-view/{id}', function($id) {

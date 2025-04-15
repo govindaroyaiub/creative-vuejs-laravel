@@ -2,7 +2,8 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-// import PlaceholderPattern from '../components/PlaceholderPattern.vue';
+import { usePage } from '@inertiajs/vue3';
+import { ref, computed } from "vue";
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -10,6 +11,10 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/banner-sizes-create',
     },
 ];
+
+const page = usePage();
+const flashMessage = computed(() => page.props.flash || '');
+
 </script>
 
 <template>
@@ -17,18 +22,23 @@ const breadcrumbs: BreadcrumbItem[] = [
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+            <transition name="fade">
+                <div v-if="flashMessage" class="bg-green-500 text-white p-3 rounded-md mb-4">
+                {{ flashMessage }}
+                </div>
+            </transition>
             <form @submit.prevent="handleSubmit" class="space-y-6 w-full max-w-2xl mx-auto">
                 <!-- Name Field -->
                 <div>
                 <label for="width" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Width</label>
-                <input type="text" name="width" id="width" v-model="form.name" required
+                <input type="number" name="width" id="width" v-model="form.width" required
                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:focus:ring-indigo-400">
                 </div>
 
                 <!-- Client Field -->
                 <div>
                 <label for="height" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Height</label>
-                <input type="text" name="height" id="height" v-model="form.client" required
+                <input type="number" name="height" id="height" v-model="form.height" required
                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:focus:ring-indigo-400">
                 </div>
 
@@ -65,7 +75,7 @@ export default {
       formData.append('height', this.form.height);
 
       // Send the form data using Inertia post
-      this.$inertia.post('/banner-sizes-create', formData);
+      this.$inertia.post('/banner-sizes-create-post', formData);
     },
     goBack() {
       // Handle back button click

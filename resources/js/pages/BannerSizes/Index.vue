@@ -15,12 +15,6 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const bannerSizes = ref([
-    { id: 1, width: 728, height: 90 },
-    { id: 2, width: 300, height: 250 },
-    { id: 3, width: 160, height: 600 },
-  ])
-  
   const editSize = (size) => {
     console.log('Edit clicked for', size)
     // Navigate to edit page or open modal
@@ -31,7 +25,35 @@ const bannerSizes = ref([
     // Confirm and delete logic here
   }
 
+const { bannerSizes } = usePage().props;
+const searchQuery = ref('');
+
+const filteredBannerSizes = computed(() => {
+  if (!searchQuery.value.trim()) return bannerSizes;
+
+  return bannerSizes.filter((size: any) => {
+    const query = searchQuery.value.toLowerCase();
+    return (
+      size.width.toString().includes(query) ||
+      size.height.toString().includes(query)
+    );
+  });
+});
+
+const page = usePage();
+const flashMessage = computed(() => page.props.flash || '');
 </script>
+
+<style scoped>
+    /* Transition Effect */
+    .fade-enter-active, .fade-leave-active {
+        transition: opacity 1s ease;
+    }
+
+    .fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+        opacity: 0;
+    }
+</style>
 
 <template>
     <Head title="Banner Sizes" />
@@ -41,6 +63,11 @@ const bannerSizes = ref([
         <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100">
           Banner Sizes
         </h2>
+        <transition name="fade">
+            <div v-if="flashMessage" class="bg-green-500 text-white p-3 rounded-md mb-4">
+            {{ flashMessage }}
+            </div>
+        </transition>
         <div class="flex justify-between items-center mb-4">
                 <!-- Search Bar -->
                 <input
@@ -66,8 +93,13 @@ const bannerSizes = ref([
             </tr>
           </thead>
           <tbody>
+            <tr v-if="filteredBannerSizes.length === 0">
+                <td colspan="4" class="text-center py-4 text-gray-500 dark:text-gray-400">
+                    No banner sizes match your search.
+                </td>
+            </tr>
             <tr
-              v-for="(size, index) in bannerSizes"
+              v-for="(size, index) in filteredBannerSizes"
               :key="size.id"
               class="border-t border-gray-200 dark:border-gray-700 text-sm text-center hover:bg-gray-50 dark:hover:bg-gray-700"
             >
