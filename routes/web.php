@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 use App\Models\FileTransfer;
 use App\Models\BannerSize;
 use App\Http\Controllers\FileTransferController;
@@ -9,7 +10,7 @@ use App\Http\Controllers\BannerSizeController;
 
 
 Route::get('/', function () {
-    if (auth()->check()) {
+    if (Auth::check()) {
         return redirect()->route('dashboard');
     }
     return Inertia::render('auth/Login');
