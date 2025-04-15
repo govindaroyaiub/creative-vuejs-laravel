@@ -32,14 +32,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ];
             });
 
-        return Inertia::render('FileTransfers', [
+        return Inertia::render('FileTransfers/FileTransfers', [
             'fileTransfers' => $fileTransfers,
             'flash' => session('success'), // Pass flash message explicitly
         ]);
     })->name('file-transfers');
 
     Route::get('/file-transfers-add', function(){
-        return Inertia::render('FileTransferAdd');
+        return Inertia::render('FileTransfers/FileTransferAdd');
     })->name('file-transfers-add');
 
     Route::post('/file-transfers-add', [FileTransferController::class, 'storeTransferFiles'])->name('file-transfers-add-post');
@@ -52,7 +52,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return str_replace('Transfer Files/', '', $file);
         }, explode(',', $fileTransfer->file_path)); // Split the file paths into an array
     
-        return Inertia::render('FileTransfersEdit', [
+        return Inertia::render('FileTransfers/FileTransfersEdit', [
             'fileTransfer' => [
                 'id' => $fileTransfer->id,
                 'name' => $fileTransfer->name,
@@ -70,6 +70,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/previews', function(){
         return Inertia::render('Preview');
     })->name('previews');
+
+    Route::get('/banner-sizes', function(){
+        return Inertia::render('BannerSizes/Index');
+    })->name('banner-sizes-index');
+
+    Route::get('/banner-sizes-create', function(){
+        return Inertia::render('BannerSizes/Create');
+    })->name('banner-sizes-create');
 });
 
 Route::get('/file-transfers-view/{id}', function($id) {
