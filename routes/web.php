@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use App\Models\FileTransfer;    
+use App\Models\FileTransfer;
 use App\Models\BannerSize;
 use App\Http\Controllers\FileTransferController;
 use App\Http\Controllers\BannerSizeController;
@@ -20,7 +20,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
-    Route::get('/file-transfers', function() {
+    Route::get('/file-transfers', function () {
         $fileTransfers = FileTransfer::with('user:id,name') // Load related user with name only
             ->latest()
             ->get()
@@ -40,20 +40,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ]);
     })->name('file-transfers');
 
-    Route::get('/file-transfers-add', function(){
+    Route::get('/file-transfers-add', function () {
         return Inertia::render('FileTransfers/FileTransferAdd');
     })->name('file-transfers-add');
 
     Route::post('/file-transfers-add', [FileTransferController::class, 'storeTransferFiles'])->name('file-transfers-add-post');
 
-    Route::get('/file-transfers-edit/{id}', function($id) {
+    Route::get('/file-transfers-edit/{id}', function ($id) {
         $fileTransfer = FileTransfer::with('user:id,name')->findOrFail($id);
-    
+
         // Remove 'Transfer Files' from each file path, then split by commas
         $filePaths = array_map(function ($file) {
             return str_replace('Transfer Files/', '', $file);
         }, explode(',', $fileTransfer->file_path)); // Split the file paths into an array
-    
+
         return Inertia::render('FileTransfers/FileTransfersEdit', [
             'fileTransfer' => [
                 'id' => $fileTransfer->id,
@@ -69,11 +69,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/file-transfers/{id}', [FileTransferController::class, 'destroyTransferFiles'])->name('file-transfers-delete');
 
-    Route::get('/previews', function(){
+    Route::get('/previews', function () {
         return Inertia::render('Preview');
     })->name('previews');
-
-    Route::get('/banner-sizes', function(){
+    
+    Route::get('/banner-sizes', function () {
         $bannerSizes = BannerSize::orderBy('width', 'ASC')->paginate(10);
 
         return Inertia::render('BannerSizes/Index', [
@@ -82,17 +82,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ]);
     })->name('banner-sizes-index');
 
-    Route::get('/banner-sizes-create', function(){
+    Route::get('/banner-sizes-create', function () {
         return Inertia::render('BannerSizes/Create', [
             'flash' => session('success'), // Pass flash message explicitly
         ]);
     })->name('banner-sizes-create');
 
     Route::post('/banner-sizes-create-post', [BannerSizeController::class, 'create'])->name('banner-sizes-create-post');
-
 });
 
-Route::get('/file-transfers-view/{id}', function($id) {
+Route::get('/file-transfers-view/{id}', function ($id) {
     $fileTransfer = FileTransfer::with('user:id,name')->findOrFail($id);
 
     // Remove 'Transfer Files' from each file path, then split by commas
@@ -112,5 +111,5 @@ Route::get('/file-transfers-view/{id}', function($id) {
     ]);
 })->name('file-transfers-view');
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';
