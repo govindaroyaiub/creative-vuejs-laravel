@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('banner_sizes', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->integer('width');
+            $table->integer('height');
+            $table->timestamps(); // created_at & updated_at
         });
     }
 
