@@ -5,52 +5,115 @@ import { Head } from '@inertiajs/vue3';
 <style scoped>
 @import url('https://fonts.googleapis.com/css?family=Dosis:300,400,500');
 
-@-moz-keyframes rocket-movement { 100% {-moz-transform: translate(1200px,-600px);} }
-@-webkit-keyframes rocket-movement {100% {-webkit-transform: translate(1200px,-600px); } }
-@keyframes rocket-movement { 100% {transform: translate(1200px,-600px);} }
-@-moz-keyframes spin-earth { 100% { -moz-transform: rotate(-360deg); transition: transform 20s;  } }
-@-webkit-keyframes spin-earth { 100% { -webkit-transform: rotate(-360deg); transition: transform 20s;  } }
-@keyframes spin-earth{ 100% { -webkit-transform: rotate(-360deg); transform:rotate(-360deg); transition: transform 20s; } }
+@-moz-keyframes rocket-movement {
+    100% {
+        -moz-transform: translate(1200px, -600px);
+    }
+}
+@-webkit-keyframes rocket-movement {
+    100% {
+        -webkit-transform: translate(1200px, -600px);
+    }
+}
+@keyframes rocket-movement {
+    100% {
+        transform: translate(1200px, -600px);
+    }
+}
+@-moz-keyframes spin-earth {
+    100% {
+        -moz-transform: rotate(-360deg);
+        transition: transform 20s;
+    }
+}
+@-webkit-keyframes spin-earth {
+    100% {
+        -webkit-transform: rotate(-360deg);
+        transition: transform 20s;
+    }
+}
+@keyframes spin-earth {
+    100% {
+        -webkit-transform: rotate(-360deg);
+        transform: rotate(-360deg);
+        transition: transform 20s;
+    }
+}
 
 @-moz-keyframes move-astronaut {
-    100% { -moz-transform: translate(-160px, -160px);}
+    100% {
+        -moz-transform: translate(-160px, -160px);
+    }
 }
 @-webkit-keyframes move-astronaut {
-    100% { -webkit-transform: translate(-160px, -160px);}
+    100% {
+        -webkit-transform: translate(-160px, -160px);
+    }
 }
-@keyframes move-astronaut{
-    100% { -webkit-transform: translate(-160px, -160px); transform:translate(-160px, -160px); }
+@keyframes move-astronaut {
+    100% {
+        -webkit-transform: translate(-160px, -160px);
+        transform: translate(-160px, -160px);
+    }
 }
 @-moz-keyframes rotate-astronaut {
-    100% { -moz-transform: rotate(-720deg);}
+    100% {
+        -moz-transform: rotate(-720deg);
+    }
 }
 @-webkit-keyframes rotate-astronaut {
-    100% { -webkit-transform: rotate(-720deg);}
+    100% {
+        -webkit-transform: rotate(-720deg);
+    }
 }
-@keyframes rotate-astronaut{
-    100% { -webkit-transform: rotate(-720deg); transform:rotate(-720deg); }
+@keyframes rotate-astronaut {
+    100% {
+        -webkit-transform: rotate(-720deg);
+        transform: rotate(-720deg);
+    }
 }
 
 @-moz-keyframes glow-star {
-    40% { -moz-opacity: 0.3;}
-    90%,100% { -moz-opacity: 1; -moz-transform: scale(1.2);}
+    40% {
+        -moz-opacity: 0.3;
+    }
+    90%,
+    100% {
+        -moz-opacity: 1;
+        -moz-transform: scale(1.2);
+    }
 }
 @-webkit-keyframes glow-star {
-    40% { -webkit-opacity: 0.3;}
-    90%,100% { -webkit-opacity: 1; -webkit-transform: scale(1.2);}
+    40% {
+        -webkit-opacity: 0.3;
+    }
+    90%,
+    100% {
+        -webkit-opacity: 1;
+        -webkit-transform: scale(1.2);
+    }
 }
-@keyframes glow-star{
-    40% { -webkit-opacity: 0.3; opacity: 0.3;  }
-    90%,100% { -webkit-opacity: 1; opacity: 1; -webkit-transform: scale(1.2); transform: scale(1.2); border-radius: 999999px;}
+@keyframes glow-star {
+    40% {
+        -webkit-opacity: 0.3;
+        opacity: 0.3;
+    }
+    90%,
+    100% {
+        -webkit-opacity: 1;
+        opacity: 1;
+        -webkit-transform: scale(1.2);
+        transform: scale(1.2);
+        border-radius: 999999px;
+    }
 }
 
-.spin-earth-on-hover{
-    
+.spin-earth-on-hover {
     transition: ease 200s !important;
     transform: rotate(-3600deg) !important;
 }
 
-.bg-purple{
+.bg-purple {
     width: 100%;
     background: url(http://salehriaz.com/404Page/img/bg_purple.png);
     background-repeat: repeat-x;
@@ -58,10 +121,9 @@ import { Head } from '@inertiajs/vue3';
     background-position: left top;
     height: 100vh;
     overflow: hidden;
-    
 }
 
-.brand-logo{
+.brand-logo {
     margin-left: 25px;
     margin-top: 5px;
     display: inline-block;
@@ -71,9 +133,9 @@ ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
-/*    overflow: hidden;*/
-    display: flex; 
-    align-items: center; 
+    /*    overflow: hidden;*/
+    display: flex;
+    align-items: center;
 }
 
 li {
@@ -86,7 +148,7 @@ li a {
     color: white;
     text-align: center;
     text-decoration: none;
-    letter-spacing : 2px;
+    letter-spacing: 2px;
     font-size: 12px;
     -webkit-transition: all 0.3s ease-in;
     -moz-transition: all 0.3s ease-in;
@@ -99,36 +161,36 @@ li a:hover {
     color: #ffcb39;
 }
 
-.btn-request{
+.btn-request {
     padding: 10px 25px;
-    border: 1px solid #FFCB39;
+    border: 1px solid #ffcb39;
     border-radius: 100px;
     font-weight: 400;
 }
 
-.btn-request:hover{
-    background-color: #FFCB39;
+.btn-request:hover {
+    background-color: #ffcb39;
     color: #fff;
     transform: scale(1.05);
-    box-shadow: 0px 20px 20px rgba(0,0,0,0.1);
+    box-shadow: 0px 20px 20px rgba(0, 0, 0, 0.1);
 }
 
-.btn-go-home{
+.btn-go-home {
     position: relative;
     z-index: 200;
     margin: 15px auto;
     width: 100px;
     padding: 10px 15px;
-    border: 1px solid #FFCB39;
+    border: 1px solid #ffcb39;
     border-radius: 100px;
     font-weight: 400;
     display: block;
     color: white;
     text-align: center;
     text-decoration: none;
-    letter-spacing : 2px;
+    letter-spacing: 2px;
     font-size: 11px;
-    
+
     -webkit-transition: all 0.3s ease-in;
     -moz-transition: all 0.3s ease-in;
     -ms-transition: all 0.3s ease-in;
@@ -136,25 +198,25 @@ li a:hover {
     transition: all 0.3s ease-in;
 }
 
-.btn-go-home:hover{
-    background-color: #FFCB39;
+.btn-go-home:hover {
+    background-color: #ffcb39;
     color: #fff;
     transform: scale(1.05);
-    box-shadow: 0px 20px 20px rgba(0,0,0,0.1);
+    box-shadow: 0px 20px 20px rgba(0, 0, 0, 0.1);
 }
 
-.central-body{
-/*    width: 100%;*/
+.central-body {
+    /*    width: 100%;*/
     padding: 17% 5% 10% 5%;
     text-align: center;
 }
 
-.objects img{
+.objects img {
     z-index: 90;
     pointer-events: none;
 }
 
-.object_rocket{
+.object_rocket {
     z-index: 95;
     position: absolute;
     transform: translateX(-50px);
@@ -163,24 +225,24 @@ li a:hover {
     animation: rocket-movement 200s linear infinite both running;
 }
 
-.object_earth{
+.object_earth {
     position: absolute;
     top: 20%;
     left: 15%;
     z-index: 90;
 }
 
-.object_moon{
+.object_moon {
     position: absolute;
     top: 12%;
     left: 25%;
 }
 
-.object_astronaut{
+.object_astronaut {
     animation: rotate-astronaut 200s infinite linear both alternate;
 }
 
-.box_astronaut{
+.box_astronaut {
     z-index: 110 !important;
     position: absolute;
     top: 60%;
@@ -189,20 +251,20 @@ li a:hover {
     animation: move-astronaut 50s infinite linear both alternate;
 }
 
-.image-404{
+.image-404 {
     position: relative;
     z-index: 100;
     pointer-events: none;
 }
 
-.stars{
+.stars {
     background: url(http://salehriaz.com/404Page/img/overlay_stars.svg);
     background-repeat: repeat;
     background-size: contain;
     background-position: left top;
 }
 
-.glowing_stars .star{
+.glowing_stars .star {
     position: absolute;
     border-radius: 100%;
     background-color: #fff;
@@ -212,50 +274,50 @@ li a:hover {
     will-change: opacity;
 }
 
-.glowing_stars .star:nth-child(1){
+.glowing_stars .star:nth-child(1) {
     top: 80%;
     left: 25%;
     animation: glow-star 2s infinite ease-in-out alternate 1s;
 }
-.glowing_stars .star:nth-child(2){
+.glowing_stars .star:nth-child(2) {
     top: 20%;
     left: 40%;
     animation: glow-star 2s infinite ease-in-out alternate 3s;
 }
-.glowing_stars .star:nth-child(3){
+.glowing_stars .star:nth-child(3) {
     top: 25%;
     left: 25%;
     animation: glow-star 2s infinite ease-in-out alternate 5s;
 }
-.glowing_stars .star:nth-child(4){
+.glowing_stars .star:nth-child(4) {
     top: 75%;
     left: 80%;
     animation: glow-star 2s infinite ease-in-out alternate 7s;
 }
-.glowing_stars .star:nth-child(5){
+.glowing_stars .star:nth-child(5) {
     top: 90%;
     left: 50%;
     animation: glow-star 2s infinite ease-in-out alternate 9s;
 }
 
-@media only screen and (max-width: 600px){
-    .navbar-links{
+@media only screen and (max-width: 600px) {
+    .navbar-links {
         display: none;
     }
-    
-    .custom-navbar{
+
+    .custom-navbar {
         text-align: center;
     }
-    
-    .brand-logo img{
+
+    .brand-logo img {
         width: 120px;
     }
-    
-    .box_astronaut{
+
+    .box_astronaut {
         top: 70%;
     }
-    
-    .central-body{
+
+    .central-body {
         padding-top: 25%;
     }
 }
@@ -266,13 +328,13 @@ li a:hover {
     <div class="bg-purple">
         <div class="stars">
             <div class="objects">
-                <img class="object_rocket" src="http://salehriaz.com/404Page/img/rocket.svg" width="40px">
+                <img class="object_rocket" src="http://salehriaz.com/404Page/img/rocket.svg" width="40px" />
                 <div class="earth-moon">
-                    <img class="object_earth" src="http://salehriaz.com/404Page/img/earth.svg" width="100px">
-                    <img class="object_moon" src="http://salehriaz.com/404Page/img/moon.svg" width="80px">
+                    <img class="object_earth" src="http://salehriaz.com/404Page/img/earth.svg" width="100px" />
+                    <img class="object_moon" src="http://salehriaz.com/404Page/img/moon.svg" width="80px" />
                 </div>
                 <div class="box_astronaut">
-                    <img class="object_astronaut" src="http://salehriaz.com/404Page/img/astronaut.svg" width="140px">
+                    <img class="object_astronaut" src="http://salehriaz.com/404Page/img/astronaut.svg" width="140px" />
                 </div>
             </div>
             <div class="glowing_stars">
@@ -283,18 +345,23 @@ li a:hover {
                 <div class="star"></div>
             </div>
 
-            <div class="transfer-content absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex-col rounded-md bg-white shadow-md p-6 w-1/2 mx-auto flex justify-center items-center">
-                <div class="transfer-link text-center flex flex-row gap-4 justify-center items-center w-full">
+            <div
+                class="transfer-content absolute left-1/2 top-1/2 mx-auto flex w-1/2 -translate-x-1/2 -translate-y-1/2 transform flex-col items-center justify-center rounded-md bg-white p-6 shadow-md"
+            >
+                <div class="transfer-link flex w-full flex-row items-center justify-center gap-4 text-center">
                     <div>
-                        <input type="text" class="border-2 border-gray-300 rounded-md p-3 w-full" placeholder="Enter transfer link here..." readonly />
+                        <input
+                            type="text"
+                            class="w-full rounded-md border-2 border-gray-300 p-3"
+                            placeholder="Enter transfer link here..."
+                            readonly
+                        />
                     </div>
                     <div>
-                        <button class="rounded-md bg-green-500 hover:bg-green-400 p-3 text-white">Copy Link</button>
+                        <button class="rounded-md bg-green-500 p-3 text-white hover:bg-green-400">Copy Link</button>
                     </div>
                 </div>
-                <div class="transfer-files text-center">
-                    asdasd
-                </div>
+                <div class="transfer-files text-center">asdasd</div>
             </div>
         </div>
     </div>
