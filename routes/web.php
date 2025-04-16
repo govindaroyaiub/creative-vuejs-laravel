@@ -22,22 +22,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::get('/file-transfers', function () {
-        $fileTransfers = FileTransfer::with('user:id,name') // Load related user with name only
-            ->latest()
-            ->get()
-            ->map(function ($fileTransfer) {
-                return [
-                    'id' => $fileTransfer->id,
-                    'name' => $fileTransfer->name,
-                    'client' => $fileTransfer->client,
-                    'user' => $fileTransfer->user ? $fileTransfer->user->name : 'Unknown',
-                    'created_at' => $fileTransfer->created_at->format('Y-m-d H:i'),
-                ];
-            });
-
+        $fileTransfers = FileTransfer::paginate(10);
         return Inertia::render('FileTransfers/FileTransfers', [
             'fileTransfers' => $fileTransfers,
-            'flash' => session('success'), // Pass flash message explicitly
         ]);
     })->name('file-transfers');
 
@@ -66,20 +53,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ]
         ]);
     })->name('file-transfers-edit');
+
     Route::post('/file-transfers-edit/{id}', [FileTransferController::class, 'updateTransferFiles'])->name('file-transfers-update');
 
-    Route::get('/file-transfers/{id}', [FileTransferController::class, 'destroyTransferFiles'])->name('file-transfers-delete');
+    Route::delete('/file-transfers-delete/{id}', [FileTransferController::class, 'destroyTransferFiles'])->name('file-transfers-delete');
 
     Route::get('/previews', function () {
         return Inertia::render('Preview');
     })->name('previews');
     
     Route::get('/banner-sizes', function () {
-        $bannerSizes = BannerSize::orderBy('width', 'ASC')->paginate(10);
+        $bannerSizes = BannerSize::orderBy('width', 'asc')->paginate(10);
 
         return Inertia::render('BannerSizes/Index', [
             'bannerSizes' => $bannerSizes,
-            'flash' => session('success'), // Pass flash message explicitly
         ]);
     })->name('banner-sizes-index');
 
@@ -90,6 +77,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('banner-sizes-create');
 
     Route::post('/banner-sizes-create-post', [BannerSizeController::class, 'create'])->name('banner-sizes-create-post');
+
+    Route::delete('/banner-sizes-delete/{id}', [BannerSizeController::class, 'destroy'])->name('banner-sizes-delete');
+
 });
 
 Route::get('/file-transfers-view/{id}', function ($id) {

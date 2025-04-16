@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
-import { Head, usePage } from '@inertiajs/vue3';
-import axios from 'axios';
-import { ArrowBigLeft, ArrowBigRight, CirclePlus, CircleX, Settings, Share2 } from 'lucide-vue-next';
+import { Head, router, usePage } from '@inertiajs/vue3';
+import { CirclePlus, Pencil, Share2, Trash2 } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref } from 'vue';
 
@@ -14,266 +12,138 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const { fileTransfers } = usePage().props;
+const page = usePage();
+const fileTransfers = computed(() => {
+    const transfers = page.props.fileTransfers ?? { data: [], links: [] };
+    console.log(transfers); // Log the raw structure of fileTransfers
+    return transfers;
+});
 
-const searchQuery = ref('');
-const currentPage = ref(1);
-const itemsPerPage = 10; // Items per page for pagination
+const search = ref('');
 
-// Filter the fileTransfers based on the search query
 const filteredTransfers = computed(() => {
-    return fileTransfers
-        .filter((fileTransfer) => {
-            return (
-                fileTransfer.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-                fileTransfer.client.toLowerCase().includes(searchQuery.value.toLowerCase())
-            );
-        })
-        .slice((currentPage.value - 1) * itemsPerPage, currentPage.value * itemsPerPage);
+    const query = search.value.toLowerCase();
+    return fileTransfers.value.data.filter(
+        (transfer) => transfer.name.toLowerCase().includes(query) || transfer.client.toLowerCase().includes(query),
+    );
 });
 
-const totalPages = computed(() => {
-    return Math.ceil(fileTransfers.length / itemsPerPage);
-});
-
-// Delete file transfer
-const deleteTransfer = async (id) => {
-    // Show SweetAlert2 confirmation modal
+const deleteFileTransfer = async (id: number) => {
     const result = await Swal.fire({
         title: 'Are you sure?',
-        text: 'You will not be able to revert this!',
+        text: 'This action cannot be undone!',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
         confirmButtonText: 'Yes, delete it!',
-        // SweetAlert2 will auto-detect and apply the system's theme (light/dark mode)
     });
 
-    // If confirmed, proceed with deletion
     if (result.isConfirmed) {
-        try {
-            // Get CSRF token from the meta tag
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-            // Send DELETE request using Axios with CSRF token
-            await axios.get(`/file-transfers/${id}`, {
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                },
-            });
-
-            // After the delete request, remove the item from the fileTransfers array
-            const index = fileTransfers.findIndex((item) => item.id === id);
-            if (index !== -1) {
-                fileTransfers.splice(index, 1);
-            }
-
-            // Success message after deletion
-            await Swal.fire('Deleted!', 'Your file transfer has been deleted.', 'success');
-        } catch (error) {
-            // Error handling in case deletion fails
-            console.log(error);
-            await Swal.fire('Error!', 'There was an issue deleting the file transfer.', 'error');
-        }
+        router.delete(route('file-transfers-delete', id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                Swal.fire('Deleted!', 'File transfer deleted successfully.', 'success');
+            },
+            onError: () => {
+                Swal.fire('Error!', 'Failed to delete file transfer.', 'error');
+            },
+        });
     }
 };
 
-// Pagination functions
-const nextPage = () => {
-    if (currentPage.value < totalPages.value) {
-        currentPage.value++;
-    }
-};
-
-const previousPage = () => {
-    if (currentPage.value > 1) {
-        currentPage.value--;
-    }
-};
-
-const copySuccess = ref(false);
-
-const getTransferLink = async (id) => {
+const getTransferLink = (id: number) => {
     const url = `${window.location.origin}/file-transfers-view/${id}`;
-
-    try {
-        await navigator.clipboard.writeText(url);
-        copySuccess.value = true;
-
-        // Hide message after 2 seconds
-        setTimeout(() => {
-            copySuccess.value = false;
-        }, 3000);
-    } catch (error) {
-        console.error('Failed to copy URL:', error);
-    }
+    navigator.clipboard.writeText(url);
+    Swal.fire('Link Copied!', 'The link has been copied to your clipboard.', 'success');
 };
 </script>
 
 <style scoped>
-/* Transition Effect */
+/* Fade transition for flash messages */
 .fade-enter-active,
 .fade-leave-active {
     transition: opacity 1s ease;
 }
-
-.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+.fade-enter,
+.fade-leave-to {
     opacity: 0;
 }
 </style>
 
 <template>
     <Head title="File Transfers" />
-
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6">
-            <transition name="fade">
-                <div v-if="flashMessage" class="mb-4 rounded-md bg-green-500 p-3 text-white">
-                    {{ flashMessage }}
-                </div>
-            </transition>
-
-            <div v-if="copySuccess" class="mb-4 rounded-md bg-green-500 p-3 text-white">URL Copied!</div>
-
-            <!-- Search and Add Button Row -->
             <div class="mb-4 flex items-center justify-between">
-                <!-- Search Bar -->
-                <input
-                    v-model="searchQuery"
-                    type="text"
-                    placeholder="Search..."
-                    class="w-full max-w-xs rounded-md border px-4 py-2 dark:bg-gray-700 dark:text-white"
-                />
-
-                <!-- Add Button -->
-                <a
-                    :href="route('file-transfers-add')"
-                    class="ml-4 rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600"
-                >
-                    <CirclePlus class="inline-block h-6 w-6" />
+                <input v-model="search" placeholder="Search..." class="w-full max-w-xs rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" />
+                <a :href="route('file-transfers-add')" class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
+                    <CirclePlus class="mr-1 inline h-5 w-5" />
+                    Add
                 </a>
             </div>
 
-            <!-- Table -->
-            <div class="overflow-x-auto rounded-lg bg-white shadow-md dark:bg-gray-900">
-                <table class="w-full border-collapse">
-                    <!-- Table Header -->
-                    <thead class="bg-gray-100 dark:bg-gray-800">
-                        <tr class="uppercase text-gray-700 dark:text-gray-300 text-sm">
-                            <th class="px-6 py-3 text-left">#</th>
-                            <th class="px-6 py-3 text-left">Name</th>
-                            <th class="px-6 py-3 text-left">Client</th>
-                            <th class="px-6 py-3 text-center">Uploader</th>
-                            <th class="px-6 py-3 text-center">Actions</th>
-                        </tr>
-                    </thead>
+            <table class="w-full rounded bg-white shadow dark:bg-gray-800">
+                <thead class="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                    <tr class="text-center text-sm uppercase">
+                        <th class="px-4 py-2">#</th>
+                        <th class="px-4 py-2">Name</th>
+                        <th class="px-4 py-2">Client</th>
+                        <th class="px-4 py-2">Uploader</th>
+                        <th class="px-4 py-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        v-for="(transfer, index) in filteredTransfers"
+                        :key="transfer.id"
+                        class="border-t text-center text-sm dark:border-gray-700"
+                    >
+                        <td class="px-4 py-2">{{ index + 1 }}</td>
+                        <td class="px-4 py-2">
+                            <a :href="`/file-transfers-view/${transfer.id}`" target="_blank" class="text-blue-600 hover:text-blue-800">
+                                {{ transfer.name }}
+                            </a>
+                        </td>
+                        <td class="px-4 py-2">{{ transfer.client }}</td>
+                        <td class="px-4 py-2">{{ transfer.user }}</td>
+                        <td class="px-4 py-2">
+                            <button @click="getTransferLink(transfer.id)" class="text-green-600 hover:text-green-800">
+                                <Share2 class="inline h-6 w-6" />
+                            </button>
+                            <button class="text-blue-600 hover:text-blue-800">
+                                <Pencil class="inline h-6 w-6" />
+                            </button>
+                            <button @click="deleteFileTransfer(transfer.id)" class="text-red-600 hover:text-red-800">
+                                <Trash2 class="inline h-6 w-6" />
+                            </button>
+                        </td>
+                    </tr>
+                    <tr v-if="filteredTransfers.length === 0">
+                        <td colspan="5" class="px-4 py-4 text-center text-gray-500">No file transfers found.</td>
+                    </tr>
+                </tbody>
+            </table>
 
-                    <!-- Table Body -->
-                    <tbody v-if="filteredTransfers.length === 0">
-                        <tr>
-                            <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">No data available.</td>
-                        </tr>
-                    </tbody>
-                    <tbody v-else>
-                        <tr
-                            v-for="(fileTransfer, index) in filteredTransfers"
-                            :key="fileTransfer.id"
-                            class="border-t border-gray-200 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
-                        >
-                            <td class="px-6 py-4 text-gray-900 dark:text-gray-100">{{ index + 1 }}</td>
-                            <td class="px-6 py-4 text-gray-900 dark:text-gray-100">
-                                <a :href="`/file-transfers-view/${fileTransfer.id}`" target="_blank" class="text-blue-500 hover:text-blue-700">
-                                    {{ fileTransfer.name }}
-                                </a>
-                            </td>
-                            <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ fileTransfer.client }}</td>
-                            <td class="px-6 py-4 text-center text-gray-700 dark:text-gray-300">
-                                {{ fileTransfer.user }}
-                                <hr />
-                                <span class="text-sm text-gray-500">{{ fileTransfer.created_at }}</span>
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                <button class="mr-1 text-green-500 transition hover:text-green-700" @click="getTransferLink(fileTransfer.id)">
-                                    <Share2 class="inline-block h-8 w-8" />
-                                </button>
-                                <a class="mr-1 text-blue-500 transition hover:text-blue-700" :href="`/file-transfers-edit/${fileTransfer.id}`">
-                                    <Settings class="inline-block h-8 w-8" />
-                                </a>
-                                <button class="text-red-500 transition hover:text-red-700" @click="deleteTransfer(fileTransfer.id)">
-                                    <CircleX class="inline-block h-8 w-8" />
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination Controls -->
-            <div class="mt-4 flex items-center justify-between">
-                <button
-                    :disabled="currentPage === 1"
-                    @click="previousPage"
-                    class="rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
-                >
-                    <ArrowBigLeft class="inline-block h-6 w-6" />
-                </button>
-
-                <div class="flex items-center space-x-2">
-                    <span>Page {{ currentPage }} of {{ totalPages }}</span>
-                </div>
-
-                <button
-                    :disabled="currentPage === totalPages"
-                    @click="nextPage"
-                    class="rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
-                >
-                    <ArrowBigRight class="inline-block h-6 w-6" />
-                </button>
+            <!-- Pagination -->
+            <div
+                class="mt-6 flex justify-center space-x-2"
+                v-if="fileTransfers.value && fileTransfers.value.links && fileTransfers.value.links.length > 0"
+            >
+                <template v-for="link in fileTransfers.value.links" :key="link.label">
+                    <component
+                        :is="link.url ? 'a' : 'span'"
+                        v-html="link.label"
+                        :href="link.url"
+                        class="rounded border px-4 py-2 text-sm"
+                        :class="{
+                            'bg-indigo-600 text-white': link.active,
+                            'cursor-not-allowed text-gray-400': !link.url,
+                            'hover:bg-gray-200 dark:hover:bg-gray-700': link.url && !link.active,
+                        }"
+                    />
+                </template>
             </div>
         </div>
     </AppLayout>
 </template>
-<script lang="ts">
-export default {
-    data() {
-        return {
-            searchQuery: '', // To hold the search query
-            currentPage: 1, // Current page number
-            perPage: 10, // Number of items per page
-            fileTransfers: [], // All the file transfer data (should come from props or API)
-        };
-    },
-    computed: {
-        filteredTransfers() {
-            return this.fileTransfers.filter((fileTransfer) => {
-                const lowerQuery = this.searchQuery.toLowerCase();
-                return fileTransfer.name.toLowerCase().includes(lowerQuery) || fileTransfer.client.toLowerCase().includes(lowerQuery);
-            });
-        },
-        paginatedTransfers() {
-            const start = (this.currentPage - 1) * this.perPage;
-            const end = start + this.perPage;
-            return this.filteredTransfers.slice(start, end);
-        },
-        totalPages() {
-            return Math.ceil(this.filteredTransfers.length / this.perPage);
-        },
-    },
-    methods: {
-        previousPage() {
-            if (this.currentPage > 1) {
-                this.currentPage -= 1;
-            }
-        },
-        nextPage() {
-            if (this.currentPage < this.totalPages) {
-                this.currentPage += 1;
-            }
-        },
-    },
-};
-
-const page = usePage();
-const flashMessage = computed(() => page.props.flash || '');
-</script>

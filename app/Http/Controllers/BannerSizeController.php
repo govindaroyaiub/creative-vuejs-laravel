@@ -30,4 +30,9 @@ class BannerSizeController extends Controller
     
         return redirect()->route('banner-sizes-index')->with('success', 'Banner size added successfully!');
     }
+
+    public function destroy($id){
+        BannerSize::findOrFail($id)->delete();
+        return redirect()->route('banner-sizes-index');
+    }
 }
