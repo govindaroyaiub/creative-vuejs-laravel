@@ -63,7 +63,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('previews');
     
     Route::get('/banner-sizes', function () {
-        $bannerSizes = BannerSize::orderBy('width', 'asc')->paginate(10);
+        $bannerSizes = BannerSize::orderBy('width', 'asc')->orderBy('height', 'ASC')->paginate(10);
 
         return Inertia::render('BannerSizes/Index', [
             'bannerSizes' => $bannerSizes,

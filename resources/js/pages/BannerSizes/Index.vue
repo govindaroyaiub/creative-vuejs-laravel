@@ -84,7 +84,7 @@ const deleteBannerSize = async (id: number) => {
                         <td class="px-4 py-2">{{ index + 1 }}</td>
                         <td class="px-4 py-2">{{ size.width }}</td>
                         <td class="px-4 py-2">{{ size.height }}</td>
-                        <td class="px-4 py-2">
+                        <td class="px-4 py-2 space-x-2">
                             <button class="text-blue-600 hover:text-blue-800">
                                 <Pencil class="inline h-6 w-6" />
                             </button>
