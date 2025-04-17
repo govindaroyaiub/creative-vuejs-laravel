@@ -59,7 +59,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/file-transfers-delete/{id}', [FileTransferController::class, 'destroyTransferFiles'])->name('file-transfers-delete');
 
     Route::get('/previews', function () {
-        return Inertia::render('Preview');
+        return Inertia::render('Previews/Index');
     })->name('previews');
     
     Route::get('/banner-sizes', function () {
