@@ -2,7 +2,6 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
-// import PlaceholderPattern from '../components/PlaceholderPattern.vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -14,7 +13,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 <template>
     <Head title="Add File Transfers" />
-
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
             <form @submit.prevent="handleSubmit" class="mx-auto w-full max-w-2xl space-y-6">

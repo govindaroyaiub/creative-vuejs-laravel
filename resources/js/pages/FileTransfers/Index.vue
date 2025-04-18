@@ -4,6 +4,7 @@ import { Head, router, usePage } from '@inertiajs/vue3';
 import { CirclePlus, Pencil, Share2, Trash2 } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref } from 'vue';
+import { type BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {

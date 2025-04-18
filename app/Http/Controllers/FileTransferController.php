@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,63 @@ class FileTransferController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function storeTransferFiles(Request $request)
+
+    public function view($id)
+    {
+        $fileTransfer = FileTransfer::with('user:id,name')->findOrFail($id);
+
+        // Remove 'Transfer Files' from each file path, then split by commas
+        $filePaths = array_map(function ($file) {
+            return str_replace('Transfer Files/', '', $file);
+        }, explode(',', $fileTransfer->file_path)); // Split the file paths into an array
+
+        return Inertia::render('FileTransfers/View', [
+            'fileTransfer' => [
+                'id' => $fileTransfer->id,
+                'name' => $fileTransfer->name,
+                'client' => $fileTransfer->client,
+                'user' => $fileTransfer->user ? $fileTransfer->user->name : 'Unknown',
+                'created_at' => $fileTransfer->created_at->format('Y-m-d H:i'),
+                'file_paths' => $filePaths, // Send as an array
+            ]
+        ]);
+    }
+    
+    public function index()
+    {
+        $fileTransfers = FileTransfer::paginate(10);
+        return Inertia::render('FileTransfers/Index', [
+            'fileTransfers' => $fileTransfers,
+        ]);
+    }
+
+    public function create()
+    {
+        return Inertia::render('FileTransfers/Create');
+    }
+
+    public function edit($id)
+    {
+        $fileTransfer = FileTransfer::with('user:id,name')->findOrFail($id);
+
+        // Remove 'Transfer Files' from each file path, then split by commas
+        $filePaths = array_map(function ($file) {
+            return str_replace('Transfer Files/', '', $file);
+        }, explode(',', $fileTransfer->file_path)); // Split the file paths into an array
+
+        return Inertia::render('FileTransfers/Edit', [
+            'fileTransfer' => [
+                'id' => $fileTransfer->id,
+                'name' => $fileTransfer->name,
+                'client' => $fileTransfer->client,
+                'user' => $fileTransfer->user ? $fileTransfer->user->name : 'Unknown',
+                'created_at' => $fileTransfer->created_at->format('Y-m-d H:i'),
+                'file_paths' => $filePaths, // Send as an array
+            ]
+        ]);
+    }
+
+    public function store(Request $request)
     {
         // Validate the request
         $request->validate([
@@ -35,18 +92,18 @@ class FileTransferController extends Controller
             foreach ($request->file('file') as $file) {
                 $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                 $extension = $file->getClientOriginalExtension();
-        
+
                 // Generate a unique name using timestamp & random string
-                $uniqueId = uniqid(); 
+                $uniqueId = uniqid();
                 $newFileName = $originalName . '_' . $uniqueId . '.' . $extension;
-        
+
                 $destinationPath = public_path('Transfer Files');
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0777, true);
                 }
-        
+
                 $file->move($destinationPath, $newFileName);
-        
+
                 $filePaths[] = 'Transfer Files/' . $newFileName;
             }
         }
@@ -60,10 +117,10 @@ class FileTransferController extends Controller
         $fileTransfer->save();
 
         // Return response (could be a redirect or success message)
-        return Redirect::route('file-transfers')->with('success', $fileTransfer->name.' ('.$fileTransfer->client.')'.' uploaded successfully!');
+        return Redirect::route('file-transfers')->with('success', $fileTransfer->name . ' (' . $fileTransfer->client . ')' . ' uploaded successfully!');
     }
 
-    public function updateTransferFiles(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -110,7 +167,7 @@ class FileTransferController extends Controller
         ]);
     }
 
-    public function destroyTransferFiles($id)
+    public function destroy($id)
     {
         $fileTransfer = FileTransfer::findOrFail($id);
 
@@ -129,20 +186,11 @@ class FileTransferController extends Controller
                     // Check if the file exists and delete it
                     if (file_exists($fullPath)) {
                         unlink($fullPath); // Delete the file
-                    } else {
-                        // Optionally log if the file does not exist
-                        \Log::warning('File not found for deletion: ' . $fullPath);
                     }
                 }
             }
-        } else {
-            // Handle the case when file_path is null or empty
-            // You can throw an exception, log a message, or return an error response
-            // Example: 
-            \Log::error('File path is missing for file transfer ID ' . $id);
+            // After deleting the files, delete the database record
+            $fileTransfer->delete();
         }
-
-        // After deleting the files, delete the database record
-        $fileTransfer->delete();
     }
 }
