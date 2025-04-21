@@ -65,7 +65,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     //Bills Routes End
 });
 
-Route::get('/file-transfers-view/{id}', [FileTransferController::class, 'view'])->name('file-transfers-view');
+Route::get('/file-transfers-view/{id}', [FileTransferController::class, 'show'])->name('file-transfers-view');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

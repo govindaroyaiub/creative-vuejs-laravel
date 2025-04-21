@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-defineProps<{
+import dayjs from 'dayjs'; // If you haven't already, install it via npm
+import { computed } from 'vue';
+
+const props = defineProps<{
     fileTransfer: {
         id: number;
         name: string;
@@ -10,6 +13,10 @@ defineProps<{
         file_paths: string[];
     };
 }>();
+
+const expiryDate = computed(() => {
+    return dayjs(props.fileTransfer.created_at).add(30, 'day').format('MMMM D, YYYY');
+});
 </script>
 
 <style scoped>
@@ -359,6 +366,7 @@ li a:hover {
                 <div class="z-50 w-full max-w-2xl rounded-xl bg-white/5 p-8 shadow-xl backdrop-blur-md" style="z-index: 999">
                     <h1 class="mb-4 text-xl font-semibold">Files shared by Planet Nine</h1>
                     <p class="mb-6 text-sm text-gray-400">Created at: {{ fileTransfer.created_at }}</p>
+                    <p class="mb-6 text-sm text-red-400">⚠️ This transfer link will expire on {{ expiryDate }}.</p>
 
                     <div class="space-y-4">
                         <div

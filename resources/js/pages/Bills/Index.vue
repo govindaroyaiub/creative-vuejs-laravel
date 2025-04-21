@@ -95,7 +95,7 @@ const goToEdit = (id: number) => {
                         </td>
                     </tr>
                     <tr v-if="filteredBills.length === 0">
-                        <td colspan="5" class="px-4 py-4 text-center text-gray-500">No bills found.</td>
+                        <td colspan="6" class="px-4 py-4 text-center text-gray-500">No bills found.</td>
                     </tr>
                 </tbody>
             </table>

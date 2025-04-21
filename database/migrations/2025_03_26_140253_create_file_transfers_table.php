@@ -17,6 +17,7 @@ class CreateFileTransfersTable extends Migration
             $table->integer('user_id');
             $table->text('file_path');
             $table->timestamps();
+            $table->timestamp('expires_at')->nullable();
         });
     }
 

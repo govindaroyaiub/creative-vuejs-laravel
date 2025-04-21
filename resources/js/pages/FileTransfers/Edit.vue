@@ -3,8 +3,8 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
+import { X, Download } from 'lucide-vue-next';
 import { onMounted, ref } from 'vue';
-
 // Breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -82,6 +82,10 @@ const handleSubmit = async () => {
         successMessage.value = 'Failed to update file transfer. Please try again.';
     }
 };
+
+const dismissMessage = () => {
+    successMessage.value = '';
+};
 </script>
 
 <template>
@@ -90,8 +94,11 @@ const handleSubmit = async () => {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
             <form @submit.prevent="handleSubmit" class="mx-auto w-full max-w-2xl space-y-6" enctype="multipart/form-data">
-                <div v-if="successMessage" class="mb-4 rounded-md bg-green-500 p-3 text-white">
+                <div v-if="successMessage" class="relative mb-4 rounded-md bg-green-500 p-3 pr-10 text-white">
                     {{ successMessage }}
+                    <button @click="dismissMessage" type="button" class="absolute right-2 top-2 text-white hover:text-gray-200 focus:outline-none">
+                        <X class="inline h-5 w-5" />
+                    </button>
                 </div>
                 <input type="hidden" name="_token" value="{{ csrf_token() }}" />
                 <input type="hidden" name="_method" value="PUT" />
@@ -121,13 +128,24 @@ const handleSubmit = async () => {
                     />
                 </div>
 
-                <div v-if="fileTransfer.file_paths.length > 0" class="rounded-md border bg-gray-50 p-4 shadow dark:bg-gray-800">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200">Existing Files</label>
-                    <div>
-                        <div v-for="(file, index) in fileTransfer.file_paths" :key="index" class="text-sm text-gray-600 dark:text-gray-300">
-                            {{ file }}
-                        </div>
-                    </div>
+                <div v-if="fileTransfer.file_paths.length > 0" class="rounded-md border bg-transparent p-4 shadow-none dark:bg-transparent">
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200"> Existing Files </label>
+                    <ul class="space-y-1">
+                        <li
+                            v-for="(file, index) in fileTransfer.file_paths"
+                            :key="index"
+                            class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-300"
+                        >
+                            <span class="truncate">{{ file }}</span>
+                            <a
+                                :href="`/Transfer Files/${file}`"
+                                download
+                                class="ml-4 text-xs text-indigo-600 underline hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
+                            >
+                                <Download class="inline h-5 w-5" />
+                            </a>
+                        </li>
+                    </ul>
                 </div>
 
                 <!-- File Upload Field -->
@@ -145,8 +163,9 @@ const handleSubmit = async () => {
 
                     <!-- Individual file sizes -->
                     <div v-if="form.files.length > 0" class="mt-4 space-y-2">
-                        <div v-for="(file, index) in form.files" :key="index" class="text-sm text-gray-600 dark:text-gray-300">
-                            {{ file.name }} - {{ (file.size / (1024 * 1024)).toFixed(2) }} MB
+                        <div v-for="(file, index) in form.files" :key="index" class="flex justify-between text-sm text-gray-700 dark:text-gray-300">
+                            <span>{{ file.name }}</span>
+                            <span>{{ (file.size / (1024 * 1024)).toFixed(2) }} MB</span>
                         </div>
                     </div>
 

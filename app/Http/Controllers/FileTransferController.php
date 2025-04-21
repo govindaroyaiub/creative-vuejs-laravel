@@ -19,7 +19,7 @@ class FileTransferController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function view($id)
+    public function show($id)
     {
         $fileTransfer = FileTransfer::with('user:id,name')->findOrFail($id);
 
@@ -114,6 +114,7 @@ class FileTransferController extends Controller
         $fileTransfer->client = $request->input('client');
         $fileTransfer->user_id = Auth::id(); // Assuming the user ID is stored in the 'id' column
         $fileTransfer->file_path = implode(',', $filePaths); // Store paths as a comma-separated string
+        $fileTransfer->expires_at = now()->addDays(30); // Set expiration date to 7 days from now
         $fileTransfer->save();
 
         // Return response (could be a redirect or success message)

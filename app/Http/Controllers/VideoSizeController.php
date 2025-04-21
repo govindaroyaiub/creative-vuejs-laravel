@@ -13,7 +13,7 @@ class VideoSizeController extends Controller
      */
     public function index()
     {
-        $videoSizes = VideoSize::paginate(10);
+        $videoSizes = VideoSize::orderBy('name', 'ASC')->paginate(10);
         return Inertia::render('VideoSizes/Index', [
             'videoSizes' => $videoSizes,
         ]);
@@ -62,8 +62,13 @@ class VideoSizeController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(VideoSize $videoSize)
+    public function destroy($id)
     {
-        //
+        $videoSize = VideoSize::find($id);
+
+        if (! $videoSize) {
+            return response()->json(['message' => 'Video size not found.'], 404);
+        }
+        $videoSize->delete();
     }
 }
