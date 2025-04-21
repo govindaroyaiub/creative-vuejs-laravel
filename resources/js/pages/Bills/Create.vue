@@ -40,7 +40,7 @@ const handleSubmit = () => {
 
 <template>
     <Head title="Create Bill" />
-    <AppLayout :breadcrumbs="[{ title: 'Bills Create', href: '/bills-create' }]">
+    <AppLayout :breadcrumbs="[{ title: 'Add Bills', href: '/bills-create' }]">
         <div class="p-6 max-w-4xl mx-auto">
             <form @submit.prevent="handleSubmit" class="space-y-6">
                 <div>
