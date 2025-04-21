@@ -88,9 +88,9 @@ const getTransferLink = (id: number) => {
                             <button @click="getTransferLink(transfer.id)" class="text-green-600 hover:text-green-800">
                                 <Share2 class="inline h-6 w-6" />
                             </button>
-                            <button class="text-blue-600 hover:text-blue-800">
+                            <a :href="route('file-transfers-edit', transfer.id)" class="text-blue-600 hover:text-blue-800">
                                 <Pencil class="inline h-5 w-5" />
-                            </button>
+                            </a>
                             <button @click="deleteFileTransfer(transfer.id)" class="text-red-600 hover:text-red-800">
                                 <Trash2 class="inline h-5 w-5" />
                             </button>

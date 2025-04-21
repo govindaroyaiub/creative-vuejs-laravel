@@ -23,7 +23,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     //File Transfer Routes Start
-    Route::get('/file-transfers', [FileTransferController::class, 'index'])->name('file-transfers-index');
+    Route::get('/file-transfers', [FileTransferController::class, 'index'])->name('file-transfers');
     Route::get('/file-transfers-add', [FileTransferController::class, 'create'])->name('file-transfers-add');
     Route::post('/file-transfers-add', [FileTransferController::class, 'store'])->name('file-transfers-add-post');
     Route::get('/file-transfers-edit/{id}', [FileTransferController::class, 'edit'])->name('file-transfers-edit');
