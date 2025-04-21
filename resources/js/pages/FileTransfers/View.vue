@@ -1,21 +1,44 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import dayjs from 'dayjs'; // If you haven't already, install it via npm
-import { computed } from 'vue';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+import { onMounted, onUnmounted, ref } from 'vue';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
+dayjs.extend(duration);
 
 const props = defineProps<{
     fileTransfer: {
-        id: number;
-        name: string;
-        client: string;
-        user: string;
         created_at: string;
-        file_paths: string[];
     };
 }>();
 
-const expiryDate = computed(() => {
-    return dayjs(props.fileTransfer.created_at).add(30, 'day').format('MMMM D, YYYY');
+const countdown = ref('');
+const expiry = dayjs.utc(props.fileTransfer.created_at).add(30, 'day');
+
+const updateCountdown = () => {
+    const now = dayjs();
+    const remainingMs = expiry.diff(now);
+
+    if (remainingMs <= 0) {
+        countdown.value = 'Expired';
+        return;
+    }
+
+    const d = dayjs.duration(remainingMs);
+    countdown.value = `${d.days()}d ${d.hours()}h ${d.minutes()}m ${d.seconds()}s`;
+};
+
+let interval: number;
+
+onMounted(() => {
+    updateCountdown();
+    interval = setInterval(updateCountdown, 1000);
+});
+
+onUnmounted(() => {
+    clearInterval(interval);
 });
 </script>
 
@@ -365,9 +388,8 @@ li a:hover {
             <div class="z-50 flex min-h-screen items-center justify-center bg-[#1a1a2e] px-4 text-white">
                 <div class="z-50 w-full max-w-2xl rounded-xl bg-white/5 p-8 shadow-xl backdrop-blur-md" style="z-index: 999">
                     <h1 class="mb-4 text-xl font-semibold">Files shared by Planet Nine</h1>
-                    <p class="mb-6 text-sm text-gray-400">Created at: {{ fileTransfer.created_at }}</p>
-                    <p class="mb-6 text-sm text-red-400">⚠️ This transfer link will expire on {{ expiryDate }}.</p>
-
+                    <p class="mb-6 text-sm text-yellow-400" v-if="countdown !== 'Expired'">⏳ The transfer link will expire after: {{ countdown }}</p>
+                    <p class="mb-6 text-sm font-bold text-red-600" v-else>❌ This transfer has expired.</p>
                     <div class="space-y-4">
                         <div
                             v-for="(file, index) in fileTransfer.file_paths"
