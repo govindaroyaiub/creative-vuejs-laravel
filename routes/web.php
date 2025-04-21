@@ -5,7 +5,9 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\FileTransferController;
 use App\Http\Controllers\BannerSizeController;
+use App\Http\Controllers\VideoSizeController;
 use App\Http\Controllers\PreviewController;
+use App\Http\Controllers\BillController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -37,8 +39,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/banner-sizes', [BannerSizeController::class, 'index'])->name('banner-sizes-index');
     Route::get('/banner-sizes-create', [BannerSizeController::class, 'create'])->name('banner-sizes-create');
     Route::post('/banner-sizes-create-post', [BannerSizeController::class, 'store'])->name('banner-sizes-create-post');
+    Route::get('/banner-sizes-edit/{id}', [BannerSizeController::class, 'edit'])->name('banner-sizes-edit');
+    Route::put('/banner-sizes-edit/{id}', [BannerSizeController::class, 'update'])->name('banner-sizes-update');
     Route::delete('/banner-sizes-delete/{id}', [BannerSizeController::class, 'destroy'])->name('banner-sizes-delete');
     //Banner Sizes Routes End
+
+    //Video Sizes Routes Start
+    Route::get('/video-sizes', [VideoSizeController::class, 'index'])->name('video-sizes-index');
+    Route::get('/video-sizes-create', [VideoSizeController::class, 'create'])->name('video-sizes-create');
+    Route::post('/video-sizes-create-post', [VideoSizeController::class, 'store'])->name('video-sizes-create-post');
+    Route::get('/video-sizes-edit/{id}', [VideoSizeController::class, 'edit'])->name('video-sizes-edit');
+    Route::put('/video-sizes-edit/{id}', [VideoSizeController::class, 'update'])->name('video-sizes-update');
+    Route::delete('/video-sizes-delete/{id}', [VideoSizeController::class, 'destroy'])->name('video-sizes-delete');
+    //Video Sizes Routes End
+
+    //Bills Routes Start
+    Route::get('/bills', [BillController::class, 'index'])->name('bills');
+    Route::get('/bills/{id}', [BillController::class, 'show'])->name('bills-show');
+    Route::get('/bills-create', [BillController::class, 'create'])->name('bills-create');
+    Route::post('/bills-create-post', [BillController::class, 'store'])->name('bills-create-post');
+    Route::get('/bills-edit/{id}', [BillController::class, 'edit'])->name('bills-edit');
+    Route::put('/bills-edit/{id}', [BillController::class, 'update'])->name('bills-update');
+    Route::delete('/bills-delete/{id}', [BillController::class, 'destroy'])->name('bills-delete');
+    //Bills Routes End
 });
 
 Route::get('/file-transfers-view/{id}', [FileTransferController::class, 'view'])->name('file-transfers-view');

@@ -1,31 +1,23 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { CirclePlus, Pencil, Share2, Trash2 } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref } from 'vue';
-import { type BreadcrumbItem } from '@/types';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'File Transfers',
-        href: '/file-transfers',
-    },
-];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'File Transfers', href: '/file-transfers' }];
 
 const page = usePage();
-const fileTransfers = computed(() => {
-    const transfers = page.props.fileTransfers ?? { data: [], links: [] };
-    console.log(transfers); // Log the raw structure of fileTransfers
-    return transfers;
-});
-
 const search = ref('');
+
+// Ensure fallback if fileTransfers isn't set yet
+const fileTransfers = computed(() => page.props.fileTransfers ?? { data: [], links: [] });
 
 const filteredTransfers = computed(() => {
     const query = search.value.toLowerCase();
     return fileTransfers.value.data.filter(
-        (transfer) => transfer.name.toLowerCase().includes(query) || transfer.client.toLowerCase().includes(query),
+        (transfer: any) => transfer.name.toLowerCase().includes(query) || transfer.client.toLowerCase().includes(query),
     );
 });
 
@@ -60,18 +52,6 @@ const getTransferLink = (id: number) => {
 };
 </script>
 
-<style scoped>
-/* Fade transition for flash messages */
-.fade-enter-active,
-.fade-leave-active {
-    transition: opacity 1s ease;
-}
-.fade-enter,
-.fade-leave-to {
-    opacity: 0;
-}
-</style>
-
 <template>
     <Head title="File Transfers" />
     <AppLayout :breadcrumbs="breadcrumbs">
@@ -95,11 +75,7 @@ const getTransferLink = (id: number) => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr
-                        v-for="(transfer, index) in filteredTransfers"
-                        :key="transfer.id"
-                        class="border-t text-center text-sm dark:border-gray-700"
-                    >
+                    <tr v-for="(transfer, index) in filteredTransfers" :key="transfer.id" class="border-t text-center text-sm dark:border-gray-700">
                         <td class="px-4 py-2">{{ index + 1 }}</td>
                         <td class="px-4 py-2">
                             <a :href="`/file-transfers-view/${transfer.id}`" target="_blank" class="text-blue-600 hover:text-blue-800">
@@ -108,15 +84,15 @@ const getTransferLink = (id: number) => {
                         </td>
                         <td class="px-4 py-2">{{ transfer.client }}</td>
                         <td class="px-4 py-2">{{ transfer.user }}</td>
-                        <td class="px-4 py-2 space-x-2">
+                        <td class="space-x-2 px-4 py-2">
                             <button @click="getTransferLink(transfer.id)" class="text-green-600 hover:text-green-800">
                                 <Share2 class="inline h-6 w-6" />
                             </button>
                             <button class="text-blue-600 hover:text-blue-800">
-                                <Pencil class="inline h-6 w-6" />
+                                <Pencil class="inline h-5 w-5" />
                             </button>
                             <button @click="deleteFileTransfer(transfer.id)" class="text-red-600 hover:text-red-800">
-                                <Trash2 class="inline h-6 w-6" />
+                                <Trash2 class="inline h-5 w-5" />
                             </button>
                         </td>
                     </tr>
@@ -126,11 +102,7 @@ const getTransferLink = (id: number) => {
                 </tbody>
             </table>
 
-            <!-- Pagination -->
-            <div
-                class="mt-6 flex justify-center space-x-2"
-                v-if="fileTransfers.value && fileTransfers.value.links && fileTransfers.value.links.length > 0"
-            >
+            <div v-if="fileTransfers.value?.links?.length" class="mt-6 flex justify-center space-x-2">
                 <template v-for="link in fileTransfers.value.links" :key="link.label">
                     <component
                         :is="link.url ? 'a' : 'span'"

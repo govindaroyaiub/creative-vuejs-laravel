@@ -29,6 +29,7 @@ class BannerSizeController extends Controller
         $bannerSize = BannerSize::findOrFail($id);
         return Inertia::render('BannerSizes/Edit', [
             'bannerSize' => $bannerSize,
+            'flash' => session('success'),
         ]);
     }
 
@@ -53,6 +54,20 @@ class BannerSizeController extends Controller
         ]);
 
         return redirect()->route('banner-sizes-index')->with('success', 'Banner size added successfully!');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'width' => 'required|numeric',
+            'height' => 'required|numeric',
+        ]);
+
+        $bannerSize = BannerSize::findOrFail($id);
+        $bannerSize->update($validated);
+
+        return redirect()->route('banner-sizes-edit', $id)
+            ->with('success', 'Banner size updated successfully.');
     }
 
     public function destroy($id)

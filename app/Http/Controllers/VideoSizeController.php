@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\VideoSize;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class VideoSizeController extends Controller
 {
@@ -12,7 +13,10 @@ class VideoSizeController extends Controller
      */
     public function index()
     {
-        //
+        $videoSizes = VideoSize::paginate(10);
+        return Inertia::render('VideoSizes/Index', [
+            'videoSizes' => $videoSizes,
+        ]);
     }
 
     /**

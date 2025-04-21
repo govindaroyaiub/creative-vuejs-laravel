@@ -39,10 +39,10 @@ class FileTransferController extends Controller
             ]
         ]);
     }
-    
+
     public function index()
     {
-        $fileTransfers = FileTransfer::paginate(10);
+        $fileTransfers = FileTransfer::latest()->paginate(10);
         return Inertia::render('FileTransfers/Index', [
             'fileTransfers' => $fileTransfers,
         ]);

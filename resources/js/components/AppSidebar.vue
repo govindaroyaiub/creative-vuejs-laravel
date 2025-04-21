@@ -5,7 +5,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Paperclip, Clapperboard, MonitorCog, MonitorStop, ReceiptText, Users } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, Paperclip, Clapperboard, MonitorCog, MonitorStop, ReceiptText, Users, Image } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 // const { url } = usePage();
@@ -30,6 +30,11 @@ const mainNavItems: NavItem[] = [
         title: 'Video Sizes',
         href: '/video-sizes',
         icon: Clapperboard,
+    },
+    {
+        title: 'Social Image Formats',
+        href: '/social-image-formats',
+        icon: Image
     },
     {
         title: 'File Transfers',

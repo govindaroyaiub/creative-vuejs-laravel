@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { CirclePlus, Trash2, Pencil } from 'lucide-vue-next';
+import { CirclePlus, Pencil, Trash2 } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref } from 'vue';
 
@@ -44,6 +44,10 @@ const deleteBannerSize = async (id: number) => {
         });
     }
 };
+
+const goToEdit = (id: number) => {
+    router.visit(route('banner-sizes-edit', id));
+};
 </script>
 
 <style scoped>
@@ -84,12 +88,12 @@ const deleteBannerSize = async (id: number) => {
                         <td class="px-4 py-2">{{ index + 1 }}</td>
                         <td class="px-4 py-2">{{ size.width }}</td>
                         <td class="px-4 py-2">{{ size.height }}</td>
-                        <td class="px-4 py-2 space-x-2">
-                            <button class="text-blue-600 hover:text-blue-800">
-                                <Pencil class="inline h-6 w-6" />
+                        <td class="space-x-2 px-4 py-2">
+                            <button @click="goToEdit(size.id)" class="text-blue-600 hover:text-blue-800">
+                                <Pencil class="inline h-5 w-5" />
                             </button>
                             <button @click="deleteBannerSize(size.id)" class="text-red-600 hover:text-red-800">
-                                <Trash2 class="inline h-6 w-6" />
+                                <Trash2 class="inline h-5 w-5" />
                             </button>
                         </td>
                     </tr>
@@ -100,7 +104,7 @@ const deleteBannerSize = async (id: number) => {
             </table>
 
             <!-- Pagination -->
-            <div class="mt-6 flex justify-center space-x-2">
+            <div class="mt-6 flex justify-center space-x-2" v-if="bannerSizes.data.length > 0 && bannerSizes.links.length">
                 <template v-for="link in bannerSizes.links" :key="link.label">
                     <component
                         :is="link.url ? 'a' : 'span'"
