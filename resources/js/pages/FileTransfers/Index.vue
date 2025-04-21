@@ -83,7 +83,7 @@ const getTransferLink = (id: number) => {
                             </a>
                         </td>
                         <td class="px-4 py-2">{{ transfer.client }}</td>
-                        <td class="px-4 py-2">{{ transfer.user }}</td>
+                        <td class="px-4 py-2">{{ transfer.user.name }}</td>
                         <td class="space-x-2 px-4 py-2">
                             <button @click="getTransferLink(transfer.id)" class="text-green-600 hover:text-green-800">
                                 <Share2 class="inline h-6 w-6" />

@@ -42,7 +42,7 @@ class FileTransferController extends Controller
 
     public function index()
     {
-        $fileTransfers = FileTransfer::latest()->paginate(10);
+        $fileTransfers = FileTransfer::with('user:id,name')->latest()->paginate(10);
         return Inertia::render('FileTransfers/Index', [
             'fileTransfers' => $fileTransfers,
         ]);

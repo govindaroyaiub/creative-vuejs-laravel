@@ -1,5 +1,15 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+defineProps<{
+    fileTransfer: {
+        id: number;
+        name: string;
+        client: string;
+        user: string;
+        created_at: string;
+        file_paths: string[];
+    };
+}>();
 </script>
 
 <style scoped>
@@ -345,23 +355,28 @@ li a:hover {
                 <div class="star"></div>
             </div>
 
-            <div
-                class="transfer-content absolute left-1/2 top-1/2 mx-auto flex w-1/2 -translate-x-1/2 -translate-y-1/2 transform flex-col items-center justify-center rounded-md bg-white p-6 shadow-md"
-            >
-                <div class="transfer-link flex w-full flex-row items-center justify-center gap-4 text-center">
-                    <div>
-                        <input
-                            type="text"
-                            class="w-full rounded-md border-2 border-gray-300 p-3"
-                            placeholder="Enter transfer link here..."
-                            readonly
-                        />
-                    </div>
-                    <div>
-                        <button class="rounded-md bg-green-500 p-3 text-white hover:bg-green-400">Copy Link</button>
+            <div class="z-50 flex min-h-screen items-center justify-center bg-[#1a1a2e] px-4 text-white">
+                <div class="z-50 w-full max-w-2xl rounded-xl bg-white/5 p-8 shadow-xl backdrop-blur-md" style="z-index: 999">
+                    <h1 class="mb-4 text-xl font-semibold">Files shared by Planet Nine</h1>
+                    <p class="mb-6 text-sm text-gray-400">Created at: {{ fileTransfer.created_at }}</p>
+
+                    <div class="space-y-4">
+                        <div
+                            v-for="(file, index) in fileTransfer.file_paths"
+                            :key="index"
+                            class="flex items-center justify-between rounded-md bg-white/10 px-4 py-3 shadow backdrop-blur-sm"
+                        >
+                            <span class="truncate">{{ file }}</span>
+                            <a
+                                :href="`/Transfer Files/${file}`"
+                                download
+                                class="rounded bg-yellow-400 px-4 py-2 text-sm font-medium text-black transition hover:bg-yellow-300"
+                            >
+                                Download
+                            </a>
+                        </div>
                     </div>
                 </div>
-                <div class="transfer-files text-center">asdasd</div>
             </div>
         </div>
     </div>
