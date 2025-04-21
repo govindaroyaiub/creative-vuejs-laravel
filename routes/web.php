@@ -61,6 +61,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/bills-edit/{id}', [BillController::class, 'edit'])->name('bills-edit');
     Route::put('/bills-edit/{id}', [BillController::class, 'update'])->name('bills-update');
     Route::delete('/bills-delete/{id}', [BillController::class, 'destroy'])->name('bills-delete');
+    Route::get('/bills-download/{id}', [BillController::class, 'download'])->name('bills-download');
     //Bills Routes End
 });
 

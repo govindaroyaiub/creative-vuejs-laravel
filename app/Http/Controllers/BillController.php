@@ -5,12 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Bill;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
+use NumberFormatter;
 
 class BillController extends Controller
 {
     public function index()
     {
-        $bills = Bill::withCount('subBills')->paginate(10);
+        $bills = Bill::withCount('subBills')
+            ->orderByDesc('created_at') // optional sorting
+            ->paginate(10);
         return Inertia::render('Bills/Index', [
             'bills' => $bills,
         ]);
@@ -102,5 +107,22 @@ class BillController extends Controller
         $bill->delete();
 
         return redirect()->route('bills')->with('success', 'Bill deleted successfully.');
+    }
+
+    public function download($id)
+    {
+        $bill = Bill::with('subBills')->findOrFail($id);
+        $issueDate = Carbon::now()->format('F j, Y');
+
+        $formatter = new NumberFormatter('en', NumberFormatter::SPELLOUT);
+        $amountInWords = ucfirst($formatter->format($bill->total_amount)) . ' Taka Only';
+
+        $pdf = Pdf::loadView('pdf.bill', [
+            'bill' => $bill,
+            'issueDate' => $issueDate,
+            'amountInWords' => $amountInWords,
+        ]);
+
+        return $pdf->download("bill-{$bill->id}.pdf");
     }
 }
