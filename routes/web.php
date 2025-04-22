@@ -38,27 +38,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     //Banner Sizes Routes Start
     Route::get('/banner-sizes', [BannerSizeController::class, 'index'])->name('banner-sizes-index');
-    Route::get('/banner-sizes-create', [BannerSizeController::class, 'create'])->name('banner-sizes-create');
     Route::post('/banner-sizes-create-post', [BannerSizeController::class, 'store'])->name('banner-sizes-create-post');
-    Route::get('/banner-sizes-edit/{id}', [BannerSizeController::class, 'edit'])->name('banner-sizes-edit');
     Route::put('/banner-sizes-edit/{id}', [BannerSizeController::class, 'update'])->name('banner-sizes-update');
     Route::delete('/banner-sizes-delete/{id}', [BannerSizeController::class, 'destroy'])->name('banner-sizes-delete');
     //Banner Sizes Routes End
 
     //Video Sizes Routes Start
     Route::get('/video-sizes', [VideoSizeController::class, 'index'])->name('video-sizes-index');
-    Route::get('/video-sizes-create', [VideoSizeController::class, 'create'])->name('video-sizes-create');
     Route::post('/video-sizes-create-post', [VideoSizeController::class, 'store'])->name('video-sizes-create-post');
-    Route::get('/video-sizes-edit/{id}', [VideoSizeController::class, 'edit'])->name('video-sizes-edit');
     Route::put('/video-sizes-edit/{id}', [VideoSizeController::class, 'update'])->name('video-sizes-update');
     Route::delete('/video-sizes-delete/{id}', [VideoSizeController::class, 'destroy'])->name('video-sizes-delete');
     //Video Sizes Routes End
 
     //Social Routes Start
     Route::get('/socials', [SocialController::class, 'index'])->name('socials');
-    Route::get('/socials-create', [SocialController::class, 'create'])->name('socials-create');
     Route::post('/socials-create-post', [SocialController::class, 'store'])->name('socials-create-post');
-    Route::get('/socials-edit/{id}', [SocialController::class, 'edit'])->name('socials-edit');
     Route::put('/socials-edit/{id}', [SocialController::class, 'update'])->name('socials-update');
     Route::delete('/socials-delete/{id}', [SocialController::class, 'destroy'])->name('socials-delete');
     //Social Routes End

@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { CirclePlus, Pencil, Share2, Trash2 } from 'lucide-vue-next';
+import { CirclePlus, Pencil, Share2, Trash2, Eye } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref } from 'vue';
 
@@ -78,14 +78,18 @@ const getTransferLink = (id: number) => {
                     <tr v-for="(transfer, index) in filteredTransfers" :key="transfer.id" class="border-t text-center text-sm dark:border-gray-700">
                         <td class="px-4 py-2">{{ index + 1 }}</td>
                         <td class="px-4 py-2">
-                            <a :href="`/file-transfers-view/${transfer.id}`" target="_blank" class="text-blue-600 hover:text-blue-800">
-                                {{ transfer.name }}
-                            </a>
+                            {{ transfer.name }}
                         </td>
                         <td class="px-4 py-2">{{ transfer.client }}</td>
-                        <td class="px-4 py-2">{{ transfer.user.name }}</td>
+                        <td class="px-4 py-2">{{ transfer.user.name }} 
+                            <hr> 
+                            {{ new Date(transfer.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) }}
+                        </td>
                         <td class="space-x-2 px-4 py-2">
-                            <button @click="getTransferLink(transfer.id)" class="text-green-600 hover:text-green-800">
+                            <a :href="`/file-transfers-view/${transfer.id}`" target="_blank" class="text-green-600 hover:text-green-800">
+                                <Eye class="inline h-6 w-6" />
+                            </a>
+                            <button @click="getTransferLink(transfer.id)" class="text-purple-600 hover:text-purple-800">
                                 <Share2 class="inline h-6 w-6" />
                             </button>
                             <a :href="route('file-transfers-edit', transfer.id)" class="text-blue-600 hover:text-blue-800">

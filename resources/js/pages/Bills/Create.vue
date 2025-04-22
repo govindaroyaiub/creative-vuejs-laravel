@@ -85,7 +85,7 @@ const handleSubmit = () => {
 
                 <div class="flex justify-end space-x-4">
                     <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Save</button>
-                    <a href="/bills" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 dark:bg-gray-600 dark:text-white">Cancel</a>
+                    <a href="/bills" class="bg-red-600 px-4 py-2 rounded hover:bg-red-700 dark:bg-gray-600 dark:text-white text-white">Cancel</a>
                 </div>
             </form>
         </div>

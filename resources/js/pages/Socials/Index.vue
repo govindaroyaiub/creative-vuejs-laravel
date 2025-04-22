@@ -157,16 +157,19 @@ const saveNewSocial = () => {
                             </div>
                         </td>
                         <td class="space-x-2 px-4 py-2">
-                            <button v-if="editingId === social.id" @click="saveEdit(social.id)" class="text-sm text-green-600 hover:underline">
-                                Save
-                            </button>
-                            <button v-else @click="startEditing(social)" class="text-blue-600 hover:text-blue-800">
-                                <Pencil class="inline h-5 w-5" />
-                            </button>
+                            <template v-if="editingId === social.id">
+                                <button @click="saveEdit(social.id)" class="text-sm text-blue-600 hover:underline">Update</button>
+                                <button @click="editingId = null" class="text-sm text-red-500 hover:underline">Cancel</button>
+                            </template>
 
-                            <button @click="deleteSocial(social.id)" class="text-red-600 hover:text-red-800">
-                                <Trash2 class="inline h-5 w-5" />
-                            </button>
+                            <template v-else>
+                                <button @click="startEditing(social)" class="text-blue-600 hover:text-blue-800">
+                                    <Pencil class="inline h-5 w-5" />
+                                </button>
+                                <button @click="deleteSocial(social.id)" class="text-red-600 hover:text-red-800">
+                                    <Trash2 class="inline h-5 w-5" />
+                                </button>
+                            </template>
                         </td>
                     </tr>
                     <tr v-if="filteredSocials.length === 0 && !adding">

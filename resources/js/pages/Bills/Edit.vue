@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { X } from 'lucide-vue-next';
 import { ref, computed, watch } from 'vue';
+import Swal from 'sweetalert2';
 
 const page = usePage();
 const bill = page.props.bill;
@@ -61,7 +61,15 @@ const handleSubmit = () => {
         total_amount: totalAmount.value,
     };
 
-    router.put(route('bills-update', bill.id), payload);
+    router.put(route('bills-update', bill.id), payload, {
+        preserveScroll: true,
+        onSuccess: () => {
+            Swal.fire('Updated!', 'Bill updated successfully.', 'success');
+        },
+        onError: () => {
+            Swal.fire('Error!', 'Something went wrong while updating the bill.', 'error');
+        },
+    });
 };
 </script>
 
@@ -69,16 +77,6 @@ const handleSubmit = () => {
     <Head title="Edit Bill" />
     <AppLayout :breadcrumbs="[{ title: 'Bills Edit', href: '/bills-edit' }]">
         <div class="mx-auto max-w-4xl p-6">
-            <!-- Flash Message -->
-            <transition name="fade">
-                <div v-if="showFlash" class="relative mb-4 rounded-md bg-green-500 p-3 pr-10 text-white">
-                    {{ flashMessage }}
-                    <button @click="showFlash = false" class="absolute right-2 top-2 text-white hover:text-gray-200">
-                        <X class="inline h-5 w-5" />
-                    </button>
-                </div>
-            </transition>
-
             <form @submit.prevent="handleSubmit" class="space-y-6">
                 <!-- Name -->
                 <div>
@@ -134,7 +132,7 @@ const handleSubmit = () => {
                 <!-- Submit -->
                 <div class="flex justify-end space-x-4">
                     <button type="submit" class="rounded bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">Update</button>
-                    <a href="/bills" class="rounded bg-gray-300 px-4 py-2 hover:bg-gray-400 dark:bg-gray-600 dark:text-white">Cancel</a>
+                    <a href="/bills" class="rounded bg-red-600 px-4 py-2 hover:bg-red-700 text-white">Cancel</a>
                 </div>
             </form>
         </div>

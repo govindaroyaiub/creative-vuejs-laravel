@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use App\Models\BannerSize;
+use Illuminate\Validation\Rule;
 
 class BannerSizeController extends Controller
 {
@@ -43,30 +44,42 @@ class BannerSizeController extends Controller
         $exists = BannerSize::where('width', $validated['width'])
             ->where('height', $validated['height'])
             ->exists();
-
+            
         if ($exists) {
-            return Redirect::route('banner-sizes-create')->with('success', 'Sorry! This banner size already exist!');
+            return Redirect::route('banner-sizes-index')->with('error', 'Sorry! This banner size already exists!');
         }
 
-        BannerSize::create([
-            'width' => $validated['width'],
-            'height' => $validated['height'],
-        ]);
+        BannerSize::create($validated);
 
-        return redirect()->route('banner-sizes-index')->with('success', 'Banner size added successfully!');
+        return redirect()->route('banner-sizes-index')
+            ->with('success', 'Banner size added successfully!');
     }
 
     public function update(Request $request, $id)
     {
-        $validated = $request->validate([
-            'width' => 'required|numeric',
+        $bannerSize = BannerSize::findOrFail($id);
+
+        $request->validate([
+            'width' => [
+                'required',
+                'numeric',
+                Rule::unique('banner_sizes')
+                    ->where(function ($query) use ($request) {
+                        return $query->where('height', $request->height);
+                    })
+                    ->ignore($bannerSize->id),
+            ],
             'height' => 'required|numeric',
+        ], [
+            'width.unique' => 'Sorry, width and height already exist.',
         ]);
 
-        $bannerSize = BannerSize::findOrFail($id);
-        $bannerSize->update($validated);
+        $bannerSize->update([
+            'width' => $request->width,
+            'height' => $request->height,
+        ]);
 
-        return redirect()->route('banner-sizes-edit', $id)
+        return redirect()->route('banner-sizes', $id)
             ->with('success', 'Banner size updated successfully.');
     }
 

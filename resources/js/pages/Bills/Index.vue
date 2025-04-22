@@ -4,7 +4,7 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { CirclePlus, Download, Pencil, Trash2 } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -16,6 +16,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 const page = usePage();
 const bills = computed(() => page.props.bills);
 const search = ref('');
+const flash = computed(() => page.props.flash);
 
 const filteredBills = computed(() => {
     const query = search.value.toLowerCase();
@@ -49,6 +50,12 @@ const deleteBill = async (id: number) => {
 const goToEdit = (id: number) => {
     router.visit(route('bills-edit', id));
 };
+
+onMounted(() => {
+    if (flash.value?.success) {
+        Swal.fire('Success!', flash.value.success, 'success');
+    }
+});
 </script>
 
 <template>
@@ -81,7 +88,7 @@ const goToEdit = (id: number) => {
                         <td class="px-4 py-2">{{ bill.name }}</td>
                         <td class="px-4 py-2">{{ bill.client }}</td>
                         <td class="px-4 py-2">{{ bill.total_amount }}</td>
-                        <td class="px-4 py-2">{{ new Date(bill.created_at).toLocaleDateString('en-GB') }}</td>
+                        <td class="px-4 py-2">{{ new Date(bill.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) }}</td>
                         <td class="space-x-2 px-4 py-2">
                             <a :href="route('bills-download', bill.id)" target="_blank" class="text-green-600 hover:text-green-800">
                                 <Download class="inline h-5 w-5" />
