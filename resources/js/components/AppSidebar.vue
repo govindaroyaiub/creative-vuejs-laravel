@@ -33,7 +33,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Social Image Formats',
-        href: '/social-image-formats',
+        href: '/socials',
         icon: Image
     },
     {

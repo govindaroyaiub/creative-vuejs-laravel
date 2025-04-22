@@ -8,6 +8,7 @@ use App\Http\Controllers\BannerSizeController;
 use App\Http\Controllers\VideoSizeController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\BillController;
+use App\Http\Controllers\SocialController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -52,6 +53,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/video-sizes-edit/{id}', [VideoSizeController::class, 'update'])->name('video-sizes-update');
     Route::delete('/video-sizes-delete/{id}', [VideoSizeController::class, 'destroy'])->name('video-sizes-delete');
     //Video Sizes Routes End
+
+    //Social Routes Start
+    Route::get('/socials', [SocialController::class, 'index'])->name('socials');
+    Route::get('/socials-create', [SocialController::class, 'create'])->name('socials-create');
+    Route::post('/socials-create-post', [SocialController::class, 'store'])->name('socials-create-post');
+    Route::get('/socials-edit/{id}', [SocialController::class, 'edit'])->name('socials-edit');
+    Route::put('/socials-edit/{id}', [SocialController::class, 'update'])->name('socials-update');
+    Route::delete('/socials-delete/{id}', [SocialController::class, 'destroy'])->name('socials-delete');
+    //Social Routes End
 
     //Bills Routes Start
     Route::get('/bills', [BillController::class, 'index'])->name('bills');
