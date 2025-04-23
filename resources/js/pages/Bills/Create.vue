@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 
 const form = ref({
@@ -85,7 +85,7 @@ const handleSubmit = () => {
 
                 <div class="flex justify-end space-x-4">
                     <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Save</button>
-                    <a href="/bills" class="bg-red-600 px-4 py-2 rounded hover:bg-red-700 dark:bg-gray-600 dark:text-white text-white">Cancel</a>
+                    <Link :href="route('bills')" class="bg-red-600 px-4 py-2 rounded hover:bg-red-700 dark:bg-gray-600 dark:text-white text-white">Cancel</Link>
                 </div>
             </form>
         </div>

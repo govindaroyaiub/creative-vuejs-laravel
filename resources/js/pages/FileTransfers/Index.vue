@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router, usePage } from '@inertiajs/vue3';
+import { Head, router, usePage, Link } from '@inertiajs/vue3';
 import { CirclePlus, Pencil, Share2, Trash2, Eye } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref } from 'vue';
@@ -58,10 +58,10 @@ const getTransferLink = (id: number) => {
         <div class="p-6">
             <div class="mb-4 flex items-center justify-between">
                 <input v-model="search" placeholder="Search..." class="w-full max-w-xs rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" />
-                <a :href="route('file-transfers-add')" class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
+                <Link :href="route('file-transfers-add')" class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
                     <CirclePlus class="mr-1 inline h-5 w-5" />
                     Add
-                </a>
+                </Link>
             </div>
 
             <table class="w-full rounded bg-white shadow dark:bg-gray-800">
@@ -92,9 +92,9 @@ const getTransferLink = (id: number) => {
                             <button @click="getTransferLink(transfer.id)" class="text-purple-600 hover:text-purple-800">
                                 <Share2 class="inline h-6 w-6" />
                             </button>
-                            <a :href="route('file-transfers-edit', transfer.id)" class="text-blue-600 hover:text-blue-800">
+                            <Link :href="route('file-transfers-edit', transfer.id)" class="text-blue-600 hover:text-blue-800">
                                 <Pencil class="inline h-5 w-5" />
-                            </a>
+                            </Link>
                             <button @click="deleteFileTransfer(transfer.id)" class="text-red-600 hover:text-red-800">
                                 <Trash2 class="inline h-5 w-5" />
                             </button>

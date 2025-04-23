@@ -9,6 +9,7 @@ use App\Http\Controllers\VideoSizeController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\SocialController;
+use App\Http\Controllers\ClientController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -67,6 +68,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/bills-delete/{id}', [BillController::class, 'destroy'])->name('bills-delete');
     Route::get('/bills-download/{id}', [BillController::class, 'download'])->name('bills-download');
     //Bills Routes End
+
+    //Client Routes Start
+    Route::get('/clients', [ClientController::class, 'index'])->name('clients');
+    Route::get('/clients-create', [ClientController::class, 'create'])->name('clients-create');
+    Route::post('/clients-store', [ClientController::class, 'store'])->name('clients-store');
+    Route::get('/clients-edit/{id}', [ClientController::class, 'edit'])->name('clients-edit');
+    Route::put('/clients-edit/{id}', [ClientController::class, 'update'])->name('clients-update');
+    Route::delete('/clients-delete/{id}', [ClientController::class, 'destroy'])->name('clients-delete');
+    //Client Routes End
 });
 
 Route::get('/file-transfers-view/{id}', [FileTransferController::class, 'show'])->name('file-transfers-view');

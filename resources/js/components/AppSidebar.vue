@@ -97,9 +97,3 @@ const footerNavItems: NavItem[] = [
     </Sidebar>
     <slot />
 </template>
-<style>
-.navbar-active {
-    background-color: hsl(0 0% 98%);
-    font-weight: bold;
-}
-</style>
