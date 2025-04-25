@@ -3,6 +3,11 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Bills', href: '/bills' },
+    { title: 'Add Bill', href: '/bills-create' },
+];
+
 const form = ref({
     name: '',
     client: '',
@@ -40,7 +45,7 @@ const handleSubmit = () => {
 
 <template>
     <Head title="Create Bill" />
-    <AppLayout :breadcrumbs="[{ title: 'Add Bills', href: '/bills-create' }]">
+    <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6 max-w-4xl mx-auto">
             <form @submit.prevent="handleSubmit" class="space-y-6">
                 <div>

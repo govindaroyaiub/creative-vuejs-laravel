@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router, usePage } from '@inertiajs/vue3';
-import { Pencil, Trash2, CirclePlus } from 'lucide-vue-next';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { CirclePlus, Pencil, Trash2 } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
-import { computed, ref, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Clients', href: '/clients' },
-];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Clients', href: '/clients' }];
 
 const page = usePage();
 const clients = computed(() => page.props.clients);
@@ -17,10 +15,7 @@ const flash = computed(() => page.props.flash);
 
 const filteredClients = computed(() => {
     const query = search.value.toLowerCase();
-    return clients.value.data.filter((client: any) =>
-        client.name.toLowerCase().includes(query) ||
-        client.website.toLowerCase().includes(query)
-    );
+    return clients.value.data.filter((client: any) => client.name.toLowerCase().includes(query) || client.website.toLowerCase().includes(query));
 });
 
 const deleteClient = async (id: number) => {
@@ -60,10 +55,10 @@ onMounted(() => {
         <div class="p-6">
             <div class="mb-4 flex items-center justify-between">
                 <input v-model="search" placeholder="Search..." class="w-full max-w-xs rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" />
-                <a :href="route('clients-create')" class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
+                <Link :href="route('clients-create')" class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
                     <CirclePlus class="mr-1 inline h-5 w-5" />
                     Add
-                </a>
+                </Link>
             </div>
 
             <table class="w-full rounded bg-white shadow dark:bg-gray-800">
@@ -71,8 +66,16 @@ onMounted(() => {
                     <tr class="text-center text-sm uppercase">
                         <th class="px-4 py-2">#</th>
                         <th class="px-4 py-2">Name</th>
-                        <th class="px-4 py-2">Website<hr>Preview</th>
-                        <th class="px-4 py-2">Logo<hr>Brand Color</th>
+                        <th class="px-4 py-2">
+                            Website /
+                            <hr />
+                            Preview
+                        </th>
+                        <th class="px-4 py-2">
+                            Logo /
+                            <hr />
+                            Brand Color
+                        </th>
                         <th class="px-4 py-2">Actions</th>
                     </tr>
                 </thead>
@@ -80,16 +83,19 @@ onMounted(() => {
                     <tr v-for="(client, index) in filteredClients" :key="client.id" class="border-t text-center text-sm dark:border-gray-700">
                         <td class="px-4 py-2">{{ index + 1 }}</td>
                         <td class="px-4 py-2">{{ client.name }}</td>
-                        <td class="px-4 py-2">{{ client.website }}</td>
                         <td class="px-4 py-2">
+                            {{ client.website }}
+                            <hr />
                             <a v-if="client.preview_url" :href="client.preview_url" target="_blank" class="text-blue-600 hover:underline">Preview</a>
                             <span v-else>-</span>
                         </td>
                         <td class="px-4 py-2">
-                            <img v-if="client.logo" :src="`/public/clients/${client.logo}`" alt="Logo" class="h-8 mx-auto" />
-                        </td>
-                        <td class="px-4 py-2">
-                            <span :style="{ backgroundColor: client.brand_color }" class="inline-block h-4 w-8 rounded border"></span>
+                            <img v-if="client.logo" :src="`/logo/${client.logo}`" alt="Logo" class="mx-auto h-12" />
+                            <hr />
+                            <div class="flex items-center justify-center space-x-2">
+                                <span :style="{ backgroundColor: client.brand_color }" class="inline-block h-4 w-8 rounded border"></span>
+                                <span class="text-sm">{{ client.brand_color }}</span>
+                            </div>
                         </td>
                         <td class="space-x-2 px-4 py-2">
                             <button @click="goToEdit(client.id)" class="text-blue-600 hover:text-blue-800">

@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, useForm, usePage, Link } from '@inertiajs/vue3';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
-import { X, Download } from 'lucide-vue-next';
+import { Download, X } from 'lucide-vue-next';
 import { onMounted, ref } from 'vue';
 // Breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Edit File Transfer',
-        href: '/file-transfer-edit',
-    },
+    { title: 'File Transfers', href: '/file-transfers' },
+    { title: 'Edit File Transfer', href: '/file-transfer-edit' },
 ];
 
 // Get file transfer data from Inertia props

@@ -23,33 +23,74 @@ class ClientController extends Controller
         return Inertia::render('Clients/Create');
     }
 
+    public function edit($id)
+    {
+        $client = Client::findOrFail($id);
+        return Inertia::render('Clients/Edit', [
+            'client' => $client
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'website' => 'required|url',
             'preview_url' => 'nullable|url',
-            'logo' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048', // Validate image file
-            'brand_color' => 'required|string|max:7',
+            'logo' => 'nullable|image|max:2048',
+            'brand_color' => 'nullable|string|max:20',
         ]);
 
-        // ✅ Handle logo upload
+        $filename = null;
+
         if ($request->hasFile('logo')) {
-            $file = $request->file('logo');
-            $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-            $path = public_path('clients');
-
-            if (!File::exists($path)) {
-                File::makeDirectory($path, 0755, true);
-            }
-
-            $file->move($path, $filename);
-            $validated['logo'] = 'clients/' . $filename; // Save relative path
+            $logo = $request->file('logo');
+            $filename = time() . '_' . $logo->getClientOriginalName();
+            $logo->move(public_path('logo'), $filename);
         }
 
-        Client::create($validated);
+        Client::create([
+            'name' => $validated['name'],
+            'website' => $validated['website'],
+            'preview_url' => $validated['preview_url'],
+            'logo' => $filename,
+            'brand_color' => $validated['brand_color'],
+        ]);
 
-        return redirect()->route('clients.index')->with('success', 'Client created successfully.');
+        return redirect()->route('clients-index')->with('success', 'Client created successfully.');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'website' => 'required|url',
+            'preview_url' => 'nullable|url',
+            'logo' => 'nullable|image|max:2048',
+            'brand_color' => 'nullable|string|max:20',
+        ]);
+
+        $client = Client::findOrFail($id);
+        $filename = $client->logo;
+
+        if ($request->hasFile('logo')) {
+            // Delete the old logo file if it exists
+            if ($client->logo && file_exists(public_path($client->logo))) {
+                unlink(public_path($client->logo));
+            }
+
+            $logo = $request->file('logo');
+            $filename = time() . '_' . $logo->getClientOriginalName();
+            $logo->move(public_path('logo'), $filename);
+        }
+
+        $client->update([
+            'name' => $validated['name'],
+            'website' => $validated['website'],
+            'preview_url' => $validated['preview_url'],
+            'logo' => $filename,
+            'brand_color' => $validated['brand_color'],
+        ]);
     }
 
     public function destroy($id)

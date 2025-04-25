@@ -4,6 +4,11 @@ import { Head, router, usePage, Link } from '@inertiajs/vue3';
 import { ref, computed, watch } from 'vue';
 import Swal from 'sweetalert2';
 
+const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Bills', href: '/bills' },
+    { title: 'Edit Bill', href: '/bills-edit' },
+];
+
 const page = usePage();
 const bill = page.props.bill;
 
@@ -75,7 +80,7 @@ const handleSubmit = () => {
 
 <template>
     <Head title="Edit Bill" />
-    <AppLayout :breadcrumbs="[{ title: 'Bills Edit', href: '/bills-edit' }]">
+    <AppLayout :breadcrumbs="breadcrumbs">
         <div class="mx-auto max-w-4xl p-6">
             <form @submit.prevent="handleSubmit" class="space-y-6">
                 <!-- Name -->

@@ -4,11 +4,10 @@ import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Add File Transfer',
-        href: '/file-transfer-add',
-    },
+    { title: 'File Transfers', href: '/file-transfers' },
+    { title: 'Add File Transfer', href: '/file-transfer-create' },
 ];
+
 </script>
 
 <template>
