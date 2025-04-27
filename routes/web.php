@@ -87,6 +87,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::delete('/user-managements/designations-delete/{id}', [UserManagementController::class, 'designationDestroy'])->name('user-managements-designations-delete');
 
     Route::get('/user-managements/users', [UserManagementController::class, 'userIndex'])->name('user-managements-users');
+    Route::post('/user-managements/users-create', [UserManagementController::class, 'userCreate'])->name('user-managements-users-create');
+    Route::delete('/user-managements/users-delete/{id}', [UserManagementController::class, 'userDelete'])->name('user-managements-users-delete');
 
     Route::put('/user-managaments/users/update/permissions/{id}', [UserManagementController::class, 'userPermissionsUpdate'])->name('user-managements-users-update-permissions');
 
@@ -94,10 +96,14 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::post('/user-managements/routes-create-post', [UserManagementController::class, 'routesStore'])->name('user-managements-routes-create-post');
     Route::put('/user-managements/routes-edit/{id}', [UserManagementController::class, 'routesUpdate'])->name('user-managements-routes-update');
     Route::delete('/user-managements/routes-delete/{id}', [UserManagementController::class, 'routesDestroy'])->name('user-managements-routes-delete');
+
     //user-management routes end
 });
 
 Route::get('/file-transfers-view/{id}', [FileTransferController::class, 'show'])->name('file-transfers-view');
+
+Route::get('/welcome-to-planetnine/register', [UserManagementController::class, 'register'])->name('welcome-to-planetnine-register');
+Route::post('/welcome-to-planetnine/register-post', [UserManagementController::class, 'registerPost'])->name('welcome-to-planetnine-register-post');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

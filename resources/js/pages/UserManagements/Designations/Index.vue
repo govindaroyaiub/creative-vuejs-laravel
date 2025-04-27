@@ -162,8 +162,8 @@ const deleteDesignation = async (id: number) => {
                             </tr>
 
                             <tr v-for="(designation, index) in filteredDesignations" :key="designation.id" class="border-b dark:border-gray-700">
-                                <td class="px-6 py-4">{{ index + 1 }}</td>
-                                <td class="px-6 py-4">
+                                <td class="px-6 py-4 text-center">{{ index + 1 }}</td>
+                                <td class="px-6 py-4 text-center">
                                     <template v-if="editingId !== designation.id">{{ designation.name }}</template>
                                     <template v-else>
                                         <input v-model="editName" class="w-full rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" />

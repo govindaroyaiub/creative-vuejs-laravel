@@ -8,6 +8,7 @@ use App\Models\Designation;
 use App\Models\User;
 use App\Models\Route;
 use Illuminate\Validation\Rule;
+use App\Services\ResendMailService;
 
 class UserManagementController extends Controller
 {
@@ -74,19 +75,57 @@ class UserManagementController extends Controller
     {
         $user = User::findOrFail($id);
 
-        $data = $request->validate([
+        $validated = $request->validate([
             'permissions' => 'nullable|array',
         ]);
 
-        $user->permissions = $data['permissions'] ?? [];
-        $user->save();
+        $user->update([
+            'permissions' => $validated['permissions'] ?? [],
+        ]);
 
-        // 🛠 If the updated user is the currently logged in user, refresh session
-        if (auth()->id() == $user->id) {
-            auth()->setUser($user); // ✅ Important: refresh user session
+        // 🛠 Refresh session if the updated user is the current logged-in user
+        if (auth()->id() === $user->id) {
+            auth()->login($user->fresh()); // ✅ refresh user object properly
         }
 
-        return back()->with('success', 'Permissions updated.');
+        return back()->with('success', 'Permissions updated successfully.');
+    }
+
+    public function userCreate(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+        ]);
+    
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'role' => 'user',
+            'password' => bcrypt('password'),
+            'permissions' => ['/welcome-to-planetnine/register'],
+        ]);
+    
+        // ✅ Send Welcome Email
+        ResendMailService::send(
+            $user->email,
+            $user->name,
+            'Welcome to Planet Nine!',
+            view('emails.welcome', compact('user'))->render()
+        );
+    
+        // ✅ Return JSON
+        return response()->json([
+            'success' => true,
+            'newUser' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'designation_name' => null,
+                'permissions' => $user->permissions,
+            ],
+        ]);
     }
 
     public function userDelete($id)
@@ -107,7 +146,7 @@ class UserManagementController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|string|max:255|unique:routes,title',
-            'href' => 'required|string|max:255|unique:routes,href', // 🔥 fix here
+            'href' => 'required|string|max:255|unique:routes,href',
         ]);
 
         Route::create($data);
@@ -133,5 +172,36 @@ class UserManagementController extends Controller
     {
         $route = Route::findOrFail($id);
         $route->delete();
+    }
+
+    public function register()
+    {
+        $designations = Designation::orderBy('name')->get();
+        return Inertia::render('UserManagements/Register/Index', [
+            'designations' => $designations,
+        ]);
+    }
+
+    public function registerPost(Request $request)
+    {
+        // 🛠 Validate only Designation and Password fields
+        $data = $request->validate([
+            'designation' => 'required|exists:designations,id',
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        // 🛠 Create User
+        $user = User::create([
+            'designation' => $data['designation'],
+            'password' => Hash::make($data['password']),
+            'role' => 'user', // or default role
+            'name' => 'Unnamed', // Default, or you can add another field later
+            'email' => uniqid() . '@example.com', // Dummy email (because unique is required if email is in db)
+        ]);
+
+        // Optionally log in the user automatically
+        auth()->login($user);
+
+        return redirect()->route('dashboard');
     }
 }

@@ -19,20 +19,11 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         User::create([
-            'name' => 'Govinda Roy',
-            'email' => 'govinda@planetnine.com',
+            'name' => 'Test User',
+            'email' => 'test@planetnine.com',
             'password' => Hash::make('password'),
             'role' => 'super_admin',
             'designation' => 1,
-            'permissions' => ['*'],
-        ]);
-
-        User::create([
-            'name' => 'Govinda Roy',
-            'email' => 'test@planetnine.com',
-            'password' => Hash::make('password'),
-            'role' => 'admin',
-            'designation' => 2,
             'permissions' => ['*'],
         ]);
 
@@ -61,7 +52,8 @@ class DatabaseSeeder extends Seeder
             ['title' => 'Designations', 'href' => '/user-managements/designations'],
             ['title' => 'Users', 'href' => '/user-managements/users'],
             ['title' => 'Routes', 'href' => '/user-managements/routes'],
-            ['title' => 'Clients', 'href' => '/clients']
+            ['title' => 'Clients', 'href' => '/clients'],
+            ['title' => 'Registration', 'href' => '/welcome-to-planetnine/register']
 
         ];
 
