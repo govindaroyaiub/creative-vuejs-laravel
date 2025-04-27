@@ -10,6 +10,8 @@ use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\SocialController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\UserManagementController;
+use App\Http\Middleware\CheckUserPermission;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -18,7 +20,7 @@ Route::get('/', function () {
     return Inertia::render('auth/Login');
 })->name('home');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(function () {
 
     Route::get('dashboard', function () {
         return Inertia::render('Dashboard');
@@ -77,6 +79,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/clients-update/{id}', [ClientController::class, 'update'])->name('clients-update');
     Route::delete('/clients-delete/{id}', [ClientController::class, 'destroy'])->name('clients-delete');
     //Client Routes End
+
+    //user management routes start
+    Route::get('/user-managements/designations', [UserManagementController::class, 'designationIndex'])->name('user-managements');
+    Route::post('/user-managements/designations-create-post', [UserManagementController::class, 'designationStore'])->name('user-managements-designations-create-post');
+    Route::put('/user-managements/designations-edit/{id}', [UserManagementController::class, 'designationUpdate'])->name('user-managements-designations-update');
+    Route::delete('/user-managements/designations-delete/{id}', [UserManagementController::class, 'designationDestroy'])->name('user-managements-designations-delete');
+
+    Route::get('/user-managements/users', [UserManagementController::class, 'userIndex'])->name('user-managements-users');
+
+    Route::put('/user-managaments/users/update/permissions/{id}', [UserManagementController::class, 'userPermissionsUpdate'])->name('user-managements-users-update-permissions');
+
+    Route::get('/user-managements/routes', [UserManagementController::class, 'routesIndex'])->name('user-managements-routes');
+    Route::post('/user-managements/routes-create-post', [UserManagementController::class, 'routesStore'])->name('user-managements-routes-create-post');
+    Route::put('/user-managements/routes-edit/{id}', [UserManagementController::class, 'routesUpdate'])->name('user-managements-routes-update');
+    Route::delete('/user-managements/routes-delete/{id}', [UserManagementController::class, 'routesDestroy'])->name('user-managements-routes-delete');
+    //user-management routes end
 });
 
 Route::get('/file-transfers-view/{id}', [FileTransferController::class, 'show'])->name('file-transfers-view');
