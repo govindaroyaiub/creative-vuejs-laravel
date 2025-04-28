@@ -26,8 +26,8 @@ const mainNavItems: NavItem[] = [
 ];
 
 const footerNavItems: NavItem[] = [
-    { title: 'Client Management', href: '/clients', icon: CircleDollarSign },
-    { title: 'User Management', href: '/user-managements/designations', icon: Users },
+    { title: 'Clients', href: '/clients', icon: CircleDollarSign },
+    { title: 'Access Manager', href: '/user-managements/designations', icon: Users },
 ];
 
 // Permission check function

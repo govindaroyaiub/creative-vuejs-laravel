@@ -49,11 +49,10 @@ class DatabaseSeeder extends Seeder
             ['title' => 'Social Image Formats', 'href' => '/socials'],
             ['title' => 'File Transfers', 'href' => '/file-transfers'],
             ['title' => 'Bills', 'href' => '/bills'],
-            ['title' => 'Designations', 'href' => '/user-managements/designations'],
-            ['title' => 'Users', 'href' => '/user-managements/users'],
-            ['title' => 'Routes', 'href' => '/user-managements/routes'],
+            ['title' => 'Access Manager', 'href' => '/user-managements'],
             ['title' => 'Clients', 'href' => '/clients'],
-            ['title' => 'Registration', 'href' => '/welcome-to-planetnine/register']
+            ['title' => 'Registration', 'href' => '/welcome-to-planetnine/register'],
+            ['title' => 'Change Password', 'href' => '/change-password']
 
         ];
 

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Welcome to Planet Nine!</title>
+    <title>Change Your Password - Planet Nine</title>
     <style>
         body {
             background-color: #f4f4f7;
@@ -50,7 +50,7 @@
             padding: 12px 25px;
             margin-top: 20px;
             background-color: #4f46e5;
-            color: white;
+            color: #ffffff;
             text-decoration: none;
             font-size: 16px;
             border-radius: 5px;
@@ -70,18 +70,24 @@
 
     <div class="container">
         <div class="header">
-            <h2>Welcome to Planet Nine 🚀</h2>
+            <h2>Password Reset - Planet Nine 🔒</h2>
         </div>
 
         <div class="content">
             <h1>Hello {{ $user->name }}!</h1>
-            <p>Thank you for joining Planet Nine. We're excited to have you on board.</p>
-            <p>To get started, please complete your registration by clicking the button below:</p>
+            <p>We received a request to reset your password.</p>
+            <p>Click the button below to securely change your password:</p>
 
-            <a href="{{ route('welcome-to-planetnine-register', ['user' => $user->id]) }}"
+            <a href="{{ route('change-password', ['user' => $user->id]) }}"
                 style="display: inline-block; padding: 12px 25px; margin-top: 20px; background-color: #4f46e5; color: #ffffff; text-decoration: none; font-size: 16px; border-radius: 5px; font-weight: bold;">
-                Complete Registration
+                Change Password
             </a>
+
+            <p style="margin-top: 20px; font-size: 12px; color: #888;">
+                This link will expire in 60 minutes for your security.
+            </p>
+
+            <p style="margin-top: 30px; font-size: 12px; color: #888;">If you did not request a password reset, please ignore this email.</p>
         </div>
 
         <div class="footer">

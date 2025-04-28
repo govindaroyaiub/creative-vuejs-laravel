@@ -12,6 +12,7 @@ use App\Http\Controllers\SocialController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Middleware\CheckUserPermission;
+use App\Models\User;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -81,6 +82,9 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     //Client Routes End
 
     //user management routes start
+    Route::get('/user-managements', function () {
+        return redirect()->route('user-managements');
+    });
     Route::get('/user-managements/designations', [UserManagementController::class, 'designationIndex'])->name('user-managements');
     Route::post('/user-managements/designations-create-post', [UserManagementController::class, 'designationStore'])->name('user-managements-designations-create-post');
     Route::put('/user-managements/designations-edit/{id}', [UserManagementController::class, 'designationUpdate'])->name('user-managements-designations-update');
@@ -92,6 +96,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
 
     Route::put('/user-managaments/users/update/permissions/{id}', [UserManagementController::class, 'userPermissionsUpdate'])->name('user-managements-users-update-permissions');
 
+    Route::post('/user-managements/users/update-password/{id}', [UserManagementController::class, 'userPasswordUpdate'])->name('user-managements-users-update-password');
+
     Route::get('/user-managements/routes', [UserManagementController::class, 'routesIndex'])->name('user-managements-routes');
     Route::post('/user-managements/routes-create-post', [UserManagementController::class, 'routesStore'])->name('user-managements-routes-create-post');
     Route::put('/user-managements/routes-edit/{id}', [UserManagementController::class, 'routesUpdate'])->name('user-managements-routes-update');
@@ -102,8 +108,13 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
 
 Route::get('/file-transfers-view/{id}', [FileTransferController::class, 'show'])->name('file-transfers-view');
 
-Route::get('/welcome-to-planetnine/register', [UserManagementController::class, 'register'])->name('welcome-to-planetnine-register');
-Route::post('/welcome-to-planetnine/register-post', [UserManagementController::class, 'registerPost'])->name('welcome-to-planetnine-register-post');
+Route::prefix('welcome-to-planetnine')->group(function () {
+    Route::get('/register', [UserManagementController::class, 'register'])->name('welcome-to-planetnine-register');
+    Route::post('/register-post', [UserManagementController::class, 'registerPost'])->name('welcome-to-planetnine-register-post');
+});
+
+Route::get('/change-password', [UserManagementController::class, 'changePassword'])->name('change-password');
+Route::post('/change-password-post', [UserManagementController::class, 'changePasswordPost'])->name('change-password-post');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

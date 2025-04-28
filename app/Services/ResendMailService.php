@@ -18,9 +18,6 @@ class ResendMailService
             'html' => $htmlContent,
         ]);
 
-        // Log the full response
-        \Log::info('Resend API response', $response->json());
-
         return $response->json();
     }
 }

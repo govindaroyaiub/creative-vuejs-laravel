@@ -4,9 +4,10 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/pages/UserManagements/Layout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
+import axios from 'axios';
+import { LoaderCircle } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref } from 'vue';
-import axios from 'axios';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Users', href: '/user-managements/users' }];
 
@@ -18,8 +19,11 @@ const search = ref('');
 const addingUser = ref(false);
 const newUserName = ref('');
 const newUserEmail = ref('');
+const newUserRole = ref('user');
+const newUserPermissions = ref<string[]>(['/dashboard', '/previews']);
+const savingUser = ref(false);
+const resettingPasswordUserId = ref<number | null>(null); // ✅ for individual reset password loading
 
-// Modal states
 const permissionsModalVisible = ref(false);
 const permissionsModalUserId = ref<number | null>(null);
 const selectedPermissions = ref<string[]>([]);
@@ -33,17 +37,14 @@ const filteredUsers = computed(() => {
     );
 });
 
-// 🛠 Open permissions modal
 const openPermissionsModal = (user: any) => {
     permissionsModalVisible.value = true;
     permissionsModalUserId.value = user.id;
     selectedPermissions.value = user.permissions ? [...user.permissions] : [];
 };
 
-// 🛠 Save permissions
 const savePermissions = () => {
     if (!permissionsModalUserId.value) return;
-
     savingPermissions.value = true;
 
     router.put(
@@ -73,14 +74,17 @@ const savePermissions = () => {
     );
 };
 
-// 🛠 Save user
 const saveUser = async () => {
-    if (!newUserName.value.trim() || !newUserEmail.value.trim()) return;
+    if (!newUserName.value.trim() || !newUserEmail.value.trim() || !newUserRole.value) return;
+
+    savingUser.value = true;
 
     try {
         const response = await axios.post(route('user-managements-users-create'), {
             name: newUserName.value,
             email: newUserEmail.value,
+            role: newUserRole.value,
+            permissions: newUserPermissions.value.length > 0 ? newUserPermissions.value : ['/welcome-to-planetnine/register'],
         });
 
         if (response.data?.newUser) {
@@ -91,14 +95,17 @@ const saveUser = async () => {
         addingUser.value = false;
         newUserName.value = '';
         newUserEmail.value = '';
+        newUserRole.value = 'user';
+        newUserPermissions.value = [];
 
-        Swal.fire('Success!', 'User created and email sent successfully.', 'success');
+        Swal.fire('Success!', 'User created successfully.', 'success');
     } catch (error) {
         Swal.fire('Error!', 'Failed to create user.', 'error');
+    } finally {
+        savingUser.value = false;
     }
 };
 
-// 🛠 Delete user
 const deleteUser = async (id: number) => {
     const result = await Swal.fire({
         title: 'Are you sure?',
@@ -124,7 +131,48 @@ const deleteUser = async (id: number) => {
     }
 };
 
-// 🛠 Toggle permission
+const resetPassword = async (id: number) => {
+    const result = await Swal.fire({
+        title: 'Reset Password?',
+        text: "This will reset the user's password to a temporary one.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#4f46e5',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, reset it!',
+    });
+
+    if (result.isConfirmed) {
+        resettingPasswordUserId.value = id;
+
+        router.post(
+            route('user-managements-users-update-password', id),
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    // ✅ Update permissions manually on frontend
+                    const userIndex = users.value.findIndex((u: any) => u.id === id);
+                    if (userIndex !== -1) {
+                        const user = users.value[userIndex];
+                        if (!user.permissions.includes('/change-password')) {
+                            user.permissions.push('/change-password');
+                        }
+                    }
+
+                    Swal.fire('Success!', 'Password reset successfully.', 'success');
+                },
+                onError: () => {
+                    Swal.fire('Error!', 'Failed to reset password.', 'error');
+                },
+                onFinish: () => {
+                    resettingPasswordUserId.value = null;
+                },
+            },
+        );
+    }
+};
+
 const togglePermission = (href: string) => {
     if (selectedPermissions.value.includes('*')) {
         selectedPermissions.value = routes.value.map((r) => r.href);
@@ -138,13 +186,11 @@ const togglePermission = (href: string) => {
 
     const allRoutes = routes.value.map((r) => r.href).sort();
     const currentPermissions = [...selectedPermissions.value].sort();
-
     if (JSON.stringify(allRoutes) === JSON.stringify(currentPermissions)) {
         selectedPermissions.value = ['*'];
     }
 };
 
-// 🛠 Select all / Clear all
 const selectAll = () => (selectedPermissions.value = ['*']);
 const clearAll = () => (selectedPermissions.value = []);
 </script>
@@ -159,7 +205,6 @@ const clearAll = () => (selectedPermissions.value = []);
                     <p class="text-sm text-muted-foreground">Manage all users and their permissions.</p>
                 </div>
 
-                <!-- Search & Add -->
                 <div class="flex items-center justify-between gap-4">
                     <input
                         v-model="search"
@@ -170,14 +215,13 @@ const clearAll = () => (selectedPermissions.value = []);
                     <Button size="sm" class="whitespace-nowrap" @click="addingUser = true">Add</Button>
                 </div>
 
-                <!-- Table -->
                 <div class="overflow-x-auto rounded-lg bg-white shadow dark:bg-gray-800">
                     <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
                         <thead class="bg-gray-100 text-xs uppercase dark:bg-gray-700 dark:text-gray-300">
                             <tr>
                                 <th class="px-6 py-3 text-center font-semibold">#</th>
                                 <th class="px-6 py-3 text-center font-semibold">Name / Email</th>
-                                <th class="px-6 py-3 text-center font-semibold">Designation / Role</th>
+                                <th class="px-6 py-3 text-center font-semibold">Role</th>
                                 <th class="px-6 py-3 text-center font-semibold">Permissions</th>
                                 <th class="px-6 py-3 text-center font-semibold">Actions</th>
                             </tr>
@@ -197,12 +241,38 @@ const clearAll = () => (selectedPermissions.value = []);
                                         class="mt-2 w-full rounded-md border px-2 py-1 dark:bg-gray-700 dark:text-white"
                                     />
                                 </td>
-                                <td class="px-6 py-4">User</td>
-                                <td class="px-6 py-4">-</td>
+                                <td class="px-6 py-4">
+                                    <select v-model="newUserRole" class="w-full rounded-md border px-2 py-1 dark:bg-gray-700 dark:text-white">
+                                        <option disabled value="">Select role</option>
+                                        <option value="super_admin">Super Admin</option>
+                                        <option value="admin">Admin</option>
+                                        <option value="user">User</option>
+                                    </select>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="max-h-36 space-y-1 overflow-y-auto rounded-md border bg-gray-50 p-2 dark:bg-gray-900">
+                                        <div v-for="route in routes" :key="route.id" class="flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                v-model="newUserPermissions"
+                                                :value="route.href"
+                                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                            />
+                                            <label class="text-sm">{{ route.title }}</label>
+                                        </div>
+                                    </div>
+                                </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center justify-center gap-2">
-                                        <Button size="sm" class="w-20" @click="saveUser">Save</Button>
-                                        <Button size="sm" variant="outline" class="w-20" @click="addingUser = false">Cancel</Button>
+                                        <Button size="sm" class="w-20" @click="saveUser" :disabled="savingUser">
+                                            <template v-if="savingUser">
+                                                <LoaderCircle class="mx-auto h-4 w-4 animate-spin" />
+                                            </template>
+                                            <template v-else>Save</template>
+                                        </Button>
+                                        <Button size="sm" variant="outline" class="w-20" @click="addingUser = false" :disabled="savingUser"
+                                            >Cancel</Button
+                                        >
                                     </div>
                                 </td>
                             </tr>
@@ -214,15 +284,23 @@ const clearAll = () => (selectedPermissions.value = []);
                                     <hr />
                                     <small>{{ user.email }}</small>
                                 </td>
-                                <td class="px-6 py-4">
-                                    {{ user.designation_name ?? '-' }}
-                                    <hr />
-                                    <small>{{ user.role ?? '-' }}</small>
-                                </td>
+                                <td class="px-6 py-4 capitalize">{{ user.role ?? '-' }}</td>
                                 <td class="px-6 py-4">
                                     <Button size="sm" variant="secondary" @click="openPermissionsModal(user)">Permissions</Button>
                                 </td>
                                 <td class="space-x-2 px-6 py-4">
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        class="w-28"
+                                        @click="resetPassword(user.id)"
+                                        :disabled="resettingPasswordUserId === user.id"
+                                    >
+                                        <template v-if="resettingPasswordUserId === user.id">
+                                            <LoaderCircle class="mx-auto h-4 w-4 animate-spin" />
+                                        </template>
+                                        <template v-else> Reset Password </template>
+                                    </Button>
                                     <Button size="sm" variant="destructive" @click="deleteUser(user.id)">Delete</Button>
                                 </td>
                             </tr>

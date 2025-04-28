@@ -11,12 +11,12 @@ const sidebarNavItems: NavItem[] = [
         href: '/user-managements/designations',
     },
     {
-        title: 'Users',
-        href: '/user-managements/users',
-    },
-    {
         title: 'Routes',
         href: '/user-managements/routes',
+    },
+    {
+        title: 'Users',
+        href: '/user-managements/users',
     }
 ];
 

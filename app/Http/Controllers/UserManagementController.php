@@ -9,6 +9,10 @@ use App\Models\User;
 use App\Models\Route;
 use Illuminate\Validation\Rule;
 use App\Services\ResendMailService;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\DB;
 
 class UserManagementController extends Controller
 {
@@ -96,16 +100,25 @@ class UserManagementController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',
+            'role' => 'required|in:super_admin,admin,user',
+            'permissions' => 'nullable|array',
         ]);
-    
+
+        // 🛠 Ensure /welcome-to-planetnine/register is added if not already there
+        $permissions = $data['permissions'] ?? [];
+
+        if (!in_array('/welcome-to-planetnine/register', $permissions)) {
+            $permissions[] = '/welcome-to-planetnine/register';
+        }
+
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'role' => 'user',
-            'password' => bcrypt('password'),
-            'permissions' => ['/welcome-to-planetnine/register'],
+            'role' => $data['role'],
+            'password' => bcrypt('password'), // Temporary password
+            'permissions' => $permissions,
         ]);
-    
+
         // ✅ Send Welcome Email
         ResendMailService::send(
             $user->email,
@@ -113,7 +126,7 @@ class UserManagementController extends Controller
             'Welcome to Planet Nine!',
             view('emails.welcome', compact('user'))->render()
         );
-    
+
         // ✅ Return JSON
         return response()->json([
             'success' => true,
@@ -126,6 +139,44 @@ class UserManagementController extends Controller
                 'permissions' => $user->permissions,
             ],
         ]);
+    }
+
+    public function userPasswordUpdate(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        // ✅ Generate new password
+        $temporaryPassword = Str::random(10);
+
+        $user->update([
+            'password' => bcrypt($temporaryPassword),
+        ]);
+
+        // ✅ Add '/change-password' permission
+        $permissions = $user->permissions ?? [];
+        if (!in_array('/change-password', $permissions)) {
+            $permissions[] = '/change-password';
+            $user->permissions = $permissions;
+            $user->save();
+        }
+
+        // 🛠️ NEW - If the affected user is currently logged in, refresh session
+        if (auth()->check() && auth()->id() == $user->id) {
+            auth()->setUser($user->fresh()); // ✅ Important: refresh logged-in user session
+        }
+
+        // ✅ Send Email
+        ResendMailService::send(
+            $user->email,
+            $user->name,
+            'Password Reset at Planet Nine!',
+            view('emails.changepassword', [
+                'user' => $user,
+                'temporaryPassword' => $temporaryPassword,
+            ])->render()
+        );
+
+        return back()->with('success', 'Password reset successfully and email sent.');
     }
 
     public function userDelete($id)
@@ -174,9 +225,27 @@ class UserManagementController extends Controller
         $route->delete();
     }
 
-    public function register()
+    public function register(Request $request)
     {
+        $userId = $request->query('user');
+
+        if (!$userId) {
+            abort(403, 'Invalid registration link.');
+        }
+
+        $user = User::find($userId);
+
+        if (!$user) {
+            abort(404, 'User not found.');
+        }
+
+        if (!in_array('/welcome-to-planetnine/register', $user->permissions ?? [])) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        // ✅ Now everything is safe
         $designations = Designation::orderBy('name')->get();
+
         return Inertia::render('UserManagements/Register/Index', [
             'designations' => $designations,
         ]);
@@ -184,24 +253,77 @@ class UserManagementController extends Controller
 
     public function registerPost(Request $request)
     {
-        // 🛠 Validate only Designation and Password fields
         $data = $request->validate([
+            'user_id' => 'required|exists:users,id',
             'designation' => 'required|exists:designations,id',
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        // 🛠 Create User
-        $user = User::create([
+        $user = User::findOrFail($data['user_id']);
+
+        // ✅ Update user information
+        $user->update([
             'designation' => $data['designation'],
-            'password' => Hash::make($data['password']),
-            'role' => 'user', // or default role
-            'name' => 'Unnamed', // Default, or you can add another field later
-            'email' => uniqid() . '@example.com', // Dummy email (because unique is required if email is in db)
+            'password' => bcrypt($data['password']),
+            'email_verified_at' => now(),
         ]);
 
-        // Optionally log in the user automatically
-        auth()->login($user);
+        // ✅ Refresh user from database to get latest permissions
+        $user->refresh();
 
-        return redirect()->route('dashboard');
+        // ✅ Remove '/welcome-to-planetnine/register' permission if it exists
+        $user->permissions = collect($user->permissions ?? [])
+            ->reject(fn($permission) => $permission === '/welcome-to-planetnine/register')
+            ->values()
+            ->all();
+        $user->save();
+
+        // ✅ Logout immediately after registration
+        auth()->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login')->with('success', 'Registration completed successfully. Please login.');
+    }
+
+    public function changePassword(Request $request)
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        if (!in_array('/change-password', $user->permissions ?? [])) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        return Inertia::render('UserManagements/ChangePassword/Index');
+    }
+
+    public function changePasswordPost(Request $request)
+    {
+        $data = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ]);
+    
+        $user = User::findOrFail($data['user_id']);
+    
+        $user->update([
+            'password' => bcrypt($data['password']),
+            'email_verified_at' => now(),
+        ]);
+    
+        // Remove '/change-password' permission
+        $user->permissions = array_filter($user->permissions ?? [], fn($perm) => $perm !== '/change-password');
+        $user->save();
+    
+        // ✅ Just to be safe: logout if session active
+        auth()->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+    
+        return redirect()->route('login')->with('success', 'Password changed successfully. Please login.');
     }
 }

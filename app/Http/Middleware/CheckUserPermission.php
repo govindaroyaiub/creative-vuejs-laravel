@@ -9,21 +9,24 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckUserPermission
 {
     protected $alwaysAllow = [
-        '/dashboard',
-        '/user-managements/users',
-        '/user-managements/designations',
-        '/user-managements/routes',
+        '/dashboard'
     ];
 
     public function handle(Request $request, Closure $next)
     {
+        $currentRoute = '/' . ltrim($request->path(), '/');
+
+        // ✅ 1. Always allow public routes first
+        if (in_array($currentRoute, ['/change-password', '/welcome-to-planetnine/register'])) {
+            return $next($request);
+        }
+
         $user = auth()->user();
 
+        // ✅ 2. Now check if user exists for private routes
         if (!$user || !$user->permissions) {
             abort(403, 'Sorry mate! You do not have permission to access this page.');
         }
-
-        $currentRoute = '/' . ltrim($request->path(), '/');
 
         // ✅ Always allow safe routes
         if (in_array($currentRoute, $this->alwaysAllow)) {
@@ -35,7 +38,7 @@ class CheckUserPermission
             return $next($request);
         }
 
-        // ✅ Allow if route exists in permission
+        // ✅ Allow if specific permission
         if (in_array($currentRoute, $user->permissions)) {
             return $next($request);
         }
