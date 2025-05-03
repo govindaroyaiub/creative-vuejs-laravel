@@ -197,6 +197,7 @@ const clearAll = () => (selectedPermissions.value = []);
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
+
         <Head title="Users" />
         <SettingsLayout>
             <div class="mx-auto max-w-6xl space-y-6 px-4">
@@ -206,12 +207,8 @@ const clearAll = () => (selectedPermissions.value = []);
                 </div>
 
                 <div class="flex items-center justify-between gap-4">
-                    <input
-                        v-model="search"
-                        type="text"
-                        placeholder="Search users..."
-                        class="w-full max-w-sm rounded-md border px-4 py-2 dark:bg-gray-700 dark:text-white"
-                    />
+                    <input v-model="search" type="text" placeholder="Search users..."
+                        class="w-full max-w-sm rounded-md border px-4 py-2 dark:bg-gray-700 dark:text-white" />
                     <Button size="sm" class="whitespace-nowrap" @click="addingUser = true">Add</Button>
                 </div>
 
@@ -230,19 +227,14 @@ const clearAll = () => (selectedPermissions.value = []);
                             <tr v-if="addingUser" class="text-center">
                                 <td class="px-6 py-4">#</td>
                                 <td class="px-6 py-4">
-                                    <input
-                                        v-model="newUserName"
-                                        placeholder="Name"
-                                        class="w-full rounded-md border px-2 py-1 dark:bg-gray-700 dark:text-white"
-                                    />
-                                    <input
-                                        v-model="newUserEmail"
-                                        placeholder="Email"
-                                        class="mt-2 w-full rounded-md border px-2 py-1 dark:bg-gray-700 dark:text-white"
-                                    />
+                                    <input v-model="newUserName" placeholder="Name"
+                                        class="w-full rounded-md border px-2 py-1 dark:bg-gray-700 dark:text-white" />
+                                    <input v-model="newUserEmail" placeholder="Email"
+                                        class="mt-2 w-full rounded-md border px-2 py-1 dark:bg-gray-700 dark:text-white" />
                                 </td>
                                 <td class="px-6 py-4">
-                                    <select v-model="newUserRole" class="w-full rounded-md border px-2 py-1 dark:bg-gray-700 dark:text-white">
+                                    <select v-model="newUserRole"
+                                        class="w-full rounded-md border px-2 py-1 dark:bg-gray-700 dark:text-white">
                                         <option disabled value="">Select role</option>
                                         <option value="super_admin">Super Admin</option>
                                         <option value="admin">Admin</option>
@@ -250,14 +242,11 @@ const clearAll = () => (selectedPermissions.value = []);
                                     </select>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <div class="max-h-36 space-y-1 overflow-y-auto rounded-md border bg-gray-50 p-2 dark:bg-gray-900">
+                                    <div
+                                        class="max-h-36 space-y-1 overflow-y-auto rounded-md border bg-gray-50 p-2 dark:bg-gray-900">
                                         <div v-for="route in routes" :key="route.id" class="flex items-center gap-2">
-                                            <input
-                                                type="checkbox"
-                                                v-model="newUserPermissions"
-                                                :value="route.href"
-                                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                            />
+                                            <input type="checkbox" v-model="newUserPermissions" :value="route.href"
+                                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
                                             <label class="text-sm">{{ route.title }}</label>
                                         </div>
                                     </div>
@@ -270,32 +259,33 @@ const clearAll = () => (selectedPermissions.value = []);
                                             </template>
                                             <template v-else>Save</template>
                                         </Button>
-                                        <Button size="sm" variant="outline" class="w-20" @click="addingUser = false" :disabled="savingUser"
-                                            >Cancel</Button
-                                        >
+                                        <Button size="sm" variant="outline" class="w-20" @click="addingUser = false"
+                                            :disabled="savingUser">Cancel</Button>
                                     </div>
                                 </td>
                             </tr>
 
-                            <tr v-for="(user, index) in filteredUsers" :key="user.id" class="text-center hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <tr v-for="(user, index) in filteredUsers" :key="user.id"
+                                class="text-center hover:bg-gray-50 dark:hover:bg-gray-700">
                                 <td class="px-6 py-4">{{ index + 1 }}</td>
                                 <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
                                     {{ user.name }}
                                     <hr />
                                     <small>{{ user.email }}</small>
                                 </td>
-                                <td class="px-6 py-4 capitalize">{{ user.role ?? '-' }}</td>
+                                <td class="px-6 py-4 capitalize">
+                                    {{ user.role ?? '-' }}
+                                    <hr />
+                                    <small class="text-gray-500 dark:text-gray-300">{{ user.designation_name ?? '-'
+                                        }}</small>
+                                </td>
                                 <td class="px-6 py-4">
-                                    <Button size="sm" variant="secondary" @click="openPermissionsModal(user)">Permissions</Button>
+                                    <Button size="sm" variant="secondary"
+                                        @click="openPermissionsModal(user)">Permissions</Button>
                                 </td>
                                 <td class="space-x-2 px-6 py-4">
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        class="w-28"
-                                        @click="resetPassword(user.id)"
-                                        :disabled="resettingPasswordUserId === user.id"
-                                    >
+                                    <Button size="sm" variant="outline" class="w-28" @click="resetPassword(user.id)"
+                                        :disabled="resettingPasswordUserId === user.id">
                                         <template v-if="resettingPasswordUserId === user.id">
                                             <LoaderCircle class="mx-auto h-4 w-4 animate-spin" />
                                         </template>
@@ -314,11 +304,13 @@ const clearAll = () => (selectedPermissions.value = []);
             </div>
 
             <!-- Permissions Modal -->
-            <div v-if="permissionsModalVisible" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div v-if="permissionsModalVisible"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                 <div class="w-full max-w-lg rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
                     <h2 class="mb-4 text-center text-xl font-bold text-gray-800 dark:text-white">Manage Permissions</h2>
 
-                    <div v-if="selectedPermissions.includes('*')" class="mb-4 rounded bg-green-100 p-2 text-center text-sm text-green-600">
+                    <div v-if="selectedPermissions.includes('*')"
+                        class="mb-4 rounded bg-green-100 p-2 text-center text-sm text-green-600">
                         All routes are enabled (Wildcard '*')
                     </div>
 
@@ -328,22 +320,22 @@ const clearAll = () => (selectedPermissions.value = []);
                     </div>
 
                     <div class="max-h-72 space-y-3 overflow-y-auto rounded-md border bg-gray-50 p-3 dark:bg-gray-900">
-                        <div v-for="route in routes" :key="route.id" class="flex items-center justify-between rounded border-b pb-2">
+                        <div v-for="route in routes" :key="route.id"
+                            class="flex items-center justify-between rounded border-b pb-2">
                             <div>
                                 <span class="text-sm text-gray-700 dark:text-gray-300">{{ route.title }}</span>
                                 <div class="text-xs text-gray-400">{{ route.href }}</div>
                             </div>
-                            <input
-                                type="checkbox"
+                            <input type="checkbox"
                                 :checked="selectedPermissions.includes('*') || selectedPermissions.includes(route.href)"
                                 @change="togglePermission(route.href)"
-                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                            />
+                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
                         </div>
                     </div>
 
                     <div class="mt-6 flex justify-end space-x-2">
-                        <Button size="sm" variant="outline" @click="permissionsModalVisible = false" :disabled="savingPermissions">Cancel</Button>
+                        <Button size="sm" variant="outline" @click="permissionsModalVisible = false"
+                            :disabled="savingPermissions">Cancel</Button>
                         <Button size="sm" @click="savePermissions" :disabled="savingPermissions">
                             <template v-if="savingPermissions">Saving...</template>
                             <template v-else>Save</template>

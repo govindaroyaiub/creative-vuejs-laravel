@@ -23,7 +23,6 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(function () {
-
     Route::get('dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');

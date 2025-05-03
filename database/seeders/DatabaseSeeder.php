@@ -48,7 +48,7 @@ class DatabaseSeeder extends Seeder
             ['title' => 'Previews', 'href' => '/previews'],
             ['title' => 'Banner Sizes', 'href' => '/banner-sizes'],
             ['title' => 'Video Sizes', 'href' => '/video-sizes'],
-            ['title' => 'Social Image Formats', 'href' => '/socials'],
+            ['title' => 'Social Formats', 'href' => '/socials'],
             ['title' => 'File Transfers', 'href' => '/file-transfers'],
             ['title' => 'Bills', 'href' => '/bills'],
             ['title' => 'Access Manager', 'href' => '/user-managements'],
