@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ColorPalette;
 
 class Client extends Model
 {
@@ -11,6 +12,11 @@ class Client extends Model
         'website',
         'preview_url',
         'logo',
-        'brand_color',
+        'color_palette_id',
     ];
+
+    public function colorPalette()
+    {
+        return $this->belongsTo(ColorPalette::class);
+    }
 }

@@ -5,7 +5,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutDashboard, Paperclip, Clapperboard, MonitorCog, MonitorStop, ReceiptText, Users, Image, CircleDollarSign } from 'lucide-vue-next';
+import { LayoutDashboard, Paperclip, Clapperboard, MonitorCog, MonitorStop, ReceiptText, Users, Image, CircleDollarSign, Paintbrush, ImagePlay } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 import { computed } from 'vue'; // ✅ important to make reactive
@@ -21,8 +21,10 @@ const mainNavItems: NavItem[] = [
     { title: 'Banner Sizes', href: '/banner-sizes', icon: MonitorCog },
     { title: 'Video Sizes', href: '/video-sizes', icon: Clapperboard },
     { title: 'Social Image Formats', href: '/socials', icon: Image },
+    { title: 'Color Palettes', href: '/color-palettes', icon: Paintbrush},
     { title: 'File Transfers', href: '/file-transfers', icon: Paperclip },
     { title: 'Bills', href: '/bills', icon: ReceiptText },
+    { title: 'Media Library', 'href': '/medias', icon: ImagePlay },
 ];
 
 const footerNavItems: NavItem[] = [

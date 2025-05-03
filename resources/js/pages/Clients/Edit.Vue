@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, Link } from '@inertiajs/vue3';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import Swal from 'sweetalert2';
 import { type BreadcrumbItem } from '@/types';
 
@@ -16,27 +16,40 @@ const props = defineProps<{
         name: string;
         website: string;
         preview_url: string | null;
-        brand_color: string;
         logo: string;
+        color_palette_id: number | null;
     };
+    palettes: Array<{
+        id: number;
+        name: string;
+        primary: string;
+    }>;
 }>();
 
 const form = ref({
     name: '',
     website: '',
     preview_url: '',
-    brand_color: '#000000',
+    color_palette_id: null as number | null,
     logo: null as File | null,
 });
 
 const logoPreview = ref<string>(`/logo/${props.client.logo}`);
+const selectedColorHex = ref<string>('');
 
-// Fill the form on mount
 onMounted(() => {
     form.value.name = props.client.name;
     form.value.website = props.client.website;
     form.value.preview_url = props.client.preview_url || '';
-    form.value.brand_color = props.client.brand_color || '#000000';
+    form.value.color_palette_id = props.client.color_palette_id;
+
+    const match = props.palettes.find(p => p.id === props.client.color_palette_id);
+    selectedColorHex.value = match ? match.primary : '#000000';
+});
+
+watch(() => form.value.color_palette_id, (id) => {
+    const match = props.palettes.find(p => p.id === id);
+    selectedColorHex.value = match ? match.primary : '#000000';
 });
 
 const handleFileChange = (e: Event) => {
@@ -52,7 +65,7 @@ const handleSubmit = () => {
     formData.append('name', form.value.name);
     formData.append('website', form.value.website);
     formData.append('preview_url', form.value.preview_url);
-    formData.append('brand_color', form.value.brand_color);
+    formData.append('color_palette_id', form.value.color_palette_id?.toString() || '');
     if (form.value.logo) {
         formData.append('logo', form.value.logo);
     }
@@ -89,11 +102,20 @@ const handleSubmit = () => {
                     <input v-model="form.preview_url" type="url" class="w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white" />
                 </div>
 
-                <!-- Brand Color -->
+                <!-- Color Palette -->
                 <div>
-                    <label class="block text-sm font-medium">Brand Color</label>
-                    <input v-model="form.brand_color" type="color" class="w-16 h-10 p-1 rounded border" />
-                    <span class="ml-2">{{ form.brand_color }}</span>
+                    <label class="block text-sm font-medium">Color Palette</label>
+                    <select v-model="form.color_palette_id" class="w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white">
+                        <option :value="null">Select a palette</option>
+                        <option v-for="palette in props.palettes" :key="palette.id" :value="palette.id">
+                            {{ palette.name }} ({{ palette.primary }})
+                        </option>
+                    </select>
+                    <div class="mt-2 flex items-center space-x-2">
+                        <span class="text-sm">Selected:</span>
+                        <span :style="{ backgroundColor: selectedColorHex }" class="inline-block h-6 w-12 rounded border"></span>
+                        <span class="text-sm">{{ selectedColorHex }}</span>
+                    </div>
                 </div>
 
                 <!-- Logo Upload -->

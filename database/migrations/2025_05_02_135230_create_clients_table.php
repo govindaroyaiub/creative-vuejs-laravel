@@ -16,8 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('website');
             $table->string('preview_url')->nullable();
-            $table->string('logo'); // assuming a URL or path to stored logo
-            $table->string('brand_color'); // hex code
+            $table->string('logo');
+            $table->foreignId('color_palette_id')->constrained()->onDelete('cascade'); // foreign key to color_palettes
             $table->timestamps();
         });
     }

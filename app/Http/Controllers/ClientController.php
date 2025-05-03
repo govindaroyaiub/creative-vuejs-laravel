@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\ColorPalette;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 
@@ -12,22 +13,30 @@ class ClientController extends Controller
 {
     public function index()
     {
-        $clients = Client::latest()->paginate(10);
+        $clients = Client::with('colorPalette')->latest()->paginate(10);
+
         return Inertia::render('Clients/Index', [
-            'clients' => $clients
+            'clients' => $clients,
         ]);
     }
 
     public function create()
     {
-        return Inertia::render('Clients/Create');
+        $colorPalettes = ColorPalette::where('status', 1)->get(['id', 'name', 'primary']);
+
+        return Inertia::render('Clients/Create', [
+            'colorPalettes' => $colorPalettes,
+        ]);
     }
 
     public function edit($id)
     {
-        $client = Client::findOrFail($id);
+        $client = Client::with('colorPalette')->findOrFail($id);
+        $palettes = ColorPalette::where('status', 1)->get();
+
         return Inertia::render('Clients/Edit', [
-            'client' => $client
+            'client' => $client,
+            'palettes' => $palettes,
         ]);
     }
 
@@ -38,7 +47,7 @@ class ClientController extends Controller
             'website' => 'required|url',
             'preview_url' => 'nullable|url',
             'logo' => 'nullable|image|max:2048',
-            'brand_color' => 'nullable|string|max:20',
+            'color_palette_id' => 'required|exists:color_palettes,id',
         ]);
 
         $filename = null;
@@ -49,15 +58,18 @@ class ClientController extends Controller
             $logo->move(public_path('logo'), $filename);
         }
 
+        $palette = ColorPalette::find($validated['color_palette_id']);
+
         Client::create([
             'name' => $validated['name'],
             'website' => $validated['website'],
             'preview_url' => $validated['preview_url'],
             'logo' => $filename,
-            'brand_color' => $validated['brand_color'],
+            'brand_color' => $palette->primary,
+            'color_palette_id' => $palette->id,
         ]);
 
-        return redirect()->route('clients-index')->with('success', 'Client created successfully.');
+        return redirect()->route('clients')->with('success', 'Client created successfully.');
     }
 
     public function update(Request $request, $id)
@@ -67,16 +79,17 @@ class ClientController extends Controller
             'website' => 'required|url',
             'preview_url' => 'nullable|url',
             'logo' => 'nullable|image|max:2048',
-            'brand_color' => 'nullable|string|max:20',
+            'color_palette_id' => 'nullable|exists:color_palettes,id',
         ]);
 
         $client = Client::findOrFail($id);
         $filename = $client->logo;
 
         if ($request->hasFile('logo')) {
-            // Delete the old logo file if it exists
-            if ($client->logo && file_exists(public_path($client->logo))) {
-                unlink(public_path($client->logo));
+            // Delete old logo if it exists
+            $oldLogoPath = public_path('logo/' . $client->logo);
+            if ($client->logo && file_exists($oldLogoPath)) {
+                unlink($oldLogoPath);
             }
 
             $logo = $request->file('logo');
@@ -89,8 +102,10 @@ class ClientController extends Controller
             'website' => $validated['website'],
             'preview_url' => $validated['preview_url'],
             'logo' => $filename,
-            'brand_color' => $validated['brand_color'],
+            'color_palette_id' => $validated['color_palette_id'] ?? null,
         ]);
+
+        return redirect()->route('clients')->with('success', 'Client updated successfully.');
     }
 
     public function destroy($id)

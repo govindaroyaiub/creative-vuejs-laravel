@@ -11,8 +11,9 @@ use App\Http\Controllers\BillController;
 use App\Http\Controllers\SocialController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\ColorPaletteController;
+use App\Http\Controllers\MediaController;
 use App\Http\Middleware\CheckUserPermission;
-use App\Models\User;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -104,6 +105,20 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::delete('/user-managements/routes-delete/{id}', [UserManagementController::class, 'routesDestroy'])->name('user-managements-routes-delete');
 
     //user-management routes end
+
+    // Color palette routes start
+    Route::get('/color-palettes', [ColorPaletteController::class, 'index'])->name('color-palettes');
+    Route::post('/color-palettes-create', [ColorPaletteController::class, 'store'])->name('color-palettes-store');
+    Route::put('/color-palettes-update/{id}', [ColorPaletteController::class, 'update'])->name('color-palettes-update');
+    Route::delete('/color-palettes-delete/{id}', [ColorPaletteController::class, 'destroy'])->name('color-palettes-delete');
+    // Color Palette Routes
+
+    //Media Routes Start
+    Route::get('/medias', [MediaController::class, 'index'])->name('medias');
+    Route::post('/medias-store', [MediaController::class, 'store'])->name('medias-store');
+    Route::delete('/medias-delete/{id}', [MediaController::class, 'destroy'])->name('medias-delete');
+    Route::get('/medias-download/{id}', [MediaController::class, 'download'])->name('medias-download');
+    //Media Routes End
 });
 
 Route::get('/file-transfers-view/{id}', [FileTransferController::class, 'show'])->name('file-transfers-view');
