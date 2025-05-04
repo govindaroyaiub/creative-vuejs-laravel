@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Preview;
 use App\Models\Client;
 use App\Models\User;
+use App\Models\BannerSize;
 use App\Models\ColorPalette;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -23,20 +24,33 @@ class PreviewController extends Controller
 
         return Inertia::render('Previews/Index', [
             'previews' => $previews,
+            'clients' => Client::orderBy('name')->get(['id', 'name']),
+            'users' => User::orderBy('name')->get(['id', 'name']),
+            'colorPalettes' => ColorPalette::orderBy('name')->get(['id', 'name']),
+            'bannerSizes' => BannerSize::orderBy('width', 'ASC')
+                ->orderBy('height', 'ASC')
+                ->get(['id', 'width', 'height'])
+                ->map(function ($size) {
+                    $size->name = "{$size->width}x{$size->height}";
+                    return $size;
+                }),
+            'auth' => ['user' => auth()->user()],
         ]);
     }
 
     public function create()
     {
-        return inertia('Previews/Create', [
-            'clients' => Client::all(),
-            'users' => User::all(),
-            'palettes' => ColorPalette::all(),
+        return Inertia::render('Previews/Create', [
+            'clients' => Client::orderBy('name')->get(['id', 'name']),
+            'users' => User::orderBy('name')->get(['id', 'name']),
+            'colorPalettes' => ColorPalette::orderBy('name')->get(['id', 'name']),
+            'auth' => ['user' => auth()->user()],
         ]);
     }
 
     public function store(Request $request)
     {
+        dd($request->all());
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'client_id' => 'required|exists:clients,id',
@@ -82,13 +96,13 @@ class PreviewController extends Controller
 
         $preview->update($validated);
 
-        return redirect()->route('previews.index')->with('success', 'Preview updated.');
+        return redirect()->route('previews-index')->with('success', 'Preview updated.');
     }
 
     public function destroy(Preview $preview)
     {
         $preview->delete();
 
-        return redirect()->route('previews.index')->with('success', 'Preview deleted.');
+        return redirect()->route('previews-index')->with('success', 'Preview deleted.');
     }
 }

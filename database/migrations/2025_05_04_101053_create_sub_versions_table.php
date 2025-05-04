@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('path');
             $table->boolean('is_active')->default(false);
+            $table->unsignedInteger('position')->default(0); // 👈 Add this
             $table->timestamps();
         });
     }
