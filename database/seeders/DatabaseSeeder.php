@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\Designation;
 use App\Models\Route;
+use App\Models\Client;
+use App\Models\Preview;
 use App\Models\ColorPalette;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -28,6 +30,42 @@ class DatabaseSeeder extends Seeder
             'permissions' => ['*'],
         ]);
 
+        User::create([
+            'name' => 'Govinda Roy',
+            'email' => 'govinda@planetnine.com',
+            'password' => Hash::make('password'),
+            'role' => 'super_admin',
+            'designation' => 1,
+            'permissions' => ['*'],
+        ]);
+
+        User::create([
+            'name' => 'Rashid Shahriar',
+            'email' => 'rashid@planetnine.com',
+            'password' => Hash::make('password'),
+            'role' => 'super_admin',
+            'designation' => 1,
+            'permissions' => ['*'],
+        ]);
+
+        User::create([
+            'name' => 'Ibrahim Faisal',
+            'email' => 'faisal@planetnine.com',
+            'password' => Hash::make('password'),
+            'role' => 'super_admin',
+            'designation' => 1,
+            'permissions' => ['*'],
+        ]);
+
+        User::create([
+            'name' => 'Rokib Hasan',
+            'email' => 'rokib@planetnine.com',
+            'password' => Hash::make('password'),
+            'role' => 'super_admin',
+            'designation' => 1,
+            'permissions' => ['*'],
+        ]);
+
         $designations = [
             'Developer',
             'Project Manager',
@@ -36,7 +74,7 @@ class DatabaseSeeder extends Seeder
             'Data Scientist',
             'Office Staff'
         ];
-        
+
         foreach ($designations as $designation) {
             Designation::create([
                 'name' => $designation,
@@ -75,7 +113,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Sky Blue Theme',
                 'primary' => '#9acde2',
-               'secondary' => '#c0f8fc',
+                'secondary' => '#c0f8fc',
                 'tertiary' => '#4f8d99',
                 'quaternary' => '#ffffff',
                 'status' => 1,
@@ -114,9 +152,53 @@ class DatabaseSeeder extends Seeder
             ],
         ];
 
+
         foreach ($colorPalettes as $palette) {
             ColorPalette::create($palette);
         }
-        
+
+        $clients = [
+            ['name' => 'SpaceCorp', 'website' => 'https://spacecorp.com', 'preview_url' => null, 'logo' => 'logos/spacecorp.png', 'color_palette_id' => 1],
+            ['name' => 'PixelForge', 'website' => 'https://pixelforge.io', 'preview_url' => 'https://preview.pixelforge.io', 'logo' => 'logos/pixelforge.png', 'color_palette_id' => 1],
+            ['name' => 'AstroWorks', 'website' => 'https://astroworks.net', 'preview_url' => null, 'logo' => 'logos/astroworks.png', 'color_palette_id' => 1],
+        ];
+
+        foreach ($clients as $client) {
+            Client::create($client);
+        }
+
+        $previews = [
+            [
+                'name' => 'Spring Launch Campaign',
+                'client_id' => 1,
+                'uploader_id' => 1,
+                'color_palette_id' => 3,
+                'team_members' => [1],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'name' => 'Holiday Banner Set',
+                'client_id' => 1,
+                'uploader_id' => 1,
+                'color_palette_id' => 2,
+                'team_members' => [1],
+                'created_at' => now()->subDays(1),
+                'updated_at' => now()->subDays(1),
+            ],
+            [
+                'name' => 'Video Teaser Project',
+                'client_id' => 3,
+                'uploader_id' => 1,
+                'color_palette_id' => 4,
+                'team_members' => [1],
+                'created_at' => now()->subDays(2),
+                'updated_at' => now()->subDays(2),
+            ],
+        ];
+
+        foreach ($previews as $preview) {
+            Preview::create($preview);
+        }
     }
 }

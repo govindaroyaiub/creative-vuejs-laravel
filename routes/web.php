@@ -38,6 +38,11 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
 
     //Preview Routes Start
     Route::get('/previews', [PreviewController::class, 'index'])->name('previews-index');
+    Route::get('/previews-create', [PreviewController::class, 'create'])->name('previews-create');
+    Route::post('/previews-create-post', [PreviewController::class, 'store'])->name('previews-create-post');
+    Route::get('/previews-edit/{id}', [PreviewController::class, 'edit'])->name('previews-edit');
+    Route::post('/previews-edit/{id}', [PreviewController::class, 'update'])->name('previews-update');
+    Route::delete('/previews-delete/{id}', [PreviewController::class, 'destroy'])->name('previews-delete');
     //Preview Routes End
 
     //Banner Sizes Routes Start
@@ -95,7 +100,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::delete('/user-managements/users-delete/{id}', [UserManagementController::class, 'userDelete'])->name('user-managements-users-delete');
 
     Route::put('/user-managaments/users/update/permissions/{id}', [UserManagementController::class, 'userPermissionsUpdate'])->name('user-managements-users-update-permissions');
-
+    Route::put('/user-managements/users/{id}/update-role', [UserManagementController::class, 'updateRole'])->name('user-managements-users-update-role');
     Route::post('/user-managements/users/update-password/{id}', [UserManagementController::class, 'userPasswordUpdate'])->name('user-managements-users-update-password');
 
     Route::get('/user-managements/routes', [UserManagementController::class, 'routesIndex'])->name('user-managements-routes');

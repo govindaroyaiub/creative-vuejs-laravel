@@ -17,6 +17,6 @@ withDefaults(defineProps<Props>(), {
         <slot />
 
         <!-- 💬 Chat Assistant (Floating) -->
-        <ChatAssistant />
+        <!-- <ChatAssistant /> -->
     </AppSidebarLayout>
 </template>

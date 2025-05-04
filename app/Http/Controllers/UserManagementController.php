@@ -185,6 +185,19 @@ class UserManagementController extends Controller
         $user->delete();
     }
 
+    public function updateRole(Request $request, $id)
+    {
+        $request->validate([
+            'role' => 'required|in:super_admin,admin,user',
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->role = $request->role;
+        $user->save();
+
+        return response()->json(['success' => true]);
+    }
+
     public function routesIndex()
     {
         $routes = Route::orderBy('title', 'ASC')->get();
@@ -307,23 +320,23 @@ class UserManagementController extends Controller
             'user_id' => 'required|exists:users,id',
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
-    
+
         $user = User::findOrFail($data['user_id']);
-    
+
         $user->update([
             'password' => bcrypt($data['password']),
             'email_verified_at' => now(),
         ]);
-    
+
         // Remove '/change-password' permission
         $user->permissions = array_filter($user->permissions ?? [], fn($perm) => $perm !== '/change-password');
         $user->save();
-    
+
         // ✅ Just to be safe: logout if session active
         auth()->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-    
+
         return redirect()->route('login')->with('success', 'Password changed successfully. Please login.');
     }
 }
