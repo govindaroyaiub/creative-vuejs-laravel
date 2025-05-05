@@ -4,29 +4,29 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { CirclePlus, Pencil, Trash2 } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Socials',
-        href: '/socials',
-    },
+    { title: 'Socials', href: '/socials' },
 ];
 
 const page = usePage();
 const socials = computed(() => page.props.socials);
-const search = ref('');
+const search = ref(page.props.search ?? '');
+
+// Watch for input changes and query backend
+watch(search, (value) => {
+    router.get(route('socials'), { search: value }, {
+        preserveScroll: true,
+        preserveState: true,
+        replace: true,
+    });
+});
 
 const editingId = ref<number | null>(null);
 const editName = ref('');
-
 const adding = ref(false);
 const newName = ref('');
-
-const filteredSocials = computed(() => {
-    const query = search.value.toLowerCase();
-    return socials.value?.data?.filter((s: any) => s.name.toLowerCase().includes(query)) || [];
-});
 
 const startEditing = (social: any) => {
     editingId.value = social.id;
@@ -107,11 +107,13 @@ const saveNewSocial = () => {
 </script>
 
 <template>
+
     <Head title="Socials" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6">
             <div class="mb-4 flex items-center justify-between">
-                <input v-model="search" placeholder="Search..." class="w-full max-w-xs rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" />
+                <input v-model="search" placeholder="Search..."
+                    class="w-full max-w-xs rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" />
                 <button @click="startAdding" class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
                     <CirclePlus class="mr-1 inline h-5 w-5" />
                     Add
@@ -132,12 +134,8 @@ const saveNewSocial = () => {
                     <tr v-if="adding" class="border-t text-center text-sm dark:border-gray-700">
                         <td class="px-4 py-2">#</td>
                         <td class="px-4 py-2">
-                            <input
-                                v-model="newName"
-                                type="text"
-                                placeholder="Enter name"
-                                class="w-1/2 rounded border px-2 py-1 dark:bg-gray-700 dark:text-white"
-                            />
+                            <input v-model="newName" type="text" placeholder="Enter name"
+                                class="w-1/2 rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" />
                         </td>
                         <td class="space-x-2 px-4 py-2">
                             <button @click="saveNewSocial" class="text-sm text-green-600 hover:underline">Save</button>
@@ -146,22 +144,25 @@ const saveNewSocial = () => {
                     </tr>
 
                     <!-- Existing Data Rows -->
-                    <tr v-for="(social, index) in filteredSocials" :key="social.id" class="border-t text-center text-sm dark:border-gray-700">
+                    <tr v-for="(social, index) in socials.data" :key="social.id"
+                        class="border-t text-center text-sm dark:border-gray-700">
                         <td class="px-4 py-2">{{ index + 1 }}</td>
                         <td class="px-4 py-2">
                             <div v-if="editingId !== social.id">
                                 {{ social.name }}
                             </div>
                             <div v-else>
-                                <input v-model="editName" type="text" class="w-1/2 rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" />
+                                <input v-model="editName" type="text"
+                                    class="w-1/2 rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" />
                             </div>
                         </td>
                         <td class="space-x-2 px-4 py-2">
                             <template v-if="editingId === social.id">
-                                <button @click="saveEdit(social.id)" class="text-sm text-blue-600 hover:underline">Update</button>
-                                <button @click="editingId = null" class="text-sm text-red-500 hover:underline">Cancel</button>
+                                <button @click="saveEdit(social.id)"
+                                    class="text-sm text-blue-600 hover:underline">Update</button>
+                                <button @click="editingId = null"
+                                    class="text-sm text-red-500 hover:underline">Cancel</button>
                             </template>
-
                             <template v-else>
                                 <button @click="startEditing(social)" class="text-blue-600 hover:text-blue-800">
                                     <Pencil class="inline h-5 w-5" />
@@ -172,25 +173,22 @@ const saveNewSocial = () => {
                             </template>
                         </td>
                     </tr>
-                    <tr v-if="filteredSocials.length === 0 && !adding">
+
+                    <tr v-if="socials.data.length === 0 && !adding">
                         <td colspan="3" class="px-4 py-4 text-center text-gray-500">No socials found.</td>
                     </tr>
                 </tbody>
             </table>
+
             <!-- Pagination -->
             <div class="mt-6 flex justify-center space-x-2" v-if="socials.data.length > 0 && socials.links.length">
                 <template v-for="link in socials.links" :key="link.label">
-                    <component
-                        :is="link.url ? 'a' : 'span'"
-                        v-html="link.label"
-                        :href="link.url"
-                        class="rounded border px-4 py-2 text-sm"
-                        :class="{
+                    <component :is="link.url ? 'a' : 'span'" v-html="link.label" :href="link.url"
+                        class="rounded border px-4 py-2 text-sm" :class="{
                             'bg-indigo-600 text-white': link.active,
                             'cursor-not-allowed text-gray-400': !link.url,
                             'hover:bg-gray-200 dark:hover:bg-gray-700': link.url && !link.active,
-                        }"
-                    />
+                        }" />
                 </template>
             </div>
         </div>

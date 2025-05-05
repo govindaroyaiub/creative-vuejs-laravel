@@ -10,11 +10,24 @@ use Illuminate\Validation\Rule;
 
 class BannerSizeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $bannerSizes = BannerSize::orderBy('width', 'asc')->orderBy('height', 'ASC')->paginate(10);
+        $query = BannerSize::query();
+
+        if ($search = $request->input('search')) {
+            $query->where('width', 'like', "%{$search}%")
+                ->orWhere('height', 'like', "%{$search}%");
+        }
+
+        $bannerSizes = $query
+            ->orderBy('width', 'asc')
+            ->orderBy('height', 'asc')
+            ->paginate(10)
+            ->withQueryString();
+
         return Inertia::render('BannerSizes/Index', [
             'bannerSizes' => $bannerSizes,
+            'search' => $search, // optional: pass it back for binding
         ]);
     }
 
@@ -44,7 +57,7 @@ class BannerSizeController extends Controller
         $exists = BannerSize::where('width', $validated['width'])
             ->where('height', $validated['height'])
             ->exists();
-            
+
         if ($exists) {
             return Redirect::route('banner-sizes-index')->with('error', 'Sorry! This banner size already exists!');
         }

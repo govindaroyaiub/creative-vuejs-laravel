@@ -4,23 +4,22 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage, Link } from '@inertiajs/vue3';
 import { CirclePlus, Download, Pencil, Trash2 } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Bills',
-        href: '/bills',
-    },
-];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Bills', href: '/bills' }];
 
 const page = usePage();
 const bills = computed(() => page.props.bills);
-const search = ref('');
 const flash = computed(() => page.props.flash);
+const search = ref(page.props.search ?? '');
 
-const filteredBills = computed(() => {
-    const query = search.value.toLowerCase();
-    return bills.value.data.filter((bill) => bill.name.toLowerCase().includes(query) || bill.client.toLowerCase().includes(query));
+// Watch input and trigger backend search
+watch(search, (value) => {
+    router.get(route('bills'), { search: value }, {
+        preserveScroll: true,
+        preserveState: true,
+        replace: true,
+    });
 });
 
 const deleteBill = async (id: number) => {
@@ -37,12 +36,8 @@ const deleteBill = async (id: number) => {
     if (result.isConfirmed) {
         router.delete(route('bills-delete', id), {
             preserveScroll: true,
-            onSuccess: () => {
-                Swal.fire('Deleted!', 'Bill deleted successfully.', 'success');
-            },
-            onError: () => {
-                Swal.fire('Error!', 'Failed to delete bill.', 'error');
-            },
+            onSuccess: () => Swal.fire('Deleted!', 'Bill deleted successfully.', 'success'),
+            onError: () => Swal.fire('Error!', 'Failed to delete bill.', 'error'),
         });
     }
 };
@@ -59,14 +54,17 @@ onMounted(() => {
 </script>
 
 <template>
+
     <Head title="Bills" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6">
             <div class="mb-4 flex items-center justify-between">
-                <input v-model="search" placeholder="Search..." class="w-full max-w-xs rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" />
-                <Link :href="route('bills-create')" class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
-                    <CirclePlus class="mr-1 inline h-5 w-5" />
-                    Add
+                <input v-model="search" placeholder="Search..."
+                    class="w-full max-w-xs rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" />
+                <Link :href="route('bills-create')"
+                    class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
+                <CirclePlus class="mr-1 inline h-5 w-5" />
+                Add
                 </Link>
             </div>
 
@@ -83,14 +81,22 @@ onMounted(() => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(bill, index) in filteredBills" :key="bill.id" class="border-t text-center text-sm dark:border-gray-700">
+                    <tr v-for="(bill, index) in bills.data" :key="bill.id"
+                        class="border-t text-center text-sm dark:border-gray-700">
                         <td class="px-4 py-2">{{ index + 1 }}</td>
                         <td class="px-4 py-2">{{ bill.name }}</td>
                         <td class="px-4 py-2">{{ bill.client }}</td>
                         <td class="px-4 py-2">{{ bill.total_amount }}</td>
-                        <td class="px-4 py-2">{{ new Date(bill.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) }}</td>
+                        <td class="px-4 py-2">
+                            {{ new Date(bill.created_at).toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: 'long',
+                                year: 'numeric',
+                            }) }}
+                        </td>
                         <td class="space-x-2 px-4 py-2">
-                            <a :href="route('bills-download', bill.id)" target="_blank" class="text-green-600 hover:text-green-800">
+                            <a :href="route('bills-download', bill.id)" target="_blank"
+                                class="text-green-600 hover:text-green-800">
                                 <Download class="inline h-5 w-5" />
                             </a>
                             <button @click="goToEdit(bill.id)" class="text-blue-600 hover:text-blue-800">
@@ -101,26 +107,21 @@ onMounted(() => {
                             </button>
                         </td>
                     </tr>
-                    <tr v-if="filteredBills.length === 0">
+                    <tr v-if="bills.data.length === 0">
                         <td colspan="6" class="px-4 py-4 text-center text-gray-500">No bills found.</td>
                     </tr>
                 </tbody>
             </table>
 
             <!-- Pagination -->
-            <div class="mt-6 flex justify-center space-x-2" v-if="bills.data.length > 0 && bills.links.length">
+            <div class="mt-6 flex justify-center space-x-2" v-if="bills.links.length">
                 <template v-for="link in bills.links" :key="link.label">
-                    <component
-                        :is="link.url ? 'a' : 'span'"
-                        v-html="link.label"
-                        :href="link.url"
-                        class="rounded border px-4 py-2 text-sm"
-                        :class="{
+                    <component :is="link.url ? 'a' : 'span'" v-html="link.label" :href="link.url"
+                        class="rounded border px-4 py-2 text-sm" :class="{
                             'bg-indigo-600 text-white': link.active,
                             'cursor-not-allowed text-gray-400': !link.url,
                             'hover:bg-gray-200 dark:hover:bg-gray-700': link.url && !link.active,
-                        }"
-                    />
+                        }" />
                 </template>
             </div>
         </div>

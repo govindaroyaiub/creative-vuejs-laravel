@@ -40,11 +40,20 @@ class FileTransferController extends Controller
         ]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $fileTransfers = FileTransfer::with('user:id,name')->latest()->paginate(10);
+        $query = FileTransfer::with('user:id,name');
+
+        if ($search = $request->input('search')) {
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('client', 'like', "%{$search}%");
+        }
+
+        $fileTransfers = $query->latest()->paginate(10)->withQueryString();
+
         return Inertia::render('FileTransfers/Index', [
             'fileTransfers' => $fileTransfers,
+            'search' => $search,
         ]);
     }
 

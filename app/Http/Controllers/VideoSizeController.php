@@ -12,9 +12,18 @@ class VideoSizeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $videoSizes = VideoSize::orderBy('name', 'ASC')->paginate(10);
+        $query = VideoSize::query();
+
+        if ($search = $request->input('search')) {
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('width', 'like', "%{$search}%")
+                ->orWhere('height', 'like', "%{$search}%");
+        }
+
+        $videoSizes = $query->paginate(10)->withQueryString();
+
         return Inertia::render('VideoSizes/Index', [
             'videoSizes' => $videoSizes,
         ]);

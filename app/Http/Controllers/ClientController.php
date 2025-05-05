@@ -11,12 +11,20 @@ use Illuminate\Support\Facades\File;
 
 class ClientController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $clients = Client::with('colorPalette')->latest()->paginate(10);
+        $query = Client::with('colorPalette');
+
+        if ($search = $request->input('search')) {
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('website', 'like', "%{$search}%");
+        }
+
+        $clients = $query->latest()->paginate(10)->withQueryString();
 
         return Inertia::render('Clients/Index', [
             'clients' => $clients,
+            'search' => $search,
         ]);
     }
 

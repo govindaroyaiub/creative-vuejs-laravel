@@ -59,17 +59,27 @@
             <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded" @click="$emit('previous')">
                 ← Previous
             </button>
-            <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded" :disabled="!allAssigned"
-                @click="$emit('next')">
-                Submit →
+            <button
+                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded flex items-center justify-center min-w-[100px]"
+                :disabled="!allAssigned || loading" @click="handleSubmit">
+                <span v-if="!loading">Submit →</span>
+                <span v-else class="flex items-center gap-2">
+                    <svg class="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                    </svg>
+                    Uploading...
+                </span>
             </button>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import draggable from 'vuedraggable';
+const emit = defineEmits(['submit', 'previous']);
 
 const props = defineProps<{
     form: {
@@ -77,6 +87,16 @@ const props = defineProps<{
     };
     bannerSizes: { id: number; name: string }[];
 }>();
+
+const loading = ref(false);
+
+const handleSubmit = () => {
+    loading.value = true;
+    setTimeout(() => {
+        emit('submit');
+        loading.value = false;
+    }, 600); // simulate short delay
+};
 
 if (!props.form.banners) props.form.banners = [];
 
@@ -99,10 +119,7 @@ const handleFileUpload = (e: Event) => {
         }
     }
 
-    // Replace list with new files
     props.form.banners.splice(0, props.form.banners.length, ...newBanners);
-
-    // Reset input so same file can be uploaded again
     input.value = '';
 };
 

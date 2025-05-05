@@ -3,21 +3,23 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { Eye, Trash2, Upload, Download } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 const page = usePage();
 const medias = computed(() => page.props.medias?.data || []);
 const links = computed(() => page.props.medias?.links || []);
-const search = ref('');
+const search = ref(page.props.search ?? '');
 const modalVisible = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
 const uploading = ref(false);
 const newForm = ref({ name: '', file: null });
 
-const filteredMedias = computed(() => {
-    return medias.value.filter((m: any) =>
-        m.name.toLowerCase().includes(search.value.toLowerCase())
-    );
+watch(search, (value) => {
+    router.get(route('medias'), { search: value }, {
+        preserveScroll: true,
+        preserveState: true,
+        replace: true,
+    });
 });
 
 const openUploadModal = () => {
@@ -102,7 +104,7 @@ const deleteMedia = async (id: number) => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(media, index) in filteredMedias" :key="media.id" class="bg-white dark:bg-gray-900">
+                    <tr v-for="(media, index) in medias" :key="media.id" class="bg-white dark:bg-gray-900">
                         <td class="border-b px-4 py-2 text-center">{{ index + 1 }}</td>
                         <td class="border-b px-4 py-2 text-center">{{ media.name }}</td>
                         <td class="border-b px-4 py-2 text-center">
@@ -111,7 +113,7 @@ const deleteMedia = async (id: number) => {
                             {{ new Date(media.created_at).toLocaleDateString('en-GB', {
                                 day: '2-digit',
                                 month: 'long',
-                            year: 'numeric'
+                                year: 'numeric'
                             }) }}
                         </td>
                         <td class="border-b px-4 py-2 text-center space-x-2">
@@ -126,7 +128,7 @@ const deleteMedia = async (id: number) => {
                             </button>
                         </td>
                     </tr>
-                    <tr v-if="filteredMedias.length === 0">
+                    <tr v-if="medias.length === 0">
                         <td colspan="4" class="px-4 py-4 text-center text-gray-500">No media files found.</td>
                     </tr>
                 </tbody>

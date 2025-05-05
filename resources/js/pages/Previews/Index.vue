@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { Eye, Pencil, Trash2, CirclePlus } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import PreviewStepBasicInfo from './Partials/PreviewStepBasicInfo.vue';
 import PreviewStepProjectType from './Partials/PreviewStepProjectType.vue';
 import CreateBannerForm from './Partials/CreateBannerForm.vue';
@@ -21,26 +21,38 @@ const colorPalettes = computed(() => page.props.colorPalettes ?? []);
 const authUser = computed(() => page.props.auth?.user ?? {});
 const bannerSizes = computed(() => page.props.bannerSizes ?? []);
 
-const formData = ref({
-    name: '',
-    client_id: '',
-    team_ids: [authUser.value.id],
-    color_palette_id: '',
-    type: '',
-    banners: [],
-    videos: [],
-    socials: [],
-    gifs: []
-});
-
 const filteredPreviews = computed(() => {
     const q = search.value.toLowerCase();
     return previews.value.data.filter(
         (p: any) =>
             p.name.toLowerCase().includes(q) ||
-            p.client?.name.toLowerCase().includes(q) ||
-            p.uploader?.name.toLowerCase().includes(q)
+            p.client?.name?.toLowerCase().includes(q) ||
+            p.uploader?.name?.toLowerCase().includes(q)
     );
+});
+
+watch(search, (val) => {
+    router.get(route('previews-index'), { search: val }, {
+        preserveScroll: true,
+        preserveState: true,
+        replace: true,
+    });
+});
+
+const formData = ref({
+    name: '',
+    client_id: '',
+    team_ids: [authUser.value.id],
+    color_palette_id: '5',
+    type: '',
+    version_name: 'Master',
+    version_description: 'Master Started',
+    subversion_name: 'Version 1',
+    subversion_active: true,
+    banners: [],
+    videos: [],
+    socials: [],
+    gifs: []
 });
 
 const deletePreview = async (id: number) => {
@@ -77,8 +89,12 @@ const closeModal = () => {
         name: '',
         client_id: '',
         team_ids: [authUser.value.id],
-        color_palette_id: '',
+        color_palette_id: '5',
         type: '',
+        version_name: 'Master',
+        version_description: 'Master Started',
+        subversion_name: 'Version 1',
+        subversion_active: true,
         banners: [],
         videos: [],
         socials: [],
@@ -87,20 +103,23 @@ const closeModal = () => {
 };
 
 const submitForm = () => {
-    console.log('Submitting form with data:', JSON.stringify(formData.value, null, 2));
-
     const payload = new FormData();
     payload.append('name', formData.value.name);
     payload.append('client_id', formData.value.client_id);
-    payload.append('color_palette_id', formData.value.color_palette_id);
+    payload.append('color_palette_id', formData.value.color_palette_id ?? '');
     payload.append('type', formData.value.type);
+    payload.append('version_name', formData.value.version_name);
+    payload.append('version_description', formData.value.version_description);
+    payload.append('subversion_name', formData.value.subversion_name);
+    payload.append('subversion_active', formData.value.subversion_active ? '1' : '0');
+
     formData.value.team_ids.forEach(id => payload.append('team_ids[]', id));
 
     if (formData.value.type === 'Banner') {
         formData.value.banners.forEach((banner, i) => {
             payload.append(`banners[${i}][file]`, banner.file);
             payload.append(`banners[${i}][size_id]`, banner.size_id);
-            payload.append(`banners[${i}][position]`, i); // 👈 Add this
+            payload.append(`banners[${i}][position]`, i);
         });
     }
 
@@ -132,34 +151,29 @@ const handlePreviousStep = () => {
 
 const getStepComponent = (step: number) => {
     switch (step) {
-        case 1:
-            return PreviewStepBasicInfo;
-        case 2:
-            return PreviewStepProjectType;
-        case 3:
-            return formData.value.type === 'Banner'
-                ? CreateBannerForm
-                : { template: '<div class="text-center text-gray-500">Submitting...</div>' };
-        default:
-            return { template: '<div class="text-center text-gray-500">Submitting...</div>' };
+        case 1: return PreviewStepBasicInfo;
+        case 2: return PreviewStepProjectType;
+        case 3: return formData.value.type === 'Banner'
+            ? CreateBannerForm
+            : { template: '<div class="text-center text-gray-500">Submitting...</div>' };
+        default: return { template: '<div class="text-center text-gray-500">Submitting...</div>' };
     }
 };
 
-const stepProps = computed(() => {
-    return {
-        form: formData.value,
-        ...(step.value === 1 && {
-            users: users.value,
-            clients: clients.value,
-            colorPalettes: colorPalettes.value,
-            authUser: authUser.value,
-        }),
-        ...(step.value === 3 && formData.value.type === 'Banner' && {
-            bannerSizes: bannerSizes.value,
-        })
-    };
-});
+const stepProps = computed(() => ({
+    form: formData.value,
+    ...(step.value === 1 && {
+        users: users.value,
+        clients: clients.value,
+        colorPalettes: colorPalettes.value,
+        authUser: authUser.value,
+    }),
+    ...(step.value === 3 && formData.value.type === 'Banner' && {
+        bannerSizes: bannerSizes.value,
+    })
+}));
 </script>
+
 
 <template>
 
@@ -190,7 +204,7 @@ const stepProps = computed(() => {
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                        <tr v-for="(preview, index) in filteredPreviews" :key="preview.id"
+                        <tr v-for="(preview, index) in previews.data" :key="preview.id"
                             class="hover:bg-gray-50 dark:hover:bg-gray-800">
                             <td class="text-center px-4 py-3 font-medium">{{ index + 1 }}</td>
                             <td class="px-4 py-3 text-left">
@@ -210,7 +224,8 @@ const stepProps = computed(() => {
                                 <div class="text-xs text-gray-400">{{ new
                                     Date(preview.created_at).toLocaleDateString('en-GB', {
                                         day: '2-digit', month:
-                                    'short', year: 'numeric' }) }}</div>
+                                            'short', year: 'numeric'
+                                    }) }}</div>
                             </td>
                             <td class="px-4 py-3 text-center">
                                 <div class="flex items-center justify-center gap-2">
@@ -243,14 +258,14 @@ const stepProps = computed(() => {
             </div>
 
             <!-- Pagination -->
-            <div v-if="previews.value?.links?.length" class="flex justify-center space-x-2">
-                <template v-for="link in previews.value.links" :key="link.label">
-                    <component :is="link.url ? 'a' : 'span'" v-html="link.label" :href="link.url"
-                        class="rounded border px-4 py-2 text-sm" :class="{
-                            'bg-indigo-600 text-white': link.active,
-                            'cursor-not-allowed text-gray-400': !link.url,
-                            'hover:bg-gray-200 dark:hover:bg-gray-700': link.url && !link.active,
-                        }" />
+            <div v-if="previews.data.length > 0 && previews.links.length > 1" class="flex justify-center space-x-2">
+                <template v-for="(link, i) in previews.links" :key="i">
+                    <a v-if="link.url" :href="link.url" class="rounded border px-4 py-2 text-sm" :class="{
+                        'bg-indigo-600 text-white': link.active,
+                        'hover:bg-gray-200 dark:hover:bg-gray-700': !link.active
+                    }" v-html="link.label" />
+                    <span v-else class="rounded border px-4 py-2 text-sm text-gray-400 cursor-not-allowed"
+                        v-html="link.label" />
                 </template>
             </div>
         </div>
@@ -261,7 +276,7 @@ const stepProps = computed(() => {
                 <button class="absolute top-2 right-2 text-gray-400 hover:text-white" @click="closeModal">✖</button>
                 <Transition :name="transitionDirection === 'forward' ? 'slide-left' : 'slide-right'" mode="out-in">
                     <component :is="getStepComponent(step)" :key="step" v-bind="stepProps" @next="handleNextStep"
-                        @previous="handlePreviousStep" @close="closeModal" />
+                        @previous="handlePreviousStep" @submit="submitForm" @close="closeModal" />
                 </Transition>
             </div>
         </div>

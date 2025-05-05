@@ -11,11 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sub_versions', function (Blueprint $table) {
+        Schema::create('sub_banners', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('version_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('sub_version_id')->constrained()->cascadeOnDelete();
             $table->string('name');
-            $table->boolean('is_active')->default(false);
+            $table->string('path');
+            $table->foreignId('size_id')->constrained('banner_sizes')->cascadeOnDelete();
+            $table->unsignedBigInteger('file_size')->nullable();
+            $table->unsignedInteger('position')->default(0);
             $table->timestamps();
         });
     }
@@ -25,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sub_versions');
+        Schema::dropIfExists('sub_banners');
     }
 };

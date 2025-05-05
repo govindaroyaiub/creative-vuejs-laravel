@@ -8,6 +8,9 @@ use App\Models\Route;
 use App\Models\Client;
 use App\Models\Preview;
 use App\Models\ColorPalette;
+use App\Models\BannerSize;
+use App\Models\VideoSize;
+use App\Models\Social;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -99,6 +102,176 @@ class DatabaseSeeder extends Seeder
 
         foreach ($routes as $route) {
             Route::create($route);
+        }
+
+        $bannerSizes = [
+            [
+                'width' => '300',
+                'height' => '250',
+            ],
+            [
+                'width' => '728',
+                'height' => '90',
+            ],
+            [
+                'width' => '160',
+                'height' => '600',
+            ],
+            [
+                'width' => '300',
+                'height' => '600',
+            ],
+            [
+                'width' => '970',
+                'height' => '250',
+            ],
+            [
+                'width' => '970',
+                'height' => '90',
+            ],
+            [
+                'width' => '468',
+                'height' => '60',
+            ],
+            [
+                'width' => '1200',
+                'height' => '628',
+            ],
+            [
+                'width' => '1200',
+                'height' => '1200',
+            ],
+            [
+                'width' => '1080',
+                'height' => '1080',
+            ],
+            [
+                'width' => '1080',
+                'height' => '1350',
+            ],
+            [
+                'width' => '1080',
+                'height' => '1920',
+            ],
+            [
+                'width' => '1200',
+                'height' => '1200',
+            ],
+            [
+                'width' => '1200',
+                'height' => '628',
+            ],
+            [
+                'width' => '1200',
+                'height' => '900',
+            ],
+            [
+                'width' => '1200',
+                'height' => '1500',
+            ],
+            [
+                'width' => '1200',
+                'height' => '1800',
+            ],
+        ];
+
+        foreach ($bannerSizes as $size) {
+            BannerSize::create($size);
+        }
+
+        $videoSizes = [
+            [
+                'name' => 'Youtube',
+                'width' => '1280',
+                'height' => '720',
+            ],
+            [
+                'name' => 'Facebook',
+                'width' => '1280',
+                'height' => '720',
+            ],
+            [
+                'name' => 'Instagram',
+                'width' => '1080',
+                'height' => '1080',
+            ],
+            [
+                'name' => 'Twitter',
+                'width' => '1280',
+                'height' => '720',
+            ],
+            [
+                'name' => 'LinkedIn',
+                'width' => '1280',
+                'height' => '720',
+            ],
+            [
+                'name' => 'TikTok',
+                'width' => '1080',
+                'height' => '1920',
+            ],
+            [
+                'name' => 'Snapchat',
+                'width' => '1080',
+                'height' => '1920',
+            ],
+            [
+                'name' => 'Pinterest',
+                'width' => '1080',
+                'height' => '1920',
+            ],
+            [
+                'name' => 'WhatsApp',
+                'width' => '1280',
+                'height' => '720',
+            ],
+            [
+                'name' => 'Telegram',
+                'width' => '1280',
+                'height' => '720',
+            ],
+            [
+                'name' => 'Discord',
+                'width' => '1280',
+                'height' => '720',
+            ],
+        ];
+
+        foreach ($videoSizes as $size) {
+            VideoSize::create($size);
+        }
+
+        $socials = [
+            ['name' => 'Storyboard'],
+            ['name' => 'Instagram'],
+            ['name' => 'Facebook'],
+            ['name' => 'Twitter'],
+            ['name' => 'LinkedIn'],
+            ['name' => 'YouTube'],
+            ['name' => 'Snapchat'],
+            ['name' => 'TikTok'],
+            ['name' => 'Pinterest'],
+            ['name' => 'WhatsApp'],
+            ['name' => 'Telegram'],
+            ['name' => 'Discord'],
+            ['name' => 'Reddit'],
+            ['name' => 'Tumblr'],
+            ['name' => 'Flickr'],
+            ['name' => 'Vimeo'],
+            ['name' => 'Behance'],
+            ['name' => 'Dribbble'],
+            ['name' => 'Quora'],
+            ['name' => 'Medium'],
+            ['name' => 'Clubhouse'],
+            ['name' => 'Google My Business'],
+            ['name' => 'Yelp'],
+            ['name' => 'Tripadvisor'],
+            ['name' => 'Spotify'],
+            ['name' => 'SoundCloud'],
+        ];
+
+        foreach ($socials as $social) {
+            Social::create($social);
         }
 
         $colorPalettes = [

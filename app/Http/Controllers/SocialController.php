@@ -8,12 +8,19 @@ use Inertia\Inertia;
 
 class SocialController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $socials = Social::orderBy('name')->paginate(10);
+        $query = Social::query();
+
+        if ($search = $request->input('search')) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        $socials = $query->orderBy('id', 'desc')->paginate(10)->withQueryString();
 
         return Inertia::render('Socials/Index', [
             'socials' => $socials,
+            'search' => $search,
         ]);
     }
 

@@ -3,18 +3,18 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { CirclePlus, Pencil, Trash2, X } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const page = usePage();
 const bannerSizes = computed(() => page.props.bannerSizes);
-const search = ref('');
+const search = ref(page.props.search ?? ''); // Preserve search across pagination
 
-const filteredSizes = computed(() => {
-    const query = search.value.toLowerCase();
-    return bannerSizes.value.data.filter((size) =>
-        size.width.toString().includes(query) ||
-        size.height.toString().includes(query)
-    );
+watch(search, (value) => {
+    router.get(route('banner-sizes-index'), { search: value }, {
+        preserveScroll: true,
+        preserveState: true,
+        replace: true,
+    });
 });
 
 const editingId = ref<number | null>(null);
@@ -94,15 +94,13 @@ const deleteBannerSize = async (id: number) => {
 </script>
 
 <template>
+
     <Head title="Banner Sizes" />
     <AppLayout :breadcrumbs="[{ title: 'Banner Sizes', href: '/banner-sizes' }]">
         <div class="p-6">
             <div class="mb-4 flex items-center justify-between">
-                <input
-                    v-model="search"
-                    placeholder="Search..."
-                    class="w-full max-w-xs rounded border px-4 py-2 dark:bg-gray-700 dark:text-white"
-                />
+                <input v-model="search" placeholder="Search..."
+                    class="w-full max-w-xs rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" />
                 <button @click="startAdding" class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
                     <CirclePlus class="mr-1 inline h-5 w-5" />
                     Add
@@ -123,10 +121,12 @@ const deleteBannerSize = async (id: number) => {
                     <tr v-if="adding" class="border-t text-center text-sm dark:border-gray-700">
                         <td class="px-4 py-2">#</td>
                         <td class="px-4 py-2">
-                            <input v-model="newForm.width" type="number" class="w-20 rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" />
+                            <input v-model="newForm.width" type="number"
+                                class="w-20 rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" />
                         </td>
                         <td class="px-4 py-2">
-                            <input v-model="newForm.height" type="number" class="w-20 rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" />
+                            <input v-model="newForm.height" type="number"
+                                class="w-20 rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" />
                         </td>
                         <td class="px-4 py-2 space-x-2">
                             <button @click="saveNew" class="text-green-600 hover:underline text-sm">Save</button>
@@ -135,37 +135,28 @@ const deleteBannerSize = async (id: number) => {
                     </tr>
 
                     <!-- Existing Rows -->
-                    <tr
-                        v-for="(size, index) in filteredSizes"
-                        :key="size.id"
-                        class="border-t text-center text-sm uppercase dark:border-gray-700"
-                    >
+                    <tr v-for="(size, index) in bannerSizes.data" :key="size.id"
+                        class="border-t text-center text-sm uppercase dark:border-gray-700">
                         <td class="px-4 py-2">{{ index + 1 }}</td>
 
                         <td class="px-4 py-2">
                             <div v-if="editingId !== size.id">{{ size.width }}</div>
-                            <input
-                                v-else
-                                v-model="editForm.width"
-                                type="number"
-                                class="w-20 rounded border px-2 py-1 dark:bg-gray-700 dark:text-white"
-                            />
+                            <input v-else v-model="editForm.width" type="number"
+                                class="w-20 rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" />
                         </td>
 
                         <td class="px-4 py-2">
                             <div v-if="editingId !== size.id">{{ size.height }}</div>
-                            <input
-                                v-else
-                                v-model="editForm.height"
-                                type="number"
-                                class="w-20 rounded border px-2 py-1 dark:bg-gray-700 dark:text-white"
-                            />
+                            <input v-else v-model="editForm.height" type="number"
+                                class="w-20 rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" />
                         </td>
 
                         <td class="space-x-2 px-4 py-2">
                             <template v-if="editingId === size.id">
-                                <button @click="saveEdit(size.id)" class="text-blue-600 hover:underline text-sm">Update</button>
-                                <button @click="cancelEditing" class="text-red-500 hover:underline text-sm">Cancel</button>
+                                <button @click="saveEdit(size.id)"
+                                    class="text-blue-600 hover:underline text-sm">Update</button>
+                                <button @click="cancelEditing"
+                                    class="text-red-500 hover:underline text-sm">Cancel</button>
                             </template>
                             <template v-else>
                                 <button @click="startEditing(size)" class="text-blue-600 hover:text-blue-800">
@@ -178,7 +169,7 @@ const deleteBannerSize = async (id: number) => {
                         </td>
                     </tr>
 
-                    <tr v-if="filteredSizes.length === 0 && !adding">
+                    <tr v-if="bannerSizes.data.length === 0 && !adding">
                         <td colspan="4" class="px-4 py-4 text-center text-gray-500">No banner sizes found.</td>
                     </tr>
                 </tbody>
@@ -187,17 +178,12 @@ const deleteBannerSize = async (id: number) => {
             <!-- Pagination -->
             <div class="mt-6 flex justify-center space-x-2" v-if="bannerSizes.data.length && bannerSizes.links.length">
                 <template v-for="link in bannerSizes.links" :key="link.label">
-                    <component
-                        :is="link.url ? 'a' : 'span'"
-                        v-html="link.label"
-                        :href="link.url"
-                        class="rounded border px-4 py-2 text-sm"
-                        :class="{
+                    <component :is="link.url ? 'a' : 'span'" v-html="link.label" :href="link.url"
+                        class="rounded border px-4 py-2 text-sm" :class="{
                             'bg-indigo-600 text-white': link.active,
                             'cursor-not-allowed text-gray-400': !link.url,
                             'hover:bg-gray-200 dark:hover:bg-gray-700': link.url && !link.active,
-                        }"
-                    />
+                        }" />
                 </template>
             </div>
         </div>

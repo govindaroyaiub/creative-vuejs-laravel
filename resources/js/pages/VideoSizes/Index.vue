@@ -3,29 +3,28 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { CirclePlus, Pencil, Trash2, LoaderCircle } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { type BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Video Sizes', href: '/video-sizes' }];
 
 const page = usePage();
 const videoSizes = computed(() => page.props.videoSizes ?? { data: [], links: [] });
-const search = ref('');
+const search = ref(page.props.search ?? ''); // sync from backend
+
+watch(search, (value) => {
+    router.get(route('video-sizes-index'), { search: value }, {
+        preserveScroll: true,
+        preserveState: true,
+        replace: true,
+    });
+});
+
 const adding = ref(false);
 const editingId = ref<number | null>(null);
 const saving = ref(false);
 const newSize = ref({ name: '', width: '', height: '' });
 const editedSize = ref({ name: '', width: '', height: '' });
-
-const filteredSizes = computed(() => {
-    const query = search.value.toLowerCase();
-    return videoSizes.value.data.filter(
-        (size) =>
-            size.name.toLowerCase().includes(query) ||
-            size.width.toString().includes(query) ||
-            size.height.toString().includes(query)
-    );
-});
 
 const deleteVideoSize = async (id: number) => {
     const result = await Swal.fire({
@@ -158,7 +157,7 @@ const saveNewSize = async () => {
                     </tr>
 
                     <!-- Existing Rows -->
-                    <tr v-for="(size, index) in filteredSizes" :key="size.id"
+                    <tr v-for="(size, index) in videoSizes.data" :key="size.id"
                         class="border-t text-center text-sm dark:border-gray-700">
                         <td class="px-4 py-2">{{ index + 1 }}</td>
 
@@ -198,7 +197,7 @@ const saveNewSize = async () => {
                         </template>
                     </tr>
 
-                    <tr v-if="filteredSizes.length === 0 && !adding">
+                    <tr v-if="videoSizes.data.length === 0 && !adding">
                         <td colspan="5" class="px-4 py-4 text-center text-gray-500">No video sizes found.</td>
                     </tr>
                 </tbody>

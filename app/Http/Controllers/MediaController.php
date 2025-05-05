@@ -9,11 +9,19 @@ use Inertia\Inertia;
 
 class MediaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $medias = Media::with('uploader')->orderBy('created_at', 'asc')->paginate(10); // or whatever per page
+        $query = Media::with('uploader');
+
+        if ($search = $request->input('search')) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        $medias = $query->orderBy('created_at', 'asc')->paginate(10)->withQueryString();
+
         return Inertia::render('Medias/Index', [
             'medias' => $medias,
+            'search' => $search,
         ]);
     }
 

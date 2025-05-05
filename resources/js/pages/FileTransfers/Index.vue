@@ -4,21 +4,20 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage, Link } from '@inertiajs/vue3';
 import { CirclePlus, Pencil, Share2, Trash2, Eye } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'File Transfers', href: '/file-transfers' }];
 
 const page = usePage();
-const search = ref('');
-
-// Ensure fallback if fileTransfers isn't set yet
+const search = ref(page.props.search ?? '');
 const fileTransfers = computed(() => page.props.fileTransfers ?? { data: [], links: [] });
 
-const filteredTransfers = computed(() => {
-    const query = search.value.toLowerCase();
-    return fileTransfers.value.data.filter(
-        (transfer: any) => transfer.name.toLowerCase().includes(query) || transfer.client.toLowerCase().includes(query),
-    );
+watch(search, (value) => {
+    router.get(route('file-transfers'), { search: value }, {
+        preserveScroll: true,
+        preserveState: true,
+        replace: true,
+    });
 });
 
 const deleteFileTransfer = async (id: number) => {
@@ -35,12 +34,8 @@ const deleteFileTransfer = async (id: number) => {
     if (result.isConfirmed) {
         router.delete(route('file-transfers-delete', id), {
             preserveScroll: true,
-            onSuccess: () => {
-                Swal.fire('Deleted!', 'File transfer deleted successfully.', 'success');
-            },
-            onError: () => {
-                Swal.fire('Error!', 'Failed to delete file transfer.', 'error');
-            },
+            onSuccess: () => Swal.fire('Deleted!', 'File transfer deleted successfully.', 'success'),
+            onError: () => Swal.fire('Error!', 'Failed to delete file transfer.', 'error'),
         });
     }
 };
@@ -53,17 +48,22 @@ const getTransferLink = (id: number) => {
 </script>
 
 <template>
+
     <Head title="File Transfers" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6">
+            <!-- Search & Add -->
             <div class="mb-4 flex items-center justify-between">
-                <input v-model="search" placeholder="Search..." class="w-full max-w-xs rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" />
-                <Link :href="route('file-transfers-add')" class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
-                    <CirclePlus class="mr-1 inline h-5 w-5" />
-                    Add
+                <input v-model="search" placeholder="Search..."
+                    class="w-full max-w-xs rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" />
+                <Link :href="route('file-transfers-add')"
+                    class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
+                <CirclePlus class="mr-1 inline h-5 w-5" />
+                Add
                 </Link>
             </div>
 
+            <!-- Table -->
             <table class="w-full rounded bg-white shadow dark:bg-gray-800">
                 <thead class="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
                     <tr class="text-center text-sm uppercase">
@@ -75,50 +75,53 @@ const getTransferLink = (id: number) => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(transfer, index) in filteredTransfers" :key="transfer.id" class="border-t text-center text-sm dark:border-gray-700">
+                    <tr v-for="(transfer, index) in fileTransfers.data" :key="transfer.id"
+                        class="border-t text-center text-sm dark:border-gray-700">
                         <td class="px-4 py-2">{{ index + 1 }}</td>
-                        <td class="px-4 py-2">
-                            {{ transfer.name }}
-                        </td>
+                        <td class="px-4 py-2">{{ transfer.name }}</td>
                         <td class="px-4 py-2">{{ transfer.client }}</td>
-                        <td class="px-4 py-2">{{ transfer.user.name }} 
-                            <hr> 
-                            {{ new Date(transfer.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) }}
+                        <td class="px-4 py-2">
+                            {{ transfer.user.name }}
+                            <hr />
+                            {{ new Date(transfer.created_at).toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: 'long',
+                                year: 'numeric',
+                            }) }}
                         </td>
                         <td class="space-x-2 px-4 py-2">
-                            <a :href="`/file-transfers-view/${transfer.id}`" target="_blank" class="text-green-600 hover:text-green-800">
+                            <a :href="`/file-transfers-view/${transfer.id}`" target="_blank"
+                                class="text-green-600 hover:text-green-800">
                                 <Eye class="inline h-6 w-6" />
                             </a>
                             <button @click="getTransferLink(transfer.id)" class="text-purple-600 hover:text-purple-800">
                                 <Share2 class="inline h-6 w-6" />
                             </button>
-                            <Link :href="route('file-transfers-edit', transfer.id)" class="text-blue-600 hover:text-blue-800">
-                                <Pencil class="inline h-5 w-5" />
+                            <Link :href="route('file-transfers-edit', transfer.id)"
+                                class="text-blue-600 hover:text-blue-800">
+                            <Pencil class="inline h-5 w-5" />
                             </Link>
                             <button @click="deleteFileTransfer(transfer.id)" class="text-red-600 hover:text-red-800">
                                 <Trash2 class="inline h-5 w-5" />
                             </button>
                         </td>
                     </tr>
-                    <tr v-if="filteredTransfers.length === 0">
+
+                    <tr v-if="fileTransfers.data.length === 0">
                         <td colspan="5" class="px-4 py-4 text-center text-gray-500">No file transfers found.</td>
                     </tr>
                 </tbody>
             </table>
 
-            <div v-if="fileTransfers.value?.links?.length" class="mt-6 flex justify-center space-x-2">
-                <template v-for="link in fileTransfers.value.links" :key="link.label">
-                    <component
-                        :is="link.url ? 'a' : 'span'"
-                        v-html="link.label"
-                        :href="link.url"
-                        class="rounded border px-4 py-2 text-sm"
-                        :class="{
+            <!-- Pagination -->
+            <div v-if="fileTransfers.links?.length" class="mt-6 flex justify-center space-x-2">
+                <template v-for="link in fileTransfers.links" :key="link.label">
+                    <component :is="link.url ? 'a' : 'span'" v-html="link.label" :href="link.url"
+                        class="rounded border px-4 py-2 text-sm" :class="{
                             'bg-indigo-600 text-white': link.active,
                             'cursor-not-allowed text-gray-400': !link.url,
                             'hover:bg-gray-200 dark:hover:bg-gray-700': link.url && !link.active,
-                        }"
-                    />
+                        }" />
                 </template>
             </div>
         </div>

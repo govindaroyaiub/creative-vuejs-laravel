@@ -11,13 +11,23 @@ use NumberFormatter;
 
 class BillController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $bills = Bill::withCount('subBills')
-            ->orderByDesc('created_at') // optional sorting
-            ->paginate(10);
+        $query = Bill::query();
+
+        if ($search = $request->input('search')) {
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('client', 'like', "%{$search}%");
+        }
+
+        $bills = $query
+            ->orderBy('created_at', 'asc')
+            ->paginate(10)
+            ->withQueryString();
+
         return Inertia::render('Bills/Index', [
             'bills' => $bills,
+            'search' => $search,
         ]);
     }
 
