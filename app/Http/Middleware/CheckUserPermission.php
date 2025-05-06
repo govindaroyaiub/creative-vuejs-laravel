@@ -16,33 +16,36 @@ class CheckUserPermission
     {
         $currentRoute = '/' . ltrim($request->path(), '/');
 
-        // ✅ 1. Always allow public routes first
+        // ✅ 1. Always allow these public routes
         if (in_array($currentRoute, ['/change-password', '/welcome-to-planetnine/register'])) {
             return $next($request);
         }
 
         $user = auth()->user();
 
-        // ✅ 2. Now check if user exists for private routes
+        // ✅ 2. Ensure user is authenticated
         if (!$user || !$user->permissions) {
             abort(403, 'Sorry mate! You do not have permission to access this page.');
         }
 
-        // ✅ Always allow safe routes
+        // ✅ 3. Always allow if in alwaysAllow
         if (in_array($currentRoute, $this->alwaysAllow)) {
             return $next($request);
         }
 
-        // ✅ Allow all if wildcard
+        // ✅ 4. Allow if user has wildcard *
         if (in_array('*', $user->permissions)) {
             return $next($request);
         }
 
-        // ✅ Allow if specific permission
-        if (in_array($currentRoute, $user->permissions)) {
-            return $next($request);
+        // ✅ 5. Allow if any permission is a prefix of the current route
+        foreach ($user->permissions as $permission) {
+            if (str_starts_with($currentRoute, $permission)) {
+                return $next($request);
+            }
         }
 
+        // ❌ Denied
         abort(403, 'You do not have permission to access this page.');
     }
 }

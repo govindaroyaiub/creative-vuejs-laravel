@@ -12,8 +12,10 @@ use App\Http\Controllers\SocialController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\ColorPaletteController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MediaController;
 use App\Http\Middleware\CheckUserPermission;
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -23,9 +25,8 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     //File Transfer Routes Start
     Route::get('/file-transfers', [FileTransferController::class, 'index'])->name('file-transfers');
@@ -76,7 +77,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/bills-download/{id}', [BillController::class, 'download'])->name('bills-download');
     //Bills Routes End
 
-    //Client Routes Start
+//Client Routes Start
     Route::get('/clients', [ClientController::class, 'index'])->name('clients');
     Route::get('/clients-create', [ClientController::class, 'create'])->name('clients-create');
     Route::post('/clients-store', [ClientController::class, 'store'])->name('clients-store');
@@ -100,6 +101,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
 
     Route::put('/user-managaments/users/update/permissions/{id}', [UserManagementController::class, 'userPermissionsUpdate'])->name('user-managements-users-update-permissions');
     Route::put('/user-managements/users/{id}/update-role', [UserManagementController::class, 'updateRole'])->name('user-managements-users-update-role');
+    Route::put('/user-managements/users/{user}/client', [UserManagementController::class, 'updateClient'])->name('user-managements-users-update-client');
     Route::post('/user-managements/users/update-password/{id}', [UserManagementController::class, 'userPasswordUpdate'])->name('user-managements-users-update-password');
 
     Route::get('/user-managements/routes', [UserManagementController::class, 'routesIndex'])->name('user-managements-routes');
@@ -123,6 +125,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/medias-download/{id}', [MediaController::class, 'download'])->name('medias-download');
     //Media Routes End
 });
+
+Route::get('/previews/show/{preview}', [PreviewController::class, 'show'])->name('previews-show');
 
 Route::get('/file-transfers-view/{id}', [FileTransferController::class, 'show'])->name('file-transfers-view');
 

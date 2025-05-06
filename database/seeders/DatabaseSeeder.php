@@ -22,7 +22,69 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $colorPalettes = [
+            [
+                'name' => 'Gold Theme',
+                'primary' => '#e2d39a',
+                'secondary' => '#fbf5de',
+                'tertiary' => '#e2d39a',
+                'quaternary' => '#e2d39a',
+                'status' => 1,
+            ],
+            [
+                'name' => 'Sky Blue Theme',
+                'primary' => '#9acde2',
+                'secondary' => '#c0f8fc',
+                'tertiary' => '#4f8d99',
+                'quaternary' => '#ffffff',
+                'status' => 1,
+            ],
+            [
+                'name' => 'Desert Theme',
+                'primary' => '#cfb096',
+                'secondary' => '#f2e3d6',
+                'tertiary' => '#8a624f',
+                'quaternary' => '#d9bca4',
+                'status' => 1,
+            ],
+            [
+                'name' => 'Green Theme',
+                'primary' => '#afc89d',
+                'secondary' => '#eaf5e2',
+                'tertiary' => '#6f8357',
+                'quaternary' => '#c4dcb3',
+                'status' => 1,
+            ],
+            [
+                'name' => 'Planet Nine Theme',
+                'primary' => '#a0abd1',
+                'secondary' => '#cbcef5',
+                'tertiary' => '#57698a',
+                'quaternary' => '#b3b6e2',
+                'status' => 1,
+            ],
+            [
+                'name' => 'Rose Theme',
+                'primary' => '#c89699',
+                'secondary' => '#fbe0e2',
+                'tertiary' => '#84515b',
+                'quaternary' => '#f1c1c4',
+                'status' => 1,
+            ],
+        ];
+
+
+        foreach ($colorPalettes as $palette) {
+            ColorPalette::create($palette);
+        }
+        
+        $clients = [
+            ['name' => 'Planet Nine', 'website' => 'https://www.planetnine.com', 'preview_url' => 'https://preview.creative-planetnine.com', 'logo' => 'planetnine.png', 'color_palette_id' => 5],
+        ];
+
+        foreach ($clients as $client) {
+            Client::create($client);
+        }
 
         User::create([
             'name' => 'Test User',
@@ -31,42 +93,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'super_admin',
             'designation' => 1,
             'permissions' => ['*'],
-        ]);
-
-        User::create([
-            'name' => 'Govinda Roy',
-            'email' => 'govinda@planetnine.com',
-            'password' => Hash::make('password'),
-            'role' => 'super_admin',
-            'designation' => 1,
-            'permissions' => ['*'],
-        ]);
-
-        User::create([
-            'name' => 'Rashid Shahriar',
-            'email' => 'rashid@planetnine.com',
-            'password' => Hash::make('password'),
-            'role' => 'super_admin',
-            'designation' => 1,
-            'permissions' => ['*'],
-        ]);
-
-        User::create([
-            'name' => 'Ibrahim Faisal',
-            'email' => 'faisal@planetnine.com',
-            'password' => Hash::make('password'),
-            'role' => 'super_admin',
-            'designation' => 1,
-            'permissions' => ['*'],
-        ]);
-
-        User::create([
-            'name' => 'Rokib Hasan',
-            'email' => 'rokib@planetnine.com',
-            'password' => Hash::make('password'),
-            'role' => 'super_admin',
-            'designation' => 1,
-            'permissions' => ['*'],
+            'client_id' => 1,
         ]);
 
         $designations = [
@@ -75,7 +102,8 @@ class DatabaseSeeder extends Seeder
             'Designer',
             'Quality Assurance',
             'Data Scientist',
-            'Office Staff'
+            'Office Staff',
+            'Client'
         ];
 
         foreach ($designations as $designation) {
@@ -272,106 +300,6 @@ class DatabaseSeeder extends Seeder
 
         foreach ($socials as $social) {
             Social::create($social);
-        }
-
-        $colorPalettes = [
-            [
-                'name' => 'Gold Theme',
-                'primary' => '#e2d39a',
-                'secondary' => '#fbf5de',
-                'tertiary' => '#e2d39a',
-                'quaternary' => '#e2d39a',
-                'status' => 1,
-            ],
-            [
-                'name' => 'Sky Blue Theme',
-                'primary' => '#9acde2',
-                'secondary' => '#c0f8fc',
-                'tertiary' => '#4f8d99',
-                'quaternary' => '#ffffff',
-                'status' => 1,
-            ],
-            [
-                'name' => 'Desert Theme',
-                'primary' => '#cfb096',
-                'secondary' => '#f2e3d6',
-                'tertiary' => '#8a624f',
-                'quaternary' => '#d9bca4',
-                'status' => 1,
-            ],
-            [
-                'name' => 'Green Theme',
-                'primary' => '#afc89d',
-                'secondary' => '#eaf5e2',
-                'tertiary' => '#6f8357',
-                'quaternary' => '#c4dcb3',
-                'status' => 1,
-            ],
-            [
-                'name' => 'Planet Nine Theme',
-                'primary' => '#a0abd1',
-                'secondary' => '#cbcef5',
-                'tertiary' => '#57698a',
-                'quaternary' => '#b3b6e2',
-                'status' => 1,
-            ],
-            [
-                'name' => 'Rose Theme',
-                'primary' => '#c89699',
-                'secondary' => '#fbe0e2',
-                'tertiary' => '#84515b',
-                'quaternary' => '#f1c1c4',
-                'status' => 1,
-            ],
-        ];
-
-
-        foreach ($colorPalettes as $palette) {
-            ColorPalette::create($palette);
-        }
-
-        $clients = [
-            ['name' => 'SpaceCorp', 'website' => 'https://spacecorp.com', 'preview_url' => null, 'logo' => 'logos/spacecorp.png', 'color_palette_id' => 1],
-            ['name' => 'PixelForge', 'website' => 'https://pixelforge.io', 'preview_url' => 'https://preview.pixelforge.io', 'logo' => 'logos/pixelforge.png', 'color_palette_id' => 1],
-            ['name' => 'AstroWorks', 'website' => 'https://astroworks.net', 'preview_url' => null, 'logo' => 'logos/astroworks.png', 'color_palette_id' => 1],
-        ];
-
-        foreach ($clients as $client) {
-            Client::create($client);
-        }
-
-        $previews = [
-            [
-                'name' => 'Spring Launch Campaign',
-                'client_id' => 1,
-                'uploader_id' => 1,
-                'color_palette_id' => 3,
-                'team_members' => [1],
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Holiday Banner Set',
-                'client_id' => 1,
-                'uploader_id' => 1,
-                'color_palette_id' => 2,
-                'team_members' => [1],
-                'created_at' => now()->subDays(1),
-                'updated_at' => now()->subDays(1),
-            ],
-            [
-                'name' => 'Video Teaser Project',
-                'client_id' => 3,
-                'uploader_id' => 1,
-                'color_palette_id' => 4,
-                'team_members' => [1],
-                'created_at' => now()->subDays(2),
-                'updated_at' => now()->subDays(2),
-            ],
-        ];
-
-        foreach ($previews as $preview) {
-            Preview::create($preview);
         }
     }
 }

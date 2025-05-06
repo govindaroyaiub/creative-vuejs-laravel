@@ -63,7 +63,7 @@ class ClientController extends Controller
         if ($request->hasFile('logo')) {
             $logo = $request->file('logo');
             $filename = time() . '_' . $logo->getClientOriginalName();
-            $logo->move(public_path('logo'), $filename);
+            $logo->move(public_path('logos'), $filename);
         }
 
         $palette = ColorPalette::find($validated['color_palette_id']);
@@ -95,14 +95,14 @@ class ClientController extends Controller
 
         if ($request->hasFile('logo')) {
             // Delete old logo if it exists
-            $oldLogoPath = public_path('logo/' . $client->logo);
+            $oldLogoPath = public_path('logos/' . $client->logo);
             if ($client->logo && file_exists($oldLogoPath)) {
                 unlink($oldLogoPath);
             }
 
             $logo = $request->file('logo');
             $filename = time() . '_' . $logo->getClientOriginalName();
-            $logo->move(public_path('logo'), $filename);
+            $logo->move(public_path('logos'), $filename);
         }
 
         $client->update([

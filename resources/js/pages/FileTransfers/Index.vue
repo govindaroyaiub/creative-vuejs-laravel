@@ -114,8 +114,9 @@ const getTransferLink = (id: number) => {
             </table>
 
             <!-- Pagination -->
-            <div v-if="fileTransfers.links?.length" class="mt-6 flex justify-center space-x-2">
-                <template v-for="link in fileTransfers.links" :key="link.label">
+            <div v-if="fileTransfers.data.length && fileTransfers.links?.length"
+                class="mt-6 flex justify-center space-x-2"> <template v-for="link in fileTransfers.links"
+                    :key="link.label">
                     <component :is="link.url ? 'a' : 'span'" v-html="link.label" :href="link.url"
                         class="rounded border px-4 py-2 text-sm" :class="{
                             'bg-indigo-600 text-white': link.active,

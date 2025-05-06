@@ -13,6 +13,7 @@ const modalVisible = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
 const uploading = ref(false);
 const newForm = ref({ name: '', file: null });
+const dragOver = ref(false);
 
 watch(search, (value) => {
     router.get(route('medias'), { search: value }, {
@@ -77,6 +78,13 @@ const deleteMedia = async (id: number) => {
             onError: () => Swal.fire('Error!', 'Delete failed.', 'error'),
         });
     }
+};
+
+const handleDrop = (e: DragEvent) => {
+    dragOver.value = false;
+    if (!e.dataTransfer?.files?.[0]) return;
+
+    newForm.value.file = e.dataTransfer.files[0];
 };
 </script>
 
@@ -149,12 +157,35 @@ const deleteMedia = async (id: number) => {
             <!-- Upload Modal -->
             <div v-if="modalVisible" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                 <div class="w-full max-w-md rounded bg-white p-6 shadow-lg dark:bg-gray-800">
-                    <h2 class="text-lg font-bold mb-4">Upload Media</h2>
+                    <h2 class="text-lg font-bold mb-4 text-gray-800 dark:text-white">Upload Media</h2>
+
                     <div class="space-y-4">
+                        <!-- File Name Input -->
                         <input type="text" v-model="newForm.name" placeholder="File name"
                             class="w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white" />
-                        <input type="file" ref="fileInput" @change="handleFileChange" class="w-full text-sm" />
-                        <div class="flex justify-end gap-2">
+
+                        <!-- Drag & Drop Upload Area -->
+                        <div class="w-full rounded border-2 border-dashed px-4 py-8 text-center transition-all cursor-pointer"
+                            :class="[
+                                dragOver ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-600'
+                            ]" @dragover.prevent="dragOver = true" @dragleave.prevent="dragOver = false" @drop.prevent="handleDrop"
+                            @click="fileInput?.click()">
+                            <input type="file" ref="fileInput" class="hidden" @change="handleFileChange" />
+                            <p class="text-sm text-gray-500 dark:text-gray-300">
+                                Drag & drop your file here, or <span
+                                    class="text-blue-600 dark:text-blue-400 underline">click to
+                                    upload</span>
+                            </p>
+                            <p class="mt-2 text-xs text-gray-400">Only one file (any type) is allowed</p>
+                        </div>
+
+                        <!-- Show selected file -->
+                        <div v-if="newForm.file" class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+                            {{ newForm.file.name }} — {{ (newForm.file.size / 1024 / 1024).toFixed(2) }} MB
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="flex justify-end gap-2 pt-4">
                             <button @click="modalVisible = false" class="px-4 py-2 rounded border dark:text-white">
                                 Cancel
                             </button>

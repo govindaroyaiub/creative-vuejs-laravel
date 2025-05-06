@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Eye, Pencil, Trash2, CirclePlus } from 'lucide-vue-next';
+import { Eye, Pencil, Trash2, CirclePlus, Target } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, watch } from 'vue';
 import PreviewStepBasicInfo from './Partials/PreviewStepBasicInfo.vue';
@@ -237,7 +237,8 @@ const stepProps = computed(() => ({
                                 <div class="text-xs text-gray-400">{{ getTypes(preview) || '-' }}</div>
                             </td>
                             <td class="text-center px-4 py-3 space-x-2">
-                                <Link :href="`/previews/${preview.id}`" class="text-green-600 hover:text-green-800">
+                                <Link :href="route('previews-show', preview.id)"
+                                    class="text-green-600 hover:text-green-800" target="_blank">
                                 <Eye class="inline h-5 w-5" />
                                 </Link>
                                 <Link :href="route('previews-edit', preview.id)"

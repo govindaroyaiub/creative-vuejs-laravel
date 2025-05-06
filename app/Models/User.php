@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Designation;
+use App\Models\Client;
 
 class User extends Authenticatable
 {
@@ -18,6 +19,7 @@ class User extends Authenticatable
         'designation',
         'role',         // ✅ added
         'permissions',  // ✅ added
+        'client_id',  // ✅ added
     ];
 
     protected $hidden = [
@@ -37,6 +39,11 @@ class User extends Authenticatable
     public function designation()
     {
         return $this->belongsTo(Designation::class, 'designation');
+    }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
     }
 
     // ✅ NEW: Helper to check if user can access a route

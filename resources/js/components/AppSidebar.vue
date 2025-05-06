@@ -21,7 +21,7 @@ const mainNavItems: NavItem[] = [
     { title: 'Banner Sizes', href: '/banner-sizes', icon: MonitorCog },
     { title: 'Video Sizes', href: '/video-sizes', icon: Clapperboard },
     { title: 'Social Formats', href: '/socials', icon: Image },
-    { title: 'Color Palettes', href: '/color-palettes', icon: Paintbrush},
+    { title: 'Color Palettes', href: '/color-palettes', icon: Paintbrush },
     { title: 'File Transfers', href: '/file-transfers', icon: Paperclip },
     { title: 'Bills', href: '/bills', icon: ReceiptText },
     { title: 'Media Library', 'href': '/medias', icon: ImagePlay },
@@ -36,7 +36,9 @@ const footerNavItems: NavItem[] = [
 function hasPermission(href: string) {
     if (!user.value?.permissions) return false;
     if (user.value.permissions.includes('*')) return true;
-    return user.value.permissions.includes(href);
+
+    // ✅ Allow if any parent path matches
+    return user.value.permissions.some(permission => href.startsWith(permission));
 }
 </script>
 
@@ -47,7 +49,7 @@ function hasPermission(href: string) {
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
                         <Link :href="route('dashboard')">
-                            <AppLogo />
+                        <AppLogo />
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>

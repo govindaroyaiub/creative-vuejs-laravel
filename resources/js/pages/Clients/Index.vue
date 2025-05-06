@@ -98,7 +98,7 @@ onMounted(() => {
                             <span v-else>-</span>
                         </td>
                         <td class="px-4 py-2">
-                            <img v-if="client.logo" :src="`/logo/${client.logo}`" alt="Logo" class="mx-auto h-12" />
+                            <img v-if="client.logo" :src="`/logos/${client.logo}`" alt="Logo" class="mx-auto h-12" />
                             <hr />
                             <div class="flex items-center justify-center space-x-2">
                                 <span :style="{ backgroundColor: client.color_palette?.primary || '#000' }"

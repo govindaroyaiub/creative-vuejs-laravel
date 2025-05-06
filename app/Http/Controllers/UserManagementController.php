@@ -7,8 +7,10 @@ use Inertia\Inertia;
 use App\Models\Designation;
 use App\Models\User;
 use App\Models\Route;
+use App\Models\Client;
 use Illuminate\Validation\Rule;
 use App\Services\ResendMailService;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\URL;
@@ -55,24 +57,41 @@ class UserManagementController extends Controller
     public function userIndex()
     {
         $users = User::leftJoin('designations', 'users.designation', '=', 'designations.id')
+            ->leftJoin('clients', 'users.client_id', '=', 'clients.id')
             ->select(
                 'users.id',
                 'users.name',
                 'users.email',
                 'users.role',
                 'users.permissions',
+                'users.client_id',
                 'users.created_at',
-                'designations.name as designation_name'
+                'designations.name as designation_name',
+                'clients.name as client_name'
             )
             ->orderBy('users.name', 'ASC')
             ->get();
 
-        $routes = \App\Models\Route::orderBy('title')->get(); // 🛠 If you have Route model
+        $routes = Route::orderBy('title')->get();
+        $clients = Client::orderBy('name')->get();
 
         return Inertia::render('UserManagements/Users/Index', [
             'users' => $users,
             'routes' => $routes,
+            'clients' => $clients,
         ]);
+    }
+
+    public function updateClient(Request $request, User $user)
+    {
+        $request->validate([
+            'client_id' => 'nullable|exists:clients,id',
+        ]);
+
+        $user->client_id = $request->client_id;
+        $user->save();
+
+        return response()->json(['message' => 'Client updated successfully.']);
     }
 
     public function userPermissionsUpdate(Request $request, $id)
@@ -102,9 +121,10 @@ class UserManagementController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email',
             'role' => 'required|in:super_admin,admin,user',
             'permissions' => 'nullable|array',
+            'send_mail' => 'nullable|boolean',
+            'client_id' => 'nullable|exists:clients,id',
         ]);
 
-        // 🛠 Ensure /welcome-to-planetnine/register is added if not already there
         $permissions = $data['permissions'] ?? [];
 
         if (!in_array('/welcome-to-planetnine/register', $permissions)) {
@@ -115,19 +135,19 @@ class UserManagementController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'role' => $data['role'],
-            'password' => bcrypt('password'), // Temporary password
+            'client_id' => $data['client_id'] ?? null,
+            'password' => bcrypt('password'), // temporary
+            'designation' => $data['send_mail'] ? null : 7, // if no mail, assign client designation
             'permissions' => $permissions,
         ]);
 
-        // ✅ Send Welcome Email
-        ResendMailService::send(
-            $user->email,
-            $user->name,
-            'Welcome to Planet Nine!',
-            view('emails.welcome', compact('user'))->render()
-        );
+        if ($data['send_mail']) {
+            Mail::send('emails.welcome', ['user' => $user], function ($message) use ($user) {
+                $message->to($user->email, $user->name)
+                    ->subject('Welcome to Planet Nine!');
+            });
+        }
 
-        // ✅ Return JSON
         return response()->json([
             'success' => true,
             'newUser' => [
@@ -135,8 +155,9 @@ class UserManagementController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'role' => $user->role,
-                'designation_name' => null,
+                'designation_name' => $user->designationRelation?->name ?? null,
                 'permissions' => $user->permissions,
+                'client_id' => $user->client_id,
             ],
         ]);
     }

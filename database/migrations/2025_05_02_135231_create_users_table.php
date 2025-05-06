@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('designation')->nullable();
             $table->string('role')->default('user');
             $table->json('permissions')->nullable();
+            $table->foreignId('client_id')->nullable()->constrained()->onDelete('set null');
             $table->rememberToken();
             $table->timestamps();
         });

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\ColorPalette;
+use App\Models\User;
 
 class Client extends Model
 {
@@ -18,5 +19,10 @@ class Client extends Model
     public function colorPalette()
     {
         return $this->belongsTo(ColorPalette::class);
+    }
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
     }
 }

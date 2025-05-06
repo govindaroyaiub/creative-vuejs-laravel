@@ -159,9 +159,47 @@ class PreviewController extends Controller
 
     public function show(Preview $preview)
     {
-        $preview->load(['client', 'uploader', 'colorPalette', 'versions.subVersions']);
-        return inertia('Previews/Show', [
-            'preview' => $preview,
+        $preview->load([
+            'client:id,name,logo',
+            'colorPalette:id,primary,secondary,tertiary,quaternary',
+            'uploader:id,name',
+            'versions.subVersions',
+        ]);
+
+        return Inertia::render('Previews/Show', [
+            'preview' => [
+                'id' => $preview->id,
+                'name' => $preview->name,
+                'client' => $preview->client ? [
+                    'id' => $preview->client->id,
+                    'name' => $preview->client->name,
+                    'logo' => $preview->client->logo,
+                ] : null,
+                'color_palette' => $preview->colorPalette ? [
+                    'primary' => $preview->colorPalette->primary,
+                    'secondary' => $preview->colorPalette->secondary,
+                    'tertiary' => $preview->colorPalette->tertiary,
+                    'quaternary' => $preview->colorPalette->quaternary,
+                ] : null,
+                'uploader' => $preview->uploader ? [
+                    'id' => $preview->uploader->id,
+                    'name' => $preview->uploader->name,
+                ] : null,
+                'created_at' => $preview->created_at,
+                'versions' => $preview->versions->map(function ($version) {
+                    return [
+                        'id' => $version->id,
+                        'name' => $version->name,
+                        'type' => $version->type,
+                        'is_active' => $version->is_active,
+                        'sub_versions' => $version->subVersions->map(fn($sv) => [
+                            'id' => $sv->id,
+                            'name' => $sv->name,
+                            'is_active' => $sv->is_active,
+                        ]),
+                    ];
+                }),
+            ],
         ]);
     }
 
