@@ -286,7 +286,7 @@ const stepProps = computed(() => ({
         <!-- Modal -->
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div class="bg-white dark:bg-gray-900 p-6 rounded-lg w-full max-w-xl relative overflow-hidden">
-                <button class="absolute top-2 right-2 text-gray-400 hover:text-white" @click="closeModal">✖</button>
+                <button class="absolute top-2 right-2 text-gray-400 hover:text-white rotate-45" @click="closeModal">✖</button>
                 <Transition :name="transitionDirection === 'forward' ? 'slide-left' : 'slide-right'" mode="out-in">
                     <component :is="getStepComponent(step)" :key="step" v-bind="stepProps" @next="handleNextStep"
                         @previous="handlePreviousStep" @submit="submitForm" @close="closeModal" />
