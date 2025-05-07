@@ -249,17 +249,17 @@ const stepProps = computed(() => ({
                                 <div class="text-xs text-gray-400">{{ getTypes(preview) || '-' }}</div>
                             </td>
                             <td class="text-center px-4 py-3 space-x-2">
-                                <Link :href="route('previews-show', preview.id)"
-                                    class="text-green-600 hover:text-green-800" target="_blank">
-                                <Eye class="inline h-5 w-5" />
-                                </Link>
-                                <Link :href="route('previews-edit', preview.id)"
-                                    class="text-blue-600 hover:text-blue-800">
-                                <Pencil class="inline h-5 w-5" />
-                                </Link>
-                                <button @click="deletePreview(preview.id)" class="text-red-600 hover:text-red-800">
-                                    <Trash2 class="inline h-5 w-5" />
-                                </button>
+                                <a :href="route('previews-show', preview.id)"
+                                    class="text-green-600 hover:text-green-800" target="_blank" rel="noopener">
+                                    <Eye class="inline h-5 w-5" />
+                                    </a>
+                                    <Link :href="route('previews-edit', preview.id)"
+                                        class="text-blue-600 hover:text-blue-800">
+                                    <Pencil class="inline h-5 w-5" />
+                                    </Link>
+                                    <button @click="deletePreview(preview.id)" class="text-red-600 hover:text-red-800">
+                                        <Trash2 class="inline h-5 w-5" />
+                                    </button>
                             </td>
                         </tr>
                         <tr v-if="filteredPreviews.length === 0">

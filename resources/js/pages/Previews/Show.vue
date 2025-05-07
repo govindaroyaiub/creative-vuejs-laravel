@@ -1,110 +1,81 @@
 <template>
-    <div :style="{ backgroundColor: quaternary }" class="min-h-screen w-full">
-        <!-- HEADER -->
-        <header :style="{ backgroundColor: secondary }" class="py-6 text-center">
-            <img v-if="preview.client?.logo" :src="`/logos/${preview.client.logo}`" alt="Client Logo" class="mx-auto h-16" />
-            <h1 class="text-3xl font-bold text-white mt-2">{{ preview.name }}</h1>
-            <p class="text-white text-sm">Created at: {{ formattedDate }}</p>
-        </header>
-
-        <!-- SUBVERSION TABS -->
-        <div class="flex justify-center space-x-2 py-4 border-b border-gray-200">
-            <button v-for="tab in activeVersion?.sub_versions || []" :key="tab.id" @click="activeSubVersionId = tab.id"
-                :class="[
-                    'px-4 py-2 rounded font-semibold text-sm',
-                    tab.id === activeSubVersionId ? 'bg-white text-black' : 'bg-gray-100 text-gray-500'
-                ]">
-                {{ tab.name }}
-            </button>
-        </div>
-
-        <!-- MIDDLE PART -->
-        <main :style="{ backgroundColor: tertiary }" class="p-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-            <!-- LEFT VERSION LIST -->
-            <aside class="md:col-span-1 border p-4 rounded bg-white">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="font-bold">Versions</h2>
-                    <button @click="openModal = true" class="text-indigo-600">+</button>
+    <div class="min-h-screen" :style="{ backgroundColor: preview.color_palette?.primary ?? '#f9fafb' }">
+        <div class="container mx-auto py-8">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center space-x-4">
+                    <img :src="preview.client.logo" alt="Client Logo" class="h-12 w-12 rounded-full object-contain" />
+                    <div>
+                        <h1 class="text-2xl font-bold" :style="{ color: preview.color_palette?.secondary ?? '#000' }">
+                            {{ preview.name }}
+                        </h1>
+                        <p class="text-sm text-gray-600">
+                            Client: {{ preview.client.name }}
+                        </p>
+                        <a v-if="preview.client.website" :href="preview.client.website"
+                            class="text-sm underline text-blue-500" target="_blank">
+                            {{ preview.client.website }}
+                        </a>
+                    </div>
                 </div>
-                <ul class="space-y-2">
-                    <li v-for="v in preview.versions" :key="v.id" @click="setActiveVersion(v)" :class="[
-                        'block px-4 py-2 rounded cursor-pointer',
-                        v.id === activeVersion?.id ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-800'
-                    ]">
-                        {{ v.name }}
+
+                <div class="text-right">
+                    <p class="text-sm text-gray-500">Uploaded by</p>
+                    <p class="font-semibold">{{ preview.uploader.name }}</p>
+                </div>
+            </div>
+
+            <!-- Color Palette Swatches -->
+            <div class="flex items-center space-x-2 mb-6">
+                <span v-for="(color, name) in preview.client.color_palette" :key="name"
+                    class="w-6 h-6 rounded shadow border" :title="name" :style="{ backgroundColor: color }"></span>
+            </div>
+
+            <!-- Team Members -->
+            <div class="mb-6">
+                <h2 class="text-lg font-semibold mb-2">Team Members</h2>
+                <ul class="list-disc list-inside text-sm text-gray-700">
+                    <li v-for="id in preview.team_members" :key="id">
+                        {{ getUserName(id) }}
                     </li>
                 </ul>
-            </aside>
+            </div>
 
-            <!-- RIGHT CREATIVE VIEWER -->
-            <section class="md:col-span-3 border rounded p-4 bg-white">
-                <!-- You can use BannerView/VideoView/etc here based on activeVersion.type -->
-                <component :is="getViewerComponent" :version="activeVersion" :subVersionId="activeSubVersionId" />
-            </section>
-        </main>
+            <!-- Versions and SubVersions -->
+            <div class="bg-white shadow-md rounded p-6">
+                <h2 class="text-xl font-semibold mb-4">Versions</h2>
+                <ul>
+                    <li v-for="version in versions" :key="version.id" class="mb-2 p-2 rounded border hover:bg-gray-100">
+                        <div class="font-medium">{{ version.name }}</div>
+                        <div class="text-sm text-gray-600">{{ version.description }}</div>
 
-        <!-- FOOTER -->
-        <footer :style="{ backgroundColor: quaternary }" class="py-6 text-center text-white">
-            <p>Planet Nine - Creative Preview Viewer</p>
-        </footer>
-
-        <!-- AddVersionModal -->
-        <AddVersionModal v-if="openModal" @close="openModal = false" :preview-id="preview.id" />
+                        <!-- Show associated subVersions -->
+                        <div class="ml-4 mt-2 space-y-1">
+                            <div v-for="sub in subVersions.filter(sv => sv.version_id === version.id)" :key="sub.id"
+                                class="text-sm">
+                                - {{ sub.name }}
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
 </template>
 
-<script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
-// import AddVersionModal from './Modals/AddVersionModal.vue';
-import BannerView from './Mains/BannerView.vue';
-import VideoView from './Mains/VideoView.vue';
-import SocialView from './Mains/SocialView.vue';
-import GifView from './Mains/GifView.vue';
+<script setup>
 import { usePage } from '@inertiajs/vue3';
-import dayjs from 'dayjs';
+import { computed } from 'vue';
 
 const page = usePage();
-const preview = page.props.preview;
 
-console.log(preview);
+const preview = computed(() => page.props.preview);
+const versions = computed(() => page.props.versions ?? []);
+const subVersions = computed(() => page.props.subVersions ?? []);
+const users = computed(() => page.props.users ?? []); // optional preload
 
-const openModal = ref(false);
-const activeVersion = ref(null);
-const activeSubVersionId = ref(null);
-
-const formattedDate = computed(() => dayjs(preview.created_at).format('MMMM D, YYYY'));
-
-const secondary = computed(() => preview.color_palette?.secondary || '#111827');
-const tertiary = computed(() => preview.color_palette?.tertiary || '#F3F4F6');
-const quaternary = computed(() => preview.color_palette?.quaternary || '#1F2937');
-
-const setActiveVersion = (v) => {
-    activeVersion.value = v;
-    const activeSub = v.sub_versions.find((sv) => sv.is_active);
-    activeSubVersionId.value = activeSub ? activeSub.id : v.sub_versions[0]?.id;
+const getUserName = (id) => {
+    const user = users.value.find(u => u.id === id);
+    return user ? user.name : `User ID ${id}`;
 };
-
-const getViewerComponent = computed(() => {
-    switch (activeVersion.value?.type) {
-        case 'banner':
-            return BannerView;
-        case 'video':
-            return VideoView;
-        case 'social':
-            return SocialView;
-        case 'gif':
-            return GifView;
-        default:
-            return BannerView;
-    }
-});
-
-onMounted(() => {
-    const initial = preview.versions.find((v) => v.is_active) || preview.versions[0];
-    if (initial) setActiveVersion(initial);
-});
 </script>
-
-<style scoped>
-/* Optional styling */
-</style>

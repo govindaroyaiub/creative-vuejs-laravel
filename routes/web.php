@@ -126,7 +126,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     //Media Routes End
 });
 
-Route::get('/previews/show/{preview}', [PreviewController::class, 'show'])->name('previews-show');
+Route::get('/previews/show/{id}', [PreviewController::class, 'show'])->name('previews-show');
 
 Route::get('/file-transfers-view/{id}', [FileTransferController::class, 'show'])->name('file-transfers-view');
 

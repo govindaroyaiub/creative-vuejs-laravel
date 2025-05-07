@@ -23,14 +23,20 @@ use Inertia\Inertia;
 
 class PreviewController extends Controller
 {
-    public function show(Preview $preview)
+    public function show($id)
     {
-        $preview_id = $preview->id;
-        $info = $preview::where('id', $preview_id)->first();
-        
-        $versions = Version::where('preview_id', $preview_id)->get();
+        $preview = Preview::with(['client.colorPalette', 'colorPalette', 'uploader'])->findOrFail($id);
+        $versions = Version::where('preview_id', $id)->get();
         $subVersions = SubVersion::whereIn('version_id', $versions->pluck('id'))->get();
+        $users = User::all(['id', 'name']); // for resolving team_members
 
+        return Inertia::render('Previews/Show', [
+            'preview' => $preview,
+            'versions' => $versions,
+            'subVersions' => $subVersions,
+            'activeVersion' => $versions->first(),
+            'users' => $users,
+        ]);
     }
 
     public function index(Request $request)
