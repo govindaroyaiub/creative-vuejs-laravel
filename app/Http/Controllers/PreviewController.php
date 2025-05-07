@@ -23,6 +23,16 @@ use Inertia\Inertia;
 
 class PreviewController extends Controller
 {
+    public function show(Preview $preview)
+    {
+        $preview_id = $preview->id;
+        $info = $preview::where('id', $preview_id)->first();
+        
+        $versions = Version::where('preview_id', $preview_id)->get();
+        $subVersions = SubVersion::whereIn('version_id', $versions->pluck('id'))->get();
+
+    }
+
     public function index(Request $request)
     {
         $query = Preview::with(['client', 'uploader', 'colorPalette', 'versions.subVersions']);
@@ -64,7 +74,10 @@ class PreviewController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'client_id' => 'required|exists:clients,id',
-            'color_palette_id' => 'nullable|exists:color_palettes,id',
+            'requires_login' => 'boolean',
+            'show_planetnine_logo' => 'boolean',
+            'show_sidebar_logo' => 'boolean',
+            'show_footer' => 'boolean',
             'team_ids' => 'required|array',
             'team_ids.*' => 'exists:users,id',
             'type' => 'required|in:Banner,Video,Social,Gif',
@@ -80,11 +93,14 @@ class PreviewController extends Controller
 
         DB::transaction(function () use ($request) {
             // 1. Create the Preview
+            $color_palette = Client::find($request->client_id);
+
             $preview = Preview::create([
                 'name' => $request->name,
                 'client_id' => $request->client_id,
-                'color_palette_id' => $request->color_palette_id,
+                'requires_login' => $request->requires_login,
                 'team_members' => $request->team_ids,
+                'color_palette_id' => $color_palette['color_palette_id'],
                 'uploader_id' => auth()->id(),
             ]);
 
@@ -155,52 +171,6 @@ class PreviewController extends Controller
         });
 
         return redirect()->route('previews-index')->with('success', 'Preview created successfully.');
-    }
-
-    public function show(Preview $preview)
-    {
-        $preview->load([
-            'client:id,name,logo',
-            'colorPalette:id,primary,secondary,tertiary,quaternary',
-            'uploader:id,name',
-            'versions.subVersions',
-        ]);
-
-        return Inertia::render('Previews/Show', [
-            'preview' => [
-                'id' => $preview->id,
-                'name' => $preview->name,
-                'client' => $preview->client ? [
-                    'id' => $preview->client->id,
-                    'name' => $preview->client->name,
-                    'logo' => $preview->client->logo,
-                ] : null,
-                'color_palette' => $preview->colorPalette ? [
-                    'primary' => $preview->colorPalette->primary,
-                    'secondary' => $preview->colorPalette->secondary,
-                    'tertiary' => $preview->colorPalette->tertiary,
-                    'quaternary' => $preview->colorPalette->quaternary,
-                ] : null,
-                'uploader' => $preview->uploader ? [
-                    'id' => $preview->uploader->id,
-                    'name' => $preview->uploader->name,
-                ] : null,
-                'created_at' => $preview->created_at,
-                'versions' => $preview->versions->map(function ($version) {
-                    return [
-                        'id' => $version->id,
-                        'name' => $version->name,
-                        'type' => $version->type,
-                        'is_active' => $version->is_active,
-                        'sub_versions' => $version->subVersions->map(fn($sv) => [
-                            'id' => $sv->id,
-                            'name' => $sv->name,
-                            'is_active' => $sv->is_active,
-                        ]),
-                    ];
-                }),
-            ],
-        ]);
     }
 
     public function edit(Preview $preview)

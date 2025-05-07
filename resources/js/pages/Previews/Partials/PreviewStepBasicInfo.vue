@@ -47,15 +47,60 @@
       </ul>
     </div>
 
-    <!-- Theme Dropdown -->
-    <div>
-      <label class="block mb-1 text-sm font-medium">Theme</label>
-      <select v-model="form.color_palette_id" class="w-full rounded border px-3 py-2 dark:bg-gray-800 dark:text-white">
-        <option disabled value="">Select Theme</option>
-        <option v-for="theme in colorPalettes" :key="theme.id" :value="theme.id">
-          {{ theme.name }}
-        </option>
-      </select>
+    <!-- Requires Login Toggle -->
+    <div class="flex items-center justify-between">
+      <label class="text-sm font-medium">Requires Login?</label>
+      <label class="inline-flex items-center cursor-pointer">
+        <input type="checkbox" v-model="form.requires_login" class="sr-only peer" />
+        <div
+          class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer dark:bg-gray-700 peer-checked:bg-green-600 transition-colors">
+        </div>
+        <div
+          class="absolute w-5 h-5 bg-white border rounded-full left-0.5 top-0.5 peer-checked:translate-x-full transition-transform">
+        </div>
+      </label>
+    </div>
+
+    <!-- Show Planet Nine Logo -->
+    <div class="flex items-center justify-between">
+      <label class="text-sm font-medium">Show Planet Nine Logo?</label>
+      <label class="inline-flex items-center cursor-pointer">
+        <input type="checkbox" v-model="form.show_planetnine_logo" class="sr-only peer" />
+        <div
+          class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer dark:bg-gray-700 peer-checked:bg-green-600 transition-colors">
+        </div>
+        <div
+          class="absolute w-5 h-5 bg-white border rounded-full left-0.5 top-0.5 peer-checked:translate-x-full transition-transform">
+        </div>
+      </label>
+    </div>
+
+    <!-- Show Sidebar Logo -->
+    <div class="flex items-center justify-between">
+      <label class="text-sm font-medium">Show Sidebar Logo?</label>
+      <label class="inline-flex items-center cursor-pointer">
+        <input type="checkbox" v-model="form.show_sidebar_logo" class="sr-only peer" />
+        <div
+          class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer dark:bg-gray-700 peer-checked:bg-green-600 transition-colors">
+        </div>
+        <div
+          class="absolute w-5 h-5 bg-white border rounded-full left-0.5 top-0.5 peer-checked:translate-x-full transition-transform">
+        </div>
+      </label>
+    </div>
+
+    <!-- Show Footer -->
+    <div class="flex items-center justify-between">
+      <label class="text-sm font-medium">Show Footer?</label>
+      <label class="inline-flex items-center cursor-pointer">
+        <input type="checkbox" v-model="form.show_footer" class="sr-only peer" />
+        <div
+          class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer dark:bg-gray-700 peer-checked:bg-green-600 transition-colors">
+        </div>
+        <div
+          class="absolute w-5 h-5 bg-white border rounded-full left-0.5 top-0.5 peer-checked:translate-x-full transition-transform">
+        </div>
+      </label>
     </div>
 
     <!-- Navigation -->

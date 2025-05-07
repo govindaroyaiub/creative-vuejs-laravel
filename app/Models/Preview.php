@@ -23,6 +23,10 @@ class Preview extends Model
         'team_members',
         'uploader_id',
         'color_palette_id',
+        'requires_login',
+        'show_planetnine_logo',
+        'show_sidebar_logo',
+        'show_footer',
     ];
 
     public function client()

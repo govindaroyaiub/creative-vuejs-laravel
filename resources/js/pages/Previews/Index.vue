@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Eye, Pencil, Trash2, CirclePlus, Target } from 'lucide-vue-next';
+import { Eye, Pencil, Trash2, CirclePlus, Target, PanelTopDashed } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, watch } from 'vue';
 import PreviewStepBasicInfo from './Partials/PreviewStepBasicInfo.vue';
@@ -44,6 +44,10 @@ const formData = ref({
     client_id: '',
     team_ids: [authUser.value.id],
     color_palette_id: '5',
+    requires_login: false,
+    show_planetnine_logo: true,
+    show_sidebar_logo: true,
+    show_footer: true,
     type: '',
     version_name: 'Master',
     version_description: 'Master Started',
@@ -90,6 +94,10 @@ const closeModal = () => {
         client_id: '',
         team_ids: [authUser.value.id],
         color_palette_id: '5',
+        requires_login: false,
+        show_planetnine_logo: true,
+        show_sidebar_logo: true,
+        show_footer: true,
         type: '',
         version_name: 'Master',
         version_description: 'Master Started',
@@ -107,6 +115,10 @@ const submitForm = () => {
     payload.append('name', formData.value.name);
     payload.append('client_id', formData.value.client_id);
     payload.append('color_palette_id', formData.value.color_palette_id ?? '');
+    payload.append('requires_login', formData.value.requires_login ? '1' : '0');
+    payload.append('show_planetnine_logo', formData.value.show_planetnine_logo ? '1' : '0');
+    payload.append('show_sidebar_logo', formData.value.show_sidebar_logo ? '1' : '0');
+    payload.append('show_footer', formData.value.show_footer ? '1' : '0');
     payload.append('type', formData.value.type);
     payload.append('version_name', formData.value.version_name);
     payload.append('version_description', formData.value.version_description);
