@@ -60,6 +60,45 @@ const getUserName = (id) => {
     right: 0;
     margin: 0 auto;
 }
+
+.tab-container {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.tab {
+    position: relative;
+    padding: 0.75rem 2rem;
+    background-color: #a7c09c;
+    color: black;
+    font-weight: bold;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.tab::before,
+.tab::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    background: #eaf5e5;
+    z-index: -1;
+}
+
+.tab::before {
+
+}
+
+.tab::after {
+}
+
+.active-tab {
+    background-color: #6a7f56;
+    color: #fff;
+    z-index: 1;
+}
 </style>
 
 <template>
@@ -77,14 +116,15 @@ const getUserName = (id) => {
 
         <br>
 
-        <div class="middle-part mt-4 flex flex-col gap-4">
-            <div class="subVersion-section flex justify-center align-center gap-1">
-                <div>Sub Version 1</div>
-                <div>Sub Version 2</div>
+        <div class="middle-part mt-4 flex flex-col">
+            <div class="subVersion-section tab-container justify-center mx-4">
+                <div class="tab active-tab">Master</div>
+                <div class="tab">Feedback 1</div>
             </div>
-            <div class="version-and-preview-section rounded-lg flex flex-row gap-4 border-2 border-gray-300 mx-4">
-                <div
-                    class="version-section border-gray-300 flex flex-col justify-center items-center gap-2 border-r-2 text-center p-2 min-w-[300px]">
+            <div class="version-and-preview-section rounded-lg flex flex-row gap-4 border-2 mx-4"
+                :style="{ borderColor: preview.color_palette.tertiary }">
+                <div class="version-section flex flex-col justify-center items-center gap-2 border-r-2 text-center p-2 min-w-[300px]"
+                    :style="{ borderColor: preview.color_palette.tertiary }">
                     <div class="sidebar-logo flex justify-center">
                         <img :src="`/logos/${preview.client.logo}`" class="mb-2" />
                     </div>
