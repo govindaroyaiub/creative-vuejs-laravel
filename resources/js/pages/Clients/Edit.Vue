@@ -80,6 +80,7 @@ const handleSubmit = () => {
 </script>
 
 <template>
+
     <Head title="Edit Client" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6 max-w-3xl w-3/4 mx-auto">
@@ -87,25 +88,29 @@ const handleSubmit = () => {
                 <!-- Name -->
                 <div>
                     <label class="block text-sm font-medium">Name</label>
-                    <input v-model="form.name" type="text" class="w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white" required />
+                    <input v-model="form.name" type="text"
+                        class="w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white" required />
                 </div>
 
                 <!-- Website -->
                 <div>
                     <label class="block text-sm font-medium">Website</label>
-                    <input v-model="form.website" type="url" class="w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white" required />
+                    <input v-model="form.website" type="url"
+                        class="w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white" required />
                 </div>
 
                 <!-- Preview URL -->
                 <div>
                     <label class="block text-sm font-medium">Preview URL</label>
-                    <input v-model="form.preview_url" type="url" class="w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white" />
+                    <input v-model="form.preview_url" type="url"
+                        class="w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white" />
                 </div>
 
                 <!-- Color Palette -->
                 <div>
                     <label class="block text-sm font-medium">Color Palette</label>
-                    <select v-model="form.color_palette_id" class="w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white">
+                    <select v-model="form.color_palette_id"
+                        class="w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white">
                         <option :value="null">Select a palette</option>
                         <option v-for="palette in props.palettes" :key="palette.id" :value="palette.id">
                             {{ palette.name }} ({{ palette.primary }})
@@ -113,7 +118,8 @@ const handleSubmit = () => {
                     </select>
                     <div class="mt-2 flex items-center space-x-2">
                         <span class="text-sm">Selected:</span>
-                        <span :style="{ backgroundColor: selectedColorHex }" class="inline-block h-6 w-12 rounded border"></span>
+                        <span :style="{ backgroundColor: selectedColorHex }"
+                            class="inline-block h-6 w-12 rounded border"></span>
                         <span class="text-sm">{{ selectedColorHex }}</span>
                     </div>
                 </div>
@@ -129,17 +135,13 @@ const handleSubmit = () => {
 
                 <!-- Submit and Back Buttons -->
                 <div class="flex space-x-4">
-                    <button
-                        type="submit"
-                        class="w-full rounded-lg bg-indigo-600 px-6 py-3 text-white shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600"
-                    >
+                    <button type="submit"
+                        class="w-full rounded-lg bg-indigo-600 px-6 py-3 text-white shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600">
                         Update
                     </button>
-                    <Link
-                        :href="route('clients')"
-                        class="w-full text-center rounded-lg bg-red-600 px-6 py-3 text-white shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-red-500 dark:hover:bg-red-600"
-                    >
-                        Back
+                    <Link :href="route('clients')"
+                        class="w-full text-center rounded-lg bg-red-600 px-6 py-3 text-white shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-red-500 dark:hover:bg-red-600">
+                    Back
                     </Link>
                 </div>
             </form>

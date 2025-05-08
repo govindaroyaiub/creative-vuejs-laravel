@@ -149,7 +149,7 @@ class PreviewController extends Controller
                     $file->move($uploadPath, $zipName);
 
                     // Unzip
-                    $zip = new \ZipArchive;
+                    $zip = new ZipArchive;
                     $extractedFolder = $uploadPath . '/' . pathinfo($zipName, PATHINFO_FILENAME);
                     if (!is_dir($extractedFolder)) {
                         mkdir($extractedFolder, 0755, true);

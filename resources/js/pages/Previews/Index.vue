@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Eye, Pencil, Trash2, CirclePlus, Target, PanelTopDashed } from 'lucide-vue-next';
+import { Eye, Pencil, Trash2, CirclePlus, Target, PanelTopDashed, X } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, watch } from 'vue';
 import PreviewStepBasicInfo from './Partials/PreviewStepBasicInfo.vue';
@@ -252,14 +252,14 @@ const stepProps = computed(() => ({
                                 <a :href="route('previews-show', preview.id)"
                                     class="text-green-600 hover:text-green-800" target="_blank" rel="noopener">
                                     <Eye class="inline h-5 w-5" />
-                                    </a>
-                                    <Link :href="route('previews-edit', preview.id)"
-                                        class="text-blue-600 hover:text-blue-800">
-                                    <Pencil class="inline h-5 w-5" />
-                                    </Link>
-                                    <button @click="deletePreview(preview.id)" class="text-red-600 hover:text-red-800">
-                                        <Trash2 class="inline h-5 w-5" />
-                                    </button>
+                                </a>
+                                <Link :href="route('previews-edit', preview.id)"
+                                    class="text-blue-600 hover:text-blue-800">
+                                <Pencil class="inline h-5 w-5" />
+                                </Link>
+                                <button @click="deletePreview(preview.id)" class="text-red-600 hover:text-red-800">
+                                    <Trash2 class="inline h-5 w-5" />
+                                </button>
                             </td>
                         </tr>
                         <tr v-if="filteredPreviews.length === 0">
@@ -286,7 +286,9 @@ const stepProps = computed(() => ({
         <!-- Modal -->
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div class="bg-white dark:bg-gray-900 p-6 rounded-lg w-full max-w-xl relative overflow-hidden">
-                <button class="absolute top-2 right-2 text-gray-400 hover:text-white rotate-45" @click="closeModal">✖</button>
+                <button class="absolute top-2 right-2 text-gray-400 hover:text-red-500" @click="closeModal">
+                    <X class="h-6 w-6" />
+                </button>
                 <Transition :name="transitionDirection === 'forward' ? 'slide-left' : 'slide-right'" mode="out-in">
                     <component :is="getStepComponent(step)" :key="step" v-bind="stepProps" @next="handleNextStep"
                         @previous="handlePreviousStep" @submit="submitForm" @close="closeModal" />
