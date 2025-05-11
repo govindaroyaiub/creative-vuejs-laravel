@@ -9,15 +9,30 @@
         class="w-full rounded border px-3 py-2 dark:bg-gray-800 dark:text-white" />
     </div>
 
-    <!-- Client Dropdown -->
-    <div>
-      <label class="block mb-1 text-sm font-medium">Client</label>
-      <select v-model="form.client_id" class="w-full rounded border px-3 py-2 dark:bg-gray-800 dark:text-white">
-        <option disabled value="">Select Client</option>
-        <option v-for="client in clients" :key="client.id" :value="client.id">
-          {{ client.name }}
-        </option>
-      </select>
+    <!-- Client and Color Palette on same row -->
+    <div class="flex flex-col md:flex-row gap-4">
+      <!-- Client Dropdown -->
+      <div class="flex-1">
+        <label class="block mb-1 text-sm font-medium">Client</label>
+        <select v-model="form.client_id" class="w-full rounded border px-3 py-2 dark:bg-gray-800 dark:text-white">
+          <option disabled value="">Select Client</option>
+          <option v-for="client in clients" :key="client.id" :value="client.id">
+            {{ client.name }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Color Palette Dropdown -->
+      <div class="flex-1">
+        <label class="block mb-1 text-sm font-medium">Theme</label>
+        <select v-model="form.color_palette_id"
+          class="w-full rounded border px-3 py-2 dark:bg-gray-800 dark:text-white">
+          <option disabled value="">Select Theme</option>
+          <option v-for="palette in colorPalettes" :key="palette.id" :value="palette.id">
+            {{ palette.name }}
+          </option>
+        </select>
+      </div>
     </div>
 
     <!-- Team Members -->

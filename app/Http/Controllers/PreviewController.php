@@ -76,10 +76,11 @@ class PreviewController extends Controller
     }
 
     public function store(Request $request)
-    {
+    {   
         $request->validate([
             'name' => 'required|string|max:255',
             'client_id' => 'required|exists:clients,id',
+            'color_palette_id' => 'required|exists:color_palettes,id',
             'requires_login' => 'boolean',
             'show_planetnine_logo' => 'boolean',
             'show_sidebar_logo' => 'boolean',
@@ -99,14 +100,13 @@ class PreviewController extends Controller
 
         DB::transaction(function () use ($request) {
             // 1. Create the Preview
-            $color_palette = Client::find($request->client_id);
 
             $preview = Preview::create([
                 'name' => $request->name,
                 'client_id' => $request->client_id,
                 'requires_login' => $request->requires_login,
                 'team_members' => $request->team_ids,
-                'color_palette_id' => $color_palette['color_palette_id'],
+                'color_palette_id' => $request->color_palette_id,
                 'uploader_id' => auth()->id(),
             ]);
 
