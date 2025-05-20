@@ -302,7 +302,7 @@
                 } else {
                     isActive = '';
                 }
-                row = row + '<div id="subVersionTab' + value.id + '" class="subVersionTab' + isActive + '" onclick="updateBannerActiveSubVersion(' + value.id + ')" style="margin-left: 2px; margin-right: 2px; padding: 5px 25px 0 25px; border-top-left-radius: 17px; border-top-right-radius: 17px;">' + value.name + '</div>';
+                row = row + '<div id="subVersionTab' + value.id + '" class="subVersionTab' + isActive + '" onclick="updateBannerActiveSubVersion(' + value.id + ')">' + value.name + '</div>';
             });
         } else {
             var row = '';

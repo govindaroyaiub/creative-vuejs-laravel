@@ -392,18 +392,20 @@ section .content {
     text-align: center;
 }
 
-.versionTab {
+.subVersionTab {
     cursor: pointer;
-    background-color: #1B283B;
     color: white;
 }
 
-.versionTab:hover {
-    background-color: #F15A29;
+.subVersionTab:hover {
+    
 }
 
-.versionTabActive {
-    background-color: #F15A29;
+.subVersionTabActive {
+    border-bottom: 50px solid var(--tertiary-color);
+    border-left: 25px solid transparent;
+    border-right: 25px solid transparent;
+    height: 0;
 }
 
 #versionArea {
