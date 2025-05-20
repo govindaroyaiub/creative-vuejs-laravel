@@ -28,7 +28,7 @@
 
 </head>
 
-<body style="background-color: {{ $secondary }};">
+<body>
     <div id="loaderArea">
         <span class="loader"></span>
     </div>
@@ -69,7 +69,7 @@
                                 <ul id="menu"></ul>
                             </div>
                         </nav>
-                        <div class="navbar tabDesktopShowcase" id="navbar" style="background-color: {{$primary}}; border: 3px solid {{$tertiary}};">
+                        <div class="navbar tabDesktopShowcase" id="navbar">
                             @if($preview['show_sidebar_logo'] == 1)
                             <div id="clientLogoSection" class="mb-2 mt-2 px-2 py-2 mx-auto">
                                 <img src="{{ asset('logos/' . $client['logo']) }}"
@@ -82,7 +82,7 @@
                             <div id="creative-list2"></div>
                         </div>
 
-                        <div class="right-column" style="border-top: 3px solid {{$tertiary}}; border-right: 3px solid {{$tertiary}}; border-bottom: 3px solid {{$tertiary}};">
+                        <div class="right-column">
                             <div id="versionArea">
                                 <div id="versionCLick" onclick="showVersionDescription()">
                                     <i class="fa-regular fa-message"></i>
@@ -130,10 +130,6 @@
 <script>
     const preview_id = '{{ $preview_id }}';
     const authUserClientName = '{{ $authUserClientName }}';
-    const primary = '{{ $primary }}';
-    const secondary = '{{ $secondary }}';
-    const tertiary = '{{ $tertiary }}';
-    const quaternary = '{{ $quaternary }}';
     var viewversion;
 
     $(document).ready(function() {
