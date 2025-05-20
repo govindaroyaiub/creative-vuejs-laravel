@@ -19,24 +19,50 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use ZipArchive;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class PreviewController extends Controller
 {
     public function show($id)
     {
+        $preview_id = $id;
         $preview = Preview::with(['client.colorPalette', 'colorPalette', 'uploader'])->findOrFail($id);
+        // dd($preview);
         $versions = Version::where('preview_id', $id)->get();
         $subVersions = SubVersion::whereIn('version_id', $versions->pluck('id'))->get();
-        $users = User::all(['id', 'name']); // for resolving team_members
+        $color_palettes = ColorPalette::where('id', $preview['color_palette_id'])->first();
+        $client = Client::where('id', $preview['client_id'])->first();
+        $authUserClientId = Auth::user()->client_id;
+        $authUserClientInfo = Client::find($authUserClientId);
+        $authUserClientName = $authUserClientInfo['name'];
+        $primary = $color_palettes['primary'];
+        $secondary = $color_palettes['secondary'];
+        $tertiary = $color_palettes['tertiary'];
+        $quaternary = $color_palettes['quaternary'];
 
-        return Inertia::render('Previews/Show', [
-            'preview' => $preview,
-            'versions' => $versions,
-            'subVersions' => $subVersions,
-            'activeVersion' => $versions->first(),
-            'users' => $users,
-        ]);
+        // return Inertia::render('Previews/Show', [
+        //     'preview' => $preview,
+        //     'versions' => $versions,
+        //     'subVersions' => $subVersions,
+        //     'primary' => $primary,
+        //     'secondary' => $seconday,
+        //     'tertiary' => $tertiary,
+        //     'quaternary' => $quaternary
+        // ]);
+
+        return view('preview', compact(
+            'preview',
+            'versions',
+            'subVersions',
+            'primary',
+            'secondary',
+            'tertiary',
+            'quaternary',
+            'client',
+            'authUserClientName',
+            'preview_id'
+        ));
     }
 
     public function index(Request $request)
@@ -76,7 +102,7 @@ class PreviewController extends Controller
     }
 
     public function store(Request $request)
-    {   
+    {
         $request->validate([
             'name' => 'required|string|max:255',
             'client_id' => 'required|exists:clients,id',

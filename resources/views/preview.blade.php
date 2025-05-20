@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Creative - {{ $preview['name'] }}</title>
+    <link rel="shortcut icon" href="https://www.planetnine.com/logo/new_favicon.png">
+    <link href="{{ asset('css/preview.css') }}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.slim.min.js"
+        integrity="sha256-w8CvhFs7iHNVUtnSP0YKEg00p9Ih13rlL9zGqvLdePA=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/js/all.min.js" integrity="sha512-rpLlll167T5LJHwp0waJCh3ZRf7pO6IT1+LZOhAyP6phAirwchClbTZV3iqL3BMrVxIYRbzGTpli4rfxsCK6Vw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://s0.2mdn.net/ads/studio/cached_libs/gsap_3.5.1_min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body style="background-color: {{ $secondary }};">
+    <div id="loaderArea">
+        <span class="loader"></span>
+    </div>
+
+    <main class="main">
+        <div class="viewMessage">
+            For better View Please Use Laptop or Desktop
+        </div>
+        <section id="top" class="mb-4">
+            <div class="px-4 py-4 flex justify-center content text-center relative">
+                <div id="topDetails">
+                    <img src="{{ asset('logos/' . $client['logo']) }}" id="planetnineLogo" class="py-3" alt="planetnineLogo">
+                    <h1 style="font-size: 1rem;">Client Name: <span>{{ $client['name'] }}</span></h1>
+                    <h1 style="font-size: 1rem;">Project Name: <span>{{ $preview['name'] }}</span></h1>
+                    <h1 style="font-size: 1rem;" class="font-semibold">
+                        Date: <span>{{ \Carbon\Carbon::parse($preview['created_at'])->format('F j, Y') }}</span>
+                    </h1>
+                </div>
+            </div>
+        </section>
+
+        <section id="middle">
+            <div id="showcase-section" class="mx-auto custom-container mt-2 px-2">
+                <div class="flex row">
+                    <div class="subVersion-blank-space" style="width: 250px;"></div>
+                    <div style="flex: 1;">
+                        <div class="subVersions" style="display: flex; justify-content: center; flex-direction: row;"></div>
+                    </div>
+                </div>
+                <div id="showcase">
+                    <div id="bannershowCustom">
+                        <nav role="navigation" class="mobileShowcase">
+                            <div id="menuToggle">
+                                <input type="checkbox" id="menuClick" />
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <ul id="menu"></ul>
+                            </div>
+                        </nav>
+                        <div class="navbar tabDesktopShowcase" id="navbar" style="background-color: {{$primary}}; border: 3px solid {{$tertiary}};">
+                            @if($preview['show_sidebar_logo'] == 1)
+                            <div id="clientLogoSection" class="mb-2 mt-2 px-2 py-2 mx-auto">
+                                <img src="{{ asset('logos/' . $client['logo']) }}"
+                                    alt="clientLogo" style="width: 150px;">
+                            </div>
+                            @endif
+
+                            <h2 style="padding-top: 10px; font-size: 24px; text-decoration: underline; text-align: center;">Creative Showcase</h2>
+
+                            <div id="creative-list2"></div>
+                        </div>
+
+                        <div class="right-column" style="border-top: 3px solid {{$tertiary}}; border-right: 3px solid {{$tertiary}}; border-bottom: 3px solid {{$tertiary}};">
+                            <div id="versionArea">
+                                <div id="versionCLick" onclick="showVersionDescription()">
+                                    <i class="fa-regular fa-message"></i>
+                                </div>
+                                <div id="versionDescription">
+                                    <div id="versionDescriptionUpperpart">
+                                        <div class="cursor-pointer" style="float: right;" onclick="hideVersionDescription()">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div id="versionDescriptionLowerPart">
+                                        <label id="versionMessage"></label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="versionInfo"><label for="versionInfo" id="versionLabel"></label></div>
+                            <div style="position: relative; top: 65px; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; justify-content: center; padding: 10px;">
+                                <div id="versionSettings"></div>
+                                <div id="versionSettings" style="position: absolute; right: 2%;"></div>
+                            </div>
+                            <br>
+                            <div id="bannerShowcase"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+        <br>
+
+        @if($preview['show_footer'] == 1)
+        <footer class="footer">
+            <div class="container mx-auto px-4 py-4 text-black text-center mb-8">&copy; All Rights Reserved. <a
+                    href="https://www.planetnine.com" target="_blank"
+                    style="text-decoration: underline;">Planet Nine</a>
+                - <?= Date('Y') ?></div>
+        </footer>
+        @endif
+    </main>
+</body>
+
+<script>
+    const preview_id = '{{ $preview_id }}';
+    const authUserClientName = '{{ $authUserClientName }}';
+    const primary = '{{ $primary }}';
+    const secondary = '{{ $secondary }}';
+    const tertiary = '{{ $tertiary }}';
+    const quaternary = '{{ $quaternary }}';
+    var viewversion;
+
+    $(document).ready(function() {
+        getAllVersions();
+    });
+
+    function showVersionDescription() {
+        viewversion = true;
+
+        var moveversion = gsap.timeline();
+
+        moveversion
+            .to('#versionDescription', {
+                duration: 1,
+                x: 0,
+                ease: 'power2.out'
+            });
+
+        if (viewversion == true) {
+            var except = document.getElementById('versionDescription');
+
+            document.addEventListener('click', closeThisversion, true);
+
+            function closeThisversion(e) {
+                if (!except.contains(e.target)) { //if the clicked element is the version div then it wont disappear
+                    var listID = document.getElementById('versionDescription');
+                    let viewversionTimeline = gsap.timeline();
+                    viewversionTimeline
+                        .to('#versionDescription', {
+                            duration: 0.5,
+                            x: 310,
+                            ease: 'power2.in'
+                        });
+                }
+            }
+            viewversion = false;
+        }
+    }
+
+    function hideVersionDescription() {
+        var moveversion = gsap.timeline();
+
+        moveversion
+            .to('#versionDescription', {
+                duration: 0.5,
+                x: 310,
+                ease: 'power2.in'
+            })
+    }
+
+    function getAllVersions() {
+        axios.get('/preview/getallversions/' + preview_id)
+            .then(function(response) {
+                var active;
+                var versionActive;
+                var spanActive;
+                var row = '';
+                var row2 = '';
+
+                $.each(response.data.versions, function(key, value) {
+                    if (value.is_active == 1) {
+                        active = 'menuToggleActive';
+                        versionActive = 'version-active';
+                        spanActive = 'span-active';
+                    } else {
+                        active = '';
+                        versionActive = '';
+                        spanActive = '';
+                    }
+
+                    row2 = row2 + '<div class="version-row ' + versionActive + '" onclick="return updateActiveVersion(' + value.id + ')" id="version' + value.id + '">'
+                    row2 = row2 + '<span class="' + spanActive + '">' + value.name + '</span>'
+                    row2 = row2 + '</div>';
+
+                    row = row + '<a href="javascript:void(0)" class="nav-link versions" onclick="return updateActiveVersion(' + value.id + ')" id="version' + value.id + '">'
+                    row = row + '<li class="' + active + '">' + value.name + '</li>'
+                    row = row + '</a>';
+                });
+
+                $('#creative-list2').html(row2);
+                $('#creative-list').html(row);
+                $('#menu').html(row);
+
+                checkVersionType(response.data.activeVersion_id);
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
+            .finally(function() {
+                document.getElementById('menuClick').click();
+            })
+    }
+
+    function updateActiveVersion(version_id) {
+        var versionLabel = gsap.timeline();
+        versionLabel
+            .to('#versionInfo', {
+                duration: 0.5,
+                y: -30,
+                ease: 'power2.in'
+            });
+        document.getElementById('menuClick').click();
+        axios.get('/preview/updateActiveVersion/' + version_id)
+            .then(function(response) {
+                var active;
+                var versionActive;
+                var spanActive;
+                var row = '';
+                var row2 = '';
+
+                $.each(response.data.versions, function(key, value) {
+                    if (value.is_active == 1) {
+                        active = 'menuToggleActive';
+                        versionActive = 'version-active';
+                        spanActive = 'span-active';
+                    } else {
+                        active = '';
+                        versionActive = '';
+                        spanActive = '';
+                    }
+
+                    row2 = row2 + '<div class="version-row ' + versionActive + '" onclick="return updateActiveVersion(' + value.id + ')" id="version' + value.id + '">'
+                    row2 = row2 + '<span class="' + spanActive + '">' + value.name + '</span>'
+                    row2 = row2 + '</div>';
+
+                    row = row + '<a href="javascript:void(0)" class="versions nav-link" onclick="return updateActiveVersion(' + value.id + ')" id="version' + value.id + '">'
+                    row = row + '<li class="' + active + '">' + value.name + '</li>'
+                    row = row + '</a>';
+                });
+
+                $('#creative-list2').html(row2);
+                $('#creative-list').html(row);
+                $('#menu').html(row);
+
+                checkVersionType(response.data.activeVersion_id);
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
+    }
+
+    function checkVersionType(activeVersion_id) {
+        axios.get('/preview/getVersionType/' + activeVersion_id)
+            .then(function(response) {
+                setVersionsDescription(response.data.version_description);
+                setVersionsName(response.data.version_name);
+
+                if (response.data.type == "banner") {
+                    setBannerVersionSubVersions(response.data.subVersions);
+                }
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
+    }
+
+    function setVersionsName(version_name) {
+        var versionLabel = gsap.timeline();
+        versionLabel
+            .to('#versionInfo', {
+                duration: 1,
+                y: 0,
+                ease: 'power2.out'
+            }, '=+0.5');
+        $('#versionLabel').html(version_name);
+    }
+
+    function setVersionsDescription(version_description) {
+        $('#versionMessage').html(version_description);
+    }
+
+    function setBannerVersionSubVersions(subVersions) {
+        var subVersionCount = subVersions.length;
+        var isActive;
+
+        if (subVersionCount > 0) {
+            var row = '';
+            $.each(subVersions, function(key, value) {
+                if (value.is_active == 1) {
+                    isActive = ' subVersionTabActive';
+                } else {
+                    isActive = '';
+                }
+                row = row + '<div id="subVersionTab' + value.id + '" class="subVersionTab' + isActive + '" onclick="updateBannerActiveSubVersion(' + value.id + ')" style="margin-left: 2px; margin-right: 2px; padding: 5px 25px 0 25px; border-top-left-radius: 17px; border-top-right-radius: 17px;">' + value.name + '</div>';
+            });
+        } else {
+            var row = '';
+        }
+        $('.subVersions').html(row);
+    }
+</script>

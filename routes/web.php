@@ -14,6 +14,7 @@ use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\ColorPaletteController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MediaController;
+use App\Http\Controllers\PreviewApiController;
 use App\Http\Middleware\CheckUserPermission;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
@@ -43,6 +44,10 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/previews-edit/{id}', [PreviewController::class, 'edit'])->name('previews-edit');
     Route::post('/previews-edit/{id}', [PreviewController::class, 'update'])->name('previews-update');
     Route::delete('/previews-delete/{id}', [PreviewController::class, 'destroy'])->name('previews-delete');
+
+    Route::get('/preview/getallversions/{id}', [PreviewApiController::class, 'getAllVersions']);
+    Route::get('/preview/updateActiveVersion/{id}', [PreviewApiController::class, 'updateActiveVersion']);
+    Route::get('/preview/getVersionType/{id}', [PreviewApiController::class, 'getVersionType']);
     //Preview Routes End
 
     //Banner Sizes Routes Start
@@ -77,7 +82,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/bills-download/{id}', [BillController::class, 'download'])->name('bills-download');
     //Bills Routes End
 
-//Client Routes Start
+    //Client Routes Start
     Route::get('/clients', [ClientController::class, 'index'])->name('clients');
     Route::get('/clients-create', [ClientController::class, 'create'])->name('clients-create');
     Route::post('/clients-store', [ClientController::class, 'store'])->name('clients-store');
