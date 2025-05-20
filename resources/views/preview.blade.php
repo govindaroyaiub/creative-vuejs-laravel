@@ -8,7 +8,6 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Creative - {{ $preview['name'] }}</title>
     <link rel="shortcut icon" href="https://www.planetnine.com/logo/new_favicon.png">
-    <link href="{{ asset('css/preview.css') }}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://code.jquery.com/jquery-3.6.1.slim.min.js"
         integrity="sha256-w8CvhFs7iHNVUtnSP0YKEg00p9Ih13rlL9zGqvLdePA=" crossorigin="anonymous"></script>
@@ -17,6 +16,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/js/all.min.js" integrity="sha512-rpLlll167T5LJHwp0waJCh3ZRf7pO6IT1+LZOhAyP6phAirwchClbTZV3iqL3BMrVxIYRbzGTpli4rfxsCK6Vw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://s0.2mdn.net/ads/studio/cached_libs/gsap_3.5.1_min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary-color: {{ $primary }};
+            --secondary-color: {{ $secondary }};
+            --tertiary-color: {{ $tertiary }};
+            --quaternary-color: {{ $quaternary }};
+        }
+    </style>
+    <link href="{{ asset('css/preview.css') }}" rel="stylesheet">
+
 </head>
 
 <body style="background-color: {{ $secondary }};">
@@ -246,9 +255,9 @@
                         spanActive = '';
                     }
 
-                    row2 = row2 + '<div class="version-row ' + versionActive + '" onclick="return updateActiveVersion(' + value.id + ')" id="version' + value.id + '">'
-                    row2 = row2 + '<span class="' + spanActive + '">' + value.name + '</span>'
-                    row2 = row2 + '</div>';
+                    row2 += '<div class="version-row ' + versionActive + '" onclick="return updateActiveVersion(' + value.id + ')" id="version' + value.id + '" style="background-color: ' + primary + ';">';
+                    row2 += '<span class="' + spanActive + '">' + value.name + '</span>';
+                    row2 += '</div>';
 
                     row = row + '<a href="javascript:void(0)" class="versions nav-link" onclick="return updateActiveVersion(' + value.id + ')" id="version' + value.id + '">'
                     row = row + '<li class="' + active + '">' + value.name + '</li>'

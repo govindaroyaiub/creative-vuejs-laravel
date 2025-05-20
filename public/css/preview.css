@@ -855,66 +855,35 @@ section .content {
 
 .version-row {
     text-align: center;
-    color: white;
-    width: 100%;
+    width: calc(100% - 20px);
     min-height: 40px;
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     align-items: center;
     position: relative;
     overflow: hidden;
     cursor: pointer;
+    background-color: white;
+    color: var(--quaternary-color);
+    border-radius: 18px;
+    border-bottom: 4px solid black;
+    transition: all 0.25s;
 }
 
-.version-row-active {
-    background-color: white;
+.version-row:hover {
+    background-color: var(--tertiary-color);
+    color: white;
+    border-bottom: 4px solid var(--tertiary-color);
+}
+
+
+.version-active {
     width: calc(100% - 20px);
     height: 100%;
-    transition: right 0.5s ease-in-out;
-    border-top-left-radius: 18px;
-    border-bottom-left-radius: 18px;
-    border-bottom: 4px solid rgb(161, 110, 14);
+    border-radius: 18px;
     z-index: 0;
-    color: #1b283b;
-}
-
-.version-row::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: -100%;
-    background-color: white;
-    width: calc(100% - 20px);
-    height: 100%;
-    transition: right 0.5s ease-in-out;
-    border-top-left-radius: 18px;
-    border-bottom-left-radius: 18px;
-    border-bottom: 4px solid rgb(161, 110, 14);
-    z-index: 0;
-}
-
-.version-row:hover::before {
-    right: 0;
-}
-
-.version-row.version-active::before {
-    right: 0;
-    border-bottom: 4px solid rgb(161, 110, 14);
-}
-
-.version-row.version-active span.span-active {
-    color: #1b283b;
-}
-
-.version-row span {
-    position: relative;
-    width: calc(100% - 20px);
-    z-index: 1;
-    transition: color 0.5s ease-in-out;
-    text-align: center;
-    line-height: 1.4;
-}
-
-.version-row:hover span {
-    color: #1b283b;
+    background-color: var(--tertiary-color);
+    color: white;
+    box-shadow: 0;
+    border-bottom: 4px solid var(--tertiary-color);
 }
