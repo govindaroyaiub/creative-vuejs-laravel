@@ -158,7 +158,7 @@ const copyToClipboard = (text: string) => {
                 <div class="peer h-5 w-10 rounded-full bg-gray-300 peer-checked:bg-green-500 transition"></div>
               </label>
             </td>
-            <td class="px-4 py-3 text-center">
+            <td class="px-4 py-3 text-center space-x-2">
               <button @click="saveNew" class="text-green-600 hover:underline text-sm">Save</button>
               <button @click="cancelAdding" class="text-gray-500 hover:underline text-sm">Cancel</button>
             </td>
@@ -245,7 +245,7 @@ const copyToClipboard = (text: string) => {
                 </div>
               </template>
               <template v-else>
-                <div class="flex justify-center gap-2">
+                <div class="flex justify-center space-x-2">
                   <button @click="startEditing(palette)" class="text-blue-600 hover:text-blue-800">
                     <Pencil class="inline h-5 w-5" />
                   </button>

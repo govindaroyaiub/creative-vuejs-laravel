@@ -1,147 +1,146 @@
 <script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
 import { Head, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import axios from 'axios';
 import dayjs from 'dayjs';
 
 const page = usePage();
-
 const preview = computed(() => page.props.preview);
-const versions = computed(() => page.props.versions ?? []);
-const subVersions = computed(() => page.props.subVersions ?? []);
-const users = computed(() => page.props.users ?? []); // optional preload
+const previewId = computed(() => page.props.preview_id);
+const users = computed(() => page.props.users ?? []);
+
+const isLoggedIn = ref(page.props.auth?.user !== null);
+const loginEmail = ref('');
+const loginPassword = ref('');
+const loginError = ref('');
+
+const versions = ref([]);
+const subVersions = ref([]);
+const banners = ref([]);
+
+const activeVersion = ref(null);
+const activeSubVersion = ref(null);
+const activePalette = ref(preview.value.color_palette);
+
 const formatDate = (date: string) => dayjs(date).format('DD-MM-YYYY');
 
-const getUserName = (id) => {
-    const user = users.value.find(u => u.id === id);
-    return user ? user.name : `User ID ${id}`;
+const fetchVersions = async () => {
+    const res = await axios.get(`/preview/getVersions/${previewId.value}`);
+    versions.value = res.data;
+    activeVersion.value = versions.value.find(v => v.isActive) || versions.value[0];
+    if (activeVersion.value) fetchSubVersions(activeVersion.value.id);
 };
+
+const fetchSubVersions = async (versionId: number) => {
+    const res = await axios.get(`/preview/getSubVersions/${versionId}`);
+    subVersions.value = res.data;
+    activeSubVersion.value = subVersions.value.find(sv => sv.isActive) || subVersions.value[0];
+    if (activeSubVersion.value) fetchBanners(activeSubVersion.value.id);
+};
+
+const fetchBanners = async (subVersionId: number) => {
+    const res = await axios.get(`/preview/getBanners/${subVersionId}`);
+    banners.value = res.data;
+};
+
+const applyPalette = (palette) => {
+    activePalette.value = palette;
+};
+
+const login = async () => {
+    try {
+        const res = await axios.post('/preview/login', {
+            email: loginEmail.value,
+            password: loginPassword.value,
+            preview_id: previewId.value,
+        });
+        if (res.data.success) {
+            isLoggedIn.value = true;
+            fetchVersions();
+        }
+    } catch (err) {
+        loginError.value = 'Invalid credentials';
+    }
+};
+
+onMounted(() => {
+    if (!preview.value.requires_login) fetchVersions();
+});
 </script>
-
-<style>
-.outer-border {
-    margin: 0 1rem;
-    box-shadow: inset 0 0 10px 10px #ffffff;
-    border-radius: 90px;
-}
-
-.brush-text {
-    position: relative;
-    z-index: 1;
-    font-family: sans-serif;
-    color: #1a1a1a;
-    font-weight: 600;
-    background-image: url('/preview_images/green.png');
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center;
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-    max-width: 30vw;
-    margin: auto;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    text-align: center;
-}
-
-.preview-top-logo {
-    width: 200px;
-    height: auto;
-}
-
-.sidebar-logo {
-    width: 180px;
-    height: auto;
-}
-
-.footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: 0 auto;
-}
-
-.tab-container {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.tab {
-    position: relative;
-    padding: 0.75rem 2rem;
-    background-color: #a7c09c;
-    color: black;
-    font-weight: bold;
-    z-index: 0;
-    overflow: hidden;
-}
-
-.tab::before,
-.tab::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    width: 1.25rem;
-    height: 1.25rem;
-    background: #eaf5e5;
-    z-index: -1;
-}
-
-.tab::before {
-
-}
-
-.tab::after {
-}
-
-.active-tab {
-    background-color: #6a7f56;
-    color: #fff;
-    z-index: 1;
-}
-</style>
 
 <template>
 
-    <Head title="Previews" />
-    <div class="min-h-screen outer-border" :style="{ backgroundColor: preview.color_palette?.secondary ?? '#f9fafb' }">
-        <div class="top-part">
-            <div class="brush-text text-center">
-                <img :src="`/logos/${preview.client.logo}`" class="mx-auto preview-top-logo mb-2" />
-                <p><strong>Client Name:</strong> {{ preview.client.name }}</p>
-                <p><strong>Project Name:</strong> {{ preview.name }}</p>
-                <p><strong>Date:</strong> {{ formatDate(preview.created_at) }}</p>
-            </div>
+    <Head :title="preview.name" />
+    <div class="min-h-screen" :style="{ backgroundColor: activePalette?.secondary || '#f9fafb' }">
+        <div v-if="preview.requires_login && !isLoggedIn" class="p-10 max-w-md mx-auto text-center">
+            <h2 class="text-xl font-bold mb-4">Login to view preview</h2>
+            <input v-model="loginEmail" type="email" placeholder="Email"
+                class="w-full mb-3 px-4 py-2 rounded border dark:bg-gray-800 dark:text-white" />
+            <input v-model="loginPassword" type="password" placeholder="Password"
+                class="w-full mb-3 px-4 py-2 rounded border dark:bg-gray-800 dark:text-white" />
+            <button @click="login" class="w-full bg-indigo-600 text-white py-2 rounded">Login</button>
+            <div class="text-red-500 mt-2">{{ loginError }}</div>
         </div>
 
-        <br>
-
-        <div class="middle-part mt-4 flex flex-col">
-            <div class="subVersion-section tab-container justify-center mx-4">
-                <div class="tab active-tab">Master</div>
-                <div class="tab">Feedback 1</div>
+        <div v-else>
+            <!-- Header -->
+            <div class="text-center py-4">
+                <img v-if="preview.show_planetnine_logo" :src="`/logos/${preview.client.logo}`"
+                    class="mx-auto w-40 mb-2" />
+                <h1 class="text-2xl font-bold">{{ preview.name }}</h1>
+                <p>{{ preview.client.name }} • {{ formatDate(preview.created_at) }}</p>
             </div>
-            <div class="version-and-preview-section rounded-lg flex flex-row gap-4 border-2 mx-4"
-                :style="{ borderColor: preview.color_palette.tertiary }">
-                <div class="version-section flex flex-col justify-center items-center gap-2 border-r-2 text-center p-2 min-w-[300px]"
-                    :style="{ borderColor: preview.color_palette.tertiary }">
-                    <div class="sidebar-logo flex justify-center">
-                        <img :src="`/logos/${preview.client.logo}`" class="mb-2" />
-                    </div>
-                    <div class="version-list flex flex-col gap-2">
-                        <label class="underline text-xl">Creative Showcase</label>
-                        <div class="version-name">Version 1</div>
-                        <div class="version-name">Version 2</div>
+
+            <!-- Palette Switcher -->
+            <div class="flex justify-center gap-2 my-4">
+                <div v-for="palette in preview.client.color_palette.filter(p => p.status === 1)" :key="palette.id"
+                    class="w-6 h-6 rounded-full border cursor-pointer" :style="{ backgroundColor: palette.primary }"
+                    @click="applyPalette(palette)" />
+            </div>
+
+            <!-- Layout -->
+            <div class="flex mx-4 border rounded-lg" :style="{ borderColor: activePalette?.tertiary }">
+                <!-- Left: Versions -->
+                <div class="w-[280px] p-3 border-r" :style="{ borderColor: activePalette?.tertiary }">
+                    <h3 class="text-lg underline mb-2">Versions</h3>
+                    <div v-for="v in versions" :key="v.id"
+                        class="mb-1 px-3 py-2 rounded cursor-pointer text-center hover:opacity-80"
+                        :class="{ 'bg-opacity-50': activeVersion?.id === v.id }" :style="{
+                            backgroundColor: activeVersion?.id === v.id ? activePalette?.primary : 'transparent',
+                            border: '1px solid ' + (activePalette?.tertiary || '#ccc')
+                        }" @click="() => { activeVersion = v; fetchSubVersions(v.id) }">
+                        {{ v.name }}
                     </div>
                 </div>
-                <div class="preview-section">
-                    this where the creatives will be shown
+
+                <!-- Right: SubVersions & Assets -->
+                <div class="flex-1 p-3">
+                    <div class="flex gap-2 mb-4">
+                        <div v-for="sv in subVersions" :key="sv.id"
+                            class="px-3 py-1 border rounded-full cursor-pointer text-sm"
+                            :class="{ 'bg-opacity-60': activeSubVersion?.id === sv.id }" :style="{
+                                backgroundColor: activeSubVersion?.id === sv.id ? activePalette?.secondary : 'transparent',
+                                borderColor: activePalette?.tertiary || '#ccc'
+                            }" @click="() => { activeSubVersion = sv; fetchBanners(sv.id) }">
+                            {{ sv.name }}
+                        </div>
+                    </div>
+
+                    <!-- Assets (Banners only for now) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div v-for="banner in banners" :key="banner.id" class="rounded border overflow-hidden shadow"
+                            :style="{ borderColor: activePalette?.tertiary }">
+                            <img :src="`/banners/${banner.path}`" class="w-full object-contain" />
+                            <div class="p-2 text-center text-sm">{{ banner.size }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="footer text-center py-4 px-2">
-            @2025 - All Rights Reserved to Planet Nine
+            <!-- Footer -->
+            <div v-if="preview.show_footer" class="text-center mt-6 py-4 text-sm text-gray-500">
+                © 2025 - Planet Nine. All Rights Reserved.
+            </div>
         </div>
     </div>
 </template>

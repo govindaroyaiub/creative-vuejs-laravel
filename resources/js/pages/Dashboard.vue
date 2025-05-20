@@ -117,7 +117,7 @@ const animatedCounts = {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6 space-y-6">
             <div class="flex items-center gap-4">
-                <h1 class="text-2xl font-bold">Dashboard of {{ year }}</h1>
+                <h1 class="text-2xl font-bold">Statistics of {{ year }}</h1>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -155,7 +155,7 @@ const animatedCounts = {
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow h-[850px]">
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow" :style="{ height: `calc(100vh - 350px)` }">
                 <Line :data="chartData" :options="chartOptions" />
             </div>
         </div>
