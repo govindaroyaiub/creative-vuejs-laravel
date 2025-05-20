@@ -12,7 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://code.jquery.com/jquery-3.6.1.slim.min.js"
         integrity="sha256-w8CvhFs7iHNVUtnSP0YKEg00p9Ih13rlL9zGqvLdePA=" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.9.0/axios.min.js" integrity="sha512-FPlUpimug7gt7Hn7swE8N2pHw/+oQMq/+R/hH/2hZ43VOQ+Kjh25rQzuLyPz7aUWKlRpI7wXbY6+U3oFPGjPOA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/js/all.min.js" integrity="sha512-rpLlll167T5LJHwp0waJCh3ZRf7pO6IT1+LZOhAyP6phAirwchClbTZV3iqL3BMrVxIYRbzGTpli4rfxsCK6Vw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://s0.2mdn.net/ads/studio/cached_libs/gsap_3.5.1_min.js"></script>
@@ -95,7 +95,7 @@
                             <div id="versionInfo"><label for="versionInfo" id="versionLabel"></label></div>
                             <div style="position: relative; top: 65px; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; justify-content: center; padding: 10px;">
                                 <div id="versionSettings"></div>
-                                <div id="versionSettings" style="position: absolute; right: 2%;"></div>
+                                <div id="subVersionSettings" style="position: absolute; right: 2%;"></div>
                             </div>
                             <br>
                             <div id="bannerShowcase"></div>
@@ -270,30 +270,19 @@
         axios.get('/preview/getVersionType/' + activeVersion_id)
             .then(function(response) {
                 setVersionsDescription(response.data.version_description);
-                setVersionsName(response.data.version_name);
 
                 if (response.data.type == "banner") {
                     setBannerVersionSubVersions(response.data.subVersions);
+
+                    setBannerActiveSubVersionSettings(response.data.activeSubVersion_id);
+                    setBannerActiveVersionSettings(activeVersion_id);
+
+                    setBannerDisplayOfActiveSubVersion(response.data.activeSubVersion_id);
                 }
             })
             .catch(function(error) {
                 console.log(error);
             })
-    }
-
-    function setVersionsName(version_name) {
-        var versionLabel = gsap.timeline();
-        versionLabel
-            .to('#versionInfo', {
-                duration: 1,
-                y: 0,
-                ease: 'power2.out'
-            }, '=+0.5');
-        $('#versionLabel').html(version_name);
-    }
-
-    function setVersionsDescription(version_description) {
-        $('#versionMessage').html(version_description);
     }
 
     function setBannerVersionSubVersions(subVersions) {
@@ -314,5 +303,100 @@
             var row = '';
         }
         $('.subVersions').html(row);
+    }
+
+    function updateBannerActiveSubVersion(subVersion_id) {
+        axios.get('/preview/setBannerActiveSubVersion/' + subVersion_id)
+            .then(function(response) {
+                setBannerVersionSubVersions(response.data.subVersions);
+                setBannerActiveSubVersionSettings(response.data.activeSubVersion_id);
+                setBannerDisplayOfActiveSubVersion(response.data.activeSubVersion_id);
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
+    }
+
+    function setVersionsDescription(version_description) {
+        $('#versionMessage').html(version_description);
+    }
+
+    function setBannerActiveSubVersionSettings(activeSubVersion_id) {
+        axios.get('/preview/checkSubVersionCount/' + activeSubVersion_id)
+            .then(function(response) {
+                if (response.data == 1) {
+                    var display = 'display: none;';
+                } else {
+                    var display = 'display: block;';
+                }
+
+                rows = '';
+
+                rows = rows + '<div>';
+                rows = rows + '<div style="display: flex; color:#1b283b; font-size:1.5rem;">';
+                rows = rows + '<a href="/preview/banner/add/subVersion/' + activeSubVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-folder-plus"></i></a>';
+                rows = rows + '<a href="/preview/banner/edit/subVersion/' + activeSubVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-square-pen"></i></a>';
+                rows = rows + '<a href="javascript:void(0)" onclick="return confirmBannerSubVersionDelete(' + activeSubVersion_id + ')" style="' + display + ' margin-right: 0.5rem;"><i class="fa-solid fa-square-minus"></i></a>';
+                rows = rows + '</div>';
+                rows = rows + '</div>';
+
+                $('#subVersionSettings').html(rows);
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
+    }
+
+    function setBannerActiveVersionSettings(activeVersion_id) {
+        rows = '';
+
+        rows = rows + '<div>';
+        rows = rows + '<div style="display: flex; color:#1b283b; font-size:1.5rem;">';
+        rows = rows + '<a href="/preview/edit/version/' + activeVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-pen-to-square"></i></a>';
+        rows = rows + '<a href="javascript:void(0)" onclick="return confirmVersionDelete(' + activeVersion_id + ')" style="margin-right: 0.5rem;"><i class="fa-solid fa-circle-minus"></i></a>';
+        rows = rows + '</div>';
+        rows = rows + '</div>';
+
+        $('#versionSettings').html(rows);
+    }
+
+    function setBannerDisplayOfActiveSubVersion(activeSubVersion_id) {
+        document.getElementById('loaderArea').style.display = 'flex';
+        axios.get('/preview/getActiveSubVersionBannerData/' + activeSubVersion_id)
+            .then(function(response) {
+                console.log(response);
+                var row = '';
+
+                $.each(response.data, function(key, value) {
+                    var resolution = value.size_id;
+                    var bannerPath = '/' + value.path + '/index.html';
+                    var bannerReloadID = value.id;
+
+                    row = row + '<div style="display: inline-block; width: ' + value.width + 'px; margin-right: 10px;">';
+                    row = row + '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
+                    row = row + '<small style="float: left; font-size: 0.85rem;" id="bannerRes">' + value.width + 'x' + value.height + '</small>';
+                    row = row + '<small class="float: right font-size: 0.85rem;; id="bannerSize">' + value.file_size + '</small>';
+                    row = row + '</div>';
+                    row = row + '<iframe style="margin-top: 2px;" src="' + bannerPath + '" width="' + value.width + '" height="' + value.height + '" frameBorder="0" scrolling="no" id=' + "rel" + value.id + '></iframe>'
+                    row = row + '<ul style="display: flex; color:#1b283b; flex-direction: row;">';
+                    row = row + '<li><i id="relBt' + value.id + '" onClick="reload(' + bannerReloadID + ')" class="fa-solid fa-arrows-rotate" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
+                    // row = row + '@if(Auth::check()) @if(Auth::user()->company_id == 10) @else'
+                    row = row + '<li><a href="/project/preview/banner/edit/' + value.id + '"><i class="fa-solid fa-gear" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                    row = row + '<li><a href="/project/preview/banner/download/' + value.id + '"><i class="fa-solid fa-circle-down" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                    row = row + '<li><a href="javascript:void(0)" onclick="return confirmDeleteBanner(' + value.id + ')"><i class="fa-solid fa-trash-can" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                    // row = row + '@endif';
+                    // row = row + '@endif';
+                    row = row + '</ul>';
+                    row = row + '</div>';
+                });
+
+                $('#bannerShowcase').html(row);
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
+            .finally(function() {
+                document.getElementById('loaderArea').style.display = 'none';
+            })
     }
 </script>

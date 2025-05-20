@@ -87,7 +87,7 @@ class PreviewController extends Controller
             'users' => User::orderBy('name')->get(['id', 'name']),
             'colorPalettes' => ColorPalette::orderBy('name')->get(['id', 'name']),
             'bannerSizes' => BannerSize::orderBy('width')->orderBy('height')->get(['id', 'width', 'height'])->map(fn($s) => tap($s, fn($s) => $s->name = "{$s->width}x{$s->height}")),
-            'auth' => ['user' => auth()->user()],
+            'auth' => ['user' => Auth::user()],
         ]);
     }
 
@@ -97,7 +97,7 @@ class PreviewController extends Controller
             'clients' => Client::orderBy('name')->get(['id', 'name']),
             'users' => User::orderBy('name')->get(['id', 'name']),
             'colorPalettes' => ColorPalette::orderBy('name')->get(['id', 'name']),
-            'auth' => ['user' => auth()->user()],
+            'auth' => ['user' => Auth::user()],
         ]);
     }
 
@@ -133,7 +133,7 @@ class PreviewController extends Controller
                 'requires_login' => $request->requires_login,
                 'team_members' => $request->team_ids,
                 'color_palette_id' => $request->color_palette_id,
-                'uploader_id' => auth()->id(),
+                'uploader_id' => Auth::id(),
             ]);
 
             if ($request->type === 'Banner') {
@@ -169,7 +169,14 @@ class PreviewController extends Controller
                     }
 
                     // Get size BEFORE move (in KB)
-                    $fileSizeKB = round($file->getSize() / 1024);
+                    $sizeInBytes = $file->getSize();
+
+                    if ($sizeInBytes >= 1048576) {
+                        // 1 MB = 1024 * 1024 = 1048576 bytes
+                        $fileSize = round($sizeInBytes / 1048576, 2) . ' MB';
+                    } else {
+                        $fileSize = round($sizeInBytes / 1024, 2) . ' KB';
+                    }
 
                     // Move zip
                     $file->move($uploadPath, $zipName);
@@ -195,7 +202,7 @@ class PreviewController extends Controller
                         'name' => $preview->name,
                         'path' => 'uploads/banners/' . basename($extractedFolder),
                         'size_id' => $sizeId,
-                        'file_size' => $fileSizeKB,
+                        'file_size' => $fileSize,
                         'position' => $position,
                     ]);
                 }

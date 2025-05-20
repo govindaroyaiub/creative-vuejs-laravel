@@ -48,6 +48,9 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/preview/getallversions/{id}', [PreviewApiController::class, 'getAllVersions']);
     Route::get('/preview/updateActiveVersion/{id}', [PreviewApiController::class, 'updateActiveVersion']);
     Route::get('/preview/getVersionType/{id}', [PreviewApiController::class, 'getVersionType']);
+    Route::get('/preview/setBannerActiveSubVersion/{id}', [PreviewApiController::class, 'setBannerActiveSubVersion']);
+    Route::get('/preview/checkSubVersionCount/{id}', [PreviewApiController::class, 'checkSubVersionCount']);
+    Route::get('/preview/getActiveSubVersionBannerData/{id}', [PreviewApiController::class, 'getActiveSubVersionBannerData']);
     //Preview Routes End
 
     //Banner Sizes Routes Start

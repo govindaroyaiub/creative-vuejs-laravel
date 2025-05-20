@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('path');
             $table->foreignId('size_id')->constrained('banner_sizes')->cascadeOnDelete();
-            $table->unsignedBigInteger('file_size')->nullable();
+            $table->string('file_size');
             $table->unsignedInteger('position')->default(0);
             $table->timestamps();
         });

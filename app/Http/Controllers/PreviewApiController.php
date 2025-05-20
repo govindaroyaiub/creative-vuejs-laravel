@@ -59,8 +59,44 @@ class PreviewApiController extends Controller
             'type' => $version['type'],
             'subVersions' => $subVersions,
             'version_name' => $version['name'],
-            'activeSubVersion' => $activeSubVersion['id'],
+            'activeSubVersion_id' => $activeSubVersion['id'],
             'version_description' => $version['description']
         ];
+    }
+
+    public function setBannerActiveSubVersion($id)
+    {
+        $subVersion = SubVersion::find($id);
+        $version = Version::where('id', $subVersion['version_id'])->first();
+        SubVersion::where('id', $id)->update(['is_active' => 1]);
+        $exceptionSubVersions = SubVersion::select('id')->where('version_id', $version['id'])->where('id', '!=', $id)->get()->toArray();
+        SubVersion::whereIn('id', $exceptionSubVersions)->where('version_id', $version['id'])->update(['is_active' => 0]);
+        $subVersions = SubVersion::where('version_id', $version['id'])->get();
+
+        return $data = [
+            'subVersions' => $subVersions,
+            'activeSubVersion_id' => $id
+        ];
+    }
+
+    public function checkSubVersionCount($id)
+    {
+        $subVersion = SubVersion::find($id);
+        $version = Version::where('id', $subVersion['version_id'])->first();
+        return SubVersion::where('version_id', $version['id'])->count();
+    }
+
+    public function getActiveSubVersionBannerData($id)
+    {
+        $banners = SubBanner::join('banner_sizes', 'sub_banners.size_id', '=', 'banner_sizes.id')
+            ->where('sub_banners.sub_version_id', $id)
+            ->select(
+                'sub_banners.*',
+                'banner_sizes.width',
+                'banner_sizes.height'
+            )
+            ->orderBy('sub_banners.position')
+            ->get();
+        return $banners;
     }
 }
