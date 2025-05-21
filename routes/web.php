@@ -126,6 +126,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/medias-download/{id}', [MediaController::class, 'download'])->name('medias-download');
     //Media Routes End
 });
+//preview axios get requests start
 Route::get('/preview/getallversions/{id}', [PreviewApiController::class, 'getAllVersions']);
 Route::get('/preview/updateActiveVersion/{id}', [PreviewApiController::class, 'updateActiveVersion']);
 Route::get('/preview/getVersionType/{id}', [PreviewApiController::class, 'getVersionType']);
@@ -133,6 +134,7 @@ Route::get('/preview/setBannerActiveSubVersion/{id}', [PreviewApiController::cla
 Route::get('/preview/checkSubVersionCount/{id}', [PreviewApiController::class, 'checkSubVersionCount']);
 Route::get('/preview/getActiveSubVersionBannerData/{id}', [PreviewApiController::class, 'getActiveSubVersionBannerData']);
 Route::get('/previews/show/{id}', [PreviewController::class, 'show'])->name('previews-show');
+//preview axios get requests end
 
 Route::get('/file-transfers-view/{id}', [FileTransferController::class, 'show'])->name('file-transfers-view');
 
@@ -144,8 +146,10 @@ Route::prefix('welcome-to-planetnine')->group(function () {
 Route::get('/change-password', [UserManagementController::class, 'changePassword'])->name('change-password');
 Route::post('/change-password-post', [UserManagementController::class, 'changePasswordPost'])->name('change-password-post');
 
+//Preview tracker routes start
 Route::get('/get-viewers/{page_id}', [PreviewTrackerController::class, 'getViewers']);
-Route::post('/tracker-viewer', [PreviewTrackerController::class, 'trackViewers']);
+Route::post('/track-viewer', [PreviewTrackerController::class, 'trackViewers']);
+//Preview tracker routes end
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

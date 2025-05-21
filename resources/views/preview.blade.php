@@ -76,7 +76,7 @@
 
     <main class="main">
         <div class="viewMessage">
-            For better View Please Use Laptop or Desktop
+            For the best experience, view this showcase on a laptop or desktop — it's where the magic truly comes alive!
         </div>
         <section id="top" class="mb-4">
             <div class="px-4 py-4 flex justify-center content text-center relative">
@@ -92,7 +92,7 @@
         </section>
 
         <section id="middle">
-            <div id="showcase-section" class="mx-auto custom-container mt-2 px-2">
+            <div id="showcase-section" class="mx-auto custom-container mt-2 px-8">
                 <div class="flex row">
                     <div style="flex: 1;">
                         <div class="subVersions" style="display: flex; justify-content: center; flex-direction: row;"></div>
@@ -140,9 +140,9 @@
                                     </div>
                                 </div>
                             </div>
-                            <div style="position: relative; top: 0; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; padding: 0.25rem;">
+                            <div class="versionControl">
                                 <div id="versionSettings"></div>
-                                <div id="subVersionSettings" style="position: absolute; right: 2%;"></div>
+                                <div id="subVersionSettings" style="position: absolute; right: 0;"></div>
                             </div>
                             <div id="bannerShowcase"></div>
                         </div>
@@ -152,10 +152,12 @@
 
         </section>
         <br>
+        <br>
+        <br>
 
         @if($preview['show_footer'])
-        <footer class="footer bg-gray-50 py-6 mt-6 border-t">
-            <div class="container mx-auto px-4 text-center text-sm text-gray-600">
+        <footer class="footer py-6 mt-6">
+            <div class="container mx-auto px-4 text-center text-base text-gray-600">
                 &copy; All Rights Reserved. 
                 <a href="https://www.planetnine.com" class="underline hover:text-black" target="_blank">
                     Planet Nine
@@ -169,6 +171,10 @@
 <script>
     const preview_id = '{{ $preview_id }}';
     const authUserClientName = '{{ $authUserClientName }}';
+    var primary = '{{ $primary }}';
+    var secondary = '{{ $secondary }}';
+    var tertiary = '{{ $tertiary }}';
+    var quaternary = '{{ $quaternary }}';
     var viewversion;
 
     $(document).ready(function() {
@@ -251,7 +257,7 @@
                 
                 if(authUserClientName == 'Planet Nine'){
                 row2 += `
-                    <div class="version-row version-add-btn" onclick="return addNewVersion()" style="cursor: pointer; margin-top: 8px;">
+                    <div class="version-row version-add-btn" onclick="return addNewVersion(${preview_id})" style="cursor: pointer; margin-top: 8px;">
                         <span class="text-2xl text-green-500 hover:text-green-700 font-bold">+</span>
                     </div>
                 `;
@@ -267,7 +273,7 @@
                 console.log(error);
             })
             .finally(function() {
-                document.getElementById('menuClick').click();
+                // document.getElementById('menuClick').click();
             })
     }
 
@@ -310,7 +316,7 @@
 
                 if(authUserClientName == 'Planet Nine'){
                     row2 += `
-                        <div class="version-row version-add-btn" onclick="return addNewVersion()" style="cursor: pointer; margin-top: 8px;">
+                        <div class="version-row version-add-btn" onclick="return addNewVersion(${preview_id})" style="cursor: pointer; margin-top: 8px;">
                             <span class="text-2xl text-green-500 hover:text-green-700 font-bold">+</span>
                         </div>
                     `;
@@ -325,6 +331,11 @@
             .catch(function(error) {
                 console.log(error);
             })
+    }
+
+    function addNewVersion(preview_id){
+        const url = '/preview/add/version/' + preview_id;
+        window.location.href = url;
     }
 
     function checkVersionType(activeVersion_id) {
@@ -358,10 +369,31 @@
                 } else {
                     isActive = '';
                 }
-                row = row + '<div id="subVersionTab' + value.id + '" class="subVersionTab' + isActive + '" onclick="updateBannerActiveSubVersion(' + value.id + ')">' + value.name + '</div>';
+               row += `
+                <div id="subVersionTab${value.id}" class="subVersionTab${isActive}" onclick="updateBannerActiveSubVersion(${value.id})">
+                    <div class="trapezoid-container">
+                    <svg class="trapezoid" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0,60 L200,60 L180,15 C175,5 170,0 160,0 L40,0 C30,0 25,5 20,15 L0,60 Z" fill="${isActive}"/>
+                    </svg>
+                    <div class="tab-text text-white text-base">${value.name}</div>
+                    </div>
+                </div>
+                `;
             });
         } else {
             var row = '';
+        }
+        if(authUserClientName == 'Planet Nine'){
+            row += `
+                <div class="subVersionTab subVersionAddTab" onclick="addNewSubVersion()">
+                    <div class="trapezoid-container">
+                        <svg class="trapezoid" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0,60 L200,60 L180,15 C175,5 170,0 160,0 L40,0 C30,0 25,5 20,15 L0,60 Z"/>
+                        </svg>
+                        <div class="tab-text text-white text-2xl font-bold">+</div>
+                    </div>
+                </div>
+            `;
         }
         $('.subVersions').html(row);
     }
@@ -389,8 +421,7 @@
                 rows = '';
                 rows = rows + "@if($authUserClientName == 'Planet Nine')";
                 rows = rows + '<div>';
-                rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';
-                rows = rows + '<a href="/preview/banner/add/subVersion/' + activeSubVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-folder-plus"></i></a>';
+                rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';                
                 rows = rows + '<a href="/preview/banner/edit/subVersion/' + activeSubVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-square-pen"></i></a>';
                 rows = rows + '<a href="javascript:void(0)" onclick="return confirmBannerSubVersionDelete(' + activeSubVersion_id + ')" style="' + display + ' margin-right: 0.5rem;"><i class="fa-solid fa-square-minus"></i></a>';
                 rows = rows + '</div>';
