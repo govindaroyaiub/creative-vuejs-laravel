@@ -42,8 +42,7 @@ class PreviewController extends Controller
             $authUserClientId = Auth::user()->client_id;
             $authUserClientInfo = Client::find($authUserClientId);
             $authUserClientName = $authUserClientInfo['name'];
-        }
-        else{
+        } else {
             $authUserClientName = 'guest';
         }
 
@@ -210,7 +209,7 @@ class PreviewController extends Controller
 
     public function edit(Preview $preview)
     {
-        return inertia('Previews/Edit', [
+        return Inertia::render('Previews/Edit', [
             'preview' => $preview,
             'clients' => Client::all(),
             'users' => User::all(),
