@@ -33,23 +33,19 @@ class PreviewController extends Controller
         $subVersions = SubVersion::whereIn('version_id', $versions->pluck('id'))->get();
         $color_palettes = ColorPalette::where('id', $preview['color_palette_id'])->first();
         $client = Client::where('id', $preview['client_id'])->first();
-        $authUserClientId = Auth::user()->client_id;
-        $authUserClientInfo = Client::find($authUserClientId);
-        $authUserClientName = $authUserClientInfo['name'];
         $primary = $color_palettes['primary'];
         $secondary = $color_palettes['secondary'];
         $tertiary = $color_palettes['tertiary'];
         $quaternary = $color_palettes['quaternary'];
 
-        // return Inertia::render('Previews/Show', [
-        //     'preview' => $preview,
-        //     'versions' => $versions,
-        //     'subVersions' => $subVersions,
-        //     'primary' => $primary,
-        //     'secondary' => $seconday,
-        //     'tertiary' => $tertiary,
-        //     'quaternary' => $quaternary
-        // ]);
+        if (Auth::user()) {
+            $authUserClientId = Auth::user()->client_id;
+            $authUserClientInfo = Client::find($authUserClientId);
+            $authUserClientName = $authUserClientInfo['name'];
+        }
+        else{
+            $authUserClientName = 'guest';
+        }
 
         return view('preview', compact(
             'preview',

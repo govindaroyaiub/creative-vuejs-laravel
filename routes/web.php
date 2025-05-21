@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Http\Request;
 use App\Http\Controllers\FileTransferController;
 use App\Http\Controllers\BannerSizeController;
 use App\Http\Controllers\VideoSizeController;
@@ -44,13 +46,6 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/previews-edit/{id}', [PreviewController::class, 'edit'])->name('previews-edit');
     Route::post('/previews-edit/{id}', [PreviewController::class, 'update'])->name('previews-update');
     Route::delete('/previews-delete/{id}', [PreviewController::class, 'destroy'])->name('previews-delete');
-
-    Route::get('/preview/getallversions/{id}', [PreviewApiController::class, 'getAllVersions']);
-    Route::get('/preview/updateActiveVersion/{id}', [PreviewApiController::class, 'updateActiveVersion']);
-    Route::get('/preview/getVersionType/{id}', [PreviewApiController::class, 'getVersionType']);
-    Route::get('/preview/setBannerActiveSubVersion/{id}', [PreviewApiController::class, 'setBannerActiveSubVersion']);
-    Route::get('/preview/checkSubVersionCount/{id}', [PreviewApiController::class, 'checkSubVersionCount']);
-    Route::get('/preview/getActiveSubVersionBannerData/{id}', [PreviewApiController::class, 'getActiveSubVersionBannerData']);
     //Preview Routes End
 
     //Banner Sizes Routes Start
@@ -133,7 +128,12 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/medias-download/{id}', [MediaController::class, 'download'])->name('medias-download');
     //Media Routes End
 });
-
+Route::get('/preview/getallversions/{id}', [PreviewApiController::class, 'getAllVersions']);
+Route::get('/preview/updateActiveVersion/{id}', [PreviewApiController::class, 'updateActiveVersion']);
+Route::get('/preview/getVersionType/{id}', [PreviewApiController::class, 'getVersionType']);
+Route::get('/preview/setBannerActiveSubVersion/{id}', [PreviewApiController::class, 'setBannerActiveSubVersion']);
+Route::get('/preview/checkSubVersionCount/{id}', [PreviewApiController::class, 'checkSubVersionCount']);
+Route::get('/preview/getActiveSubVersionBannerData/{id}', [PreviewApiController::class, 'getActiveSubVersionBannerData']);
 Route::get('/previews/show/{id}', [PreviewController::class, 'show'])->name('previews-show');
 
 Route::get('/file-transfers-view/{id}', [FileTransferController::class, 'show'])->name('file-transfers-view');
@@ -145,6 +145,37 @@ Route::prefix('welcome-to-planetnine')->group(function () {
 
 Route::get('/change-password', [UserManagementController::class, 'changePassword'])->name('change-password');
 Route::post('/change-password-post', [UserManagementController::class, 'changePasswordPost'])->name('change-password-post');
+
+Route::post('/track-viewer', function (Request $request) {
+    $pageId = $request->input('page_id');
+    $cacheKey = 'viewers:preview:' . $pageId;
+
+    $viewerName = auth()->check()
+        ? auth()->user()->name
+        : $request->input('guest_name', 'Guest');
+
+    $viewers = Cache::get($cacheKey, []);
+    $viewers[$viewerName] = now()->timestamp;
+
+    Cache::put($cacheKey, $viewers, now()->addMinutes(5));
+
+    return response()->json(['status' => 'ok']);
+});
+
+Route::get('/get-viewers/{page_id}', function ($pageId) {
+    $cacheKey = 'viewers:preview:' . $pageId;
+    $viewers = Cache::get($cacheKey, []);
+
+    // Filter out stale viewers (10s timeout)
+    $filtered = array_filter($viewers, function ($timestamp) {
+        return now()->timestamp - $timestamp < 10;
+    });
+
+    // Save the cleaned up list
+    Cache::put($cacheKey, $filtered, now()->addMinutes(5));
+
+    return response()->json(array_keys($filtered));
+});
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

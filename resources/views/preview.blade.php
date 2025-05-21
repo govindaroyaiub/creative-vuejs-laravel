@@ -25,10 +25,51 @@
         }
     </style>
     <link href="{{ asset('css/preview.css') }}" rel="stylesheet">
+    <script>
+        const pageId = '{{ $preview->id }}';
 
+        // Assign a unique name to guest using localStorage
+        let guestName = localStorage.getItem('guest_name');
+        if (!guestName) {
+            guestName = 'Guest-' + Math.floor(Math.random() * 10000);
+            localStorage.setItem('guest_name', guestName);
+        }
+
+        // Send ping every 8 seconds
+        setInterval(() => {
+            axios.post('/track-viewer', {
+                page_id: pageId,
+                guest_name: guestName
+            });
+        }, 8000); // every 8 seconds
+
+        // Fetch and render current viewers
+        function fetchViewers() {
+            axios.get('/get-viewers/' + pageId)
+                .then(response => {
+                    const viewers = response.data;
+                    const html = viewers.map(name => {
+                        const initial = name.trim().charAt(0).toUpperCase();
+                        return `
+                            <span class="bg-blue-100 text-blue-900 font-semibold rounded-full px-3 py-1 text-sm shadow-sm" title="${name}">
+                                ${initial}
+                            </span>
+                        `;
+                    }).join('');
+                    document.getElementById('viewerList').innerHTML = html;
+                });
+        }
+
+        // Call every 10 seconds
+        setInterval(fetchViewers, 10000);
+        fetchViewers(); // initial call
+    </script>
 </head>
 
 <body>
+    @if($authUserClientName == "Planet Nine")
+    <div id="viewerList" class="absolute top-4 right-4 flex space-x-2 z-50"></div>
+    @endif
     <div id="loaderArea">
         <span class="loader"></span>
     </div>
@@ -53,7 +94,6 @@
         <section id="middle">
             <div id="showcase-section" class="mx-auto custom-container mt-2 px-2">
                 <div class="flex row">
-                    <div class="subVersion-blank-space" style="width: 250px;"></div>
                     <div style="flex: 1;">
                         <div class="subVersions" style="display: flex; justify-content: center; flex-direction: row;"></div>
                     </div>
@@ -100,13 +140,10 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div id="versionInfo"><label for="versionInfo" id="versionLabel"></label></div>
-                            <div style="position: relative; top: 65px; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; justify-content: center; padding: 10px;">
+                            <div style="position: relative; top: 0; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; padding: 0.25rem;">
                                 <div id="versionSettings"></div>
                                 <div id="subVersionSettings" style="position: absolute; right: 2%;"></div>
                             </div>
-                            <br>
                             <div id="bannerShowcase"></div>
                         </div>
                     </div>
@@ -116,12 +153,14 @@
         </section>
         <br>
 
-        @if($preview['show_footer'] == 1)
-        <footer class="footer">
-            <div class="container mx-auto px-4 py-4 text-black text-center mb-8">&copy; All Rights Reserved. <a
-                    href="https://www.planetnine.com" target="_blank"
-                    style="text-decoration: underline;">Planet Nine</a>
-                - <?= Date('Y') ?></div>
+        @if($preview['show_footer'])
+        <footer class="footer bg-gray-50 py-6 mt-6 border-t">
+            <div class="container mx-auto px-4 text-center text-sm text-gray-600">
+                &copy; All Rights Reserved. 
+                <a href="https://www.planetnine.com" class="underline hover:text-black" target="_blank">
+                    Planet Nine
+                </a> - {{ now()->year }}
+            </div>
         </footer>
         @endif
     </main>
@@ -209,6 +248,15 @@
                     row = row + '</a>';
                 });
 
+                
+                if(authUserClientName == 'Planet Nine'){
+                row2 += `
+                    <div class="version-row version-add-btn" onclick="return addNewVersion()" style="cursor: pointer; margin-top: 8px;">
+                        <span class="text-2xl text-green-500 hover:text-green-700 font-bold">+</span>
+                    </div>
+                `;
+                }
+
                 $('#creative-list2').html(row2);
                 $('#creative-list').html(row);
                 $('#menu').html(row);
@@ -251,7 +299,7 @@
                         spanActive = '';
                     }
 
-                    row2 += '<div class="version-row ' + versionActive + '" onclick="return updateActiveVersion(' + value.id + ')" id="version' + value.id + '" style="background-color: ' + primary + ';">';
+                    row2 += '<div class="version-row ' + versionActive + '" onclick="return updateActiveVersion(' + value.id + ')" id="version' + value.id + '>';
                     row2 += '<span class="' + spanActive + '">' + value.name + '</span>';
                     row2 += '</div>';
 
@@ -259,6 +307,14 @@
                     row = row + '<li class="' + active + '">' + value.name + '</li>'
                     row = row + '</a>';
                 });
+
+                if(authUserClientName == 'Planet Nine'){
+                    row2 += `
+                        <div class="version-row version-add-btn" onclick="return addNewVersion()" style="cursor: pointer; margin-top: 8px;">
+                            <span class="text-2xl text-green-500 hover:text-green-700 font-bold">+</span>
+                        </div>
+                    `;
+                }
 
                 $('#creative-list2').html(row2);
                 $('#creative-list').html(row);
@@ -329,22 +385,17 @@
     function setBannerActiveSubVersionSettings(activeSubVersion_id) {
         axios.get('/preview/checkSubVersionCount/' + activeSubVersion_id)
             .then(function(response) {
-                if (response.data == 1) {
-                    var display = 'display: none;';
-                } else {
-                    var display = 'display: block;';
-                }
-
+                var display = 'display: block;';
                 rows = '';
-
+                rows = rows + "@if($authUserClientName == 'Planet Nine')";
                 rows = rows + '<div>';
-                rows = rows + '<div style="display: flex; color:#1b283b; font-size:1.5rem;">';
+                rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';
                 rows = rows + '<a href="/preview/banner/add/subVersion/' + activeSubVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-folder-plus"></i></a>';
                 rows = rows + '<a href="/preview/banner/edit/subVersion/' + activeSubVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-square-pen"></i></a>';
                 rows = rows + '<a href="javascript:void(0)" onclick="return confirmBannerSubVersionDelete(' + activeSubVersion_id + ')" style="' + display + ' margin-right: 0.5rem;"><i class="fa-solid fa-square-minus"></i></a>';
                 rows = rows + '</div>';
                 rows = rows + '</div>';
-
+                rows = rows + "@endif";
                 $('#subVersionSettings').html(rows);
             })
             .catch(function(error) {
@@ -354,13 +405,14 @@
 
     function setBannerActiveVersionSettings(activeVersion_id) {
         rows = '';
-
+        rows = rows + "@if($authUserClientName == 'Planet Nine')";
         rows = rows + '<div>';
-        rows = rows + '<div style="display: flex; color:#1b283b; font-size:1.5rem;">';
+        rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';
         rows = rows + '<a href="/preview/edit/version/' + activeVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-pen-to-square"></i></a>';
         rows = rows + '<a href="javascript:void(0)" onclick="return confirmVersionDelete(' + activeVersion_id + ')" style="margin-right: 0.5rem;"><i class="fa-solid fa-circle-minus"></i></a>';
         rows = rows + '</div>';
         rows = rows + '</div>';
+        rows = rows + "@endif";
 
         $('#versionSettings').html(rows);
     }
@@ -380,17 +432,16 @@
                     row = row + '<div style="display: inline-block; width: ' + value.width + 'px; margin-right: 10px;">';
                     row = row + '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
                     row = row + '<small style="float: left; font-size: 0.85rem;" id="bannerRes">' + value.width + 'x' + value.height + '</small>';
-                    row = row + '<small class="float: right font-size: 0.85rem;; id="bannerSize">' + value.file_size + '</small>';
+                    row = row + '<small class="float: right font-size: 0.85rem;" id="bannerSize">' + value.file_size + '</small>';
                     row = row + '</div>';
                     row = row + '<iframe style="margin-top: 2px;" src="' + bannerPath + '" width="' + value.width + '" height="' + value.height + '" frameBorder="0" scrolling="no" id=' + "rel" + value.id + '></iframe>'
-                    row = row + '<ul style="display: flex; color:#1b283b; flex-direction: row;">';
+                    row = row + '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
                     row = row + '<li><i id="relBt' + value.id + '" onClick="reload(' + bannerReloadID + ')" class="fa-solid fa-arrows-rotate" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
-                    // row = row + '@if(Auth::check()) @if(Auth::user()->company_id == 10) @else'
+                    row = row + '@if($authUserClientName == "Planet Nine")'
                     row = row + '<li><a href="/project/preview/banner/edit/' + value.id + '"><i class="fa-solid fa-gear" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
                     row = row + '<li><a href="/project/preview/banner/download/' + value.id + '"><i class="fa-solid fa-circle-down" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
                     row = row + '<li><a href="javascript:void(0)" onclick="return confirmDeleteBanner(' + value.id + ')"><i class="fa-solid fa-trash-can" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
-                    // row = row + '@endif';
-                    // row = row + '@endif';
+                    row = row + '@endif';
                     row = row + '</ul>';
                     row = row + '</div>';
                 });
