@@ -825,6 +825,10 @@ iframe {
     .subVersionAddTab {
         display: none;
     }
+
+    #bannerShowcase {
+        margin-top: 60px;
+    }
 }
 
 /* Extra small devices (phones, 600px and down) */
@@ -853,6 +857,10 @@ iframe {
     .versionControl,
     .subVersionAddTab {
         display: none;
+    }
+
+    #bannerShowcase {
+        margin-top: 60px;
     }
 }
 
@@ -883,6 +891,10 @@ iframe {
     .subVersionAddTab {
         display: none;
     }
+
+    #bannerShowcase {
+        margin-top: 60px;
+    }
 }
 
 /* Medium devices (landscape tablets, 768px and up) */
@@ -908,6 +920,10 @@ iframe {
     .versionControl,
     .subVersionAddTab {
         display: none;
+    }
+
+    #bannerShowcase {
+        margin-top: 60px;
     }
 }
 
@@ -938,6 +954,10 @@ iframe {
     .subVersionAddTab {
         display: none;
     }
+
+    #bannerShowcase {
+        margin-top: 10px;
+    }
 }
 
 /* Extra large devices (large laptops and desktops, 1200px and up) */
@@ -966,5 +986,9 @@ iframe {
 
     .subVersionAddTab {
         display: none;
+    }
+
+    #bannerShowcase {
+        margin-top: 10px;
     }
 }
