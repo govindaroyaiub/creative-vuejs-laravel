@@ -18,37 +18,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary-color: {
-                    {
-                    $primary
-                }
-            }
-
-            ;
-
-            --secondary-color: {
-                    {
-                    $secondary
-                }
-            }
-
-            ;
-
-            --tertiary-color: {
-                    {
-                    $tertiary
-                }
-            }
-
-            ;
-
-            --quaternary-color: {
-                    {
-                    $quaternary
-                }
-            }
-
-            ;
+            --primary-color: {{ $primary }};
+            --secondary-color: {{ $secondary }};
+            --tertiary-color: {{ $tertiary }};
+            --quaternary-color: {{ $quaternary }};
         }
     </style>
     <link href="{{ asset('css/preview.css') }}" rel="stylesheet">
@@ -103,7 +76,7 @@
 
     <main class="main">
         <div class="viewMessage">
-            For the best experience, view the page on a laptop or desktop
+            For the best experience, view this showcase on a laptop or desktop.
         </div>
         <section id="top" class="mb-4">
             <div class="px-4 py-4 flex justify-center content text-center relative">
@@ -185,7 +158,7 @@
         @if($preview['show_footer'])
         <footer class="footer py-6 mt-6">
             <div class="container mx-auto px-4 text-center text-base text-gray-600">
-                &copy; All Rights Reserved.
+                &copy; All Rights Reserved. 
                 <a href="https://www.planetnine.com" class="underline hover:text-black" target="_blank">
                     Planet Nine
                 </a> - {{ now()->year }}
@@ -281,9 +254,9 @@
                     row = row + '</a>';
                 });
 
-
-                if (authUserClientName == 'Planet Nine') {
-                    row2 += `
+                
+                if(authUserClientName == 'Planet Nine'){
+                row2 += `
                     <div class="version-row version-add-btn" onclick="return addNewVersion(${preview_id})" style="cursor: pointer; margin-top: 8px;">
                         <span class="text-2xl text-green-500 hover:text-green-700 font-bold">+</span>
                     </div>
@@ -341,7 +314,7 @@
                     row = row + '</a>';
                 });
 
-                if (authUserClientName == 'Planet Nine') {
+                if(authUserClientName == 'Planet Nine'){
                     row2 += `
                         <div class="version-row version-add-btn" onclick="return addNewVersion(${preview_id})" style="cursor: pointer; margin-top: 8px;">
                             <span class="text-2xl text-green-500 hover:text-green-700 font-bold">+</span>
@@ -360,7 +333,7 @@
             })
     }
 
-    function addNewVersion(preview_id) {
+    function addNewVersion(preview_id){
         const url = '/preview/add/version/' + preview_id;
         window.location.href = url;
     }
@@ -396,7 +369,7 @@
                 } else {
                     isActive = '';
                 }
-                row += `
+               row += `
                 <div id="subVersionTab${value.id}" class="subVersionTab${isActive}" onclick="updateBannerActiveSubVersion(${value.id})">
                     <div class="trapezoid-container">
                     <svg class="trapezoid" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
@@ -410,7 +383,7 @@
         } else {
             var row = '';
         }
-        if (authUserClientName == 'Planet Nine') {
+        if(authUserClientName == 'Planet Nine'){
             row += `
                 <div class="subVersionTab subVersionAddTab" onclick="addNewSubVersion()">
                     <div class="trapezoid-container">
@@ -448,7 +421,7 @@
                 rows = '';
                 rows = rows + "@if($authUserClientName == 'Planet Nine')";
                 rows = rows + '<div>';
-                rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';
+                rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';                
                 rows = rows + '<a href="/preview/banner/edit/subVersion/' + activeSubVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-square-pen"></i></a>';
                 rows = rows + '<a href="javascript:void(0)" onclick="return confirmBannerSubVersionDelete(' + activeSubVersion_id + ')" style="' + display + ' margin-right: 0.5rem;"><i class="fa-solid fa-square-minus"></i></a>';
                 rows = rows + '</div>';
