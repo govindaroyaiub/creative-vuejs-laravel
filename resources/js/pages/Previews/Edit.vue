@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, useForm, usePage, Link } from '@inertiajs/vue3';
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref } from 'vue';
 import Swal from 'sweetalert2';
 import AppLayout from '@/layouts/AppLayout.vue';
 
@@ -8,51 +8,19 @@ const page = usePage();
 const preview = computed(() => page.props.preview);
 const clients = computed(() => page.props.clients ?? []);
 const users = computed(() => page.props.users ?? []);
-const colorPalettes = computed(() => page.props.colorPalettes ?? []);
+const colorPalettes = computed(() => page.props.palettes ?? []);
+const teamUsers = computed(() => page.props.teamUsers ?? []);
 const authUser = computed(() => page.props.auth?.user ?? {});
 
 const form = useForm({
     name: preview.value.name,
     client_id: preview.value.client_id,
-    team_ids: [],
+    team_ids: teamUsers.value.map(u => u.id), // Initialize with resolved team users
     color_palette_id: preview.value.color_palette_id ?? '',
     requires_login: !!preview.value.requires_login,
     show_planetnine_logo: !!preview.value.show_planetnine_logo,
     show_sidebar_logo: !!preview.value.show_sidebar_logo,
     show_footer: !!preview.value.show_footer,
-});
-
-onMounted(() => {
-    // Initialize team_ids from preview
-    const raw = preview.value.team_members;
-    form.team_ids = Array.isArray(raw)
-        ? raw.map(Number)
-        : typeof raw === 'string'
-            ? JSON.parse(raw).map(Number)
-            : [];
-
-    // SweetAlert - success message
-    const flash = page.props.flash;
-    if (flash?.success) {
-        Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: flash.success,
-            timer: 2500,
-            showConfirmButton: false,
-        });
-    }
-
-    // SweetAlert - error message
-    if (flash?.error) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: flash.error,
-            timer: 3000,
-            showConfirmButton: true,
-        });
-    }
 });
 
 const userSearch = ref('');
@@ -75,7 +43,7 @@ const removeUser = (id: number) => {
 };
 
 const submit = () => {
-    form.put(route('previews-update', preview.value.id), {
+    form.put(route('previews-edit', preview.value.id), {
         preserveScroll: true,
         onSuccess: () => {
             Swal.fire({
@@ -103,12 +71,14 @@ const submit = () => {
     <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Edit Preview' }]">
         <div class="p-6 max-w-3xl w-3/4 mx-auto">
             <form @submit.prevent="submit" class="space-y-6">
+                <!-- Preview Name -->
                 <div>
                     <label class="block mb-1 font-medium">Preview Name</label>
                     <input v-model="form.name" type="text"
                         class="w-full rounded border px-3 py-2 dark:bg-gray-800 dark:text-white" />
                 </div>
 
+                <!-- Client & Color Palette -->
                 <div class="flex flex-col md:flex-row gap-4">
                     <div class="flex-1">
                         <label class="block mb-1 font-medium">Client</label>
@@ -133,6 +103,7 @@ const submit = () => {
                     </div>
                 </div>
 
+                <!-- Team Members -->
                 <div>
                     <label class="block mb-1 font-medium">Team Members</label>
                     <div class="flex flex-wrap gap-2 mb-2">
@@ -146,7 +117,7 @@ const submit = () => {
                     <input v-model="userSearch" type="text" placeholder="Search users..."
                         class="w-full rounded border px-3 py-2 dark:bg-gray-800 dark:text-white" />
                     <ul v-if="userSearch.trim().length > 0 && filteredUsers.length > 0"
-                        class="mt-1 max-h-32 overflow-y-auto rounded border dark:border-gray-700">
+                        class="mt-1 max-h-32 overflow-y-auto rounded border dark:border-gray-700 bg-white dark:bg-gray-800">
                         <li v-for="user in filteredUsers" :key="user.id"
                             class="cursor-pointer px-3 py-1 hover:bg-gray-100 dark:hover:bg-gray-700"
                             @click="addUser(user)">
@@ -155,6 +126,7 @@ const submit = () => {
                     </ul>
                 </div>
 
+                <!-- Toggle Switches -->
                 <div class="space-y-4">
                     <div v-for="toggle in [
                         { label: 'Requires Login?', model: 'requires_login' },
@@ -163,18 +135,19 @@ const submit = () => {
                         { label: 'Show Footer?', model: 'show_footer' },
                     ]" :key="toggle.model" class="flex items-center justify-between">
                         <label class="text-sm font-medium">{{ toggle.label }}</label>
-                        <label class="inline-flex items-center cursor-pointer">
+                        <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" v-model="form[toggle.model]" class="sr-only peer" />
                             <div
-                                class="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:bg-green-600 transition-colors">
+                                class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-green-600 dark:bg-gray-700 transition-colors">
                             </div>
                             <div
-                                class="absolute w-5 h-5 bg-white border rounded-full left-0.5 top-0.5 peer-checked:translate-x-full transition-transform">
+                                class="absolute left-0.5 top-0.5 w-5 h-5 bg-white border rounded-full transition-transform peer-checked:translate-x-full dark:border-gray-600">
                             </div>
                         </label>
                     </div>
                 </div>
 
+                <!-- Submit Buttons -->
                 <div class="flex space-x-4">
                     <button type="submit" :disabled="form.processing"
                         class="w-full rounded-lg bg-indigo-600 px-6 py-3 text-white shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600">

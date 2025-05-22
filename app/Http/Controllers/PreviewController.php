@@ -209,28 +209,47 @@ class PreviewController extends Controller
 
     public function edit(Preview $preview)
     {
+        $teamIds = $preview->team_members ?? []; // already an array if casted
+
+        $teamUsers = User::whereIn('id', $teamIds)->get(['id', 'name']);
+
         return Inertia::render('Previews/Edit', [
             'preview' => $preview,
-            'clients' => Client::all(),
-            'users' => User::all(),
-            'palettes' => ColorPalette::all(),
+            'clients' => Client::all(['id', 'name']),
+            'users' => User::all(['id', 'name']),
+            'palettes' => ColorPalette::all(['id', 'name']),
+            'teamUsers' => $teamUsers,
         ]);
     }
 
     public function update(Request $request, Preview $preview)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'client_id' => 'required|exists:clients,id',
-            'team_members' => 'required|array',
-            'team_members.*' => 'exists:users,id',
-            'uploader_id' => 'required|exists:users,id',
-            'color_palette_id' => 'nullable|exists:color_palettes,id',
+            'name' => ['required', 'string', 'max:255'],
+            'client_id' => ['required', 'exists:clients,id'],
+            'team_ids' => ['required', 'array'],
+            'team_ids.*' => ['exists:users,id'],
+            'color_palette_id' => ['nullable', 'exists:color_palettes,id'],
+            'requires_login' => ['required', 'boolean'],
+            'show_planetnine_logo' => ['required', 'boolean'],
+            'show_sidebar_logo' => ['required', 'boolean'],
+            'show_footer' => ['required', 'boolean'],
         ]);
 
-        $preview->update($validated);
+        $preview->update([
+            'name' => $validated['name'],
+            'client_id' => $validated['client_id'],
+            'team_members' => $validated['team_ids'], // will be stored as JSON
+            'color_palette_id' => $validated['color_palette_id'],
+            'requires_login' => $validated['requires_login'],
+            'show_planetnine_logo' => $validated['show_planetnine_logo'],
+            'show_sidebar_logo' => $validated['show_sidebar_logo'],
+            'show_footer' => $validated['show_footer'],
+        ]);
 
-        return redirect()->route('previews-index')->with('success', 'Preview updated.');
+        return redirect()
+            ->route('previews-edit', $preview->id)
+            ->with('success', 'Preview updated successfully.');
     }
 
     public function destroy($id)

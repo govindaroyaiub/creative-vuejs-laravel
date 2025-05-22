@@ -41,8 +41,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     //Preview Routes Start
     Route::get('/previews', [PreviewController::class, 'index'])->name('previews-index');
     Route::post('/previews-store', [PreviewController::class, 'store'])->name('previews-store');
-    Route::get('/previews-edit/{id}', [PreviewController::class, 'edit'])->name('previews-edit');
-    Route::post('/previews-edit/{id}', [PreviewController::class, 'update'])->name('previews-update');
+    Route::get('/previews-edit/{preview}', [PreviewController::class, 'edit'])->name('previews-edit');
+    Route::put('/previews-edit/{preview}', [PreviewController::class, 'update'])->name('previews-update');
     Route::delete('/previews-delete/{id}', [PreviewController::class, 'destroy'])->name('previews-delete');
     //Preview Routes End
 
