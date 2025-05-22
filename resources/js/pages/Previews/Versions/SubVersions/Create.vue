@@ -5,6 +5,7 @@ import draggable from 'vuedraggable';
 import { X } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { ref, computed } from 'vue';
+import axios from 'axios'; // 🔁 use this only when leaving Inertia
 
 const page = usePage();
 const version = computed(() => page.props.version);
@@ -130,17 +131,15 @@ const handleSubmit = () => {
         payload.append(`banners[${i}][position]`, String(i));
     });
 
-    router.post(route('store-banner-subVersion-post', version.value.id), payload, {
-        forceFormData: true,
-        onSuccess: () => {
-            Swal.fire('Success', 'SubVersion created successfully!', 'success');
-            form.name = '';
-            form.banners = [];
-        },
-        onError: () => {
-            Swal.fire('Error', 'Failed to create SubVersion.', 'error');
-        },
-    });
+    axios.post(route('store-banner-subVersion-post', version.value.id), payload)
+        .then((response) => {
+            if (response.data?.redirect_to) {
+                window.location.href = response.data.redirect_to;
+            }
+        })
+        .catch(() => {
+            Swal.fire('Error', 'Something went wrong.', 'error');
+        });
 };
 </script>
 

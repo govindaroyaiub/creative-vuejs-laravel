@@ -458,7 +458,6 @@
                 axios.get('/previews/banner/subVersion/delete/'+ activeSubVersion_id)
                 .then(function (response){
                     console.log(response);
-                    checkVersionType(response.data.version_id);
                     Swal.fire({
                         position: 'top-end',
                         icon: 'success',
@@ -466,7 +465,7 @@
                         showConfirmButton: false,
                         timer: 1500
                     });
-                    location.reload();
+                    checkVersionType(response.data.version_id);
                 })
                 .catch(function (error){
                     console.log(error);

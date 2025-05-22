@@ -139,13 +139,14 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     //Media Routes End
 });
 //preview axios get requests start
+Route::get('/previews/show/{id}', [PreviewController::class, 'show'])->name('previews-show');
+
 Route::get('/preview/getallversions/{id}', [PreviewApiController::class, 'getAllVersions']);
 Route::get('/preview/updateActiveVersion/{id}', [PreviewApiController::class, 'updateActiveVersion']);
 Route::get('/preview/getVersionType/{id}', [PreviewApiController::class, 'getVersionType']);
 Route::get('/preview/setBannerActiveSubVersion/{id}', [PreviewApiController::class, 'setBannerActiveSubVersion']);
 Route::get('/preview/checkSubVersionCount/{id}', [PreviewApiController::class, 'checkSubVersionCount']);
 Route::get('/preview/getActiveSubVersionBannerData/{id}', [PreviewApiController::class, 'getActiveSubVersionBannerData']);
-Route::get('/previews/show/{id}', [PreviewController::class, 'show'])->name('previews-show');
 //preview axios get requests end
 
 Route::get('/file-transfers-view/{id}', [FileTransferController::class, 'show'])->name('file-transfers-view');

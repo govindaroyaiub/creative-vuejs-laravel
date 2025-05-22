@@ -357,9 +357,7 @@ class PreviewController extends Controller
     public function createBannerSubVersion($id)
     {
         $version = Version::with('preview')->findOrFail($id);
-
         $preview = Preview::findOrFail($version['preview_id']);
-
         $bannerSizes = BannerSize::orderBy('width')->orderBy('height')->get(['id', 'width', 'height'])->map(fn($s) => tap($s, fn($s) => $s->name = "{$s->width}x{$s->height}"));
 
         return Inertia::render('Previews/Versions/SubVersions/Create', [
@@ -445,7 +443,9 @@ class PreviewController extends Controller
             ]);
         }
 
-        return redirect("/previews/show/{$version->preview_id}");
+        return response()->json([
+            'redirect_to' => url("/previews/show/{$version->preview_id}")
+        ], 200);
     }
 
     public function editBannerSubVersion($id)
@@ -550,20 +550,29 @@ class PreviewController extends Controller
     public function deleteBannerSubVersion($id)
     {
         $subVersion = SubVersion::with(['banners', 'version.preview'])->findOrFail($id);
+        $versionId = $subVersion->version_id;
         $previewId = $subVersion->version->preview_id;
 
-        // 1. Delete sub banner folders and records
+        // 1. Delete banner folders and records
         foreach ($subVersion->banners as $banner) {
             $folderPath = public_path($banner->path);
             if (File::isDirectory($folderPath)) {
-                File::deleteDirectory($folderPath); // remove extracted files
+                File::deleteDirectory($folderPath);
             }
             $banner->delete();
         }
 
-        // 2. Delete sub version
+        // 2. Delete SubVersion
         $subVersion->delete();
 
-        return redirect("/previews/show/{$previewId}")->with('success', 'SubVersion deleted successfully.');
+        // 3. Set latest remaining subversion as active (if any exist)
+        $latest = SubVersion::where('version_id', $versionId)->latest('id')->first();
+        if ($latest) {
+            $latest->update(['is_active' => true]);
+        }
+
+        return $data = [
+            'version_id' => $versionId,
+        ];
     }
 }
