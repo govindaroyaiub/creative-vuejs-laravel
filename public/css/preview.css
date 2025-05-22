@@ -443,13 +443,14 @@ iframe {
 }
 
 #versionCLick {
-    font-size: 2rem;
-    padding: 5px 10px 5px 10px;
-    width: 50px;
+    font-size: 1.5rem;
+    padding: 5px 10px 5px 5px;
+    width: 40px;
     background-color: var(--tertiary-color);
     border: 1px solid var(--tertiary-color);
     position: absolute;
     right: 0px;
+    top: 0;
     color: white;
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
@@ -484,6 +485,21 @@ iframe {
     white-space: pre-line;
     text-overflow: ellipsis;
     border-bottom-left-radius: 5px;
+}
+
+#colorPaletteClick {
+    font-size: 1.5rem;
+    padding: 5px 10px 5px 10px;
+    width: 40px;
+    background-color: var(--tertiary-color);
+    border: 1px solid var(--tertiary-color);
+    position: absolute;
+    right: 0px;
+    top: 7rem;
+    color: white;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    cursor: pointer;
 }
 
 .showversion {

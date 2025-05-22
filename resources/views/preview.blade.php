@@ -141,6 +141,15 @@
                                 <div id="versionCLick" onclick="showVersionDescription()">
                                     <i class="fa-regular fa-message"></i>
                                 </div>
+
+                                <div id="colorPaletteClick" onclick="showColorPaletteOptions()">
+                                    <i class="fa-solid fa-palette"></i>
+                                </div>
+
+                                <div id="colorPaletteSelection">
+                                    
+                                </div>
+
                                 <div id="versionDescription">
                                     <div id="versionDescriptionUpperpart">
                                         <div class="cursor-pointer" style="float: right;" onclick="hideVersionDescription()">
