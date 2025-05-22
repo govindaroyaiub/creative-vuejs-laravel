@@ -225,9 +225,14 @@ const copyToClipboard = (text: string) => {
 
             <td class="px-4 py-3 text-center">
               <template v-if="editingId === palette.id">
-                <label class="inline-flex cursor-pointer items-center">
+                <label class="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" v-model="editForm.status" class="sr-only peer" />
-                  <div class="peer h-5 w-10 rounded-full bg-gray-300 peer-checked:bg-green-500 transition"></div>
+                  <div
+                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer-checked:bg-green-600 transition-colors">
+                  </div>
+                  <div
+                    class="absolute left-0.5 top-0.5 w-5 h-5 bg-white border rounded-full transition-transform peer-checked:translate-x-full">
+                  </div>
                 </label>
               </template>
               <template v-else>

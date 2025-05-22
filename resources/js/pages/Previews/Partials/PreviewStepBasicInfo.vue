@@ -62,60 +62,24 @@
       </ul>
     </div>
 
-    <!-- Requires Login Toggle -->
-    <div class="flex items-center justify-between">
-      <label class="text-sm font-medium">Requires Login?</label>
-      <label class="inline-flex items-center cursor-pointer">
-        <input type="checkbox" v-model="form.requires_login" class="sr-only peer" />
-        <div
-          class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer dark:bg-gray-700 peer-checked:bg-green-600 transition-colors">
-        </div>
-        <div
-          class="absolute w-5 h-5 bg-white border rounded-full left-0.5 top-0.5 peer-checked:translate-x-full transition-transform">
-        </div>
-      </label>
-    </div>
-
-    <!-- Show Planet Nine Logo -->
-    <div class="flex items-center justify-between">
-      <label class="text-sm font-medium">Show Planet Nine Logo?</label>
-      <label class="inline-flex items-center cursor-pointer">
-        <input type="checkbox" v-model="form.show_planetnine_logo" class="sr-only peer" />
-        <div
-          class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer dark:bg-gray-700 peer-checked:bg-green-600 transition-colors">
-        </div>
-        <div
-          class="absolute w-5 h-5 bg-white border rounded-full left-0.5 top-0.5 peer-checked:translate-x-full transition-transform">
-        </div>
-      </label>
-    </div>
-
-    <!-- Show Sidebar Logo -->
-    <div class="flex items-center justify-between">
-      <label class="text-sm font-medium">Show Sidebar Logo?</label>
-      <label class="inline-flex items-center cursor-pointer">
-        <input type="checkbox" v-model="form.show_sidebar_logo" class="sr-only peer" />
-        <div
-          class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer dark:bg-gray-700 peer-checked:bg-green-600 transition-colors">
-        </div>
-        <div
-          class="absolute w-5 h-5 bg-white border rounded-full left-0.5 top-0.5 peer-checked:translate-x-full transition-transform">
-        </div>
-      </label>
-    </div>
-
-    <!-- Show Footer -->
-    <div class="flex items-center justify-between">
-      <label class="text-sm font-medium">Show Footer?</label>
-      <label class="inline-flex items-center cursor-pointer">
-        <input type="checkbox" v-model="form.show_footer" class="sr-only peer" />
-        <div
-          class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer dark:bg-gray-700 peer-checked:bg-green-600 transition-colors">
-        </div>
-        <div
-          class="absolute w-5 h-5 bg-white border rounded-full left-0.5 top-0.5 peer-checked:translate-x-full transition-transform">
-        </div>
-      </label>
+    <div class="space-y-4">
+      <div v-for="toggle in [
+        { label: 'Requires Login?', model: 'requires_login' },
+        { label: 'Show Planet Nine Logo?', model: 'show_planetnine_logo' },
+        { label: 'Show Sidebar Logo?', model: 'show_sidebar_logo' },
+        { label: 'Show Footer?', model: 'show_footer' },
+      ]" :key="toggle.model" class="flex items-center justify-between">
+        <label class="text-sm font-medium">{{ toggle.label }}</label>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" v-model="form[toggle.model]" class="sr-only peer" />
+          <div
+            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer peer-checked:bg-green-600 transition-colors">
+          </div>
+          <div
+            class="absolute w-5 h-5 bg-white border rounded-full left-0.5 top-0.5 peer-checked:translate-x-full transition-transform">
+          </div>
+        </label>
+      </div>
     </div>
 
     <!-- Navigation -->
