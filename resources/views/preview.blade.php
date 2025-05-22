@@ -291,13 +291,6 @@
     }
 
     function updateActiveVersion(version_id) {
-        var versionLabel = gsap.timeline();
-        versionLabel
-            .to('#versionInfo', {
-                duration: 0.5,
-                y: -30,
-                ease: 'power2.in'
-            });
         document.getElementById('menuClick').click();
         axios.get('/preview/updateActiveVersion/' + version_id)
             .then(function(response) {
