@@ -167,10 +167,9 @@
         </section>
         <br>
         <br>
-        <br>
 
         @if($preview['show_footer'])
-        <footer class="footer py-6 mt-6">
+        <footer class="footer py-2 mt-2">
             <div class="container mx-auto px-4 text-center text-base text-gray-600">
                 &copy; All Rights Reserved. 
                 <a href="https://www.planetnine.com" class="underline hover:text-black" target="_blank">
