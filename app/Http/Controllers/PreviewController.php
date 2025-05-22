@@ -322,4 +322,228 @@ class PreviewController extends Controller
             }
         }
     }
+
+    public function editVersion($id)
+    {
+        $version = Version::findOrFail($id);
+        $preview = Preview::findOrFail($version->preview_id);
+
+        return Inertia::render('Previews/Versions/Edit', [
+            'version' => $version,
+            'preview' => $preview,
+        ]);
+    }
+
+    public function updateVersion($id, Request $request)
+    {
+        $version = Version::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+        ]);
+
+        $version->update($validated);
+
+        $preview = $version->preview; // load the associated preview for props
+
+        return Inertia::render('Previews/Versions/Edit', [
+            'version' => $version,
+            'preview' => $preview,
+            'flash' => ['success' => 'Version updated successfully!'],
+        ]);
+    }
+
+    public function createBannerSubVersion($id)
+    {
+        $version = Version::with('preview')->findOrFail($id);
+
+        $preview = Preview::findOrFail($version['preview_id']);
+
+        $bannerSizes = BannerSize::orderBy('width')->orderBy('height')->get(['id', 'width', 'height'])->map(fn($s) => tap($s, fn($s) => $s->name = "{$s->width}x{$s->height}"));
+
+        return Inertia::render('Previews/Versions/SubVersions/Create', [
+            'version' => $version,
+            'bannerSizes' => $bannerSizes,
+            'preview' => $preview
+        ]);
+    }
+
+    public function storeBannerSubVersion(Request $request, $id)
+    {
+        $versionId = $id;
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'banners' => ['required', 'array'],
+            'banners.*.file' => ['required', 'file', 'mimes:zip'],
+            'banners.*.size_id' => ['required', 'exists:banner_sizes,id'],
+            'banners.*.position' => ['required', 'integer'],
+        ]);
+
+        $version = Version::findOrFail($versionId);
+        $preview = $version->preview;
+
+        // 1. Deactivate other subversions
+        SubVersion::where('version_id', $versionId)->update(['is_active' => false]);
+
+        // 2. Create the new active subversion
+        $subVersion = SubVersion::create([
+            'version_id' => $versionId,
+            'name' => $request->name,
+            'is_active' => true,
+        ]);
+
+        // 3. Process and store each uploaded banner
+        foreach ($request->banners as $index => $banner) {
+            $file = $banner['file'];
+            $sizeId = $banner['size_id'];
+            $position = $banner['position'];
+            $size = BannerSize::findOrFail($sizeId);
+            $dimension = $size->width . 'x' . $size->height;
+
+            $zipName = $request->name . '_' . $dimension . '_' . Str::uuid() . '.zip';
+            $uploadPath = public_path('uploads/banners');
+
+            // Ensure directory exists
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+
+            // Get readable file size
+            $sizeInBytes = $file->getSize();
+            $fileSize = $sizeInBytes >= 1048576
+                ? round($sizeInBytes / 1048576, 2) . ' MB'
+                : round($sizeInBytes / 1024, 2) . ' KB';
+
+            // Move uploaded zip
+            $file->move($uploadPath, $zipName);
+
+            // Extract zip to folder
+            $zip = new ZipArchive;
+            $extractedFolder = $uploadPath . '/' . pathinfo($zipName, PATHINFO_FILENAME);
+
+            if (!is_dir($extractedFolder)) {
+                mkdir($extractedFolder, 0755, true);
+            }
+
+            if ($zip->open($uploadPath . '/' . $zipName) === true) {
+                $zip->extractTo($extractedFolder);
+                $zip->close();
+                unlink($uploadPath . '/' . $zipName); // Remove zip after extraction
+            } else {
+                throw new \Exception("Failed to extract: $zipName");
+            }
+
+            // Save SubBanner record
+            SubBanner::create([
+                'sub_version_id' => $subVersion->id,
+                'name' => $preview->name,
+                'path' => 'uploads/banners/' . basename($extractedFolder),
+                'size_id' => $sizeId,
+                'file_size' => $fileSize,
+                'position' => $position,
+            ]);
+        }
+
+        return redirect("/previews/show/{$version->preview_id}");
+    }
+
+    public function editBannerSubVersion($id)
+    {
+        $subVersion = SubVersion::with(['version.preview', 'banners'])->findOrFail($id);
+
+        $version = $subVersion->version;
+        $preview = $version->preview;
+
+        $bannerSizes = BannerSize::all(['id', 'width', 'height']);
+
+        return Inertia::render('Previews/Versions/SubVersions/Edit', [
+            'subVersion' => $subVersion,
+            'version' => $version,
+            'preview' => $preview,
+            'bannerSizes' => $bannerSizes,
+        ]);
+    }
+
+    public function updateBannerSubVersion(Request $request, $id)
+    {
+        $subVersion = SubVersion::with('version.preview', 'banners')->findOrFail($id);
+        $version = $subVersion->version;
+        $preview = $version->preview;
+
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'banners' => ['nullable', 'array'],
+            'banners.*.file' => ['required_with:banners', 'file', 'mimes:zip'],
+            'banners.*.size_id' => ['required_with:banners', 'exists:banner_sizes,id'],
+            'banners.*.position' => ['required_with:banners', 'integer'],
+        ]);
+
+        // 1. Update name
+        $subVersion->update([
+            'name' => $request->name,
+        ]);
+
+        // 2. If banners uploaded, replace old ones
+        if ($request->has('banners')) {
+            // Delete old banners (including folders)
+            foreach ($subVersion->banners as $old) {
+                $folderPath = public_path($old->path);
+                if (is_dir($folderPath)) {
+                    \File::deleteDirectory($folderPath); // Delete extracted folder
+                }
+                $old->delete(); // Delete DB entry
+            }
+
+            // Re-upload new banners
+            foreach ($request->banners as $index => $banner) {
+                $file = $banner['file'];
+                $sizeId = $banner['size_id'];
+                $position = $banner['position'];
+
+                $size = BannerSize::findOrFail($sizeId);
+                $dimension = $size->width . 'x' . $size->height;
+                $zipName = $request->name . '_' . $dimension . '_' . Str::uuid() . '.zip';
+                $uploadPath = public_path('uploads/banners');
+
+                if (!is_dir($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+
+                $sizeInBytes = $file->getSize();
+                $fileSize = $sizeInBytes >= 1048576
+                    ? round($sizeInBytes / 1048576, 2) . ' MB'
+                    : round($sizeInBytes / 1024, 2) . ' KB';
+
+                $file->move($uploadPath, $zipName);
+
+                $zip = new ZipArchive;
+                $extractedFolder = $uploadPath . '/' . pathinfo($zipName, PATHINFO_FILENAME);
+
+                if (!is_dir($extractedFolder)) {
+                    mkdir($extractedFolder, 0755, true);
+                }
+
+                if ($zip->open($uploadPath . '/' . $zipName) === true) {
+                    $zip->extractTo($extractedFolder);
+                    $zip->close();
+                    unlink($uploadPath . '/' . $zipName);
+                } else {
+                    throw new \Exception("Failed to extract: $zipName");
+                }
+
+                SubBanner::create([
+                    'sub_version_id' => $subVersion->id,
+                    'name' => $preview->name,
+                    'path' => 'uploads/banners/' . basename($extractedFolder),
+                    'size_id' => $sizeId,
+                    'file_size' => $fileSize,
+                    'position' => $position,
+                ]);
+            }
+        }
+
+        return redirect()->route('edit-banner-sub-version', $subVersion->id)
+            ->with('success', 'SubVersion updated successfully.');
+    }
 }

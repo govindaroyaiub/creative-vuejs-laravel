@@ -27,21 +27,41 @@ class SubVersion extends Model
 
     public function subBanner()
     {
-        return $this->hasOne(SubBanner::class);
+        return $this->hasMany(SubBanner::class);
     }
 
     public function subVideo()
     {
-        return $this->hasOne(SubVideo::class);
+        return $this->hasMany(SubVideo::class);
     }
 
     public function subSocial()
     {
-        return $this->hasOne(SubSocial::class);
+        return $this->hasMany(SubSocial::class);
     }
 
     public function subGif()
     {
-        return $this->hasOne(SubGif::class);
+        return $this->hasMany(SubGif::class);
+    }
+
+    public function banners()
+    {
+        return $this->hasMany(\App\Models\SubBanner::class);
+    }
+
+    public function videos()
+    {
+        return $this->hasMany(\App\Models\SubVideo::class);
+    }
+
+    public function socials()
+    {
+        return $this->hasMany(\App\Models\SubSocial::class);
+    }
+
+    public function gifs()
+    {
+        return $this->hasMany(\App\Models\SubGif::class);
     }
 }

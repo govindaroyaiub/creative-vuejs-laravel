@@ -60,7 +60,8 @@ class PreviewApiController extends Controller
             'subVersions' => $subVersions,
             'version_name' => $version['name'],
             'activeSubVersion_id' => $activeSubVersion['id'],
-            'version_description' => $version['description']
+            'version_description' => $version['description'],
+            'version_id' => $id
         ];
     }
 
@@ -75,7 +76,8 @@ class PreviewApiController extends Controller
 
         return $data = [
             'subVersions' => $subVersions,
-            'activeSubVersion_id' => $id
+            'activeSubVersion_id' => $id,
+            'version_id' => $subVersion['version_id']
         ];
     }
 

@@ -350,7 +350,7 @@
                 setVersionsDescription(response.data.version_description);
 
                 if (response.data.type == "banner") {
-                    setBannerVersionSubVersions(response.data.subVersions);
+                    setBannerVersionSubVersions(response.data.subVersions, response.data.version_id);
 
                     setBannerActiveSubVersionSettings(response.data.activeSubVersion_id);
                     setBannerActiveVersionSettings(activeVersion_id);
@@ -363,7 +363,7 @@
             })
     }
 
-    function setBannerVersionSubVersions(subVersions) {
+    function setBannerVersionSubVersions(subVersions, version_id) {
         var subVersionCount = subVersions.length;
         var isActive;
 
@@ -391,7 +391,7 @@
         }
         if(authUserClientName == 'Planet Nine'){
             row += `
-                <div class="subVersionTab subVersionAddTab" onclick="addNewSubVersion()">
+                <div class="subVersionTab subVersionAddTab" onclick="addBannerNewSubVersion(${version_id})">
                     <div class="trapezoid-container">
                         <svg class="trapezoid" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
                             <path d="M0,60 L200,60 L180,15 C175,5 170,0 160,0 L40,0 C30,0 25,5 20,15 L0,60 Z"/>
@@ -404,10 +404,15 @@
         $('.subVersions').html(row);
     }
 
+    function addBannerNewSubVersion(version_id){
+        const url = '/previews/version/'+ version_id +'/banner/add/subVersion';
+        window.location.href = url;
+    }
+
     function updateBannerActiveSubVersion(subVersion_id) {
         axios.get('/preview/setBannerActiveSubVersion/' + subVersion_id)
             .then(function(response) {
-                setBannerVersionSubVersions(response.data.subVersions);
+                setBannerVersionSubVersions(response.data.subVersions, response.data.version_id);
                 setBannerActiveSubVersionSettings(response.data.activeSubVersion_id);
                 setBannerDisplayOfActiveSubVersion(response.data.activeSubVersion_id);
             })
@@ -428,7 +433,7 @@
                 rows = rows + "@if($authUserClientName == 'Planet Nine')";
                 rows = rows + '<div>';
                 rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';                
-                rows = rows + '<a href="/preview/banner/edit/subVersion/' + activeSubVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-square-pen"></i></a>';
+                rows = rows + '<a href="/previews/version/banner/edit/subVersion/' + activeSubVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-square-pen"></i></a>';
                 rows = rows + '<a href="javascript:void(0)" onclick="return confirmBannerSubVersionDelete(' + activeSubVersion_id + ')" style="' + display + ' margin-right: 0.5rem;"><i class="fa-solid fa-square-minus"></i></a>';
                 rows = rows + '</div>';
                 rows = rows + '</div>';
@@ -440,12 +445,16 @@
             })
     }
 
+    function confirmBannerSubVersionDelete(activeSubVersion_id){
+        
+    }
+
     function setBannerActiveVersionSettings(activeVersion_id) {
         rows = '';
         rows = rows + "@if($authUserClientName == 'Planet Nine')";
         rows = rows + '<div>';
         rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';
-        rows = rows + '<a href="/preview/edit/version/' + activeVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-pen-to-square"></i></a>';
+        rows = rows + '<a href="/previews/edit/version/' + activeVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-pen-to-square"></i></a>';
         rows = rows + '<a href="javascript:void(0)" onclick="return confirmVersionDelete(' + activeVersion_id + ')" style="margin-right: 0.5rem;"><i class="fa-solid fa-circle-minus"></i></a>';
         rows = rows + '</div>';
         rows = rows + '</div>';
@@ -458,7 +467,6 @@
         document.getElementById('loaderArea').style.display = 'flex';
         axios.get('/preview/getActiveSubVersionBannerData/' + activeSubVersion_id)
             .then(function(response) {
-                console.log(response);
                 var row = '';
 
                 $.each(response.data, function(key, value) {
