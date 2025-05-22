@@ -268,12 +268,12 @@
                 });
 
                 
-                if(authUserClientName == 'Planet Nine'){
-                row2 += `
-                    <div class="version-row version-add-btn" onclick="return addNewVersion(${preview_id})" style="cursor: pointer; margin-top: 8px;">
-                        <span class="text-2xl text-green-500 hover:text-green-700 font-bold">+</span>
-                    </div>
-                `;
+                if(authUserClientName == "Planet Nine"){
+                    row2 += `
+                        <div class="version-row version-add-btn" onclick="return addNewVersion(${preview_id})" style="cursor: pointer; margin-top: 8px;">
+                            <span class="text-2xl text-green-500 hover:text-green-700 font-bold">+</span>
+                        </div>
+                    `;
                 }
 
                 $('#creative-list2').html(row2);

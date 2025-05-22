@@ -45,6 +45,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/previews-edit/{preview}', [PreviewController::class, 'edit'])->name('previews-edit');
     Route::put('/previews-edit/{preview}', [PreviewController::class, 'update'])->name('previews-update');
     Route::delete('/previews-delete/{id}', [PreviewController::class, 'destroy'])->name('previews-delete');
+
+    Route::get('/preview/add/version/{id}', [PreviewController::class, 'addVersion'])->name('previews-add-version');
     //Preview Routes End
 
     //Banner Sizes Routes Start

@@ -966,7 +966,7 @@ iframe {
     }
 
     .subVersionAddTab {
-        display: none;
+        display: block;
     }
 
     #bannerShowcase {
@@ -1003,7 +1003,7 @@ iframe {
     }
 
     .subVersionAddTab {
-        display: none;
+        display: block;
     }
 
     #bannerShowcase {
