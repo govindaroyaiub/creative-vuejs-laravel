@@ -546,4 +546,24 @@ class PreviewController extends Controller
         return redirect()->route('edit-banner-sub-version', $subVersion->id)
             ->with('success', 'SubVersion updated successfully.');
     }
+
+    public function deleteBannerSubVersion($id)
+    {
+        $subVersion = SubVersion::with(['banners', 'version.preview'])->findOrFail($id);
+        $previewId = $subVersion->version->preview_id;
+
+        // 1. Delete sub banner folders and records
+        foreach ($subVersion->banners as $banner) {
+            $folderPath = public_path($banner->path);
+            if (File::isDirectory($folderPath)) {
+                File::deleteDirectory($folderPath); // remove extracted files
+            }
+            $banner->delete();
+        }
+
+        // 2. Delete sub version
+        $subVersion->delete();
+
+        return redirect("/previews/show/{$previewId}")->with('success', 'SubVersion deleted successfully.');
+    }
 }

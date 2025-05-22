@@ -53,6 +53,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::post('/previews/version/{id}/banner/add/subVersion/', [PreviewController::class, 'storeBannerSubVersion'])->name('store-banner-subVersion-post');
     Route::get('/previews/version/banner/edit/subVersion/{id}', [PreviewController::class, 'editBannerSubVersion'])->name('edit-banner-sub-version');
     Route::post('/previews/version/banner/edit/subVersion/{id}', [PreviewController::class, 'updateBannerSubVersion'])->name('update-banner-sub-version');
+    Route::get('/previews/banner/subVersion/delete/{id}', [PreviewController::class, 'deleteBannerSubVersion'])->name('delete-banner-subVersion');
 
     // Route::get('/preview/add/version/{id}', [PreviewController::class, 'addVersion'])->name('previews-add-version');
     //Preview Routes End

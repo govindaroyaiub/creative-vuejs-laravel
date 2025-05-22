@@ -340,7 +340,7 @@
     }
 
     function addNewVersion(preview_id){
-        const url = '/preview/add/version/' + preview_id;
+        const url = '/previews/add/version/' + preview_id;
         window.location.href = url;
     }
 
@@ -446,7 +446,39 @@
     }
 
     function confirmBannerSubVersionDelete(activeSubVersion_id){
-        
+        Swal.fire({
+            title: 'Delete This Sub Version?!',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            denyButtonText: `Thinking.....`,
+        }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+                axios.get('/previews/banner/subVersion/delete/'+ activeSubVersion_id)
+                .then(function (response){
+                    console.log(response);
+                    checkVersionType(response.data.version_id);
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Sub Version Has Been Deleted!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    location.reload();
+                })
+                .catch(function (error){
+                    console.log(error);
+                })
+            } else if (result.isDenied) {
+                Swal.fire('Thanks for using your brain', '', 'info')
+            }
+        })
+    }
+
+    function reload(bannerReloadID) {
+        document.getElementById("rel"+bannerReloadID).src += '';
     }
 
     function setBannerActiveVersionSettings(activeVersion_id) {
