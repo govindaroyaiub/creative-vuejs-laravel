@@ -68,8 +68,22 @@
 
 <body>
     @if($authUserClientName == "Planet Nine")
-    <div id="viewerList" class="absolute top-4 right-4 flex space-x-2 z-50"></div>
+    <div class="absolute top-4 right-4 flex items-center space-x-3 z-50">
+        <div id="viewerList" class="flex space-x-2"></div>
+
+        @if(auth()->check() && $preview->requires_login)
+            <form method="POST" action="{{ route('preview.logout') }}" id="customPreviewLogoutForm">
+                @csrf
+                <input type="hidden" name="preview_id" value="{{ $preview->id }}">
+                <button type="submit"
+                    class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-3 py-1 rounded shadow transition cursor-pointer">
+                    Logout
+                </button>
+            </form>
+        @endif
+    </div>
     @endif
+
     <div id="loaderArea">
         <span class="loader"></span>
     </div>

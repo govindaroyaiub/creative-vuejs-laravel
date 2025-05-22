@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use ZipArchive;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
 
 class PreviewController extends Controller
@@ -27,24 +28,32 @@ class PreviewController extends Controller
     public function show($id)
     {
         $preview_id = $id;
+
         $preview = Preview::with(['client.colorPalette', 'colorPalette', 'uploader'])->findOrFail($id);
-        // dd($preview);
+
+        // ✅ Check if login is required
+        if ($preview->requires_login && !Auth::check()) {
+            // Store redirect path in session
+            Session::put('preview_redirect_after_login', route('previews-show', $id));
+            return Inertia::render('Previews/Login', [
+                'preview_id' => $id,
+            ]);
+        }
+
+        // Continue with preview rendering
         $versions = Version::where('preview_id', $id)->get();
         $subVersions = SubVersion::whereIn('version_id', $versions->pluck('id'))->get();
-        $color_palettes = ColorPalette::where('id', $preview['color_palette_id'])->first();
-        $client = Client::where('id', $preview['client_id'])->first();
-        $primary = $color_palettes['primary'];
-        $secondary = $color_palettes['secondary'];
-        $tertiary = $color_palettes['tertiary'];
-        $quaternary = $color_palettes['quaternary'];
+        $color_palettes = ColorPalette::find($preview->color_palette_id);
+        $client = Client::find($preview->client_id);
 
-        if (Auth::user()) {
-            $authUserClientId = Auth::user()->client_id;
-            $authUserClientInfo = Client::find($authUserClientId);
-            $authUserClientName = $authUserClientInfo['name'];
-        } else {
-            $authUserClientName = 'guest';
-        }
+        $primary = $color_palettes?->primary ?? '#ccc';
+        $secondary = $color_palettes?->secondary ?? '#ccc';
+        $tertiary = $color_palettes?->tertiary ?? '#ccc';
+        $quaternary = $color_palettes?->quaternary ?? '#ccc';
+
+        $authUserClientName = Auth::check()
+            ? (Client::find(Auth::user()->client_id)?->name ?? 'Unknown')
+            : 'guest';
 
         return view('preview', compact(
             'preview',

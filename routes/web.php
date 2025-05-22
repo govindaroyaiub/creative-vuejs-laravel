@@ -1,6 +1,7 @@
 <?php
 
 use Inertia\Inertia;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\CheckUserPermission;
@@ -150,6 +151,35 @@ Route::post('/change-password-post', [UserManagementController::class, 'changePa
 Route::get('/get-viewers/{page_id}', [PreviewTrackerController::class, 'getViewers']);
 Route::post('/track-viewer', [PreviewTrackerController::class, 'trackViewers']);
 //Preview tracker routes end
+
+Route::post('/preview-login', function (Request $request) {
+    $credentials = $request->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required'],
+    ]);
+
+    if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        $request->session()->regenerate();
+        return response()->json([
+            'redirect_to' => session()->pull('preview_redirect_after_login', '/'),
+        ]);
+    }
+
+    return response()->json([
+        'message' => 'Invalid credentials.',
+    ], 422);
+})->name('preview-login');
+
+Route::post('/logout-preview', function (Request $request) {
+    $previewId = $request->input('preview_id');
+
+    Auth::logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    // ✅ Send them directly to the show route — Blade handles the rest
+    return redirect()->to("/previews/show/{$previewId}");
+})->name('preview.logout');
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
