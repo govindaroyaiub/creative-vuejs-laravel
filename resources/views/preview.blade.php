@@ -606,7 +606,7 @@ function handleOutsideClick(event) {
                     row = row + '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
                     row = row + '<li><i id="relBt' + value.id + '" onClick="reload(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
                     row = row + '@if($authUserClientName == "Planet Nine")'
-                    row = row + '<li><a href="/previews/banner/single/edit/' + value.id + '"><i class="fa-solid fa-file-pen" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                    row = row + '<li><a href="/previews/banner/single/edit/' + value.id + '"><i class="fa-solid fa-pen-to-square" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
                     row = row + '<li><a href="/previews/banner/single/download/' + value.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
                     row = row + '<li><a href="javascript:void(0)" onclick="return confirmDeleteBanner(' + value.id + ')"><i class="fa-solid fa-trash" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
                     row = row + '@endif';
@@ -622,5 +622,33 @@ function handleOutsideClick(event) {
             .finally(function() {
                 document.getElementById('loaderArea').style.display = 'none';
             })
+    }
+
+    function confirmDeleteBanner(id){
+        Swal.fire({
+                title: 'Delete This Banner?',
+                text: "Are you sure you want to delete this banner?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.delete('/previews/banner/single/delete/' + id)
+                        .then(function(response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Banner deleted!',
+                                showConfirmButton: false,
+                                timer: 1200
+                            });
+                            // Optionally refresh the banners list
+                            setBannerDisplayOfActiveSubVersion(response.data.subVersion_id);
+                        })
+                        .catch(function(error) {
+                            Swal.fire('Error', 'Failed to delete banner.', 'error');
+                        });
+                }
+            });
     }
 </script>

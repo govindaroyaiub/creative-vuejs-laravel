@@ -58,6 +58,11 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/previews/banner/subVersion/delete/{id}', [PreviewController::class, 'deleteBannerSubVersion'])->name('delete-banner-subVersion');
     Route::get('/previews/version/delete/{id}', [PreviewController::class, 'deleteVersion'])->name('delete-version');
 
+    Route::get('/previews/banner/single/edit/{id}', [PreviewController::class, 'singleBannerEdit'])->name('single-banner-edit');
+    Route::post('/previews/banner/single/edit/{id}', [PreviewController::class, 'singleBannerUpdate'])->name('single-banner-update');
+    Route::get('/previews/banner/single/download/{id}', [PreviewController::class, 'singleBannerDownload'])->name('single-banner-download');
+    Route::delete('/previews/banner/single/delete/{id}', [PreviewController::class, 'singleBannerDelete'])->name('single-banner-delete');
+
     // Route::get('/preview/add/version/{id}', [PreviewController::class, 'addVersion'])->name('previews-add-version');
     //Preview Routes End
 

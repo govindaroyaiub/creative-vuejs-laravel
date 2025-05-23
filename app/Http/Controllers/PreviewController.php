@@ -748,4 +748,151 @@ class PreviewController extends Controller
             'message' => 'Version created successfully.',
         ]);
     }
+
+    public function singleBannerEdit($id)
+    {
+        // Get the subBanner by ID
+        $subBanner = SubBanner::findOrFail($id);
+
+        // Get all available banner sizes
+        $bannerSizes = BannerSize::all(['id', 'width', 'height']);
+
+        // Match the size label (e.g., "300x250") manually
+        $selectedSize = $bannerSizes->firstWhere('id', $subBanner->size_id);
+        $subBanner->size_label = $selectedSize ? $selectedSize->width . 'x' . $selectedSize->height : '';
+
+        $subVersionId = $subBanner->sub_version_id;
+        $subVersion = SubVersion::findOrFail($subVersionId);
+        $version = Version::findOrFail($subVersion->version_id);
+        $preview = Preview::findOrFail($version->preview_id);
+
+        return Inertia::render('Previews/Versions/SubVersions/Banner/SingleEdit', [
+            'subBanner' => $subBanner,
+            'preview' => $preview,
+            'bannerSizes' => $bannerSizes->map(function ($size) {
+                return [
+                    'id' => $size->id,
+                    'label' => $size->width . 'x' . $size->height,
+                ];
+            }),
+        ]);
+    }
+
+    public function singleBannerUpdate($id, Request $request)
+    {
+        $request->validate([
+            'size_id' => 'required|exists:banner_sizes,id',
+            'zip' => 'nullable|file|mimes:zip',
+        ]);
+
+        $subBanner = SubBanner::findOrFail($id);
+
+        // 1. Remove old extracted folder
+        $oldFolder = public_path($subBanner->path);
+        if (is_dir($oldFolder)) {
+            \File::deleteDirectory($oldFolder);
+        }
+
+        $updateData = [
+            'size_id' => $request->size_id,
+        ];
+
+        // 2. If new ZIP uploaded, move and extract
+        if ($request->hasFile('zip')) {
+            $file = $request->file('zip');
+            $size = BannerSize::findOrFail($request->size_id);
+            $dimension = "{$size->width}x{$size->height}";
+            $uuid = \Str::uuid();
+            $zipName = "banner_{$dimension}_{$uuid}.zip";
+            $uploadPath = public_path('uploads/banners');
+
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+
+            $fileSize = $file->getSize() >= 1048576
+                ? round($file->getSize() / 1048576, 2) . ' MB'
+                : round($file->getSize() / 1024, 2) . ' KB';
+
+            $file->move($uploadPath, $zipName);
+
+            $zip = new \ZipArchive;
+            $extractedFolder = $uploadPath . '/' . pathinfo($zipName, PATHINFO_FILENAME);
+
+            if (!is_dir($extractedFolder)) {
+                mkdir($extractedFolder, 0755, true);
+            }
+
+            if ($zip->open($uploadPath . '/' . $zipName) === true) {
+                $zip->extractTo($extractedFolder);
+                $zip->close();
+                unlink($uploadPath . '/' . $zipName); // Delete original ZIP
+            } else {
+                throw new \Exception("Failed to extract: $zipName");
+            }
+
+            // Update path and file_size
+            $updateData['path'] = 'uploads/banners/' . basename($extractedFolder);
+            $updateData['file_size'] = $fileSize;
+        }
+
+        // 4. Update SubBanner
+        $subBanner->update($updateData);
+
+        return redirect()->back()->with('success', 'Banner updated successfully.');
+    }
+
+    public function singleBannerDownload($id)
+    {
+        $subBanner = SubBanner::findOrFail($id);
+        $folderPath = public_path($subBanner->path);
+
+        if (!is_dir($folderPath)) {
+            abort(404, 'Banner folder not found.');
+        }
+
+        // Create a temporary zip file
+        $zipFileName = 'banner_' . basename($folderPath) . '_' . '.zip';
+        $zipFilePath = public_path($zipFileName);
+
+        $zip = new \ZipArchive;
+        if ($zip->open($zipFilePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === true) {
+            $files = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($folderPath),
+                \RecursiveIteratorIterator::LEAVES_ONLY
+            );
+
+            foreach ($files as $name => $file) {
+                if (!$file->isDir()) {
+                    $filePath = $file->getRealPath();
+                    $relativePath = substr($filePath, strlen($folderPath) + 1);
+                    $zip->addFile($filePath, $relativePath);
+                }
+            }
+            $zip->close();
+        } else {
+            abort(500, 'Could not create ZIP file.');
+        }
+
+        // Return the zip as a download and delete after send
+        return response()->download($zipFilePath)->deleteFileAfterSend(true);
+    }
+
+    public function singleBannerDelete($id)
+    {
+        $subBanner = SubBanner::findOrFail($id);
+        $folderPath = public_path($subBanner->path);
+
+        // Delete the folder if it exists
+        if (is_dir($folderPath)) {
+            \File::deleteDirectory($folderPath);
+        }
+
+        // Delete the SubBanner record
+        $subBanner->delete();
+
+        return $data = [
+            'subVersion_id' => $subBanner->sub_version_id
+        ];
+    }
 }
