@@ -369,7 +369,7 @@ class PreviewController extends Controller
         $preview = Preview::findOrFail($version['preview_id']);
         $bannerSizes = BannerSize::orderBy('width')->orderBy('height')->get(['id', 'width', 'height'])->map(fn($s) => tap($s, fn($s) => $s->name = "{$s->width}x{$s->height}"));
 
-        return Inertia::render('Previews/Versions/SubVersions/Create', [
+        return Inertia::render('Previews/Versions/SubVersions/Banner/Create', [
             'version' => $version,
             'bannerSizes' => $bannerSizes,
             'preview' => $preview
@@ -466,7 +466,7 @@ class PreviewController extends Controller
 
         $bannerSizes = BannerSize::all(['id', 'width', 'height']);
 
-        return Inertia::render('Previews/Versions/SubVersions/Edit', [
+        return Inertia::render('Previews/Versions/SubVersions/Banner/Edit', [
             'subVersion' => $subVersion,
             'version' => $version,
             'preview' => $preview,
