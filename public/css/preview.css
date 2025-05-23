@@ -289,7 +289,7 @@ section .content {
     padding: 50px;
     padding-top: 85px;
     background: var(--primary-color);
-    border: 2px solid var(--tertiary-color);
+    border: 2px solid var(--primary-color);
     list-style-type: disclosure-closed;
     -webkit-font-smoothing: antialiased;
     /*tostopflickeringoftextinsafari*/

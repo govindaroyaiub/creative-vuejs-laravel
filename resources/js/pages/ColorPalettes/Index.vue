@@ -138,6 +138,18 @@ const copyToClipboard = (text: string) => {
             <th class="px-4 py-3 text-center">Status</th>
             <th class="px-4 py-3 text-center">Actions</th>
           </tr>
+          <tr class="bg-gray-50 dark:bg-gray-900 uppercase">
+            <th class="text-left"></th>
+            <th class="text-left"></th>
+            <th class="text-center font-normal capitalize">Mobile nav <br> left nav BG <br> and borders</th>
+            <th class="text-center font-normal capitalize">Body <br> Bg</th>
+            <th class="text-center font-normal capitalize">Borders <br> (version hover, <br>active version,
+              <br>subversion tabs) <br> icons, <br>color palette <br>BG
+            </th>
+            <th class="text-center font-normal capitalize">Version <br> Rows <br> styling</th>
+            <th class="text-center font-normal capitalize"></th>
+            <th class="text-center font-normal capitalize"></th>
+          </tr>
         </thead>
         <tbody>
           <tr v-if="adding" class="bg-white dark:bg-gray-800 rounded shadow">
