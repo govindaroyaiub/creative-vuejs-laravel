@@ -95,8 +95,10 @@
         <section id="top" class="mb-4">
             <div class="px-4 py-4 flex justify-center content text-center relative">
                 <div id="topDetails">
-                    <img src="{{ asset('logos/' . $client['logo']) }}" id="planetnineLogo" class="py-3" alt="planetnineLogo">
-                    <h1 style="font-size: 1rem;">Client Name: <span>{{ $client['name'] }}</span></h1>
+                    @if($preview->show_planetnine_logo)
+                        <img src="{{ asset('logos/' . $client['logo']) }}" id="planetnineLogo" class="py-3" alt="planetnineLogo">
+                    @endif
+                    <h1 class="mt-1" style="font-size: 1rem;">Client Name: <span>{{ $client['name'] }}</span></h1>
                     <h1 style="font-size: 1rem;">Project Name: <span>{{ $preview['name'] }}</span></h1>
                     <h1 style="font-size: 1rem;" class="font-semibold">
                         Date: <span>{{ \Carbon\Carbon::parse($preview['created_at'])->format('F j, Y') }}</span>
@@ -147,7 +149,7 @@
                                 </div>
 
                                 <div id="colorPaletteSelection">
-                                    
+
                                 </div>
 
                                 <div id="versionDescription">
@@ -349,7 +351,7 @@
     }
 
     function addNewVersion(preview_id){
-        const url = '/previews/add/version/' + preview_id;
+        const url = '/previews/version/add/' + preview_id;
         window.location.href = url;
     }
 
@@ -501,6 +503,36 @@
         rows = rows + "@endif";
 
         $('#versionSettings').html(rows);
+    }
+
+    function confirmVersionDelete(version_id){
+        Swal.fire({
+            title: 'Delete This Version?!',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            denyButtonText: `Thinking.....`,
+        }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+                axios.get('/previews/version/delete/'+ version_id)
+                .then(function (response){
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Version Has Been Deleted!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    location.reload();
+                })
+                .catch(function (error){
+                    console.log(error);
+                })
+            } else if (result.isDenied) {
+                Swal.fire('Thanks for using your brain', '', 'info')
+            }
+        })
     }
 
     function setBannerDisplayOfActiveSubVersion(activeSubVersion_id) {

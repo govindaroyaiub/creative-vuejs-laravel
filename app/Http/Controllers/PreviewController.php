@@ -264,61 +264,68 @@ class PreviewController extends Controller
     public function destroy($id)
     {
         DB::transaction(function () use ($id) {
-            $preview = Preview::with('versions.subVersions')->findOrFail($id);
+            $preview = Preview::findOrFail($id);
+            $versions = Version::where('preview_id', $id)->get();
 
-            foreach ($preview->versions as $version) {
-                foreach ($version->subVersions as $subVersion) {
-                    // Delete related SubBanner (if exists)
-                    if ($subBanner = $subVersion->subBanner) {
-                        $this->deletePathFromDisk($subBanner->path);
-                        $subBanner->delete();
+            foreach ($versions as $version) {
+                $subVersions = SubVersion::where('version_id', $version->id)->get();
+
+                foreach ($subVersions as $subVersion) {
+                    // 1. SubBanners (folders)
+                    $banners = SubBanner::where('sub_version_id', $subVersion->id)->get();
+                    foreach ($banners as $banner) {
+                        $this->deletePath($banner->path);
+                        $banner->delete();
                     }
 
-                    // Delete related SubVideo (if exists)
-                    if ($subVideo = $subVersion->subVideo) {
-                        $this->deletePathFromDisk($subVideo->path);
-                        if ($subVideo->companion_banner_path) {
-                            $this->deletePathFromDisk($subVideo->companion_banner_path);
+                    // 2. SubVideos (files + companion)
+                    $videos = SubVideo::where('sub_version_id', $subVersion->id)->get();
+                    foreach ($videos as $video) {
+                        $this->deletePath($video->path);
+                        if ($video->companion_banner_path) {
+                            $this->deletePath($video->companion_banner_path);
                         }
-                        $subVideo->delete();
+                        $video->delete();
                     }
 
-                    // Delete related SubSocial (if exists)
-                    if ($subSocial = $subVersion->subSocial) {
-                        $this->deletePathFromDisk($subSocial->path);
-                        $subSocial->delete();
+                    // 3. SubGifs (files)
+                    $gifs = SubGif::where('sub_version_id', $subVersion->id)->get();
+                    foreach ($gifs as $gif) {
+                        $this->deletePath($gif->path);
+                        $gif->delete();
                     }
 
-                    // Delete related SubGif (if exists)
-                    if ($subGif = $subVersion->subGif) {
-                        $this->deletePathFromDisk($subGif->path);
-                        $subGif->delete();
+                    // 4. SubSocials (files)
+                    $socials = SubSocial::where('sub_version_id', $subVersion->id)->get();
+                    foreach ($socials as $social) {
+                        $this->deletePath($social->path);
+                        $social->delete();
                     }
 
+                    // 5. Delete SubVersion
                     $subVersion->delete();
                 }
 
+                // 6. Delete Version
                 $version->delete();
             }
 
+            // 7. Finally delete the preview
             $preview->delete();
         });
 
-        return redirect()->route('previews-index')->with('success', 'Preview and all related data deleted.');
+        return redirect()->route('previews-index')->with('success', 'Preview and all related files deleted successfully.');
     }
 
-    /**
-     * Delete folder or file path from public directory.
-     */
-    protected function deletePathFromDisk($relativePath)
+    protected function deletePath($relativePath)
     {
         $fullPath = public_path($relativePath);
 
         if (File::exists($fullPath)) {
             if (File::isDirectory($fullPath)) {
-                File::deleteDirectory($fullPath);
-            } else {
-                File::delete($fullPath);
+                File::deleteDirectory($fullPath); // used for banner folders
+            } elseif (File::isFile($fullPath)) {
+                File::delete($fullPath); // used for single video/gif/social files
             }
         }
     }
@@ -574,5 +581,169 @@ class PreviewController extends Controller
         return $data = [
             'version_id' => $versionId,
         ];
+    }
+
+    public function deleteVersion($id)
+    {
+        $version = Version::findOrFail($id);
+        $previewId = $version->preview_id;
+
+        $subVersions = SubVersion::where('version_id', $version->id)->get();
+
+        foreach ($subVersions as $subVersion) {
+            // Delete SubBanners
+            $banners = SubBanner::where('sub_version_id', $subVersion->id)->get();
+            foreach ($banners as $banner) {
+                $folder = public_path($banner->path);
+                if (File::isDirectory($folder)) {
+                    File::deleteDirectory($folder);
+                }
+                $banner->delete();
+            }
+
+            // Delete SubVideos
+            $videos = SubVideo::where('sub_version_id', $subVersion->id)->get();
+            foreach ($videos as $video) {
+                if (File::exists(public_path($video->path))) {
+                    File::delete(public_path($video->path));
+                }
+
+                if ($video->companion_banner_path && File::exists(public_path($video->companion_banner_path))) {
+                    File::delete(public_path($video->companion_banner_path));
+                }
+
+                $video->delete();
+            }
+
+            // Delete SubGifs
+            $gifs = SubGif::where('sub_version_id', $subVersion->id)->get();
+            foreach ($gifs as $gif) {
+                if (File::exists(public_path($gif->path))) {
+                    File::delete(public_path($gif->path));
+                }
+                $gif->delete();
+            }
+
+            // Delete SubSocials
+            $socials = SubSocial::where('sub_version_id', $subVersion->id)->get();
+            foreach ($socials as $social) {
+                if (File::exists(public_path($social->path))) {
+                    File::delete(public_path($social->path));
+                }
+                $social->delete();
+            }
+
+            $subVersion->delete();
+        }
+
+        $version->delete();
+
+        // Activate last version
+        $lastVersion = Version::where('preview_id', $previewId)->latest()->first();
+        if ($lastVersion) {
+            $lastVersion->is_active = true;
+            $lastVersion->save();
+        }
+
+        return ['version_id' => $lastVersion?->id];
+    }
+
+    public function createVersion($id)
+    {
+        $preview = Preview::findOrFail($id);
+        $bannerSizes = BannerSize::all(['id', 'width', 'height']);
+
+        return Inertia::render('Previews/Versions/Create', [
+            'preview' => $preview,
+            'bannerSizes' => $bannerSizes,
+        ]);
+    }
+
+    public function storeVersion(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'type' => 'required|in:banner',
+            'sub_version_name' => 'required|string|max:255',
+            'banners' => 'required|array|min:1',
+            'banners.*.file' => 'required|file|mimes:zip',
+            'banners.*.size_id' => 'required|exists:banner_sizes,id',
+            'banners.*.position' => 'required|integer',
+        ]);
+
+        DB::transaction(function () use ($request, $id) {
+            $preview = Preview::findOrFail($id);
+
+            // 1. Deactivate existing versions under this preview
+            Version::where('preview_id', $id)->update(['is_active' => false]);
+
+            // 2. Create new version
+            $version = Version::create([
+                'preview_id' => $id,
+                'name' => $request->name,
+                'description' => $request->description,
+                'type' => 'banner',
+                'is_active' => true,
+            ]);
+
+            // 3. Create subversion
+            $subVersion = $version->subVersions()->create([
+                'name' => $request->sub_version_name,
+                'is_active' => true,
+            ]);
+
+            // 4. Handle banner zips
+            foreach ($request->banners as $index => $banner) {
+                $file = $banner['file'];
+                $sizeId = $banner['size_id'];
+                $position = $banner['position'];
+
+                $size = BannerSize::findOrFail($sizeId);
+                $dimension = "{$size->width}x{$size->height}";
+                $uuid = Str::uuid();
+                $zipName = "{$request->name}_{$dimension}_{$uuid}.zip";
+                $uploadPath = public_path('uploads/banners');
+
+                if (!is_dir($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+
+                $fileSize = $file->getSize() >= 1048576
+                    ? round($file->getSize() / 1048576, 2) . ' MB'
+                    : round($file->getSize() / 1024, 2) . ' KB';
+
+                $file->move($uploadPath, $zipName);
+
+                $zip = new \ZipArchive;
+                $extractedFolder = $uploadPath . '/' . pathinfo($zipName, PATHINFO_FILENAME);
+
+                if (!is_dir($extractedFolder)) {
+                    mkdir($extractedFolder, 0755, true);
+                }
+
+                if ($zip->open($uploadPath . '/' . $zipName) === true) {
+                    $zip->extractTo($extractedFolder);
+                    $zip->close();
+                    unlink($uploadPath . '/' . $zipName); // Delete original ZIP
+                } else {
+                    throw new \Exception("Failed to extract: $zipName");
+                }
+
+                SubBanner::create([
+                    'sub_version_id' => $subVersion->id,
+                    'name' => $preview->name,
+                    'path' => 'uploads/banners/' . basename($extractedFolder),
+                    'size_id' => $sizeId,
+                    'file_size' => $fileSize,
+                    'position' => $position,
+                ]);
+            }
+        });
+
+        return response()->json([
+            'redirect_to' => route('previews-show', $id),
+            'message' => 'Version created successfully.',
+        ]);
     }
 }

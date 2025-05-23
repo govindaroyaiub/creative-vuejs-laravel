@@ -218,7 +218,7 @@ const handleSubmit = () => {
             <!-- Submit Button -->
             <div class="flex space-x-4">
                 <button type="submit" :disabled="!allAssigned || form.processing" @click="handleSubmit"
-                    class="w-full rounded-lg bg-indigo-600 px-6 py-3 text-white shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600">
+                    class="w-full rounded-lg bg-green-600 px-6 py-3 text-white shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-green-500 dark:hover:bg-green-600">
                     Submit
                 </button>
                 <a :href="`/previews/show/${preview.id}`"
