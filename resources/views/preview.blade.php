@@ -604,11 +604,11 @@ function handleOutsideClick(event) {
                     row = row + '</div>';
                     row = row + '<iframe style="margin-top: 2px;" src="' + bannerPath + '" width="' + value.width + '" height="' + value.height + '" frameBorder="0" scrolling="no" id=' + "rel" + value.id + '></iframe>'
                     row = row + '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
-                    row = row + '<li><i id="relBt' + value.id + '" onClick="reload(' + bannerReloadID + ')" class="fa-solid fa-arrows-rotate" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
+                    row = row + '<li><i id="relBt' + value.id + '" onClick="reload(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
                     row = row + '@if($authUserClientName == "Planet Nine")'
-                    row = row + '<li><a href="/project/preview/banner/edit/' + value.id + '"><i class="fa-solid fa-gear" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
-                    row = row + '<li><a href="/project/preview/banner/download/' + value.id + '"><i class="fa-solid fa-circle-down" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
-                    row = row + '<li><a href="javascript:void(0)" onclick="return confirmDeleteBanner(' + value.id + ')"><i class="fa-solid fa-trash-can" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                    row = row + '<li><a href="/preview/banner/single/edit/' + value.id + '"><i class="fa-solid fa-file-pen" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                    row = row + '<li><a href="/preview/banner/single/download/' + value.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                    row = row + '<li><a href="javascript:void(0)" onclick="return confirmDeleteBanner(' + value.id + ')"><i class="fa-solid fa-trash" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
                     row = row + '@endif';
                     row = row + '</ul>';
                     row = row + '</div>';
