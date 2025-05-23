@@ -101,4 +101,19 @@ class PreviewApiController extends Controller
             ->get();
         return $banners;
     }
+
+    public function changeTheme($preview_id, $color_id)
+    {
+        // Find the Preview by ID
+        $preview = Preview::find($preview_id);
+
+        if (!$preview) {
+            return response()->json(['error' => 'Preview not found'], 404);
+        }
+
+        // Update the color_palette_id column
+        $preview->color_palette_id = $color_id;
+        $preview->save();
+        return response()->json(['success' => true, 'message' => 'Theme changed successfully']);
+    }
 }

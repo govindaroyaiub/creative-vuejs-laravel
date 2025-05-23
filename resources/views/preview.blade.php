@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Creative - {{ $preview['name'] }}</title>
     <link rel="shortcut icon" href="https://www.planetnine.com/logo/new_favicon.png">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    @vite('resources/css/app.css')
     <script src="https://code.jquery.com/jquery-3.6.1.slim.min.js"
         integrity="sha256-w8CvhFs7iHNVUtnSP0YKEg00p9Ih13rlL9zGqvLdePA=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.9.0/axios.min.js" integrity="sha512-FPlUpimug7gt7Hn7swE8N2pHw/+oQMq/+R/hH/2hZ43VOQ+Kjh25rQzuLyPz7aUWKlRpI7wXbY6+U3oFPGjPOA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -144,12 +144,15 @@
                                     <i class="fa-regular fa-message"></i>
                                 </div>
 
+                                @php
+                                    $colorsData = $all_colors->map(fn($color) => ['id' => $color->id, 'hex' => $color->primary]);
+                                @endphp
+
                                 <div id="colorPaletteClick" onclick="showColorPaletteOptions()">
                                     <i class="fa-solid fa-palette"></i>
                                 </div>
 
-                                <div id="colorPaletteSelection">
-
+                                <div id="colorPaletteSelection" data-colors='@json($colorsData)'>
                                 </div>
 
                                 <div id="versionDescription">
@@ -191,6 +194,56 @@
         @endif
     </main>
 </body>
+
+<script>
+function showColorPaletteOptions() {
+    const preview_id = '{{ $preview_id }}';
+    const paletteDiv = document.getElementById('colorPaletteSelection');
+
+    if (paletteDiv.innerHTML.trim() === '') {
+        // Parse JSON array of objects with {id, hex}
+        const colors = JSON.parse(paletteDiv.dataset.colors);
+        paletteDiv.classList.add('color-grid');
+
+        colors.forEach(({ id, hex }) => {
+            const colorBox = document.createElement('div');
+            colorBox.className = 'color-box';
+            colorBox.style.backgroundColor = hex;
+
+            colorBox.title = hex; // optional: show hex on hover
+
+            colorBox.addEventListener('click', () => {
+                axios.get('/preview/'+ preview_id +'/change/theme/' + id)
+                .then(response => {
+                    if (response.data.success) {
+                        location.reload();
+                    } else {
+                        alert("Something went wrong changing theme");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error sending color:', error);
+                });
+            });
+
+            paletteDiv.appendChild(colorBox);
+        });
+    }
+
+    paletteDiv.classList.add('visible');
+    document.addEventListener('click', handleOutsideClick);
+}
+
+function handleOutsideClick(event) {
+    const paletteDiv = document.getElementById('colorPaletteSelection');
+    const paletteToggle = document.getElementById('colorPaletteClick');
+
+    if (!paletteDiv.contains(event.target) && !paletteToggle.contains(event.target)) {
+        paletteDiv.classList.remove('visible');
+        document.removeEventListener('click', handleOutsideClick);
+    }
+}
+</script>
 
 <script>
     const preview_id = '{{ $preview_id }}';
@@ -362,10 +415,8 @@
 
                 if (response.data.type == "banner") {
                     setBannerVersionSubVersions(response.data.subVersions, response.data.version_id);
-
                     setBannerActiveSubVersionSettings(response.data.activeSubVersion_id);
                     setBannerActiveVersionSettings(activeVersion_id);
-
                     setBannerDisplayOfActiveSubVersion(response.data.activeSubVersion_id);
                 }
             })
@@ -548,8 +599,8 @@
 
                     row = row + '<div style="display: inline-block; width: ' + value.width + 'px; margin-right: 10px;">';
                     row = row + '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
-                    row = row + '<small style="float: left; font-size: 0.85rem;" id="bannerRes">' + value.width + 'x' + value.height + '</small>';
-                    row = row + '<small class="float: right font-size: 0.85rem;" id="bannerSize">' + value.file_size + '</small>';
+                    row = row + '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + value.width + 'x' + value.height + '</small>';
+                    row = row + '<small style="float: right font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + value.file_size + '</small>';
                     row = row + '</div>';
                     row = row + '<iframe style="margin-top: 2px;" src="' + bannerPath + '" width="' + value.width + '" height="' + value.height + '" frameBorder="0" scrolling="no" id=' + "rel" + value.id + '></iframe>'
                     row = row + '<ul style="display: flex; flex-direction: row;" class="previewIcons">';

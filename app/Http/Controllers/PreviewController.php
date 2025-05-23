@@ -45,11 +45,12 @@ class PreviewController extends Controller
         $subVersions = SubVersion::whereIn('version_id', $versions->pluck('id'))->get();
         $color_palettes = ColorPalette::find($preview->color_palette_id);
         $client = Client::find($preview->client_id);
+        $all_colors = ColorPalette::where('status', 1)->select('id', 'primary')->get();
 
-        $primary = $color_palettes?->primary ?? '#ccc';
-        $secondary = $color_palettes?->secondary ?? '#ccc';
-        $tertiary = $color_palettes?->tertiary ?? '#ccc';
-        $quaternary = $color_palettes?->quaternary ?? '#ccc';
+        $primary = $color_palettes->primary;
+        $secondary = $color_palettes->secondary;
+        $tertiary = $color_palettes->tertiary;
+        $quaternary = $color_palettes->quaternary;
 
         $authUserClientName = Auth::check()
             ? (Client::find(Auth::user()->client_id)?->name ?? 'Unknown')
@@ -65,7 +66,8 @@ class PreviewController extends Controller
             'quaternary',
             'client',
             'authUserClientName',
-            'preview_id'
+            'preview_id',
+            'all_colors'
         ));
     }
 

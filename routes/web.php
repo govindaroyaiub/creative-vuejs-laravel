@@ -150,6 +150,7 @@ Route::get('/preview/getVersionType/{id}', [PreviewApiController::class, 'getVer
 Route::get('/preview/setBannerActiveSubVersion/{id}', [PreviewApiController::class, 'setBannerActiveSubVersion']);
 Route::get('/preview/checkSubVersionCount/{id}', [PreviewApiController::class, 'checkSubVersionCount']);
 Route::get('/preview/getActiveSubVersionBannerData/{id}', [PreviewApiController::class, 'getActiveSubVersionBannerData']);
+Route::get('/preview/{preview_id}/change/theme/{color_id}', [PreviewApiController::class, 'changeTheme']);
 //preview axios get requests end
 
 Route::get('/file-transfers-view/{id}', [FileTransferController::class, 'show'])->name('file-transfers-view');

@@ -50,28 +50,33 @@ onUnmounted(() => {
         -moz-transform: translate(1200px, -600px);
     }
 }
+
 @-webkit-keyframes rocket-movement {
     100% {
         -webkit-transform: translate(1200px, -600px);
     }
 }
+
 @keyframes rocket-movement {
     100% {
         transform: translate(1200px, -600px);
     }
 }
+
 @-moz-keyframes spin-earth {
     100% {
         -moz-transform: rotate(-360deg);
         transition: transform 20s;
     }
 }
+
 @-webkit-keyframes spin-earth {
     100% {
         -webkit-transform: rotate(-360deg);
         transition: transform 20s;
     }
 }
+
 @keyframes spin-earth {
     100% {
         -webkit-transform: rotate(-360deg);
@@ -85,27 +90,32 @@ onUnmounted(() => {
         -moz-transform: translate(-160px, -160px);
     }
 }
+
 @-webkit-keyframes move-astronaut {
     100% {
         -webkit-transform: translate(-160px, -160px);
     }
 }
+
 @keyframes move-astronaut {
     100% {
         -webkit-transform: translate(-160px, -160px);
         transform: translate(-160px, -160px);
     }
 }
+
 @-moz-keyframes rotate-astronaut {
     100% {
         -moz-transform: rotate(-720deg);
     }
 }
+
 @-webkit-keyframes rotate-astronaut {
     100% {
         -webkit-transform: rotate(-720deg);
     }
 }
+
 @keyframes rotate-astronaut {
     100% {
         -webkit-transform: rotate(-720deg);
@@ -117,27 +127,32 @@ onUnmounted(() => {
     40% {
         -moz-opacity: 0.3;
     }
+
     90%,
     100% {
         -moz-opacity: 1;
         -moz-transform: scale(1.2);
     }
 }
+
 @-webkit-keyframes glow-star {
     40% {
         -webkit-opacity: 0.3;
     }
+
     90%,
     100% {
         -webkit-opacity: 1;
         -webkit-transform: scale(1.2);
     }
 }
+
 @keyframes glow-star {
     40% {
         -webkit-opacity: 0.3;
         opacity: 0.3;
     }
+
     90%,
     100% {
         -webkit-opacity: 1;
@@ -319,21 +334,25 @@ li a:hover {
     left: 25%;
     animation: glow-star 2s infinite ease-in-out alternate 1s;
 }
+
 .glowing_stars .star:nth-child(2) {
     top: 20%;
     left: 40%;
     animation: glow-star 2s infinite ease-in-out alternate 3s;
 }
+
 .glowing_stars .star:nth-child(3) {
     top: 25%;
     left: 25%;
     animation: glow-star 2s infinite ease-in-out alternate 5s;
 }
+
 .glowing_stars .star:nth-child(4) {
     top: 75%;
     left: 80%;
     animation: glow-star 2s infinite ease-in-out alternate 7s;
 }
+
 .glowing_stars .star:nth-child(5) {
     top: 90%;
     left: 50%;
@@ -364,6 +383,7 @@ li a:hover {
 </style>
 
 <template>
+
     <Head title="Planet Nine Transfer" />
     <div class="bg-purple">
         <div class="stars">
@@ -386,22 +406,19 @@ li a:hover {
             </div>
 
             <div class="z-50 flex min-h-screen items-center justify-center bg-[#1a1a2e] px-4 text-white">
-                <div class="z-50 w-full max-w-2xl rounded-xl bg-white/5 p-8 shadow-xl backdrop-blur-md" style="z-index: 999">
+                <div class="z-50 w-full max-w-2xl rounded-xl bg-white/5 p-8 shadow-xl backdrop-blur-md"
+                    style="z-index: 999">
                     <h1 class="mb-4 text-xl font-semibold">Files shared by Planet Nine</h1>
-                    <p class="mb-6 text-sm text-yellow-400" v-if="countdown !== 'Expired'">⏳ The transfer link will expire after: {{ countdown }}</p>
-                    <p class="mb-6 text-sm font-bold text-red-600" v-else>❌ This transfer has expired.</p>
+                    <p class="mb-6 text-sm text-yellow-400">File Download is Ready. May the ZIPs Be With You.</p>
+                    <!-- <p class="mb-6 text-sm text-yellow-400" v-if="countdown !== 'Expired'">⏳ The transfer link will
+                        expire after: {{ countdown }}</p>
+                    <p class="mb-6 text-sm font-bold text-red-600" v-else>❌ This transfer has expired.</p> -->
                     <div class="space-y-4">
-                        <div
-                            v-for="(file, index) in fileTransfer.file_paths"
-                            :key="index"
-                            class="flex items-center justify-between rounded-md bg-white/10 px-4 py-3 shadow backdrop-blur-sm"
-                        >
+                        <div v-for="(file, index) in fileTransfer.file_paths" :key="index"
+                            class="flex items-center justify-between rounded-md bg-white/10 px-4 py-3 shadow backdrop-blur-sm">
                             <span class="truncate">{{ file }}</span>
-                            <a
-                                :href="`/Transfer Files/${file}`"
-                                download
-                                class="rounded bg-yellow-400 px-4 py-2 text-sm font-medium text-black transition hover:bg-yellow-300"
-                            >
+                            <a :href="`/Transfer Files/${file}`" download
+                                class="rounded bg-yellow-400 px-4 py-2 text-sm font-medium text-black transition hover:bg-yellow-300">
                                 Download
                             </a>
                         </div>

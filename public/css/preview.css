@@ -468,6 +468,45 @@ iframe {
     transform: translateX(310px);
 }
 
+#colorPaletteSelection {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(100px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 9999;
+    position: absolute;
+    right: 0;
+    top: 6rem;
+    background: #f5f5f5;
+    padding: 2px;
+    max-width: 300px;
+}
+
+#colorPaletteSelection.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+}
+
+#colorPaletteSelection.color-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+}
+
+.color-box {
+    color: #000;
+    border: 1px solid #aaa;
+    width: 30px;
+    height: 30px;
+    border-radius: 5px;
+    font-family: sans-serif;
+    white-space: pre-line;
+    text-align: center;
+    line-height: 30px;
+    cursor: pointer;
+}
+
 #versionDescriptionUpperpart {
     border: 1px solid var(--tertiary-color);
     border-top-left-radius: 5px;
@@ -844,7 +883,7 @@ iframe {
         margin-top: 60px;
     }
 
-    #customPreviewLogoutForm{
+    #customPreviewLogoutForm {
         display: none;
     }
 }
@@ -881,7 +920,7 @@ iframe {
         margin-top: 60px;
     }
 
-    #customPreviewLogoutForm{
+    #customPreviewLogoutForm {
         display: none;
     }
 }
@@ -918,7 +957,7 @@ iframe {
         margin-top: 60px;
     }
 
-    #customPreviewLogoutForm{
+    #customPreviewLogoutForm {
         display: none;
     }
 }
@@ -952,7 +991,7 @@ iframe {
         margin-top: 60px;
     }
 
-    #customPreviewLogoutForm{
+    #customPreviewLogoutForm {
         display: block;
     }
 }
@@ -989,7 +1028,7 @@ iframe {
         margin-top: 10px;
     }
 
-    #customPreviewLogoutForm{
+    #customPreviewLogoutForm {
         display: block;
     }
 }
@@ -1026,7 +1065,7 @@ iframe {
         margin-top: 10px;
     }
 
-    #customPreviewLogoutForm{
+    #customPreviewLogoutForm {
         display: block;
     }
 }
