@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>Bill #{{ $bill->id }}</title>
@@ -21,7 +22,8 @@
         body {
             font-family: sans-serif;
             font-size: 14px;
-            margin-bottom: 130px; /* reserve space for the footer */
+            margin-bottom: 130px;
+            /* reserve space for the footer */
         }
 
         .logo {
@@ -49,7 +51,8 @@
             margin-top: 20px;
         }
 
-        th, td {
+        th,
+        td {
             padding: 8px;
             border: 1px solid #ccc;
             text-align: center;
@@ -89,10 +92,11 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Logo -->
     <div class="logo">
-        <img src="{{ public_path('logo/logo.png') }}" alt="Company Logo">
+        <img src="https://staging.planetnine.com/wp-content/uploads/2025/04/logo.png" alt="Planet Nine">
     </div>
 
     <!-- Bill Info -->
@@ -113,14 +117,14 @@
         </thead>
         <tbody>
             @foreach ($bill->subBills as $sub)
-                <tr>
-                    <td>{{ $sub->item }}</td>
-                    <td>{{ $sub->quantity }}</td>
-                    <td>{{ number_format($sub->unit_price, 2) }}</td>
-                    <td>{{ number_format($sub->amount, 2) }}</td>
-                </tr>
+            <tr>
+                <td>{{ $sub->item }}</td>
+                <td>{{ $sub->quantity }}</td>
+                <td>{{ number_format($sub->unit_price, 2) }}</td>
+                <td>{{ number_format($sub->amount, 2) }}</td>
+            </tr>
             @endforeach
-    
+
             <!-- Total Row -->
             <tr>
                 <td colspan="3" style="text-align: center; font-weight: bold;">Total Amount</td>
@@ -163,10 +167,10 @@
                     <strong>Contact (BD)</strong><br>
                     (+880) 1973330792<br>
                     limon@planetnine.com<br>
-                    govinda@planetnine.com
                 </td>
             </tr>
         </table>
     </div>
 </body>
+
 </html>

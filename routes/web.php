@@ -61,7 +61,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::post('/previews/version/{id}/social/add/subVersion/', [PreviewController::class, 'storeSocialSubVersion'])->name('store-social-subVersion');
     Route::get('/previews/version/social/edit/subVersion/{id}', [PreviewController::class, 'editSocialSubVersion'])->name('edit-social-sub-version');
     Route::post('/previews/version/social/edit/subVersion/{id}', [PreviewController::class, 'updateSocialSubVersion'])->name('update-social-sub-version');
-    
+
     Route::get('/previews/social/single/edit/{id}', [PreviewController::class, 'singleSocialEdit'])->name('single-social-edit');
     Route::post('/previews/social/single/edit/{id}', [PreviewController::class, 'singleSocialUpdate'])->name('single-social-update');
     Route::delete('/previews/social/single/delete/{id}', [PreviewController::class, 'singleSocialDelete'])->name('single-social-delete');

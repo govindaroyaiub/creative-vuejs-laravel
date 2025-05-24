@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
-use NumberFormatter;
+use NumberToWords\NumberToWords;
 
 class BillController extends Controller
 {
@@ -124,8 +124,9 @@ class BillController extends Controller
         $bill = Bill::with('subBills')->findOrFail($id);
         $issueDate = Carbon::now()->format('F j, Y');
 
-        $formatter = new NumberFormatter('en', NumberFormatter::SPELLOUT);
-        $amountInWords = ucfirst($formatter->format($bill->total_amount)) . ' Taka Only';
+        $numberToWords = new NumberToWords();
+        $numberTransformer = $numberToWords->getNumberTransformer('en');
+        $amountInWords = ucfirst($numberTransformer->toWords($bill->total_amount)) . ' Taka Only';
 
         $pdf = Pdf::loadView('pdf.bill', [
             'bill' => $bill,
