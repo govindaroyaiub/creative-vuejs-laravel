@@ -53,6 +53,10 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::post('/previews/version/add/{id}', [PreviewController::class, 'storeVersion'])->name('store-version');
     Route::get('/previews/version/{id}/banner/add/subVersion/', [PreviewController::class, 'createBannerSubVersion'])->name('create-banner-subVersion');
     Route::post('/previews/version/{id}/banner/add/subVersion/', [PreviewController::class, 'storeBannerSubVersion'])->name('store-banner-subVersion-post');
+
+    Route::get('/previews/version/{id}/social/add/subVersion/', [PreviewController::class, 'createSocialSubVersion'])->name('create-social-subVersion');
+    Route::post('/previews/version/{id}/social/add/subVersion/', [PreviewController::class, 'storeSocialSubVersion'])->name('store-social-subVersion');
+
     Route::get('/previews/version/banner/edit/subVersion/{id}', [PreviewController::class, 'editBannerSubVersion'])->name('edit-banner-sub-version');
     Route::post('/previews/version/banner/edit/subVersion/{id}', [PreviewController::class, 'updateBannerSubVersion'])->name('update-banner-sub-version');
     Route::get('/previews/banner/subVersion/delete/{id}', [PreviewController::class, 'deleteBannerSubVersion'])->name('delete-banner-subVersion');
@@ -155,6 +159,7 @@ Route::get('/preview/getVersionType/{id}', [PreviewApiController::class, 'getVer
 Route::get('/preview/setBannerActiveSubVersion/{id}', [PreviewApiController::class, 'setBannerActiveSubVersion']);
 Route::get('/preview/checkSubVersionCount/{id}', [PreviewApiController::class, 'checkSubVersionCount']);
 Route::get('/preview/getActiveSubVersionBannerData/{id}', [PreviewApiController::class, 'getActiveSubVersionBannerData']);
+Route::get('/preview/getActiveSubVersionSocialData/{id}', [PreviewApiController::class, 'getActiveSubVersionSocialData']);
 Route::get('/preview/{preview_id}/change/theme/{color_id}', [PreviewApiController::class, 'changeTheme']);
 //preview axios get requests end
 

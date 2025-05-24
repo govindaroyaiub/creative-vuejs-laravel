@@ -128,6 +128,10 @@ class PreviewController extends Controller
             'banners.*.file' => 'file|mimes:zip',
             'banners.*.size_id' => 'required_with:banners.*.file|exists:banner_sizes,id',
             'banners.*.position' => 'required|integer',
+            'socials' => 'nullable|array',
+            'socials.*.file' => 'required_with:socials|file|mimes:jpg,jpeg,png',
+            'socials.*.name' => 'required_with:socials|string|max:255',
+            'socials.*.position' => 'required_with:socials|integer',
         ]);
 
         DB::transaction(function () use ($request) {
@@ -210,6 +214,49 @@ class PreviewController extends Controller
                         'size_id' => $sizeId,
                         'file_size' => $fileSize,
                         'position' => $position,
+                    ]);
+                }
+            }
+            if ($request->type === 'Social') {
+                // 2. Create Version
+                $version = $preview->versions()->create([
+                    'name' => $request->version_name ?: 'Master',
+                    'description' => $request->version_description ?: 'Master Started',
+                    'type' => 'social',
+                    'is_active' => true,
+                ]);
+
+                // 3. Create SubVersion
+                $subVersion = $version->subVersions()->create([
+                    'name' => $request->subversion_name ?: 'Version_1',
+                    'is_active' => $request->boolean('subversion_active', true),
+                ]);
+
+                // 4. Handle Social image uploads
+                $uploadPath = public_path('uploads/socials');
+                if (!is_dir($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+
+                foreach ($request->socials as $index => $social) {
+                    $file = $social['file'];
+                    $name = $social['name'];
+                    $position = $social['position'];
+
+                    // Generate a unique filename
+                    $ext = $file->getClientOriginalExtension();
+                    $filename = $name . '_' . Str::uuid() . '.' . $ext;
+
+                    // Move the file
+                    $file->move($uploadPath, $filename);
+
+                    // Save SubSocial
+                    SubSocial::create([
+                        'sub_version_id' => $subVersion->id,
+                        'name' => $name,
+                        'path' => 'uploads/socials/' . $filename,
+                        'position' => $position,
+                        // 'social_id' => null, // Set if you have a social_id to link
                     ]);
                 }
             }
@@ -666,12 +713,20 @@ class PreviewController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:banner',
+            'type' => 'required|in:banner,social',
             'sub_version_name' => 'required|string|max:255',
-            'banners' => 'required|array|min:1',
-            'banners.*.file' => 'required|file|mimes:zip',
-            'banners.*.size_id' => 'required|exists:banner_sizes,id',
-            'banners.*.position' => 'required|integer',
+
+            // Banner validation
+            'banners' => 'required_if:type,banner|array|min:1',
+            'banners.*.file' => 'required_if:type,banner|file|mimes:zip',
+            'banners.*.size_id' => 'required_if:type,banner|exists:banner_sizes,id',
+            'banners.*.position' => 'required_if:type,banner|integer',
+
+            // Social validation
+            'socials' => 'required_if:type,social|array|min:1',
+            'socials.*.file' => 'required_if:type,social|file|mimes:jpg,jpeg,png',
+            'socials.*.name' => 'required_if:type,social|string|max:255',
+            'socials.*.position' => 'required_if:type,social|integer',
         ]);
 
         DB::transaction(function () use ($request, $id) {
@@ -685,7 +740,7 @@ class PreviewController extends Controller
                 'preview_id' => $id,
                 'name' => $request->name,
                 'description' => $request->description,
-                'type' => 'banner',
+                'type' => $request->type,
                 'is_active' => true,
             ]);
 
@@ -695,51 +750,83 @@ class PreviewController extends Controller
                 'is_active' => true,
             ]);
 
-            // 4. Handle banner zips
-            foreach ($request->banners as $index => $banner) {
-                $file = $banner['file'];
-                $sizeId = $banner['size_id'];
-                $position = $banner['position'];
+            // 4. Handle banners
+            if ($request->type === 'banner') {
+                foreach ($request->banners as $index => $banner) {
+                    $file = $banner['file'];
+                    $sizeId = $banner['size_id'];
+                    $position = $banner['position'];
 
-                $size = BannerSize::findOrFail($sizeId);
-                $dimension = "{$size->width}x{$size->height}";
-                $uuid = Str::uuid();
-                $zipName = "{$request->name}_{$dimension}_{$uuid}.zip";
-                $uploadPath = public_path('uploads/banners');
+                    $size = BannerSize::findOrFail($sizeId);
+                    $dimension = "{$size->width}x{$size->height}";
+                    $uuid = Str::uuid();
+                    $zipName = "{$request->name}_{$dimension}_{$uuid}.zip";
+                    $uploadPath = public_path('uploads/banners');
 
+                    if (!is_dir($uploadPath)) {
+                        mkdir($uploadPath, 0755, true);
+                    }
+
+                    $fileSize = $file->getSize() >= 1048576
+                        ? round($file->getSize() / 1048576, 2) . ' MB'
+                        : round($file->getSize() / 1024, 2) . ' KB';
+
+                    $file->move($uploadPath, $zipName);
+
+                    $zip = new \ZipArchive;
+                    $extractedFolder = $uploadPath . '/' . pathinfo($zipName, PATHINFO_FILENAME);
+
+                    if (!is_dir($extractedFolder)) {
+                        mkdir($extractedFolder, 0755, true);
+                    }
+
+                    if ($zip->open($uploadPath . '/' . $zipName) === true) {
+                        $zip->extractTo($extractedFolder);
+                        $zip->close();
+                        unlink($uploadPath . '/' . $zipName); // Delete original ZIP
+                    } else {
+                        throw new \Exception("Failed to extract: $zipName");
+                    }
+
+                    SubBanner::create([
+                        'sub_version_id' => $subVersion->id,
+                        'name' => $preview->name,
+                        'path' => 'uploads/banners/' . basename($extractedFolder),
+                        'size_id' => $sizeId,
+                        'file_size' => $fileSize,
+                        'position' => $position,
+                    ]);
+                }
+            }
+
+            // 5. Handle socials
+            if ($request->type === 'social') {
+                $uploadPath = public_path('uploads/socials');
                 if (!is_dir($uploadPath)) {
                     mkdir($uploadPath, 0755, true);
                 }
 
-                $fileSize = $file->getSize() >= 1048576
-                    ? round($file->getSize() / 1048576, 2) . ' MB'
-                    : round($file->getSize() / 1024, 2) . ' KB';
+                foreach ($request->socials as $index => $social) {
+                    $file = $social['file'];
+                    $name = $social['name'];
+                    $position = $social['position'];
 
-                $file->move($uploadPath, $zipName);
+                    // Generate a unique filename
+                    $ext = $file->getClientOriginalExtension();
+                    $filename = $name . '_' . Str::uuid() . '.' . $ext;
 
-                $zip = new \ZipArchive;
-                $extractedFolder = $uploadPath . '/' . pathinfo($zipName, PATHINFO_FILENAME);
+                    // Move the file
+                    $file->move($uploadPath, $filename);
 
-                if (!is_dir($extractedFolder)) {
-                    mkdir($extractedFolder, 0755, true);
+                    // Save SubSocial
+                    SubSocial::create([
+                        'sub_version_id' => $subVersion->id,
+                        'name' => $name,
+                        'path' => 'uploads/socials/' . $filename,
+                        'position' => $position,
+                        // 'social_id' => null, // Set if you have a social_id to link
+                    ]);
                 }
-
-                if ($zip->open($uploadPath . '/' . $zipName) === true) {
-                    $zip->extractTo($extractedFolder);
-                    $zip->close();
-                    unlink($uploadPath . '/' . $zipName); // Delete original ZIP
-                } else {
-                    throw new \Exception("Failed to extract: $zipName");
-                }
-
-                SubBanner::create([
-                    'sub_version_id' => $subVersion->id,
-                    'name' => $preview->name,
-                    'path' => 'uploads/banners/' . basename($extractedFolder),
-                    'size_id' => $sizeId,
-                    'file_size' => $fileSize,
-                    'position' => $position,
-                ]);
             }
         });
 
@@ -894,5 +981,76 @@ class PreviewController extends Controller
         return $data = [
             'subVersion_id' => $subBanner->sub_version_id
         ];
+    }
+
+    public function createSocialSubVersion($id)
+    {
+        $version = Version::with('preview')->findOrFail($id);
+        $preview = $version->preview;
+
+        return Inertia::render('Previews/Versions/SubVersions/Social/Create', [
+            'version' => $version,
+            'preview' => $preview,
+        ]);
+    }
+
+    public function storeSocialSubVersion(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'socials' => 'required|array|min:1',
+            'socials.*.file' => 'required|file|mimes:jpg,jpeg,png',
+            'socials.*.name' => 'required|string|max:255',
+            'socials.*.position' => 'required|integer',
+        ]);
+
+        $versionInfo = Version::findOrFail($id);
+
+        DB::transaction(function () use ($request, $id) {
+            $version = Version::findOrFail($id);
+            $preview = $version->preview;
+
+            // 1. Deactivate other subversions
+            SubVersion::where('version_id', $id)->update(['is_active' => false]);
+
+            // 2. Create new active subversion
+            $subVersion = SubVersion::create([
+                'version_id' => $id,
+                'name' => $request->name,
+                'is_active' => true,
+            ]);
+
+            // 3. Handle social image uploads
+            $uploadPath = public_path('uploads/socials');
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+
+            foreach ($request->socials as $index => $social) {
+                $file = $social['file'];
+                $name = $social['name'];
+                $position = $social['position'];
+
+                // Generate a unique filename
+                $ext = $file->getClientOriginalExtension();
+                $filename = "{$name}_" . Str::uuid() . ".{$ext}";
+
+                // Move the file
+                $file->move($uploadPath, $filename);
+
+                // Save SubSocial
+                SubSocial::create([
+                    'sub_version_id' => $subVersion->id,
+                    'name' => $name,
+                    'path' => "uploads/socials/{$filename}",
+                    'position' => $position,
+                    // 'social_id' => null, // Set if you have a social_id to link
+                ]);
+            }
+        });
+
+        return response()->json([
+            'redirect_to' => route('previews-show', ['id' => $versionInfo->preview_id]),
+        ], 200);
     }
 }

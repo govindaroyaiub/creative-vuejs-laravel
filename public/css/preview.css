@@ -483,6 +483,10 @@ iframe {
     border-radius: 5px;
 }
 
+#socialImageModal {
+    overflow: auto !important;
+}
+
 #colorPaletteSelection.visible {
     opacity: 1;
     pointer-events: auto;

@@ -116,4 +116,18 @@ class PreviewApiController extends Controller
         $preview->save();
         return response()->json(['success' => true, 'message' => 'Theme changed successfully']);
     }
+
+    public function getActiveSubVersionSocialData($id)
+    {
+        $socials = SubSocial::leftJoin('socials', 'sub_socials.social_id', '=', 'socials.id')
+        ->where('sub_socials.sub_version_id', $id)
+        ->orderBy('sub_socials.position')
+        ->select(
+            'sub_socials.*',
+            'socials.name as social_name'
+        )
+        ->get();
+
+        return $socials;
+    }
 }

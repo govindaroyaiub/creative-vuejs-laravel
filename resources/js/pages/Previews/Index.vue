@@ -7,6 +7,7 @@ import { computed, ref, watch } from 'vue';
 import PreviewStepBasicInfo from './Partials/PreviewStepBasicInfo.vue';
 import PreviewStepProjectType from './Partials/PreviewStepProjectType.vue';
 import CreateBannerForm from './Partials/CreateBannerForm.vue';
+import CreateSocialForm from './Partials/CreateSocialForm.vue';
 
 const page = usePage();
 const search = ref('');
@@ -134,6 +135,13 @@ const submitForm = () => {
             payload.append(`banners[${i}][position]`, i);
         });
     }
+    if (formData.value.type === 'Social') {
+        formData.value.socials.forEach((social, i) => {
+            payload.append(`socials[${i}][file]`, social.file);
+            payload.append(`socials[${i}][name]`, social.name);
+            payload.append(`socials[${i}][position]`, i);
+        });
+    }
 
     router.post(route('previews-store'), payload, {
         forceFormData: true,
@@ -165,9 +173,10 @@ const getStepComponent = (step: number) => {
     switch (step) {
         case 1: return PreviewStepBasicInfo;
         case 2: return PreviewStepProjectType;
-        case 3: return formData.value.type === 'Banner'
-            ? CreateBannerForm
-            : { template: '<div class="text-center text-gray-500">Submitting...</div>' };
+        case 3:
+            if (formData.value.type === 'Banner') return CreateBannerForm;
+            if (formData.value.type === 'Social') return CreateSocialForm;
+            return { template: '<div class="text-center text-gray-500">Submitting...</div>' };
         default: return { template: '<div class="text-center text-gray-500">Submitting...</div>' };
     }
 };
@@ -182,7 +191,8 @@ const stepProps = computed(() => ({
     }),
     ...(step.value === 3 && formData.value.type === 'Banner' && {
         bannerSizes: bannerSizes.value,
-    })
+    }),
+    // Add any additional props for Social form if needed
 }));
 </script>
 

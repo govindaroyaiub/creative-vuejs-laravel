@@ -419,10 +419,66 @@ function handleOutsideClick(event) {
                     setBannerActiveVersionSettings(activeVersion_id);
                     setBannerDisplayOfActiveSubVersion(response.data.activeSubVersion_id);
                 }
+                if(response.data.type == "social") {
+                    setSocialVersionSubVersions(response.data.subVersions, response.data.version_id);
+                    setSocialActiveSubVersionSettings(response.data.activeSubVersion_id);
+                    setSocialActiveVersionSettings(activeVersion_id);
+                    setSocialDisplayOfActiveSubVersion(response.data.activeSubVersion_id);
+                }
             })
             .catch(function(error) {
                 console.log(error);
             })
+    }
+
+    function setSocialVersionSubVersions(subVersions, version_id) {
+        var subVersionCount = subVersions.length;
+        var isActive;
+
+        if (subVersionCount > 0) {
+            var row = '';
+            $.each(subVersions, function(key, value) {
+                if (value.is_active == 1) {
+                    isActive = ' subVersionTabActive';
+                } else {
+                    isActive = '';
+                }
+               row += `
+                <div id="subVersionTab${value.id}" class="subVersionTab${isActive}" onclick="updateSocialActiveSubVersion(${value.id})">
+                    <div class="trapezoid-container">
+                    <svg class="trapezoid" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0,60 L200,60 L180,15 C175,5 170,0 160,0 L40,0 C30,0 25,5 20,15 L0,60 Z" fill="${isActive}"/>
+                    </svg>
+                    <div class="tab-text text-white text-base">${value.name}</div>
+                    </div>
+                </div>
+                `;
+            });
+        } else {
+            var row = '';
+        }
+        if(authUserClientName == 'Planet Nine'){
+            row += `
+                <div class="subVersionTab subVersionAddTab" onclick="addSocialNewSubVersion(${version_id})">
+                    <div class="trapezoid-container">
+                        <svg class="trapezoid" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0,60 L200,60 L180,15 C175,5 170,0 160,0 L40,0 C30,0 25,5 20,15 L0,60 Z"/>
+                        </svg>
+                        <div class="tab-text text-white text-2xl font-bold">+</div>
+                    </div>
+                </div>
+            `;
+        }
+        $('.subVersions').html(row);
+    }
+
+    function addSocialNewSubVersion(version_id){
+        const url = '/previews/version/'+ version_id +'/social/add/subVersion';
+        window.location.href = url;
+    }
+
+    function updateSocialActiveSubVersion(subVersion_id){
+
     }
 
     function setBannerVersionSubVersions(subVersions, version_id) {
@@ -487,6 +543,26 @@ function handleOutsideClick(event) {
         $('#versionMessage').html(version_description);
     }
 
+    function setSocialActiveSubVersionSettings(activeSubVersion_id) {
+        axios.get('/preview/checkSubVersionCount/' + activeSubVersion_id)
+            .then(function(response) {
+                var display = 'display: block;';
+                rows = '';
+                rows = rows + "@if($authUserClientName == 'Planet Nine')";
+                rows = rows + '<div>';
+                rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';                
+                rows = rows + '<a href="/previews/version/social/edit/subVersion/' + activeSubVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-square-pen"></i></a>';
+                rows = rows + '<a href="javascript:void(0)" onclick="return confirmSocialSubVersionDelete(' + activeSubVersion_id + ')" style="' + display + ' margin-right: 0.5rem;"><i class="fa-solid fa-square-minus"></i></a>';
+                rows = rows + '</div>';
+                rows = rows + '</div>';
+                rows = rows + "@endif";
+                $('#subVersionSettings').html(rows);
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
+    }
+
     function setBannerActiveSubVersionSettings(activeSubVersion_id) {
         axios.get('/preview/checkSubVersionCount/' + activeSubVersion_id)
             .then(function(response) {
@@ -540,6 +616,20 @@ function handleOutsideClick(event) {
 
     function reload(bannerReloadID) {
         document.getElementById("rel"+bannerReloadID).src += '';
+    }
+
+    function setSocialActiveVersionSettings(activeVersion_id) {
+        rows = '';
+        rows = rows + "@if($authUserClientName == 'Planet Nine')";
+        rows = rows + '<div>';
+        rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';
+        rows = rows + '<a href="/previews/edit/version/' + activeVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-pen-to-square"></i></a>';
+        rows = rows + '<a href="javascript:void(0)" onclick="return confirmVersionDelete(' + activeVersion_id + ')" style="margin-right: 0.5rem;"><i class="fa-solid fa-circle-minus"></i></a>';
+        rows = rows + '</div>';
+        rows = rows + '</div>';
+        rows = rows + "@endif";
+
+        $('#versionSettings').html(rows);
     }
 
     function setBannerActiveVersionSettings(activeVersion_id) {
@@ -651,4 +741,163 @@ function handleOutsideClick(event) {
                 }
             });
     }
+
+    function setSocialDisplayOfActiveSubVersion(activeSubVersion_id) {
+        document.getElementById('loaderArea').style.display = 'flex';
+        axios.get('/preview/getActiveSubVersionSocialData/' + activeSubVersion_id)
+            .then(function(response) {
+                var row = '';
+                $.each(response.data, function(key, value) {
+                    row += `
+                        <div class="text-center mt-2 text-sm font-semibold underline capitalize">${value.name}</div>
+                        <div style="display: inline-block; margin: 10px;">
+                            <img src="/${value.path}" 
+                                alt="${value.name}" 
+                                class="social-preview-img"
+                                style="width: 600px; height: auto; object-fit: contain; border-radius: 8px; box-shadow: 0 2px 8px #0001; cursor: pointer;"
+                                onclick="openSocialImageModal('/${value.path}', '${value.name}')"
+                            >
+                            <ul style="display: flex; flex-direction: row; justify-content: left; margin-top: 10px;" class="previewIcons">
+                                @if($authUserClientName == "Planet Nine")
+                                    <li>
+                                        <a href="/previews/social/single/edit/${value.id}">
+                                            <i class="fa-solid fa-pen-to-square" style="display: flex; margin-left: 0.5rem; font-size:20px;"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/${value.path}" download="${value.name}.jpg">
+                                            <i class="fa-solid fa-download" style="display: flex; margin-left: 0.5rem; font-size:20px;"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" onclick="return confirmDeleteSocial(${value.id})">
+                                            <i class="fa-solid fa-trash" style="display: flex; margin-left: 0.5rem; font-size:20px;"></i>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </div>
+                    `;
+                });
+                $('#bannerShowcase').html(row);
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
+            .finally(function() {
+                document.getElementById('loaderArea').style.display = 'none';
+            });
+    }
+
+    // Modal HTML (add this at the end of your <body>)
+    if (!document.getElementById('socialImageModal')) {
+        $('body').append(`
+            <div id="socialImageModal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); align-items:center; justify-content:center;">
+                <span id="closeSocialModal" style="position:absolute; top:30px; right:40px; font-size:2.5rem; color:white; cursor:pointer; z-index:10001;">&times;</span>
+                <img id="socialModalImg" src="" alt="" 
+                    style="max-width:80vw; max-height:80vh; transition:transform 0.2s; cursor:zoom-in; display:block; margin:auto; padding:40px; background:rgba(0,0,0,0.1); border-radius:12px;">
+            </div>
+        `);
+    }
+
+    // When opening the modal
+    window.openSocialImageModal = function(src, label) {
+        // Always reset zoom and styles
+        $('#socialModalImg')
+            .attr('src', src)
+            .css({
+                width: '',
+                height: '',
+                'max-width': '80vw',
+                'max-height': '80vh',
+                'cursor': 'zoom-in',
+                'transform': 'none'
+            })
+            .data('zoom', 1);
+        $('#socialModalImgLabel').text(label);
+        $('#socialImageModal').fadeIn(150);
+        $('body').css('overflow', 'hidden'); // Disable background scroll
+    };
+
+    // When closing the modal
+    $(document).on('click', '#closeSocialModal', function() {
+        $('#socialImageModal').fadeOut(150);
+        $('body').css('overflow', ''); // Re-enable background scroll
+    });
+
+    $(document).on('click', '#socialImageModal', function(e) {
+        if (e.target === this) {
+            $('#socialImageModal').fadeOut(150);
+            $('body').css('overflow', ''); // Re-enable background scroll
+        }
+    });
+
+    $('#socialImageModal').css('overflow', 'auto');
+
+    let isDragging = false;
+    let startX, startY, scrollLeft, scrollTop;
+    let dragMoved = false; // <-- Add this
+
+    $('#socialModalImg').on('mousedown', function(e) {
+        if ($(this).data('zoom') === 2) {
+            isDragging = true;
+            dragMoved = false; // <-- Reset on mousedown
+            $(this).css('cursor', 'grabbing');
+            startX = e.pageX;
+            startY = e.pageY;
+            scrollLeft = $('#socialImageModal').scrollLeft();
+            scrollTop = $('#socialImageModal').scrollTop();
+            e.preventDefault();
+        }
+    });
+
+    $(document).on('mousemove', function(e) {
+        if (isDragging) {
+            const x = e.pageX;
+            const y = e.pageY;
+            if (Math.abs(x - startX) > 3 || Math.abs(y - startY) > 3) { // <-- Threshold for drag
+                dragMoved = true;
+            }
+            $('#socialImageModal').scrollLeft(scrollLeft - (x - startX));
+            $('#socialImageModal').scrollTop(scrollTop - (y - startY));
+        }
+    });
+
+    $(document).on('mouseup', function() {
+        isDragging = false;
+        $('#socialModalImg').css('cursor', $('#socialModalImg').data('zoom') === 2 ? 'zoom-out' : 'zoom-in');
+    });
+
+    // Zoom in/out on image click
+    $(document).on('click', '#socialModalImg', function(e) {
+        if (dragMoved) {
+            dragMoved = false; // <-- Reset for next time
+            return; // <-- Ignore click if just dragged
+        }
+        var zoom = $(this).data('zoom') || 1;
+        if (zoom === 1) {
+            $(this)
+                .css({
+                    width: '1600px',
+                    height: 'auto',
+                    'max-width': 'none',
+                    'max-height': 'none',
+                    'cursor': 'zoom-out',
+                    'transform': 'none'
+                })
+                .data('zoom', 2);
+        } else {
+            $(this)
+                .css({
+                    width: '',
+                    height: '',
+                    'max-width': '80vw',
+                    'max-height': '80vh',
+                    'cursor': 'zoom-in',
+                    'transform': 'none'
+                })
+                .data('zoom', 1);
+            $('#socialImageModal').scrollTop(0).scrollLeft(0);
+        }
+    });
 </script>

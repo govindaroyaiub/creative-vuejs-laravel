@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('preview_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->enum('type', ['banner', 'video', 'image', 'gif']);
+            $table->enum('type', ['banner', 'video', 'social', 'gif']);
             $table->boolean('is_active')->default(false);
             $table->timestamps();
         });
