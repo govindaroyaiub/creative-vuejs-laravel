@@ -46,21 +46,25 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::put('/previews-edit/{preview}', [PreviewController::class, 'update'])->name('previews-update');
     Route::delete('/previews-delete/{id}', [PreviewController::class, 'destroy'])->name('previews-delete');
 
-    Route::get('/previews/edit/version/{id}', [PreviewController::class, 'editVersion'])->name('preview-edit-version');
-    Route::put('/previews/edit/version/{id}', [PreviewController::class, 'updateVersion'])->name('preview-update-version');
-
     Route::get('/previews/version/add/{id}', [PreviewController::class, 'createVersion'])->name('create-version');
     Route::post('/previews/version/add/{id}', [PreviewController::class, 'storeVersion'])->name('store-version');
+    Route::get('/previews/edit/version/{id}', [PreviewController::class, 'editVersion'])->name('preview-edit-version');
+    Route::put('/previews/edit/version/{id}', [PreviewController::class, 'updateVersion'])->name('preview-update-version');
+    Route::get('/previews/version/delete/{id}', [PreviewController::class, 'deleteVersion'])->name('delete-version');
     Route::get('/previews/version/{id}/banner/add/subVersion/', [PreviewController::class, 'createBannerSubVersion'])->name('create-banner-subVersion');
     Route::post('/previews/version/{id}/banner/add/subVersion/', [PreviewController::class, 'storeBannerSubVersion'])->name('store-banner-subVersion-post');
-
-    Route::get('/previews/version/{id}/social/add/subVersion/', [PreviewController::class, 'createSocialSubVersion'])->name('create-social-subVersion');
-    Route::post('/previews/version/{id}/social/add/subVersion/', [PreviewController::class, 'storeSocialSubVersion'])->name('store-social-subVersion');
-
     Route::get('/previews/version/banner/edit/subVersion/{id}', [PreviewController::class, 'editBannerSubVersion'])->name('edit-banner-sub-version');
     Route::post('/previews/version/banner/edit/subVersion/{id}', [PreviewController::class, 'updateBannerSubVersion'])->name('update-banner-sub-version');
     Route::get('/previews/banner/subVersion/delete/{id}', [PreviewController::class, 'deleteBannerSubVersion'])->name('delete-banner-subVersion');
-    Route::get('/previews/version/delete/{id}', [PreviewController::class, 'deleteVersion'])->name('delete-version');
+
+    Route::get('/previews/version/{id}/social/add/subVersion/', [PreviewController::class, 'createSocialSubVersion'])->name('create-social-subVersion');
+    Route::post('/previews/version/{id}/social/add/subVersion/', [PreviewController::class, 'storeSocialSubVersion'])->name('store-social-subVersion');
+    Route::get('/previews/version/social/edit/subVersion/{id}', [PreviewController::class, 'editSocialSubVersion'])->name('edit-social-sub-version');
+    Route::post('/previews/version/social/edit/subVersion/{id}', [PreviewController::class, 'updateSocialSubVersion'])->name('update-social-sub-version');
+    
+    Route::get('/previews/social/single/edit/{id}', [PreviewController::class, 'singleSocialEdit'])->name('single-social-edit');
+    Route::post('/previews/social/single/edit/{id}', [PreviewController::class, 'singleSocialUpdate'])->name('single-social-update');
+    Route::delete('/previews/social/single/delete/{id}', [PreviewController::class, 'singleSocialDelete'])->name('single-social-delete');
 
     Route::get('/previews/banner/single/edit/{id}', [PreviewController::class, 'singleBannerEdit'])->name('single-banner-edit');
     Route::post('/previews/banner/single/edit/{id}', [PreviewController::class, 'singleBannerUpdate'])->name('single-banner-update');

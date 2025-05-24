@@ -1053,4 +1053,157 @@ class PreviewController extends Controller
             'redirect_to' => route('previews-show', ['id' => $versionInfo->preview_id]),
         ], 200);
     }
+
+    public function editSocialSubVersion($id)
+    {
+        // $id is sub_versions.id
+        $subVersion = SubVersion::with(['version.preview'])->findOrFail($id);
+        $version = $subVersion->version;
+        $preview = $version->preview;
+
+        // Get all socials for this subversion, ordered by position
+        $socials = SubSocial::where('sub_version_id', $subVersion->id)
+            ->orderBy('position')
+            ->get(['id', 'name', 'path', 'position']);
+
+        return Inertia::render('Previews/Versions/SubVersions/Social/Edit', [
+            'subVersion' => $subVersion,
+            'version' => $version,
+            'preview' => $preview,
+            'socials' => $socials,
+        ]);
+    }
+
+    public function updateSocialSubVersion($id, Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'socials' => 'nullable|array',
+            'socials.*.file' => 'required_with:socials|file|mimes:jpg,jpeg,png',
+            'socials.*.name' => 'required_with:socials|string|max:255',
+            'socials.*.position' => 'required_with:socials|integer',
+        ]);
+
+        $subVersion = SubVersion::with('version')->findOrFail($id);
+        $version = $subVersion->version;
+        $preview_id = $version->preview_id;
+
+        DB::transaction(function () use ($request, $subVersion, $version) {
+            // 2. Set all subversions for this version to inactive
+            SubVersion::where('version_id', $version->id)->update(['is_active' => false]);
+
+            // 3. Set this subversion to active and update name
+            $subVersion->update([
+                'name' => $request->name,
+                'is_active' => true,
+            ]);
+
+            // 4. Remove all SubSocials and their files for this subversion
+            $oldSocials = SubSocial::where('sub_version_id', $subVersion->id)->get();
+            foreach ($oldSocials as $social) {
+                $filePath = public_path($social->path);
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+                $social->delete();
+            }
+
+            // 5. Insert new SubSocials and files (if any)
+            if ($request->has('socials')) {
+                $uploadPath = public_path('uploads/socials');
+                if (!is_dir($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+
+                foreach ($request->socials as $index => $social) {
+                    $file = $social['file'];
+                    $name = $social['name'];
+                    $position = $social['position'];
+
+                    $ext = $file->getClientOriginalExtension();
+                    $filename = "{$name}_" . \Str::uuid() . ".{$ext}";
+                    $file->move($uploadPath, $filename);
+
+                    SubSocial::create([
+                        'sub_version_id' => $subVersion->id,
+                        'name' => $name,
+                        'path' => "uploads/socials/{$filename}",
+                        'position' => $position,
+                    ]);
+                }
+            }
+        });
+
+        return response()->json([
+            'message' => 'Social SubVersion updated successfully.',
+        ]);
+    }
+
+    public function singleSocialEdit($id)
+    {
+        $subSocial = SubSocial::findOrFail($id);
+        $subVersion = SubVersion::findOrFail($subSocial->sub_version_id);
+        $version = Version::findOrFail($subVersion->version_id);
+        $preview = Preview::findOrFail($version->preview_id);
+
+        return Inertia::render('Previews/Versions/SubVersions/Social/SingleEdit', [
+            'subSocial' => $subSocial,
+            'subVersion' => $subVersion,
+            'version' => $version,
+            'preview' => $preview,
+        ]);
+    }
+
+    public function singleSocialUpdate($id, Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:jpg,jpeg,png',
+        ]);
+
+        $subSocial = SubSocial::findOrFail($id);
+
+        // Remove old file
+        $oldPath = public_path($subSocial->path);
+        if (file_exists($oldPath)) {
+            @unlink($oldPath);
+        }
+
+        // Save new file
+        $file = $request->file('file');
+        $ext = $file->getClientOriginalExtension();
+        $filename = $subSocial->name . '_' . \Str::uuid() . '.' . $ext;
+        $uploadPath = public_path('uploads/socials');
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0755, true);
+        }
+        $file->move($uploadPath, $filename);
+
+        // Update DB
+        $subSocial->update([
+            'path' => 'uploads/socials/' . $filename,
+        ]);
+
+        return response()->json([
+            'message' => 'Image updated successfully.',
+        ]);
+    }
+
+    public function singleSocialDelete($id)
+    {
+        $subSocial = SubSocial::findOrFail($id);
+        $filePath = public_path($subSocial->path);
+
+        // Delete the file if it exists
+        if (file_exists($filePath)) {
+            @unlink($filePath);
+        }
+
+        // Delete the SubSocial record
+        $subSocial->delete();
+
+        return response()->json([
+            'message' => 'Social image deleted successfully.',
+            'subVersion_id' => $subSocial->sub_version_id,
+        ]);
+    }
 }

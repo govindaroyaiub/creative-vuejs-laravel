@@ -742,6 +742,34 @@ function handleOutsideClick(event) {
             });
     }
 
+    function confirmDeleteSocial(id){
+        Swal.fire({
+                title: 'Delete This Social Image?',
+                text: "Are you sure you want to delete this social image?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.delete('/previews/social/single/delete/' + id)
+                        .then(function(response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Social Image deleted!',
+                                showConfirmButton: false,
+                                timer: 1200
+                            });
+                            // Optionally refresh the social images list
+                            setSocialDisplayOfActiveSubVersion(response.data.subVersion_id);
+                        })
+                        .catch(function(error) {
+                            Swal.fire('Error', 'Failed to delete social image.', 'error');
+                        });
+                }
+            });
+    }
+
     function setSocialDisplayOfActiveSubVersion(activeSubVersion_id) {
         document.getElementById('loaderArea').style.display = 'flex';
         axios.get('/preview/getActiveSubVersionSocialData/' + activeSubVersion_id)
@@ -749,7 +777,7 @@ function handleOutsideClick(event) {
                 var row = '';
                 $.each(response.data, function(key, value) {
                     row += `
-                        <div class="text-center mt-2 text-sm font-semibold underline capitalize">${value.name}</div>
+                        <div class="text-center mt-2 text-xl font-semibold underline capitalize">${value.name}</div>
                         <div style="display: inline-block; margin: 10px;">
                             <img src="/${value.path}" 
                                 alt="${value.name}" 
