@@ -13,6 +13,7 @@ use App\Models\SubVideo;
 use App\Models\SubSocial;
 use App\Models\SubGif;
 use App\Models\ColorPalette;
+use App\Models\VideoSize;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -93,6 +94,7 @@ class PreviewController extends Controller
             'users' => User::orderBy('name')->get(['id', 'name']),
             'colorPalettes' => ColorPalette::orderBy('name')->get(['id', 'name']),
             'bannerSizes' => BannerSize::orderBy('width')->orderBy('height')->get(['id', 'width', 'height'])->map(fn($s) => tap($s, fn($s) => $s->name = "{$s->width}x{$s->height}")),
+            'videoSizes' => VideoSize::orderBy('name')->orderBy('width')->orderBy('height')->get(['id', 'name', 'width', 'height'])->map(fn($s) => tap($s, fn($s) => $s->name = "{$s->name}")),
             'auth' => ['user' => Auth::user()],
         ]);
     }
