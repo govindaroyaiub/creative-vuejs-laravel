@@ -92,7 +92,7 @@
 <body>
     <!-- Logo -->
     <div class="logo">
-        <img src="{{ public_path('logo/logo.png') }}" alt="Company Logo">
+        <img src="{{ public_path('logos/planetnine.png') }}" alt="Planet Nine">
     </div>
 
     <!-- Bill Info -->
