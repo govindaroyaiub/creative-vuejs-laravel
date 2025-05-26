@@ -30,7 +30,7 @@
                                 <!-- Video File Drag & Drop -->
                                 <div>
                                     <label class="block text-sm font-medium mb-1">Video File</label>
-                                    <div class="drop-area" @click="triggerInput(i, 'video')"
+                                    <div class="drop-area" @click="triggerInput(video.id, 'video')"
                                         @dragover.prevent="setDragActive(i, 'video', true)"
                                         @dragleave.prevent="setDragActive(i, 'video', false)"
                                         @drop.prevent="handleDrop($event, i, 'path')"
@@ -38,8 +38,8 @@
                                         <span class="text-gray-600 text-sm">
                                             Upload Video File Here
                                         </span>
-                                        <input ref="videoInputs" type="file" accept="video/*" class="hidden"
-                                            @change="onFileChange($event, i, 'path')" />
+                                        <input :ref="'videoInput-' + video.id" type="file" accept="video/*"
+                                            class="hidden" @change="onFileChange($event, i, 'path')" />
                                         <div v-if="video.pathName" class="text-xs text-gray-500 mt-1">{{ video.pathName
                                             }}</div>
                                     </div>
@@ -47,7 +47,7 @@
                                 <!-- Companion Banner Drag & Drop -->
                                 <div>
                                     <label class="block text-sm font-medium mb-1">Companion Banner (optional)</label>
-                                    <div class="drop-area" @click="triggerInput(i, 'banner')"
+                                    <div class="drop-area" @click="triggerInput(video.id, 'banner')"
                                         @dragover.prevent="setDragActive(i, 'banner', true)"
                                         @dragleave.prevent="setDragActive(i, 'banner', false)"
                                         @drop.prevent="handleDrop($event, i, 'companion_banner_path')"
@@ -55,8 +55,9 @@
                                         <span class="text-gray-600 text-sm">
                                             Upload JPG/PNG/GIF Image Here
                                         </span>
-                                        <input ref="bannerInputs" type="file" accept=".jpg,.jpeg,.png,.gif"
-                                            class="hidden" @change="onFileChange($event, i, 'companion_banner_path')" />
+                                        <input :ref="'bannerInput-' + video.id" type="file"
+                                            accept=".jpg,.jpeg,.png,.gif" class="hidden"
+                                            @change="onFileChange($event, i, 'companion_banner_path')" />
                                         <div v-if="video.companionBannerName" class="text-xs text-gray-500 mt-1">{{
                                             video.companionBannerName }}</div>
                                     </div>
@@ -94,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, computed } from 'vue';
+import { ref, watch, nextTick, computed, getCurrentInstance } from 'vue';
 import draggable from 'vuedraggable';
 import { Plus } from 'lucide-vue-next';
 
@@ -105,8 +106,6 @@ const props = defineProps<{
 
 const videos = ref(props.form.videos ?? []);
 const dragActive = ref<{ [key: string]: boolean }>({});
-const videoInputs = ref([]);
-const bannerInputs = ref([]);
 const loading = ref(false);
 
 watch(videos, (val) => {
@@ -120,7 +119,7 @@ const allAssigned = computed(() =>
 
 function addVideo() {
     videos.value.push({
-        id: Date.now() + Math.random(), // use uuid in production if needed
+        id: Date.now() + Math.random(), // unique id for refs and draggable
         name: '',
         path: null,
         pathName: '',
@@ -135,11 +134,13 @@ function removeVideo(index: number) {
     videos.value.splice(index, 1);
 }
 
-function triggerInput(index: number, type: 'video' | 'banner') {
+// Use $refs for dynamic input refs
+const { proxy } = getCurrentInstance();
+function triggerInput(id: number, type: 'video' | 'banner') {
     if (type === 'video') {
-        videoInputs.value[index]?.click();
+        (proxy.$refs['videoInput-' + id] as HTMLInputElement)?.click();
     } else {
-        bannerInputs.value[index]?.click();
+        (proxy.$refs['bannerInput-' + id] as HTMLInputElement)?.click();
     }
 }
 
