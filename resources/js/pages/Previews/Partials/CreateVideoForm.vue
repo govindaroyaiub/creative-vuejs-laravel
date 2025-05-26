@@ -2,7 +2,7 @@
     <div>
         <h2 class="text-lg font-semibold mb-4">Step 3: Add Videos</h2>
         <div class="max-h-[60vh] overflow-y-auto pr-2">
-            <draggable v-model="videos" item-key="name" handle=".handle" class="space-y-3" ghost-class="ghost">
+            <draggable v-model="videos" item-key="id" handle=".handle" class="space-y-3" ghost-class="ghost">
                 <template #item="{ element: video, index: i }">
                     <div class="flex items-start gap-4 bg-gray-50 p-4 rounded shadow-sm">
                         <!-- Sort Handle -->
@@ -120,6 +120,7 @@ const allAssigned = computed(() =>
 
 function addVideo() {
     videos.value.push({
+        id: Date.now() + Math.random(), // use uuid in production if needed
         name: '',
         path: null,
         pathName: '',

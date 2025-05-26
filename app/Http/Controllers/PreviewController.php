@@ -111,7 +111,6 @@ class PreviewController extends Controller
 
     public function store(Request $request)
     {
-        dd($request->all());
         $request->validate([
             'name' => 'required|string|max:255',
             'client_id' => 'required|exists:clients,id',

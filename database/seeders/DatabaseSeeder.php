@@ -77,7 +77,7 @@ class DatabaseSeeder extends Seeder
         foreach ($colorPalettes as $palette) {
             ColorPalette::create($palette);
         }
-        
+
         $clients = [
             ['name' => 'Planet Nine', 'website' => 'https://www.planetnine.com', 'preview_url' => 'https://preview.creative-planetnine.com', 'logo' => 'planetnine.png', 'color_palette_id' => 5],
         ];
@@ -209,60 +209,115 @@ class DatabaseSeeder extends Seeder
 
         $videoSizes = [
             [
-                'name' => 'Youtube',
+                'name' => 'Video',
+                'width' => '3840',
+                'height' => '2160',
+            ],
+            [
+                'name' => 'Video',
+                'width' => '2160',
+                'height' => '3840',
+            ],
+            [
+                'name' => 'Youtube Bumper Ad 6"',
+                'width' => '1920',
+                'height' => '1080',
+            ],
+            [
+                'name' => 'Youtube Pre-Roll 15" (Skippable)',
+                'width' => '1920',
+                'height' => '1080',
+            ],
+            [
+                'name' => 'Youtube Pre-Roll 20" (Skippable)',
+                'width' => '1920',
+                'height' => '1080',
+            ],
+            [
+                'name' => '1440x1080',
+                'width' => '1440',
+                'height' => '1080',
+            ],
+            [
+                'name' => 'Facebook Shared Post Video Landscape 15"',
                 'width' => '1280',
                 'height' => '720',
             ],
             [
-                'name' => 'Facebook',
-                'width' => '1280',
-                'height' => '720',
-            ],
-            [
-                'name' => 'Instagram',
+                'name' => 'Facebook / Instagram Social Video 1:1 15"',
                 'width' => '1080',
                 'height' => '1080',
             ],
             [
-                'name' => 'Twitter',
-                'width' => '1280',
-                'height' => '720',
+                'name' => 'Facebook Carousel Video 15" ',
+                'width' => '1080',
+                'height' => '1080',
             ],
             [
-                'name' => 'LinkedIn',
-                'width' => '1280',
-                'height' => '720',
+                'name' => 'Facebook / Instagram Social Video 1:1 6',
+                'width' => '1080',
+                'height' => '1080',
             ],
             [
-                'name' => 'TikTok',
+                'name' => 'Logo animation',
+                'width' => '1080',
+                'height' => '1080',
+            ],
+            [
+                'name' => 'Social Video 6"',
                 'width' => '1080',
                 'height' => '1920',
             ],
             [
-                'name' => 'Snapchat',
+                'name' => 'Social Video 9:16 1080x1920',
                 'width' => '1080',
                 'height' => '1920',
             ],
             [
-                'name' => 'Pinterest',
+                'name' => 'Facebook Video',
+                'width' => '1080',
+                'height' => '1350',
+            ],
+            [
+                'name' => 'Youtube Portrait for Mobile Devices',
                 'width' => '1080',
                 'height' => '1920',
             ],
             [
-                'name' => 'WhatsApp',
-                'width' => '1280',
-                'height' => '720',
+                'name' => 'Social Video 10 Sec',
+                'width' => '1080',
+                'height' => '1920',
             ],
             [
-                'name' => 'Telegram',
-                'width' => '1280',
-                'height' => '720',
+                'name' => 'Video',
+                'width' => '1080',
+                'height' => '1536',
             ],
             [
-                'name' => 'Discord',
-                'width' => '1280',
-                'height' => '720',
+                'name' => 'Video 6sec',
+                'width' => '1080',
+                'height' => '2536',
             ],
+            [
+                'name' => 'Facebook Shared Post Video Portrait 15"',
+                'width' => '720',
+                'height' => '1280',
+            ],
+            [
+                'name' => 'Video',
+                'width' => '416',
+                'height' => '346',
+            ],
+            [
+                'name' => 'Video',
+                'width' => '336',
+                'height' => '280',
+            ],
+            [
+                'name' => 'Video',
+                'width' => '328',
+                'height' => '574',
+            ]
         ];
 
         foreach ($videoSizes as $size) {
