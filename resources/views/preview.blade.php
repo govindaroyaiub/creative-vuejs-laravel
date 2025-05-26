@@ -804,50 +804,56 @@ function handleOutsideClick(event) {
     }
 
     function setVideoDisplayOfActiveSubVersion(activeSubVersion_id) {
-    document.getElementById('loaderArea').style.display = 'flex';
-    axios.get('/preview/getActiveSubVersionVideoData/' + activeSubVersion_id)
-        .then(function(response) {
-            var row = '';
+        document.getElementById('loaderArea').style.display = 'flex';
+        axios.get('/preview/getActiveSubVersionVideoData/' + activeSubVersion_id)
+            .then(function(response) {
+                var row = '';
 
-            $.each(response.data, function(key, value) {
-                row += `
-                    <div class="mx-auto mb-8" style="max-width: 400px;">
-                        <!-- Name Bar -->
-                        <div class="video-title font-semibold text-lg px-4 py-2 rounded-lg text-center shadow-sm underline" style="letter-spacing:0.5px;">
-                            ${value.name}
-                        </div>
-                        <!-- Video -->
-                        <div style="background:transparent;" class="mt-2 mb-2 rounded-lg">
-                            <video 
-                                src="/${value.path}" 
-                                controls 
-                                class="block mx-auto rounded"
-                                style="width:400px;max-width:100%;height:auto;"
-                                controlsList="nodownload noremoteplayback"
-                                disablePictureInPicture
-                            ></video>
-                        </div>
-                        <!-- Media Info -->
-                        <div class="bg-gray-50 text-gray-800 text-sm rounded-lg p-3 mt-2 w-full shadow-sm" style="width:400px;max-width:100%;margin:0 auto;">
-                            @if($authUserClientName == "Planet Nine")
-                            <div class="flex gap-4 mb-2 justify-center">
-                                <button class="edit-btn" data-id="${value.id}" title="Edit"><i class="fa fa-edit"></i></button>
-                                <a href="/${value.path}" download title="Download"><i class="fa fa-download"></i></a>
-                                <button class="delete-btn" data-id="${value.id}" title="Delete"><i class="fa fa-trash"></i></button>
+                $.each(response.data, function(key, value) {
+                    // Give each block a unique id for targeting
+                    var uniqueId = 'videoBlock_' + value.id;
+                    row += `
+                        <div id="${uniqueId}" class="mx-auto mb-8" style="max-width: 100%;">
+                            <!-- Name Bar -->
+                            <div class="video-title font-semibold text-lg px-4 py-2 mx-auto rounded-lg text-center shadow-sm underline video-name-bar" style="letter-spacing:0.5px;">
+                                ${value.name}
                             </div>
-                            @endif
-                            <div class="font-semibold text-base mb-1 underline text-center">Media Info</div>
-                            <div><strong>Resolution:</strong> ${value.width} x ${value.height}</div>
-                            <div><strong>Aspect Ratio:</strong> ${value.aspect_ratio ?? '-'}</div>
-                            <div><strong>Codec:</strong> ${value.codec ?? '-'}</div>
-                            <div><strong>FPS:</strong> ${value.fps ?? '-'}</div>
-                            <div><strong>File Size:</strong> ${value.file_size ?? '-'}</div>
-                            <div class="mt-2 w-full flex justify-center">
-                                ${value.companion_banner_path ? `<img src="/${value.companion_banner_path}" alt="Companion Banner" class="rounded border mx-auto" style="max-width:120px;max-height:80px;" />` : ''}
+                            <!-- Video -->
+                            <div style="background:transparent; display:flex; justify-content:center;" class="mt-2 mb-2 rounded-lg">
+                                <video 
+                                    src="/${value.path}" 
+                                    controls 
+                                    class="block mx-auto rounded video-preview"
+                                    style="max-width:90vw; max-height:70vh; width:auto; height:auto; background:#000;"
+                                    controlsList="nodownload noremoteplayback"
+                                    disablePictureInPicture
+                                    onloadedmetadata="matchVideoMetaWidth(this)"
+                                ></video>
+                            </div>
+                            <!-- Media Info -->
+                            <div class="bg-gray-50 text-gray-800 text-sm rounded-lg p-3 mt-2 w-full shadow-sm video-media-info" style="margin:0 auto;">
+                                @if($authUserClientName == "Planet Nine")
+                                <div class="flex gap-4 mb-2 justify-center">
+                                    <button class="edit-btn" data-id="${value.id}" title="Edit"><i class="fa fa-edit"></i></button>
+                                    <a href="/${value.path}" download title="Download"><i class="fa fa-download"></i></a>
+                                    <button class="delete-btn" data-id="${value.id}" title="Delete"><i class="fa fa-trash"></i></button>
+                                </div>
+                                @endif
+                                <div class="font-semibold text-base mb-1 underline text-center flex justify-center align-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info-icon lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                                </div>
+                                <div class="font-semibold text-base mb-1 underline text-center">Media Info</div>
+                                <div><strong>Resolution:</strong> ${value.width} x ${value.height}</div>
+                                <div><strong>Aspect Ratio:</strong> ${value.aspect_ratio ?? '-'}</div>
+                                <div><strong>Codec:</strong> ${value.codec ?? '-'}</div>
+                                <div><strong>FPS:</strong> ${value.fps ?? '-'}</div>
+                                <div><strong>File Size:</strong> ${value.file_size ?? '-'}</div>
+                                <div class="mt-2 w-full flex justify-center">
+                                    ${value.companion_banner_path ? `<img src="/${value.companion_banner_path}" alt="Companion Banner" class="rounded border mx-auto" style="max-width:120px;max-height:80px;" />` : ''}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
+                    `;
                 });
 
                 $('#bannerShowcase').html(row);
@@ -858,6 +864,17 @@ function handleOutsideClick(event) {
             .finally(function() {
                 document.getElementById('loaderArea').style.display = 'none';
             })
+    }
+
+    // Helper function: match name bar and media info width to video
+    function matchVideoMetaWidth(videoEl) {
+        setTimeout(function() {
+            var $video = $(videoEl);
+            var width = $video.width();
+            var $container = $video.closest('.mb-8');
+            $container.find('.video-name-bar').css('width', width + 'px');
+            $container.find('.video-media-info').css('width', width + 'px');
+        }, 50);
     }
 
     function confirmDeleteBanner(id){

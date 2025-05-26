@@ -308,7 +308,7 @@ class PreviewController extends Controller
                     $codec = $video['codec'] ?? null;
                     $width = $info['video']['resolution_x'] ?? null;
                     $height = $info['video']['resolution_y'] ?? null;
-                    $aspect_ratio = ($width && $height) ? ($width / $height) : null;
+                    $aspect_ratio = $this->getAspectRatioString($width, $height);
                     $fps = $video['fps'] ?? null;
                     $file_size_bytes = filesize($videoPath);
                     if ($file_size_bytes >= 1048576) {
@@ -350,6 +350,22 @@ class PreviewController extends Controller
         });
 
         return redirect()->route('previews-index')->with('success', 'Preview created successfully.');
+    }
+
+    protected function getAspectRatioString($width, $height)
+    {
+        if (!$width || !$height) return null;
+
+        // Calculate GCD
+        $gcd = function ($a, $b) use (&$gcd) {
+            return ($b == 0) ? $a : $gcd($b, $a % $b);
+        };
+
+        $divisor = $gcd($width, $height);
+        $w = $width / $divisor;
+        $h = $height / $divisor;
+
+        return "{$w}:{$h}";
     }
 
     public function edit(Preview $preview)
