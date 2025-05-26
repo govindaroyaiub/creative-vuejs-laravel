@@ -2,64 +2,75 @@
     <div>
         <h2 class="text-lg font-semibold mb-4">Step 3: Add Videos</h2>
         <div class="max-h-[60vh] overflow-y-auto pr-2">
-            <div v-for="(video, i) in videos" :key="i" class="border rounded p-4 mb-4 bg-gray-50">
-                <div class="grid grid-cols-2 gap-4 mb-2">
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Title</label>
-                        <input v-model="video.name" type="text" class="input" placeholder="Name" />
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Video Size</label>
-                        <select v-model="video.size_id" class="input">
-                            <option value="">Select Size</option>
-                            <option v-for="size in videoSizes" :key="size.id" :value="size.id">
-                                {{ size.name }} ({{ size.width }} x {{ size.height }})
-                            </option>
-                        </select>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <!-- Video File Drag & Drop -->
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Video File</label>
-                        <div class="drop-area" @click="triggerInput(i, 'video')"
-                            @dragover.prevent="setDragActive(i, 'video', true)"
-                            @dragleave.prevent="setDragActive(i, 'video', false)"
-                            @drop.prevent="handleDrop($event, i, 'path')"
-                            :class="{ 'drop-active': dragActive[i + '-video'] }">
-                            <span class="text-gray-600 text-sm">
-                                Click or drag video file here to upload
-                            </span>
-                            <input ref="videoInputs" type="file" accept="video/*" class="hidden"
-                                @change="onFileChange($event, i, 'path')" />
-                            <div v-if="video.pathName" class="text-xs text-gray-500 mt-1">{{ video.pathName }}</div>
+            <draggable v-model="videos" item-key="name" handle=".handle" class="space-y-3" ghost-class="ghost">
+                <template #item="{ element: video, index: i }">
+                    <div class="flex items-start gap-4 bg-gray-50 p-4 rounded shadow-sm">
+                        <!-- Sort Handle -->
+                        <div class="flex items-center gap-2 w-10 text-gray-500">
+                            <span class="font-mono text-sm w-4 text-right">{{ i + 1 }}.</span>
+                            <span class="handle cursor-move">☰</span>
                         </div>
-                    </div>
-                    <!-- Companion Banner Drag & Drop -->
-                    <div>
-                        <label class="block text-sm font-medium mb-1">Companion Banner (optional)</label>
-                        <div class="drop-area" @click="triggerInput(i, 'banner')"
-                            @dragover.prevent="setDragActive(i, 'banner', true)"
-                            @dragleave.prevent="setDragActive(i, 'banner', false)"
-                            @drop.prevent="handleDrop($event, i, 'companion_banner_path')"
-                            :class="{ 'drop-active': dragActive[i + '-banner'] }">
-                            <span class="text-gray-600 text-sm">
-                                Click or drag image (JPG, PNG, GIF) here to upload
-                            </span>
-                            <input ref="bannerInputs" type="file" accept=".jpg,.jpeg,.png,.gif" class="hidden"
-                                @change="onFileChange($event, i, 'companion_banner_path')" />
-                            <div v-if="video.companionBannerName" class="text-xs text-gray-500 mt-1">{{
-                                video.companionBannerName }}</div>
+                        <div class="flex-1">
+                            <div class="grid grid-cols-2 gap-4 mb-2">
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">Title</label>
+                                    <input v-model="video.name" type="text" class="input" placeholder="Name" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">Video Size</label>
+                                    <select v-model="video.size_id" class="input">
+                                        <option value="">Select Size</option>
+                                        <option v-for="size in videoSizes" :key="size.id" :value="size.id">
+                                            {{ size.name }} ({{ size.width }} x {{ size.height }})
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <!-- Video File Drag & Drop -->
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">Video File</label>
+                                    <div class="drop-area" @click="triggerInput(i, 'video')"
+                                        @dragover.prevent="setDragActive(i, 'video', true)"
+                                        @dragleave.prevent="setDragActive(i, 'video', false)"
+                                        @drop.prevent="handleDrop($event, i, 'path')"
+                                        :class="{ 'drop-active': dragActive[i + '-video'] }">
+                                        <span class="text-gray-600 text-sm">
+                                            Upload Video File Here
+                                        </span>
+                                        <input ref="videoInputs" type="file" accept="video/*" class="hidden"
+                                            @change="onFileChange($event, i, 'path')" />
+                                        <div v-if="video.pathName" class="text-xs text-gray-500 mt-1">{{ video.pathName
+                                            }}</div>
+                                    </div>
+                                </div>
+                                <!-- Companion Banner Drag & Drop -->
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">Companion Banner (optional)</label>
+                                    <div class="drop-area" @click="triggerInput(i, 'banner')"
+                                        @dragover.prevent="setDragActive(i, 'banner', true)"
+                                        @dragleave.prevent="setDragActive(i, 'banner', false)"
+                                        @drop.prevent="handleDrop($event, i, 'companion_banner_path')"
+                                        :class="{ 'drop-active': dragActive[i + '-banner'] }">
+                                        <span class="text-gray-600 text-sm">
+                                            Upload JPG/PNG/GIF Image Here
+                                        </span>
+                                        <input ref="bannerInputs" type="file" accept=".jpg,.jpeg,.png,.gif"
+                                            class="hidden" @change="onFileChange($event, i, 'companion_banner_path')" />
+                                        <div v-if="video.companionBannerName" class="text-xs text-gray-500 mt-1">{{
+                                            video.companionBannerName }}</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                        <button @click="removeVideo(i)"
+                            class="text-red-500 hover:underline text-sm ml-2">Remove</button>
                     </div>
-                </div>
-                <div class="flex justify-end mt-2">
-                    <button @click="removeVideo(i)" class="text-red-500 hover:underline text-sm">Remove</button>
-                </div>
-            </div>
+                </template>
+            </draggable>
         </div>
-        <button @click="addVideo" class="mb-4 px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 w-full">
-            <Plus class="mr-1 inline h-5 w-5" />
+        <button @click="addVideo" class="mb-4 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 w-full">
+            <Plus class="mr-1 inline h-5 w-5" /> Add Video
         </button>
         <!-- Sticky Navigation -->
         <div class="sticky bottom-0 bg-white pt-6 z-10 flex justify-between">
@@ -84,6 +95,7 @@
 
 <script setup lang="ts">
 import { ref, watch, nextTick, computed } from 'vue';
+import draggable from 'vuedraggable';
 import { Plus } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -212,7 +224,7 @@ const emit = defineEmits(['submit', 'previous']);
     background: #e0ffe7;
 }
 
-.sticky {
-    position: sticky;
+.ghost {
+    opacity: 0.5;
 }
 </style>
