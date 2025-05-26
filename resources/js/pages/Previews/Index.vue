@@ -144,6 +144,15 @@ const submitForm = () => {
             payload.append(`socials[${i}][position]`, i);
         });
     }
+    if(formData.value.type === 'Video') {
+        formData.value.videos.forEach((video, i) => {
+            payload.append(`videos[${i}][path]`, video.path);
+            payload.append(`videos[${i}][companion_banner_path]`, video.companion_banner_path);
+            payload.append(`videos[${i}][size_id]`, video.size_id);
+            payload.append(`videos[${i}][name]`, video.name);
+            payload.append(`videos[${i}][position]`, i);
+        });
+    }
 
     router.post(route('previews-store'), payload, {
         forceFormData: true,
