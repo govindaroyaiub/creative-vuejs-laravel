@@ -25,22 +25,12 @@
                                         </option>
                                     </select>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">Codec</label>
-                                    <input v-model="video.codec" type="text" class="input"
-                                        placeholder="e.g. h264" />
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium mb-1">FPS</label>
-                                    <input v-model="video.fps" type="text" class="input"
-                                        placeholder="e.g. 30 FPS" />
-                                </div>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <!-- Video File Drag & Drop -->
                                 <div>
                                     <label class="block text-sm font-medium mb-1">Video File</label>
-                                    <div class="drop-area" @click="triggerInput(video.id, 'video')"
+                                    <div class="drop-area" @click="triggerInput(i, 'video')"
                                         @dragover.prevent="setDragActive(i, 'video', true)"
                                         @dragleave.prevent="setDragActive(i, 'video', false)"
                                         @drop.prevent="handleDrop($event, i, 'path')"
@@ -48,8 +38,8 @@
                                         <span class="text-gray-600 text-sm">
                                             Upload Video File Here
                                         </span>
-                                        <input :ref="'videoInput-' + video.id" type="file" accept="video/*"
-                                            class="hidden" @change="onFileChange($event, i, 'path')" />
+                                        <input ref="videoInputs" type="file" accept="video/*" class="hidden"
+                                            @change="onFileChange($event, i, 'path')" />
                                         <div v-if="video.pathName" class="text-xs text-gray-500 mt-1">{{ video.pathName
                                             }}</div>
                                     </div>
@@ -57,7 +47,7 @@
                                 <!-- Companion Banner Drag & Drop -->
                                 <div>
                                     <label class="block text-sm font-medium mb-1">Companion Banner (optional)</label>
-                                    <div class="drop-area" @click="triggerInput(video.id, 'banner')"
+                                    <div class="drop-area" @click="triggerInput(i, 'banner')"
                                         @dragover.prevent="setDragActive(i, 'banner', true)"
                                         @dragleave.prevent="setDragActive(i, 'banner', false)"
                                         @drop.prevent="handleDrop($event, i, 'companion_banner_path')"
@@ -65,9 +55,8 @@
                                         <span class="text-gray-600 text-sm">
                                             Upload JPG/PNG/GIF Image Here
                                         </span>
-                                        <input :ref="'bannerInput-' + video.id" type="file"
-                                            accept=".jpg,.jpeg,.png,.gif" class="hidden"
-                                            @change="onFileChange($event, i, 'companion_banner_path')" />
+                                        <input ref="bannerInputs" type="file" accept=".jpg,.jpeg,.png,.gif"
+                                            class="hidden" @change="onFileChange($event, i, 'companion_banner_path')" />
                                         <div v-if="video.companionBannerName" class="text-xs text-gray-500 mt-1">{{
                                             video.companionBannerName }}</div>
                                     </div>
@@ -105,7 +94,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, computed, getCurrentInstance } from 'vue';
+import { ref, watch, nextTick, computed } from 'vue';
 import draggable from 'vuedraggable';
 import { Plus } from 'lucide-vue-next';
 
@@ -116,6 +105,8 @@ const props = defineProps<{
 
 const videos = ref(props.form.videos ?? []);
 const dragActive = ref<{ [key: string]: boolean }>({});
+const videoInputs = ref([]);
+const bannerInputs = ref([]);
 const loading = ref(false);
 
 watch(videos, (val) => {
@@ -129,15 +120,13 @@ const allAssigned = computed(() =>
 
 function addVideo() {
     videos.value.push({
-        id: Date.now() + Math.random(), // unique id for refs and draggable
+        id: Date.now() + Math.random(), // use uuid in production if needed
         name: '',
         path: null,
         pathName: '',
         companion_banner_path: null,
         companionBannerName: '',
-        size_id: '',
-        codec: '', // new
-        fps: ''    // new
+        size_id: ''
     });
     nextTick(() => { });
 }
@@ -146,13 +135,11 @@ function removeVideo(index: number) {
     videos.value.splice(index, 1);
 }
 
-// Use $refs for dynamic input refs
-const { proxy } = getCurrentInstance();
-function triggerInput(id: number, type: 'video' | 'banner') {
+function triggerInput(index: number, type: 'video' | 'banner') {
     if (type === 'video') {
-        (proxy.$refs['videoInput-' + id] as HTMLInputElement)?.click();
+        videoInputs.value[index]?.click();
     } else {
-        (proxy.$refs['bannerInput-' + id] as HTMLInputElement)?.click();
+        bannerInputs.value[index]?.click();
     }
 }
 

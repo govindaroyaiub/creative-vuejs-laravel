@@ -526,6 +526,113 @@ class PreviewController extends Controller
         ]);
     }
 
+    public function createVideoSubVersion($id)
+    {
+        $version = Version::with('preview')->findOrFail($id);
+        $preview = Preview::findOrFail($version['preview_id']);
+        $videoSizes = VideoSize::orderBy('name')->orderBy('width')->orderBy('height')->get(['id', 'name', 'width', 'height'])->map(fn($s) => tap($s, fn($s) => $s->name = "{$s->name}"));
+
+        return Inertia::render('Previews/Versions/SubVersions/Video/Create', [
+            'version' => $version,
+            'videoSizes' => $videoSizes,
+            'preview' => $preview
+        ]);
+    }
+
+    public function storeVideoSubVersion($id, Request $request)
+    {
+        $versionId = $id;
+
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'videos' => ['required', 'array', 'min:1'],
+            'videos.*.name' => ['required', 'string', 'max:255'],
+            'videos.*.size_id' => ['required', 'exists:video_sizes,id'],
+            'videos.*.codec' => ['required', 'string', 'max:255'],
+            'videos.*.fps' => ['required', 'string', 'max:255'],
+            'videos.*.path' => ['required', 'file', 'mimetypes:video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm'],
+            'videos.*.companion_banner_path' => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif'],
+        ]);
+
+        $version = Version::findOrFail($versionId);
+        $preview = $version->preview;
+
+        // 1. Deactivate other subversions
+        SubVersion::where('version_id', $versionId)->update(['is_active' => false]);
+
+        // 2. Create the new active subversion
+        $subVersion = SubVersion::create([
+            'version_id' => $versionId,
+            'name' => $request->name,
+            'is_active' => true,
+        ]);
+
+        $uploadPath = public_path('uploads/videos');
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0755, true);
+        }
+
+        foreach ($request->videos as $index => $video) {
+            $file = $video['path'];
+            $name = $video['name'];
+            $sizeId = $video['size_id'];
+            $codec = $video['codec'];
+            $fps = $video['fps'];
+            $position = $index; // Drag order
+
+            // Save video file
+            $ext = $file->getClientOriginalExtension();
+            $filename = $name . '_' . \Str::uuid() . '.' . $ext;
+            $file->move($uploadPath, $filename);
+            $videoPath = $uploadPath . '/' . $filename;
+
+            // Extract metadata
+            $getID3 = new \getID3;
+            $info = $getID3->analyze($videoPath);
+
+            $width = $info['video']['resolution_x'] ?? null;
+            $height = $info['video']['resolution_y'] ?? null;
+            $aspect_ratio = $this->getAspectRatioString($width, $height);
+
+            $file_size_bytes = filesize($videoPath);
+            $file_size = $file_size_bytes >= 1048576
+                ? round($file_size_bytes / 1048576, 2) . ' MB'
+                : round($file_size_bytes / 1024, 2) . ' KB';
+
+            // Handle companion banner if present
+            $companionBannerPath = null;
+            if (!empty($video['companion_banner_path'])) {
+                $bannerFile = $video['companion_banner_path'];
+                $bannerExt = $bannerFile->getClientOriginalExtension();
+                $bannerFilename = $name . '_companion_' . \Str::uuid() . '.' . $bannerExt;
+                $bannerUploadPath = public_path('uploads/videos/companions');
+                if (!is_dir($bannerUploadPath)) {
+                    mkdir($bannerUploadPath, 0755, true);
+                }
+                $bannerFile->move($bannerUploadPath, $bannerFilename);
+                $companionBannerPath = 'uploads/videos/companions/' . $bannerFilename;
+            }
+
+            // Save SubVideo
+            SubVideo::create([
+                'sub_version_id' => $subVersion->id,
+                'name' => $name,
+                'path' => 'uploads/videos/' . $filename,
+                'size_id' => $sizeId,
+                'codec' => $codec,
+                'aspect_ratio' => $aspect_ratio,
+                'fps' => $fps,
+                'file_size' => $file_size,
+                'companion_banner_path' => $companionBannerPath,
+                'position' => $position,
+            ]);
+        }
+
+        return response()->json([
+            'redirect_to' => url("/previews/show/{$version->preview_id}")
+        ], 200);
+    }
+
     public function storeBannerSubVersion(Request $request, $id)
     {
         $versionId = $id;
@@ -1307,6 +1414,76 @@ class PreviewController extends Controller
         return response()->json([
             'message' => 'Social image deleted successfully.',
             'subVersion_id' => $subSocial->sub_version_id,
+        ]);
+    }
+
+    public function deleteVideoSubVersion($id)
+    {
+        $subVersion = SubVersion::findOrFail($id);
+        $version = Version::findOrFail($subVersion->version_id);
+        $preview = Preview::findOrFail($version->preview_id);
+
+        DB::transaction(function () use ($subVersion) {
+            // 1. Remove all videos and their files associated with this subversion
+            $videos = SubVideo::where('sub_version_id', $subVersion->id)->get();
+
+            foreach ($videos as $video) {
+                // Delete video file
+                if ($video->path && file_exists(public_path($video->path))) {
+                    @unlink(public_path($video->path));
+                }
+                // Delete companion banner file if exists
+                if ($video->companion_banner_path && file_exists(public_path($video->companion_banner_path))) {
+                    @unlink(public_path($video->companion_banner_path));
+                }
+                $video->delete();
+            }
+
+            // 2. Delete the subversion
+            $versionId = $subVersion->version_id;
+            $subVersion->delete();
+
+            // 3. Set latest remaining subversion as active (if any exist)
+            $latest = SubVersion::where('version_id', $versionId)->latest('id')->first();
+            if ($latest) {
+                $latest->update(['is_active' => true]);
+            }
+        });
+
+        return response()->json([
+            'message' => 'Video SubVersion deleted successfully.',
+        ]);
+    }
+
+    public function deleteSocialSubVersion($id)
+    {
+        $subVersion = SubVersion::findOrFail($id);
+        $version = Version::findOrFail($subVersion->version_id);
+
+        DB::transaction(function () use ($subVersion) {
+            // 1. Remove all socials and their files associated with this subversion
+            $socials = SubSocial::where('sub_version_id', $subVersion->id)->get();
+
+            foreach ($socials as $social) {
+                if ($social->path && file_exists(public_path($social->path))) {
+                    @unlink(public_path($social->path));
+                }
+                $social->delete();
+            }
+
+            // 2. Delete the subversion
+            $versionId = $subVersion->version_id;
+            $subVersion->delete();
+
+            // 3. Set latest remaining subversion as active (if any exist)
+            $latest = SubVersion::where('version_id', $versionId)->latest('id')->first();
+            if ($latest) {
+                $latest->update(['is_active' => true]);
+            }
+        });
+
+        return response()->json([
+            'message' => 'Social SubVersion deleted successfully.',
         ]);
     }
 }

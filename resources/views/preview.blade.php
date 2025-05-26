@@ -519,6 +519,11 @@ function handleOutsideClick(event) {
         $('.subVersions').html(row);
     }
 
+    function addVideoNewSubVersion(version_id){
+        const url = '/previews/version/'+ version_id +'/video/add/subVersion';
+        window.location.href = url;
+    }
+
     function addSocialNewSubVersion(version_id){
         const url = '/previews/version/'+ version_id +'/social/add/subVersion';
         window.location.href = url;
@@ -618,6 +623,37 @@ function handleOutsideClick(event) {
             })
     }
 
+    function confirmSocialSubVersionDelete(activeSubVersion_id){
+        Swal.fire({
+            title: 'Delete This Sub Version?!',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            denyButtonText: `Thinking.....`,
+        }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+                axios.get('/previews/social/subVersion/delete/'+ activeSubVersion_id)
+                .then(function (response){
+                    console.log(response);
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Sub Version Has Been Deleted!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    location.reload();
+                })
+                .catch(function (error){
+                    console.log(error);
+                })
+            } else if (result.isDenied) {
+                Swal.fire('Thanks for using your brain', '', 'info')
+            }
+        })
+    }
+
     function setVideoActiveSubVersionSettings(activeSubVersion_id) {
         axios.get('/preview/checkSubVersionCount/' + activeSubVersion_id)
             .then(function(response) {
@@ -636,6 +672,37 @@ function handleOutsideClick(event) {
             .catch(function(error) {
                 console.log(error);
             })
+    }
+
+    function confirmVideoSubVersionDelete($id){
+        Swal.fire({
+            title: 'Delete This Sub Version?!',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            denyButtonText: `Thinking.....`,
+        }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+                axios.get('/previews/video/subVersion/delete/'+ $id)
+                .then(function (response){
+                    console.log(response);
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Sub Version Has Been Deleted!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    location.reload();
+                })
+                .catch(function (error){
+                    console.log(error);
+                })
+            } else if (result.isDenied) {
+                Swal.fire('Thanks for using your brain', '', 'info')
+            }
+        })
     }
 
     function setBannerActiveSubVersionSettings(activeSubVersion_id) {
@@ -678,7 +745,8 @@ function handleOutsideClick(event) {
                         showConfirmButton: false,
                         timer: 1500
                     });
-                    checkVersionType(response.data.version_id);
+                    // checkVersionType(response.data.version_id);
+                    location.reload();
                 })
                 .catch(function (error){
                     console.log(error);

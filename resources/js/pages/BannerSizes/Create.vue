@@ -58,7 +58,7 @@ const flashMessage = computed(() => page.props.flash || '');
                         type="submit"
                         class="w-full rounded-lg bg-indigo-600 px-6 py-3 text-white shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600"
                     >
-                        Submit
+                        Save
                     </button>
                     <button
                         type="button"
