@@ -137,19 +137,23 @@ const submitForm = () => {
             payload.append(`banners[${i}][position]`, i);
         });
     }
-    if (formData.value.type === 'Social') {
+    else if (formData.value.type === 'Social') {
         formData.value.socials.forEach((social, i) => {
             payload.append(`socials[${i}][file]`, social.file);
             payload.append(`socials[${i}][name]`, social.name);
             payload.append(`socials[${i}][position]`, i);
         });
     }
-    if(formData.value.type === 'Video') {
+    else if (formData.value.type === 'Video') {
         formData.value.videos.forEach((video, i) => {
             payload.append(`videos[${i}][path]`, video.path);
-            payload.append(`videos[${i}][companion_banner_path]`, video.companion_banner_path);
+            if (video.companion_banner_path) {
+                payload.append(`videos[${i}][companion_banner_path]`, video.companion_banner_path);
+            }
             payload.append(`videos[${i}][size_id]`, video.size_id);
             payload.append(`videos[${i}][name]`, video.name);
+            payload.append(`videos[${i}][codec]`, video.codec);
+            payload.append(`videos[${i}][fps]`, video.fps);
             payload.append(`videos[${i}][position]`, i);
         });
     }
@@ -160,7 +164,8 @@ const submitForm = () => {
             Swal.fire('Success!', 'Preview created successfully.', 'success');
             closeModal();
         },
-        onError: () => {
+        onError: (error) => {
+            console.log(error);
             Swal.fire('Error!', 'Failed to create preview.', 'error');
         }
     });

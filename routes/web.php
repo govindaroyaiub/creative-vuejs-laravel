@@ -161,9 +161,11 @@ Route::get('/preview/getallversions/{id}', [PreviewApiController::class, 'getAll
 Route::get('/preview/updateActiveVersion/{id}', [PreviewApiController::class, 'updateActiveVersion']);
 Route::get('/preview/getVersionType/{id}', [PreviewApiController::class, 'getVersionType']);
 Route::get('/preview/setBannerActiveSubVersion/{id}', [PreviewApiController::class, 'setBannerActiveSubVersion']);
+Route::get('/preview/setSocialActiveSubVersion/{id}', [PreviewApiController::class, 'setSocialActiveSubVersion']);
 Route::get('/preview/checkSubVersionCount/{id}', [PreviewApiController::class, 'checkSubVersionCount']);
 Route::get('/preview/getActiveSubVersionBannerData/{id}', [PreviewApiController::class, 'getActiveSubVersionBannerData']);
 Route::get('/preview/getActiveSubVersionSocialData/{id}', [PreviewApiController::class, 'getActiveSubVersionSocialData']);
+Route::get('/preview/getActiveSubVersionVideoData/{id}', [PreviewApiController::class, 'getActiveSubVersionVideoData']);
 Route::get('/preview/{preview_id}/change/theme/{color_id}', [PreviewApiController::class, 'changeTheme']);
 //preview axios get requests end
 

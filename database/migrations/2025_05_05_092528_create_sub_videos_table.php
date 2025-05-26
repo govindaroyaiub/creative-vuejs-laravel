@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('codec')->nullable();
             $table->string('aspect_ratio')->nullable();
             $table->string('fps')->nullable();
-            $table->unsignedBigInteger('file_size')->nullable();
+            $table->string('file_size')->nullable();
             $table->string('companion_banner_path')->nullable();
             $table->unsignedInteger('position')->default(0);
             $table->timestamps();

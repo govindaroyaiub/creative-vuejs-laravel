@@ -483,6 +483,11 @@ iframe {
     border-radius: 5px;
 }
 
+.video-title{
+    background-color: var(--tertiary-color);
+    color: white;
+}
+
 #socialImageModal {
     overflow: auto !important;
 }

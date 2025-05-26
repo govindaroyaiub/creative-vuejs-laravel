@@ -120,14 +120,44 @@ class PreviewApiController extends Controller
     public function getActiveSubVersionSocialData($id)
     {
         $socials = SubSocial::leftJoin('socials', 'sub_socials.social_id', '=', 'socials.id')
-        ->where('sub_socials.sub_version_id', $id)
-        ->orderBy('sub_socials.position')
-        ->select(
-            'sub_socials.*',
-            'socials.name as social_name'
-        )
-        ->get();
+            ->where('sub_socials.sub_version_id', $id)
+            ->orderBy('sub_socials.position')
+            ->select(
+                'sub_socials.*',
+                'socials.name as social_name'
+            )
+            ->get();
 
         return $socials;
+    }
+
+    public function getActiveSubVersionVideoData($id)
+    {
+        $videos = SubVideo::join('video_sizes', 'sub_videos.size_id', '=', 'video_sizes.id')
+            ->where('sub_videos.sub_version_id', $id)
+            ->select(
+                'sub_videos.*',
+                'video_sizes.width',
+                'video_sizes.height'
+            )
+            ->orderBy('sub_videos.position')
+            ->get();
+        return $videos;
+    }
+
+    public function setSocialActiveSubVersion($id)
+    {
+        $subVersion = SubVersion::find($id);
+        $version = Version::where('id', $subVersion['version_id'])->first();
+        SubVersion::where('id', $id)->update(['is_active' => 1]);
+        $exceptionSubVersions = SubVersion::select('id')->where('version_id', $version['id'])->where('id', '!=', $id)->get()->toArray();
+        SubVersion::whereIn('id', $exceptionSubVersions)->where('version_id', $version['id'])->update(['is_active' => 0]);
+        $subVersions = SubVersion::where('version_id', $version['id'])->get();
+
+        return $data = [
+            'subVersions' => $subVersions,
+            'activeSubVersion_id' => $id,
+            'version_id' => $subVersion['version_id']
+        ];
     }
 }

@@ -425,6 +425,12 @@ function handleOutsideClick(event) {
                     setSocialActiveVersionSettings(activeVersion_id);
                     setSocialDisplayOfActiveSubVersion(response.data.activeSubVersion_id);
                 }
+                if(response.data.type == "video"){
+                    setVideoVersionSubVersions(response.data.subVersions, response.data.version_id);
+                    setVideoActiveSubVersionSettings(response.data.activeSubVersion_id);
+                    setVideoActiveVersionSettings(activeVersion_id);
+                    setVideoDisplayOfActiveSubVersion(response.data.activeSubVersion_id);
+                }
             })
             .catch(function(error) {
                 console.log(error);
@@ -472,13 +478,62 @@ function handleOutsideClick(event) {
         $('.subVersions').html(row);
     }
 
+    function setVideoVersionSubVersions(subVersions, version_id) {
+        var subVersionCount = subVersions.length;
+        var isActive;
+
+        if (subVersionCount > 0) {
+            var row = '';
+            $.each(subVersions, function(key, value) {
+                if (value.is_active == 1) {
+                    isActive = ' subVersionTabActive';
+                } else {
+                    isActive = '';
+                }
+               row += `
+                <div id="subVersionTab${value.id}" class="subVersionTab${isActive}" onclick="updateVideoActiveSubVersion(${value.id})">
+                    <div class="trapezoid-container">
+                    <svg class="trapezoid" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0,60 L200,60 L180,15 C175,5 170,0 160,0 L40,0 C30,0 25,5 20,15 L0,60 Z" fill="${isActive}"/>
+                    </svg>
+                    <div class="tab-text text-white text-base">${value.name}</div>
+                    </div>
+                </div>
+                `;
+            });
+        } else {
+            var row = '';
+        }
+        if(authUserClientName == 'Planet Nine'){
+            row += `
+                <div class="subVersionTab subVersionAddTab" onclick="addVideoNewSubVersion(${version_id})">
+                    <div class="trapezoid-container">
+                        <svg class="trapezoid" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0,60 L200,60 L180,15 C175,5 170,0 160,0 L40,0 C30,0 25,5 20,15 L0,60 Z"/>
+                        </svg>
+                        <div class="tab-text text-white text-2xl font-bold">+</div>
+                    </div>
+                </div>
+            `;
+        }
+        $('.subVersions').html(row);
+    }
+
     function addSocialNewSubVersion(version_id){
         const url = '/previews/version/'+ version_id +'/social/add/subVersion';
         window.location.href = url;
     }
 
     function updateSocialActiveSubVersion(subVersion_id){
-
+        axios.get('/preview/setSocialActiveSubVersion/' + subVersion_id)
+            .then(function(response) {
+                setSocialVersionSubVersions(response.data.subVersions, response.data.version_id);
+                setSocialActiveSubVersionSettings(response.data.activeSubVersion_id);
+                setSocialDisplayOfActiveSubVersion(response.data.activeSubVersion_id);
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
     }
 
     function setBannerVersionSubVersions(subVersions, version_id) {
@@ -553,6 +608,26 @@ function handleOutsideClick(event) {
                 rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';                
                 rows = rows + '<a href="/previews/version/social/edit/subVersion/' + activeSubVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-square-pen"></i></a>';
                 rows = rows + '<a href="javascript:void(0)" onclick="return confirmSocialSubVersionDelete(' + activeSubVersion_id + ')" style="' + display + ' margin-right: 0.5rem;"><i class="fa-solid fa-square-minus"></i></a>';
+                rows = rows + '</div>';
+                rows = rows + '</div>';
+                rows = rows + "@endif";
+                $('#subVersionSettings').html(rows);
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
+    }
+
+    function setVideoActiveSubVersionSettings(activeSubVersion_id) {
+        axios.get('/preview/checkSubVersionCount/' + activeSubVersion_id)
+            .then(function(response) {
+                var display = 'display: block;';
+                rows = '';
+                rows = rows + "@if($authUserClientName == 'Planet Nine')";
+                rows = rows + '<div>';
+                rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';
+                rows = rows + '<a href="/previews/version/video/edit/subVersion/' + activeSubVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-square-pen"></i></a>';
+                rows = rows + '<a href="javascript:void(0)" onclick="return confirmVideoSubVersionDelete(' + activeSubVersion_id + ')" style="' + display + ' margin-right: 0.5rem;"><i class="fa-solid fa-square-minus"></i></a>';
                 rows = rows + '</div>';
                 rows = rows + '</div>';
                 rows = rows + "@endif";
@@ -646,6 +721,20 @@ function handleOutsideClick(event) {
         $('#versionSettings').html(rows);
     }
 
+    function setVideoActiveVersionSettings(activeVersion_id) {
+        rows = '';
+        rows = rows + "@if($authUserClientName == 'Planet Nine')";
+        rows = rows + '<div>';
+        rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';
+        rows = rows + '<a href="/previews/edit/version/' + activeVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-pen-to-square"></i></a>';
+        rows = rows + '<a href="javascript:void(0)" onclick="return confirmVersionDelete(' + activeVersion_id + ')" style="margin-right: 0.5rem;"><i class="fa-solid fa-circle-minus"></i></a>';
+        rows = rows + '</div>';
+        rows = rows + '</div>';
+        rows = rows + "@endif";
+
+        $('#versionSettings').html(rows);
+    }
+
     function confirmVersionDelete(version_id){
         Swal.fire({
             title: 'Delete This Version?!',
@@ -702,6 +791,63 @@ function handleOutsideClick(event) {
                     row = row + '@endif';
                     row = row + '</ul>';
                     row = row + '</div>';
+                });
+
+                $('#bannerShowcase').html(row);
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
+            .finally(function() {
+                document.getElementById('loaderArea').style.display = 'none';
+            })
+    }
+
+    function setVideoDisplayOfActiveSubVersion(activeSubVersion_id) {
+    document.getElementById('loaderArea').style.display = 'flex';
+    axios.get('/preview/getActiveSubVersionVideoData/' + activeSubVersion_id)
+        .then(function(response) {
+            var row = '';
+
+            $.each(response.data, function(key, value) {
+                row += `
+                    <div class="mx-auto mb-8" style="max-width: 400px;">
+                        <!-- Name Bar -->
+                        <div class="video-title font-semibold text-lg px-4 py-2 rounded-lg text-center shadow-sm underline" style="letter-spacing:0.5px;">
+                            ${value.name}
+                        </div>
+                        <!-- Video -->
+                        <div style="background:transparent;" class="mt-2 mb-2 rounded-lg">
+                            <video 
+                                src="/${value.path}" 
+                                controls 
+                                class="block mx-auto rounded"
+                                style="width:400px;max-width:100%;height:auto;"
+                                controlsList="nodownload noremoteplayback"
+                                disablePictureInPicture
+                            ></video>
+                        </div>
+                        <!-- Media Info -->
+                        <div class="bg-gray-50 text-gray-800 text-sm rounded-lg p-3 mt-2 w-full shadow-sm" style="width:400px;max-width:100%;margin:0 auto;">
+                            @if($authUserClientName == "Planet Nine")
+                            <div class="flex gap-4 mb-2 justify-center">
+                                <button class="edit-btn" data-id="${value.id}" title="Edit"><i class="fa fa-edit"></i></button>
+                                <a href="/${value.path}" download title="Download"><i class="fa fa-download"></i></a>
+                                <button class="delete-btn" data-id="${value.id}" title="Delete"><i class="fa fa-trash"></i></button>
+                            </div>
+                            @endif
+                            <div class="font-semibold text-base mb-1 underline text-center">Media Info</div>
+                            <div><strong>Resolution:</strong> ${value.width} x ${value.height}</div>
+                            <div><strong>Aspect Ratio:</strong> ${value.aspect_ratio ?? '-'}</div>
+                            <div><strong>Codec:</strong> ${value.codec ?? '-'}</div>
+                            <div><strong>FPS:</strong> ${value.fps ?? '-'}</div>
+                            <div><strong>File Size:</strong> ${value.file_size ?? '-'}</div>
+                            <div class="mt-2 w-full flex justify-center">
+                                ${value.companion_banner_path ? `<img src="/${value.companion_banner_path}" alt="Companion Banner" class="rounded border mx-auto" style="max-width:120px;max-height:80px;" />` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
                 });
 
                 $('#bannerShowcase').html(row);

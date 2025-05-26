@@ -25,6 +25,16 @@
                                         </option>
                                     </select>
                                 </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">Codec</label>
+                                    <input v-model="video.codec" type="text" class="input"
+                                        placeholder="e.g. h264" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1">FPS</label>
+                                    <input v-model="video.fps" type="text" class="input"
+                                        placeholder="e.g. 30 FPS" />
+                                </div>
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <!-- Video File Drag & Drop -->
@@ -125,7 +135,9 @@ function addVideo() {
         pathName: '',
         companion_banner_path: null,
         companionBannerName: '',
-        size_id: ''
+        size_id: '',
+        codec: '', // new
+        fps: ''    // new
     });
     nextTick(() => { });
 }
