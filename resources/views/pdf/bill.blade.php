@@ -96,7 +96,7 @@
 <body>
     <!-- Logo -->
     <div class="logo">
-        <img src="https://staging.planetnine.com/wp-content/uploads/2025/04/logo.png" alt="Planet Nine">
+        <img src="{{ public_path('logos/planetnine.png') }}" alt="Planet Nine">
     </div>
 
     <!-- Bill Info -->

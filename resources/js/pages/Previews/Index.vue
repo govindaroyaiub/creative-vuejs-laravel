@@ -8,6 +8,7 @@ import PreviewStepBasicInfo from './Partials/PreviewStepBasicInfo.vue';
 import PreviewStepProjectType from './Partials/PreviewStepProjectType.vue';
 import CreateBannerForm from './Partials/CreateBannerForm.vue';
 import CreateSocialForm from './Partials/CreateSocialForm.vue';
+import CreateVideoForm from './Partials/CreateVideoForm.vue';
 
 const page = usePage();
 const search = ref('');
@@ -21,6 +22,7 @@ const users = computed(() => page.props.users ?? []);
 const colorPalettes = computed(() => page.props.colorPalettes ?? []);
 const authUser = computed(() => page.props.auth?.user ?? {});
 const bannerSizes = computed(() => page.props.bannerSizes ?? []);
+const videoSizes = computed(() => page.props.videoSizes ?? []);
 
 const filteredPreviews = computed(() => {
     const q = search.value.toLowerCase();
@@ -175,6 +177,7 @@ const getStepComponent = (step: number) => {
         case 2: return PreviewStepProjectType;
         case 3:
             if (formData.value.type === 'Banner') return CreateBannerForm;
+            if (formData.value.type === 'Video') return CreateVideoForm;
             if (formData.value.type === 'Social') return CreateSocialForm;
             return { template: '<div class="text-center text-gray-500">Submitting...</div>' };
         default: return { template: '<div class="text-center text-gray-500">Submitting...</div>' };
@@ -191,6 +194,9 @@ const stepProps = computed(() => ({
     }),
     ...(step.value === 3 && formData.value.type === 'Banner' && {
         bannerSizes: bannerSizes.value,
+    }),
+    ...(step.value === 3 && formData.value.type === 'Video' && {
+        videoSizes: videoSizes.value,
     }),
     // Add any additional props for Social form if needed
 }));
