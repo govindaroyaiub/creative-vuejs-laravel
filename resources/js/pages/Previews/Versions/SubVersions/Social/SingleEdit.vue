@@ -101,7 +101,7 @@ const handleSubmit = () => {
 
             <div class="flex space-x-4 mt-4">
                 <button type="submit" :disabled="!form.file" @click="handleSubmit"
-                    class="w-full rounded-lg bg-purple-600 px-6 py-3 text-white shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-purple-500 dark:hover:bg-purple-600">
+                    class="w-full rounded-lg bg-indigo-600 px-6 py-3 text-white shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600">
                     Update
                 </button>
                 <a :href="`/previews/show/${preview.id}`"

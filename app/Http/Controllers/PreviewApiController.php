@@ -160,4 +160,23 @@ class PreviewApiController extends Controller
             'version_id' => $subVersion['version_id']
         ];
     }
+
+    public function setVideoActiveSubVersion($id){
+        $subVersion = SubVersion::find($id);
+        $version = Version::where('id', $subVersion['version_id'])->first();
+        SubVersion::where('id', $id)->update(['is_active' => 1]);
+        $exceptionSubVersions = SubVersion::select('id')->where('version_id', $version['id'])->where('id', '!=', $id)->get()->toArray();
+        SubVersion::whereIn('id', $exceptionSubVersions)->where('version_id', $version['id'])->update(['is_active' => 0]);
+        $subVersions = SubVersion::where('version_id', $version['id'])->get();
+
+        return $data = [
+            'subVersions' => $subVersions,
+            'activeSubVersion_id' => $id,
+            'version_id' => $subVersion['version_id']
+        ];
+    }
+
+    public function updateVideoSubVersion($id){
+        
+    }
 }

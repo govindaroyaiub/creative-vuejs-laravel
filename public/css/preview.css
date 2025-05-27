@@ -484,7 +484,12 @@ iframe {
     border-radius: 5px;
 }
 
-.video-title{
+.video-title {
+    background-color: var(--tertiary-color);
+    color: white;
+}
+
+.social-title {
     background-color: var(--tertiary-color);
     color: white;
 }

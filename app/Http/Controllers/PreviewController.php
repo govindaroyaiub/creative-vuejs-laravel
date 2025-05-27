@@ -1525,7 +1525,7 @@ class PreviewController extends Controller
         });
 
         return response()->json([
-            'message' => 'Video SubVersion deleted successfully.',
+            'message' => 'Video SubVersion deleted successfully.'
         ]);
     }
 
@@ -1559,5 +1559,52 @@ class PreviewController extends Controller
         return response()->json([
             'message' => 'Social SubVersion deleted successfully.',
         ]);
+    }
+
+    public function singleVideoDelete($id)
+    {
+        $subVideo = SubVideo::findOrFail($id);
+        $filePath = public_path($subVideo->path);
+        $companionBannerPath = public_path($subVideo->companion_banner_path);
+
+        // Delete video file
+        if (file_exists($filePath)) {
+            @unlink($filePath);
+        }
+
+        // Delete companion banner file if exists
+        if ($subVideo->companion_banner_path && file_exists($companionBannerPath)) {
+            @unlink($companionBannerPath);
+        }
+
+        // Delete the SubVideo record
+        $subVideo->delete();
+
+        return response()->json([
+            'message' => 'Video deleted successfully.',
+            'subVersion_id' => $subVideo->sub_version_id,
+        ]);
+    }
+
+    public function editVideoSubVersion($id)
+    {
+        $subVersion = SubVersion::with('version.preview')->findOrFail($id);
+        $videoSizes = VideoSize::all();
+        $preview = $subVersion->version->preview;
+
+        return Inertia::render('Previews/Versions/SubVersions/Video/Edit', [
+            'subVersionId' => $subVersion->id,
+            'subVersionName' => $subVersion->name,
+            'videoSizes' => $videoSizes,
+            'preview' => [
+                'id' => $preview->id,
+                'name' => $preview->name,
+            ],
+        ]);
+    }
+
+    public function updateVideoSubVersion(Request $request, $id)
+    {
+        dd($request->all());
     }
 }

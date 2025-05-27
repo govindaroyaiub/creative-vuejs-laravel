@@ -65,7 +65,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
 
     Route::get('/previews/version/{id}/video/add/subVersion/', [PreviewController::class, 'createVideoSubVersion'])->name('create-video-subVersion');
     Route::post('/previews/version/{id}/video/add/subVersion/', [PreviewController::class, 'storeVideoSubVersion'])->name('store-video-subVersion');
-
+    Route::get('/previews/version/video/edit/subVersion/{id}', [PreviewController::class, 'editVideoSubVersion'])->name('edit-video-subVersion');
+    Route::post('/previews/version/video/edit/subVersion/{id}', [PreviewController::class, 'updateVideoSubVersion'])->name('update-video-subVersion');
     Route::get('/previews/video/subVersion/delete/{id}', [PreviewController::class, 'deleteVideoSubVersion'])->name('delete-video-subVersion');
 
     Route::get('/previews/social/single/edit/{id}', [PreviewController::class, 'singleSocialEdit'])->name('single-social-edit');
@@ -76,6 +77,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::post('/previews/banner/single/edit/{id}', [PreviewController::class, 'singleBannerUpdate'])->name('single-banner-update');
     Route::get('/previews/banner/single/download/{id}', [PreviewController::class, 'singleBannerDownload'])->name('single-banner-download');
     Route::delete('/previews/banner/single/delete/{id}', [PreviewController::class, 'singleBannerDelete'])->name('single-banner-delete');
+
+    Route::delete('/previews/video/single/delete/{id}', [PreviewController::class, 'singleVideoDelete'])->name('single-video-delete');
 
     // Route::get('/preview/add/version/{id}', [PreviewController::class, 'addVersion'])->name('previews-add-version');
     //Preview Routes End
@@ -168,6 +171,7 @@ Route::get('/preview/updateActiveVersion/{id}', [PreviewApiController::class, 'u
 Route::get('/preview/getVersionType/{id}', [PreviewApiController::class, 'getVersionType']);
 Route::get('/preview/setBannerActiveSubVersion/{id}', [PreviewApiController::class, 'setBannerActiveSubVersion']);
 Route::get('/preview/setSocialActiveSubVersion/{id}', [PreviewApiController::class, 'setSocialActiveSubVersion']);
+Route::get('/preview/setVideoActiveSubVersion/{id}', [PreviewApiController::class, 'setVideoActiveSubVersion']);
 Route::get('/preview/checkSubVersionCount/{id}', [PreviewApiController::class, 'checkSubVersionCount']);
 Route::get('/preview/getActiveSubVersionBannerData/{id}', [PreviewApiController::class, 'getActiveSubVersionBannerData']);
 Route::get('/preview/getActiveSubVersionSocialData/{id}', [PreviewApiController::class, 'getActiveSubVersionSocialData']);

@@ -902,9 +902,9 @@ function handleOutsideClick(event) {
                             <div class="bg-gray-50 text-gray-800 text-sm rounded-lg p-3 mt-2 w-full shadow-sm video-media-info" style="margin:0 auto;">
                                 @if($authUserClientName == "Planet Nine")
                                 <div class="flex gap-4 mb-2 justify-center">
-                                    <button class="edit-btn" data-id="${value.id}" title="Edit"><i class="fa fa-edit"></i></button>
-                                    <a href="/${value.path}" download title="Download"><i class="fa fa-download"></i></a>
-                                    <button class="delete-btn" data-id="${value.id}" title="Delete"><i class="fa fa-trash"></i></button>
+                                    <a href="/previews/video/single/edit/${value.id}" class="edit-btn" data-id="${value.id}" title="Edit"><i class="fa-solid fa-pen-to-square" style="display: flex; margin-left: 0.5rem; font-size:20px;"></i></a>
+                                    <a href="/${value.path}" download title="Download"><i class="fa-solid fa-download" style="display: flex; margin-left: 0.5rem; font-size:20px;"></i></a>
+                                    <a href="javascript:void(0)" onclick="confirmDeleteVideo(${value.id})" class="delete-btn" data-id="${value.id}" title="Delete"><i class="fa-solid fa-trash" style="display: flex; margin-left: 0.5rem; font-size:20px;"></i></a>
                                 </div>
                                 @endif
                                 <div class="font-semibold text-base mb-1 underline text-center flex justify-center align-center">
@@ -916,8 +916,20 @@ function handleOutsideClick(event) {
                                 <div><strong>Codec:</strong> ${value.codec ?? '-'}</div>
                                 <div><strong>FPS:</strong> ${value.fps ?? '-'}</div>
                                 <div><strong>File Size:</strong> ${value.file_size ?? '-'}</div>
-                                <div class="mt-2 w-full flex justify-center">
-                                    ${value.companion_banner_path ? `<img src="/${value.companion_banner_path}" alt="Companion Banner" class="rounded border mx-auto" style="max-width:120px;max-height:80px;" />` : ''}
+                                <div class="mt-2 w-full flex flex-col items-center justify-center">
+                                    ${
+                                        value.companion_banner_path
+                                        ? `
+                                            <img src="/${value.companion_banner_path}" alt="Companion Banner" class="rounded border mx-auto" style="max-width:970px;max-height:auto;" />
+                                            @if($authUserClientName == "Planet Nine")
+                                                <a href="/${value.companion_banner_path}" download title="Download Companion Banner" class="mt-2 flex items-center gap-1 text-blue-600 hover:text-blue-800">
+                                                    <i class="fa-solid fa-download" style="font-size:18px;"></i>
+                                                    <span class="text-xs">Download Companion Banner</span>
+                                                </a>
+                                            @endif
+                                        `
+                                        : ''
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -932,6 +944,47 @@ function handleOutsideClick(event) {
             .finally(function() {
                 document.getElementById('loaderArea').style.display = 'none';
             })
+    }
+
+    function updateVideoActiveSubVersion(id){
+        // Logic to update the active sub-version of the video
+        axios.get('/preview/setVideoActiveSubVersion/' + id)
+            .then(function(response) {
+                setVideoVersionSubVersions(response.data.subVersions, response.data.version_id);
+                setVideoActiveSubVersionSettings(response.data.activeSubVersion_id);
+                setVideoDisplayOfActiveSubVersion(response.data.activeSubVersion_id);
+            })
+            .catch(function(error) {
+                console.log(error);
+            });
+    }
+
+    function confirmDeleteVideo(id){
+        Swal.fire({
+            title: 'Delete This Video?',
+            text: "Are you sure you want to delete this video?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios.delete('/previews/video/single/delete/' + id)
+                    .then(function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Video deleted!',
+                            showConfirmButton: false,
+                            timer: 1200
+                        });
+                        // Optionally refresh the video list
+                        setVideoDisplayOfActiveSubVersion(response.data.subVersion_id);
+                    })
+                    .catch(function(error) {
+                        Swal.fire('Error', 'Failed to delete video.', 'error');
+                    });
+            }
+        });
     }
 
     // Helper function: match name bar and media info width to video
@@ -1008,12 +1061,15 @@ function handleOutsideClick(event) {
                 var row = '';
                 $.each(response.data, function(key, value) {
                     row += `
-                        <div class="text-center mt-2 text-xl font-semibold underline capitalize">${value.name}</div>
-                        <div style="display: inline-block; margin: 10px;">
+                        <div style="display: inline-block; margin: 10px; width: 600px;">
+                            <div class="text-center text-xl font-semibold capitalize rounded-lg social-title flex justify-center items-center"
+                                style="padding: 10px; width: 100%; box-shadow: 0 2px 8px #0001; margin-bottom: 12px;">
+                                <span class="underline">${value.name}</span>
+                            </div>
                             <img src="/${value.path}" 
                                 alt="${value.name}" 
-                                class="social-preview-img"
-                                style="width: 600px; height: auto; object-fit: contain; border-radius: 8px; box-shadow: 0 2px 8px #0001; cursor: pointer;"
+                                class="social-preview-img rounded-lg"
+                                style="width: 600px; height: auto; object-fit: contain; box-shadow: 0 2px 8px #0001; cursor: pointer; margin-top: 0;"
                                 onclick="openSocialImageModal('/${value.path}', '${value.name}')"
                             >
                             <ul style="display: flex; flex-direction: row; justify-content: left; margin-top: 10px;" class="previewIcons">
