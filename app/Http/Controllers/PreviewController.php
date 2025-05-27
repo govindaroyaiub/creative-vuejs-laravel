@@ -911,10 +911,12 @@ class PreviewController extends Controller
     {
         $preview = Preview::findOrFail($id);
         $bannerSizes = BannerSize::all(['id', 'width', 'height']);
+        $videoSizes = VideoSize::orderBy('name')->orderBy('width')->orderBy('height')->get(['id', 'name', 'width', 'height']);
 
         return Inertia::render('Previews/Versions/Create', [
             'preview' => $preview,
             'bannerSizes' => $bannerSizes,
+            'videoSizes' => $videoSizes, // <-- add this line
         ]);
     }
 
@@ -923,7 +925,7 @@ class PreviewController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:banner,social',
+            'type' => 'required|in:banner,social,video,gif',
             'sub_version_name' => 'required|string|max:255',
 
             // Banner validation
@@ -937,6 +939,16 @@ class PreviewController extends Controller
             'socials.*.file' => 'required_if:type,social|file|mimes:jpg,jpeg,png',
             'socials.*.name' => 'required_if:type,social|string|max:255',
             'socials.*.position' => 'required_if:type,social|integer',
+
+            // Add to your $request->validate([...]) array:
+            'videos' => 'required_if:type,video|array|min:1',
+            'videos.*.name' => 'required_if:type,video|string|max:255',
+            'videos.*.size_id' => 'required_if:type,video|exists:video_sizes,id',
+            'videos.*.codec' => 'required_if:type,video|string|max:255',
+            'videos.*.fps' => 'required_if:type,video|string|max:255',
+            'videos.*.path' => 'required_if:type,video|file|mimetypes:video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm',
+            'videos.*.companion_banner_path' => 'nullable|file|mimes:jpg,png,gif',
+            'videos.*.position' => 'required_if:type,video|integer',
         ]);
 
         DB::transaction(function () use ($request, $id) {
@@ -1035,6 +1047,68 @@ class PreviewController extends Controller
                         'path' => 'uploads/socials/' . $filename,
                         'position' => $position,
                         // 'social_id' => null, // Set if you have a social_id to link
+                    ]);
+                }
+            }
+            if ($request->type === 'video') {
+                $uploadPath = public_path('uploads/videos');
+                if (!is_dir($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+
+                foreach ($request->videos as $index => $video) {
+                    $file = $video['path'];
+                    $name = $video['name'];
+                    $sizeId = $video['size_id'];
+                    $codec = $video['codec'];
+                    $fps = $video['fps'];
+                    $position = $index; // Drag order
+
+                    // Save video file
+                    $ext = $file->getClientOriginalExtension();
+                    $filename = $name . '_' . \Str::uuid() . '.' . $ext;
+                    $file->move($uploadPath, $filename);
+                    $videoPath = $uploadPath . '/' . $filename;
+
+                    // Extract metadata
+                    $getID3 = new \getID3;
+                    $info = $getID3->analyze($videoPath);
+
+                    $width = $info['video']['resolution_x'] ?? null;
+                    $height = $info['video']['resolution_y'] ?? null;
+                    $aspect_ratio = app('App\Http\Controllers\PreviewController')->getAspectRatioString($width, $height);
+
+                    $file_size_bytes = filesize($videoPath);
+                    $file_size = $file_size_bytes >= 1048576
+                        ? round($file_size_bytes / 1048576, 2) . ' MB'
+                        : round($file_size_bytes / 1024, 2) . ' KB';
+
+                    // Handle companion banner if present
+                    $companionBannerPath = null;
+                    if (!empty($video['companion_banner_path'])) {
+                        $bannerFile = $video['companion_banner_path'];
+                        $bannerExt = $bannerFile->getClientOriginalExtension();
+                        $bannerFilename = $name . '_companion_' . \Str::uuid() . '.' . $bannerExt;
+                        $bannerUploadPath = public_path('uploads/videos/companions');
+                        if (!is_dir($bannerUploadPath)) {
+                            mkdir($bannerUploadPath, 0755, true);
+                        }
+                        $bannerFile->move($bannerUploadPath, $bannerFilename);
+                        $companionBannerPath = 'uploads/videos/companions/' . $bannerFilename;
+                    }
+
+                    // Save SubVideo
+                    SubVideo::create([
+                        'sub_version_id' => $subVersion->id,
+                        'name' => $name,
+                        'path' => 'uploads/videos/' . $filename,
+                        'size_id' => $sizeId,
+                        'codec' => $codec,
+                        'aspect_ratio' => $aspect_ratio,
+                        'fps' => $fps,
+                        'file_size' => $file_size,
+                        'companion_banner_path' => $companionBannerPath,
+                        'position' => $position,
                     ]);
                 }
             }

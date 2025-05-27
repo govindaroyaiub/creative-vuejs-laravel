@@ -1,84 +1,120 @@
 <template>
-  <div class="fixed bottom-6 right-6 z-50">
-    <!-- Chat Box -->
-    <div
-      v-if="open"
-      class="w-[32rem] rounded-xl shadow-2xl bg-white dark:bg-gray-800 border dark:border-gray-700 p-4 flex flex-col"
-    >
-      <!-- Header -->
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-base font-semibold text-gray-800 dark:text-gray-200">💬 AI Assistant</h2>
-        <button
-          @click="toggleOpen"
-          class="text-lg font-bold text-gray-400 hover:text-red-500 transition"
-        >
-          ×
-        </button>
+  <div class="chat-container">
+    <h2>AI Chat Assistant</h2>
+    <div class="chat-messages">
+      <div v-for="(message, index) in messages" :key="index" :class="['message', message.sender]">
+        {{ message.text }}
       </div>
-
-      <!-- Chat Log -->
-      <div
-        class="flex-1 overflow-y-auto border rounded p-3 space-y-3 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100"
-        v-html="chatLog"
-      ></div>
-
-      <!-- Input -->
-      <form @submit.prevent="submit" class="mt-3 flex items-center gap-2">
-        <input
-          v-model="message"
-          class="flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"
-          placeholder="Ask anything..."
-        />
-        <button
-          :disabled="!message.trim()"
-          class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded transition disabled:opacity-50"
-        >
-          <SendHorizontal class="h-5 w-5" />
-        </button>
-      </form>
     </div>
-
-    <!-- Open Button -->
-    <button
-      v-if="!open"
-      @click="toggleOpen"
-      class="bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-lg transition"
-    >
-      💬
-    </button>
+    <div class="chat-input">
+      <input v-model="userQuery" @keyup.enter="sendMessage" placeholder="Ask me anything..." :disabled="loading" />
+      <button @click="sendMessage" :disabled="loading">
+        {{ loading ? 'Sending...' : 'Send' }}
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import axios from 'axios';
-import { SendHorizontal } from 'lucide-vue-next';
+import axios from 'axios'; // Correct import for Axios
 
-const open = ref(false);
-const message = ref('');
-const chatLog = ref('👋 <b>Hi, how can I help you today?</b><br><br>');
+const userQuery = ref('');
+const messages = ref([]);
+const loading = ref(false);
 
-const toggleOpen = () => {
-  open.value = !open.value;
-};
+const sendMessage = async () => {
+  if (!userQuery.value.trim()) return;
 
-const submit = async () => {
-  if (!message.value.trim()) return;
-
-  const userMessage = message.value.trim();
-  chatLog.value += `<div><b>You:</b> ${userMessage}</div>`;
-  message.value = '';
+  // Add user message to display immediately
+  messages.value.push({ sender: 'user', text: userQuery.value });
+  const queryToSend = userQuery.value;
+  userQuery.value = ''; // Clear input
+  loading.value = true;
 
   try {
-    const res = await axios.post('/api/assistant', { message: userMessage });
-    chatLog.value += `<div class="text-green-600 dark:text-green-400"><b>Assistant:</b> ${res.data.answer}</div>`;
-  } catch {
-    chatLog.value += `<div class="text-red-600"><b>Error:</b> Could not process your request.</div>`;
-  }
+    // Make a direct POST request using Axios to your Laravel API endpoint
+    const response = await axios.post('/api/chat-assistant', { query: queryToSend });
 
-  setTimeout(() => {
-    const box = document.querySelector('.overflow-y-auto');
-    box?.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
-  }, 100);
+    // Assuming your Laravel controller returns JSON like:
+    // return response()->json(['reply' => $response->text()]);
+    const aiReply = response.data.reply || 'No specific answer received.';
+    messages.value.push({ sender: 'ai', text: aiReply });
+
+  } catch (error) {
+    console.error('API Error:', error);
+    // Display a user-friendly error message
+    messages.value.push({ sender: 'ai', text: 'Error: Could not get a response from the assistant. Please try again.' });
+  } finally {
+    loading.value = false; // Always stop loading, regardless of success or failure
+  }
 };
 </script>
+
+<style scoped>
+.chat-container {
+  max-width: 600px;
+  margin: 20px auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+}
+
+.chat-messages {
+  flex-grow: 1;
+  padding: 15px;
+  overflow-y: auto;
+  background-color: #f9f9f9;
+}
+
+.message {
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border-radius: 15px;
+  max-width: 80%;
+}
+
+.message.user {
+  background-color: #e0f7fa;
+  align-self: flex-end;
+  margin-left: auto;
+  text-align: right;
+}
+
+.message.ai {
+  background-color: #fff3e0;
+  align-self: flex-start;
+  margin-right: auto;
+}
+
+.chat-input {
+  display: flex;
+  padding: 15px;
+  border-top: 1px solid #eee;
+}
+
+.chat-input input {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.chat-input button {
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.chat-input button:disabled {
+  background-color: #a0cffc;
+  cursor: not-allowed;
+}
+</style>

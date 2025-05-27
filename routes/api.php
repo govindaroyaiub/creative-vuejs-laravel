@@ -2,5 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AssistantController;
+use App\Http\Controllers\Api\ChatAssistantController;
 
-Route::post('/assistant', [AssistantController::class, 'handle'])->name('assistant');
+Route::post('/chat-assistant', [ChatAssistantController::class, 'sendMessage']);

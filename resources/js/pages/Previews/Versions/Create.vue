@@ -27,6 +27,7 @@ const form = useForm({
     sub_version_name: '',
     banners: [],
     socials: [], // <-- Add socials array
+    videos: []
 });
 
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -53,6 +54,75 @@ const handleFileUpload = (e: Event) => {
 
     input.value = '';
 };
+
+const videoSizes = computed(() => page.props.videoSizes || []);
+
+function addVideo() {
+    form.videos.push({
+        id: Date.now() + Math.random(),
+        name: '',
+        size_id: '',
+        codec: '',
+        fps: '',
+        path: null,
+        pathName: '',
+        companion_banner_path: null,
+        companionBannerName: '',
+    });
+}
+function removeVideo(index) {
+    form.videos.splice(index, 1);
+}
+function triggerVideoInput(index) {
+    document.getElementById(`videoInput-${index}`)?.click();
+}
+function triggerBannerInput(index) {
+    document.getElementById(`bannerInput-${index}`)?.click();
+}
+function onVideoFileChange(event, index, field) {
+    const input = event.target;
+    if (input.files && input.files.length > 0) {
+        const file = input.files[0];
+        if (field === 'path') {
+            form.videos[index].path = file;
+            form.videos[index].pathName = file.name;
+        } else if (field === 'companion_banner_path') {
+            if (!file.type.match(/^image\/(jpeg|png|gif)$/)) {
+                alert('Only JPG, PNG, or GIF images are allowed.');
+                return;
+            }
+            form.videos[index].companion_banner_path = file;
+            form.videos[index].companionBannerName = file.name;
+        }
+    }
+}
+
+// Track drag state for each video row/field
+const videoDragActive = ref<{ [key: string]: boolean }>({});
+
+function setVideoDragActive(index: number, type: 'video' | 'banner', active: boolean) {
+    videoDragActive.value[index + '-' + type] = active;
+}
+
+function handleVideoDrop(event: DragEvent, index: number, field: string) {
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+        const file = files[0];
+        if (field === 'path') {
+            form.videos[index].path = file;
+            form.videos[index].pathName = file.name;
+        } else if (field === 'companion_banner_path') {
+            if (!file.type.match(/^image\/(jpeg|png|gif)$/)) {
+                alert('Only JPG, PNG, or GIF images are allowed.');
+                setVideoDragActive(index, field === 'path' ? 'video' : 'banner', false);
+                return;
+            }
+            form.videos[index].companion_banner_path = file;
+            form.videos[index].companionBannerName = file.name;
+        }
+    }
+    setVideoDragActive(index, field === 'path' ? 'video' : 'banner', false);
+}
 
 const handleDrop = (e: DragEvent) => {
     isDragging.value = false;
@@ -172,6 +242,20 @@ const handleSubmit = () => {
             payload.append(`socials[${i}][file]`, s.file);
             payload.append(`socials[${i}][name]`, s.name);
             payload.append(`socials[${i}][position]`, String(i));
+        });
+    }
+
+    if (form.type === 'video') {
+        form.videos.forEach((v, i) => {
+            payload.append(`videos[${i}][name]`, v.name);
+            payload.append(`videos[${i}][size_id]`, v.size_id);
+            payload.append(`videos[${i}][codec]`, v.codec);
+            payload.append(`videos[${i}][fps]`, v.fps);
+            payload.append(`videos[${i}][path]`, v.path);
+            if (v.companion_banner_path) {
+                payload.append(`videos[${i}][companion_banner_path]`, v.companion_banner_path);
+            }
+            payload.append(`videos[${i}][position]`, String(i));
         });
     }
 
@@ -322,6 +406,89 @@ const handleSubmit = () => {
                 </draggable>
             </div>
 
+            <!-- Video Section with Drag-and-Drop for File Inputs -->
+            <div v-if="form.type === 'video'" class="space-y-6">
+                <draggable v-model="form.videos" item-key="id" handle=".handle" class="space-y-3" ghost-class="ghost">
+                    <template #item="{ element: video, index }">
+                        <div class="bg-gray-50 p-4 rounded shadow mb-4 flex gap-2">
+                            <span class="handle cursor-move select-none text-gray-400 mr-2">☰</span>
+                            <div class="flex-1">
+                                <!-- First row: Name, Video Size -->
+                                <div class="grid grid-cols-2 gap-4 mb-2">
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Title</label>
+                                        <input v-model="video.name" type="text" class="input w-full py-2" placeholder="Name" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Video Size</label>
+                                        <select v-model="video.size_id" class="input w-full py-2">
+                                            <option value="">Select Size</option>
+                                            <option v-for="size in videoSizes" :key="size.id" :value="size.id">
+                                                {{ size.name }} ({{ size.width }} x {{ size.height }})
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <!-- Second row: Codec & FPS -->
+                                <div class="grid grid-cols-2 gap-4 mb-2">
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Codec</label>
+                                        <input v-model="video.codec" type="text" class="input w-full py-2"
+                                            placeholder="e.g. h264" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">FPS</label>
+                                        <input v-model="video.fps" type="text" class="input w-full py-2"
+                                            placeholder="e.g. 30 FPS" />
+                                    </div>
+                                </div>
+                                <!-- File uploads with drag-and-drop -->
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Video File</label>
+                                        <div class="drop-area" @click="() => triggerVideoInput(index)"
+                                            @dragover.prevent="setVideoDragActive(index, 'video', true)"
+                                            @dragleave.prevent="setVideoDragActive(index, 'video', false)"
+                                            @drop.prevent="e => handleVideoDrop(e, index, 'path')"
+                                            :class="{ 'drop-active': videoDragActive[index + '-video'] }">
+                                            <span class="text-gray-600 text-sm">Upload Video File Here</span>
+                                            <input :id="`videoInput-${index}`" type="file" accept="video/*"
+                                                class="hidden" @change="e => onVideoFileChange(e, index, 'path')" />
+                                            <div v-if="video.pathName" class="text-xs text-gray-500 mt-1">{{
+                                                video.pathName }}</div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Companion Banner
+                                            (optional)</label>
+                                        <div class="drop-area" @click="() => triggerBannerInput(index)"
+                                            @dragover.prevent="setVideoDragActive(index, 'banner', true)"
+                                            @dragleave.prevent="setVideoDragActive(index, 'banner', false)"
+                                            @drop.prevent="e => handleVideoDrop(e, index, 'companion_banner_path')"
+                                            :class="{ 'drop-active': videoDragActive[index + '-banner'] }">
+                                            <span class="text-gray-600 text-sm">Upload JPG/PNG/GIF Image Here</span>
+                                            <input :id="`bannerInput-${index}`" type="file"
+                                                accept=".jpg,.jpeg,.png,.gif" class="hidden"
+                                                @change="e => onVideoFileChange(e, index, 'companion_banner_path')" />
+                                            <div v-if="video.companionBannerName" class="text-xs text-gray-500 mt-1">{{
+                                                video.companionBannerName }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button @click="removeVideo(index)"
+                                class="text-red-500 hover:underline text-sm mt-2 flex items-center">
+                                <X class="w-4 h-4 mr-1" /> Remove
+                            </button>
+                        </div>
+                    </template>
+                </draggable>
+                <button @click="addVideo"
+                    class="mb-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 w-full flex items-center justify-center">
+                    <span class="mr-2">+</span> Add Video
+                </button>
+            </div>
+
             <!-- Submit Button -->
             <div class="flex space-x-4">
                 <button type="button"
@@ -340,7 +507,22 @@ const handleSubmit = () => {
 </template>
 
 <style scoped>
+.drop-area {
+border: 2px dashed #d1d5db;
+border-radius: 6px;
+padding: 1.5rem 1rem;
+text-align: center;
+transition: border-color 0.2s, background 0.2s;
+background: #f9fafb;
+margin-bottom: 0.5rem;
+cursor: pointer;
+position: relative;
+}
+.drop-area.drop-active {
+border-color: #22c55e;
+background: #e0ffe7;
+}
 .ghost {
-    opacity: 0.5;
+opacity: 0.5;
 }
 </style>
