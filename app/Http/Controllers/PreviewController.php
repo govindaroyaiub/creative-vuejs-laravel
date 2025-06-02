@@ -1607,13 +1607,14 @@ class PreviewController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'videos' => ['required', 'array', 'min:1'],
-            'videos.*.name' => ['required', 'string', 'max:255'],
-            'videos.*.size_id' => ['required', 'exists:video_sizes,id'],
-            'videos.*.codec' => ['required', 'string', 'max:255'],
-            'videos.*.fps' => ['required', 'string', 'max:255'],
-            'videos.*.path' => ['required', 'file', 'mimetypes:video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm'],
+            'videos' => ['nullable', 'array'],
+            'videos.*.name' => ['nullable', 'string', 'max:255'],
+            'videos.*.size_id' => ['nullable', 'exists:video_sizes,id'],
+            'videos.*.codec' => ['nullable', 'string', 'max:255'],
+            'videos.*.fps' => ['nullable', 'string', 'max:255'],
+            'videos.*.path' => ['nullable', 'file', 'mimetypes:video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm'],
             'videos.*.companion_banner_path' => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif'],
+            'videos.*.position' => ['nullable', 'integer'],
         ]);
 
         $subVersion = SubVersion::with('version.preview')->findOrFail($id);
@@ -1626,77 +1627,94 @@ class PreviewController extends Controller
         // 2. Remove all old SubVideo files and records
         $oldVideos = SubVideo::where('sub_version_id', $subVersion->id)->get();
         foreach ($oldVideos as $video) {
-            // Delete video file
             if ($video->path && file_exists(public_path($video->path))) {
                 @unlink(public_path($video->path));
             }
-            // Delete companion banner file if exists
             if ($video->companion_banner_path && file_exists(public_path($video->companion_banner_path))) {
                 @unlink(public_path($video->companion_banner_path));
             }
             $video->delete();
         }
 
-        // 3. Save new videos
-        $uploadPath = public_path('uploads/videos');
-        if (!is_dir($uploadPath)) {
-            mkdir($uploadPath, 0755, true);
-        }
-
-        foreach ($request->videos as $index => $video) {
-            $file = $video['path'];
-            $name = $video['name'];
-            $sizeId = $video['size_id'];
-            $codec = $video['codec'];
-            $fps = $video['fps'];
-            $position = $index;
-
-            // Save video file
-            $ext = $file->getClientOriginalExtension();
-            $filename = $name . '_' . \Str::uuid() . '.' . $ext;
-            $file->move($uploadPath, $filename);
-            $videoPath = $uploadPath . '/' . $filename;
-
-            // Extract metadata
-            $getID3 = new \getID3;
-            $info = $getID3->analyze($videoPath);
-
-            $width = $info['video']['resolution_x'] ?? null;
-            $height = $info['video']['resolution_y'] ?? null;
-            $aspect_ratio = $this->getAspectRatioString($width, $height);
-
-            $file_size_bytes = filesize($videoPath);
-            $file_size = $file_size_bytes >= 1048576
-                ? round($file_size_bytes / 1048576, 2) . ' MB'
-                : round($file_size_bytes / 1024, 2) . ' KB';
-
-            // Handle companion banner if present
-            $companionBannerPath = null;
-            if (!empty($video['companion_banner_path'])) {
-                $bannerFile = $video['companion_banner_path'];
-                $bannerExt = $bannerFile->getClientOriginalExtension();
-                $bannerFilename = $name . '_companion_' . \Str::uuid() . '.' . $bannerExt;
-                $bannerUploadPath = public_path('uploads/videos/companions');
-                if (!is_dir($bannerUploadPath)) {
-                    mkdir($bannerUploadPath, 0755, true);
-                }
-                $bannerFile->move($bannerUploadPath, $bannerFilename);
-                $companionBannerPath = 'uploads/videos/companions/' . $bannerFilename;
+        // 3. If videos are provided, save them
+        if ($request->has('videos') && is_array($request->videos) && count($request->videos) > 0) {
+            $uploadPath = public_path('uploads/videos');
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
             }
 
-            // Save SubVideo
-            SubVideo::create([
-                'sub_version_id' => $subVersion->id,
-                'name' => $name,
-                'path' => 'uploads/videos/' . $filename,
-                'size_id' => $sizeId,
-                'codec' => $codec,
-                'aspect_ratio' => $aspect_ratio,
-                'fps' => $fps,
-                'file_size' => $file_size,
-                'companion_banner_path' => $companionBannerPath,
-                'position' => $position,
-            ]);
+            foreach ($request->videos as $index => $video) {
+                // Only save if at least name, size_id, codec, and fps are present
+                if (
+                    empty($video['name']) &&
+                    empty($video['size_id']) &&
+                    empty($video['codec']) &&
+                    empty($video['fps']) &&
+                    empty($video['path']) &&
+                    empty($video['companion_banner_path'])
+                ) {
+                    continue; // skip empty video slots
+                }
+
+                $name = $video['name'] ?? null;
+                $sizeId = $video['size_id'] ?? null;
+                $codec = $video['codec'] ?? null;
+                $fps = $video['fps'] ?? null;
+                $position = isset($video['position']) ? $video['position'] : $index;
+
+                // Handle video file
+                $videoPath = null;
+                $aspect_ratio = null;
+                $file_size = null;
+                if (!empty($video['path'])) {
+                    $file = $video['path'];
+                    $ext = $file->getClientOriginalExtension();
+                    $filename = ($name ?: 'video') . '_' . \Str::uuid() . '.' . $ext;
+                    $file->move($uploadPath, $filename);
+                    $videoPath = 'uploads/videos/' . $filename;
+
+                    // Extract metadata
+                    $getID3 = new \getID3;
+                    $info = $getID3->analyze($uploadPath . '/' . $filename);
+
+                    $width = $info['video']['resolution_x'] ?? null;
+                    $height = $info['video']['resolution_y'] ?? null;
+                    $aspect_ratio = $this->getAspectRatioString($width, $height);
+
+                    $file_size_bytes = filesize($uploadPath . '/' . $filename);
+                    $file_size = $file_size_bytes >= 1048576
+                        ? round($file_size_bytes / 1048576, 2) . ' MB'
+                        : round($file_size_bytes / 1024, 2) . ' KB';
+                }
+
+                // Handle companion banner if present
+                $companionBannerPath = null;
+                if (!empty($video['companion_banner_path'])) {
+                    $bannerFile = $video['companion_banner_path'];
+                    $bannerExt = $bannerFile->getClientOriginalExtension();
+                    $bannerFilename = ($name ?: 'video') . '_companion_' . \Str::uuid() . '.' . $bannerExt;
+                    $bannerUploadPath = public_path('uploads/videos/companions');
+                    if (!is_dir($bannerUploadPath)) {
+                        mkdir($bannerUploadPath, 0755, true);
+                    }
+                    $bannerFile->move($bannerUploadPath, $bannerFilename);
+                    $companionBannerPath = 'uploads/videos/companions/' . $bannerFilename;
+                }
+
+                // Save SubVideo (fields can be null if not provided)
+                SubVideo::create([
+                    'sub_version_id' => $subVersion->id,
+                    'name' => $name,
+                    'path' => $videoPath,
+                    'size_id' => $sizeId,
+                    'codec' => $codec,
+                    'aspect_ratio' => $aspect_ratio,
+                    'fps' => $fps,
+                    'file_size' => $file_size,
+                    'companion_banner_path' => $companionBannerPath,
+                    'position' => $position,
+                ]);
+            }
         }
 
         return response()->json([
