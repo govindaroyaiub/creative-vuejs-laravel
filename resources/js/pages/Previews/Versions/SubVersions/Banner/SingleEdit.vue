@@ -4,6 +4,7 @@ import { Head, useForm, usePage, router } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
 import { ref, computed } from 'vue';
 
+const saving = ref(false);
 const page = usePage();
 const subBanner = computed(() => page.props.subBanner);
 const bannerSizes = computed(() => page.props.bannerSizes);
@@ -50,6 +51,8 @@ const handleDrop = (e: DragEvent) => {
 };
 
 const handleSubmit = () => {
+    if (saving.value) return;
+    saving.value = true;
     const payload = new FormData();
     payload.append('size_id', form.size_id);
     if (form.zip) {
@@ -59,9 +62,11 @@ const handleSubmit = () => {
     router.post(`/previews/banner/single/edit/${subBanner.value.id}`, payload, {
         forceFormData: true,
         onSuccess: () => {
+            saving.value = false;
             Swal.fire('Success', 'Banner updated successfully.', 'success');
         },
         onError: () => {
+            saving.value = false;
             Swal.fire('Error', 'Something went wrong.', 'error');
         },
     });
@@ -72,7 +77,7 @@ const handleSubmit = () => {
 
     <Head title="Edit Banner" />
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="p-6 max-w-xl mx-auto space-y-6 w-full">
+        <div class="p-6 max-w-4xl mx-auto space-y-6 w-full">
             <div>
                 <label class="block font-medium mb-1">Select Banner Size</label>
                 <select v-model="form.size_id" class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-white">
@@ -97,9 +102,16 @@ const handleSubmit = () => {
             </div>
 
             <div class="pt-4 flex space-x-2">
-                <button @click="handleSubmit"
+                <button @click="handleSubmit" :disabled="saving"
                     class="w-full bg-indigo-600 text-white py-3 rounded hover:bg-indigo-700 focus:outline-none">
-                    Update
+                    <span v-if="!saving">Update</span>
+                    <span v-else class="flex items-center justify-center gap-2">
+                        <svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                        </svg>
+                        Saving...
+                    </span>
                 </button>
                 <a :href="`/previews/show/${preview.id}`"
                     class="w-full text-center rounded-lg bg-red-600 px-6 py-3 text-white shadow-md hover:bg-red-700">

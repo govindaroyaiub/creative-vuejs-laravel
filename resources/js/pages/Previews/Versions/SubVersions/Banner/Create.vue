@@ -7,6 +7,7 @@ import Swal from 'sweetalert2';
 import { ref, computed } from 'vue';
 import axios from 'axios'; // 🔁 use this only when leaving Inertia
 
+const saving = ref(false);
 const page = usePage();
 const version = computed(() => page.props.version);
 const preview = computed(() => version.value.preview);
@@ -123,6 +124,8 @@ const allAssigned = computed(() =>
 );
 
 const handleSubmit = () => {
+    if (saving.value) return;
+    saving.value = true;
     const payload = new FormData();
     payload.append('name', form.name);
     form.banners.forEach((b, i) => {
@@ -133,11 +136,13 @@ const handleSubmit = () => {
 
     axios.post(route('store-banner-subVersion-post', version.value.id), payload)
         .then((response) => {
+            saving.value = false;
             if (response.data?.redirect_to) {
                 window.location.href = response.data.redirect_to;
             }
         })
         .catch(() => {
+            saving.value = false;
             Swal.fire('Error', 'Something went wrong.', 'error');
         });
 };
@@ -217,9 +222,16 @@ const handleSubmit = () => {
 
             <!-- Submit Button -->
             <div class="flex space-x-4">
-                <button type="submit" :disabled="!allAssigned || form.processing" @click="handleSubmit"
+                <button type="submit" :disabled="saving || !allAssigned || form.processing" @click="handleSubmit"
                     class="w-full rounded-lg bg-green-600 px-6 py-3 text-white shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-green-500 dark:hover:bg-green-600">
-                    Save
+                    <span v-if="!saving">Save</span>
+                    <span v-else class="flex items-center justify-center gap-2">
+                        <svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                        </svg>
+                        Saving...
+                    </span>
                 </button>
                 <a :href="`/previews/show/${preview.id}`"
                     class="w-full text-center rounded-lg bg-red-600 px-6 py-3 text-white shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">

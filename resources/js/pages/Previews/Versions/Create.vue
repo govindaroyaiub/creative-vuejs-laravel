@@ -7,6 +7,8 @@ import { X } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 
+const saving = ref(false);
+
 const page = usePage();
 const preview = computed(() => page.props.preview);
 const bannerSizes = computed(() => page.props.bannerSizes.map((s: any) => ({
@@ -222,6 +224,7 @@ const allSocialNamed = computed(() =>
 // --- SOCIAL LOGIC END ---
 
 const handleSubmit = () => {
+    saving.value = true;
     const payload = new FormData();
     payload.append('name', form.name);
     payload.append('description', form.description);
@@ -261,6 +264,7 @@ const handleSubmit = () => {
 
     axios.post(`/previews/version/add/${preview.value.id}`, payload)
         .then((response) => {
+            saving.value = false;
             if (response.data?.redirect_to) {
                 window.location.href = response.data.redirect_to;
             } else {
@@ -268,6 +272,7 @@ const handleSubmit = () => {
             }
         })
         .catch(() => {
+            saving.value = false;
             Swal.fire('Error', 'Something went wrong', 'error');
         });
 };
@@ -417,7 +422,8 @@ const handleSubmit = () => {
                                 <div class="grid grid-cols-2 gap-4 mb-2">
                                     <div>
                                         <label class="block text-sm font-medium mb-1">Title</label>
-                                        <input v-model="video.name" type="text" class="input w-full py-2" placeholder="Name" />
+                                        <input v-model="video.name" type="text" class="input w-full py-2"
+                                            placeholder="Name" />
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium mb-1">Video Size</label>
@@ -492,10 +498,17 @@ const handleSubmit = () => {
             <!-- Submit Button -->
             <div class="flex space-x-4">
                 <button type="button"
-                    :disabled="(form.type === 'banner' && (!allAssigned || form.processing)) || (form.type === 'social' && (!allSocialNamed || form.processing))"
+                    :disabled="saving || (form.type === 'banner' && (!allAssigned || form.processing)) || (form.type === 'social' && (!allSocialNamed || form.processing))"
                     @click="handleSubmit"
                     class="w-full rounded-lg bg-green-600 px-6 py-3 text-white shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-green-500 dark:hover:bg-green-600">
-                    Save
+                    <span v-if="!saving">Save</span>
+                    <span v-else class="flex items-center justify-center gap-2">
+                        <svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                        </svg>
+                        Saving...
+                    </span>
                 </button>
                 <a :href="`/previews/show/${preview.id}`"
                     class="w-full text-center rounded-lg bg-red-600 px-6 py-3 text-white shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
@@ -508,21 +521,23 @@ const handleSubmit = () => {
 
 <style scoped>
 .drop-area {
-border: 2px dashed #d1d5db;
-border-radius: 6px;
-padding: 1.5rem 1rem;
-text-align: center;
-transition: border-color 0.2s, background 0.2s;
-background: #f9fafb;
-margin-bottom: 0.5rem;
-cursor: pointer;
-position: relative;
+    border: 2px dashed #d1d5db;
+    border-radius: 6px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    transition: border-color 0.2s, background 0.2s;
+    background: #f9fafb;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    position: relative;
 }
+
 .drop-area.drop-active {
-border-color: #22c55e;
-background: #e0ffe7;
+    border-color: #22c55e;
+    background: #e0ffe7;
 }
+
 .ghost {
-opacity: 0.5;
+    opacity: 0.5;
 }
 </style>

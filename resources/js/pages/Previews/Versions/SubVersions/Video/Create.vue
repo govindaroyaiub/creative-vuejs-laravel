@@ -6,6 +6,7 @@ import { Plus, X } from 'lucide-vue-next';
 import draggable from 'vuedraggable';
 import axios from 'axios'; // Use axios for API requests
 
+const saving = ref(false);
 const page = usePage();
 const version = computed(() => page.props.version);
 const preview = computed(() => version.value.preview);
@@ -16,6 +17,30 @@ const breadcrumbs = [
     { title: preview.value.name, href: `/previews/show/${preview.value.id}` },
     { title: 'Create Video Sub Version', href: '#' },
 ];
+
+const dragActive = ref<{ [key: string]: boolean }>({});
+
+function setDragActive(index: number, type: 'video' | 'banner', active: boolean) {
+    dragActive.value[`${index}-${type}`] = active;
+}
+
+function handleDropFile(e: DragEvent, index: number, field: 'path' | 'companion_banner_path') {
+    setDragActive(index, field === 'path' ? 'video' : 'banner', false);
+    const files = e.dataTransfer?.files;
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    if (field === 'path') {
+        form.videos[index].path = file;
+        form.videos[index].pathName = file.name;
+    } else if (field === 'companion_banner_path') {
+        if (!file.type.match(/^image\/(jpeg|png|gif)$/)) {
+            alert('Only JPG, PNG, or GIF images are allowed.');
+            return;
+        }
+        form.videos[index].companion_banner_path = file;
+        form.videos[index].companionBannerName = file.name;
+    }
+}
 
 const form = useForm({
     name: '',
@@ -83,6 +108,8 @@ function handleSubmit() {
         return;
     }
 
+    saving.value = true; // Start loading
+
     const formData = new FormData();
     formData.append('name', form.name);
 
@@ -101,11 +128,13 @@ function handleSubmit() {
         headers: { 'Content-Type': 'multipart/form-data' }
     })
         .then((response) => {
+            saving.value = false; // Stop loading
             if (response.data?.redirect_to) {
                 window.location.href = response.data.redirect_to;
             }
         })
         .catch(() => {
+            saving.value = false; // Stop loading
             Swal.fire('Error', 'Something went wrong.', 'error');
         });
 }
@@ -156,18 +185,32 @@ function handleSubmit() {
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium mb-1">Video File</label>
-                                    <div class="drop-area" @click="() => triggerInput(i, 'video')">
-                                        <span class="text-gray-600 text-sm">Upload Video File Here</span>
+                                    <div class="drop-area" :class="{ 'drop-active': dragActive[`${i}-video`] }"
+                                        @click="() => triggerInput(i, 'video')"
+                                        @dragover.prevent="setDragActive(i, 'video', true)"
+                                        @dragleave.prevent="setDragActive(i, 'video', false)"
+                                        @drop.prevent="e => handleDropFile(e, i, 'path')">
+                                        <span v-if="!dragActive[`${i}-video`]" class="text-gray-600 text-sm">Upload
+                                            Video File Here</span>
+                                        <span v-else class="text-green-600 text-sm font-semibold">Drop video
+                                            file!</span>
                                         <input :id="`videoInput-${i}`" type="file" accept="video/*" class="hidden"
                                             @change="e => onFileChange(e, i, 'path')" />
                                         <div v-if="video.pathName" class="text-xs text-gray-500 mt-1">{{ video.pathName
-                                            }}</div>
+                                        }}</div>
                                     </div>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium mb-1">Companion Banner (optional)</label>
-                                    <div class="drop-area" @click="() => triggerInput(i, 'banner')">
-                                        <span class="text-gray-600 text-sm">Upload JPG/PNG/GIF Image Here</span>
+                                    <div class="drop-area" :class="{ 'drop-active': dragActive[`${i}-banner`] }"
+                                        @click="() => triggerInput(i, 'banner')"
+                                        @dragover.prevent="setDragActive(i, 'banner', true)"
+                                        @dragleave.prevent="setDragActive(i, 'banner', false)"
+                                        @drop.prevent="e => handleDropFile(e, i, 'companion_banner_path')">
+                                        <span v-if="!dragActive[`${i}-banner`]" class="text-gray-600 text-sm">Upload
+                                            JPG/PNG/GIF Image Here</span>
+                                        <span v-else class="text-green-600 text-sm font-semibold">Drop image
+                                            file!</span>
                                         <input :id="`bannerInput-${i}`" type="file" accept=".jpg,.jpeg,.png,.gif"
                                             class="hidden" @change="e => onFileChange(e, i, 'companion_banner_path')" />
                                         <div v-if="video.companionBannerName" class="text-xs text-gray-500 mt-1">{{
@@ -190,8 +233,15 @@ function handleSubmit() {
             <!-- Submit Button -->
             <div class="flex space-x-4">
                 <button class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-                    :disabled="form.processing" @click="handleSubmit">
-                    Save
+                    :disabled="form.processing || saving" @click="handleSubmit">
+                    <span v-if="!saving">Save</span>
+                    <span v-else class="flex items-center justify-center gap-2">
+                        <svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                        </svg>
+                        Saving...
+                    </span>
                 </button>
                 <a :href="`/previews/show/${preview.id}`"
                     class="w-full text-center rounded-lg bg-red-600 px-6 py-3 text-white shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">

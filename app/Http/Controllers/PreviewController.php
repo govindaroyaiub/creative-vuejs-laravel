@@ -1605,6 +1605,218 @@ class PreviewController extends Controller
 
     public function updateVideoSubVersion(Request $request, $id)
     {
-        dd($request->all());
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'videos' => ['required', 'array', 'min:1'],
+            'videos.*.name' => ['required', 'string', 'max:255'],
+            'videos.*.size_id' => ['required', 'exists:video_sizes,id'],
+            'videos.*.codec' => ['required', 'string', 'max:255'],
+            'videos.*.fps' => ['required', 'string', 'max:255'],
+            'videos.*.path' => ['required', 'file', 'mimetypes:video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm'],
+            'videos.*.companion_banner_path' => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif'],
+        ]);
+
+        $subVersion = SubVersion::with('version.preview')->findOrFail($id);
+
+        // 1. Update SubVersion name
+        $subVersion->update([
+            'name' => $request->name,
+        ]);
+
+        // 2. Remove all old SubVideo files and records
+        $oldVideos = SubVideo::where('sub_version_id', $subVersion->id)->get();
+        foreach ($oldVideos as $video) {
+            // Delete video file
+            if ($video->path && file_exists(public_path($video->path))) {
+                @unlink(public_path($video->path));
+            }
+            // Delete companion banner file if exists
+            if ($video->companion_banner_path && file_exists(public_path($video->companion_banner_path))) {
+                @unlink(public_path($video->companion_banner_path));
+            }
+            $video->delete();
+        }
+
+        // 3. Save new videos
+        $uploadPath = public_path('uploads/videos');
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0755, true);
+        }
+
+        foreach ($request->videos as $index => $video) {
+            $file = $video['path'];
+            $name = $video['name'];
+            $sizeId = $video['size_id'];
+            $codec = $video['codec'];
+            $fps = $video['fps'];
+            $position = $index;
+
+            // Save video file
+            $ext = $file->getClientOriginalExtension();
+            $filename = $name . '_' . \Str::uuid() . '.' . $ext;
+            $file->move($uploadPath, $filename);
+            $videoPath = $uploadPath . '/' . $filename;
+
+            // Extract metadata
+            $getID3 = new \getID3;
+            $info = $getID3->analyze($videoPath);
+
+            $width = $info['video']['resolution_x'] ?? null;
+            $height = $info['video']['resolution_y'] ?? null;
+            $aspect_ratio = $this->getAspectRatioString($width, $height);
+
+            $file_size_bytes = filesize($videoPath);
+            $file_size = $file_size_bytes >= 1048576
+                ? round($file_size_bytes / 1048576, 2) . ' MB'
+                : round($file_size_bytes / 1024, 2) . ' KB';
+
+            // Handle companion banner if present
+            $companionBannerPath = null;
+            if (!empty($video['companion_banner_path'])) {
+                $bannerFile = $video['companion_banner_path'];
+                $bannerExt = $bannerFile->getClientOriginalExtension();
+                $bannerFilename = $name . '_companion_' . \Str::uuid() . '.' . $bannerExt;
+                $bannerUploadPath = public_path('uploads/videos/companions');
+                if (!is_dir($bannerUploadPath)) {
+                    mkdir($bannerUploadPath, 0755, true);
+                }
+                $bannerFile->move($bannerUploadPath, $bannerFilename);
+                $companionBannerPath = 'uploads/videos/companions/' . $bannerFilename;
+            }
+
+            // Save SubVideo
+            SubVideo::create([
+                'sub_version_id' => $subVersion->id,
+                'name' => $name,
+                'path' => 'uploads/videos/' . $filename,
+                'size_id' => $sizeId,
+                'codec' => $codec,
+                'aspect_ratio' => $aspect_ratio,
+                'fps' => $fps,
+                'file_size' => $file_size,
+                'companion_banner_path' => $companionBannerPath,
+                'position' => $position,
+            ]);
+        }
+
+        return response()->json([
+            'redirect_to' => route('edit-video-subVersion', $subVersion->id),
+            'message' => 'Video SubVersion updated successfully.',
+        ]);
+    }
+
+    public function singleVideoEdit($id)
+    {
+        $subVideo = SubVideo::findOrFail($id);
+        $subVersion = SubVersion::findOrFail($subVideo->sub_version_id);
+        $version = Version::findOrFail($subVersion->version_id);
+        $preview = Preview::findOrFail($version->preview_id);
+
+        $videoSizes = VideoSize::all(['id', 'name', 'width', 'height']);
+
+        return Inertia::render('Previews/Versions/SubVersions/Video/SingleEdit', [
+            'subVideo' => [
+                'id' => $subVideo->id,
+                'name' => $subVideo->name,
+                'size_id' => $subVideo->size_id,
+                'codec' => $subVideo->codec,
+                'fps' => $subVideo->fps,
+                'path' => $subVideo->path,
+                'companion_banner_path' => $subVideo->companion_banner_path,
+            ],
+            'videoSizes' => $videoSizes,
+            'preview' => [
+                'id' => $preview->id,
+                'name' => $preview->name,
+            ],
+        ]);
+    }
+
+    public function singleVideoUpdate($id, Request $request)
+    {
+        $request->validate([
+            'size_id' => ['required', 'exists:video_sizes,id'],
+            'codec' => ['required', 'string', 'max:255'],
+            'fps' => ['required', 'string', 'max:255'],
+            'videoFile' => ['nullable', 'file', 'mimetypes:video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm'],
+            'companionBanner' => ['nullable', 'file', 'mimes:jpg,jpeg,png,gif'],
+            'remove_companion_banner' => ['nullable', 'boolean'],
+        ]);
+
+        $subVideo = SubVideo::findOrFail($id);
+
+        // --- Handle video file replacement ---
+        if ($request->hasFile('videoFile')) {
+            // Delete old video file
+            if ($subVideo->path && file_exists(public_path($subVideo->path))) {
+                @unlink(public_path($subVideo->path));
+            }
+
+            // Save new video file
+            $file = $request->file('videoFile');
+            $ext = $file->getClientOriginalExtension();
+            $filename = $subVideo->name . '_' . \Str::uuid() . '.' . $ext;
+            $uploadPath = public_path('uploads/videos');
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+            $file->move($uploadPath, $filename);
+            $videoPath = $uploadPath . '/' . $filename;
+
+            // Extract metadata
+            $getID3 = new \getID3;
+            $info = $getID3->analyze($videoPath);
+
+            $width = $info['video']['resolution_x'] ?? null;
+            $height = $info['video']['resolution_y'] ?? null;
+            $aspect_ratio = $this->getAspectRatioString($width, $height);
+
+            $file_size_bytes = filesize($videoPath);
+            $file_size = $file_size_bytes >= 1048576
+                ? round($file_size_bytes / 1048576, 2) . ' MB'
+                : round($file_size_bytes / 1024, 2) . ' KB';
+
+            $subVideo->path = 'uploads/videos/' . $filename;
+            $subVideo->aspect_ratio = $aspect_ratio;
+            $subVideo->file_size = $file_size;
+        }
+
+        // --- Handle companion banner replacement ---
+        if ($request->hasFile('companionBanner')) {
+            // Delete old companion banner file
+            if ($subVideo->companion_banner_path && file_exists(public_path($subVideo->companion_banner_path))) {
+                @unlink(public_path($subVideo->companion_banner_path));
+            }
+
+            // Save new companion banner file
+            $bannerFile = $request->file('companionBanner');
+            $bannerExt = $bannerFile->getClientOriginalExtension();
+            $bannerFilename = $subVideo->name . '_companion_' . \Str::uuid() . '.' . $bannerExt;
+            $bannerUploadPath = public_path('uploads/videos/companions');
+            if (!is_dir($bannerUploadPath)) {
+                mkdir($bannerUploadPath, 0755, true);
+            }
+            $bannerFile->move($bannerUploadPath, $bannerFilename);
+            $subVideo->companion_banner_path = 'uploads/videos/companions/' . $bannerFilename;
+        }
+
+        // --- Handle companion banner removal ---
+        if ($request->boolean('remove_companion_banner')) {
+            if ($subVideo->companion_banner_path && file_exists(public_path($subVideo->companion_banner_path))) {
+                @unlink(public_path($subVideo->companion_banner_path));
+            }
+            $subVideo->companion_banner_path = null;
+        }
+
+        // --- Update other fields ---
+        $subVideo->size_id = $request->size_id;
+        $subVideo->codec = $request->codec;
+        $subVideo->fps = $request->fps;
+        $subVideo->save();
+
+        return response()->json([
+            'redirect_to' => route('single-video-edit', $subVideo->id),
+            'message' => 'Video updated successfully.',
+        ]);
     }
 }

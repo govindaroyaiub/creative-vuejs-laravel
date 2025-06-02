@@ -6,6 +6,7 @@ import { X } from 'lucide-vue-next';
 import draggable from 'vuedraggable';
 import Swal from 'sweetalert2';
 
+const saving = ref(false);
 const page = usePage();
 const subVersion = computed(() => page.props.subVersion);
 const version = computed(() => page.props.version);
@@ -122,6 +123,8 @@ const allAssigned = computed(() =>
 );
 
 const handleSubmit = () => {
+    if (saving.value) return;
+    saving.value = true;
     const payload = new FormData();
     payload.append('name', form.name);
 
@@ -136,9 +139,11 @@ const handleSubmit = () => {
         onSuccess: () => {
             Swal.fire('Success', 'SubVersion updated successfully.', 'success');
             form.banners = [];
+            saving.value = false;
         },
         onError: () => {
             Swal.fire('Error', 'Failed to update SubVersion.', 'error');
+            saving.value = false;
         },
     });
 };
@@ -216,10 +221,17 @@ const handleSubmit = () => {
 
             <!-- Submit -->
             <div class="flex space-x-4">
-                <button type="submit" :disabled="form.processing || (!form.name.trim() && !allAssigned)"
+                <button type="submit" :disabled="saving || form.processing || (!form.name.trim() && !allAssigned)"
                     @click="handleSubmit"
                     class="w-full rounded-lg bg-indigo-600 px-6 py-3 text-white shadow-md hover:bg-indigo-700">
-                    Update
+                    <span v-if="!saving">Update</span>
+                    <span v-else class="flex items-center justify-center gap-2">
+                        <svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                        </svg>
+                        Saving...
+                    </span>
                 </button>
                 <a :href="`/previews/show/${preview.id}`"
                     class="w-full text-center rounded-lg bg-red-600 px-6 py-3 text-white shadow-md hover:bg-red-700">
