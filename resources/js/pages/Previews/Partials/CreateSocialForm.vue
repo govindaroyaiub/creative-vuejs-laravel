@@ -91,10 +91,11 @@ const triggerInput = () => fileInput.value?.click();
 
 const handleSubmit = () => {
     loading.value = true;
-    setTimeout(() => {
-        emit('submit');
-        loading.value = false;
-    }, 600);
+    emit('submit', {
+        onDone: () => {
+            loading.value = false;
+        }
+    });
 };
 
 const handleFileUpload = (e: Event) => {

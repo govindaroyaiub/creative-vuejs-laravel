@@ -98,10 +98,10 @@
                     @if($preview->show_planetnine_logo)
                         <img src="{{ asset('logos/' . $client['logo']) }}" id="planetnineLogo" class="py-3" alt="planetnineLogo">
                     @endif
-                    <h1 class="mt-1" style="font-size: 1rem;">Client Name: <span>{{ $client['name'] }}</span></h1>
-                    <h1 style="font-size: 1rem;">Project Name: <span>{{ $preview['name'] }}</span></h1>
-                    <h1 style="font-size: 1rem;" class="font-semibold">
-                        Date: <span>{{ \Carbon\Carbon::parse($preview['created_at'])->format('F j, Y') }}</span>
+                    <h1 style="font-size: 1rem;"><span class="font-semibold">Name: </span> <span class="capitalize">{{ $preview['name'] }}</span></h1>
+                    <h1 class="mt-1" style="font-size: 1rem;"><span class="font-semibold">Client: </span> <span class="capitalize">{{ $client['name'] }}</span></h1>
+                    <h1 style="font-size: 1rem;">
+                        <span class="font-semibold">Date: </span> <span>{{ \Carbon\Carbon::parse($preview['created_at'])->format('F j, Y') }}</span>
                     </h1>
                 </div>
             </div>
@@ -132,8 +132,10 @@
                                     alt="clientLogo" style="width: 150px;">
                             </div>
                             @endif
-
-                            <h2 style="padding-top: 10px; font-size: 24px; text-decoration: underline; text-align: center;">Creative Showcase</h2>
+                            
+                            <div class="sidebar-image mx-auto mt-3 mb-3">
+                                <span>Creative Showcase</span>
+                            </div>
 
                             <div id="creative-list2"></div>
                         </div>

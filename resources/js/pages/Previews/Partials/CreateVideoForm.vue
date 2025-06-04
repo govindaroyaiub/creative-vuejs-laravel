@@ -38,7 +38,8 @@
                                         <span class="text-gray-600 text-sm">
                                             Upload Video File Here
                                         </span>
-                                        <input ref="videoInputs" type="file" accept="video/*" class="hidden"
+                                        <input type="file" accept="video/*" class="hidden"
+                                            :ref="el => videoInputs[i] = el"
                                             @change="onFileChange($event, i, 'path')" />
                                         <div v-if="video.pathName" class="text-xs text-gray-500 mt-1">{{ video.pathName
                                             }}</div>
@@ -55,8 +56,9 @@
                                         <span class="text-gray-600 text-sm">
                                             Upload JPG/PNG/GIF Image Here
                                         </span>
-                                        <input ref="bannerInputs" type="file" accept=".jpg,.jpeg,.png,.gif"
-                                            class="hidden" @change="onFileChange($event, i, 'companion_banner_path')" />
+                                        <input type="file" accept=".jpg,.jpeg,.png,.gif" class="hidden"
+                                            :ref="el => bannerInputs[i] = el"
+                                            @change="onFileChange($event, i, 'companion_banner_path')" />
                                         <div v-if="video.companionBannerName" class="text-xs text-gray-500 mt-1">{{
                                             video.companionBannerName }}</div>
                                     </div>
@@ -105,8 +107,8 @@ const props = defineProps<{
 
 const videos = ref(props.form.videos ?? []);
 const dragActive = ref<{ [key: string]: boolean }>({});
-const videoInputs = ref([]);
-const bannerInputs = ref([]);
+const videoInputs = ref<any[]>([]);
+const bannerInputs = ref<any[]>([]);
 const loading = ref(false);
 
 watch(videos, (val) => {
@@ -120,7 +122,7 @@ const allAssigned = computed(() =>
 
 function addVideo() {
     videos.value.push({
-        id: Date.now() + Math.random(), // use uuid in production if needed
+        id: Date.now() + Math.random(),
         name: '',
         path: null,
         pathName: '',
@@ -190,11 +192,11 @@ function handleSubmit() {
         return;
     }
     loading.value = true;
-    // Simulate async upload, replace with your actual submit logic
-    setTimeout(() => {
-        loading.value = false;
-        emit('submit');
-    }, 1500);
+    emit('submit', {
+        onDone: () => {
+            loading.value = false;
+        }
+    });
 }
 
 const emit = defineEmits(['submit', 'previous']);

@@ -9,6 +9,9 @@ import PreviewStepProjectType from './Partials/PreviewStepProjectType.vue';
 import CreateBannerForm from './Partials/CreateBannerForm.vue';
 import CreateSocialForm from './Partials/CreateSocialForm.vue';
 import CreateVideoForm from './Partials/CreateVideoForm.vue';
+import CreateGifForm from './Partials/CreateGifForm.vue';
+
+const loading = ref(false);
 
 const page = usePage();
 const search = ref('');
@@ -137,14 +140,14 @@ const submitForm = () => {
             payload.append(`banners[${i}][position]`, i);
         });
     }
-    else if (formData.value.type === 'Social') {
+     if (formData.value.type === 'Social') {
         formData.value.socials.forEach((social, i) => {
             payload.append(`socials[${i}][file]`, social.file);
             payload.append(`socials[${i}][name]`, social.name);
             payload.append(`socials[${i}][position]`, i);
         });
     }
-    else if (formData.value.type === 'Video') {
+    if (formData.value.type === 'Video') {
         formData.value.videos.forEach((video, i) => {
             payload.append(`videos[${i}][path]`, video.path);
             if (video.companion_banner_path) {
@@ -155,6 +158,13 @@ const submitForm = () => {
             payload.append(`videos[${i}][codec]`, video.codec);
             payload.append(`videos[${i}][fps]`, video.fps);
             payload.append(`videos[${i}][position]`, i);
+        });
+    }
+    if (formData.value.type === 'Gif') {
+        formData.value.gifs.forEach((gif, i) => {
+            payload.append(`gifs[${i}][file]`, gif.file);
+            payload.append(`gifs[${i}][size_id]`, gif.size_id);
+            payload.append(`gifs[${i}][position]`, i);
         });
     }
 
@@ -193,6 +203,7 @@ const getStepComponent = (step: number) => {
             if (formData.value.type === 'Banner') return CreateBannerForm;
             if (formData.value.type === 'Video') return CreateVideoForm;
             if (formData.value.type === 'Social') return CreateSocialForm;
+            if (formData.value.type === 'Gif') return CreateGifForm;
             return { template: '<div class="text-center text-gray-500">Submitting...</div>' };
         default: return { template: '<div class="text-center text-gray-500">Submitting...</div>' };
     }
@@ -212,13 +223,13 @@ const stepProps = computed(() => ({
     ...(step.value === 3 && formData.value.type === 'Video' && {
         videoSizes: videoSizes.value,
     }),
-    // Add any additional props for Social form if needed
+    ...(step.value === 3 && formData.value.type === 'Gif' && {
+        bannerSizes: bannerSizes.value,
+    }),
 }));
 </script>
 
-
 <template>
-
     <Head title="Previews" />
     <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }]">
         <div class="p-6 space-y-6">
@@ -250,7 +261,7 @@ const stepProps = computed(() => ({
                             class="hover:bg-gray-50 dark:hover:bg-gray-800">
                             <td class="text-center px-4 py-3 font-medium">{{ index + 1 }}</td>
                             <td class="px-4 py-3 text-left">
-                                <div class="font-semibold">{{ preview.name }}</div>
+                                <div class="font-semibold capitalize">{{ preview.name }}</div>
                                 <div class="text-xs text-gray-500">{{ preview.client?.name ?? '-' }}</div>
                             </td>
                             <td class="px-4 py-3 text-center">

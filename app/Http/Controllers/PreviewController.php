@@ -112,6 +112,7 @@ class PreviewController extends Controller
 
     public function store(Request $request)
     {
+        dd($request->all());
         $request->validate([
             'name' => 'required|string|max:255',
             'client_id' => 'required|exists:clients,id',
@@ -142,6 +143,11 @@ class PreviewController extends Controller
             'videos.*.size_id' => 'required|exists:video_sizes,id',
             'videos.*.path' => 'required|file|mimetypes:video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm',
             'videos.*.companion_banner_path' => 'nullable|file|mimes:jpg,jpeg,png,gif',
+            'gifs' => 'nullable|array',
+            'gifs.*.file' => 'required_with:gifs|file|mimes:gif',
+            'gifs.*.sizes' => 'required_with:gifs|array|size:1',
+            'gifs.*.sizes.0' => 'required_with:gifs|exists:banner_sizes,id',
+            'gifs.*.position' => 'nullable|integer',
         ]);
 
         DB::transaction(function () use ($request) {
@@ -345,6 +351,63 @@ class PreviewController extends Controller
                         'companion_banner_path' => $companionBannerPath,
                         'position' => $position,
                     ]);
+                }
+            }
+            if ($request->type === 'Gif') {
+                // 1. Create Version
+                $version = $preview->versions()->create([
+                    'name' => $request->version_name ?: 'Master',
+                    'description' => $request->version_description ?: 'Master Started',
+                    'type' => 'gif',
+                    'is_active' => true,
+                ]);
+
+                // 2. Create SubVersion
+                $subVersion = $version->subVersions()->create([
+                    'name' => $request->subversion_name ?: 'Version_1',
+                    'is_active' => $request->boolean('subversion_active', true),
+                ]);
+
+                // 3. Handle GIF uploads
+                $uploadPath = public_path('uploads/gifs');
+                if (!is_dir($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+
+                if (is_array($request->gifs)) {
+                    foreach ($request->gifs as $index => $gif) {
+                        // Defensive: skip if file or sizes missing
+                        if (empty($gif['file']) || empty($gif['sizes'][0])) {
+                            continue;
+                        }
+
+                        $file = $gif['file'];
+                        $sizeId = $gif['sizes'][0];
+                        $position = $index;
+
+                        // Generate a unique filename
+                        $ext = $file->getClientOriginalExtension();
+                        $filename = 'gif_' . Str::uuid() . '.' . $ext;
+
+                        // Move the file
+                        $file->move($uploadPath, $filename);
+
+                        // Get readable file size
+                        $sizeInBytes = $file->getSize();
+                        $fileSize = $sizeInBytes >= 1048576
+                            ? round($sizeInBytes / 1048576, 2) . ' MB'
+                            : round($sizeInBytes / 1024, 2) . ' KB';
+
+                        // Save SubGif
+                        SubGif::create([
+                            'sub_version_id' => $subVersion->id,
+                            'name' => $filename,
+                            'path' => 'uploads/gifs/' . $filename,
+                            'size_id' => $sizeId,
+                            'file_size' => $fileSize,
+                            'position' => $position,
+                        ]);
+                    }
                 }
             }
         });
