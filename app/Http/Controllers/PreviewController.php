@@ -1002,7 +1002,7 @@ class PreviewController extends Controller
             'socials.*.name' => 'required_if:type,social|string|max:255',
             'socials.*.position' => 'required_if:type,social|integer',
 
-            // Add to your $request->validate([...]) array:
+            // Video validation
             'videos' => 'required_if:type,video|array|min:1',
             'videos.*.name' => 'required_if:type,video|string|max:255',
             'videos.*.size_id' => 'required_if:type,video|exists:video_sizes,id',
@@ -1011,6 +1011,12 @@ class PreviewController extends Controller
             'videos.*.path' => 'required_if:type,video|file|mimetypes:video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm',
             'videos.*.companion_banner_path' => 'nullable|file|mimes:jpg,png,gif',
             'videos.*.position' => 'required_if:type,video|integer',
+            // GIF validation
+            'gifs' => 'required_if:type,gif|array|min:1',
+            'gifs.*.file' => 'required_if:type,gif|file|mimes:gif',
+            'gifs.*.sizes' => 'required_if:type,gif|array|size:1',
+            'gifs.*.sizes.0' => 'required_if:type,gif|exists:banner_sizes,id',
+            'gifs.*.position' => 'required_if:type,gif|integer',
         ]);
 
         DB::transaction(function () use ($request, $id) {
@@ -1170,6 +1176,46 @@ class PreviewController extends Controller
                         'fps' => $fps,
                         'file_size' => $file_size,
                         'companion_banner_path' => $companionBannerPath,
+                        'position' => $position,
+                    ]);
+                }
+            }
+            if ($request->type === 'gif') {
+                $uploadPath = public_path('uploads/gifs');
+                if (!is_dir($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+
+                foreach ($request->gifs as $index => $gif) {
+                    // Defensive: skip if file or sizes missing
+                    if (empty($gif['file']) || empty($gif['sizes'][0])) {
+                        continue;
+                    }
+
+                    $file = $gif['file'];
+                    $sizeId = $gif['sizes'][0];
+                    $position = $gif['position'] ?? $index;
+
+                    // Generate a unique filename
+                    $ext = $file->getClientOriginalExtension();
+                    $filename = 'gif_' . \Str::uuid() . '.' . $ext;
+
+                    // Get file size BEFORE move
+                    $sizeInBytes = $file->getSize();
+                    $fileSize = $sizeInBytes >= 1048576
+                        ? round($sizeInBytes / 1048576, 2) . ' MB'
+                        : round($sizeInBytes / 1024, 2) . ' KB';
+
+                    // Move the file
+                    $file->move($uploadPath, $filename);
+
+                    // Save SubGif
+                    SubGif::create([
+                        'sub_version_id' => $subVersion->id,
+                        'name' => $filename,
+                        'path' => 'uploads/gifs/' . $filename,
+                        'size_id' => $sizeId,
+                        'file_size' => $fileSize,
                         'position' => $position,
                     ]);
                 }
@@ -1898,5 +1944,207 @@ class PreviewController extends Controller
             'redirect_to' => route('single-video-edit', $subVideo->id),
             'message' => 'Video updated successfully.',
         ]);
+    }
+
+    public function createGifSubVersion($id)
+    {
+        $version = Version::with('preview')->findOrFail($id);
+        $preview = $version->preview;
+
+        // Fetch banner sizes ordered by width and then height
+        $bannerSizes = BannerSize::orderBy('width')->orderBy('height')->get(['id', 'width', 'height'])
+            ->map(function ($s) {
+                $s->label = "{$s->width}x{$s->height}";
+                return $s;
+            });
+
+        return Inertia::render('Previews/Versions/SubVersions/Gif/Create', [
+            'version' => $version,
+            'preview' => $preview,
+            'bannerSizes' => $bannerSizes,
+        ]);
+    }
+
+    public function storeGifSubVersion(Request $request, $id)
+    {
+        $request->validate([
+            'sub_version_name' => 'required|string|max:255',
+            'gifs' => 'required|array|min:1',
+            'gifs.*.file' => 'required|file|mimes:gif',
+            'gifs.*.sizes' => 'required|array|size:1',
+            'gifs.*.sizes.0' => 'required|exists:banner_sizes,id',
+            'gifs.*.position' => 'required|integer',
+        ]);
+
+        $version = Version::findOrFail($id);
+
+        DB::transaction(function () use ($request, $version) {
+            // 1. Deactivate other subversions for this version
+            SubVersion::where('version_id', $version->id)->update(['is_active' => false]);
+
+            // 2. Create the new active subversion
+            $subVersion = SubVersion::create([
+                'version_id' => $version->id,
+                'name' => $request->sub_version_name,
+                'is_active' => true,
+            ]);
+
+            // 3. Handle GIF uploads
+            $uploadPath = public_path('uploads/gifs');
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+
+            foreach ($request->gifs as $index => $gif) {
+                if (empty($gif['file']) || empty($gif['sizes'][0])) {
+                    continue;
+                }
+
+                $file = $gif['file'];
+                $sizeId = $gif['sizes'][0];
+                $position = $gif['position'] ?? $index;
+
+                // Generate a unique filename
+                $ext = $file->getClientOriginalExtension();
+                $filename = 'gif_' . \Str::uuid() . '.' . $ext;
+
+                // Get file size BEFORE move
+                $sizeInBytes = $file->getSize();
+                $fileSize = $sizeInBytes >= 1048576
+                    ? round($sizeInBytes / 1048576, 2) . ' MB'
+                    : round($sizeInBytes / 1024, 2) . ' KB';
+
+                // Move the file
+                $file->move($uploadPath, $filename);
+
+                // Save SubGif
+                SubGif::create([
+                    'sub_version_id' => $subVersion->id,
+                    'name' => $filename,
+                    'path' => 'uploads/gifs/' . $filename,
+                    'size_id' => $sizeId,
+                    'file_size' => $fileSize,
+                    'position' => $position,
+                ]);
+            }
+        });
+
+        return response()->json([
+            'redirect_to' => route('previews-show', $version->preview_id),
+            'message' => 'GIF Sub Version created successfully.',
+        ]);
+    }
+
+    public function editGifSubVersion($id)
+    {
+        $subVersion = SubVersion::with([
+            'version.preview',
+            'gifs' => function ($q) {
+                $q->orderBy('position');
+            }
+        ])->findOrFail($id);
+
+        $version = $subVersion->version;
+        $preview = $version->preview;
+
+        // Fetch banner sizes ordered by width and then height
+        $bannerSizes = BannerSize::orderBy('width')->orderBy('height')->get(['id', 'width', 'height'])
+            ->map(function ($s) {
+                $s->label = "{$s->width}x{$s->height}";
+                return $s;
+            });
+
+        return Inertia::render('Previews/Versions/SubVersions/Gif/Edit', [
+            'subVersion' => $subVersion,
+            'version' => $version,
+            'preview' => $preview,
+            'bannerSizes' => $bannerSizes,
+        ]);
+    }
+
+    public function updateGifSubVersion(Request $request, $id)
+    {
+        $request->validate([
+            'sub_version_name' => 'required|string|max:255',
+            'gifs' => 'required|array|min:1',
+            'gifs.*.sizes' => 'required|array|size:1',
+            'gifs.*.sizes.0' => 'required|exists:banner_sizes,id',
+            'gifs.*.position' => 'required|integer',
+            'gifs.*.file' => 'nullable|file|mimes:gif',
+            'gifs.*.id' => 'nullable|integer|exists:sub_gifs,id',
+        ]);
+
+        $subVersion = SubVersion::findOrFail($id);
+        $subVersion->name = $request->sub_version_name;
+        $subVersion->save();
+
+        // Check if any new GIFs are uploaded (i.e., any gif has a file)
+        $hasNewGifs = collect($request->gifs)->contains(function ($gif) {
+            return !empty($gif['file']);
+        });
+
+        if ($hasNewGifs) {
+            // 1. Remove all existing GIFs and their files
+            $oldGifs = SubGif::where('sub_version_id', $subVersion->id)->get();
+            foreach ($oldGifs as $gif) {
+                $filePath = public_path($gif->path);
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+                $gif->delete();
+            }
+
+            // 2. Insert new GIFs
+            $uploadPath = public_path('uploads/gifs');
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+
+            foreach ($request->gifs as $gif) {
+                if (empty($gif['file']) || empty($gif['sizes'][0])) {
+                    continue;
+                }
+
+                $file = $gif['file'];
+                $sizeId = $gif['sizes'][0];
+                $position = $gif['position'];
+
+                $ext = $file->getClientOriginalExtension();
+                $filename = 'gif_' . \Str::uuid() . '.' . $ext;
+                $sizeInBytes = $file->getSize();
+                $fileSize = $sizeInBytes >= 1048576
+                    ? round($sizeInBytes / 1048576, 2) . ' MB'
+                    : round($sizeInBytes / 1024, 2) . ' KB';
+                $file->move($uploadPath, $filename);
+
+                SubGif::create([
+                    'sub_version_id' => $subVersion->id,
+                    'name' => $filename,
+                    'path' => 'uploads/gifs/' . $filename,
+                    'size_id' => $sizeId,
+                    'file_size' => $fileSize,
+                    'position' => $position,
+                ]);
+            }
+        } else {
+            // 1. Get all current GIF IDs for this subversion
+            $currentGifIds = SubGif::where('sub_version_id', $subVersion->id)->pluck('id')->toArray();
+
+            // 2. Get all GIF IDs sent from the frontend
+            $sentGifIds = collect($request->gifs)->pluck('id')->filter()->toArray();
+
+            // 4. Update positions for all GIFs in the request
+            foreach ($request->gifs as $gif) {
+                if (!empty($gif['id'])) {
+                    $subGif = SubGif::find($gif['id']);
+                    if ($subGif) {
+                        $subGif->position = $gif['position'];
+                        $subGif->save();
+                    }
+                }
+            }
+        }
+
+        return redirect()->route('edit-gif-subVersion', $subVersion->id);
     }
 }

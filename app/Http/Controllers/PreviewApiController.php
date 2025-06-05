@@ -161,7 +161,8 @@ class PreviewApiController extends Controller
         ];
     }
 
-    public function setVideoActiveSubVersion($id){
+    public function setVideoActiveSubVersion($id)
+    {
         $subVersion = SubVersion::find($id);
         $version = Version::where('id', $subVersion['version_id'])->first();
         SubVersion::where('id', $id)->update(['is_active' => 1]);
@@ -176,7 +177,35 @@ class PreviewApiController extends Controller
         ];
     }
 
-    public function updateVideoSubVersion($id){
-        
+    public function updateVideoSubVersion($id) {}
+
+    function getActiveSubVersionGifData($id)
+    {
+        $gifs = SubGif::join('banner_sizes', 'sub_gifs.size_id', '=', 'banner_sizes.id')
+            ->where('sub_gifs.sub_version_id', $id)
+            ->select(
+                'sub_gifs.*',
+                'banner_sizes.width',
+                'banner_sizes.height'
+            )
+            ->orderBy('sub_gifs.position')
+            ->get();
+        return $gifs;
+    }
+
+    public function setGifActiveSubVersion($id)
+    {
+        $subVersion = SubVersion::find($id);
+        $version = Version::where('id', $subVersion['version_id'])->first();
+        SubVersion::where('id', $id)->update(['is_active' => 1]);
+        $exceptionSubVersions = SubVersion::select('id')->where('version_id', $version['id'])->where('id', '!=', $id)->get()->toArray();
+        SubVersion::whereIn('id', $exceptionSubVersions)->where('version_id', $version['id'])->update(['is_active' => 0]);
+        $subVersions = SubVersion::where('version_id', $version['id'])->get();
+
+        return $data = [
+            'subVersions' => $subVersions,
+            'activeSubVersion_id' => $id,
+            'version_id' => $subVersion['version_id']
+        ];
     }
 }

@@ -29,7 +29,8 @@ const form = useForm({
     sub_version_name: '',
     banners: [],
     socials: [], // <-- Add socials array
-    videos: []
+    videos: [],
+    gifs: [],
 });
 
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -174,15 +175,30 @@ const moveDown = (banner: any) => {
 const moveUp = (banner: any) => {
     if (banner.highlightIndex > 0) banner.highlightIndex--;
 };
-const selectHighlighted = (i: number, banner: any) => {
+const selectHighlightedBanner = (i: number, banner: any) => {
     const list = filteredSizes(banner.search);
     const selected = list[banner.highlightIndex];
     if (selected) selectSize(i, selected);
 };
 
+const selectHighlightedGif = (i: number, gif: any) => {
+    const list = filteredSizes(gif.search);
+    const selected = list[gif.highlightIndex];
+    if (selected) {
+        gif.sizes = [selected.id];
+        gif.search = '';
+        gif.dropdownOpen = false;
+        gif.highlightIndex = 0;
+    }
+};
+
 const allAssigned = computed(() =>
     form.banners.length > 0 && form.banners.every(b => b.size_id !== '')
 );
+
+const gifFileInput = ref<HTMLInputElement | null>(null);
+const isGifDragging = ref(false);
+const triggerGifInput = () => gifFileInput.value?.click();
 
 // --- SOCIAL LOGIC START ---
 const handleSocialFileUpload = (e: Event) => {
@@ -199,6 +215,49 @@ const handleSocialFileUpload = (e: Event) => {
 
     input.value = '';
 };
+
+const handleGifFileUpload = (e: Event) => {
+    const input = e.target as HTMLInputElement;
+    const files = input.files;
+    if (!files) return;
+
+    const gifs = Array.from(files).filter(f => f.type === 'image/gif');
+    form.gifs = gifs.map(file => ({
+        file,
+        sizes: [],
+        url: URL.createObjectURL(file),
+        search: '',
+        dropdownOpen: false,
+        highlightIndex: 0,
+    }));
+
+    input.value = '';
+};
+
+const handleGifDrop = (e: DragEvent) => {
+    isGifDragging.value = false;
+    const files = e.dataTransfer?.files;
+    if (!files) return;
+
+    const gifs = Array.from(files).filter(f => f.type === 'image/gif');
+    form.gifs = gifs.map(file => ({
+        file,
+        sizes: [],
+        url: URL.createObjectURL(file),
+        search: '',
+        dropdownOpen: false,
+        highlightIndex: 0,
+    }));
+};
+
+const removeGif = (i: number) => {
+    URL.revokeObjectURL(form.gifs[i].url);
+    form.gifs.splice(i, 1);
+};
+
+const allGifAssigned = computed(() =>
+    form.gifs.length > 0 && form.gifs.every(gif => gif.sizes.length === 1)
+);
 
 const handleSocialDrop = (e: DragEvent) => {
     isSocialDragging.value = false;
@@ -259,6 +318,16 @@ const handleSubmit = () => {
                 payload.append(`videos[${i}][companion_banner_path]`, v.companion_banner_path);
             }
             payload.append(`videos[${i}][position]`, String(i));
+        });
+    }
+
+    if (form.type === 'gif') {
+        form.gifs.forEach((gif, i) => {
+            payload.append(`gifs[${i}][file]`, gif.file);
+            gif.sizes.forEach((sizeId, j) => {
+                payload.append(`gifs[${i}][sizes][${j}]`, sizeId);
+            });
+            payload.append(`gifs[${i}][position]`, String(i));
         });
     }
 
@@ -348,7 +417,7 @@ const handleSubmit = () => {
                                     autocomplete="off" @focus="() => openDropdown(banner)"
                                     @blur="() => handleBlur(banner)" @keydown.down.prevent="moveDown(banner)"
                                     @keydown.up.prevent="moveUp(banner)"
-                                    @keydown.enter.prevent="selectHighlighted(index, banner)"
+                                    @keydown.enter.prevent="selectHighlightedBanner(index, banner)"
                                     @input="() => handleInputChange(banner)"
                                     class="w-full mb-1 rounded border px-3 py-1 text-sm dark:bg-gray-800 dark:text-white" />
 
@@ -493,6 +562,62 @@ const handleSubmit = () => {
                     class="mb-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 w-full flex items-center justify-center">
                     <span class="mr-2">+</span> Add Video
                 </button>
+            </div>
+
+            <!-- GIF UPLOAD -->
+            <div v-if="form.type === 'gif'" class="space-y-6">
+                <div class="border-2 border-dashed p-6 text-center rounded-lg cursor-pointer" @click="triggerGifInput"
+                    @dragover.prevent="isGifDragging = true" @dragleave.prevent="isGifDragging = false"
+                    @drop.prevent="handleGifDrop" :class="{ 'border-green-500 bg-green-50': isGifDragging }">
+                    <span class="text-sm text-gray-600">Click or drag GIF files here to upload</span>
+                    <input ref="gifFileInput" type="file" class="hidden" multiple accept=".gif"
+                        @change="handleGifFileUpload" />
+                </div>
+
+                <draggable v-model="form.gifs" item-key="file.name" handle=".handle" class="space-y-3"
+                    ghost-class="ghost">
+                    <template #item="{ element: gif, index }">
+                        <div class="flex items-center gap-4 bg-gray-50 dark:bg-gray-800 p-3 rounded shadow-sm">
+                            <div class="flex items-center gap-2 w-10 text-gray-500 dark:text-gray-300">
+                                <span class="font-mono text-sm w-4 text-right">{{ index + 1 }}.</span>
+                                <span class="handle cursor-move">☰</span>
+                            </div>
+                            <img :src="gif.url" alt="GIF" class="w-20 h-20 object-contain rounded border" />
+                            <div class="min-w-0 w-40 truncate text-xs text-gray-700 font-medium">{{ gif.file.name }}
+                            </div>
+                            <!-- Size Single-Select -->
+                            <div class="relative w-1/2">
+                                <input :value="gif.sizes.length ? getSizeLabel(gif.sizes[0]) : gif.search" type="text"
+                                    placeholder="Search size..." @focus="() => openDropdown(gif)"
+                                    @blur="() => handleBlur(gif)" @keydown.down.prevent="moveDown(gif)"
+                                    @keydown.up.prevent="moveUp(gif)"
+                                    @keydown.enter.prevent="selectHighlightedGif(index, gif)"
+                                    @input="(e) => { if (!gif.sizes.length) gif.search = (e.target as HTMLInputElement)?.value }"
+                                    class="w-full mb-1 rounded border px-3 py-1 text-sm dark:bg-gray-800 dark:text-white"
+                                    :readonly="!!gif.sizes.length"
+                                    @click="() => { if (gif.sizes.length) { gif.sizes = []; gif.search = ''; openDropdown(gif); } }" />
+                                <ul v-if="gif.dropdownOpen && filteredSizes(gif.search).length"
+                                    class="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded border bg-white dark:bg-gray-800 shadow-lg">
+                                    <li v-for="(size, sIndex) in filteredSizes(gif.search)" :key="size.id"
+                                        @mousedown.prevent="() => { gif.sizes = [size.id]; gif.search = ''; gif.dropdownOpen = false; gif.highlightIndex = 0; }"
+                                        :class="[
+                                            'px-3 py-1 text-sm cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700',
+                                            sIndex === gif.highlightIndex ? 'bg-gray-200 dark:bg-gray-700 font-semibold' : '',
+                                        ]">
+                                        {{ size.label }}
+                                    </li>
+                                </ul>
+                                <div v-if="gif.sizes.length" class="text-xs text-gray-500 dark:text-gray-300">
+                                    Selected: {{ getSizeLabel(gif.sizes[0]) }}
+                                </div>
+                            </div>
+                            <button class="ml-2 text-red-500 hover:text-red-700" title="Remove"
+                                @click="removeGif(index)">
+                                <X class="h-5 w-5" />
+                            </button>
+                        </div>
+                    </template>
+                </draggable>
             </div>
 
             <!-- Submit Button -->

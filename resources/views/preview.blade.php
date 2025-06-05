@@ -7,6 +7,8 @@
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Creative - {{ $preview['name'] }}</title>
+    <link rel="preload" as="image" href="/preview_images/sidebar-image.png">
+    <link rel="preload" as="image" href="/preview_images/top-bg.png">
     <link rel="shortcut icon" href="https://www.planetnine.com/logo/new_favicon.png">
     @vite('resources/css/app.css')
     <script src="https://code.jquery.com/jquery-3.6.1.slim.min.js"
@@ -433,6 +435,12 @@ function handleOutsideClick(event) {
                     setVideoActiveVersionSettings(activeVersion_id);
                     setVideoDisplayOfActiveSubVersion(response.data.activeSubVersion_id);
                 }
+                if(response.data.type == "gif"){
+                    setGifVersionSubVersions(response.data.subVersions, response.data.version_id);
+                    setGifActiveSubVersionSettings(response.data.activeSubVersion_id);
+                    setGifActiveVersionSettings(activeVersion_id);
+                    setGifDisplayOfActiveSubVersion(response.data.activeSubVersion_id);
+                }
             })
             .catch(function(error) {
                 console.log(error);
@@ -584,6 +592,64 @@ function handleOutsideClick(event) {
         $('.subVersions').html(row);
     }
 
+    function setGifVersionSubVersions(subVersions, version_id) {
+        var subVersionCount = subVersions.length;
+        var isActive;
+
+        if (subVersionCount > 0) {
+            var row = '';
+            $.each(subVersions, function(key, value) {
+                if (value.is_active == 1) {
+                    isActive = ' subVersionTabActive';
+                } else {
+                    isActive = '';
+                }
+               row += `
+                <div id="subVersionTab${value.id}" class="subVersionTab${isActive}" onclick="updateGifActiveSubVersion(${value.id})">
+                    <div class="trapezoid-container">
+                    <svg class="trapezoid" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0,60 L200,60 L180,15 C175,5 170,0 160,0 L40,0 C30,0 25,5 20,15 L0,60 Z" fill="${isActive}"/>
+                    </svg>
+                    <div class="tab-text text-white text-base">${value.name}</div>
+                    </div>
+                </div>
+                `;
+            });
+        } else {
+            var row = '';
+        }
+        if(authUserClientName == 'Planet Nine'){
+            row += `
+                <div class="subVersionTab subVersionAddTab" onclick="addGifNewSubVersion(${version_id})">
+                    <div class="trapezoid-container">
+                        <svg class="trapezoid" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0,60 L200,60 L180,15 C175,5 170,0 160,0 L40,0 C30,0 25,5 20,15 L0,60 Z"/>
+                        </svg>
+                        <div class="tab-text text-white text-2xl font-bold">+</div>
+                    </div>
+                </div>
+            `;
+        }
+        $('.subVersions').html(row);
+    }
+
+    function updateGifActiveSubVersion(subVersion_id){
+        axios.get('/preview/setGifActiveSubVersion/' + subVersion_id)
+            .then(function(response) {
+                setGifVersionSubVersions(response.data.subVersions, response.data.version_id);
+                setGifActiveSubVersionSettings(response.data.activeSubVersion_id);
+                setGifDisplayOfActiveSubVersion(response.data.activeSubVersion_id);
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
+    }
+
+    function addGifNewSubVersion(version_id){
+        const url = '/previews/version/'+ version_id +'/gif/add/subVersion';
+        window.location.href = url;
+    }
+
     function addBannerNewSubVersion(version_id){
         const url = '/previews/version/'+ version_id +'/banner/add/subVersion';
         window.location.href = url;
@@ -727,6 +793,30 @@ function handleOutsideClick(event) {
             })
     }
 
+    function setGifActiveSubVersionSettings(activeSubVersion_id) {
+        axios.get('/preview/checkSubVersionCount/' + activeSubVersion_id)
+            .then(function(response) {
+                var display = 'display: block;';
+                rows = '';
+                rows = rows + "@if($authUserClientName == 'Planet Nine')";
+                rows = rows + '<div>';
+                rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';
+                rows = rows + '<a href="/previews/version/gif/edit/subVersion/' + activeSubVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-square-pen"></i></a>';
+                rows = rows + '<a href="javascript:void(0)" onclick="return confirmGifSubVersionDelete(' + activeSubVersion_id + ')" style="' + display + ' margin-right: 0.5rem;"><i class="fa-solid fa-square-minus"></i></a>';
+                rows = rows + '</div>';
+                rows = rows + '</div>';
+                rows = rows + "@endif";
+                $('#subVersionSettings').html(rows);
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
+    }
+
+    function confirmGifSubVersionDelete(activeSubVersion_id){
+        alert('Gif Sub Version Delete is not available yet!');
+    }
+
     function confirmBannerSubVersionDelete(activeSubVersion_id){
         Swal.fire({
             title: 'Delete This Sub Version?!',
@@ -759,8 +849,9 @@ function handleOutsideClick(event) {
         })
     }
 
-    function reload(bannerReloadID) {
-        document.getElementById("rel"+bannerReloadID).src += '';
+    function reloadBanner(bannerReloadID) {
+        var iframe = document.getElementById("rel" + bannerReloadID);
+        iframe.src = iframe.src;
     }
 
     function setSocialActiveVersionSettings(activeVersion_id) {
@@ -778,6 +869,20 @@ function handleOutsideClick(event) {
     }
 
     function setBannerActiveVersionSettings(activeVersion_id) {
+        rows = '';
+        rows = rows + "@if($authUserClientName == 'Planet Nine')";
+        rows = rows + '<div>';
+        rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';
+        rows = rows + '<a href="/previews/edit/version/' + activeVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-pen-to-square"></i></a>';
+        rows = rows + '<a href="javascript:void(0)" onclick="return confirmVersionDelete(' + activeVersion_id + ')" style="margin-right: 0.5rem;"><i class="fa-solid fa-circle-minus"></i></a>';
+        rows = rows + '</div>';
+        rows = rows + '</div>';
+        rows = rows + "@endif";
+
+        $('#versionSettings').html(rows);
+    }
+
+    function setGifActiveVersionSettings(activeVersion_id) {
         rows = '';
         rows = rows + "@if($authUserClientName == 'Planet Nine')";
         rows = rows + '<div>';
@@ -853,7 +958,7 @@ function handleOutsideClick(event) {
                     row = row + '</div>';
                     row = row + '<iframe style="margin-top: 2px;" src="' + bannerPath + '" width="' + value.width + '" height="' + value.height + '" frameBorder="0" scrolling="no" id=' + "rel" + value.id + '></iframe>'
                     row = row + '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
-                    row = row + '<li><i id="relBt' + value.id + '" onClick="reload(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
+                    row = row + '<li><i id="relBt' + value.id + '" onClick="reloadBanner(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
                     row = row + '@if($authUserClientName == "Planet Nine")'
                     row = row + '<li><a href="/previews/banner/single/edit/' + value.id + '"><i class="fa-solid fa-pen-to-square" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
                     row = row + '<li><a href="/previews/banner/single/download/' + value.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
@@ -871,6 +976,53 @@ function handleOutsideClick(event) {
             .finally(function() {
                 document.getElementById('loaderArea').style.display = 'none';
             })
+    }
+
+    function setGifDisplayOfActiveSubVersion(activeSubVersion_id) {
+        document.getElementById('loaderArea').style.display = 'flex';
+        axios.get('/preview/getActiveSubVersionGifData/' + activeSubVersion_id)
+            .then(function(response) {
+                var row = '';
+
+                $.each(response.data, function(key, value) {
+                    var resolution = value.size_id;
+                    var bannerPath = '/' + value.path;
+                    var bannerReloadID = value.id;
+
+                    row = row + '<div style="display: inline-block; width: ' + value.width + 'px; margin-right: 10px;">';
+                    row = row + '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
+                    row = row + '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + value.width + 'x' + value.height + '</small>';
+                    row = row + '<small style="float: right font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + value.file_size + '</small>';
+                    row = row + '</div>';
+                    row = row + '<iframe style="margin-top: 2px;" src="' + bannerPath + '" width="' + value.width + '" height="' + value.height + '" frameBorder="0" scrolling="no" id=' + "rel" + value.id + '></iframe>'
+                    row = row + '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
+                    row = row + '<li><i id="relBt' + value.id + '" onClick="reloadGif(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
+                    row = row + '@if($authUserClientName == "Planet Nine")'
+                    row = row + '<li><a href="/previews/gif/single/edit/' + value.id + '"><i class="fa-solid fa-pen-to-square" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                    row = row + '<li><a href="/previews/gif/single/download/' + value.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                    row = row + '<li><a href="javascript:void(0)" onclick="return confirmDeleteGif(' + value.id + ')"><i class="fa-solid fa-trash" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                    row = row + '@endif';
+                    row = row + '</ul>';
+                    row = row + '</div>';
+                });
+
+                $('#bannerShowcase').html(row);
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
+            .finally(function() {
+                document.getElementById('loaderArea').style.display = 'none';
+            })
+    }
+
+    function reloadGif(bannerReloadID) {
+        var iframe = document.getElementById("rel" + bannerReloadID);
+        iframe.src = iframe.src;
+    }
+
+    function confirmDeleteGif(id){
+        alert('Gif Delete is not available yet!');
     }
 
     function setVideoDisplayOfActiveSubVersion(activeSubVersion_id) {

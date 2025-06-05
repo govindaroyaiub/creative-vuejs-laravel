@@ -69,6 +69,11 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::post('/previews/version/video/edit/subVersion/{id}', [PreviewController::class, 'updateVideoSubVersion'])->name('update-video-subVersion');
     Route::get('/previews/video/subVersion/delete/{id}', [PreviewController::class, 'deleteVideoSubVersion'])->name('delete-video-subVersion');
 
+    Route::get('/previews/version/{id}/gif/add/subVersion/', [PreviewController::class, 'createGifSubVersion'])->name('create-gif-subVersion');
+    Route::post('/previews/version/{id}/gif/add/subVersion/', [PreviewController::class, 'storeGifSubVersion'])->name('store-gif-subVersion');
+    Route::get('/previews/version/gif/edit/subVersion/{id}', [PreviewController::class, 'editGifSubVersion'])->name('edit-gif-subVersion');
+    Route::post('/previews/version/gif/edit/subVersion/{id}', [PreviewController::class, 'updateGifSubVersion'])->name('update-gif-subVersion');
+
     Route::get('/previews/social/single/edit/{id}', [PreviewController::class, 'singleSocialEdit'])->name('single-social-edit');
     Route::post('/previews/social/single/edit/{id}', [PreviewController::class, 'singleSocialUpdate'])->name('single-social-update');
     Route::delete('/previews/social/single/delete/{id}', [PreviewController::class, 'singleSocialDelete'])->name('single-social-delete');
@@ -174,10 +179,12 @@ Route::get('/preview/getVersionType/{id}', [PreviewApiController::class, 'getVer
 Route::get('/preview/setBannerActiveSubVersion/{id}', [PreviewApiController::class, 'setBannerActiveSubVersion']);
 Route::get('/preview/setSocialActiveSubVersion/{id}', [PreviewApiController::class, 'setSocialActiveSubVersion']);
 Route::get('/preview/setVideoActiveSubVersion/{id}', [PreviewApiController::class, 'setVideoActiveSubVersion']);
+Route::get('/preview/setGifActiveSubVersion/{id}', [PreviewApiController::class, 'setGifActiveSubVersion']);
 Route::get('/preview/checkSubVersionCount/{id}', [PreviewApiController::class, 'checkSubVersionCount']);
 Route::get('/preview/getActiveSubVersionBannerData/{id}', [PreviewApiController::class, 'getActiveSubVersionBannerData']);
 Route::get('/preview/getActiveSubVersionSocialData/{id}', [PreviewApiController::class, 'getActiveSubVersionSocialData']);
 Route::get('/preview/getActiveSubVersionVideoData/{id}', [PreviewApiController::class, 'getActiveSubVersionVideoData']);
+Route::get('/preview/getActiveSubVersionGifData/{id}', [PreviewApiController::class, 'getActiveSubVersionGifData']);
 Route::get('/preview/{preview_id}/change/theme/{color_id}', [PreviewApiController::class, 'changeTheme']);
 //preview axios get requests end
 
