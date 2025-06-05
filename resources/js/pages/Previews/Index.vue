@@ -140,7 +140,7 @@ const submitForm = () => {
             payload.append(`banners[${i}][position]`, i);
         });
     }
-     if (formData.value.type === 'Social') {
+    if (formData.value.type === 'Social') {
         formData.value.socials.forEach((social, i) => {
             payload.append(`socials[${i}][file]`, social.file);
             payload.append(`socials[${i}][name]`, social.name);
@@ -163,7 +163,10 @@ const submitForm = () => {
     if (formData.value.type === 'Gif') {
         formData.value.gifs.forEach((gif, i) => {
             payload.append(`gifs[${i}][file]`, gif.file);
-            payload.append(`gifs[${i}][size_id]`, gif.size_id);
+            // Send the sizes array as required by backend validation
+            gif.sizes.forEach((sizeId, j) => {
+                payload.append(`gifs[${i}][sizes][${j}]`, sizeId);
+            });
             payload.append(`gifs[${i}][position]`, i);
         });
     }
@@ -230,6 +233,7 @@ const stepProps = computed(() => ({
 </script>
 
 <template>
+
     <Head title="Previews" />
     <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }]">
         <div class="p-6 space-y-6">

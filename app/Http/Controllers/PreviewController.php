@@ -112,7 +112,6 @@ class PreviewController extends Controller
 
     public function store(Request $request)
     {
-        dd($request->all());
         $request->validate([
             'name' => 'required|string|max:255',
             'client_id' => 'required|exists:clients,id',
@@ -387,19 +386,19 @@ class PreviewController extends Controller
 
                         // Generate a unique filename
                         $ext = $file->getClientOriginalExtension();
-                        $filename = 'gif_' . Str::uuid() . '.' . $ext;
+                        $filename = 'gif_' . \Str::uuid() . '.' . $ext;
 
-                        // Move the file
-                        $file->move($uploadPath, $filename);
-
-                        // Get readable file size
+                        // Get file size BEFORE move
                         $sizeInBytes = $file->getSize();
                         $fileSize = $sizeInBytes >= 1048576
                             ? round($sizeInBytes / 1048576, 2) . ' MB'
                             : round($sizeInBytes / 1024, 2) . ' KB';
 
+                        // Move the file
+                        $file->move($uploadPath, $filename);
+
                         // Save SubGif
-                        SubGif::create([
+                        \App\Models\SubGif::create([
                             'sub_version_id' => $subVersion->id,
                             'name' => $filename,
                             'path' => 'uploads/gifs/' . $filename,

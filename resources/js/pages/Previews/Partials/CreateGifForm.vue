@@ -2,22 +2,25 @@
 import { ref, computed } from 'vue';
 import draggable from 'vuedraggable';
 
+const emit = defineEmits(['previous', 'submit']);
+
 const props = defineProps<{
-    bannerSizes: Array<{ id: number, name: string, width: number, height: number }>
+    form: {
+        gifs: {
+            file: File;
+            sizes: number[];
+            url?: string;
+            search?: string;
+            dropdownOpen?: boolean;
+            highlightIndex?: number;
+        }[];
+    };
+    bannerSizes: { id: number; name: string }[];
 }>();
 
-const gifs = ref<Array<{
-    file: File,
-    url: string,
-    sizes: number[],
-    search: string,
-    dropdownOpen: boolean,
-    highlightIndex: number,
-}>>([]);
-
+const loading = ref(false);
 const isDragging = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
-const loading = ref(false);
 
 const triggerInput = () => fileInput.value?.click();
 
@@ -35,7 +38,7 @@ function handleInput(e: Event) {
 function handleFiles(files: FileList) {
     Array.from(files).forEach(file => {
         if (file.type === 'image/gif') {
-            gifs.value.push({
+            props.form.gifs.push({
                 file,
                 url: URL.createObjectURL(file),
                 sizes: [],
@@ -48,8 +51,8 @@ function handleFiles(files: FileList) {
 }
 
 function removeGif(i: number) {
-    URL.revokeObjectURL(gifs.value[i].url);
-    gifs.value.splice(i, 1);
+    URL.revokeObjectURL(props.form.gifs[i].url);
+    props.form.gifs.splice(i, 1);
 }
 
 function filteredSizes(gif: any) {
@@ -57,7 +60,7 @@ function filteredSizes(gif: any) {
     return props.bannerSizes.filter(s => s.name.toLowerCase().includes(lower) && !gif.sizes.includes(s.id));
 }
 
-function selectSize(gif: any, size: { id: number, name: string }) {
+function selectSize(gif: any, size: { id: number; name: string }) {
     gif.sizes = [size.id]; // Only allow one size per GIF
     gif.search = '';
     gif.dropdownOpen = false;
@@ -104,22 +107,18 @@ function selectedSizeName(gif: any) {
     return '';
 }
 
-const allAssigned = computed(() => gifs.value.length > 0 && gifs.value.every(gif => gif.sizes.length === 1));
+const allAssigned = computed(() =>
+    props.form.gifs.length > 0 && props.form.gifs.every(gif => gif.sizes.length === 1)
+);
 
-function handleSubmit() {
-    if (!allAssigned.value || loading.value) return;
+const handleSubmit = () => {
     loading.value = true;
     emit('submit', {
         onDone: () => {
             loading.value = false;
         }
     });
-}
-
-const emit = defineEmits(['previous', 'submit']);
-function emitSubmit() {
-    emit('submit', gifs.value);
-}
+};
 </script>
 
 <template>
@@ -139,7 +138,8 @@ function emitSubmit() {
         </p>
 
         <!-- GIFs List -->
-        <draggable v-model="gifs" item-key="file.name" handle=".handle" class="space-y-3" ghost-class="ghost">
+        <draggable v-model="props.form.gifs" item-key="file.name" handle=".handle" class="space-y-3"
+            ghost-class="ghost">
             <template #item="{ element: gif, index }">
                 <div class="flex items-center gap-4 bg-gray-50 p-3 rounded shadow-sm">
                     <!-- Sort Handle -->
@@ -190,7 +190,7 @@ function emitSubmit() {
             </button>
             <button
                 class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded flex items-center justify-center min-w-[100px]"
-                :disabled="!allAssigned || loading" @click="handleSubmit" aria-label="Submit banners">
+                :disabled="!allAssigned || loading" @click="handleSubmit" aria-label="Submit GIFs">
                 <span v-if="!loading">Submit →</span>
                 <span v-else class="flex items-center gap-2">
                     <svg class="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
