@@ -96,7 +96,7 @@
         </div>
         <section id="top" class="mb-4">
             <div class="px-4 py-4 flex justify-center content text-center relative">
-                <div id="topDetails">
+                <div id="topDetails" class="mt-4">
                     @if($preview->show_planetnine_logo)
                         <img src="{{ asset('logos/' . $client['logo']) }}" id="planetnineLogo" class="py-3" alt="planetnineLogo">
                     @endif
@@ -109,7 +109,7 @@
             </div>
         </section>
 
-        <section id="middle">
+        <section id="middle" class="mb-4">
             <div id="showcase-section" class="mx-auto custom-container mt-2 px-8">
                 <div class="flex row">
                     <div style="flex: 1;">
@@ -149,7 +149,7 @@
                                 </div>
 
                                 @php
-                                    $colorsData = $all_colors->map(fn($color) => ['id' => $color->id, 'hex' => $color->primary]);
+                                    $colorsData = $all_colors->map(fn($color) => ['id' => $color->id, 'hex' => $color->primary, 'border' => $color->tertiary]);
                                 @endphp
 
                                 <div id="colorPaletteClick" onclick="showColorPaletteOptions()">
@@ -181,13 +181,10 @@
                     </div>
                 </div>
             </div>
-
         </section>
-        <br>
-        <br>
-
-        @if($preview['show_footer'])
-        <footer class="footer py-2 mt-2">
+    </main>
+    @if($preview['show_footer'])
+        <footer class="footer py-8">
             <div class="container mx-auto px-4 text-center text-base text-gray-600">
                 &copy; All Rights Reserved. 
                 <a href="https://www.planetnine.com" class="underline hover:text-black" target="_blank">
@@ -196,7 +193,6 @@
             </div>
         </footer>
         @endif
-    </main>
 </body>
 
 <script>
@@ -209,10 +205,11 @@ function showColorPaletteOptions() {
         const colors = JSON.parse(paletteDiv.dataset.colors);
         paletteDiv.classList.add('color-grid');
 
-        colors.forEach(({ id, hex }) => {
+        colors.forEach(({ id, hex, border }) => {
             const colorBox = document.createElement('div');
             colorBox.className = 'color-box';
             colorBox.style.backgroundColor = hex;
+            colorBox.style.borderColor = border;
 
             colorBox.title = hex; // optional: show hex on hover
 
@@ -780,7 +777,8 @@ function handleOutsideClick(event) {
                 rows = '';
                 rows = rows + "@if($authUserClientName == 'Planet Nine')";
                 rows = rows + '<div>';
-                rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';                
+                rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';
+                rows = rows + '<a href="/previews/version/banner/edit/subVersion/position/' + activeSubVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-list-ol"></i></a>';
                 rows = rows + '<a href="/previews/version/banner/edit/subVersion/' + activeSubVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-square-pen"></i></a>';
                 rows = rows + '<a href="javascript:void(0)" onclick="return confirmBannerSubVersionDelete(' + activeSubVersion_id + ')" style="' + display + ' margin-right: 0.5rem;"><i class="fa-solid fa-square-minus"></i></a>';
                 rows = rows + '</div>';
@@ -814,7 +812,34 @@ function handleOutsideClick(event) {
     }
 
     function confirmGifSubVersionDelete(activeSubVersion_id){
-        alert('Gif Sub Version Delete is not available yet!');
+        Swal.fire({
+            title: 'Delete This Sub Version?!',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            denyButtonText: `Thinking.....`,
+        }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+                axios.get('/previews/gif/subVersion/delete/'+ activeSubVersion_id)
+                .then(function (response){
+                    console.log(response);
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Sub Version Has Been Deleted!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    location.reload();
+                })
+                .catch(function (error){
+                    console.log(error);
+                })
+            } else if (result.isDenied) {
+                Swal.fire('Thanks for using your brain', '', 'info')
+            }
+        })
     }
 
     function confirmBannerSubVersionDelete(activeSubVersion_id){
@@ -999,7 +1024,7 @@ function handleOutsideClick(event) {
                     row = row + '<li><i id="relBt' + value.id + '" onClick="reloadGif(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
                     row = row + '@if($authUserClientName == "Planet Nine")'
                     row = row + '<li><a href="/previews/gif/single/edit/' + value.id + '"><i class="fa-solid fa-pen-to-square" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
-                    row = row + '<li><a href="/previews/gif/single/download/' + value.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                    row = row + '<li><a href="/' + value.path + '" download><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
                     row = row + '<li><a href="javascript:void(0)" onclick="return confirmDeleteGif(' + value.id + ')"><i class="fa-solid fa-trash" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
                     row = row + '@endif';
                     row = row + '</ul>';
@@ -1022,7 +1047,34 @@ function handleOutsideClick(event) {
     }
 
     function confirmDeleteGif(id){
-        alert('Gif Delete is not available yet!');
+        Swal.fire({
+            title: 'Delete This GIF?!',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            denyButtonText: `Thinking.....`,
+        }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+                axios.delete('/previews/gif/single/delete/' + id)
+                .then(function (response){
+                    console.log(response);
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'GIF Has Been Deleted!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    location.reload();
+                })
+                .catch(function (error){
+                    console.log(error);
+                })
+            } else if (result.isDenied) {
+                Swal.fire('Thanks for using your brain', '', 'info')
+            }
+        })
     }
 
     function setVideoDisplayOfActiveSubVersion(activeSubVersion_id) {

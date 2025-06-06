@@ -55,6 +55,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::post('/previews/version/{id}/banner/add/subVersion/', [PreviewController::class, 'storeBannerSubVersion'])->name('store-banner-subVersion-post');
     Route::get('/previews/version/banner/edit/subVersion/{id}', [PreviewController::class, 'editBannerSubVersion'])->name('edit-banner-sub-version');
     Route::post('/previews/version/banner/edit/subVersion/{id}', [PreviewController::class, 'updateBannerSubVersion'])->name('update-banner-sub-version');
+    Route::get('/previews/version/banner/edit/subVersion/position/{id}', [PreviewController::class, 'editBannerSubVersionPosition'])->name('edit-banner-sub-version-position');
+    Route::post('/previews/version/banner/edit/subVersion/position/{id}', [PreviewController::class, 'updateBannerSubVersionPosition'])->name('update-banner-sub-version-position');
     Route::get('/previews/banner/subVersion/delete/{id}', [PreviewController::class, 'deleteBannerSubVersion'])->name('delete-banner-subVersion');
 
     Route::get('/previews/version/{id}/social/add/subVersion/', [PreviewController::class, 'createSocialSubVersion'])->name('create-social-subVersion');
@@ -73,6 +75,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::post('/previews/version/{id}/gif/add/subVersion/', [PreviewController::class, 'storeGifSubVersion'])->name('store-gif-subVersion');
     Route::get('/previews/version/gif/edit/subVersion/{id}', [PreviewController::class, 'editGifSubVersion'])->name('edit-gif-subVersion');
     Route::post('/previews/version/gif/edit/subVersion/{id}', [PreviewController::class, 'updateGifSubVersion'])->name('update-gif-subVersion');
+    Route::get('/previews/gif/subVersion/delete/{id}', [PreviewController::class, 'deleteGifSubVersion'])->name('delete-gif-subVersion');
 
     Route::get('/previews/social/single/edit/{id}', [PreviewController::class, 'singleSocialEdit'])->name('single-social-edit');
     Route::post('/previews/social/single/edit/{id}', [PreviewController::class, 'singleSocialUpdate'])->name('single-social-update');
@@ -86,6 +89,10 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/previews/video/single/edit/{id}', [PreviewController::class, 'singleVideoEdit'])->name('single-video-edit');
     Route::post('/previews/video/single/edit/{id}', [PreviewController::class, 'singleVideoUpdate'])->name('single-video-update');
     Route::delete('/previews/video/single/delete/{id}', [PreviewController::class, 'singleVideoDelete'])->name('single-video-delete');
+
+    Route::get('/previews/gif/single/edit/{id}', [PreviewController::class, 'singleGifEdit'])->name('single-gif-edit');
+    Route::post('/previews/gif/single/edit/{id}', [PreviewController::class, 'singleGifUpdate'])->name('single-gif-update');
+    Route::delete('/previews/gif/single/delete/{id}', [PreviewController::class, 'singleGifDelete'])->name('single-gif-delete');
 
     // Route::get('/preview/add/version/{id}', [PreviewController::class, 'addVersion'])->name('previews-add-version');
     //Preview Routes End

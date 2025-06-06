@@ -47,7 +47,7 @@ class PreviewController extends Controller
         $subVersions = SubVersion::whereIn('version_id', $versions->pluck('id'))->get();
         $color_palettes = ColorPalette::find($preview->color_palette_id);
         $client = Client::find($preview->client_id);
-        $all_colors = ColorPalette::where('status', 1)->select('id', 'primary')->get();
+        $all_colors = ColorPalette::where('status', 1)->select('id', 'primary', 'tertiary')->get();
 
         $primary = $color_palettes->primary;
         $secondary = $color_palettes->secondary;
@@ -2146,5 +2146,193 @@ class PreviewController extends Controller
         }
 
         return redirect()->route('edit-gif-subVersion', $subVersion->id);
+    }
+
+    public function deleteGifSubVersion($id)
+    {
+        $subVersion = SubVersion::with(['gifs', 'version.preview'])->findOrFail($id);
+        $versionId = $subVersion->version_id;
+        $previewId = $subVersion->version->preview_id;
+
+        // 1. Delete all GIF files and records for this subversion
+        foreach ($subVersion->gifs as $gif) {
+            $filePath = public_path($gif->path);
+            if (file_exists($filePath)) {
+                @unlink($filePath);
+            }
+            $gif->delete();
+        }
+
+        // 2. Delete the SubVersion
+        $subVersion->delete();
+
+        // 3. Set latest remaining subversion as active (if any exist)
+        $latest = SubVersion::where('version_id', $versionId)->latest('id')->first();
+        if ($latest) {
+            $latest->update(['is_active' => true]);
+        }
+
+        return [
+            'version_id' => $versionId,
+        ];
+    }
+
+    public function singleGifEdit($id)
+    {
+        $subGif = SubGif::findOrFail($id);
+        $subVersion = SubVersion::findOrFail($subGif->sub_version_id);
+        $version = Version::findOrFail($subVersion->version_id);
+        $preview = Preview::findOrFail($version->preview_id);
+
+        // Get all available banner sizes
+        $bannerSizes = BannerSize::orderBy('width')->orderBy('height')->get(['id', 'width', 'height'])
+            ->map(function ($size) {
+                return [
+                    'id' => $size->id,
+                    'label' => $size->width . 'x' . $size->height,
+                ];
+            });
+
+        // Prepare the subGif data for the view
+        $subGifData = [
+            'id' => $subGif->id,
+            'size_id' => $subGif->size_id,
+            'name' => $subGif->name,
+            'path' => $subGif->path,
+        ];
+
+        return Inertia::render('Previews/Versions/SubVersions/Gif/SingleEdit', [
+            'subGif' => $subGifData,
+            'bannerSizes' => $bannerSizes,
+            'preview' => [
+                'id' => $preview->id,
+                'name' => $preview->name,
+            ],
+        ]);
+    }
+
+    public function singleGifUpdate($id, Request $request)
+    {
+        $request->validate([
+            'size_id' => 'required|exists:banner_sizes,id',
+            'file' => 'nullable|file|mimes:gif',
+        ]);
+
+        $subGif = SubGif::findOrFail($id);
+
+        // If a new file is uploaded, replace the old one
+        if ($request->hasFile('file')) {
+            // Delete old file
+            $oldPath = public_path($subGif->path);
+            if (file_exists($oldPath)) {
+                @unlink($oldPath);
+            }
+
+            // Save new file
+            $file = $request->file('file');
+            $ext = $file->getClientOriginalExtension();
+            $filename = 'gif_' . \Str::uuid() . '.' . $ext;
+            $uploadPath = public_path('uploads/gifs');
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+            $file->move($uploadPath, $filename);
+
+            // Get file size
+            $sizeInBytes = filesize($uploadPath . '/' . $filename);
+            $fileSize = $sizeInBytes >= 1048576
+                ? round($sizeInBytes / 1048576, 2) . ' MB'
+                : round($sizeInBytes / 1024, 2) . ' KB';
+
+            // Update DB fields
+            $subGif->name = $filename;
+            $subGif->path = 'uploads/gifs/' . $filename;
+            $subGif->file_size = $fileSize;
+        }
+
+        // Always update size_id
+        $subGif->size_id = $request->size_id;
+        $subGif->save();
+
+        return redirect()->route('single-gif-edit', $subGif->id)
+            ->with('success', 'GIF updated successfully.');
+    }
+
+    public function singleGifDelete($id)
+    {
+        $subGif = SubGif::findOrFail($id);
+        $filePath = public_path($subGif->path);
+
+        // Delete the file if it exists
+        if (file_exists($filePath)) {
+            @unlink($filePath);
+        }
+
+        // Delete the SubGif record
+        $subGif->delete();
+
+        return response()->json([
+            'message' => 'GIF deleted successfully.',
+            'subVersion_id' => $subGif->sub_version_id,
+        ]);
+    }
+
+    public function editBannerSubVersionPosition($id)
+    {
+        $subVersion = SubVersion::with([
+            'banners' => function ($q) {
+                $q->orderBy('position');
+            },
+            'version.preview'
+        ])->findOrFail($id);
+
+        $version = $subVersion->version;
+        $preview = $version->preview;
+
+        // Prepare banners with size label
+        $bannerSizes = BannerSize::all(['id', 'width', 'height'])->keyBy('id');
+        $banners = $subVersion->banners->map(function ($banner) use ($bannerSizes) {
+            $size = $bannerSizes[$banner->size_id] ?? null;
+            $banner->size_label = $size ? "{$size->width}x{$size->height}" : '';
+            return $banner;
+        });
+
+        return Inertia::render('Previews/Versions/SubVersions/Banner/EditPosition', [
+            'subVersion' => [
+                'id' => $subVersion->id,
+                'name' => $subVersion->name,
+            ],
+            'banners' => $banners,
+            'preview' => [
+                'id' => $preview->id,
+                'name' => $preview->name,
+            ],
+            'version' => [
+                'id' => $version->id,
+                'name' => $version->name,
+            ],
+        ]);
+    }
+
+    public function updateBannerSubVersionPosition(Request $request, $id)
+    {
+        $request->validate([
+            'banners' => 'required|array|min:1',
+            'banners.*.id' => 'required|integer|exists:sub_banners,id',
+            'banners.*.position' => 'required|integer',
+        ]);
+
+        $subVersion = SubVersion::findOrFail($id);
+
+        foreach ($request->banners as $bannerData) {
+            $banner = \App\Models\SubBanner::find($bannerData['id']);
+            if ($banner && $banner->sub_version_id == $subVersion->id) {
+                $banner->position = $bannerData['position'];
+                $banner->save();
+            }
+        }
+
+        return redirect()->route('edit-banner-sub-version-position', $subVersion->id)
+            ->with('success', 'Banner positions updated successfully.');
     }
 }
