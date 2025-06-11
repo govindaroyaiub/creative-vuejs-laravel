@@ -129,16 +129,18 @@
                         </nav>
                         <div class="navbar tabDesktopShowcase" id="navbar">
                             @if($preview['show_sidebar_logo'] == 1)
-                            <div id="clientLogoSection" class="mb-2 mt-2 px-2 py-2 mx-auto">
-                                <img src="{{ asset('logos/' . $client['logo']) }}"
+                            <div class="w-full client-logo-div">
+                                <div id="clientLogoSection" class="mb-2 mt-2 px-2 py-2 mx-auto">
+                                    <img src="{{ asset('logos/' . $client['logo']) }}"
                                     alt="clientLogo" style="width: 150px;">
+                                </div>
                             </div>
                             @endif
-                            
-                            <div class="sidebar-image mx-auto mt-3 mb-3">
-                                <span>Creative Showcase</span>
+                            <div class="sidebar-image-div w-full">
+                                <div class="sidebar-image mx-auto mt-3 mb-3">
+                                    <span>Creative Showcase</span>
+                                </div>
                             </div>
-
                             <div id="creative-list2"></div>
                         </div>
 

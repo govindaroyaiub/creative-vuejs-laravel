@@ -383,7 +383,7 @@ section .content {
 
 #showcase {
     position: relative;
-    border-radius: 6px;
+    border-radius: 35px;
     width: 100%;
     height: auto;
     overflow: hidden;
@@ -498,6 +498,11 @@ iframe {
     padding: 7px;
     max-width: 330px;
     border-radius: 5px;
+}
+
+.sidebar-image-div{
+    background-color: var(--primary-color);
+    border-right: 3px solid var(--tertiary-color);
 }
 
 .sidebar-image {
@@ -810,7 +815,18 @@ iframe {
     min-width: 210px;
     color: #fff;
     padding-bottom: 1.75rem;
+    /* background-color: var(--primary-color); */
+    min-height: 300px;        /* <-- Add this */
+    height: auto;             /* <-- Let height grow with content */
+    display: flex;            /* <-- Add this for flex column layout */
+    flex-direction: column;   /* <-- Stack children vertically */
+    align-items: stretch;     /* <-- Children fill width */
+    overflow-y: auto;
+}
+
+.client-logo-div {
     background-color: var(--primary-color);
+    border-right: 3px solid var(--tertiary-color);
 }
 
 #clientLogoSection {
@@ -839,7 +855,7 @@ iframe {
 .right-column {
     flex: 1;
     padding: 0px 5px 20px 5px;
-    border-left: 3px solid var(--tertiary-color);
+    /* border-left: 3px solid var(--tertiary-color); */
 }
 
 .mobileShowcase {
@@ -861,17 +877,22 @@ iframe {
 
 #creative-list2 {
     font-size: 1.25rem;
-    margin-top: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
     display: flex;
     flex-direction: column;
     gap: 10px;
     justify-content: center;
     align-items: center;
+    background-color: var(--primary-color);
+    border-right: 3px solid var(--tertiary-color);
+    border-bottom-right-radius: 35px;
+    border-bottom: 3px solid var(--tertiary-color);
 }
 
 .version-row {
     text-align: center;
-    width: calc(100% - 20px);
+    width: calc(100% - 60px);
     min-height: 40px;
     display: flex;
     justify-content: center;
@@ -894,7 +915,7 @@ iframe {
 
 
 .version-active {
-    width: calc(100% - 20px);
+    width: calc(100% - 60px);
     height: 100%;
     border-radius: 18px;
     z-index: 0;
