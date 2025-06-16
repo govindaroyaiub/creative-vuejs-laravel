@@ -56,6 +56,14 @@ section {
     height: auto;
 }
 
+hr{
+    background-color: var(--primary-color)!important;
+    width: 85%;
+    height: 1px;
+    border: none;
+    margin: 0 auto;
+}
+
 section .content {
     z-index: 1;
     color: white;
@@ -898,7 +906,7 @@ iframe {
 .version-row {
     text-align: center;
     width: calc(100% - 60px);
-    min-height: 40px;
+    min-height: 65px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -910,7 +918,9 @@ iframe {
     border-radius: 18px;
     border-bottom: 4px solid black;
     transition: all 0.25s;
-    font-size: 1rem;
+    /* font-size: 1rem; */
+    flex-direction: column;
+    justify-content: space-evenly;
 }
 
 .version-row:hover {
