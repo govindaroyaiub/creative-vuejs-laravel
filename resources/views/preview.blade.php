@@ -387,12 +387,18 @@ function handleOutsideClick(event) {
                         spanActive = '';
                     }
 
-                    row2 += '<div class="version-row ' + versionActive + '" onclick="return updateActiveVersion(' + value.id + ')" id="version' + value.id + '>';
-                    row2 += '<span class="' + spanActive + '">' + value.name + '</span>';
-                    row2 += '</div>';
+                    const date = new Date(value.created_at);
+                    const formatted = date.toLocaleDateString('en-GB'); // DD/MM/YYYY
+                    const formatted2 = `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getFullYear()}`;
 
-                    row = row + '<a href="javascript:void(0)" class="versions nav-link" onclick="return updateActiveVersion(' + value.id + ')" id="version' + value.id + '">'
-                    row = row + '<li class="' + active + '">' + value.name + '</li>'
+                    row2 = row2 + '<div class="version-row ' + versionActive + '" onclick="return updateActiveVersion(' + value.id + ')" id="version' + value.id + '">';
+                    row2 = row2 + '<span class="' + spanActive + '" style="font-size: 0.85rem;">' + value.name + '</span>';
+                    row2 = row2 + '<hr>';
+                    row2 += '<span class="version-row-date" style="font-size: 0.7rem;">' + formatted2 + '</span>';
+                    row2 = row2 + '</div>';
+
+                    row = row + '<a href="javascript:void(0)" class="nav-link versions" onclick="return updateActiveVersion(' + value.id + ')" id="version' + value.id + '">';
+                    row = row + '<li class="' + active + '">' + value.name + '</li>';
                     row = row + '</a>';
                 });
 

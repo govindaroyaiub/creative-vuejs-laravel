@@ -404,7 +404,12 @@ section .content {
     width: 100%;
     height: auto;
     text-align: center;
-    margin-top: 10px;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    padding-bottom: 2rem;
+    padding-right: 40px;
+    margin-top: 0;
 }
 
 .trapezoid-container {
