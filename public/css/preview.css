@@ -516,11 +516,11 @@ iframe {
     color: black;
     padding: 16px 10px;
     text-align: center;
-    font-size: 1.17rem;
+    font-size: 1.05rem;
     border-radius: 5px;
     width: 100%;
     /* fill parent (#navbar) */
-    max-width: 240px;
+    max-width: 250px;
     /* keep it inside #navbar */
     min-height: 65px;
     /* adjust as needed for your image */
@@ -811,7 +811,7 @@ iframe {
 }
 
 #navbar {
-    width: 250px;
+    width: 270px;
     min-width: 210px;
     color: #fff;
     padding-bottom: 1.75rem;
@@ -910,6 +910,7 @@ iframe {
     border-radius: 18px;
     border-bottom: 4px solid black;
     transition: all 0.25s;
+    font-size: 1rem;
 }
 
 .version-row:hover {

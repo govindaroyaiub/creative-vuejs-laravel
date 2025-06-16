@@ -1070,7 +1070,7 @@ function handleOutsideClick(event) {
                     row += `
                         <div id="${uniqueId}" class="mx-auto mb-8" style="max-width: 100%;">
                             <!-- Name Bar -->
-                            <div class="video-title font-semibold text-lg px-4 py-2 mx-auto rounded-lg text-center shadow-sm underline video-name-bar" style="letter-spacing:0.5px;">
+                            <div class="video-title font-semibold text-lg px-4 py-2 mx-auto text-center shadow-sm underline video-name-bar" style="letter-spacing:0.5px;border-radius: 40px;">
                                 ${value.name}
                             </div>
                             <!-- Video -->
@@ -1249,8 +1249,8 @@ function handleOutsideClick(event) {
                 $.each(response.data, function(key, value) {
                     row += `
                         <div style="display: inline-block; margin: 10px; width: 600px;">
-                            <div class="text-center text-xl font-semibold capitalize rounded-lg social-title flex justify-center items-center"
-                                style="padding: 10px; width: 100%; box-shadow: 0 2px 8px #0001; margin-bottom: 12px;">
+                            <div class="text-center text-xl font-semibold capitalize social-title flex justify-center items-center"
+                                style="padding: 10px; width: 100%; box-shadow: 0 2px 8px #0001; margin-bottom: 12px; border-radius: 40px;">
                                 <span class="underline">${value.name}</span>
                             </div>
                             <img src="/${value.path}" 
