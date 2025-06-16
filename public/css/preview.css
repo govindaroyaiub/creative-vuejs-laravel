@@ -56,8 +56,8 @@ section {
     height: auto;
 }
 
-hr{
-    background-color: var(--primary-color)!important;
+hr {
+    background-color: var(--primary-color) !important;
     width: 85%;
     height: 1px;
     border: none;
@@ -408,7 +408,6 @@ section .content {
 }
 
 .trapezoid-container {
-    min-width: 210px;
     max-height: 35px;
     height: 35px;
     position: relative;
@@ -439,19 +438,52 @@ iframe {
 
 .subVersionTab {
     cursor: pointer;
-    background-image: url('/preview_images/subVersionDefault.png');
-    background-position: bottom;
-    background-size: contain;
-    background-repeat: no-repeat;
-    transition: background-image 0.3s ease;
+    --r: 25px;
+    /* control the radius */
+
+    line-height: 1.8;
+    /* control the height */
+    padding-inline: .5em;
+    border-inline: var(--r) solid #0000;
+    border-radius: calc(2*var(--r)) calc(2*var(--r)) 0 0/var(--r);
+    mask:
+        radial-gradient(var(--r) at var(--r) 0, #0000 98%, #000 101%) calc(-1*var(--r)) 100%/100% var(--r) repeat-x,
+        conic-gradient(#000 0 0) padding-box;
+    background: var(--primary-color) border-box;
+    /* border-box is needed for a gradient coloration */
+    width: 180px;
 }
 
 .subVersionTab:hover {
-    background-image: url('/preview_images/subVersionActive.png') !important;
+    --r: 25px;
+    /* control the radius */
+
+    line-height: 1.8;
+    /* control the height */
+    padding-inline: .5em;
+    border-inline: var(--r) solid #0000;
+    border-radius: calc(2*var(--r)) calc(2*var(--r)) 0 0/var(--r);
+    mask:
+        radial-gradient(var(--r) at var(--r) 0, #0000 98%, #000 101%) calc(-1*var(--r)) 100%/100% var(--r) repeat-x,
+        conic-gradient(#000 0 0) padding-box;
+    background: var(--tertiary-color) border-box;
+    /* border-box is needed for a gradient coloration */
 }
 
 .subVersionTabActive {
-    background-image: url('/preview_images/subVersionActive.png') !important;
+    --r: 25px;
+    /* control the radius */
+    line-height: 1.8;
+    /* control the height */
+    padding-inline: .5em;
+    border-inline: var(--r) solid #0000;
+    border-radius: calc(2*var(--r)) calc(2*var(--r)) 0 0/var(--r);
+    mask:
+        radial-gradient(var(--r) at var(--r) 0, #0000 98%, #000 101%) calc(-1*var(--r)) 100%/100% var(--r) repeat-x,
+        conic-gradient(#000 0 0) padding-box;
+    background: var(--tertiary-color) border-box;
+    /* border-box is needed for a gradient coloration */
+    width: 180px;
 }
 
 #versionArea {

@@ -470,7 +470,7 @@ function handleOutsideClick(event) {
                row += `
                <div id="subVersionTab${value.id}" class="subVersionTab${isActive}" onclick="updateSocialActiveSubVersion(${value.id})">
                     <div class="trapezoid-container">
-                        <div class="tab-text text-black text-base">${value.name}</div>
+                        <div class="tab-text text-white text-base">${value.name}</div>
                     </div>
                 </div>
                 `;
@@ -482,7 +482,7 @@ function handleOutsideClick(event) {
             row += `
                 <div class="subVersionTab subVersionAddTab" onclick="addSocialNewSubVersion(${version_id})">
                     <div class="trapezoid-container">
-                        <div class="tab-text text-black text-2xl font-bold">+</div>
+                        <div class="tab-text text-white text-2xl font-bold">+</div>
                     </div>
                 </div>
             `;
@@ -505,7 +505,7 @@ function handleOutsideClick(event) {
                row += `
                 <div id="subVersionTab${value.id}" class="subVersionTab${isActive}" onclick="updateVideoActiveSubVersion(${value.id})">
                     <div class="trapezoid-container">
-                        <div class="tab-text text-black text-base">${value.name}</div>
+                        <div class="tab-text text-white text-base">${value.name}</div>
                     </div>
                 </div>
                 `;
@@ -517,7 +517,7 @@ function handleOutsideClick(event) {
             row += `
                 <div class="subVersionTab subVersionAddTab" onclick="addVideoNewSubVersion(${version_id})">
                     <div class="trapezoid-container">
-                        <div class="tab-text text-black text-2xl font-bold">+</div>
+                        <div class="tab-text text-white text-2xl font-bold">+</div>
                     </div>
                 </div>
             `;
@@ -562,7 +562,7 @@ function handleOutsideClick(event) {
                row += `
                 <div id="subVersionTab${value.id}" class="subVersionTab${isActive}" onclick="updateBannerActiveSubVersion(${value.id})">
                     <div class="trapezoid-container">
-                        <div class="tab-text text-black text-base">${value.name}</div>
+                        <div class="tab-text text-white text-base">${value.name}</div>
                     </div>
                 </div>
                 `;
@@ -574,7 +574,7 @@ function handleOutsideClick(event) {
             row += `
                 <div class="subVersionTab subVersionAddTab" onclick="addBannerNewSubVersion(${version_id})">
                     <div class="trapezoid-container">
-                        <div class="tab-text text-black text-2xl font-bold">+</div>
+                        <div class="tab-text text-white text-2xl font-bold">+</div>
                     </div>
                 </div>
             `;
@@ -597,7 +597,7 @@ function handleOutsideClick(event) {
                row += `
                 <div id="subVersionTab${value.id}" class="subVersionTab${isActive}" onclick="updateGifActiveSubVersion(${value.id})">
                     <div class="trapezoid-container">
-                        <div class="tab-text text-black text-base">${value.name}</div>
+                        <div class="tab-text text-white text-base">${value.name}</div>
                     </div>
                 </div>
                 `;
@@ -609,7 +609,7 @@ function handleOutsideClick(event) {
             row += `
                 <div class="subVersionTab subVersionAddTab" onclick="addGifNewSubVersion(${version_id})">
                     <div class="trapezoid-container">
-                        <div class="tab-text text-black text-2xl font-bold">+</div>
+                        <div class="tab-text text-white text-2xl font-bold">+</div>
                     </div>
                 </div>
             `;
