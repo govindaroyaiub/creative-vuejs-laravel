@@ -400,10 +400,13 @@ section .content {
 }
 
 .trapezoid-container {
-    min-width: 120px;
+    min-width: 210px;
     max-height: 35px;
     height: 35px;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .trapezoid {
@@ -428,22 +431,19 @@ iframe {
 
 .subVersionTab {
     cursor: pointer;
-    fill: var(--primary-color);
-    stroke: var(--primary-color);
-    stroke-width: 2;
-    transition: all 0.25s;
+    background-image: url('/preview_images/subVersionDefault.png');
+    background-position: bottom;
+    background-size: contain;
+    background-repeat: no-repeat;
+    transition: background-image 0.3s ease;
 }
 
 .subVersionTab:hover {
-    fill: var(--tertiary-color);
-    stroke: var(--tertiary-color);
-    stroke-width: 2;
+    background-image: url('/preview_images/subVersionActive.png') !important;
 }
 
 .subVersionTabActive {
-    fill: var(--tertiary-color);
-    stroke: var(--tertiary-color);
-    stroke-width: 2;
+    background-image: url('/preview_images/subVersionActive.png') !important;
 }
 
 #versionArea {
@@ -500,7 +500,7 @@ iframe {
     border-radius: 5px;
 }
 
-.sidebar-image-div{
+.sidebar-image-div {
     background-color: var(--primary-color);
     border-right: 3px solid var(--tertiary-color);
 }
@@ -816,11 +816,16 @@ iframe {
     color: #fff;
     padding-bottom: 1.75rem;
     /* background-color: var(--primary-color); */
-    min-height: 300px;        /* <-- Add this */
-    height: auto;             /* <-- Let height grow with content */
-    display: flex;            /* <-- Add this for flex column layout */
-    flex-direction: column;   /* <-- Stack children vertically */
-    align-items: stretch;     /* <-- Children fill width */
+    min-height: 300px;
+    /* <-- Add this */
+    height: auto;
+    /* <-- Let height grow with content */
+    display: flex;
+    /* <-- Add this for flex column layout */
+    flex-direction: column;
+    /* <-- Stack children vertically */
+    align-items: stretch;
+    /* <-- Children fill width */
     overflow-y: auto;
 }
 

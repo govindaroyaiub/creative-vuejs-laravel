@@ -64,11 +64,11 @@ class DatabaseSeeder extends Seeder
                 'status' => 1,
             ],
             [
-                'name' => 'Rose Theme',
-                'primary' => '#c89699',
-                'secondary' => '#fbe0e2',
-                'tertiary' => '#84515b',
-                'quaternary' => '#f1c1c4',
+                'name' => 'Dirk/Deka Theme',
+                'primary' => '#ed1c24',
+                'secondary' => '#feb4b7',
+                'tertiary' => '#a1070d',
+                'quaternary' => '#a1070d',
                 'status' => 1,
             ],
         ];

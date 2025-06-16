@@ -9,6 +9,8 @@
     <title>Creative - {{ $preview['name'] }}</title>
     <link rel="preload" as="image" href="/preview_images/sidebar-image.png">
     <link rel="preload" as="image" href="/preview_images/top-bg.png">
+    <link rel="preload" as="image" href="/preview_images/subVersionDefault.png">
+    <link rel="preload" as="image" href="/preview_images/subVersionActive.png">
     <link rel="shortcut icon" href="https://www.planetnine.com/logo/new_favicon.png">
     @vite('resources/css/app.css')
     <script src="https://code.jquery.com/jquery-3.6.1.slim.min.js"
@@ -141,6 +143,7 @@
                                     <span>Creative Showcase</span>
                                 </div>
                             </div>
+
                             <div id="creative-list2"></div>
                         </div>
 
@@ -459,12 +462,9 @@ function handleOutsideClick(event) {
                     isActive = '';
                 }
                row += `
-                <div id="subVersionTab${value.id}" class="subVersionTab${isActive}" onclick="updateSocialActiveSubVersion(${value.id})">
+               <div id="subVersionTab${value.id}" class="subVersionTab${isActive}" onclick="updateSocialActiveSubVersion(${value.id})">
                     <div class="trapezoid-container">
-                    <svg class="trapezoid" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M0,60 L200,60 L180,15 C175,5 170,0 160,0 L40,0 C30,0 25,5 20,15 L0,60 Z" fill="${isActive}"/>
-                    </svg>
-                    <div class="tab-text text-white text-base">${value.name}</div>
+                        <div class="tab-text text-black text-base">${value.name}</div>
                     </div>
                 </div>
                 `;
@@ -476,10 +476,7 @@ function handleOutsideClick(event) {
             row += `
                 <div class="subVersionTab subVersionAddTab" onclick="addSocialNewSubVersion(${version_id})">
                     <div class="trapezoid-container">
-                        <svg class="trapezoid" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0,60 L200,60 L180,15 C175,5 170,0 160,0 L40,0 C30,0 25,5 20,15 L0,60 Z"/>
-                        </svg>
-                        <div class="tab-text text-white text-2xl font-bold">+</div>
+                        <div class="tab-text text-black text-2xl font-bold">+</div>
                     </div>
                 </div>
             `;
@@ -502,10 +499,7 @@ function handleOutsideClick(event) {
                row += `
                 <div id="subVersionTab${value.id}" class="subVersionTab${isActive}" onclick="updateVideoActiveSubVersion(${value.id})">
                     <div class="trapezoid-container">
-                    <svg class="trapezoid" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M0,60 L200,60 L180,15 C175,5 170,0 160,0 L40,0 C30,0 25,5 20,15 L0,60 Z" fill="${isActive}"/>
-                    </svg>
-                    <div class="tab-text text-white text-base">${value.name}</div>
+                        <div class="tab-text text-black text-base">${value.name}</div>
                     </div>
                 </div>
                 `;
@@ -517,10 +511,7 @@ function handleOutsideClick(event) {
             row += `
                 <div class="subVersionTab subVersionAddTab" onclick="addVideoNewSubVersion(${version_id})">
                     <div class="trapezoid-container">
-                        <svg class="trapezoid" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0,60 L200,60 L180,15 C175,5 170,0 160,0 L40,0 C30,0 25,5 20,15 L0,60 Z"/>
-                        </svg>
-                        <div class="tab-text text-white text-2xl font-bold">+</div>
+                        <div class="tab-text text-black text-2xl font-bold">+</div>
                     </div>
                 </div>
             `;
@@ -565,10 +556,7 @@ function handleOutsideClick(event) {
                row += `
                 <div id="subVersionTab${value.id}" class="subVersionTab${isActive}" onclick="updateBannerActiveSubVersion(${value.id})">
                     <div class="trapezoid-container">
-                    <svg class="trapezoid" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M0,60 L200,60 L180,15 C175,5 170,0 160,0 L40,0 C30,0 25,5 20,15 L0,60 Z" fill="${isActive}"/>
-                    </svg>
-                    <div class="tab-text text-white text-base">${value.name}</div>
+                        <div class="tab-text text-black text-base">${value.name}</div>
                     </div>
                 </div>
                 `;
@@ -580,10 +568,7 @@ function handleOutsideClick(event) {
             row += `
                 <div class="subVersionTab subVersionAddTab" onclick="addBannerNewSubVersion(${version_id})">
                     <div class="trapezoid-container">
-                        <svg class="trapezoid" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0,60 L200,60 L180,15 C175,5 170,0 160,0 L40,0 C30,0 25,5 20,15 L0,60 Z"/>
-                        </svg>
-                        <div class="tab-text text-white text-2xl font-bold">+</div>
+                        <div class="tab-text text-black text-2xl font-bold">+</div>
                     </div>
                 </div>
             `;
@@ -606,10 +591,7 @@ function handleOutsideClick(event) {
                row += `
                 <div id="subVersionTab${value.id}" class="subVersionTab${isActive}" onclick="updateGifActiveSubVersion(${value.id})">
                     <div class="trapezoid-container">
-                    <svg class="trapezoid" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M0,60 L200,60 L180,15 C175,5 170,0 160,0 L40,0 C30,0 25,5 20,15 L0,60 Z" fill="${isActive}"/>
-                    </svg>
-                    <div class="tab-text text-white text-base">${value.name}</div>
+                        <div class="tab-text text-black text-base">${value.name}</div>
                     </div>
                 </div>
                 `;
@@ -621,10 +603,7 @@ function handleOutsideClick(event) {
             row += `
                 <div class="subVersionTab subVersionAddTab" onclick="addGifNewSubVersion(${version_id})">
                     <div class="trapezoid-container">
-                        <svg class="trapezoid" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0,60 L200,60 L180,15 C175,5 170,0 160,0 L40,0 C30,0 25,5 20,15 L0,60 Z"/>
-                        </svg>
-                        <div class="tab-text text-white text-2xl font-bold">+</div>
+                        <div class="tab-text text-black text-2xl font-bold">+</div>
                     </div>
                 </div>
             `;
