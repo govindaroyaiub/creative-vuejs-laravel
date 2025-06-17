@@ -150,7 +150,7 @@
                         <div class="right-column">
                             <div id="versionArea">
                                 <div id="versionCLick" onclick="showVersionDescription()">
-                                    <i class="fa-regular fa-message" style="transform: rotate(-270deg);"></i>
+                                    <i class="fa-regular fa-message" style="transform: rotate(90deg) scaleX(-1);"></i>
                                 </div>
 
                                 @php
@@ -1085,7 +1085,7 @@ function handleOutsideClick(event) {
                     row += `
                         <div id="${uniqueId}" class="mx-auto mb-8" style="max-width: 100%;">
                             <!-- Name Bar -->
-                            <div class="video-title font-semibold text-lg px-4 py-2 mx-auto text-center shadow-sm underline video-name-bar" style="letter-spacing:0.5px;border-radius: 40px;">
+                            <div class="video-title font-semibold text-lg px-4 py-2 mx-auto text-center shadow-sm video-name-bar" style="letter-spacing:0.5px;border-radius: 40px;">
                                 ${value.name}
                             </div>
                             <!-- Video -->
@@ -1266,7 +1266,7 @@ function handleOutsideClick(event) {
                         <div style="display: inline-block; margin: 10px; width: 600px;">
                             <div class="text-center text-xl font-semibold capitalize social-title flex justify-center items-center"
                                 style="padding: 10px; width: 100%; box-shadow: 0 2px 8px #0001; margin-bottom: 12px; border-radius: 40px;">
-                                <span class="underline">${value.name}</span>
+                                <span>${value.name}</span>
                             </div>
                             <img src="/${value.path}" 
                                 alt="${value.name}" 
