@@ -506,22 +506,27 @@ iframe {
 
 #versionCLick {
     font-size: 1.5rem;
-    padding: 5px 10px 5px 5px;
-    width: 40px;
-    background-color: var(--tertiary-color);
+    padding: 5px 10px 5px 10px;
     border: 1px solid var(--tertiary-color);
     position: absolute;
-    right: 0px;
-    top: 0;
+    right: -1.5rem;
+    top: 2rem;
     color: white;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
     cursor: pointer;
-    transform: rotateY(175deg);
-    -webkit-transform: rotateY(175deg);
-    -moz-transform: rotateY(175deg);
-    -ms-transform: rotateY(175deg);
-    -o-transform: rotateY(175deg);
+    --r: 25px;
+    /* control the radius */
+    line-height: 1.8;
+    /* control the height */
+    padding-inline: .5em;
+    border-inline: var(--r) solid #0000;
+    border-radius: calc(2*var(--r)) calc(2*var(--r)) 0 0/var(--r);
+    mask:
+        radial-gradient(var(--r) at var(--r) 0, #0000 98%, #000 101%) calc(-1*var(--r)) 100%/100% var(--r) repeat-x,
+        conic-gradient(#000 0 0) padding-box;
+    background: var(--tertiary-color) border-box;
+    /* border-box is needed for a gradient coloration */
+    width: fit-content;
+    transform: rotate(-90deg);
 }
 
 #versionDescription {
@@ -538,11 +543,12 @@ iframe {
     z-index: 9999;
     position: absolute;
     right: 0;
-    top: 6rem;
+    top: 8rem;
     background: white;
     padding: 7px;
     max-width: 330px;
-    border-radius: 5px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
 }
 
 .sidebar-image-div {
@@ -589,7 +595,19 @@ iframe {
 }
 
 #socialImageModal {
-    overflow: auto !important;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+}
+
+#socialModalImg {
+    display: block;
+    margin: auto;
+    max-width: 80vw;
+    max-height: 80vh;
+    transition: transform 0.2s;
+    cursor: zoom-in;
+    /* Remove position:absolute here */
 }
 
 #colorPaletteSelection.visible {
@@ -601,7 +619,7 @@ iframe {
 #colorPaletteSelection.color-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 5px;
+    gap: 0.5rem;
 }
 
 .color-box {
@@ -639,16 +657,26 @@ iframe {
 #colorPaletteClick {
     font-size: 1.5rem;
     padding: 5px 10px 5px 10px;
-    width: 40px;
-    background-color: var(--tertiary-color);
     border: 1px solid var(--tertiary-color);
     position: absolute;
-    right: 0px;
-    top: 7rem;
+    right: -1.5rem;
+    top: 9rem;
     color: white;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
     cursor: pointer;
+    --r: 25px;
+    /* control the radius */
+    line-height: 1.8;
+    /* control the height */
+    padding-inline: .5em;
+    border-inline: var(--r) solid #0000;
+    border-radius: calc(2*var(--r)) calc(2*var(--r)) 0 0/var(--r);
+    mask:
+        radial-gradient(var(--r) at var(--r) 0, #0000 98%, #000 101%) calc(-1*var(--r)) 100%/100% var(--r) repeat-x,
+        conic-gradient(#000 0 0) padding-box;
+    background: var(--tertiary-color) border-box;
+    /* border-box is needed for a gradient coloration */
+    width: fit-content;
+    transform: rotate(-90deg);
 }
 
 .showversion {
