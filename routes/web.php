@@ -63,12 +63,14 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::post('/previews/version/{id}/social/add/subVersion/', [PreviewController::class, 'storeSocialSubVersion'])->name('store-social-subVersion');
     Route::get('/previews/version/social/edit/subVersion/{id}', [PreviewController::class, 'editSocialSubVersion'])->name('edit-social-sub-version');
     Route::post('/previews/version/social/edit/subVersion/{id}', [PreviewController::class, 'updateSocialSubVersion'])->name('update-social-sub-version');
+    Route::get('/previews/version/social/edit/subVersion/position/{id}', [PreviewController::class, 'editSocialSubVersionPosition'])->name('edit-social-subVersion-position');
     Route::get('/previews/social/subVersion/delete/{id}', [PreviewController::class, 'deleteSocialSubVersion'])->name('delete-social-subVersion');
 
     Route::get('/previews/version/{id}/video/add/subVersion/', [PreviewController::class, 'createVideoSubVersion'])->name('create-video-subVersion');
     Route::post('/previews/version/{id}/video/add/subVersion/', [PreviewController::class, 'storeVideoSubVersion'])->name('store-video-subVersion');
     Route::get('/previews/version/video/edit/subVersion/{id}', [PreviewController::class, 'editVideoSubVersion'])->name('edit-video-subVersion');
     Route::post('/previews/version/video/edit/subVersion/{id}', [PreviewController::class, 'updateVideoSubVersion'])->name('update-video-subVersion');
+    Route::get('/previews/version/video/edit/subVersion/position/{id}', [PreviewController::class, 'editVideoSubVersionPosition'])->name('edit-video-subVersion-position');
     Route::get('/previews/video/subVersion/delete/{id}', [PreviewController::class, 'deleteVideoSubVersion'])->name('delete-video-subVersion');
 
     Route::get('/previews/version/{id}/gif/add/subVersion/', [PreviewController::class, 'createGifSubVersion'])->name('create-gif-subVersion');

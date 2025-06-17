@@ -2335,4 +2335,13 @@ class PreviewController extends Controller
         return redirect()->route('edit-banner-sub-version-position', $subVersion->id)
             ->with('success', 'Banner positions updated successfully.');
     }
+
+    public function editVideoSubVersionPosition($id)
+    {
+        dd('This video function is still on development. Will let you know soon!.');
+    }
+
+    public function editSocialSubVersionPosition($id){
+        dd('This social function is still on development. Will let you know soon!.');
+    }
 }

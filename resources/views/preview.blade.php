@@ -20,7 +20,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/js/all.min.js" integrity="sha512-rpLlll167T5LJHwp0waJCh3ZRf7pO6IT1+LZOhAyP6phAirwchClbTZV3iqL3BMrVxIYRbzGTpli4rfxsCK6Vw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://s0.2mdn.net/ads/studio/cached_libs/gsap_3.5.1_min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-     <script src="https://cdn.jsdelivr.net/npm/@panzoom/panzoom@9.4.0/dist/panzoom.min.js"></script>
     <style>
         :root {
             --primary-color: {{ $primary }};
@@ -68,73 +67,6 @@
         // Call every 10 seconds
         setInterval(fetchViewers, 10000);
         fetchViewers(); // initial call
-
-        console.log('Panzoom:', typeof Panzoom);
-
-    // Modal HTML
-    if (!document.getElementById('socialImageModal')) {
-        $('body').append(`
-            <div id="socialImageModal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); align-items:center; justify-content:center; overflow:auto; display:flex;">
-                <span id="closeSocialModal" style="position:absolute; top:30px; right:40px; font-size:2.5rem; color:white; cursor:pointer; z-index:10001;">&times;</span>
-                <img id="socialModalImg" src="" alt="" 
-                    style="max-width:80vw; max-height:80vh; transition:transform 0.2s; cursor:grab; display:block; margin:auto; padding:40px; background:rgba(0,0,0,0.1); border-radius:12px;">
-            </div>
-        `);
-    }
-
-    const $modal = $('#socialImageModal');
-    const $img = $('#socialModalImg');
-    let panzoomInstance = null;
-
-    window.openSocialImageModal = function(src, label) {
-        $img
-            .attr('src', src)
-            .css({
-                width: '',
-                height: '',
-                'max-width': '80vw',
-                'max-height': '80vh',
-                'cursor': 'grab',
-                'transform': ''
-            });
-        $modal.fadeIn(150);
-        $('body').css('overflow', 'hidden');
-
-        // Destroy previous panzoom instance if exists
-        if (panzoomInstance) {
-            panzoomInstance.destroy();
-        }
-
-        // Wait for image to load before initializing panzoom
-        $img.off('load').on('load', function() {
-            panzoomInstance = Panzoom($img[0], {
-                maxScale: 10,
-                minScale: 0.1,
-                contain: 'outside',
-                cursor: 'grab'
-            });
-            // Enable mouse wheel zoom
-            $img.parent()[0].addEventListener('wheel', panzoomInstance.zoomWithWheel);
-            // Reset pan/zoom on double click
-            $img.on('dblclick', function() {
-                panzoomInstance.reset();
-            });
-        });
-        // If image is cached and already loaded
-        if ($img[0].complete) {
-            $img.trigger('load');
-        }
-    };
-
-    // Close modal on cross click
-    $(document).on('click', '#closeSocialModal', function() {
-        $modal.fadeOut(150);
-        $('body').css('overflow', '');
-        if (panzoomInstance) {
-            panzoomInstance.destroy();
-            panzoomInstance = null;
-        }
-    });
     </script>
 </head>
 
@@ -267,6 +199,7 @@
         </footer>
         @endif
 </body>
+
 <script>
 function showColorPaletteOptions() {
     const preview_id = '{{ $preview_id }}';
@@ -736,7 +669,8 @@ function handleOutsideClick(event) {
                 rows = '';
                 rows = rows + "@if($authUserClientName == 'Planet Nine')";
                 rows = rows + '<div>';
-                rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';                
+                rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';
+                rows = rows + '<a href="/previews/version/social/edit/subVersion/position/' + activeSubVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-list-ol"></i></a>';
                 rows = rows + '<a href="/previews/version/social/edit/subVersion/' + activeSubVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-square-pen"></i></a>';
                 rows = rows + '<a href="javascript:void(0)" onclick="return confirmSocialSubVersionDelete(' + activeSubVersion_id + ')" style="' + display + ' margin-right: 0.5rem;"><i class="fa-solid fa-square-minus"></i></a>';
                 rows = rows + '</div>';
@@ -788,6 +722,7 @@ function handleOutsideClick(event) {
                 rows = rows + "@if($authUserClientName == 'Planet Nine')";
                 rows = rows + '<div>';
                 rows = rows + '<div style="display: flex; font-size:1.5rem;" class="previewIcons">';
+                rows = rows + '<a href="/previews/version/video/edit/subVersion/position/' + activeSubVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-list-ol"></i></a>';
                 rows = rows + '<a href="/previews/version/video/edit/subVersion/' + activeSubVersion_id + '" style="margin-right: 0.5rem;"><i class="fa-solid fa-square-pen"></i></a>';
                 rows = rows + '<a href="javascript:void(0)" onclick="return confirmVideoSubVersionDelete(' + activeSubVersion_id + ')" style="' + display + ' margin-right: 0.5rem;"><i class="fa-solid fa-square-minus"></i></a>';
                 rows = rows + '</div>';
@@ -1370,4 +1305,108 @@ function handleOutsideClick(event) {
                 document.getElementById('loaderArea').style.display = 'none';
             });
     }
+
+    // Modal HTML (add this at the end of your <body>)
+    if (!document.getElementById('socialImageModal')) {
+        $('body').append(`
+            <div id="socialImageModal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); align-items:center; justify-content:center;">
+                <span id="closeSocialModal" style="position:absolute; top:30px; right:40px; font-size:2.5rem; color:white; cursor:pointer; z-index:10001;">&times;</span>
+                <img id="socialModalImg" src="" alt="" 
+                    style="max-width:80vw; max-height:80vh; transition:transform 0.2s; cursor:zoom-in; display:block; margin:auto; padding:40px; background:rgba(0,0,0,0.1); border-radius:12px;">
+            </div>
+        `);
+    }
+
+    // When opening the modal
+    window.openSocialImageModal = function(src, label) {
+        // Always reset zoom and styles
+        $('#socialModalImg')
+            .attr('src', src)
+            .css({
+                width: '',
+                height: '',
+                'max-width': '80vw',
+                'max-height': '80vh',
+                'cursor': 'zoom-in',
+                'transform': 'none'
+            })
+            .data('zoom', 1);
+        $('#socialModalImgLabel').text(label);
+        $('#socialImageModal').fadeIn(150);
+        $('body').css('overflow', 'hidden'); // Disable background scroll
+    };
+
+    // When closing the modal
+    $(document).on('click', '#closeSocialModal', function() {
+        $('#socialImageModal').fadeOut(150);
+        $('body').css('overflow', ''); // Re-enable background scroll
+    });
+
+    $(document).on('click', '#socialImageModal', function(e) {
+        if (e.target === this) {
+            $('#socialImageModal').fadeOut(150);
+            $('body').css('overflow', ''); // Re-enable background scroll
+        }
+    });
+
+    $('#socialImageModal').css('overflow', 'auto');
+
+    let isDragging = false;
+    let startX, startY, scrollLeft, scrollTop;
+    let dragMoved = false; // <-- Add this
+    let zoom = 1;
+    const minZoom = 0.1;
+    const maxZoom = 10;
+
+    $('#socialModalImg').on('mousedown', function(e) {
+        if ($(this).data('zoom') === 2) {
+            isDragging = true;
+            dragMoved = false; // <-- Reset on mousedown
+            $(this).css('cursor', 'grabbing');
+            startX = e.pageX;
+            startY = e.pageY;
+            scrollLeft = $('#socialImageModal').scrollLeft();
+            scrollTop = $('#socialImageModal').scrollTop();
+            e.preventDefault();
+        }
+    });
+
+    $(document).on('mousemove', function(e) {
+        if (isDragging) {
+            const x = e.pageX;
+            const y = e.pageY;
+            if (Math.abs(x - startX) > 3 || Math.abs(y - startY) > 3) { // <-- Threshold for drag
+                dragMoved = true;
+            }
+            $('#socialImageModal').scrollLeft(scrollLeft - (x - startX));
+            $('#socialImageModal').scrollTop(scrollTop - (y - startY));
+        }
+    });
+
+    $(document).on('mouseup', function() {
+        isDragging = false;
+        $('#socialModalImg').css('cursor', $('#socialModalImg').data('zoom') === 2 ? 'zoom-out' : 'zoom-in');
+    });
+
+    // Zoom in/out on image click
+    $(document).on('click', '#socialModalImg', function(e) {
+        if (dragMoved) {
+            dragMoved = false;
+            return;
+        }
+        // Zoom in on click, reset if max reached
+        zoomLevel += zoomStep;
+        if (zoomLevel > maxZoom) zoomLevel = minZoom;
+
+        $(this).css({
+            'transform': `scale(${zoomLevel})`,
+            'cursor': zoomLevel > 1 ? 'zoom-out' : 'zoom-in',
+            'max-width': '80vw',
+            'max-height': '80vh'
+        });
+        // Optionally, center scroll when zooming in
+        if (zoomLevel === 1) {
+            $('#socialImageModal').scrollTop(0).scrollLeft(0);
+        }
+    });
 </script>
