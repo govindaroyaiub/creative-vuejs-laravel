@@ -79,22 +79,24 @@ class DatabaseSeeder extends Seeder
         }
 
         $clients = [
-            ['name' => 'Planet Nine', 'website' => 'https://www.planetnine.com', 'preview_url' => 'https://preview.creative-planetnine.com', 'logo' => 'planetnine.png', 'color_palette_id' => 5],
+            [
+                'name' => 'Planet Nine', 
+                'website' => 'https://www.planetnine.com', 
+                'preview_url' => 'https://preview.creative-planetnine.com', 
+                'logo' => 'planetnine.png', 
+                'color_palette_id' => 5
+            ],
         ];
 
         foreach ($clients as $client) {
-            Client::create($client);
+            Client::create([
+                'name' => $client['name'],
+                'website' => $client['website'],
+                'preview_url' => $client['preview_url'],
+                'logo' => $client['logo'],
+                'color_palette_id' => $client['color_palette_id'],
+            ]);
         }
-
-        User::create([
-            'name' => 'Test User',
-            'email' => 'test@planetnine.com',
-            'password' => Hash::make('password'),
-            'role' => 'super_admin',
-            'designation' => 1,
-            'permissions' => ['*'],
-            'client_id' => 1,
-        ]);
 
         $designations = [
             'Developer',
@@ -109,6 +111,93 @@ class DatabaseSeeder extends Seeder
         foreach ($designations as $designation) {
             Designation::create([
                 'name' => $designation,
+            ]);
+        }
+
+        $users = [
+            [
+                'name' => 'Govinda Roy',
+                'email' => 'govinda@planetnine.com',
+                'password' => Hash::make('password'),
+                'role' => 'super_admin',
+                'designation' => 1,
+                'permissions' => ['*'],
+                'client_id' => 1,
+            ],
+            [
+                'name' => 'Ibrahim Faisal',
+                'email' => 'faisal@planetnine.com',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+                'designation' => 1,
+                'permissions' => ['*'],
+                'client_id' => 1,
+            ],
+            [
+                'name' => 'Rohit Hasan',
+                'email' => 'rohit@planetnine.com',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+                'designation' => 5,
+                'permissions' => ['*'],
+                'client_id' => 1,
+            ],
+            [
+                'name' => 'Rashid Shaharier',
+                'email' => 'rashid@planetnine.com',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+                'designation' => 3,
+                'permissions' => ['*'],
+                'client_id' => 1,
+            ],
+            [
+                'name' => 'Rokib Hasan',
+                'email' => 'rokib@planetnine.com',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+                'designation' => 3,
+                'permissions' => ['*'],
+                'client_id' => 1,
+            ],
+            [
+                'name' => 'Sunjida Khanom',
+                'email' => 'sunjida@planetnine.com',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+                'designation' => 1,
+                'permissions' => ['*'],
+                'client_id' => 1,
+            ],
+            [
+                'name' => 'Faria Mahmud',
+                'email' => 'faria@planetnine.com',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+                'designation' => 1,
+                'permissions' => ['*'],
+                'client_id' => 1,
+            ],
+            [
+                'name' => 'Limon Roy',
+                'email' => 'limon@planetnine.com',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+                'designation' => 6,
+                'permissions' => ['*'],
+                'client_id' => 1,
+            ]
+        ];
+
+        foreach ($users as $user) {
+            User::create([
+                'name' => $user['name'],
+                'email' => $user['email'],
+                'password' => $user['password'],
+                'role' => $user['role'],
+                'designation' => $user['designation'],
+                'permissions' => $user['permissions'],
+                'client_id' => $user['client_id'],
             ]);
         }
 
