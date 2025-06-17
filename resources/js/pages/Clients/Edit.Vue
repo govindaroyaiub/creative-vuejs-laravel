@@ -34,7 +34,7 @@ const form = ref({
     logo: null as File | null,
 });
 
-const logoPreview = ref<string>(`/logo/${props.client.logo}`);
+const logoPreview = ref<string>(`/logos/${props.client.logo}`);
 const selectedColorHex = ref<string>('');
 
 onMounted(() => {
@@ -119,7 +119,7 @@ const handleSubmit = () => {
                     <div class="mt-2 flex items-center space-x-2">
                         <span class="text-sm">Selected:</span>
                         <span :style="{ backgroundColor: selectedColorHex }"
-                            class="inline-block h-6 w-12 rounded border"></span>
+                            class="inline-block h-6 w-12 rounded-lg border"></span>
                         <span class="text-sm">{{ selectedColorHex }}</span>
                     </div>
                 </div>
@@ -128,7 +128,7 @@ const handleSubmit = () => {
                 <div>
                     <label class="block text-sm font-medium">Logo (Image)</label>
                     <div v-if="logoPreview" class="mb-4">
-                        <img :src="logoPreview" alt="Logo Preview" class="h-16 mx-auto rounded" />
+                        <img :src="`${logoPreview}`" alt="Logo Preview" class="h-16 mx-auto rounded-lg" />
                     </div>
                     <input type="file" accept="image/*" @change="handleFileChange" class="block w-full text-sm" />
                 </div>

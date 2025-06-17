@@ -58,11 +58,11 @@
 
     <!-- Navigation -->
     <div class="flex justify-between pt-4">
-      <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded" @click="$emit('previous')">
+      <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg" @click="$emit('previous')">
         ← Previous
       </button>
 
-      <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded" :disabled="!form.type"
+      <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg" :disabled="!form.type"
         @click="$emit('next')">
         Next →
       </button>

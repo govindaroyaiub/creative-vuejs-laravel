@@ -89,7 +89,7 @@ const handleSubmit = () => {
             <span class="text-sm text-gray-500">Preview:</span>
             <div v-if="colorPalettes.find(p => p.id == form.color_palette_id)"
               :style="{ backgroundColor: colorPalettes.find(p => p.id == form.color_palette_id)?.primary }"
-              class="h-5 w-10 rounded border"></div>
+              class="h-5 w-10 rounded-lg border"></div>
             <span class="text-sm text-gray-500">
               {{colorPalettes.find(p => p.id == form.color_palette_id)?.primary}}
             </span>
@@ -105,7 +105,7 @@ const handleSubmit = () => {
         <!-- Submit Button -->
         <div class="flex space-x-4">
           <button type="submit"
-            class="w-full rounded-lg bg-indigo-600 px-6 py-3 text-white shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600">
+            class="w-full rounded-lg bg-green-600 px-6 py-3 text-white shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-green-500 dark:hover:bg-green-600">
             Save
           </button>
           <Link type="button"

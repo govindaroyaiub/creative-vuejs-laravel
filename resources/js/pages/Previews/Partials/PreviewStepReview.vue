@@ -11,7 +11,7 @@
       </div>
   
       <div class="text-right pt-4">
-        <button class="bg-gray-600 text-white px-4 py-2 rounded" @click="$emit('close')">Close</button>
+        <button class="bg-gray-600 text-white px-4 py-2 rounded-lg" @click="$emit('close')">Close</button>
       </div>
     </div>
   </template>

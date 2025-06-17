@@ -126,7 +126,7 @@ const handleSubmit = () => {
                             <span class="font-mono text-sm w-4 text-right">{{ index + 1 }}.</span>
                             <span class="handle cursor-move">☰</span>
                         </div>
-                        <img :src="social.preview" alt="preview" class="w-12 h-12 object-contain rounded border" />
+                        <img :src="social.preview" alt="preview" class="w-12 h-12 object-contain rounded-lg border" />
                         <input v-model="social.name" type="text" placeholder="Name"
                             class="w-1/2 rounded border px-3 py-1 text-sm dark:bg-gray-800 dark:text-white" />
                         <span class="truncate w-full text-xs text-gray-800 dark:text-white">

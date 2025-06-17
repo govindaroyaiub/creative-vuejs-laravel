@@ -95,7 +95,7 @@ const handleSubmit = () => {
             </div>
 
             <div v-if="previewUrl" class="flex flex-col items-center space-y-2">
-                <img :src="previewUrl" alt="preview" class="w-48 h-48 object-contain rounded border" />
+                <img :src="previewUrl" alt="preview" class="w-48 h-48 object-contain rounded-lg border" />
                 <button class="text-red-500 hover:text-red-700" @click="removeImage">Remove</button>
             </div>
 

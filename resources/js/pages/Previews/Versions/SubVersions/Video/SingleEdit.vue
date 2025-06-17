@@ -227,7 +227,7 @@ function handleSubmit() {
                 </div>
             </div>
             <div class="flex space-x-4">
-                <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded"
+                <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg"
                     :disabled="saving"
                     @click="handleSubmit">
                     <span v-if="!saving">Update</span>

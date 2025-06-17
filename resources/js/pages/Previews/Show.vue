@@ -64,10 +64,10 @@ onMounted(() => {
         <div v-if="preview.requires_login && !isLoggedIn" class="p-10 max-w-md mx-auto text-center">
             <h2 class="text-xl font-bold mb-4">Login to view preview</h2>
             <input v-model="loginEmail" type="email" placeholder="Email"
-                class="w-full mb-3 px-4 py-2 rounded border dark:bg-gray-800 dark:text-white" />
+                class="w-full mb-3 px-4 py-2 rounded-lg border dark:bg-gray-800 dark:text-white" />
             <input v-model="loginPassword" type="password" placeholder="Password"
-                class="w-full mb-3 px-4 py-2 rounded border dark:bg-gray-800 dark:text-white" />
-            <button @click="login" class="w-full bg-indigo-600 text-white py-2 rounded">Login</button>
+                class="w-full mb-3 px-4 py-2 rounded-lg border dark:bg-gray-800 dark:text-white" />
+            <button @click="login" class="w-full bg-indigo-600 text-white py-2 rounded-lg">Login</button>
             <div class="text-red-500 mt-2">{{ loginError }}</div>
         </div>
 
@@ -81,7 +81,7 @@ onMounted(() => {
 
             <!-- Palette Switcher -->
             <div class="flex justify-center gap-2 my-4">
-                <div v-for="palette in allColors" :key="palette.id" class="w-6 h-6 rounded-full border cursor-pointer"
+                <div v-for="palette in allColors" :key="palette.id" class="w-6 h-6 rounded-lg-full border cursor-pointer"
                     :style="{ backgroundColor: palette.primary }" @click="applyPalette(palette)" />
             </div>
 
@@ -115,7 +115,7 @@ onMounted(() => {
 
                     <!-- Assets (Banners only for now) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div v-for="banner in banners" :key="banner.id" class="rounded border overflow-hidden shadow"
+                        <div v-for="banner in banners" :key="banner.id" class="rounded-lg border overflow-hidden shadow"
                             :style="{ borderColor: activePalette.tertiary }">
                             <img :src="`/banners/${banner.path}`" class="w-full object-contain" />
                             <div class="p-2 text-center text-sm">{{ banner.size }}</div>

@@ -63,7 +63,7 @@ function handleUpdate() {
             </draggable>
             <div class="pt-4 flex space-x-2">
                 <button @click="handleUpdate" :disabled="form.processing"
-                    class="w-full bg-indigo-600 text-white py-3 rounded hover:bg-indigo-700 focus:outline-none">
+                    class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 focus:outline-none">
                     <span v-if="!form.processing">Update</span>
                     <span v-else class="flex items-center justify-center gap-2">
                         <svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">

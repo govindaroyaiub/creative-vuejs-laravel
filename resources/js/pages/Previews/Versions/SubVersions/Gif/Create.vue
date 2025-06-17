@@ -170,7 +170,7 @@ const handleSubmit = () => {
                                 <span class="font-mono text-sm w-4 text-right">{{ index + 1 }}.</span>
                                 <span class="handle cursor-move">☰</span>
                             </div>
-                            <img :src="gif.url" alt="GIF" class="w-20 h-20 object-contain rounded border" />
+                            <img :src="gif.url" alt="GIF" class="w-20 h-20 object-contain rounded-lg border" />
                             <div class="min-w-0 w-40 truncate text-xs text-gray-700 font-medium">{{ gif.file.name }}
                             </div>
                             <div class="relative w-1/2">

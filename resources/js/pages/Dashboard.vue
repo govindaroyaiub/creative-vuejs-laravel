@@ -121,35 +121,35 @@ const animatedCounts = {
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                <div class="p-4 bg-white dark:bg-gray-800 rounded shadow">
+                <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
                     <div class="text-sm text-gray-500">Users</div>
                     <div class="text-2xl font-bold">{{ animatedCounts.userCount }}</div>
                 </div>
-                <div class="p-4 bg-white dark:bg-gray-800 rounded shadow">
+                <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
                     <div class="text-sm text-gray-500">Previews</div>
                     <div class="text-2xl font-bold">{{ animatedCounts.previewCount }}</div>
                 </div>
-                <div class="p-4 bg-white dark:bg-gray-800 rounded shadow">
+                <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
                     <div class="text-sm text-gray-500">Banners</div>
                     <div class="text-2xl font-bold">{{ animatedCounts.bannerCount }}</div>
                 </div>
-                <div class="p-4 bg-white dark:bg-gray-800 rounded shadow">
+                <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
                     <div class="text-sm text-gray-500">Videos</div>
                     <div class="text-2xl font-bold">{{ animatedCounts.videoCount }}</div>
                 </div>
-                <div class="p-4 bg-white dark:bg-gray-800 rounded shadow">
+                <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
                     <div class="text-sm text-gray-500">GIFs</div>
                     <div class="text-2xl font-bold">{{ animatedCounts.gifCount }}</div>
                 </div>
-                <div class="p-4 bg-white dark:bg-gray-800 rounded shadow">
+                <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
                     <div class="text-sm text-gray-500">Socials</div>
                     <div class="text-2xl font-bold">{{ animatedCounts.socialCount }}</div>
                 </div>
-                <div class="p-4 bg-white dark:bg-gray-800 rounded shadow">
+                <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
                     <div class="text-sm text-gray-500">File Transfers</div>
                     <div class="text-2xl font-bold">{{ animatedCounts.fileTransferCount }}</div>
                 </div>
-                <div class="p-4 bg-white dark:bg-gray-800 rounded shadow">
+                <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
                     <div class="text-sm text-gray-500">Bills</div>
                     <div class="text-2xl font-bold">{{ animatedCounts.billCount }}</div>
                 </div>

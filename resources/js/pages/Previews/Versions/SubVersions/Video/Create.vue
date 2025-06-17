@@ -232,7 +232,7 @@ function handleSubmit() {
             </button>
             <!-- Submit Button -->
             <div class="flex space-x-4">
-                <button class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                <button class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
                     :disabled="form.processing || saving" @click="handleSubmit">
                     <span v-if="!saving">Save</span>
                     <span v-else class="flex items-center justify-center gap-2">

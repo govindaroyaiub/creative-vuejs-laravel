@@ -26,7 +26,7 @@
                     </div>
 
                     <!-- Image Preview -->
-                    <img :src="social.preview" alt="preview" class="w-12 h-12 object-contain rounded border" />
+                    <img :src="social.preview" alt="preview" class="w-12 h-12 object-contain rounded-lg border" />
 
                     <!-- Name Field -->
                     <input v-model="social.name" type="text" placeholder="Name"
@@ -47,7 +47,7 @@
 
         <!-- Navigation -->
         <div class="flex justify-between pt-6">
-            <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded" @click="$emit('previous')">
+            <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg" @click="$emit('previous')">
                 ← Previous
             </button>
             <button

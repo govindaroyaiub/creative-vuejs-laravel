@@ -8,7 +8,7 @@
           <h2 class="text-lg font-semibold">What type of project?</h2>
           <div class="grid grid-cols-2 gap-4">
             <button v-for="t in types" :key="t" @click="selectedType = t"
-              class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded">
+              class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg">
               {{ t }}
             </button>
           </div>

@@ -76,7 +76,7 @@
         </button>
         <!-- Sticky Navigation -->
         <div class="sticky bottom-0 bg-white pt-6 z-10 flex justify-between">
-            <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded" @click="$emit('previous')">
+            <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg" @click="$emit('previous')">
                 ← Previous
             </button>
             <button

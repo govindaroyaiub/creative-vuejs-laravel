@@ -120,13 +120,13 @@ const copyToClipboard = (text: string) => {
     <div class="p-6">
       <div class="mb-6 flex items-center justify-between">
         <input v-model="search" placeholder="Search..."
-          class="w-full max-w-xs rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" />
-        <button @click="startAdding" class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
+          class="w-full max-w-xs rounded-lg border px-4 py-2 dark:bg-gray-700 dark:text-white" />
+        <button @click="startAdding" class="ml-4 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700">
           <CirclePlus class="mr-1 inline h-5 w-5" /> Add
         </button>
       </div>
 
-      <table class="w-full rounded bg-white shadow dark:bg-gray-800">
+      <table class="w-full rounded-lg bg-white shadow dark:bg-gray-800">
         <thead class="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
           <tr class="bg-gray-50 dark:bg-gray-900 uppercase">
             <th class="px-4 py-3 text-left">#</th>
@@ -152,26 +152,26 @@ const copyToClipboard = (text: string) => {
           </tr>
         </thead>
         <tbody>
-          <tr v-if="adding" class="bg-white dark:bg-gray-800 rounded shadow">
+          <tr v-if="adding" class="bg-white dark:bg-gray-800 rounded-lg shadow">
             <td class="px-4 py-3">#</td>
             <td class="px-4 py-3"><input v-model="newForm.name"
-                class="w-full rounded border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" /></td>
+                class="w-full rounded-lg border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" /></td>
             <td class="px-4 py-3 text-center"><input v-model="newForm.primary"
-                class="w-20 rounded border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" /></td>
+                class="w-20 rounded-lg border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" /></td>
             <td class="px-4 py-3 text-center"><input v-model="newForm.secondary"
-                class="w-20 rounded border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" /></td>
+                class="w-20 rounded-lg border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" /></td>
             <td class="px-4 py-3 text-center"><input v-model="newForm.tertiary"
-                class="w-20 rounded border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" /></td>
+                class="w-20 rounded-lg border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" /></td>
             <td class="px-4 py-3 text-center"><input v-model="newForm.quaternary"
-                class="w-20 rounded border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" /></td>
+                class="w-20 rounded-lg border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" /></td>
             <td class="px-4 py-3 text-center">
               <label class="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" v-model="newForm.status" class="sr-only peer" />
                 <div
-                  class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer-checked:bg-green-600 transition-colors">
+                  class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-lg-full peer-checked:bg-green-600 transition-colors">
                 </div>
                 <div
-                  class="absolute left-0.5 top-0.5 w-5 h-5 bg-white border rounded-full transition-transform peer-checked:translate-x-full">
+                  class="absolute left-0.5 top-0.5 w-5 h-5 bg-white border rounded-lg-full transition-transform peer-checked:translate-x-full">
                 </div>
               </label>
             </td>
@@ -182,12 +182,12 @@ const copyToClipboard = (text: string) => {
           </tr>
 
           <tr v-for="(palette, index) in filteredPalettes" :key="palette.id"
-            class="bg-white dark:bg-gray-800 rounded shadow">
+            class="bg-white dark:bg-gray-800 rounded-lg shadow">
             <td class="px-4 py-3">{{ index + 1 }}</td>
             <td class="px-4 py-3">
               <template v-if="editingId === palette.id">
                 <input v-model="editForm.name"
-                  class="w-full rounded border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" />
+                  class="w-full rounded-lg border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" />
               </template>
               <template v-else>{{ palette.name }}</template>
             </td>
@@ -195,11 +195,11 @@ const copyToClipboard = (text: string) => {
             <td class="px-4 py-3 text-center">
               <template v-if="editingId === palette.id">
                 <input v-model="editForm.primary"
-                  class="w-20 rounded border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" />
+                  class="w-20 rounded-lg border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" />
               </template>
               <template v-else>
                 <div :style="{ backgroundColor: palette.primary }"
-                  class="h-6 w-10 mx-auto cursor-pointer border border-gray-400 rounded"
+                  class="h-6 w-10 mx-auto cursor-pointer border border-gray-400 rounded-lg"
                   @click="copyToClipboard(palette.primary)"></div>
               </template>
             </td>
@@ -207,11 +207,11 @@ const copyToClipboard = (text: string) => {
             <td class="px-4 py-3 text-center">
               <template v-if="editingId === palette.id">
                 <input v-model="editForm.secondary"
-                  class="w-20 rounded border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" />
+                  class="w-20 rounded-lg border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" />
               </template>
               <template v-else>
                 <div :style="{ backgroundColor: palette.secondary }"
-                  class="h-6 w-10 mx-auto cursor-pointer border border-gray-400 rounded"
+                  class="h-6 w-10 mx-auto cursor-pointer border border-gray-400 rounded-lg"
                   @click="copyToClipboard(palette.secondary)"></div>
               </template>
             </td>
@@ -219,11 +219,11 @@ const copyToClipboard = (text: string) => {
             <td class="px-4 py-3 text-center">
               <template v-if="editingId === palette.id">
                 <input v-model="editForm.tertiary"
-                  class="w-20 rounded border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" />
+                  class="w-20 rounded-lg border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" />
               </template>
               <template v-else>
                 <div :style="{ backgroundColor: palette.tertiary }"
-                  class="h-6 w-10 mx-auto cursor-pointer border border-gray-400 rounded"
+                  class="h-6 w-10 mx-auto cursor-pointer border border-gray-400 rounded-lg"
                   @click="copyToClipboard(palette.tertiary)"></div>
               </template>
             </td>
@@ -231,11 +231,11 @@ const copyToClipboard = (text: string) => {
             <td class="px-4 py-3 text-center">
               <template v-if="editingId === palette.id">
                 <input v-model="editForm.quaternary"
-                  class="w-20 rounded border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" />
+                  class="w-20 rounded-lg border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white" />
               </template>
               <template v-else>
                 <div :style="{ backgroundColor: palette.quaternary }"
-                  class="h-6 w-10 mx-auto cursor-pointer border border-gray-400 rounded"
+                  class="h-6 w-10 mx-auto cursor-pointer border border-gray-400 rounded-lg"
                   @click="copyToClipboard(palette.quaternary)"></div>
               </template>
             </td>
@@ -245,7 +245,7 @@ const copyToClipboard = (text: string) => {
                 <label class="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" v-model="editForm.status" class="sr-only peer" />
                   <div
-                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer-checked:bg-green-600 transition-colors">
+                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-lg-full peer-checked:bg-green-600 transition-colors">
                   </div>
                   <div
                     class="absolute left-0.5 top-0.5 w-5 h-5 bg-white border rounded-full transition-transform peer-checked:translate-x-full">

@@ -68,14 +68,14 @@ onMounted(() => {
         <div class="p-6">
             <div class="mb-4 flex items-center justify-between">
                 <input v-model="search" placeholder="Search..."
-                    class="w-full max-w-xs rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" />
+                    class="w-full max-w-xs rounded-lg border px-4 py-2 dark:bg-gray-700 dark:text-white" />
                 <Link :href="route('clients-create')"
-                    class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
+                    class="ml-4 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700">
                 <CirclePlus class="mr-1 inline h-5 w-5" /> Add
                 </Link>
             </div>
 
-            <table class="w-full border bg-white shadow dark:bg-gray-800 rounded">
+            <table class="w-full border bg-white shadow dark:bg-gray-800 rounded-lg">
                 <thead class="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
                     <tr class="text-center text-sm uppercase">
                         <th class="px-4 py-2">#</th>
@@ -102,7 +102,7 @@ onMounted(() => {
                             <hr />
                             <div class="flex items-center justify-center space-x-2">
                                 <span :style="{ backgroundColor: client.color_palette?.primary || '#000' }"
-                                    class="inline-block h-6 w-10 rounded border cursor-pointer" title="Click to copy"
+                                    class="inline-block h-6 w-10 rounded-lg border cursor-pointer" title="Click to copy"
                                     @click="copyColor(client.color_palette?.primary || '#000')"></span>
                             </div>
                         </td>
@@ -126,7 +126,7 @@ onMounted(() => {
             <div class="mt-6 flex justify-center space-x-2" v-if="clients?.links?.length">
                 <template v-for="link in clients.links" :key="link.label">
                     <component :is="link.url ? 'a' : 'span'" v-html="link.label" :href="link.url"
-                        class="rounded border px-4 py-2 text-sm" :class="{
+                        class="rounded-lg border px-4 py-2 text-sm" :class="{
                             'bg-indigo-600 text-white': link.active,
                             'cursor-not-allowed text-gray-400': !link.url,
                             'hover:bg-gray-200 dark:hover:bg-gray-700': link.url && !link.active,

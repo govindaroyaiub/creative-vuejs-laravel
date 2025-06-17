@@ -149,7 +149,7 @@ const handleSubmit = () => {
                     </div>
 
                     <!-- GIF Preview -->
-                    <img :src="gif.url" alt="GIF" class="w-20 h-20 object-contain rounded border" />
+                    <img :src="gif.url" alt="GIF" class="w-20 h-20 object-contain rounded-lg border" />
 
                     <!-- File Name -->
                     <div class="min-w-0 w-40 truncate text-xs text-gray-700 font-medium">{{ gif.file.name }}</div>
@@ -185,7 +185,7 @@ const handleSubmit = () => {
         </draggable>
         <!-- Navigation -->
         <div class="flex justify-between pt-6">
-            <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded" @click="$emit('previous')">
+            <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg" @click="$emit('previous')">
                 ← Previous
             </button>
             <button
