@@ -113,10 +113,17 @@
 
         <section id="middle" class="mb-4">
             <div id="showcase-section" class="mx-auto custom-container mt-2 px-8">
-                <div class="flex row">
-                    <div style="flex: 1;">
-                        <div class="subVersions" style="display: flex; justify-content: center; flex-direction: row;"></div>
+                <div class="flex row justify-around items-end" style="min-height: 100px;">
+                    <div class="py-2 flex items-end justify-center sidebar-top-desktop">
+                        @if($preview['show_sidebar_logo'] == 1)
+                            <img src="{{ asset('logos/' . $client['logo']) }}" 
+                                alt="clientLogo" style="max-width: 200px; margin: 0 auto;">
+                        @endif
                     </div>
+                    <div style="flex: 1;">
+                        <div class="subVersions relative flex justify-center flex-row"></div>
+                    </div>
+                    <div style="width: 270px; min-height: 60px;" class="sidebar-top-extra"></div>
                 </div>
                 <div id="showcase">
                     <div id="bannershowCustom">
@@ -126,20 +133,21 @@
                                 <span></span>
                                 <span></span>
                                 <span></span>
+                                
                                 <ul id="menu"></ul>
                             </div>
                         </nav>
                         <div class="navbar tabDesktopShowcase" id="navbar">
                             @if($preview['show_sidebar_logo'] == 1)
-                            <div class="w-full client-logo-div">
+                            <div class="w-full client-logo-div sidebar-top-tab-mobile">
                                 <div id="clientLogoSection" class="mb-2 mt-2 px-2 py-2 mx-auto">
                                     <img src="{{ asset('logos/' . $client['logo']) }}"
                                     alt="clientLogo" style="width: 150px;">
                                 </div>
                             </div>
                             @endif
-                            <div class="sidebar-image-div w-full">
-                                <div class="sidebar-image mx-auto mt-3 mb-3">
+                            <div class="sidebar-image-div w-full py-2">
+                                <div class="sidebar-image mx-auto">
                                     <span>Creative Showcase</span>
                                 </div>
                             </div>
@@ -317,6 +325,14 @@ function handleOutsideClick(event) {
                 var spanActive;
                 var row = '';
                 var row2 = '';
+
+                row = row + '@if($preview['show_sidebar_logo'] == 1)';
+                    row = row + '<div class="w-full" style="background-color: white; border-radius: 40px;">';
+                        row = row + '<div class="mb-2 mt-2 px-2 py-2 mx-auto">';
+                            row = row + '<img src="{{ asset('logos/' . $client['logo']) }}" alt="clientLogo" style="width: 250px;">';
+                        row = row + '</div>';
+                    row = row + '</div>';
+                row = row + '@endif';
 
                 $.each(response.data.versions, function(key, value) {
                     if (value.is_active == 1) {
