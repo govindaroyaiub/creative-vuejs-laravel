@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Eye, Pencil, Trash2, CirclePlus, Target, PanelTopDashed, X } from 'lucide-vue-next';
+import { Eye, Pencil, Trash2, CirclePlus, X, Share2 } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, watch } from 'vue';
 import PreviewStepBasicInfo from './Partials/PreviewStepBasicInfo.vue';
@@ -12,7 +12,6 @@ import CreateVideoForm from './Partials/CreateVideoForm.vue';
 import CreateGifForm from './Partials/CreateGifForm.vue';
 
 const loading = ref(false);
-
 const page = usePage();
 const search = ref('');
 const showModal = ref(false);
@@ -26,6 +25,30 @@ const colorPalettes = computed(() => page.props.colorPalettes ?? []);
 const authUser = computed(() => page.props.auth?.user ?? {});
 const bannerSizes = computed(() => page.props.bannerSizes ?? []);
 const videoSizes = computed(() => page.props.videoSizes ?? []);
+
+function getDefaultFormData() {
+    return {
+        name: '',
+        client_id: '',
+        team_ids: [authUser.value.id],
+        color_palette_id: '5',
+        requires_login: false,
+        show_planetnine_logo: true,
+        show_sidebar_logo: true,
+        show_footer: true,
+        type: '',
+        version_name: 'Master',
+        version_description: 'Master Started',
+        subversion_name: 'Version 1',
+        subversion_active: true,
+        banners: [],
+        videos: [],
+        socials: [],
+        gifs: []
+    };
+}
+
+const formData = ref(getDefaultFormData());
 
 const filteredPreviews = computed(() => {
     const q = search.value.toLowerCase();
@@ -43,26 +66,6 @@ watch(search, (val) => {
         preserveState: true,
         replace: true,
     });
-});
-
-const formData = ref({
-    name: '',
-    client_id: '',
-    team_ids: [authUser.value.id],
-    color_palette_id: '5',
-    requires_login: false,
-    show_planetnine_logo: true,
-    show_sidebar_logo: true,
-    show_footer: true,
-    type: '',
-    version_name: 'Master',
-    version_description: 'Master Started',
-    subversion_name: 'Version 1',
-    subversion_active: true,
-    banners: [],
-    videos: [],
-    socials: [],
-    gifs: []
 });
 
 const deletePreview = async (id: number) => {
@@ -87,7 +90,7 @@ const deletePreview = async (id: number) => {
 
 const getTypes = (preview: any) => {
     const types = new Set();
-    preview.versions?.forEach((v: any) => types.add(v.type));
+    preview.versions?.forEach((v: any) => types.add((v.type || '').toLowerCase()));
     return Array.from(types).join(', ');
 };
 
@@ -95,25 +98,7 @@ const closeModal = () => {
     showModal.value = false;
     step.value = 1;
     transitionDirection.value = 'forward';
-    formData.value = {
-        name: '',
-        client_id: '',
-        team_ids: [authUser.value.id],
-        color_palette_id: '5',
-        requires_login: false,
-        show_planetnine_logo: true,
-        show_sidebar_logo: true,
-        show_footer: true,
-        type: '',
-        version_name: 'Master',
-        version_description: 'Master Started',
-        subversion_name: 'Version 1',
-        subversion_active: true,
-        banners: [],
-        videos: [],
-        socials: [],
-        gifs: []
-    };
+    formData.value = getDefaultFormData();
 };
 
 const submitForm = () => {
@@ -133,21 +118,21 @@ const submitForm = () => {
 
     formData.value.team_ids.forEach(id => payload.append('team_ids[]', id));
 
-    if (formData.value.type === 'Banner') {
+    if (formData.value.type.toLowerCase() === 'banner') {
         formData.value.banners.forEach((banner, i) => {
             payload.append(`banners[${i}][file]`, banner.file);
             payload.append(`banners[${i}][size_id]`, banner.size_id);
             payload.append(`banners[${i}][position]`, i);
         });
     }
-    if (formData.value.type === 'Social') {
+    if (formData.value.type.toLowerCase() === 'social') {
         formData.value.socials.forEach((social, i) => {
             payload.append(`socials[${i}][file]`, social.file);
             payload.append(`socials[${i}][name]`, social.name);
             payload.append(`socials[${i}][position]`, i);
         });
     }
-    if (formData.value.type === 'Video') {
+    if (formData.value.type.toLowerCase() === 'video') {
         formData.value.videos.forEach((video, i) => {
             payload.append(`videos[${i}][path]`, video.path);
             if (video.companion_banner_path) {
@@ -160,10 +145,9 @@ const submitForm = () => {
             payload.append(`videos[${i}][position]`, i);
         });
     }
-    if (formData.value.type === 'Gif') {
+    if (formData.value.type.toLowerCase() === 'gif') {
         formData.value.gifs.forEach((gif, i) => {
             payload.append(`gifs[${i}][file]`, gif.file);
-            // Send the sizes array as required by backend validation
             gif.sizes.forEach((sizeId, j) => {
                 payload.append(`gifs[${i}][sizes][${j}]`, sizeId);
             });
@@ -203,10 +187,10 @@ const getStepComponent = (step: number) => {
         case 1: return PreviewStepBasicInfo;
         case 2: return PreviewStepProjectType;
         case 3:
-            if (formData.value.type === 'Banner') return CreateBannerForm;
-            if (formData.value.type === 'Video') return CreateVideoForm;
-            if (formData.value.type === 'Social') return CreateSocialForm;
-            if (formData.value.type === 'Gif') return CreateGifForm;
+            if (formData.value.type.toLowerCase() === 'banner') return CreateBannerForm;
+            if (formData.value.type.toLowerCase() === 'video') return CreateVideoForm;
+            if (formData.value.type.toLowerCase() === 'social') return CreateSocialForm;
+            if (formData.value.type.toLowerCase() === 'gif') return CreateGifForm;
             return { template: '<div class="text-center text-gray-500">Submitting...</div>' };
         default: return { template: '<div class="text-center text-gray-500">Submitting...</div>' };
     }
@@ -220,13 +204,13 @@ const stepProps = computed(() => ({
         colorPalettes: colorPalettes.value,
         authUser: authUser.value,
     }),
-    ...(step.value === 3 && formData.value.type === 'Banner' && {
+    ...(step.value === 3 && formData.value.type.toLowerCase() === 'banner' && {
         bannerSizes: bannerSizes.value,
     }),
-    ...(step.value === 3 && formData.value.type === 'Video' && {
+    ...(step.value === 3 && formData.value.type.toLowerCase() === 'video' && {
         videoSizes: videoSizes.value,
     }),
-    ...(step.value === 3 && formData.value.type === 'Gif' && {
+    ...(step.value === 3 && formData.value.type.toLowerCase() === 'gif' && {
         bannerSizes: bannerSizes.value,
     }),
 }));
@@ -239,10 +223,10 @@ const stepProps = computed(() => ({
         <div class="p-6 space-y-6">
             <!-- Search & Create -->
             <div class="flex items-center justify-between">
-                <input v-model="search" placeholder="Search..."
+                <input v-model="search" placeholder="Search..." aria-label="Search previews"
                     class="w-full max-w-sm rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" />
                 <button @click="showModal = true"
-                    class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
+                    class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700" aria-label="Add Preview">
                     <CirclePlus class="mr-1 inline h-5 w-5" /> Add
                 </button>
             </div>
@@ -261,7 +245,7 @@ const stepProps = computed(() => ({
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                        <tr v-for="(preview, index) in previews.data" :key="preview.id"
+                        <tr v-for="(preview, index) in filteredPreviews" :key="preview.id"
                             class="hover:bg-gray-50 dark:hover:bg-gray-800">
                             <td class="text-center px-4 py-3 font-medium">{{ index + 1 }}</td>
                             <td class="px-4 py-3 text-left">
@@ -295,14 +279,21 @@ const stepProps = computed(() => ({
                             </td>
                             <td class="text-center px-4 py-3 space-x-2">
                                 <a :href="route('previews-show', preview.id)"
-                                    class="text-green-600 hover:text-green-800" target="_blank" rel="noopener">
+                                    class="text-green-600 hover:text-green-800" target="_blank" rel="noopener"
+                                    aria-label="View Preview">
                                     <Eye class="inline h-5 w-5" />
                                 </a>
+                                <a :href="`${preview.client?.preview_url}/previews/show/${preview.id}`"
+                                    class="text-yellow-600 hover:text-yellow-800" target="_blank" rel="noopener"
+                                    aria-label="View Preview">
+                                    <Share2 class="inline h-5 w-5" />
+                                </a>
                                 <Link :href="route('previews-edit', preview.id)"
-                                    class="text-blue-600 hover:text-blue-800">
+                                    class="text-blue-600 hover:text-blue-800" aria-label="Edit Preview">
                                 <Pencil class="inline h-5 w-5" />
                                 </Link>
-                                <button @click="deletePreview(preview.id)" class="text-red-600 hover:text-red-800">
+                                <button @click="deletePreview(preview.id)" class="text-red-600 hover:text-red-800"
+                                    aria-label="Delete Preview">
                                     <Trash2 class="inline h-5 w-5" />
                                 </button>
                             </td>
@@ -331,7 +322,8 @@ const stepProps = computed(() => ({
         <!-- Modal -->
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div class="bg-white dark:bg-gray-900 p-6 rounded-lg w-full max-w-4xl relative overflow-hidden">
-                <button class="absolute top-2 right-2 text-gray-400 hover:text-red-500" @click="closeModal">
+                <button class="absolute top-2 right-2 text-gray-400 hover:text-red-500" @click="closeModal"
+                    aria-label="Close Modal">
                     <X class="h-6 w-6" />
                 </button>
                 <Transition :name="transitionDirection === 'forward' ? 'slide-left' : 'slide-right'" mode="out-in">

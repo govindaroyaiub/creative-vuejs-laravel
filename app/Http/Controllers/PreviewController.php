@@ -91,7 +91,7 @@ class PreviewController extends Controller
         return Inertia::render('Previews/Index', [
             'previews' => $previews,
             'search' => $search,
-            'clients' => Client::orderBy('name')->get(['id', 'name']),
+            'clients' => Client::orderBy('name')->get(['id', 'name', 'preview_url']),
             'users' => User::orderBy('name')->get(['id', 'name']),
             'colorPalettes' => ColorPalette::orderBy('name')->get(['id', 'name']),
             'bannerSizes' => BannerSize::orderBy('width')->orderBy('height')->get(['id', 'width', 'height'])->map(fn($s) => tap($s, fn($s) => $s->name = "{$s->width}x{$s->height}")),
