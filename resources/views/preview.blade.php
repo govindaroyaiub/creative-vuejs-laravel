@@ -1109,7 +1109,7 @@ function handleOutsideClick(event) {
                                 <video 
                                     src="/${value.path}" 
                                     controls 
-                                    class="block mx-auto rounded video-preview"
+                                    class="block mx-auto rounded-2xl video-preview"
                                     style="max-width:90vw; max-height:70vh; width:auto; height:auto; background:#000;"
                                     controlsList="nodownload noremoteplayback"
                                     disablePictureInPicture
@@ -1117,7 +1117,7 @@ function handleOutsideClick(event) {
                                 ></video>
                             </div>
                             <!-- Media Info -->
-                            <div class="bg-gray-50 text-gray-800 text-sm rounded-lg p-3 mt-2 w-full shadow-sm video-media-info" style="margin:0 auto;">
+                            <div class="bg-gray-50 text-gray-800 text-sm rounded-2xl p-3 mt-2 w-full shadow-sm video-media-info" style="margin:0 auto;">
                                 @if($authUserClientName == "Planet Nine")
                                 <div class="flex gap-4 mb-2 justify-center">
                                     <a href="/previews/video/single/edit/${value.id}" class="edit-btn" data-id="${value.id}" title="Edit"><i class="fa-solid fa-pen-to-square" style="display: flex; margin-left: 0.5rem; font-size:20px;"></i></a>
@@ -1281,12 +1281,12 @@ function handleOutsideClick(event) {
                     row += `
                         <div style="display: inline-block; margin: 10px; width: 600px;">
                             <div class="text-center text-xl font-semibold capitalize social-title flex justify-center items-center"
-                                style="padding: 10px; width: 100%; box-shadow: 0 2px 8px #0001; margin-bottom: 12px; border-radius: 40px;">
+                                style="padding: 10px; width: 100%; margin-bottom: 12px;">
                                 <span>${value.name}</span>
                             </div>
                             <img src="/${value.path}" 
                                 alt="${value.name}" 
-                                class="social-preview-img rounded-lg"
+                                class="social-preview-img rounded-2xl"
                                 style="width: 600px; height: auto; object-fit: contain; box-shadow: 0 2px 8px #0001; cursor: pointer; margin-top: 0;"
                                 onclick="openSocialImageModal('/${value.path}', '${value.name}')"
                             >
@@ -1370,9 +1370,6 @@ function handleOutsideClick(event) {
     let isDragging = false;
     let startX, startY, scrollLeft, scrollTop;
     let dragMoved = false; // <-- Add this
-    let zoom = 1;
-    const minZoom = 0.1;
-    const maxZoom = 10;
 
     $('#socialModalImg').on('mousedown', function(e) {
         if ($(this).data('zoom') === 2) {
@@ -1410,18 +1407,41 @@ function handleOutsideClick(event) {
             dragMoved = false;
             return;
         }
-        // Zoom in on click, reset if max reached
-        zoomLevel += zoomStep;
-        if (zoomLevel > maxZoom) zoomLevel = minZoom;
+        var zoom = $(this).data('zoom') || 1;
 
-        $(this).css({
-            'transform': `scale(${zoomLevel})`,
-            'cursor': zoomLevel > 1 ? 'zoom-out' : 'zoom-in',
-            'max-width': '80vw',
-            'max-height': '80vh'
-        });
-        // Optionally, center scroll when zooming in
-        if (zoomLevel === 1) {
+        if (zoom === 1) {
+            $(this)
+                .css({
+                    width: '1600px',
+                    height: 'auto',
+                    'max-width': 'none',
+                    'max-height': 'none',
+                    'cursor': 'zoom-in',
+                    'transform': 'none'
+                })
+                .data('zoom', 2);
+        } else if (zoom === 2) {
+            $(this)
+                .css({
+                    width: '2200px', // or any larger value
+                    height: 'auto',
+                    'max-width': 'none',
+                    'max-height': 'none',
+                    'cursor': 'zoom-out',
+                    'transform': 'none'
+                })
+                .data('zoom', 3);
+        } else {
+            $(this)
+                .css({
+                    width: '',
+                    height: '',
+                    'max-width': '80vw',
+                    'max-height': '80vh',
+                    'cursor': 'zoom-in',
+                    'transform': 'none'
+                })
+                .data('zoom', 1);
             $('#socialImageModal').scrollTop(0).scrollLeft(0);
         }
     });
