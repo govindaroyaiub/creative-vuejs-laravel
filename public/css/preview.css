@@ -392,6 +392,7 @@ section .content {
 #showcase {
     position: relative;
     /* border-radius: 35px; */
+    border-top-left-radius: 35px;
     border-top-right-radius: 35px;
     border-bottom-left-radius: 35px;
     border-bottom-right-radius: 35px;
@@ -446,7 +447,7 @@ iframe {
 
 .subVersionTab {
     cursor: pointer;
-    --r: 20px;
+    --r: 18px;
     line-height: 1.8;
     /* control the height */
     padding-inline: .5em;
@@ -485,13 +486,13 @@ iframe {
     padding: 5px 10px 5px 10px;
     border: 1px solid var(--tertiary-color);
     position: absolute;
-    right: -1.5rem;
+    right: -1.75rem;
     top: 2rem;
     color: white;
     cursor: pointer;
     --r: 25px;
     /* control the radius */
-    line-height: 1.8;
+    /* line-height: 1.8; */
     /* control the height */
     padding-inline: .5em;
     border-inline: var(--r) solid #0000;
@@ -637,13 +638,13 @@ iframe {
     padding: 5px 10px 5px 10px;
     border: 1px solid var(--tertiary-color);
     position: absolute;
-    right: -1.5rem;
+    right: -1.75rem;
     top: 9rem;
     color: white;
     cursor: pointer;
     --r: 25px;
     /* control the radius */
-    line-height: 1.8;
+    /* line-height: 1.8; */
     /* control the height */
     padding-inline: .5em;
     border-inline: var(--r) solid #0000;
@@ -1007,12 +1008,12 @@ iframe {
     width: 100%;
     min-width: 210px;
     min-height: 60px;
-    background-color: white;
-    border-top-right-radius: 35px;
+    /* background-color: white; */
+    /* border-top-right-radius: 35px;
     border-top-left-radius: 35px;
     border-left: 3px solid var(--tertiary-color);
     border-top: 3px solid var(--tertiary-color);
-    border-right: 3px solid var(--tertiary-color);
+    border-right: 3px solid var(--tertiary-color); */
 }
 
 /* 100% Image Width on Smaller Screens */

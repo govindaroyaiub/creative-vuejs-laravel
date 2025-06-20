@@ -24,11 +24,7 @@ class DatabaseSeeder extends Seeder
     {
         $colorPalettes = [
             [
-                'name' => 'Gold Theme',
-                'primary' => '#e2d39a',
-                'secondary' => '#fbf5de',
-                'tertiary' => '#a67c00',
-                'quaternary' => '#a67c00',
+                'name' => 'Gold Theme', 'primary' => '#e2d39a', 'secondary' => '#fbf5de', 'tertiary' => '#a67c00', 'quaternary' => '#a67c00',
                 'status' => 1,
             ],
             [

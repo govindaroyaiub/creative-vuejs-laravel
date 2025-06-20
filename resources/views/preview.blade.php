@@ -113,7 +113,7 @@
 
         <section id="middle" class="mb-4">
             <div id="showcase-section" class="mx-auto custom-container mt-2 px-8">
-                <div class="flex row justify-around items-end" style="min-height: 100px;">
+                <div class="flex row justify-around items-end" style="min-height: 50px;">
                     <div class="py-2 flex items-end justify-center sidebar-top-desktop">
                         @if($preview['show_sidebar_logo'] == 1)
                             <img src="{{ asset('logos/' . $client['logo']) }}" 
