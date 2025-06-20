@@ -9,8 +9,6 @@
     <title>Creative - {{ $preview['name'] }}</title>
     <link rel="preload" as="image" href="/preview_images/sidebar-image.png">
     <link rel="preload" as="image" href="/preview_images/top-bg.png">
-    <link rel="preload" as="image" href="/preview_images/subVersionDefault.png">
-    <link rel="preload" as="image" href="/preview_images/subVersionActive.png">
     <link rel="shortcut icon" href="https://www.planetnine.com/logo/new_favicon.png">
     @vite('resources/css/app.css')
     <script src="https://code.jquery.com/jquery-3.6.1.slim.min.js"
