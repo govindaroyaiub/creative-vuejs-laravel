@@ -58,7 +58,7 @@ class PreviewController extends Controller
             ? (Client::find(Auth::user()->client_id)?->name ?? 'Unknown')
             : 'guest';
 
-        return view('preview', compact(
+        return view('preview2', compact(
             'preview',
             'versions',
             'subVersions',
