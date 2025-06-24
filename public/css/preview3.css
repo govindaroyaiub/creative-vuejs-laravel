@@ -361,7 +361,9 @@ section .content {
     min-height: 600px;
     position: relative;
     display: flex;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    /* box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px; */
+    overflow: hidden;
+    padding-bottom: 20px;
 }
 
 #versionInfo {
@@ -392,16 +394,12 @@ section .content {
 #showcase {
     position: relative;
     /* border-radius: 35px; */
-    border-top-left-radius: 35px;
-    border-top-right-radius: 35px;
-    border-bottom-left-radius: 35px;
-    border-bottom-right-radius: 35px;
     width: 100%;
     height: auto;
-    overflow: hidden;
-    z-index: 999;
-    box-shadow: rgba(0, 0, 0, 0.3) 0px 5px 38px, rgba(0, 0, 0, 0.22) 0px 12px 12px;
-    border: 3px solid var(--tertiary-color);
+    /* overflow: hidden;
+    z-index: 999; */
+    /* box-shadow: rgba(0, 0, 0, 0.3) 0px 5px 38px, rgba(0, 0, 0, 0.22) 0px 12px 12px;
+    border: 3px solid var(--tertiary-color); */
 }
 
 #bannerShowcase {
@@ -483,14 +481,14 @@ iframe {
 
 #versionCLick {
     font-size: 1.5rem;
-    padding: 5px 10px 5px 10px;
+    /* padding: 5px 10px 5px 10px; */
     border: 1px solid var(--tertiary-color);
     position: absolute;
     right: -1.75rem;
     top: 2rem;
     color: white;
     cursor: pointer;
-    --r: 25px;
+    --r: 20px;
     /* control the radius */
     /* line-height: 1.8; */
     /* control the height */
@@ -529,8 +527,12 @@ iframe {
 }
 
 .sidebar-image-div {
-    background-color: var(--primary-color);
-    border-right: 3px solid var(--tertiary-color);
+    /* background-color: var(--primary-color);
+    border-right: 3px solid var(--tertiary-color); */
+    /* border-top-left-radius: 35px;
+    border-left: 3px solid var(--tertiary-color);
+    border-top: 3px solid var(--tertiary-color);
+    background-color: var(--primary-color); */
 }
 
 .sidebar-image {
@@ -635,14 +637,14 @@ iframe {
 
 #colorPaletteClick {
     font-size: 1.5rem;
-    padding: 5px 10px 5px 10px;
+    /* padding: 5px 10px 5px 10px; */
     border: 1px solid var(--tertiary-color);
     position: absolute;
     right: -1.75rem;
     top: 9rem;
     color: white;
     cursor: pointer;
-    --r: 25px;
+    --r: 20px;
     /* control the radius */
     /* line-height: 1.8; */
     /* control the height */
@@ -861,16 +863,16 @@ iframe {
 
 .custom-container {
     width: 100%;
-    max-width: 2100px;
+    max-width: 2500px;
 }
 
 #navbar {
-    width: 270px;
+    width: 100%;
     min-width: 210px;
     color: #fff;
     padding-bottom: 1.75rem;
     /* background-color: var(--primary-color); */
-    min-height: 300px;
+    /* min-height: 300px; */
     /* <-- Add this */
     height: auto;
     /* <-- Let height grow with content */
@@ -920,7 +922,9 @@ iframe {
 .right-column {
     flex: 1;
     padding: 0px 5px 20px 5px;
-    /* border-left: 3px solid var(--tertiary-color); */
+    border: 3px solid var(--tertiary-color);
+    border-radius: 35px;
+    box-shadow: rgba(0, 0, 0, 0.15) -5.05px 6.95px 14.6px;
 }
 
 .mobileShowcase {
@@ -945,19 +949,20 @@ iframe {
     padding-top: 10px;
     padding-bottom: 10px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 10px;
     justify-content: center;
     align-items: center;
-    background-color: var(--primary-color);
-    border-right: 3px solid var(--tertiary-color);
-    border-bottom-right-radius: 35px;
-    border-bottom: 3px solid var(--tertiary-color);
+    /* background-color: var(--primary-color);
+    border-left: 3px solid var(--tertiary-color);
+    border-bottom-left-radius: 35px;
+    border-bottom: 3px solid var(--tertiary-color); */
+    /* box-shadow: rgba(0, 0, 0, 0.15) 6.95px 8.95px 7.6px; */
 }
 
 .version-row {
     text-align: center;
-    width: calc(100% - 60px);
+    width: 210px;
     min-height: 65px;
     display: flex;
     justify-content: center;
@@ -983,7 +988,7 @@ iframe {
 
 
 .version-active {
-    width: calc(100% - 60px);
+    width: 210px;
     height: 100%;
     border-radius: 40px;
     z-index: 0;
