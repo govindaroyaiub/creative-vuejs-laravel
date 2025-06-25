@@ -108,7 +108,7 @@
         </section>
 
         <section id="middle" class="mb-4">
-            <div id="showcase-section" class="mx-auto custom-container mt-2 px-8">
+            <div id="showcase-section" class="mx-auto custom-container mt-2">
                 <div class="flex row justify-around items-end" style="min-height: 50px;">
                     <div class="py-2 flex items-end justify-center sidebar-top-desktop">
                         @if($preview['show_sidebar_logo'] == 1)
@@ -119,7 +119,7 @@
                     <div style="flex: 1;">
                         <div class="subVersions relative flex justify-center flex-row"></div>
                     </div>
-                    <!-- <div style="width: 270px; min-height: 60px;" class="sidebar-top-extra"></div> -->
+                    <div style="width: 270px; min-height: 60px;" class="sidebar-top-extra"></div>
                 </div>
                 <div id="showcase">
                     <div id="bannershowCustom">
@@ -323,7 +323,7 @@ function handleOutsideClick(event) {
                 var row2 = '';
 
                 row = row + '@if($preview['show_sidebar_logo'] == 1)';
-                    row = row + '<div class="w-full" style="background-color: white; border-radius: 40px;">';
+                    row = row + '<div class="w-full">';
                         row = row + '<div class="mb-2 mt-2 px-2 py-2 mx-auto">';
                             row = row + '<img src="{{ asset('logos/' . $client['logo']) }}" alt="clientLogo" style="width: 250px;">';
                         row = row + '</div>';
@@ -985,19 +985,19 @@ function handleOutsideClick(event) {
                     var bannerReloadID = value.id;
 
                     row = row + '<div style="display: inline-block; width: ' + value.width + 'px; margin-right: 10px;">';
-                    row = row + '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
-                    row = row + '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + value.width + 'x' + value.height + '</small>';
-                    row = row + '<small style="float: right font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + value.file_size + '</small>';
-                    row = row + '</div>';
-                    row = row + '<iframe style="margin-top: 2px;" src="' + bannerPath + '" width="' + value.width + '" height="' + value.height + '" frameBorder="0" scrolling="no" id=' + "rel" + value.id + '></iframe>'
-                    row = row + '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
-                    row = row + '<li><i id="relBt' + value.id + '" onClick="reloadBanner(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
-                    row = row + '@if($authUserClientName == "Planet Nine")'
-                    row = row + '<li><a href="/previews/banner/single/edit/' + value.id + '"><i class="fa-solid fa-pen-to-square" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
-                    row = row + '<li><a href="/previews/banner/single/download/' + value.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
-                    row = row + '<li><a href="javascript:void(0)" onclick="return confirmDeleteBanner(' + value.id + ')"><i class="fa-solid fa-trash" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
-                    row = row + '@endif';
-                    row = row + '</ul>';
+                        row = row + '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
+                            row = row + '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + value.width + 'x' + value.height + '</small>';
+                            row = row + '<small style="float: right font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + value.file_size + '</small>';
+                        row = row + '</div>';
+                        row = row + '<iframe style="margin-top: 2px;" src="' + bannerPath + '" width="' + value.width + '" height="' + value.height + '" frameBorder="0" scrolling="no" id=' + "rel" + value.id + '></iframe>'
+                        row = row + '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
+                            row = row + '<li><i id="relBt' + value.id + '" onClick="reloadBanner(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
+                            row = row + '@if($authUserClientName == "Planet Nine")'
+                            row = row + '<li><a href="/previews/banner/single/edit/' + value.id + '"><i class="fa-solid fa-pen-to-square" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                            row = row + '<li><a href="/previews/banner/single/download/' + value.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                            row = row + '<li><a href="javascript:void(0)" onclick="return confirmDeleteBanner(' + value.id + ')"><i class="fa-solid fa-trash" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                        row = row + '@endif';
+                        row = row + '</ul>';
                     row = row + '</div>';
                 });
 
