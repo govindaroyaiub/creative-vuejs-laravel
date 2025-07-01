@@ -984,7 +984,7 @@ function handleOutsideClick(event) {
                     var bannerPath = '/' + value.path + '/index.html';
                     var bannerReloadID = value.id;
 
-                    row = row + '<div style="display: inline-block; width: ' + value.width + 'px; margin-right: 10px;">';
+                    row = row + '<div class="banner-area-'+ value.width +'" style="display: inline-block; width: ' + value.width + 'px; margin-right: 10px;">';
                         row = row + '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
                             row = row + '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + value.width + 'x' + value.height + '</small>';
                             row = row + '<small style="float: right font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + value.file_size + '</small>';

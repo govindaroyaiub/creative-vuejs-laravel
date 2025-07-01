@@ -1034,6 +1034,50 @@ iframe {
 
 /* 100% Image Width on Smaller Screens */
 @media only screen and (max-width: 700px) {
+    .banner-area-970 {
+        width: 100% !important;
+        height: auto;
+        display: flex !important;
+        flex-direction: column;
+        justify-content: space-between;
+        margin-right: 0 !important;
+        overflow: hidden;
+    }
+
+    .banner-area-970 iframe {
+        /* 970px is original width, so scale to fit 100vw (minus some padding if needed) */
+        transform: scale(calc(100vw / 970));
+        transform-origin: top left;
+        width: 970px;
+        /* keep original for scaling math */
+        height: 250px;
+        /* keep original for scaling math */
+        border: none;
+        display: block;
+    }
+
+    .banner-area-728 {
+        width: 100% !important;
+        height: auto;
+        display: flex !important;
+        flex-direction: column;
+        justify-content: space-between;
+        margin-right: 0 !important;
+        overflow: hidden;
+    }
+
+    .banner-area-728 iframe {
+        /* 970px is original width, so scale to fit 100vw (minus some padding if needed) */
+        transform: scale(calc(100vw / 728));
+        transform-origin: top left;
+        width: 728px;
+        /* keep original for scaling math */
+        height: 90px;
+        /* keep original for scaling math */
+        border: none;
+        display: block;
+    }
+
     .modal-contentSocial {
         width: 100%;
     }
@@ -1074,19 +1118,19 @@ iframe {
         gap: 0.5rem;
         justify-content: center;
         align-items: center;
-        padding-right: 10px;
+        padding-right: 0;
         top: 0;
         transform: translateY(0);
         margin-top: 50px;
     }
 
-    #showcase{
+    #showcase {
         overflow: hidden;
         border-radius: 35px;
         z-index: 9999;
     }
 
-    body{
+    body {
         box-shadow: inset 0 0 20px 5px #ffffff;
     }
 }
