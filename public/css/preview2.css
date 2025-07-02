@@ -512,6 +512,8 @@ iframe {
     display: flex;
     flex-direction: column;
     transform: translateX(310px);
+    opacity: 0;
+    display: none;
 }
 
 #colorPaletteSelection {

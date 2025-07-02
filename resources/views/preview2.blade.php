@@ -300,6 +300,8 @@ function handleOutsideClick(event) {
         moveversion
             .to('#versionDescription', {
                 duration: 1,
+                display: 'flex',
+                opacity: 1,
                 x: 0,
                 ease: 'power2.out'
             });
@@ -332,6 +334,8 @@ function handleOutsideClick(event) {
             .to('#versionDescription', {
                 duration: 0.5,
                 x: 310,
+                opacity: 0,
+                display: 'none',
                 ease: 'power2.in'
             })
     }
