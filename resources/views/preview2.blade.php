@@ -131,7 +131,30 @@
                                 <span></span>
                                 
                                 <ul id="menu"></ul>
+                                
                             </div>
+                            <div class="responsive-version flex justify-center items-center flex-col" style="margin-top: 55px; margin-left: 5px;">
+                                    <div class="responsive-version-arrow">
+                                        <i class="fa-solid fa-arrow-down" style="height: 23px;"></i>
+                                    </div>
+                                    <div class="responsive-version-counts ">
+                                        <div class="responsive-version-count-text">
+                                            <label>1</label>
+                                        </div>
+                                        <div class="responsive-version-count-text-active">
+                                            <label>2</label>
+                                        </div>
+                                        <div class="responsive-version-count-text">
+                                            <label>3</label>
+                                        </div>
+                                        <div class="responsive-version-count-text">
+                                            <label>4</label>
+                                        </div>
+                                        <div class="responsive-version-count-text">
+                                            <label>5</label>
+                                        </div>
+                                    </div>
+                                </div>
                         </nav>
                         <div class="navbar tabDesktopShowcase" id="navbar">
                             @if($preview['show_sidebar_logo'] == 1)
@@ -984,7 +1007,7 @@ function handleOutsideClick(event) {
                     var bannerPath = '/' + value.path + '/index.html';
                     var bannerReloadID = value.id;
 
-                    row = row + '<div class="banner-area-'+ value.width +'" style="display: inline-block; width: ' + value.width + 'px; margin-right: 10px;">';
+                    row = row + '<div class="banner-creatives banner-area-'+ value.width +'" style="display: inline-block; width: ' + value.width + 'px; margin-right: 10px;">';
                         row = row + '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
                             row = row + '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + value.width + 'x' + value.height + '</small>';
                             row = row + '<small style="float: right font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + value.file_size + '</small>';

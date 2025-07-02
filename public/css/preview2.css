@@ -214,7 +214,7 @@ section .content {
     display: block;
     position: relative;
     top: 50px;
-    left: 15px;
+    left: 5px;
     z-index: 1;
     width: 35px;
 }
@@ -283,7 +283,7 @@ section .content {
 */
 #menuToggle input:checked~span {
     opacity: 1;
-    transform: rotate(45deg) translate(-2px, -1px);
+    transform: rotate(45deg) translate(2px, 0px);
     background: white;
 }
 
@@ -299,7 +299,7 @@ section .content {
 * Ohyeah and the last one should go the other direction
 */
 #menuToggle input:checked~span:nth-last-child(2) {
-    transform: rotate(-45deg) translate(0, -1px);
+    transform: rotate(-45deg) translate(0px, 4px);
 }
 
 /*
@@ -310,7 +310,7 @@ section .content {
     opacity: 0;
     position: absolute;
     width: 300px;
-    margin: -48px 0px 0px -13px;
+    margin: -48px 0px 0px -3px;
     padding: 30px;
     padding-top: 55px;
     background: var(--primary-color);
@@ -1034,6 +1034,18 @@ iframe {
 
 /* 100% Image Width on Smaller Screens */
 @media only screen and (max-width: 700px) {
+    .subVersionTab{
+        width: 130px;
+    }
+
+    #topDetails {
+        background: url('/preview_images/white-smart.png') no-repeat center center;
+    }
+
+    .banner-creatives {
+        margin-right: 0 !important;
+    }
+
     .banner-area-970 {
         width: 100% !important;
         height: auto;
@@ -1046,7 +1058,7 @@ iframe {
 
     .banner-area-970 iframe {
         /* 970px is original width, so scale to fit 100vw (minus some padding if needed) */
-        transform: scale(calc(100vw / 970));
+        transform: scale(.415);
         transform-origin: top left;
         width: 970px;
         /* keep original for scaling math */
@@ -1068,11 +1080,33 @@ iframe {
 
     .banner-area-728 iframe {
         /* 970px is original width, so scale to fit 100vw (minus some padding if needed) */
-        transform: scale(calc(100vw / 728));
+        transform: scale(0.55);
         transform-origin: top left;
         width: 728px;
         /* keep original for scaling math */
         height: 90px;
+        /* keep original for scaling math */
+        border: none;
+        display: block;
+    }
+
+    .banner-area-468 {
+        width: 100% !important;
+        height: auto;
+        display: flex !important;
+        flex-direction: column;
+        justify-content: space-between;
+        margin-right: 0 !important;
+        overflow: hidden;
+    }
+
+    .banner-area-468 iframe {
+        /* 970px is original width, so scale to fit 100vw (minus some padding if needed) */
+        transform: scale(0.85);
+        transform-origin: top left;
+        width: 468px;
+        /* keep original for scaling math */
+        height: 60px;
         /* keep original for scaling math */
         border: none;
         display: block;
@@ -1110,6 +1144,7 @@ iframe {
 
     .right-column {
         border-top-left-radius: 35px;
+        padding: 0;
     }
 
     #bannerShowcase {
@@ -1127,7 +1162,7 @@ iframe {
     #showcase {
         overflow: hidden;
         border-radius: 35px;
-        z-index: 9999;
+        z-index: 99;
     }
 
     body {
@@ -1343,4 +1378,46 @@ iframe {
     .sidebar-top-tab-mobile {
         display: none;
     }
+}
+
+.responsive-version-arrow {
+    color: var(--quaternary-color);
+}
+
+.responsive-version-counts {
+    gap: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.responsive-version-count-text {
+    font-size: 0.75rem;
+    color: var(--primary-color);
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid var(--primary-color);
+    padding: 0.25rem;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.responsive-version-count-text-active {
+    font-size: 0.75rem;
+    color: var(--quaternary-color);
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid var(--quaternary-color);
+    padding: 0.25rem;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
