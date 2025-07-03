@@ -9,6 +9,7 @@
     <title>Creative - {{ $preview['name'] }}</title>
     <link rel="preload" as="image" href="/preview_images/sidebar-image.png">
     <link rel="preload" as="image" href="/preview_images/top-bg.png">
+    <link rel="preload" as="image" href="/preview_images/white-smart.png">
     <link rel="shortcut icon" href="https://www.planetnine.com/logo/new_favicon.png">
     @vite('resources/css/app.css')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -131,30 +132,7 @@
                                 <span></span>
                                 
                                 <ul id="menu"></ul>
-                                
                             </div>
-                            <div class="responsive-version flex justify-center items-center flex-col" style="margin-top: 55px; margin-left: 5px;">
-                                    <div class="responsive-version-arrow">
-                                        <i class="fa-solid fa-arrow-down" style="height: 23px;"></i>
-                                    </div>
-                                    <div class="responsive-version-counts ">
-                                        <div class="responsive-version-count-text">
-                                            <label>1</label>
-                                        </div>
-                                        <div class="responsive-version-count-text-active">
-                                            <label>2</label>
-                                        </div>
-                                        <div class="responsive-version-count-text">
-                                            <label>3</label>
-                                        </div>
-                                        <div class="responsive-version-count-text">
-                                            <label>4</label>
-                                        </div>
-                                        <div class="responsive-version-count-text">
-                                            <label>5</label>
-                                        </div>
-                                    </div>
-                                </div>
                         </nav>
                         <div class="navbar tabDesktopShowcase" id="navbar">
                             @if($preview['show_sidebar_logo'] == 1)

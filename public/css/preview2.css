@@ -214,7 +214,7 @@ section .content {
     display: block;
     position: relative;
     top: 50px;
-    left: 5px;
+    left: 11px;
     z-index: 1;
     width: 35px;
 }
@@ -310,7 +310,7 @@ section .content {
     opacity: 0;
     position: absolute;
     width: 300px;
-    margin: -48px 0px 0px -3px;
+    margin: -48px 0px 0px -8px;
     padding: 30px;
     padding-top: 55px;
     background: var(--primary-color);
@@ -325,7 +325,8 @@ section .content {
     -moz-transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), opacity 0.3s ease;
     -ms-transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), opacity 0.3s ease;
     -o-transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), opacity 0.3s ease;
-    border-radius: 35px;
+    border-top-right-radius: 35px;
+    border-bottom-right-radius: 35px;
 }
 
 #menu li {
@@ -1141,11 +1142,15 @@ iframe {
 
     #showcase-section {
         padding-left: 0.1rem;
-        padding-right: 0.1rem;
+        padding-right: 0;
     }
 
     .right-column {
-        border-top-left-radius: 35px;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        border: none;
         padding: 0;
     }
 
@@ -1163,8 +1168,9 @@ iframe {
 
     #showcase {
         overflow: hidden;
-        border-radius: 35px;
+        border-radius: 5px;
         z-index: 99;
+        border-top: var(--tertiary-color) 3px solid;
     }
 
     body {
@@ -1380,46 +1386,4 @@ iframe {
     .sidebar-top-tab-mobile {
         display: none;
     }
-}
-
-.responsive-version-arrow {
-    color: var(--quaternary-color);
-}
-
-.responsive-version-counts {
-    gap: 5px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-}
-
-.responsive-version-count-text {
-    font-size: 0.75rem;
-    color: var(--primary-color);
-    font-weight: bold;
-    text-align: center;
-    border: 1px solid var(--primary-color);
-    padding: 0.25rem;
-    border-radius: 50%;
-    width: 25px;
-    height: 25px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.responsive-version-count-text-active {
-    font-size: 0.75rem;
-    color: var(--quaternary-color);
-    font-weight: bold;
-    text-align: center;
-    border: 1px solid var(--quaternary-color);
-    padding: 0.25rem;
-    border-radius: 50%;
-    width: 25px;
-    height: 25px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
