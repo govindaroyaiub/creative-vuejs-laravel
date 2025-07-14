@@ -153,6 +153,16 @@
                         </div>
 
                         <div class="right-column">
+                            <div class="justify-center items-center mt-2 py-2 px-2 absolute top-0 left-0 right-0 currentTotalFeedbacks">
+                                <button id="versionLeft" disabled style="margin-right:10px;">
+                                    &#11207;
+                                </button>
+                                <span id="versionCounter"></span>
+                                <button id="versionRight" disabled style="margin-left:10px;">
+                                   &#11208;
+                                </button>
+                            </div>
+
                             <div id="versionArea">
                                 <div id="versionCLick" onclick="showVersionDescription()">
                                     <i class="fa-regular fa-message" style="transform: rotate(90deg) scaleX(-1);"></i>
@@ -318,74 +328,105 @@ function handleOutsideClick(event) {
             })
     }
 
+    let versions = [];
+    let currentVersionIndex = 0;
+
     function getAllVersions() {
         axios.get('/preview/getallversions/' + preview_id)
-            .then(function(response) {
-                var active;
-                var versionActive;
-                var spanActive;
-                var row = '';
-                var row2 = '';
-
-                row = row + '@if($preview['show_sidebar_logo'] == 1)';
-                    row = row + '<div class="w-full">';
-                        row = row + '<div class="mb-2 mt-2 px-2 py-2 mx-auto">';
-                            row = row + '<img src="{{ asset('logos/' . $client['logo']) }}" alt="clientLogo" style="width: 250px;">';
-                        row = row + '</div>';
-                    row = row + '</div>';
-                row = row + '@endif';
-
-                $.each(response.data.versions, function(key, value) {
-                    if (value.is_active == 1) {
-                        active = 'menuToggleActive';
-                        versionActive = 'version-active';
-                        spanActive = 'span-active';
-                    } else {
-                        active = '';
-                        versionActive = '';
-                        spanActive = '';
-                    }
-
-                    const date = new Date(value.created_at);
-                    const formatted = date.toLocaleDateString('en-GB'); // DD/MM/YYYY
-                    const formatted2 = `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getFullYear()}`;
-
-                    row2 = row2 + '<div class="version-row ' + versionActive + '" onclick="return updateActiveVersion(' + value.id + ')" id="version' + value.id + '">';
-                    row2 = row2 + '<span class="' + spanActive + '" style="font-size: 0.85rem;">' + value.name + '</span>';
-                    row2 = row2 + '<hr>';
-                    row2 += '<span class="version-row-date" style="font-size: 0.7rem;">' + formatted2 + '</span>';
-                    row2 = row2 + '</div>';
-
-                    row = row + '<a href="javascript:void(0)" class="nav-link versions" onclick="return updateActiveVersion(' + value.id + ')" id="version' + value.id + '">';
-                    row = row + '<li class="' + active + '">' + value.name + '</li>';
-                    row = row + '</a>';
-                });
-
-                
-                if(authUserClientName == "Planet Nine"){
-                    row2 += `
-                        <div class="version-row version-add-btn" onclick="return addNewVersion(${preview_id})" style="cursor: pointer; margin-top: 8px;">
-                            <span class="text-2xl text-green-500 hover:text-green-700 font-bold">+</span>
-                        </div>
-                    `;
-                }
-
-                $('#creative-list2').html(row2);
-                $('#creative-list').html(row);
-                $('#menu').html(row);
-
-                checkVersionType(response.data.activeVersion_id);
-            })
-            .catch(function(error) {
-                console.log(error);
-            })
-            .finally(function() {
-                // document.getElementById('menuClick').click();
-            })
+        .then(function(response) {
+            versions = response.data.versions || [];
+            // Find active version index
+            currentVersionIndex = versions.findIndex(v => v.id == response.data.activeVersion_id);
+            if (currentVersionIndex === -1) currentVersionIndex = 0;
+            renderVersions(response);
+            updateVersionNav();
+        });
     }
 
+    function renderVersions(response) {
+        // Your existing code to render the versions list
+        // You can highlight the current version if you want
+        var active;
+        var versionActive;
+        var spanActive;
+        var row = '';
+        var row2 = '';
+
+        row = row + '@if($preview['show_sidebar_logo'] == 1)';
+            row = row + '<div class="w-full">';
+                row = row + '<div class="mb-2 mt-2 px-2 py-2 mx-auto">';
+                    row = row + '<img src="{{ asset('logos/' . $client['logo']) }}" alt="clientLogo" style="width: 250px;">';
+                row = row + '</div>';
+            row = row + '</div>';
+        row = row + '@endif';
+
+        $.each(response.data.versions, function(key, value) {
+            if (value.is_active == 1) {
+                active = 'menuToggleActive';
+                versionActive = 'version-active';
+                spanActive = 'span-active';
+            } else {
+                active = '';
+                versionActive = '';
+                spanActive = '';
+            }
+
+            const date = new Date(value.created_at);
+            const formatted = date.toLocaleDateString('en-GB'); // DD/MM/YYYY
+            const formatted2 = `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getFullYear()}`;
+
+            row2 = row2 + '<div class="version-row ' + versionActive + '" onclick="return updateActiveVersion(' + value.id + ')" id="version' + value.id + '">';
+            row2 = row2 + '<span class="' + spanActive + '" style="font-size: 0.85rem;">' + value.name + '</span>';
+            row2 = row2 + '<hr>';
+            row2 += '<span class="version-row-date" style="font-size: 0.7rem;">' + formatted2 + '</span>';
+            row2 = row2 + '</div>';
+
+            row = row + '<a href="javascript:void(0)" class="nav-link versions" onclick="return updateActiveVersion(' + value.id + ')" id="version' + value.id + '">';
+            row = row + '<li class="' + active + '">' + value.name + '</li>';
+            row = row + '</a>';
+        });
+
+        
+        if(authUserClientName == "Planet Nine"){
+            row2 += `
+                <div class="version-row version-add-btn" onclick="return addNewVersion(${preview_id})" style="cursor: pointer; margin-top: 8px;">
+                    <span class="text-2xl text-green-500 hover:text-green-700 font-bold">+</span>
+                </div>
+            `;
+        }
+
+        $('#creative-list2').html(row2);
+        $('#creative-list').html(row);
+        $('#menu').html(row);
+
+        checkVersionType(response.data.activeVersion_id);
+    }
+
+    function updateVersionNav() {
+        const total = versions.length;
+        $('#versionCounter').text(total ? `${currentVersionIndex + 1} of ${total}` : '0 of 0');
+        $('#versionLeft').prop('disabled', currentVersionIndex === 0);
+        $('#versionRight').prop('disabled', currentVersionIndex === total - 1 || total === 0);
+    }
+
+    $('#versionLeft').on('click', function() {
+        if (currentVersionIndex > 0) {
+            currentVersionIndex--;
+            updateActiveVersion(versions[currentVersionIndex].id);
+            updateVersionNav();
+        }
+    });
+
+    $('#versionRight').on('click', function() {
+        if (currentVersionIndex < versions.length - 1) {
+            currentVersionIndex++;
+            updateActiveVersion(versions[currentVersionIndex].id);
+            updateVersionNav();
+        }
+    });
+
     function updateActiveVersion(version_id) {
-        document.getElementById('menuClick').click();
+        // document.getElementById('menuClick').click();
         axios.get('/preview/updateActiveVersion/' + version_id)
             .then(function(response) {
                 var active;

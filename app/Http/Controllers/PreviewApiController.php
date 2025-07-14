@@ -208,4 +208,14 @@ class PreviewApiController extends Controller
             'version_id' => $subVersion['version_id']
         ];
     }
+
+    public function getCurrentTotalFeedbacks($previewId)
+    {
+        $feedbacks = Version::where('preview_id', $previewId)
+            ->orderBy('created_at', 'asc')
+            ->get(['id', 'created_at']); // Only needed fields
+
+        // Optionally format date here, or do it in JS
+        return response()->json(['feedbacks' => $feedbacks]);
+    }
 }

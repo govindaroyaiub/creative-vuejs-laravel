@@ -195,6 +195,8 @@ Route::get('/preview/getActiveSubVersionSocialData/{id}', [PreviewApiController:
 Route::get('/preview/getActiveSubVersionVideoData/{id}', [PreviewApiController::class, 'getActiveSubVersionVideoData']);
 Route::get('/preview/getActiveSubVersionGifData/{id}', [PreviewApiController::class, 'getActiveSubVersionGifData']);
 Route::get('/preview/{preview_id}/change/theme/{color_id}', [PreviewApiController::class, 'changeTheme']);
+
+Route::get('/getCurrentTotalFeedbacks/{preview_id}', [PreviewApiController::class, 'getCurrentTotalFeedbacks']);
 //preview axios get requests end
 
 Route::get('/file-transfers-view/{id}', [FileTransferController::class, 'show'])->name('file-transfers-view');
