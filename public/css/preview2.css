@@ -1042,7 +1042,7 @@ iframe {
 /* 100% Image Width on Smaller Screens */
 @media only screen and (max-width: 700px) {
     .subVersionTab {
-        width: 130px;
+        width: 110px;
     }
 
     #topDetails {
@@ -1066,7 +1066,7 @@ iframe {
     .banner-area-970 iframe {
         transform: scale(0.346);
         /* scales 970px to ~336px */
-        transform-origin: top left;
+        transform-origin: center left;
         width: 970px;
         height: 250px;
         border: none;
@@ -1086,7 +1086,7 @@ iframe {
     .banner-area-728 iframe {
         transform: scale(0.4615);
         /* scales 728px to ~336px */
-        transform-origin: top left;
+        transform-origin: center left;
         width: 728px;
         height: 90px;
         border: none;
@@ -1105,7 +1105,7 @@ iframe {
 
     .banner-area-468 iframe {
         transform: scale(0.718); /* scales 468px to ~336px */
-        transform-origin: top left;
+        transform-origin: center left;
         width: 468px;
         height: 60px;
         border: none;
@@ -1155,13 +1155,13 @@ iframe {
     #bannerShowcase {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 1.25rem;
         justify-content: center;
         align-items: center;
         padding-right: 0;
         top: 0;
         transform: translateY(0);
-        margin-top: 50px;
+        margin-top: 60px;
     }
 
     #showcase {
@@ -1169,6 +1169,7 @@ iframe {
         border-radius: 5px;
         z-index: 99;
         border-top: var(--tertiary-color) 3px solid;
+        border-bottom: var(--tertiary-color) 3px solid;
     }
 
     body {
@@ -1177,11 +1178,11 @@ iframe {
 
     #colorPaletteClick {
         position: fixed;
-        font-size: 1.15rem;
+        font-size: 1.25rem;
     }
 
     #versionCLick {
-        font-size: 1.15rem;
+        font-size: 1.25rem;
     }
 }
 
@@ -1229,10 +1230,18 @@ iframe {
     .currentTotalFeedbacks {
         display: flex;
     }
+
+    .banner-options{
+        display: none;
+    }
 }
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {
+    .banner-options{
+        display: none;
+    }
+
     .version-blank-space {
         display: none;
     }
@@ -1279,6 +1288,10 @@ iframe {
 
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (min-width: 768px) {
+    .banner-options{
+        display: none;
+    }
+
     .version-blank-space {
         display: block;
     }
