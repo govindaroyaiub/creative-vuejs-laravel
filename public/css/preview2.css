@@ -499,7 +499,7 @@ iframe {
     cursor: pointer;
     --r: 20px;
     /* control the radius */
-    line-height: 1.8;
+    /* line-height: 1.8; */
     /* control the height */
     padding-inline: .5em;
     border-inline: var(--r) solid #0000;
@@ -657,7 +657,7 @@ iframe {
     cursor: pointer;
     --r: 20px;
     /* control the radius */
-    line-height: 1.8;
+    /* line-height: 1.8; */
     /* control the height */
     padding-inline: .5em;
     border-inline: var(--r) solid #0000;
@@ -1190,10 +1190,12 @@ iframe {
     #colorPaletteClick {
         position: fixed;
         font-size: 1.25rem;
+        line-height: 1.8;
     }
 
     #versionCLick {
         font-size: 1.25rem;
+        line-height: 1.8;
     }
 }
 
