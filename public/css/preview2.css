@@ -310,6 +310,8 @@ section .content {
     opacity: 0;
     position: absolute;
     width: 300px;
+    max-height: 550px;
+    overflow-y: scroll;
     margin: -50px 0px 0px -12px;
     padding: 30px;
     padding-top: 55px;
@@ -325,8 +327,10 @@ section .content {
     -moz-transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), opacity 0.3s ease;
     -ms-transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), opacity 0.3s ease;
     -o-transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), opacity 0.3s ease;
-    border-top-right-radius: 35px;
-    border-bottom-right-radius: 35px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-right-color: var(--tertiary-color);
+    border-bottom-color: var(--tertiary-color);
 }
 
 #menu li {
@@ -397,7 +401,7 @@ section .content {
 
 #showcase {
     position: relative;
-    /* border-radius: 35px; */
+    /* border-radius: 25px; */
     width: 100%;
     height: auto;
     /* overflow: hidden;
@@ -408,7 +412,7 @@ section .content {
 
 #bannerShowcase {
     width: 100%;
-    height: 100%;
+    height: auto;
     text-align: center;
     position: relative;
     top: 50%;
@@ -495,7 +499,7 @@ iframe {
     cursor: pointer;
     --r: 20px;
     /* control the radius */
-    /* line-height: 1.8; */
+    line-height: 1.8;
     /* control the height */
     padding-inline: .5em;
     border-inline: var(--r) solid #0000;
@@ -536,7 +540,7 @@ iframe {
 .sidebar-image-div {
     /* background-color: var(--primary-color);
     border-right: 3px solid var(--tertiary-color); */
-    border-top-left-radius: 35px;
+    border-top-left-radius: 25px;
     border-left: 3px solid var(--tertiary-color);
     border-top: 3px solid var(--tertiary-color);
     background-color: var(--primary-color);
@@ -653,7 +657,7 @@ iframe {
     cursor: pointer;
     --r: 20px;
     /* control the radius */
-    /* line-height: 1.8; */
+    line-height: 1.8;
     /* control the height */
     padding-inline: .5em;
     border-inline: var(--r) solid #0000;
@@ -821,7 +825,7 @@ iframe {
 .closeSocial {
     position: absolute;
     top: 15px;
-    right: 35px;
+    right: 25px;
     color: #f1f1f1;
     font-size: 2rem;
     font-weight: bold;
@@ -922,7 +926,7 @@ iframe {
     text-decoration: none;
     color: #fff;
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     font-size: 1rem;
 }
 
@@ -930,9 +934,9 @@ iframe {
     flex: 1;
     padding: 0px 5px 20px 5px;
     border: 3px solid var(--tertiary-color);
-    border-top-right-radius: 35px;
-    border-bottom-left-radius: 35px;
-    border-bottom-right-radius: 35px;
+    border-top-right-radius: 25px;
+    border-bottom-left-radius: 25px;
+    border-bottom-right-radius: 25px;
     box-shadow: rgba(0, 0, 0, 0.15) -5.05px 6.95px 14.6px;
 }
 
@@ -964,7 +968,7 @@ iframe {
     align-items: center;
     background-color: var(--primary-color);
     border-left: 3px solid var(--tertiary-color);
-    border-bottom-left-radius: 35px;
+    border-bottom-left-radius: 25px;
     border-bottom: 3px solid var(--tertiary-color);
     box-shadow: rgba(0, 0, 0, 0.15) 6.95px 8.95px 7.6px;
 }
@@ -1032,8 +1036,8 @@ iframe {
     min-width: 210px;
     min-height: 60px;
     /* background-color: white; */
-    /* border-top-right-radius: 35px;
-    border-top-left-radius: 35px;
+    /* border-top-right-radius: 25px;
+    border-top-left-radius: 25px;
     border-left: 3px solid var(--tertiary-color);
     border-top: 3px solid var(--tertiary-color);
     border-right: 3px solid var(--tertiary-color); */
@@ -1071,6 +1075,8 @@ iframe {
         height: 250px;
         border: none;
         display: block;
+        margin-top: -75px!important;
+        margin-bottom: -75px!important;
     }
 
     .banner-area-728 {
@@ -1091,6 +1097,8 @@ iframe {
         height: 90px;
         border: none;
         display: block;
+        margin-top: -20px!important;
+        margin-bottom: -20px!important;
     }
 
     .banner-area-468 {
@@ -1104,12 +1112,15 @@ iframe {
     }
 
     .banner-area-468 iframe {
-        transform: scale(0.718); /* scales 468px to ~336px */
+        transform: scale(0.718);
+        /* scales 468px to ~336px */
         transform-origin: center left;
         width: 468px;
         height: 60px;
         border: none;
         display: block;
+        margin-top: -10px!important;
+        margin-bottom: -10px!important;
     }
 
     .modal-contentSocial {
@@ -1231,14 +1242,14 @@ iframe {
         display: flex;
     }
 
-    .banner-options{
+    .banner-options {
         display: none;
     }
 }
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {
-    .banner-options{
+    .banner-options {
         display: none;
     }
 
@@ -1288,7 +1299,7 @@ iframe {
 
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (min-width: 768px) {
-    .banner-options{
+    .banner-options {
         display: none;
     }
 

@@ -39,7 +39,7 @@ function getDefaultFormData() {
         type: '',
         version_name: 'Master',
         version_description: 'Master Started',
-        subversion_name: 'Version 1',
+        subversion_name: 'V1',
         subversion_active: true,
         banners: [],
         videos: [],

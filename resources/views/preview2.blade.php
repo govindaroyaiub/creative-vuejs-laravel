@@ -435,6 +435,14 @@ function handleOutsideClick(event) {
                 var row = '';
                 var row2 = '';
 
+                row = row + '@if($preview['show_sidebar_logo'] == 1)';
+                    row = row + '<div class="w-full">';
+                        row = row + '<div class="mb-2 mt-2 px-2 py-2 mx-auto">';
+                            row = row + '<img src="{{ asset('logos/' . $client['logo']) }}" alt="clientLogo" style="width: 250px;">';
+                        row = row + '</div>';
+                    row = row + '</div>';
+                row = row + '@endif';
+
                 $.each(response.data.versions, function(key, value) {
                     if (value.is_active == 1) {
                         active = 'menuToggleActive';
@@ -1068,12 +1076,12 @@ function handleOutsideClick(event) {
                     var bannerPath = '/' + value.path;
                     var bannerReloadID = value.id;
 
-                    row = row + '<div style="display: inline-block; width: ' + value.width + 'px; margin-right: 10px;">';
+                    row = row + '<div class="gif-creatives gif-area-'+ value.width +'" style="display: inline-block; width: ' + value.width + 'px; margin-right: 10px;">';
                     row = row + '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
                     row = row + '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + value.width + 'x' + value.height + '</small>';
-                    row = row + '<small style="float: right font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + value.file_size + '</small>';
+                    row = row + '<small style="float: right; font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + value.file_size + '</small>';
                     row = row + '</div>';
-                    row = row + '<iframe style="margin-top: 2px;" src="' + bannerPath + '" width="' + value.width + '" height="' + value.height + '" frameBorder="0" scrolling="no" id=' + "rel" + value.id + '></iframe>'
+                    row = row + '<iframe class="iframe-banners" style="margin-top: 2px;" src="' + bannerPath + '" width="' + value.width + '" height="' + value.height + '" frameBorder="0" scrolling="no" id=' + "rel" + value.id + '></iframe>'
                     row = row + '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
                     row = row + '<li><i id="relBt' + value.id + '" onClick="reloadGif(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
                     row = row + '@if($authUserClientName == "Planet Nine")'
@@ -1143,7 +1151,7 @@ function handleOutsideClick(event) {
                     row += `
                         <div id="${uniqueId}" class="mx-auto mb-8" style="max-width: 100%;">
                             <!-- Name Bar -->
-                            <div class="video-title font-semibold text-lg px-4 py-2 mx-auto text-center shadow-sm video-name-bar" style="letter-spacing:0.5px;border-radius: 40px;">
+                            <div class="video-title font-semibold text-lg px-4 py-2 mx-auto text-center video-name-bar" style="letter-spacing:0.5px;border-radius: 40px;">
                                 ${value.name}
                             </div>
                             <!-- Video -->
@@ -1159,7 +1167,7 @@ function handleOutsideClick(event) {
                                 ></video>
                             </div>
                             <!-- Media Info -->
-                            <div class="bg-gray-50 text-gray-800 text-sm rounded-2xl p-3 mt-2 w-full shadow-sm video-media-info" style="margin:0 auto;">
+                            <div class="bg-gray-50 text-gray-800 text-sm rounded-2xl p-3 mt-2 w-full video-media-info" style="margin:0 auto;">
                                 @if($authUserClientName == "Planet Nine")
                                 <div class="flex gap-4 mb-2 justify-center">
                                     <a href="/previews/video/single/edit/${value.id}" class="edit-btn" data-id="${value.id}" title="Edit"><i class="fa-solid fa-pen-to-square" style="display: flex; margin-left: 0.5rem; font-size:20px;"></i></a>
@@ -1321,7 +1329,7 @@ function handleOutsideClick(event) {
                 var row = '';
                 $.each(response.data, function(key, value) {
                     row += `
-                        <div style="display: inline-block; margin: 10px; width: 600px;">
+                        <div style="display: inline-block; margin: 10px; max-width: 1200px;">
                             <div class="text-center text-xl font-semibold capitalize social-title flex justify-center items-center"
                                 style="padding: 10px; width: 100%; margin-bottom: 12px;">
                                 <span>${value.name}</span>
@@ -1329,7 +1337,7 @@ function handleOutsideClick(event) {
                             <img src="/${value.path}" 
                                 alt="${value.name}" 
                                 class="social-preview-img rounded-2xl"
-                                style="width: 600px; height: auto; object-fit: contain; box-shadow: 0 2px 8px #0001; cursor: pointer; margin-top: 0;"
+                                style="width: 100%; height: auto; object-fit: contain; box-shadow: 0 2px 8px #0001; cursor: pointer; margin-top: 0;"
                                 onclick="openSocialImageModal('/${value.path}', '${value.name}')"
                             >
                             <ul style="display: flex; flex-direction: row; justify-content: left; margin-top: 10px;" class="previewIcons">
