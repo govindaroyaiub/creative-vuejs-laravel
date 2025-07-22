@@ -108,6 +108,17 @@
             </div>
         </section>
 
+        @php
+            $colorsData = $all_colors->map(fn($color) => ['id' => $color->id, 'hex' => $color->primary, 'border' => $color->tertiary]);
+        @endphp
+
+        <div id="mobilecolorPaletteClick" onclick="showColorPaletteOptions2()">
+            <i class="fa-solid fa-palette"></i>
+        </div>
+
+        <div id="mobilecolorPaletteSelection" data-colors='@json($colorsData)'>
+        </div>
+
         <section id="middle" class="mb-4">
             <div id="showcase-section" class="mx-auto custom-container mt-2">
                 <div class="flex row justify-around items-end" style="min-height: 50px;">
@@ -256,6 +267,46 @@ function showColorPaletteOptions() {
     document.addEventListener('click', handleOutsideClick);
 }
 
+function showColorPaletteOptions2() {
+    const preview_id = '{{ $preview_id }}';
+    const paletteDiv2 = document.getElementById('mobilecolorPaletteSelection');
+
+    if (paletteDiv2.innerHTML.trim() === '') {
+        // Parse JSON array of objects with {id, hex}
+        const colors = JSON.parse(paletteDiv2.dataset.colors);
+        paletteDiv2.classList.add('color-grid');
+
+        colors.forEach(({ id, hex, border }) => {
+            const colorBox = document.createElement('div');
+            colorBox.className = 'mobile-color-box';
+            colorBox.style.backgroundColor = hex;
+            colorBox.style.borderColor = border;
+
+            colorBox.title = hex; // optional: show hex on hover
+
+            colorBox.addEventListener('click', () => {
+                document.getElementById('loaderArea').style.display = 'flex';
+                axios.get('/preview/'+ preview_id +'/change/theme/' + id)
+                .then(response => {
+                    if (response.data.success) {
+                        location.reload();
+                    } else {
+                        alert("Something went wrong changing theme");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error sending color:', error);
+                });
+            });
+
+            paletteDiv2.appendChild(colorBox);
+        });
+    }
+
+    paletteDiv2.classList.add('visible');
+    document.addEventListener('click', handleOutsideClick2);
+}
+
 function handleOutsideClick(event) {
     const paletteDiv = document.getElementById('colorPaletteSelection');
     const paletteToggle = document.getElementById('colorPaletteClick');
@@ -263,6 +314,16 @@ function handleOutsideClick(event) {
     if (!paletteDiv.contains(event.target) && !paletteToggle.contains(event.target)) {
         paletteDiv.classList.remove('visible');
         document.removeEventListener('click', handleOutsideClick);
+    }
+}
+
+function handleOutsideClick2(event) {
+    const paletteDiv2 = document.getElementById('mobilecolorPaletteSelection');
+    const paletteToggle2 = document.getElementById('mobilecolorPaletteClick');
+
+    if (!paletteDiv2.contains(event.target) && !paletteToggle2.contains(event.target)) {
+        paletteDiv2.classList.remove('visible');
+        document.removeEventListener('click', handleOutsideClick2);
     }
 }
 </script>
