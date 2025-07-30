@@ -218,4 +218,16 @@ class PreviewApiController extends Controller
         // Optionally format date here, or do it in JS
         return response()->json(['feedbacks' => $feedbacks]);
     }
+
+    public function getDataType($preview_id)
+    {
+        $preview = Preview::find($preview_id);
+        if (!$preview) {
+            return response()->json(['error' => 'Preview not found'], 404);
+        }
+
+        $types = Version::where('preview_id', $preview_id)->get();
+        $activeType = Version::where('preview_id', $preview_id)->where('is_active', 1)->first();
+        dd($types, $activeType);
+    }
 }

@@ -37,11 +37,11 @@ function getDefaultFormData() {
         show_sidebar_logo: true,
         show_footer: true,
         type: '',
-        version_name: 'Master',
-        version_description: 'Master Started',
-        subversion_name: 'V1',
+        version_name: '',
+        version_description: 'Project is initialized',
+        subversion_name: 'F1',
         subversion_active: true,
-        banners: [],
+        banners: [], // This will now hold banner sets instead of individual banners
         videos: [],
         socials: [],
         gifs: []
@@ -119,10 +119,17 @@ const submitForm = () => {
     formData.value.team_ids.forEach(id => payload.append('team_ids[]', id));
 
     if (formData.value.type.toLowerCase() === 'banner') {
-        formData.value.banners.forEach((banner, i) => {
-            payload.append(`banners[${i}][file]`, banner.file);
-            payload.append(`banners[${i}][size_id]`, banner.size_id);
-            payload.append(`banners[${i}][position]`, i);
+        // Handle multiple banner sets
+        formData.value.banners.forEach((set, setIndex) => {
+            // Add set name
+            payload.append(`banner_sets[${setIndex}][name]`, set.name || `Set ${setIndex + 1}`);
+
+            // Add banners for this set
+            set.banners.forEach((banner, bannerIndex) => {
+                payload.append(`banner_sets[${setIndex}][banners][${bannerIndex}][file]`, banner.file);
+                payload.append(`banner_sets[${setIndex}][banners][${bannerIndex}][size_id]`, banner.size_id);
+                payload.append(`banner_sets[${setIndex}][banners][${bannerIndex}][position]`, bannerIndex);
+            });
         });
     }
     if (formData.value.type.toLowerCase() === 'social') {

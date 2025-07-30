@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('sub_banners', function (Blueprint $table) {
             $table->id();
             $table->foreignId('sub_version_id')->constrained()->cascadeOnDelete();
+            $table->string('title')->nullable();
             $table->string('name');
             $table->string('path');
             $table->foreignId('size_id')->constrained('banner_sizes')->cascadeOnDelete();

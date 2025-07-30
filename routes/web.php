@@ -243,5 +243,8 @@ Route::post('/logout-preview', function (Request $request) {
     return redirect()->to("/previews/show/{$previewId}");
 })->name('preview.logout');
 
+
+Route::get('/preview/{preview_id}/get/data/type', [PreviewApiController::class, 'getDataType']);
+
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

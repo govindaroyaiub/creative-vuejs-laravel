@@ -11,6 +11,7 @@ use App\Models\BannerSize;
 use App\Models\Preview;
 use App\Models\Version;
 use App\Models\SubVersion;
+use App\Models\FeedbackSet;
 use App\Models\SubBanner;
 use App\Models\SubVideo;
 use App\Models\SubSocial;
@@ -45,6 +46,7 @@ class PreviewController extends Controller
         // Continue with preview rendering
         $versions = Version::where('preview_id', $id)->get();
         $subVersions = SubVersion::whereIn('version_id', $versions->pluck('id'))->get();
+        $feedbackSets = FeedbackSet::whereIn('sub_version_id', $subVersions->pluck('id'))->get();
         $color_palettes = ColorPalette::find($preview->color_palette_id);
         $client = Client::find($preview->client_id);
         $all_colors = ColorPalette::where('status', 1)->select('id', 'primary', 'tertiary')->get();
@@ -58,10 +60,11 @@ class PreviewController extends Controller
             ? (Client::find(Auth::user()->client_id)?->name ?? 'Unknown')
             : 'guest';
 
-        return view('preview2', compact(
+        return view('preview-main', compact(
             'preview',
             'versions',
             'subVersions',
+            'feedbackSets',
             'primary',
             'secondary',
             'tertiary',
@@ -112,7 +115,8 @@ class PreviewController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+
+        $validates = $request->validate([
             'name' => 'required|string|max:255',
             'client_id' => 'required|exists:clients,id',
             'color_palette_id' => 'required|exists:color_palettes,id',
@@ -127,10 +131,12 @@ class PreviewController extends Controller
             'version_description' => 'nullable|string',
             'subversion_name' => 'nullable|string|max:255',
             'subversion_active' => 'nullable|boolean',
-            'banners' => 'nullable|array',
-            'banners.*.file' => 'file|mimes:zip',
-            'banners.*.size_id' => 'required_with:banners.*.file|exists:banner_sizes,id',
-            'banners.*.position' => 'required|integer',
+            'banner_sets' => 'nullable|array',
+            'banner_sets.*.name' => 'required|string|max:255',
+            'banner_sets.*.banners' => 'required|array',
+            'banner_sets.*.banners.*.file' => 'required_with:banners|file|mimes:zip',
+            'banner_sets.*.banners.*.size_id' => 'required_with:banners.*.file|exists:banner_sizes,id',
+            'banner_sets.*.banners.*.position' => 'required|integer',
             'socials' => 'nullable|array',
             'socials.*.file' => 'required_with:socials|file|mimes:jpg,jpeg,png',
             'socials.*.name' => 'required_with:socials|string|max:255',
@@ -164,72 +170,83 @@ class PreviewController extends Controller
             if ($request->type === 'Banner') {
                 // 2. Create Version
                 $version = $preview->versions()->create([
-                    'name' => $request->version_name ?: 'Master',
-                    'description' => $request->version_description ?: 'Master Started',
+                    'name' => $request->version_name,
                     'type' => 'banner',
                     'is_active' => true,
                 ]);
 
                 // 3. Create SubVersion
                 $subVersion = $version->subVersions()->create([
-                    'name' => $request->subversion_name ?: 'Version_1',
+                    'name' => $request->subversion_name,
+                    'description' => $request->version_description,
                     'is_active' => $request->boolean('subversion_active', true),
                 ]);
 
-                // 4. Handle Banner uploads
-                foreach ($request->banners as $index => $banner) {
-                    $file = $banner['file'];
-                    $sizeId = $banner['size_id'];
-                    $position = $banner['position'];
-                    $sizeId = $banner['size_id'];
-                    $size = BannerSize::findOrFail($sizeId);
-                    $dimension = $size->width . 'x' . $size->height;
+                if (isset($request->banner_sets)) {
+                    foreach ($request->banner_sets as $setIndex => $bannerSet) {
+                        $feedbackSet = FeedbackSet::create([
+                            'sub_version_id' => $subVersion->id,
+                            'name' => $bannerSet['name'] ?? "Set " . ($setIndex + 1),
+                        ]);
 
-                    $zipName = $request->name . '_' . $dimension . '_' . Str::uuid() . '.zip';
-                    $uploadPath = public_path('uploads/banners');
+                        // Now handle banners for this set
+                        if (isset($bannerSet['banners'])) {
+                            foreach ($bannerSet['banners'] as $index => $banner) {
+                                $file = $banner['file'];
+                                $sizeId = $banner['size_id'];
+                                $position = $banner['position'];
+                                $size = BannerSize::findOrFail($sizeId);
+                                $dimension = $size->width . 'x' . $size->height;
 
-                    // Ensure directory exists
-                    if (!is_dir($uploadPath)) {
-                        mkdir($uploadPath, 0755, true);
+                                $zipName = $request->name . '_' . $dimension . '_' . Str::uuid() . '.zip';
+                                $uploadPath = public_path('uploads/banners');
+
+                                // Ensure directory exists
+                                if (!is_dir($uploadPath)) {
+                                    mkdir($uploadPath, 0755, true);
+                                }
+
+                                // Get size BEFORE move (in KB)
+                                $sizeInBytes = $file->getSize();
+
+                                if ($sizeInBytes >= 1048576) {
+                                    // 1 MB = 1024 * 1024 = 1048576 bytes
+                                    $fileSize = round($sizeInBytes / 1048576, 2) . ' MB';
+                                } else {
+                                    $fileSize = round($sizeInBytes / 1024, 2) . ' KB';
+                                }
+
+                                // Move zip
+                                $file->move($uploadPath, $zipName);
+
+                                // Unzip
+                                $zip = new ZipArchive;
+                                $extractedFolder = $uploadPath . '/' . pathinfo($zipName, PATHINFO_FILENAME);
+                                if (!is_dir($extractedFolder)) {
+                                    mkdir($extractedFolder, 0755, true);
+                                }
+
+                                if ($zip->open($uploadPath . '/' . $zipName) === true) {
+                                    $zip->extractTo($extractedFolder);
+                                    $zip->close();
+                                    unlink($uploadPath . '/' . $zipName); // ✅ Delete original ZIP
+                                } else {
+                                    throw new \Exception("Failed to extract: $zipName");
+                                }
+
+                                // Save SubBanner with feedback_set_id
+                                SubBanner::create([
+                                    'sub_version_id' => $subVersion->id,
+                                    'feedback_set_id' => $feedbackSet->id, // 🔥 Link to banner set
+                                    'name' => $preview->name,
+                                    'path' => 'uploads/banners/' . basename($extractedFolder),
+                                    'size_id' => $sizeId,
+                                    'file_size' => $fileSize,
+                                    'position' => $position,
+                                ]);
+                            }
+                        }
                     }
-
-                    // Get size BEFORE move (in KB)
-                    $sizeInBytes = $file->getSize();
-
-                    if ($sizeInBytes >= 1048576) {
-                        // 1 MB = 1024 * 1024 = 1048576 bytes
-                        $fileSize = round($sizeInBytes / 1048576, 2) . ' MB';
-                    } else {
-                        $fileSize = round($sizeInBytes / 1024, 2) . ' KB';
-                    }
-
-                    // Move zip
-                    $file->move($uploadPath, $zipName);
-
-                    // Unzip
-                    $zip = new ZipArchive;
-                    $extractedFolder = $uploadPath . '/' . pathinfo($zipName, PATHINFO_FILENAME);
-                    if (!is_dir($extractedFolder)) {
-                        mkdir($extractedFolder, 0755, true);
-                    }
-
-                    if ($zip->open($uploadPath . '/' . $zipName) === true) {
-                        $zip->extractTo($extractedFolder);
-                        $zip->close();
-                        unlink($uploadPath . '/' . $zipName); // ✅ Delete original ZIP
-                    } else {
-                        throw new \Exception("Failed to extract: $zipName");
-                    }
-
-                    // Save SubBanner
-                    SubBanner::create([
-                        'sub_version_id' => $subVersion->id,
-                        'name' => $preview->name,
-                        'path' => 'uploads/banners/' . basename($extractedFolder),
-                        'size_id' => $sizeId,
-                        'file_size' => $fileSize,
-                        'position' => $position,
-                    ]);
                 }
             }
             if ($request->type === 'Social') {
@@ -2341,7 +2358,8 @@ class PreviewController extends Controller
         dd('This video function is still on development. Will let you know soon!.');
     }
 
-    public function editSocialSubVersionPosition($id){
+    public function editSocialSubVersionPosition($id)
+    {
         dd('This social function is still on development. Will let you know soon!.');
     }
 }

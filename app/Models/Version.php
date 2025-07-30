@@ -14,7 +14,6 @@ class Version extends Model
     protected $fillable = [
         'preview_id',
         'name',
-        'description',
         'type',
         'is_active',
     ];

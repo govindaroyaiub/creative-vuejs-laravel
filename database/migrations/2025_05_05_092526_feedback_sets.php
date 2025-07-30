@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('versions', function (Blueprint $table) {
+        Schema::create('feedback_sets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('preview_id')->constrained()->cascadeOnDelete();
-            $table->string('name');
-            $table->enum('type', ['banner', 'video', 'social', 'gif']);
-            $table->boolean('is_active')->default(false);
+            $table->foreignId('sub_version_id')->constrained()->cascadeOnDelete();
+            $table->string('name')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('versions');
+        Schema::dropIfExists('feedback_sets');
     }
 };
