@@ -122,7 +122,7 @@ const submitForm = () => {
         // Handle multiple banner sets
         formData.value.banners.forEach((set, setIndex) => {
             // Add set name
-            payload.append(`banner_sets[${setIndex}][name]`, set.name || `Set ${setIndex + 1}`);
+            payload.append(`banner_sets[${setIndex}][name]`, set.name);
 
             // Add banners for this set
             set.banners.forEach((banner, bannerIndex) => {

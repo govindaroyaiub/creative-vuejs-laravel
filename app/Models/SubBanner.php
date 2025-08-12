@@ -10,7 +10,7 @@ class SubBanner extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['sub_version_id', 'title', 'name', 'path', 'size_id', 'file_size', 'position'];
+    protected $fillable = ['feedback_set_id', 'title', 'name', 'path', 'size_id', 'file_size', 'position'];
 
     public function subVersion()
     {

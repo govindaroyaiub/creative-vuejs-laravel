@@ -115,7 +115,6 @@ class PreviewController extends Controller
 
     public function store(Request $request)
     {
-
         $validates = $request->validate([
             'name' => 'required|string|max:255',
             'client_id' => 'required|exists:clients,id',
@@ -132,7 +131,7 @@ class PreviewController extends Controller
             'subversion_name' => 'nullable|string|max:255',
             'subversion_active' => 'nullable|boolean',
             'banner_sets' => 'nullable|array',
-            'banner_sets.*.name' => 'required|string|max:255',
+            'banner_sets.*.name' => 'nullable|string|max:255',
             'banner_sets.*.banners' => 'required|array',
             'banner_sets.*.banners.*.file' => 'required_with:banners|file|mimes:zip',
             'banner_sets.*.banners.*.size_id' => 'required_with:banners.*.file|exists:banner_sizes,id',
@@ -186,7 +185,7 @@ class PreviewController extends Controller
                     foreach ($request->banner_sets as $setIndex => $bannerSet) {
                         $feedbackSet = FeedbackSet::create([
                             'sub_version_id' => $subVersion->id,
-                            'name' => $bannerSet['name'] ?? "Set " . ($setIndex + 1),
+                            'name' => $bannerSet['name'],
                         ]);
 
                         // Now handle banners for this set
