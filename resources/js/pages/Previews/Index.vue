@@ -37,10 +37,11 @@ function getDefaultFormData() {
         show_sidebar_logo: true,
         show_footer: true,
         type: '',
+        category_name: '',
+        feedback_description: 'Project is initialized',
+        feedback_name: 'F1',
+        feedback_active: true,
         version_name: '',
-        version_description: 'Project is initialized',
-        subversion_name: 'F1',
-        subversion_active: true,
         banners: [], // This will now hold banner sets instead of individual banners
         videos: [],
         socials: [],
@@ -111,24 +112,27 @@ const submitForm = () => {
     payload.append('show_sidebar_logo', formData.value.show_sidebar_logo ? '1' : '0');
     payload.append('show_footer', formData.value.show_footer ? '1' : '0');
     payload.append('type', formData.value.type);
-    payload.append('version_name', formData.value.version_name);
-    payload.append('version_description', formData.value.version_description);
-    payload.append('subversion_name', formData.value.subversion_name);
-    payload.append('subversion_active', formData.value.subversion_active ? '1' : '0');
+    payload.append('category_name', formData.value.category_name);
+    payload.append('feedback_description', formData.value.feedback_description);
+    payload.append('feedback_name', formData.value.feedback_name);
+    payload.append('feedback_active', formData.value.feedback_active ? '1' : '0');
 
     formData.value.team_ids.forEach(id => payload.append('team_ids[]', id));
 
     if (formData.value.type.toLowerCase() === 'banner') {
-        // Handle multiple banner sets
         formData.value.banners.forEach((set, setIndex) => {
-            // Add set name
-            payload.append(`banner_sets[${setIndex}][name]`, set.name);
+            payload.append(`banner_sets[${setIndex}][position]`, String(setIndex));
+            payload.append(`banner_sets[${setIndex}][name]`, set.name || '');
 
-            // Add banners for this set
-            set.banners.forEach((banner, bannerIndex) => {
-                payload.append(`banner_sets[${setIndex}][banners][${bannerIndex}][file]`, banner.file);
-                payload.append(`banner_sets[${setIndex}][banners][${bannerIndex}][size_id]`, banner.size_id);
-                payload.append(`banner_sets[${setIndex}][banners][${bannerIndex}][position]`, bannerIndex);
+            (set.versions || []).forEach((version, vIndex) => {
+                payload.append(`banner_sets[${setIndex}][versions][${vIndex}][position]`, String(vIndex));
+                payload.append(`banner_sets[${setIndex}][versions][${vIndex}][name]`, version.name || '');
+
+                (version.banners || []).forEach((banner, bIndex) => {
+                    payload.append(`banner_sets[${setIndex}][versions][${vIndex}][banners][${bIndex}][file]`, banner.file);
+                    payload.append(`banner_sets[${setIndex}][versions][${vIndex}][banners][${bIndex}][size_id]`, banner.size_id);
+                    payload.append(`banner_sets[${setIndex}][versions][${vIndex}][banners][${bIndex}][position]`, String(bIndex));
+                });
             });
         });
     }
@@ -328,7 +332,7 @@ const stepProps = computed(() => ({
 
         <!-- Modal -->
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div class="bg-white dark:bg-gray-900 p-6 rounded-lg w-full max-w-4xl relative overflow-hidden">
+            <div class="bg-white dark:bg-gray-900 p-6 rounded-lg w-full max-w-6xl relative overflow-hidden">
                 <button class="absolute top-2 right-2 text-gray-400 hover:text-red-500" @click="closeModal"
                     aria-label="Close Modal">
                     <X class="h-6 w-6" />

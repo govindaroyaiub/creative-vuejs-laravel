@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use App\Models\newVersion;
+
+class newBanner extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['version_id', 'title', 'name', 'path', 'size_id', 'file_size', 'position'];
+    
+    public function version()
+    {
+        return $this->belongsTo(newVersion::class, 'version_id');
+    }
+}

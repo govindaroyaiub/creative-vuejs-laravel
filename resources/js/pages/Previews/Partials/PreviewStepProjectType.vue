@@ -1,29 +1,29 @@
 <template>
   <div class="space-y-6">
-    <h2 class="text-lg font-semibold">Step 2: Select Project Type</h2>
+    <h2 class="text-lg font-semibold">Step 2: Select Type</h2>
 
     <!-- Advanced Fields with Transition -->
     <div class="space-y-4">
       <!-- Version Name -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-white mb-1">Type Name</label>
-        <input v-model="form.version_name" type="text" required
+        <label class="block text-sm font-medium text-gray-700 dark:text-white mb-1">Enter Category Name</label>
+        <input v-model="form.category_name" type="text" required
           class="w-full rounded border px-3 py-2 text-sm dark:bg-gray-800 dark:text-white"
           placeholder="Enter type name e.g: Storyboard/Banner/Video/Gif/Social" />
       </div>
 
       <!-- SubVersion Name -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-white mb-1">Feedback Name</label>
-        <input v-model="form.sub_version_name" type="text" required
+        <label class="block text-sm font-medium text-gray-700 dark:text-white mb-1">Enter Feedback Name</label>
+        <input v-model="form.feedback_name" type="text" required
           class="w-full rounded border px-3 py-2 text-sm dark:bg-gray-800 dark:text-white"
           placeholder="Enter feedback name e.g: F1" />
       </div>
 
       <!-- Version Description -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 dark:text-white mb-1">Feedback Description</label>
-        <textarea v-model="form.version_description" rows="2" required
+        <label class="block text-sm font-medium text-gray-700 dark:text-white mb-1">Enter Feedback Description</label>
+        <textarea v-model="form.feedback_description" rows="2" required
           class="w-full rounded border px-3 py-2 text-sm dark:bg-gray-800 dark:text-white"
           placeholder="Enter feedback description"></textarea>
       </div>

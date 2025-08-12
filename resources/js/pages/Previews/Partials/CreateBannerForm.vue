@@ -9,99 +9,110 @@
             <div v-for="(set, setIndex) in form.banners" :key="set.id"
                 class="border border-gray-300 dark:border-gray-600 rounded-lg p-4 bg-white dark:bg-gray-900">
                 <!-- Set Header -->
-                <div class="flex justify-between items-center mb-4">
+                <div class="flex justify-between items-center mb-2">
                     <div class="flex items-center gap-3">
-                        <input v-model="set.name" type="text" :placeholder="`Set ${setIndex + 1} Name`"
+                        <input v-model="set.name" type="text" :placeholder="`Set ${setIndex + 1} (optional)`"
                             class="text-md font-medium text-gray-800 dark:text-white bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:outline-none px-2 py-1" />
                     </div>
                     <div class="flex items-center gap-2">
-                        <span class="text-sm text-gray-500 dark:text-gray-400">
-                            {{ set.banners.length }} file(s)
-                        </span>
+                        <button @click="addVersion(setIndex)" class="text-xs rounded px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white">
+                            + Add Version
+                        </button>
                         <button @click="removeSet(setIndex)" class="text-red-500 hover:text-red-700" title="Remove Set">
                             <X class="h-5 w-5" />
                         </button>
                     </div>
                 </div>
 
-                <!-- Upload Area for this set -->
-                <div class="block w-full cursor-pointer border-2 border-dashed border-gray-300 p-6 text-center rounded-lg dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 mb-4"
-                    tabindex="0" aria-label="Upload ZIP banners" @click="() => triggerInput(setIndex)"
-                    @keydown.enter.prevent="() => triggerInput(setIndex)" @dragover.prevent="set.isDragging = true"
-                    @dragleave.prevent="set.isDragging = false" @drop.prevent="(e) => handleDrop(e, setIndex)"
-                    :class="{ 'border-green-500 bg-green-50 dark:bg-green-900': set.isDragging }">
-                    <span class="text-sm text-gray-600 dark:text-gray-300">
-                        Click or drag ZIP files here to upload for {{ set.name || `Set ${setIndex + 1}` }}
-                    </span>
-                    <input :ref="(el) => setFileInputRef(el, setIndex)" type="file" class="hidden" multiple
-                        accept=".zip" @change="(e) => handleFileUpload(e, setIndex)" />
-                </div>
+                <!-- Version Actions (moved to header; button always visible) -->
 
-                <div class="flex justify-between items-center mb-4">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                        Drag to sort. Click ❌ to remove. New upload replaces previous files.
-                    </p>
-                    <button v-if="set.banners.length" @click="() => clearSet(setIndex)"
-                        class="text-xs text-red-500 hover:underline">
-                        Clear Set
-                    </button>
-                </div>
+                <!-- Versions List -->
+                <div v-if="set.versions?.length" class="space-y-4">
+                    <div v-for="(version, vIndex) in set.versions" :key="version.id" class="rounded-lg border border-gray-200 dark:border-gray-700 p-3">
+                        <!-- Version Header -->
+                        <div class="flex items-center justify-between mb-1">
+                            <input v-model="version.name" type="text" :placeholder="`Version ${vIndex + 1} (optional)`"
+                                class="text-sm text-gray-800 dark:text-white bg-transparent border-b border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:outline-none px-2 py-1 w-full max-w-xs" />
+                            <button class="text-red-500 hover:text-red-700 text-xs" @click="removeVersion(setIndex, vIndex)">Remove Version</button>
+                        </div>
+                        <div class="mb-2 text-xs text-gray-500 dark:text-gray-400">{{ version.banners.length }} file(s)</div>
 
-                <!-- Banners List for this set -->
-                <div v-if="set.banners.length">
-                    <draggable v-model="set.banners" item-key="file.name" handle=".handle" class="space-y-3"
-                        ghost-class="ghost">
-                        <template #item="{ element: banner, index }">
-                            <div class="flex items-center gap-4 bg-gray-50 dark:bg-gray-800 p-3 rounded shadow-sm">
-                                <!-- Sort Handle -->
-                                <div class="flex items-center gap-2 w-10 text-gray-500 dark:text-gray-300">
-                                    <span class="font-mono text-sm w-4 text-right">{{ index + 1 }}.</span>
-                                    <span class="handle cursor-move" aria-label="Drag to reorder" tabindex="0">☰</span>
-                                </div>
+                        <!-- Upload Area for this version -->
+                        <div class="block w-full cursor-pointer border-2 border-dashed border-gray-300 p-6 text-center rounded-lg dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 mb-3"
+                            tabindex="0" aria-label="Upload ZIP banners"
+                            @click="() => triggerInput(setIndex, vIndex)"
+                            @keydown.enter.prevent="() => triggerInput(setIndex, vIndex)"
+                            @dragover.prevent="version.isDragging = true"
+                            @dragleave.prevent="version.isDragging = false"
+                            @drop.prevent="(e) => handleDrop(e, setIndex, vIndex)"
+                            :class="{ 'border-green-500 bg-green-50 dark:bg-green-900': version.isDragging }">
+                            <span class="text-sm text-gray-600 dark:text-gray-300">
+                                Click or drag ZIP files here to upload for {{ set.name || `Set ${setIndex + 1}` }}
+                                <span v-if="version.name">(Version: {{ version.name }})</span>
+                            </span>
+                            <input :ref="(el) => setFileInputRef(el, setIndex, vIndex)" type="file" class="hidden" multiple accept=".zip"
+                                @change="(e) => handleFileUpload(e, setIndex, vIndex)" />
+                        </div>
 
-                                <!-- File Name -->
-                                <span class="truncate w-full text-sm text-gray-800 dark:text-white">
-                                    📁 {{ banner.file.name }}
-                                </span>
+                        <div class="flex justify-between items-center mb-3">
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Drag to sort. Click ❌ to remove. New upload replaces previous files.</p>
+                            <button v-if="version.banners.length" @click="() => clearVersion(setIndex, vIndex)" class="text-xs text-red-500 hover:underline">Clear Version</button>
+                        </div>
 
-                                <!-- Size Dropdown -->
-                                <div class="relative w-1/2">
-                                    <input v-model="banner.search" type="text" placeholder="Search size..."
-                                        @focus="() => openDropdown(banner)" @blur="() => handleBlur(banner)"
-                                        @keydown.down.prevent="moveDown(banner)" @keydown.up.prevent="moveUp(banner)"
-                                        @keydown.enter.prevent="selectHighlighted(setIndex, index, banner)"
-                                        @input="() => handleInputChange(banner)"
-                                        class="w-full mb-1 rounded border px-3 py-1 text-sm dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-green-500"
-                                        aria-label="Search and select banner size" />
+                        <!-- Banners List for this version -->
+                        <div v-if="version.banners.length">
+                            <draggable v-model="version.banners" item-key="file.name" handle=".handle" class="space-y-3" ghost-class="ghost">
+                                <template #item="{ element: banner, index }">
+                                    <div class="flex items-center gap-4 bg-gray-50 dark:bg-gray-800 p-3 rounded shadow-sm">
+                                        <!-- Sort Handle -->
+                                        <div class="flex items-center gap-2 w-10 text-gray-500 dark:text-gray-300">
+                                            <span class="font-mono text-sm w-4 text-right">{{ index + 1 }}.</span>
+                                            <span class="handle cursor-move" aria-label="Drag to reorder" tabindex="0">☰</span>
+                                        </div>
 
-                                    <ul v-if="banner.dropdownOpen && filteredSizes(banner.search).length"
-                                        class="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded border bg-white dark:bg-gray-800 shadow-lg">
-                                        <li v-for="(size, sIndex) in filteredSizes(banner.search)" :key="size.id"
-                                            @mousedown.prevent="selectSize(setIndex, index, size)" :class="[
-                                                'px-3 py-1 text-sm cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700',
-                                                sIndex === banner.highlightIndex ? 'bg-green-100 dark:bg-green-700 font-semibold' : '',
-                                            ]">
-                                            {{ size.name }}
-                                        </li>
-                                    </ul>
+                                        <!-- File Name -->
+                                        <span class="truncate w-full text-sm text-gray-800 dark:text-white">📁 {{ banner.file.name }}</span>
 
-                                    <div v-if="banner.size_id" class="text-xs text-gray-500 dark:text-gray-300">
-                                        Selected: {{ getSizeName(banner.size_id) }}
+                                        <!-- Size Dropdown -->
+                                        <div class="relative w-1/2">
+                                            <input v-model="banner.search" type="text" placeholder="Search size..."
+                                                @focus="() => openDropdown(banner)" @blur="() => handleBlur(banner)"
+                                                @keydown.down.prevent="moveDown(banner)" @keydown.up.prevent="moveUp(banner)"
+                                                @keydown.enter.prevent="selectHighlighted(setIndex, vIndex, index, banner)"
+                                                @input="() => handleInputChange(banner)"
+                                                class="w-full mb-1 rounded border px-3 py-1 text-sm dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-green-500"
+                                                aria-label="Search and select banner size" />
+
+                                            <ul v-if="banner.dropdownOpen && filteredSizes(banner.search).length"
+                                                class="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded border bg-white dark:bg-gray-800 shadow-lg">
+                                                <li v-for="(size, sIndex) in filteredSizes(banner.search)" :key="size.id"
+                                                    @mousedown.prevent="selectSize(setIndex, vIndex, index, size)"
+                                                    :class="[
+                                                        'px-3 py-1 text-sm cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700',
+                                                        sIndex === banner.highlightIndex ? 'bg-green-100 dark:bg-green-700 font-semibold' : '',
+                                                    ]">
+                                                    {{ size.name }}
+                                                </li>
+                                            </ul>
+
+                                            <div v-if="banner.size_id" class="text-xs text-gray-500 dark:text-gray-300">
+                                                Selected: {{ getSizeName(banner.size_id) }}
+                                            </div>
+                                        </div>
+
+                                        <!-- Remove banner -->
+                                        <button class="ml-2 text-red-500 hover:text-red-700" title="Remove"
+                                            @click="removeBanner(setIndex, vIndex, index)">
+                                            <X class="h-5 w-5" />
+                                        </button>
                                     </div>
-                                </div>
-
-                                <!-- Remove -->
-                                <button class="ml-2 text-red-500 hover:text-red-700" title="Remove"
-                                    @click="removeBanner(setIndex, index)">
-                                    <X class="h-5 w-5" />
-                                </button>
-                            </div>
-                        </template>
-                    </draggable>
+                                </template>
+                            </draggable>
+                        </div>
+                        <div v-else class="text-center text-gray-400 py-4 text-sm">No banners uploaded for this version yet.</div>
+                    </div>
                 </div>
-                <div v-else class="text-center text-gray-400 py-4 text-sm">
-                    No banners uploaded for this set yet.
-                </div>
+                <div v-else class="text-center text-gray-400 py-2 text-sm">No versions yet. Click "Add Version".</div>
             </div>
 
             <!-- Add Set Button (after all sets) -->
@@ -156,6 +167,18 @@ const props = defineProps<{
             id: number;
             name: string; // Added name property
             isDragging: boolean;
+            versions?: {
+                id: number;
+                name?: string;
+                isDragging: boolean;
+                banners: {
+                    file: File;
+                    size_id: string | number;
+                    search?: string;
+                    dropdownOpen?: boolean;
+                    highlightIndex?: number;
+                }[];
+            }[];
             banners: {
                 file: File;
                 size_id: string | number;
@@ -169,15 +192,16 @@ const props = defineProps<{
 }>();
 
 const loading = ref(false);
-const fileInputRefs = ref<Map<number, HTMLInputElement>>(new Map());
+const fileInputRefs = ref<Map<string, HTMLInputElement>>(new Map());
 let setIdCounter = 0;
+let versionIdCounter = 0;
 
-const setFileInputRef = (el: HTMLInputElement | null, setIndex: number) => {
-    if (el) {
-        fileInputRefs.value.set(setIndex, el);
-    } else {
-        fileInputRefs.value.delete(setIndex);
-    }
+const refKey = (setIndex: number, versionIndex?: number) => `${setIndex}:${versionIndex ?? -1}`;
+
+const setFileInputRef = (el: HTMLInputElement | null, setIndex: number, versionIndex?: number) => {
+    const key = refKey(setIndex, versionIndex);
+    if (el) fileInputRefs.value.set(key, el);
+    else fileInputRefs.value.delete(key);
 };
 
 const addSet = () => {
@@ -185,6 +209,7 @@ const addSet = () => {
         id: ++setIdCounter,
         name: '', // Initialize with empty name
         isDragging: false,
+        versions: [],
         banners: []
     });
 };
@@ -197,8 +222,29 @@ const clearSet = (setIndex: number) => {
     props.form.banners[setIndex].banners.splice(0);
 };
 
-const triggerInput = (setIndex: number) => {
-    fileInputRefs.value.get(setIndex)?.click();
+const clearVersion = (setIndex: number, versionIndex: number) => {
+    const version = props.form.banners[setIndex].versions?.[versionIndex];
+    if (!version) return;
+    version.banners.splice(0);
+};
+
+const triggerInput = (setIndex: number, versionIndex: number) => {
+    fileInputRefs.value.get(refKey(setIndex, versionIndex))?.click();
+};
+
+const addVersion = (setIndex: number) => {
+    const set = props.form.banners[setIndex];
+    if (!set.versions) set.versions = [];
+    set.versions.push({
+        id: ++versionIdCounter,
+        name: '',
+        isDragging: false,
+        banners: [],
+    });
+};
+
+const removeVersion = (setIndex: number, versionIndex: number) => {
+    props.form.banners[setIndex].versions?.splice(versionIndex, 1);
 };
 
 const handleSubmit = () => {
@@ -210,7 +256,7 @@ const handleSubmit = () => {
     });
 };
 
-const handleFileUpload = (e: Event, setIndex: number) => {
+const handleFileUpload = (e: Event, setIndex: number, versionIndex: number) => {
     const input = e.target as HTMLInputElement;
     const files = input.files;
     if (!files) return;
@@ -225,14 +271,16 @@ const handleFileUpload = (e: Event, setIndex: number) => {
             highlightIndex: 0,
         }));
 
-    const currentSet = props.form.banners[setIndex];
-    currentSet.banners.splice(0, currentSet.banners.length, ...newBanners);
+    const version = props.form.banners[setIndex].versions?.[versionIndex];
+    if (!version) return;
+    version.banners.splice(0, version.banners.length, ...newBanners);
     input.value = '';
 };
 
-const handleDrop = (e: DragEvent, setIndex: number) => {
-    const currentSet = props.form.banners[setIndex];
-    currentSet.isDragging = false;
+const handleDrop = (e: DragEvent, setIndex: number, versionIndex: number) => {
+    const version = props.form.banners[setIndex].versions?.[versionIndex];
+    if (!version) return;
+    version.isDragging = false;
     if (!e.dataTransfer?.files) return;
 
     const files = Array.from(e.dataTransfer.files);
@@ -246,11 +294,11 @@ const handleDrop = (e: DragEvent, setIndex: number) => {
             highlightIndex: 0,
         }));
 
-    currentSet.banners.splice(0, currentSet.banners.length, ...newBanners);
+    version.banners.splice(0, version.banners.length, ...newBanners);
 };
 
-const removeBanner = (setIndex: number, bannerIndex: number) => {
-    props.form.banners[setIndex].banners.splice(bannerIndex, 1);
+const removeBanner = (setIndex: number, versionIndex: number, bannerIndex: number) => {
+    props.form.banners[setIndex].versions?.[versionIndex].banners.splice(bannerIndex, 1);
 };
 
 const filteredSizes = (query: string) => {
@@ -258,8 +306,8 @@ const filteredSizes = (query: string) => {
     return props.bannerSizes.filter(s => s.name.toLowerCase().includes(lower));
 };
 
-const selectSize = (setIndex: number, bannerIndex: number, size: { id: number; name: string }) => {
-    const banner = props.form.banners[setIndex].banners[bannerIndex];
+const selectSize = (setIndex: number, versionIndex: number, bannerIndex: number, size: { id: number; name: string }) => {
+    const banner = props.form.banners[setIndex].versions?.[versionIndex].banners[bannerIndex];
     banner.size_id = size.id;
     banner.search = size.name;
     banner.dropdownOpen = false;
@@ -272,9 +320,11 @@ const getSizeName = (id: number | string) =>
 const allAssigned = computed(() => {
     if (props.form.banners.length === 0) return false;
 
-    return props.form.banners.every(set =>
-        set.banners.length > 0 && set.banners.every(b => b.size_id !== '')
-    );
+    return props.form.banners.every(set => {
+        const versions = set.versions ?? [];
+        if (versions.length === 0) return false;
+        return versions.every(v => v.banners.length > 0 && v.banners.every(b => b.size_id !== ''));
+    });
 });
 
 const handleBlur = (banner: any) => {
@@ -304,13 +354,15 @@ const moveUp = (banner: any) => {
     if (banner.highlightIndex > 0) banner.highlightIndex--;
 };
 
-const selectHighlighted = (setIndex: number, bannerIndex: number, banner: any) => {
+const selectHighlighted = (setIndex: number, versionIndex: number, bannerIndex: number, banner: any) => {
     const list = filteredSizes(banner.search);
     const selected = list[banner.highlightIndex];
     if (selected) {
-        selectSize(setIndex, bannerIndex, selected);
+        selectSize(setIndex, versionIndex, bannerIndex, selected);
     }
 };
+
+const totalFiles = (set: any) => (set.versions ?? []).reduce((sum: number, v: any) => sum + (v.banners?.length ?? 0), 0);
 </script>
 
 <style scoped>
