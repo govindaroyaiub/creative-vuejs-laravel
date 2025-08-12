@@ -12,7 +12,11 @@ class NewBannerController extends Controller
      */
     public function index()
     {
-        //
+        $banners = $version->banners()
+            ->select('id','name','path','size_id','file_size','position')
+            ->orderBy('position')
+            ->paginate(20);
+        return response()->json($banners);
     }
 
     /**

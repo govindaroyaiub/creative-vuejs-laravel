@@ -27,6 +27,6 @@ class newFeedback extends Model
 
     public function feedbackSets()
     {
-        return $this->hasMany(newFeedbackSet::class);
+        return $this->hasMany(newFeedbackSet::class, 'feedback_id');
     }
 }

@@ -10,7 +10,6 @@ use getID3;
 use App\Models\Client;
 use App\Models\User;
 use App\Models\BannerSize;
-use App\Models\Version;
 use App\Models\newCategory;
 use App\Models\newFeedback;
 use App\Models\newFeedbackSet;
@@ -82,6 +81,7 @@ class NewPreviewController extends Controller
             'team_ids.*' => 'exists:users,id',
             'type' => 'required|in:Banner,Video,Social,Gif',
             'version_name' => 'nullable|string|max:255',
+            'category_name' => 'nullable|string|max:255',
             'version_description' => 'nullable|string',
             'subversion_name' => 'nullable|string|max:255',
             'subversion_active' => 'nullable|boolean',
@@ -95,7 +95,105 @@ class NewPreviewController extends Controller
             'banner_sets.*.versions.*.banners.*.position' => 'required|integer',
         ]);
 
-        dd($validates);
+        DB::transaction(function () use ($request) {
+            // 1. Create the Preview
+
+            $preview = newPreview::create([
+                'name' => $request->name,
+                'client_id' => $request->client_id,
+                'requires_login' => $request->requires_login,
+                'team_members' => $request->team_ids,
+                'color_palette_id' => $request->color_palette_id,
+                'uploader_id' => Auth::id(),
+            ]);
+
+            if ($request->type === 'Banner') {
+                // 2. Create Version
+                $category = $preview->categories()->create([
+                    'name' => $request->input('category_name', 'Banners'),
+                    'type' => 'banner',
+                    'is_active' => true,
+                ]);
+                
+                // 3. Create SubVersion
+                $feedback = $category->feedbacks()->create([
+                    'name' => $request->input('feedback_name', 'Feedback'),
+                    'description' => $request->input('feedback_description'),
+                    'is_active' => $request->boolean('feedback_active', true),
+                ]);
+
+                if ($request->has('banner_sets')) {
+                    foreach ((array) $request->input('banner_sets', []) as $setIndex => $bannerSet) {
+                        // 3a) Create FeedbackSet for each Set
+                        $feedbackSet = $feedback->feedbackSets()->create([
+                            'name' => $bannerSet['name'] ?? "Set " . ($setIndex + 1),
+                        ]);
+                
+                        // 3b) For each Version under this Set
+                        foreach ((array) ($bannerSet['versions'] ?? []) as $vIndex => $versionData) {
+                            $version = $feedbackSet->versions()->create([
+                                'name' => $versionData['name'] ?? "Version " . ($vIndex + 1),
+                            ]);
+                
+                            // 3c) For each Banner (ZIP) under this Version
+                            foreach ((array) ($versionData['banners'] ?? []) as $bIndex => $bannerData) {
+                                // Files in nested arrays must be fetched with file()
+                                $file = $request->file("banner_sets.$setIndex.versions.$vIndex.banners.$bIndex.file");
+                                if (!$file) {
+                                    continue;
+                                }
+                
+                                $sizeId = $bannerData['size_id'] ?? null;
+                                $size = BannerSize::findOrFail($sizeId);
+                                $dimension = $size->width . 'x' . $size->height;
+                
+                                $uploadPath = public_path('uploads/banners');
+                                if (!is_dir($uploadPath)) {
+                                    mkdir($uploadPath, 0755, true);
+                                }
+                
+                                $zipName = $request->name . '_' . $dimension . '_' . Str::uuid() . '.zip';
+                
+                                // File size display
+                                $sizeInBytes = $file->getSize();
+                                $fileSize = $sizeInBytes >= 1048576
+                                    ? round($sizeInBytes / 1048576, 2) . ' MB'
+                                    : round($sizeInBytes / 1024, 2) . ' KB';
+                
+                                // Move
+                                $file->move($uploadPath, $zipName);
+                
+                                // Unzip to folder named after zip (without extension)
+                                $zip = new ZipArchive;
+                                $extractedFolder = $uploadPath . '/' . pathinfo($zipName, PATHINFO_FILENAME);
+                                if (!is_dir($extractedFolder)) {
+                                    mkdir($extractedFolder, 0755, true);
+                                }
+                                if ($zip->open($uploadPath . '/' . $zipName) === true) {
+                                    $zip->extractTo($extractedFolder);
+                                    $zip->close();
+                                    @unlink($uploadPath . '/' . $zipName);
+                                } else {
+                                    throw new \RuntimeException("Failed to extract: $zipName");
+                                }
+                
+                                // Create Banner for this Version
+                                newBanner::create([
+                                    'version_id' => $version->id,
+                                    'name'       => $preview->name, // or any naming you prefer
+                                    'path'       => 'uploads/banners/' . basename($extractedFolder),
+                                    'size_id'    => $sizeId,
+                                    'file_size'  => $fileSize,
+                                    'position'   => (int)($bannerData['position'] ?? $bIndex),
+                                ]);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        return redirect()->route('previews-index')->with('success', 'Preview created successfully.');
     }
 
     /**
@@ -103,7 +201,9 @@ class NewPreviewController extends Controller
      */
     public function show(newPreview $newPreview)
     {
-        //
+        return Inertia::render('Previews/Show', [
+            'preview' => ['id' => $newPreview->id, 'name' => $newPreview->name],
+        ]);
     }
 
     /**

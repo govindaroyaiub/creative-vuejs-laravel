@@ -91,7 +91,7 @@ const deletePreview = async (id: number) => {
 
 const getTypes = (preview: any) => {
     const types = new Set();
-    preview.versions?.forEach((v: any) => types.add((v.type || '').toLowerCase()));
+    preview.categories?.forEach((v: any) => types.add((v.type || '').toLowerCase()));
     return Array.from(types).join(', ');
 };
 

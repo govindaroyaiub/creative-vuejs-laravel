@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\newCategory;
+use App\Models\newPreview;
 use Illuminate\Http\Request;
 
 class NewCategoryController extends Controller
@@ -10,9 +11,24 @@ class NewCategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(newPreview $preview)
     {
-        //
+        dd($preview);
+        $cats = $preview->categories()
+            ->select('id','name','is_active')
+            ->where('type','banner')
+            ->withCount('feedbacks')
+            ->orderBy('id','desc')
+            ->get();
+
+        return response()->json($cats);
+    }
+
+    public function toggleActive(newCategory $category)
+    {
+        $category->is_active = ! $category->is_active;
+        $category->save();
+        return response()->json(['is_active' => $category->is_active]);
     }
 
     /**

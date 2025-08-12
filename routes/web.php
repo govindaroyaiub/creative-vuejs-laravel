@@ -104,6 +104,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
 
     Route::get('/previews', [newPreviewController::class, 'index'])->name('previews-index');
     Route::post('/previews-store', [newPreviewController::class, 'store'])->name('previews-store');
+    Route::post('/previews-edit', [newPreviewController::class, 'store'])->name('previews-edit');
 
     // Route::get('/preview/add/version/{id}', [PreviewController::class, 'addVersion'])->name('previews-add-version');
     //Preview Routes End
@@ -188,8 +189,22 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/medias-download/{id}', [MediaController::class, 'download'])->name('medias-download');
     //Media Routes End
 });
+
+Route::get('/previews/show/{preview}', [NewPreviewController::class, 'show'])->name('previews-show');
 //preview axios get requests start
-Route::get('/previews/show/{id}', [PreviewController::class, 'show'])->name('previews-show');
+Route::prefix('previews/show/{preview}')->group(function () {
+    Route::get('categories', [newCategoryController::class, 'index']); // minimal list
+});
+
+Route::get('/previews/{preview}/categories', [newCategoryController::class, 'index']) ->name('previews.categories');
+  
+Route::get('categories/{category}/feedbacks', [newFeedbackController::class, 'index']);
+Route::patch('categories/{category}/active', [newCategoryController::class, 'toggleActive']);
+
+Route::get('feedbacks/{feedback}/sets', [newFeedbackSetController::class, 'index']);
+Route::get('feedback-sets/{set}/versions', [newVersionController::class, 'index']);
+Route::get('versions/{version}/banners', [newBannerController::class, 'index']); // ?page=1
+Route::patch('feedbacks/{feedback}/active', [newFeedbackController::class, 'toggleActive']);
 
 Route::get('/preview/getallversions/{id}', [PreviewApiController::class, 'getAllVersions']);
 Route::get('/preview/updateActiveVersion/{id}', [PreviewApiController::class, 'updateActiveVersion']);

@@ -1,133 +1,127 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { Head, usePage } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import axios from 'axios';
-import dayjs from 'dayjs';
 
-const page = usePage();
-const preview = computed(() => page.props.preview);
-const previewId = computed(() => page.props.preview_id);
-const client = computed(() => page.props.client);
-const allColors = computed(() => page.props.all_colors);
-const versions = ref(page.props.versions ?? []);
-const subVersions = ref(page.props.subVersions ?? []);
-const banners = ref([]);
-const activePalette = ref({
-    primary: page.props.primary,
-    secondary: page.props.secondary,
-    tertiary: page.props.tertiary,
-    quaternary: page.props.quaternary,
-});
-const activeVersion = ref(versions.value.find(v => v.isActive) || versions.value[0]);
-const activeSubVersion = ref(subVersions.value.find(sv => sv.isActive) || subVersions.value[0]);
-const isLoggedIn = ref(page.props.authUserClientName !== 'guest' && page.props.authUserClientName !== 'Unknown');
-const loginEmail = ref('');
-const loginPassword = ref('');
-const loginError = ref('');
+const props = defineProps<{ preview: { id: number } }>();
+const previewId = props.preview.id;
+const categories = ref<any[]>([]);
+const catLoading = ref(false);
+const feedbacksByCat = ref<Record<number, any[]>>({});
+const setsByFeedback = ref<Record<number, any[]>>({});
+const versionsBySet = ref<Record<number, any[]>>({});
+const bannersByVersion = ref<Record<number, { data: any[], meta: any }>>({});
 
-const formatDate = (date: string) => dayjs(date).format('DD-MM-YYYY');
+const activeCategoryId = ref<number|null>(null);
+const activeFeedbackId = ref<number|null>(null);
 
-const fetchBanners = async (subVersionId: number) => {
-    const res = await axios.get(`/preview/getBanners/${subVersionId}`);
-    banners.value = res.data;
+// Loaders
+const loadCategories = async () => {
+  catLoading.value = true;
+  const { data } = await axios.get(`/previews/${previewId}/categories`);
+  categories.value = data;
+  catLoading.value = false;
 };
 
-const applyPalette = (palette) => {
-    activePalette.value = palette;
+const onSelectCategory = async (catId: number) => {
+  activeCategoryId.value = catId;
+  if (!feedbacksByCat.value[catId]) {
+    const { data } = await axios.get(`/categories/${catId}/feedbacks`);
+    feedbacksByCat.value[catId] = data;
+  }
 };
 
-const login = async () => {
-    try {
-        const res = await axios.post('/preview/login', {
-            email: loginEmail.value,
-            password: loginPassword.value,
-            preview_id: previewId.value,
-        });
-        if (res.data.success) {
-            isLoggedIn.value = true;
-        }
-    } catch (err) {
-        loginError.value = 'Invalid credentials';
-    }
+const onSelectFeedback = async (feedbackId: number) => {
+  activeFeedbackId.value = feedbackId;
+  if (!setsByFeedback.value[feedbackId]) {
+    const { data } = await axios.get(`/feedbacks/${feedbackId}/sets`);
+    setsByFeedback.value[feedbackId] = data;
+  }
 };
 
-onMounted(() => {
-    if (activeSubVersion.value) fetchBanners(activeSubVersion.value.id);
-});
+const loadVersions = async (setId: number) => {
+  if (!versionsBySet.value[setId]) {
+    const { data } = await axios.get(`/feedback-sets/${setId}/versions`);
+    versionsBySet.value[setId] = data;
+  }
+};
+
+const loadBanners = async (versionId: number, page = 1) => {
+  const key = `${versionId}:${page}`;
+  if (!bannersByVersion.value[key]) {
+    const { data } = await axios.get(`/versions/${versionId}/banners`, { params: { page } });
+    bannersByVersion.value[key] = { data: data.data, meta: data };
+  }
+};
+
+// Toggles (optimistic)
+const toggleCategoryActive = async (cat: any) => {
+  const old = cat.is_active;
+  cat.is_active = !old;
+  try { await axios.patch(`/categories/${cat.id}/active`); }
+  catch { cat.is_active = old; }
+};
+
+const toggleFeedbackActive = async (f: any) => {
+  const old = f.is_active;
+  f.is_active = !old;
+  try { await axios.patch(`/feedbacks/${f.id}/active`); }
+  catch { f.is_active = old; }
+};
+
+loadCategories();
 </script>
 
 <template>
-
-    <Head :title="`Creative - ${preview.name}`" />
-    <div class="min-h-screen" :style="{ backgroundColor: activePalette.secondary || '#f9fafb' }">
-        <!-- Login -->
-        <div v-if="preview.requires_login && !isLoggedIn" class="p-10 max-w-md mx-auto text-center">
-            <h2 class="text-xl font-bold mb-4">Login to view preview</h2>
-            <input v-model="loginEmail" type="email" placeholder="Email"
-                class="w-full mb-3 px-4 py-2 rounded-lg border dark:bg-gray-800 dark:text-white" />
-            <input v-model="loginPassword" type="password" placeholder="Password"
-                class="w-full mb-3 px-4 py-2 rounded-lg border dark:bg-gray-800 dark:text-white" />
-            <button @click="login" class="w-full bg-indigo-600 text-white py-2 rounded-lg">Login</button>
-            <div class="text-red-500 mt-2">{{ loginError }}</div>
-        </div>
-
-        <div v-else>
-            <!-- Header -->
-            <div class="text-center py-4">
-                <img v-if="preview.show_planetnine_logo" :src="`/logos/${client.logo}`" class="mx-auto w-40 mb-2" />
-                <h1 class="text-2xl font-bold">{{ preview.name }}</h1>
-                <p>{{ client.name }} • {{ formatDate(preview.created_at) }}</p>
-            </div>
-
-            <!-- Palette Switcher -->
-            <div class="flex justify-center gap-2 my-4">
-                <div v-for="palette in allColors" :key="palette.id" class="w-6 h-6 rounded-lg-full border cursor-pointer"
-                    :style="{ backgroundColor: palette.primary }" @click="applyPalette(palette)" />
-            </div>
-
-            <!-- Layout -->
-            <div class="flex mx-4 border rounded-lg" :style="{ borderColor: activePalette.tertiary }">
-                <!-- Left: Versions -->
-                <div class="w-[280px] p-3 border-r" :style="{ borderColor: activePalette.tertiary }">
-                    <h3 class="text-lg underline mb-2">Versions</h3>
-                    <div v-for="v in versions" :key="v.id"
-                        class="mb-1 px-3 py-2 rounded cursor-pointer text-center hover:opacity-80"
-                        :class="{ 'bg-opacity-50': activeVersion?.id === v.id }" :style="{
-                            backgroundColor: activeVersion?.id === v.id ? activePalette.primary : 'transparent',
-                            border: '1px solid ' + (activePalette.tertiary || '#ccc')
-                        }" @click="() => { activeVersion.value = v; }">
-                        {{ v.name }}
-                    </div>
-                </div>
-
-                <!-- Right: SubVersions & Assets -->
-                <div class="flex-1 p-3">
-                    <div class="flex gap-2 mb-4">
-                        <div v-for="sv in subVersions" :key="sv.id"
-                            class="px-3 py-1 border rounded-full cursor-pointer text-sm"
-                            :class="{ 'bg-opacity-60': activeSubVersion?.id === sv.id }" :style="{
-                                backgroundColor: activeSubVersion?.id === sv.id ? activePalette.secondary : 'transparent',
-                                borderColor: activePalette.tertiary || '#ccc'
-                            }" @click="() => { activeSubVersion.value = sv; fetchBanners(sv.id); }">
-                            {{ sv.name }}
-                        </div>
-                    </div>
-
-                    <!-- Assets (Banners only for now) -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div v-for="banner in banners" :key="banner.id" class="rounded-lg border overflow-hidden shadow"
-                            :style="{ borderColor: activePalette.tertiary }">
-                            <img :src="`/banners/${banner.path}`" class="w-full object-contain" />
-                            <div class="p-2 text-center text-sm">{{ banner.size }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer -->
-            <div v-if="preview.show_footer" class="text-center mt-6 py-4 text-sm text-gray-500">
-                © 2025 - Planet Nine. All Rights Reserved.
-            </div>
-        </div>
+  <!-- Categories list -->
+  <div v-if="categories.length">
+    <div v-for="cat in categories" :key="cat.id">
+      <button @click="onSelectCategory(cat.id)">{{ cat.name }}</button>
+      <label>
+        <input type="checkbox" :checked="cat.is_active" @change="toggleCategoryActive(cat)" />
+        Active
+      </label>
     </div>
+  </div>
+
+  <!-- Feedback tabs for selected category -->
+  <div v-if="activeCategoryId && feedbacksByCat[activeCategoryId]">
+    <div class="tabs">
+      <button v-for="fb in feedbacksByCat[activeCategoryId]" :key="fb.id"
+              @click="onSelectFeedback(fb.id)">
+        {{ fb.name }}
+      </button>
+      <template v-for="fb in feedbacksByCat[activeCategoryId]" :key="`toggle-${fb.id}`">
+        <label>
+          <input type="checkbox" :checked="fb.is_active" @change="toggleFeedbackActive(fb)" />
+          Active
+        </label>
+      </template>
+    </div>
+  </div>
+
+  <!-- Sets for selected feedback -->
+  <div v-if="activeFeedbackId && setsByFeedback[activeFeedbackId]">
+    <div v-for="set in setsByFeedback[activeFeedbackId]" :key="set.id" class="set">
+      <div class="set-bar" @click="loadVersions(set.id)">
+        {{ set.name || 'Untitled Set' }}
+      </div>
+
+      <!-- Versions -->
+      <div v-if="versionsBySet[set.id]">
+        <div v-for="version in versionsBySet[set.id]" :key="version.id" class="version">
+          <div class="version-header" @click="loadBanners(version.id)">
+            {{ version.name || 'Version' }}
+          </div>
+
+          <!-- Banners (paginated) -->
+          <div v-if="bannersByVersion[`${version.id}:1`]">
+            <div v-for="b in bannersByVersion[`${version.id}:1`].data" :key="b.id" class="banner-row">
+              {{ b.name }} — {{ b.file_size }}
+            </div>
+            <!-- add pager to call loadBanners(version.id, page) -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>

@@ -10,7 +10,7 @@ class newBanner extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['version_id', 'title', 'name', 'path', 'size_id', 'file_size', 'position'];
+    protected $fillable = ['version_id', 'name', 'path', 'size_id', 'file_size', 'position'];
     
     public function version()
     {

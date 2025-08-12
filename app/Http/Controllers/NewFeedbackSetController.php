@@ -12,7 +12,9 @@ class NewFeedbackSetController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json(
+            $feedback->feedbackSets()->select('id','name')->orderBy('id','desc')->get()
+        );
     }
 
     /**
