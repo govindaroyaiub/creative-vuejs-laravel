@@ -494,11 +494,20 @@
     function renderFeedbackSets(feedbackSets){
         var row = '';
         $.each(feedbackSets, function(key, value) {
-            row += `
-            <div class="feedbackSet" id="feedbackSet${value.id}">
-                <div class="feedbackSetName">${value.name}</div>
-            </div>
+            if(value.name || authUserClientName == 'Planet Nine'){
+                row += `
+                <div class="feedbackSet" id="feedbackSet${value.id}" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div class="feedbackSetName" style="flex: 1; text-align: center;">${value.name ? value.name : ''}</div>
+                    ${authUserClientName == 'Planet Nine' ? `
+                        <div class="feedbackSetActions" style="display: flex; gap: 0.5rem;">
+                            <button onclick="addFeedbackSet(${value.id})" title="Add"><i class="fa-solid fa-plus"></i></button>
+                            <button onclick="editFeedbackSet(${value.id})" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteFeedbackSet(${value.id})" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    ` : ''}
+                </div>
             `;
+            }
         });
         $('.feedbackSetsContainer').html(row);
     }
