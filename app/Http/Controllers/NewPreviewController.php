@@ -59,10 +59,7 @@ class NewPreviewController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-        
-    }
+    public function create() {}
 
     /**
      * Store a newly created resource in storage.
@@ -114,7 +111,7 @@ class NewPreviewController extends Controller
                     'type' => 'banner',
                     'is_active' => true,
                 ]);
-                
+
                 // 3. Create SubVersion
                 $feedback = $category->feedbacks()->create([
                     'name' => $request->input('feedback_name', 'Feedback'),
@@ -128,13 +125,13 @@ class NewPreviewController extends Controller
                         $feedbackSet = $feedback->feedbackSets()->create([
                             'name' => $bannerSet['name'] ?? "Set " . ($setIndex + 1),
                         ]);
-                
+
                         // 3b) For each Version under this Set
                         foreach ((array) ($bannerSet['versions'] ?? []) as $vIndex => $versionData) {
                             $version = $feedbackSet->versions()->create([
                                 'name' => $versionData['name'] ?? "Version " . ($vIndex + 1),
                             ]);
-                
+
                             // 3c) For each Banner (ZIP) under this Version
                             foreach ((array) ($versionData['banners'] ?? []) as $bIndex => $bannerData) {
                                 // Files in nested arrays must be fetched with file()
@@ -142,27 +139,27 @@ class NewPreviewController extends Controller
                                 if (!$file) {
                                     continue;
                                 }
-                
+
                                 $sizeId = $bannerData['size_id'] ?? null;
                                 $size = BannerSize::findOrFail($sizeId);
                                 $dimension = $size->width . 'x' . $size->height;
-                
+
                                 $uploadPath = public_path('uploads/banners');
                                 if (!is_dir($uploadPath)) {
                                     mkdir($uploadPath, 0755, true);
                                 }
-                
+
                                 $zipName = $request->name . '_' . $dimension . '_' . Str::uuid() . '.zip';
-                
+
                                 // File size display
                                 $sizeInBytes = $file->getSize();
                                 $fileSize = $sizeInBytes >= 1048576
                                     ? round($sizeInBytes / 1048576, 2) . ' MB'
                                     : round($sizeInBytes / 1024, 2) . ' KB';
-                
+
                                 // Move
                                 $file->move($uploadPath, $zipName);
-                
+
                                 // Unzip to folder named after zip (without extension)
                                 $zip = new ZipArchive;
                                 $extractedFolder = $uploadPath . '/' . pathinfo($zipName, PATHINFO_FILENAME);
@@ -176,7 +173,7 @@ class NewPreviewController extends Controller
                                 } else {
                                     throw new \RuntimeException("Failed to extract: $zipName");
                                 }
-                
+
                                 // Create Banner for this Version
                                 newBanner::create([
                                     'version_id' => $version->id,
@@ -246,7 +243,17 @@ class NewPreviewController extends Controller
      */
     public function edit(newPreview $newPreview)
     {
-        //
+        $teamIds = $newPreview->team_members ?? []; // already an array if casted
+
+        $teamUsers = User::whereIn('id', $teamIds)->get(['id', 'name']);
+
+        return Inertia::render('Previews/Edit', [
+            'preview' => $newPreview,
+            'clients' => Client::all(['id', 'name']),
+            'users' => User::all(['id', 'name']),
+            'palettes' => ColorPalette::all(['id', 'name']),
+            'teamUsers' => $teamUsers,
+        ]);
     }
 
     /**
@@ -254,7 +261,32 @@ class NewPreviewController extends Controller
      */
     public function update(Request $request, newPreview $newPreview)
     {
-        //
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'client_id' => ['required', 'exists:clients,id'],
+            'team_ids' => ['required', 'array'],
+            'team_ids.*' => ['exists:users,id'],
+            'color_palette_id' => ['nullable', 'exists:color_palettes,id'],
+            'requires_login' => ['required', 'boolean'],
+            'show_planetnine_logo' => ['required', 'boolean'],
+            'show_sidebar_logo' => ['required', 'boolean'],
+            'show_footer' => ['required', 'boolean'],
+        ]);
+
+        $newPreview->update([
+            'name' => $validated['name'],
+            'client_id' => $validated['client_id'],
+            'team_members' => $validated['team_ids'], // will be stored as JSON
+            'color_palette_id' => $validated['color_palette_id'],
+            'requires_login' => $validated['requires_login'],
+            'show_planetnine_logo' => $validated['show_planetnine_logo'],
+            'show_sidebar_logo' => $validated['show_sidebar_logo'],
+            'show_footer' => $validated['show_footer'],
+        ]);
+
+        return redirect()
+            ->route('previews-edit', $newPreview->id)
+            ->with('success', 'Preview updated successfully.');
     }
 
     /**

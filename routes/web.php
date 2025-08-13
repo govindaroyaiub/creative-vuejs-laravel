@@ -24,6 +24,7 @@ use App\Http\Controllers\newFeedbackController;
 use App\Http\Controllers\newFeedbackSetController;
 use App\Http\Controllers\newVersionController;
 use App\Http\Controllers\newBannerController;
+use App\Http\Controllers\newPreviewApiController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -104,7 +105,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
 
     Route::get('/previews', [newPreviewController::class, 'index'])->name('previews-index');
     Route::post('/previews-store', [newPreviewController::class, 'store'])->name('previews-store');
-    Route::post('/previews-edit', [newPreviewController::class, 'store'])->name('previews-edit');
+    Route::get('/previews-edit/{newPreview}', [newPreviewController::class, 'edit'])->name('previews-edit');
+    Route::put('/previews-edit/{newPreview}', [newPreviewController::class, 'update'])->name('previews-update');
 
     // Route::get('/preview/add/version/{id}', [PreviewController::class, 'addVersion'])->name('previews-add-version');
     //Preview Routes End
@@ -193,21 +195,23 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
 Route::get('/previews/show/{id}', [NewPreviewController::class, 'show'])->name('previews-show');
 //preview axios get requests start
 
-Route::get('/preview/getallversions/{id}', [PreviewApiController::class, 'getAllVersions']);
-Route::get('/preview/updateActiveVersion/{id}', [PreviewApiController::class, 'updateActiveVersion']);
-Route::get('/preview/getVersionType/{id}', [PreviewApiController::class, 'getVersionType']);
-Route::get('/preview/setBannerActiveSubVersion/{id}', [PreviewApiController::class, 'setBannerActiveSubVersion']);
-Route::get('/preview/setSocialActiveSubVersion/{id}', [PreviewApiController::class, 'setSocialActiveSubVersion']);
-Route::get('/preview/setVideoActiveSubVersion/{id}', [PreviewApiController::class, 'setVideoActiveSubVersion']);
-Route::get('/preview/setGifActiveSubVersion/{id}', [PreviewApiController::class, 'setGifActiveSubVersion']);
-Route::get('/preview/checkSubVersionCount/{id}', [PreviewApiController::class, 'checkSubVersionCount']);
-Route::get('/preview/getActiveSubVersionBannerData/{id}', [PreviewApiController::class, 'getActiveSubVersionBannerData']);
-Route::get('/preview/getActiveSubVersionSocialData/{id}', [PreviewApiController::class, 'getActiveSubVersionSocialData']);
-Route::get('/preview/getActiveSubVersionVideoData/{id}', [PreviewApiController::class, 'getActiveSubVersionVideoData']);
-Route::get('/preview/getActiveSubVersionGifData/{id}', [PreviewApiController::class, 'getActiveSubVersionGifData']);
-Route::get('/preview/{preview_id}/change/theme/{color_id}', [PreviewApiController::class, 'changeTheme']);
+Route::get('/preview/getallcategories/{id}', [newPreviewApiController::class, 'getAllCategories']);
+// Route::get('/preview/updateActiveVersion/{id}', [PreviewApiController::class, 'updateActiveVersion']);
+Route::get('/preview/fetchCategoryType/{id}', [newPreviewApiController::class, 'fetchCategoryType']);
+Route::get('/preview/fetchFeedbackSets/{id}', [newPreviewApiController::class, 'fetchFeedbackSets']);
+// Route::get('/preview/setBannerActiveSubVersion/{id}', [PreviewApiController::class, 'setBannerActiveSubVersion']);
+// Route::get('/preview/setSocialActiveSubVersion/{id}', [PreviewApiController::class, 'setSocialActiveSubVersion']);
+// Route::get('/preview/setVideoActiveSubVersion/{id}', [PreviewApiController::class, 'setVideoActiveSubVersion']);
+// Route::get('/preview/setGifActiveSubVersion/{id}', [PreviewApiController::class, 'setGifActiveSubVersion']);
+// Route::get('/preview/checkSubVersionCount/{id}', [PreviewApiController::class, 'checkSubVersionCount']);
+// Route::get('/preview/getActiveSubVersionBannerData/{id}', [PreviewApiController::class, 'getActiveSubVersionBannerData']);
+// Route::get('/preview/getActiveSubVersionSocialData/{id}', [PreviewApiController::class, 'getActiveSubVersionSocialData']);
+// Route::get('/preview/getActiveSubVersionVideoData/{id}', [PreviewApiController::class, 'getActiveSubVersionVideoData']);
+// Route::get('/preview/getActiveSubVersionGifData/{id}', [PreviewApiController::class, 'getActiveSubVersionGifData']);
+// Route::get('/getCurrentTotalFeedbacks/{preview_id}', [PreviewApiController::class, 'getCurrentTotalFeedbacks']);
 
-Route::get('/getCurrentTotalFeedbacks/{preview_id}', [PreviewApiController::class, 'getCurrentTotalFeedbacks']);
+Route::get('/preview/{preview_id}/change/theme/{color_id}', [newPreviewApiController::class, 'changeTheme']);
+
 //preview axios get requests end
 
 Route::get('/file-transfers-view/{id}', [FileTransferController::class, 'show'])->name('file-transfers-view');

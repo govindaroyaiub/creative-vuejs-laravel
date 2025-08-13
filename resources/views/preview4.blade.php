@@ -25,7 +25,7 @@
             --quaternary-color: {{ $quaternary }};
         }
     </style>
-    <link href="{{ asset('css/preview2.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/preview4.css') }}" rel="stylesheet">
 </head>
 
 <body>
@@ -90,7 +90,7 @@
                         @endif
                     </div>
                     <div style="flex: 1;">
-                        <div class="subVersions relative flex justify-center flex-row"></div>
+                        <div class="feedbacks relative flex justify-center flex-row"></div>
                     </div>
                     <div style="width: 270px; min-height: 60px;" class="sidebar-top-extra"></div>
                 </div>
@@ -126,19 +126,22 @@
 
                         <div class="right-column">
                             <div class="justify-center items-center mt-2 py-2 px-2 absolute top-0 left-0 right-0 currentTotalFeedbacks">
-                                <button id="versionLeft" disabled style="margin-right:10px;">
+                                <button id="categoryLeft" disabled style="margin-right:10px;">
                                     &#11207;
                                 </button>
-                                <span id="versionCounter"></span>
-                                <button id="versionRight" disabled style="margin-left:10px;">
+                                <span id="categoryCounter"></span>
+                                <button id="categoryRight" disabled style="margin-left:10px;">
                                    &#11208;
                                 </button>
                             </div>
 
-                            <div id="versionArea">
-                                <div id="versionCLick" onclick="showVersionDescription()">
+                            <div class="feedbackSetsContainer"></div>
+
+                            <div id="feedbackArea">
+                                <div id="feedbackCLick" onclick="showcategoryDescription()">
                                     <i class="fa-regular fa-message" style="transform: rotate(90deg) scaleX(-1);"></i>
                                 </div>
+
 
                                 @php
                                     $colorsData = $all_colors->map(fn($color) => ['id' => $color->id, 'hex' => $color->primary, 'border' => $color->tertiary]);
@@ -151,22 +154,22 @@
                                 <div id="colorPaletteSelection" data-colors='@json($colorsData)'>
                                 </div>
 
-                                <div id="versionDescription">
-                                    <div id="versionDescriptionUpperpart">
-                                        <div class="cursor-pointer" style="float: right;" onclick="hideVersionDescription()">
+                                <div id="feedbackDescription">
+                                    <div id="feedbackDescriptionUpperpart">
+                                        <div class="cursor-pointer" style="float: right;" onclick="hidefeedbackDescription()">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
                                         </div>
                                     </div>
-                                    <div id="versionDescriptionLowerPart">
-                                        <label id="versionMessage"></label>
+                                    <div id="feedbackDescriptionLowerPart">
+                                        <label id="feedbackMessage"></label>
                                     </div>
                                 </div>
                             </div>
-                            <div class="versionControl">
-                                <div id="versionSettings"></div>
-                                <div id="subVersionSettings" style="position: absolute; right: 0;"></div>
+                            <div class="categoryControl">
+                                <div id="categorySettings"></div>
+                                <div id="feedbackSettings" style="position: absolute; right: 0;"></div>
                             </div>
                             <div id="bannerShowcase"></div>
                         </div>
@@ -326,5 +329,180 @@
         }
     }
 
-    
+
+    const authUserClientName = '{{ $authUserClientName }}';
+    const preview_id = '{{ $preview_id }}';
+
+    let categories = [];
+    let currentCategoryIndex = 0;
+
+    function getAllCategories() {
+        axios.get('/preview/getallcategories/' + preview_id)
+        .then(function(response) {
+            categories = response.data.categories || [];
+            // Find active category index
+            currentCategoryIndex = categories.findIndex(c => c.id == response.data.activeCategory_id);
+            if (currentCategoryIndex === -1) currentCategoryIndex = 0;
+            renderCategories(response);
+            updateCategoryNav();
+        });
+    }
+
+    function renderCategories(response) {
+        var active;
+        var categoryActive;
+        var spanActive;
+        var row = '';
+        var row2 = '';
+
+        row = row + '@if($preview['show_sidebar_logo'] == 1)';
+            row = row + '<div class="w-full">';
+                row = row + '<div class="mb-2 mt-2 px-2 py-2 mx-auto">';
+                    row = row + '<img src="{{ asset('logos/' . $client['logo']) }}" alt="clientLogo" style="width: 250px;">';
+                row = row + '</div>';
+            row = row + '</div>';
+        row = row + '@endif';
+
+        $.each(response.data.categories, function(key, value) {
+            if (value.is_active == 1) {
+                active = 'menuToggleActive';
+                categoryActive = 'category-active';
+                spanActive = 'span-active';
+            } else {
+                active = '';
+                categoryActive = '';
+                spanActive = '';
+            }
+
+            const date = new Date(value.created_at);
+            const formatted = date.toLocaleDateString('en-GB'); // DD/MM/YYYY
+            const formatted2 = `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getFullYear()}`;
+
+            row2 = row2 + '<div class="category-row ' + categoryActive + '" onclick="return updateActiveCategory(' + value.id + ')" id="category' + value.id + '">';
+            row2 = row2 + '<span class="' + spanActive + '" style="font-size: 0.85rem;">' + value.name + '</span>';
+            row2 = row2 + '<hr>';
+            row2 += '<span class="category-row-date" style="font-size: 0.7rem;">' + formatted2 + '</span>';
+            row2 = row2 + '</div>';
+
+            row = row + '<a href="javascript:void(0)" class="nav-link categories" onclick="return updateActiveCategory(' + value.id + ')" id="category' + value.id + '">';
+            row = row + '<li class="' + active + '">' + value.name + '</li>';
+            row = row + '</a>';
+        });
+
+        
+        if(authUserClientName == "Planet Nine"){
+            row2 += `
+                <div class="category-row category-add-btn" onclick="return addNewcategory(${preview_id})" style="cursor: pointer; margin-top: 8px;">
+                    <span class="text-2xl text-green-500 hover:text-green-700 font-bold">+</span>
+                </div>
+            `;
+        }
+
+        $('#creative-list2').html(row2);
+        $('#creative-list').html(row);
+        $('#menu').html(row);
+
+        checkCategoryType(response.data.activeCategory_id);
+    }
+
+    function updateCategoryNav() {
+        const total = categories.length;
+        $('#categoryCounter').text(total ? `${currentCategoryIndex + 1} of ${total}` : '0 of 0');
+        $('#categoryLeft').prop('disabled', currentCategoryIndex === 0);
+        $('#categoryRight').prop('disabled', currentCategoryIndex === total - 1 || total === 0);
+    }
+
+    $('#categoryLeft').on('click', function() {
+        if (currentCategoryIndex > 0) {
+            currentCategoryIndex--;
+            updateActiveCategory(categories[currentCategoryIndex].id);
+            updateCategoryNav();
+        }
+    });
+
+    $('#categoryRight').on('click', function() {
+        if (currentCategoryIndex < categories.length - 1) {
+            currentCategoryIndex++;
+            updateActiveCategory(categories[currentCategoryIndex].id);
+            updateCategoryNav();
+        }
+    });
+
+    function updateActiveCategory(category_id) {
+        // document.getElementById('menuClick').click();
+        alert('asdasd');
+    }
+
+    function checkCategoryType(category_id){
+        axios.get('/preview/fetchCategoryType/' + category_id)
+            .then(function(response) {
+                if (response.data.type == "banner") {
+                    renderFeedbacks(response.data.feedbacks, response.data.category_id);
+                    fetchFeedbackSets(response.data.activeFeedback_id);
+                }
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
+    }
+
+    function renderFeedbacks(feedbacks, category_id){
+        var feedbackCount = feedbacks.length;
+        var isActive;
+
+        if (feedbackCount > 0) {
+            var row = '';
+            $.each(feedbacks, function(key, value) {
+                if (value.is_active == 1) {
+                    isActive = ' feedbackTabActive';
+                } else {
+                    isActive = '';
+                }
+               row += `
+                <div id="feedbackTab${value.id}" class="feedbackTab${isActive}" onclick="updateBannerActiveFeedback(${value.id})">
+                    <div class="trapezoid-container">
+                        <div class="tab-text text-white text-base">${value.name}</div>
+                    </div>
+                </div>
+                `;
+            });
+        } else {
+            var row = '';
+        }
+        if(authUserClientName == 'Planet Nine'){
+            row += `
+                <div class="feedbackTab feedbackAddTab" onclick="addBannerNewFeedback(${category_id})">
+                    <div class="trapezoid-container">
+                        <div class="tab-text text-white text-2xl font-bold">+</div>
+                    </div>
+                </div>
+            `;
+        }
+        $('.feedbacks').html(row);
+    }
+
+    function fetchFeedbackSets(feedback_id){
+        axios.get('/preview/fetchFeedbackSets/' + feedback_id)
+            .then(function(response) {
+                renderFeedbackSets(response.data.feedbackSets);
+            })
+            .catch(function(error) {
+                console.log(error);
+            });
+    }
+
+    function renderFeedbackSets(feedbackSets){
+        var row = '';
+        $.each(feedbackSets, function(key, value) {
+            row += `
+            <div class="feedbackSet" id="feedbackSet${value.id}">
+                <div class="feedbackSetName">${value.name}</div>
+            </div>
+            `;
+        });
+        $('.feedbackSetsContainer').html(row);
+    }
+
+    getAllCategories();
+
 </script>
