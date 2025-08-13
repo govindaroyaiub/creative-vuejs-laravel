@@ -13,23 +13,9 @@ class NewCategoryController extends Controller
      */
     public function index(newPreview $preview)
     {
-        dd($preview);
-        $cats = $preview->categories()
-            ->select('id','name','is_active')
-            ->where('type','banner')
-            ->withCount('feedbacks')
-            ->orderBy('id','desc')
-            ->get();
-
-        return response()->json($cats);
+        
     }
 
-    public function toggleActive(newCategory $category)
-    {
-        $category->is_active = ! $category->is_active;
-        $category->save();
-        return response()->json(['is_active' => $category->is_active]);
-    }
 
     /**
      * Show the form for creating a new resource.

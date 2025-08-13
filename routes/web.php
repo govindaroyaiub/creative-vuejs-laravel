@@ -190,21 +190,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     //Media Routes End
 });
 
-Route::get('/previews/show/{preview}', [NewPreviewController::class, 'show'])->name('previews-show');
+Route::get('/previews/show/{id}', [NewPreviewController::class, 'show'])->name('previews-show');
 //preview axios get requests start
-Route::prefix('previews/show/{preview}')->group(function () {
-    Route::get('categories', [newCategoryController::class, 'index']); // minimal list
-});
-
-Route::get('/previews/{preview}/categories', [newCategoryController::class, 'index']) ->name('previews.categories');
-  
-Route::get('categories/{category}/feedbacks', [newFeedbackController::class, 'index']);
-Route::patch('categories/{category}/active', [newCategoryController::class, 'toggleActive']);
-
-Route::get('feedbacks/{feedback}/sets', [newFeedbackSetController::class, 'index']);
-Route::get('feedback-sets/{set}/versions', [newVersionController::class, 'index']);
-Route::get('versions/{version}/banners', [newBannerController::class, 'index']); // ?page=1
-Route::patch('feedbacks/{feedback}/active', [newFeedbackController::class, 'toggleActive']);
 
 Route::get('/preview/getallversions/{id}', [PreviewApiController::class, 'getAllVersions']);
 Route::get('/preview/updateActiveVersion/{id}', [PreviewApiController::class, 'updateActiveVersion']);

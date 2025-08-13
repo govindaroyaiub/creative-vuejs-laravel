@@ -199,11 +199,46 @@ class NewPreviewController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(newPreview $newPreview)
+    public function show($id)
     {
-        return Inertia::render('Previews/Show', [
-            'preview' => ['id' => $newPreview->id, 'name' => $newPreview->name],
-        ]);
+        $preview_id = $id;
+
+        $preview = newPreview::with(['client.colorPalette', 'colorPalette', 'uploader'])->findOrFail($id);
+
+        // ✅ Check if login is required
+        if ($preview->requires_login && !Auth::check()) {
+            // Store redirect path in session
+            Session::put('preview_redirect_after_login', route('previews-show', $id));
+            return Inertia::render('Previews/Login', [
+                'preview_id' => $id,
+            ]);
+        }
+
+        // Continue with preview rendering
+        $color_palettes = ColorPalette::find($preview->color_palette_id);
+        $client = Client::find($preview->client_id);
+        $all_colors = ColorPalette::where('status', 1)->select('id', 'primary', 'tertiary')->get();
+
+        $primary = $color_palettes->primary;
+        $secondary = $color_palettes->secondary;
+        $tertiary = $color_palettes->tertiary;
+        $quaternary = $color_palettes->quaternary;
+
+        $authUserClientName = Auth::check()
+            ? (Client::find(Auth::user()->client_id)?->name ?? 'Unknown')
+            : 'guest';
+
+        return view('preview4', compact(
+            'preview',
+            'primary',
+            'secondary',
+            'tertiary',
+            'quaternary',
+            'client',
+            'authUserClientName',
+            'preview_id',
+            'all_colors'
+        ));
     }
 
     /**

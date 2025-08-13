@@ -12,20 +12,7 @@ class NewFeedbackController extends Controller
      */
     public function index()
     {
-        $feedbacks = $category->feedbacks()
-            ->select('id','name','is_active')
-            ->withCount('feedbackSets')
-            ->orderBy('id','desc')
-            ->get();
-
-        return response()->json($feedbacks);
-    }
-
-    public function toggleActive(newFeedback $feedback)
-    {
-        $feedback->is_active = ! $feedback->is_active;
-        $feedback->save();
-        return response()->json(['is_active' => $feedback->is_active]);
+        
     }
 
     /**

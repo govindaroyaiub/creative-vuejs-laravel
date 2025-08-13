@@ -12,9 +12,7 @@ class NewVersionController extends Controller
      */
     public function index()
     {
-        return response()->json(
-            $set->versions()->select('id','name')->orderBy('id','desc')->get()
-        );
+        
     }
 
     /**
