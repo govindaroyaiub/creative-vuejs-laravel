@@ -508,8 +508,30 @@
                 </div>
             `;
             }
+
+            renderVersions(value.id);
         });
         $('.feedbackSetsContainer').html(row);
+    }
+
+    function renderVersions(feedbackSetId) {
+        axios.get('/preview/getVersions/' + feedbackSetId)
+            .then(function(response) {
+                console.log(response.data);
+                // var versionsRow = '';
+                // $.each(response.data.versions, function(key, version) {
+                //     versionsRow += `
+                //         <div class="version" id="version${version.id}">
+                //             <span>${version.name}</span>
+                //             <button onclick="setActiveVersion(${version.id})">Set Active</button>
+                //         </div>
+                //     `;
+                // });
+                // $('#feedbackSet' + feedbackSetId).append(versionsRow);
+            })
+            .catch(function(error) {
+                console.log(error);
+            });
     }
 
     getAllCategories();

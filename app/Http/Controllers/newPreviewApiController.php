@@ -46,6 +46,14 @@ class newPreviewApiController extends Controller
         ];
     }
 
+    public function getVersions($feedbackSetId){
+        $versions = newVersion::where('feedback_set_id', $feedbackSetId)->get();
+
+        return $data = [
+            'versions' => $versions,
+        ];
+    }
+
     public function changeTheme($preview_id, $color_id)
     {
         $preview = newPreview::find($preview_id);
