@@ -199,7 +199,7 @@ Route::get('/preview/getallcategories/{id}', [newPreviewApiController::class, 'g
 // Route::get('/preview/updateActiveVersion/{id}', [PreviewApiController::class, 'updateActiveVersion']);
 Route::get('/preview/fetchCategoryType/{id}', [newPreviewApiController::class, 'fetchCategoryType']);
 Route::get('/preview/fetchFeedbackSets/{id}', [newPreviewApiController::class, 'fetchFeedbackSets']);
-Route::get('/preview/getVersions/{feedbackSetId}', [newPreviewApiController::class, 'getVersions']);
+Route::get('/preview/getVersionsAndBanners/{feedbackSetId}', [newPreviewApiController::class, 'getVersionsAndBanners']);
 // Route::get('/preview/setBannerActiveSubVersion/{id}', [PreviewApiController::class, 'setBannerActiveSubVersion']);
 // Route::get('/preview/setSocialActiveSubVersion/{id}', [PreviewApiController::class, 'setSocialActiveSubVersion']);
 // Route::get('/preview/setVideoActiveSubVersion/{id}', [PreviewApiController::class, 'setVideoActiveSubVersion']);

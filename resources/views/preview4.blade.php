@@ -171,7 +171,7 @@
                                 <div id="categorySettings"></div>
                                 <div id="feedbackSettings" style="position: absolute; right: 0;"></div>
                             </div>
-                            <div id="bannerShowcase"></div>
+                            <!-- <div id="bannerShowcase"></div> -->
                         </div>
                     </div>
                 </div>
@@ -493,6 +493,8 @@
 
     function renderFeedbackSets(feedbackSets){
         var row = '';
+        var requests = [];
+
         $.each(feedbackSets, function(key, value) {
             if(value.name || authUserClientName == 'Planet Nine'){
                 row += `
@@ -506,32 +508,59 @@
                         </div>
                     ` : ''}
                 </div>
-            `;
+                <div class="versionsAndBanners" id="versionsAndBanners${value.id}"></div>
+                `;
+                // Collect requests
+                requests.push(
+                    axios.get('/preview/getVersionsAndBanners/' + value.id)
+                        .then(function(response) {
+                            const versions = response.data.versions || [];
+                            let bannersHtml = '';
+                            versions.forEach(version => {
+                                if(version.name || authUserClientName == 'Planet Nine'){
+                                    bannersHtml += `
+                                        <div class="version" id="version${version.id}">
+                                            <div class="version-title" style="font-weight: bold;">${version.name}</div>
+                                            ${authUserClientName == 'Planet Nine' ? `
+                                                <div class="versionActions" style="display: flex; gap: 0.5rem; justify-content: center;">
+                                                    <button onclick="addVersion(${version.id})" title="Add"><i class="fa-solid fa-plus"></i></button>
+                                                    <button onclick="editVersion(${version.id})" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                                                    <button onclick="deleteVersion(${version.id})" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                                                </div>
+                                            ` : ''}
+                                            <div class="banners-list">
+                                `;
+                                }
+                                version.banners.forEach(function(banner) {
+                                    var bannerPath = '/' + banner.path + '/index.html';
+                                    var bannerReloadID = banner.id;
+                                    bannersHtml += '<div class="banner-creatives banner-area-'+ banner.width +'" style="display: inline-block; width: ' + banner.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem;">';
+                                    bannersHtml += '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
+                                    bannersHtml += '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + banner.width + 'x' + banner.height + '</small>';
+                                    bannersHtml += '<small style="float: right; font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + banner.file_size + '</small>';
+                                    bannersHtml += '</div>';
+                                    bannersHtml += '<iframe class="iframe-banners" style="margin-top: 2px;" src="' + bannerPath + '" width="' + banner.width + '" height="' + banner.height + '" frameBorder="0" scrolling="no" id="rel' + banner.id + '"></iframe>';
+                                    bannersHtml += '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
+                                        bannersHtml += '<li><i id="relBt' + banner.id + '" onClick="reloadBanner(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
+                                    // Add your Planet Nine options here
+                                        bannersHtml += '@if($authUserClientName == "Planet Nine")'
+                                            bannersHtml += '<li class="banner-options"><a href="/previews/banner/single/edit/' + value.id + '"><i class="fa-solid fa-pen-to-square" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                                            bannersHtml += '<li class="banner-options"><a href="/previews/banner/single/download/' + value.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                                            bannersHtml += '<li class="banner-options"><a href="javascript:void(0)" onclick="return confirmDeleteBanner(' + value.id + ')"><i class="fa-solid fa-trash" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                                        bannersHtml += '@endif';
+                                    bannersHtml += '</ul>';
+                                    bannersHtml += '</div>';
+                                });
+                                bannersHtml += `</div></div>`;
+                            });
+                            // Insert into the correct feedbackSet container
+                            $('#versionsAndBanners' + value.id).html(bannersHtml);
+                        })
+                );
             }
-
-            renderVersions(value.id);
         });
         $('.feedbackSetsContainer').html(row);
-    }
-
-    function renderVersions(feedbackSetId) {
-        axios.get('/preview/getVersions/' + feedbackSetId)
-            .then(function(response) {
-                console.log(response.data);
-                // var versionsRow = '';
-                // $.each(response.data.versions, function(key, version) {
-                //     versionsRow += `
-                //         <div class="version" id="version${version.id}">
-                //             <span>${version.name}</span>
-                //             <button onclick="setActiveVersion(${version.id})">Set Active</button>
-                //         </div>
-                //     `;
-                // });
-                // $('#feedbackSet' + feedbackSetId).append(versionsRow);
-            })
-            .catch(function(error) {
-                console.log(error);
-            });
+        Promise.all(requests);
     }
 
     getAllCategories();
