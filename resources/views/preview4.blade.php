@@ -92,7 +92,7 @@
                     <div style="flex: 1;">
                         <div class="feedbacks relative flex justify-center flex-row"></div>
                     </div>
-                    <div style="width: 270px; min-height: 60px;" class="sidebar-top-extra"></div>
+                    <!-- <div style="width: 270px; min-height: 60px;" class="sidebar-top-extra"></div> -->
                 </div>
                 <div id="showcase">
                     <div id="bannershowCustom">
