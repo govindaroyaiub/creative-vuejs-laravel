@@ -62,4 +62,8 @@ class NewFeedbackSetController extends Controller
     {
         //
     }
+
+    public function addBannerFeedbackSets($id){
+        dd($id);
+    }
 }

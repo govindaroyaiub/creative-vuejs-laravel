@@ -111,6 +111,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/previews/edit/feedback/{id}', [newFeedbackController::class, 'edit'])->name('previews-edit-feedback');
     Route::put('/previews/edit/feedback/{id}', [newFeedbackController::class, 'update'])->name('previews-update-feedback');
 
+    Route::get('/previews/banner/feedback/{id}/add/feedbackSets', [newFeedbackSetController::class, 'addBannerFeedbackSets'])->name('previews-add-banner-feedback-sets');
+
     // Route::get('/preview/add/version/{id}', [PreviewController::class, 'addVersion'])->name('previews-add-version');
     //Preview Routes End
 

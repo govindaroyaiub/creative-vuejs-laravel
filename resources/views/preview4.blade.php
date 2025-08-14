@@ -548,7 +548,7 @@
     }
 
     function addBannerFeedbackSets(feedback_id){
-        
+        window.location.href = "/previews/banner/feedback/" + feedback_id + '/add/feedbackSets';
     }
 
     function editFeedback(feedback_id){
@@ -597,11 +597,14 @@
                     .then(function(response) {
                         const versions = response.data.versions;
                         let bannersHtml = '';
+                        let versionName;
                         versions.forEach(version => {
-                            if(version.name || authUserClientName == 'Planet Nine'){
+                            if(version.name != null || authUserClientName == 'Planet Nine'){
                                 bannersHtml += `
                                     <div class="version" id="version${version.id}">
-                                        <div class="version-title" style="font-weight: bold;">${version.name}</div>
+                                        <div class="version-title" style="font-weight: bold;">
+                                            ${version.name ? version.name : (authUserClientName == 'Planet Nine' ? '<span style="color:#bbb;">(No name)</span>' : '')}
+                                        </div>
                                         ${authUserClientName == 'Planet Nine' ? `
                                             <div class="versionActions" style="display: flex; gap: 0.5rem; justify-content: center;">
                                                 <button onclick="addVersion(${version.id})" title="Add"><i class="fa-solid fa-plus"></i></button>
