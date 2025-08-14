@@ -108,6 +108,9 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/previews-edit/{newPreview}', [newPreviewController::class, 'edit'])->name('previews-edit');
     Route::put('/previews-edit/{newPreview}', [newPreviewController::class, 'update'])->name('previews-update');
 
+    Route::get('/previews/edit/feedback/{id}', [newFeedbackController::class, 'edit'])->name('previews-edit-feedback');
+    Route::put('/previews/edit/feedback/{id}', [newFeedbackController::class, 'update'])->name('previews-update-feedback');
+
     // Route::get('/preview/add/version/{id}', [PreviewController::class, 'addVersion'])->name('previews-add-version');
     //Preview Routes End
 
@@ -198,7 +201,7 @@ Route::get('/previews/show/{id}', [NewPreviewController::class, 'show'])->name('
 Route::get('/preview/getallcategories/{id}', [newPreviewApiController::class, 'getAllCategories']);
 // Route::get('/preview/updateActiveVersion/{id}', [PreviewApiController::class, 'updateActiveVersion']);
 Route::get('/preview/fetchCategoryType/{id}', [newPreviewApiController::class, 'fetchCategoryType']);
-Route::get('/preview/fetchFeedbackSets/{id}', [newPreviewApiController::class, 'fetchFeedbackSets']);
+Route::get('/preview/fetchBannerFeedbackSets/{id}', [newPreviewApiController::class, 'fetchBannerFeedbackSets']);
 Route::get('/preview/getVersionsAndBanners/{feedbackSetId}', [newPreviewApiController::class, 'getVersionsAndBanners']);
 // Route::get('/preview/setBannerActiveSubVersion/{id}', [PreviewApiController::class, 'setBannerActiveSubVersion']);
 // Route::get('/preview/setSocialActiveSubVersion/{id}', [PreviewApiController::class, 'setSocialActiveSubVersion']);

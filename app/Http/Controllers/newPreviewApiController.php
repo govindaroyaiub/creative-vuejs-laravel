@@ -38,7 +38,7 @@ class newPreviewApiController extends Controller
         ];
     }
 
-    public function fetchFeedbackSets($id)
+    public function fetchBannerFeedbackSets($id)
     {
         $feedbackSets = newFeedbackSet::where('feedback_id', $id)->get();
 

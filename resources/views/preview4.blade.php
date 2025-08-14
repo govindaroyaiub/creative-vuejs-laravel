@@ -138,7 +138,7 @@
                             <div class="feedbackSetsContainer"></div>
 
                             <div id="feedbackArea">
-                                <div id="feedbackCLick" onclick="showcategoryDescription()">
+                                <div id="feedbackCLick" onclick="showFeedbackDescription()">
                                     <i class="fa-regular fa-message" style="transform: rotate(90deg) scaleX(-1);"></i>
                                 </div>
 
@@ -156,7 +156,7 @@
 
                                 <div id="feedbackDescription">
                                     <div id="feedbackDescriptionUpperpart">
-                                        <div class="cursor-pointer" style="float: right;" onclick="hidefeedbackDescription()">
+                                        <div class="cursor-pointer" style="float: right;" onclick="hideFeedbackDescription()">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
@@ -227,7 +227,55 @@
 
     // Call every 10 seconds
     setInterval(fetchViewers, 10000);
-    fetchViewers(); // initial call
+    fetchViewers();
+
+    function showFeedbackDescription() {
+        viewFeedback = true;
+
+        var moveFeedback = gsap.timeline();
+
+        moveFeedback
+            .to('#feedbackDescription', {
+                duration: 1,
+                display: 'flex',
+                opacity: 1,
+                x: 0,
+                ease: 'power2.out'
+            });
+
+        if (viewFeedback == true) {
+            var except = document.getElementById('feedbackDescription');
+
+            document.addEventListener('click', closeThisFeedback, true);
+
+            function closeThisFeedback(e) {
+                if (!except.contains(e.target)) { //if the clicked element is the feedback div then it wont disappear
+                    var listID = document.getElementById('feedbackDescription');
+                    let viewFeedbackTimeline = gsap.timeline();
+                    viewFeedbackTimeline
+                        .to('#feedbackDescription', {
+                            duration: 0.5,
+                            x: 310,
+                            ease: 'power2.in'
+                        });
+                }
+            }
+            viewversion = false;
+        }
+    }
+
+    function hideFeedbackDescription() {
+        var moveFeedback = gsap.timeline();
+
+        moveFeedback
+            .to('#feedbackDescription', {
+                duration: 0.5,
+                x: 310,
+                opacity: 0,
+                display: 'none',
+                ease: 'power2.in'
+            })
+    }
 
     function showColorPaletteOptions() {
         const preview_id = '{{ $preview_id }}';
@@ -437,8 +485,8 @@
         axios.get('/preview/fetchCategoryType/' + category_id)
             .then(function(response) {
                 if (response.data.type == "banner") {
-                    renderFeedbacks(response.data.feedbacks, response.data.category_id);
-                    fetchFeedbackSets(response.data.activeFeedback_id);
+                    renderBannerFeedbacks(response.data.feedbacks, response.data.category_id);
+                    fetchBannerFeedbackSets(response.data.activeFeedback_id);
                 }
             })
             .catch(function(error) {
@@ -446,7 +494,7 @@
             })
     }
 
-    function renderFeedbacks(feedbacks, category_id){
+    function renderBannerFeedbacks(feedbacks, category_id){
         var feedbackCount = feedbacks.length;
         var isActive;
 
@@ -459,21 +507,39 @@
                     isActive = '';
                 }
                row += `
-                <div id="feedbackTab${value.id}" class="feedbackTab${isActive}" onclick="updateBannerActiveFeedback(${value.id})">
-                    <div class="trapezoid-container">
-                        <div class="tab-text text-white text-base">${value.name}</div>
+                    <div style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                        ${authUserClientName == 'Planet Nine' ? `
+                            <div class="feedbackTabActions" style="display: flex; gap: 0.5rem;">
+                                <button onclick="addBannerFeedbackSets(${value.id})" title="Add Set" style="background: none; border: none; cursor: pointer;">
+                                    <i class="fa-solid fa-plus text-green-500 hover:text-green-700"></i>
+                                </button>
+                                <button onclick="editFeedback(${value.id})" title="Edit Feedback " style="background: none; border: none; cursor: pointer;">
+                                    <i class="fa-solid fa-pen-to-square text-blue-500 hover:text-blue-700"></i>
+                                </button>
+                                <button onclick="deleteFeedback(${value.id})" title="Delete Feedback" style="background: none; border: none; cursor: pointer;">
+                                    <i class="fa-solid fa-trash text-red-500 hover:text-red-700"></i>
+                                </button>
+                            </div>
+                        ` : ''}
+                        <div id="feedbackTab${value.id}" class="feedbackTab${isActive}" onclick="updateBannerActiveFeedback(${value.id})" style="margin-left: 8px;">
+                            <div class="trapezoid-container">
+                                <div class="tab-text text-white text-base">${value.name}</div>
+                            </div>
+                        </div>
                     </div>
-                </div>
                 `;
+                $('#feedbackMessage').html(value.description);
             });
         } else {
             var row = '';
         }
         if(authUserClientName == 'Planet Nine'){
             row += `
-                <div class="feedbackTab feedbackAddTab" onclick="addBannerNewFeedback(${category_id})">
-                    <div class="trapezoid-container">
-                        <div class="tab-text text-white text-2xl font-bold">+</div>
+                <div style="display: flex; align-items: center; justify-content: end; flex-direction: column;">
+                    <div class="feedbackTab feedbackAddTab" onclick="addBannerNewFeedback(${category_id})" style="margin-left: 8px;">
+                        <div class="trapezoid-container">
+                            <div class="tab-text text-white text-2xl font-bold">+</div>
+                        </div>
                     </div>
                 </div>
             `;
@@ -481,8 +547,20 @@
         $('.feedbacks').html(row);
     }
 
-    function fetchFeedbackSets(feedback_id){
-        axios.get('/preview/fetchFeedbackSets/' + feedback_id)
+    function addBannerFeedbackSets(feedback_id){
+        
+    }
+
+    function editFeedback(feedback_id){
+        window.location.href = "/previews/edit/feedback/" + feedback_id;
+    }
+
+    function deleteFeedback(feedback_id){
+        window.location.href = "/previews/delete/feedback/" + feedback_id;
+    }
+
+    function fetchBannerFeedbackSets(feedback_id){
+        axios.get('/preview/fetchBannerFeedbackSets/' + feedback_id)
             .then(function(response) {
                 renderFeedbackSets(response.data.feedbackSets);
             })
@@ -496,68 +574,70 @@
         var requests = [];
 
         $.each(feedbackSets, function(key, value) {
-            if(value.name || authUserClientName == 'Planet Nine'){
+            if (authUserClientName == 'Planet Nine' || value.name) {
                 row += `
-                <div class="feedbackSet" id="feedbackSet${value.id}" style="display: flex; align-items: center; justify-content: space-between;">
-                    <div class="feedbackSetName" style="flex: 1; text-align: center;">${value.name ? value.name : ''}</div>
-                    ${authUserClientName == 'Planet Nine' ? `
-                        <div class="feedbackSetActions" style="display: flex; gap: 0.5rem;">
-                            <button onclick="addFeedbackSet(${value.id})" title="Add"><i class="fa-solid fa-plus"></i></button>
-                            <button onclick="editFeedbackSet(${value.id})" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteFeedbackSet(${value.id})" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                    <div class="feedbackSet" id="feedbackSet${value.id}" style="display: flex; align-items: center; justify-content: space-between;">
+                        <div class="feedbackSetName" style="flex: 1; text-align: center;">
+                            ${value.name ? value.name : (authUserClientName == 'Planet Nine' ? '<span style="color:#bbb;">(No name)</span>' : '')}
                         </div>
-                    ` : ''}
-                </div>
-                <div class="versionsAndBanners" id="versionsAndBanners${value.id}"></div>
+                        ${authUserClientName == 'Planet Nine' ? `
+                            <div class="feedbackSetActions" style="display: flex; gap: 0.5rem;">
+                                <button onclick="addFeedbackSet(${value.id})" title="Add"><i class="fa-solid fa-plus"></i></button>
+                                <button onclick="editFeedbackSet(${value.id})" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button onclick="deleteFeedbackSet(${value.id})" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        ` : ''}
+                    </div>
                 `;
-                // Collect requests
-                requests.push(
-                    axios.get('/preview/getVersionsAndBanners/' + value.id)
-                        .then(function(response) {
-                            const versions = response.data.versions || [];
-                            let bannersHtml = '';
-                            versions.forEach(version => {
-                                if(version.name || authUserClientName == 'Planet Nine'){
-                                    bannersHtml += `
-                                        <div class="version" id="version${version.id}">
-                                            <div class="version-title" style="font-weight: bold;">${version.name}</div>
-                                            ${authUserClientName == 'Planet Nine' ? `
-                                                <div class="versionActions" style="display: flex; gap: 0.5rem; justify-content: center;">
-                                                    <button onclick="addVersion(${version.id})" title="Add"><i class="fa-solid fa-plus"></i></button>
-                                                    <button onclick="editVersion(${version.id})" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
-                                                    <button onclick="deleteVersion(${version.id})" title="Delete"><i class="fa-solid fa-trash"></i></button>
-                                                </div>
-                                            ` : ''}
-                                            <div class="banners-list">
-                                `;
-                                }
-                                version.banners.forEach(function(banner) {
-                                    var bannerPath = '/' + banner.path + '/index.html';
-                                    var bannerReloadID = banner.id;
-                                    bannersHtml += '<div class="banner-creatives banner-area-'+ banner.width +'" style="display: inline-block; width: ' + banner.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem;">';
-                                    bannersHtml += '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
-                                    bannersHtml += '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + banner.width + 'x' + banner.height + '</small>';
-                                    bannersHtml += '<small style="float: right; font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + banner.file_size + '</small>';
-                                    bannersHtml += '</div>';
-                                    bannersHtml += '<iframe class="iframe-banners" style="margin-top: 2px;" src="' + bannerPath + '" width="' + banner.width + '" height="' + banner.height + '" frameBorder="0" scrolling="no" id="rel' + banner.id + '"></iframe>';
-                                    bannersHtml += '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
-                                        bannersHtml += '<li><i id="relBt' + banner.id + '" onClick="reloadBanner(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
-                                    // Add your Planet Nine options here
-                                        bannersHtml += '@if($authUserClientName == "Planet Nine")'
-                                            bannersHtml += '<li class="banner-options"><a href="/previews/banner/single/edit/' + value.id + '"><i class="fa-solid fa-pen-to-square" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
-                                            bannersHtml += '<li class="banner-options"><a href="/previews/banner/single/download/' + value.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
-                                            bannersHtml += '<li class="banner-options"><a href="javascript:void(0)" onclick="return confirmDeleteBanner(' + value.id + ')"><i class="fa-solid fa-trash" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
-                                        bannersHtml += '@endif';
-                                    bannersHtml += '</ul>';
-                                    bannersHtml += '</div>';
-                                });
-                                bannersHtml += `</div></div>`;
-                            });
-                            // Insert into the correct feedbackSet container
-                            $('#versionsAndBanners' + value.id).html(bannersHtml);
-                        })
-                );
             }
+            row += `<div class="versionsAndBanners" id="versionsAndBanners${value.id}"></div>`;
+            // Collect requests
+            requests.push(
+                axios.get('/preview/getVersionsAndBanners/' + value.id)
+                    .then(function(response) {
+                        const versions = response.data.versions;
+                        let bannersHtml = '';
+                        versions.forEach(version => {
+                            if(version.name || authUserClientName == 'Planet Nine'){
+                                bannersHtml += `
+                                    <div class="version" id="version${version.id}">
+                                        <div class="version-title" style="font-weight: bold;">${version.name}</div>
+                                        ${authUserClientName == 'Planet Nine' ? `
+                                            <div class="versionActions" style="display: flex; gap: 0.5rem; justify-content: center;">
+                                                <button onclick="addVersion(${version.id})" title="Add"><i class="fa-solid fa-plus"></i></button>
+                                                <button onclick="editVersion(${version.id})" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                                                <button onclick="deleteVersion(${version.id})" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                                            </div>
+                                        ` : ''}
+                                        <div class="banners-list">
+                            `;
+                            }
+                            version.banners.forEach(function(banner) {
+                                var bannerPath = '/' + banner.path + '/index.html';
+                                var bannerReloadID = banner.id;
+                                bannersHtml += '<div class="banner-creatives banner-area-'+ banner.width +'" style="display: inline-block; width: ' + banner.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem;">';
+                                bannersHtml += '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
+                                bannersHtml += '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + banner.width + 'x' + banner.height + '</small>';
+                                bannersHtml += '<small style="float: right; font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + banner.file_size + '</small>';
+                                bannersHtml += '</div>';
+                                bannersHtml += '<iframe class="iframe-banners" style="margin-top: 2px;" src="' + bannerPath + '" width="' + banner.width + '" height="' + banner.height + '" frameBorder="0" scrolling="no" id="rel' + banner.id + '"></iframe>';
+                                bannersHtml += '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
+                                    bannersHtml += '<li><i id="relBt' + banner.id + '" onClick="reloadBanner(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
+                                // Add your Planet Nine options here
+                                    bannersHtml += '@if($authUserClientName == "Planet Nine")'
+                                        bannersHtml += '<li class="banner-options"><a href="/previews/banner/single/edit/' + value.id + '"><i class="fa-solid fa-pen-to-square" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                                        bannersHtml += '<li class="banner-options"><a href="/previews/banner/single/download/' + value.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                                        bannersHtml += '<li class="banner-options"><a href="javascript:void(0)" onclick="return confirmDeleteBanner(' + value.id + ')"><i class="fa-solid fa-trash" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                                    bannersHtml += '@endif';
+                                bannersHtml += '</ul>';
+                                bannersHtml += '</div>';
+                            });
+                            bannersHtml += `</div></div>`;
+                        });
+                        // Insert into the correct feedbackSet container
+                        $('#versionsAndBanners' + value.id).html(bannersHtml);
+                    })
+            );
         });
         $('.feedbackSetsContainer').html(row);
         Promise.all(requests);

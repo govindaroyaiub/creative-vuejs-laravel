@@ -123,13 +123,13 @@ class NewPreviewController extends Controller
                     foreach ((array) $request->input('banner_sets', []) as $setIndex => $bannerSet) {
                         // 3a) Create FeedbackSet for each Set
                         $feedbackSet = $feedback->feedbackSets()->create([
-                            'name' => $bannerSet['name'] ?? "Set " . ($setIndex + 1),
+                            'name' => $bannerSet['name'],
                         ]);
 
                         // 3b) For each Version under this Set
                         foreach ((array) ($bannerSet['versions'] ?? []) as $vIndex => $versionData) {
                             $version = $feedbackSet->versions()->create([
-                                'name' => $versionData['name'] ?? "Version " . ($vIndex + 1),
+                                'name' => $versionData['name'],
                             ]);
 
                             // 3c) For each Banner (ZIP) under this Version

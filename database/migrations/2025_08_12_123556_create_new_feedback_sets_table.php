@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('new_feedback_sets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('feedback_id')->constrained('new_feedback')->cascadeOnDelete();
-            $table->string('name');
+            $table->string('name')->nullable();
             $table->timestamps();
         });
     }
