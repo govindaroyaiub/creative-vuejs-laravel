@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\newFeedbackSet;
 use App\Models\newBanner;
+use App\Models\newVideo;
+use App\Models\newSocial;
+use App\Models\newGif;
 
 class newVersion extends Model
 {
@@ -26,9 +29,15 @@ class newVersion extends Model
         return $this->hasMany(newBanner::class, 'version_id');
     }
 
-    public function videos() {}
+    public function videos() {
+        return $this->hasMany(newVideo::class, 'version_id');
+    }
 
-    public function socials() {}
+    public function socials() {
+        return $this->hasMany(newSocial::class, 'version_id');
+    }
 
-    public function gifs() {}
+    public function gifs() {
+        return $this->hasMany(newGif::class, 'version_id');
+    }
 }

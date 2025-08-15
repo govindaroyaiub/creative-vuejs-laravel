@@ -305,21 +305,21 @@ class NewPreviewController extends Controller
                                 $this->deletePath($banner->path);
                                 $banner->delete();
                             }
-                            // foreach ($version->videos as $video) {
-                            //     $this->deletePath($video->path);
-                            //     if ($video->companion_banner_path) {
-                            //         $this->deletePath($video->companion_banner_path);
-                            //     }
-                            //     $video->delete();
-                            // }
-                            // foreach ($version->socials as $social) {
-                            //     $this->deletePath($social->path);
-                            //     $social->delete();
-                            // }
-                            // foreach ($version->gifs as $gif) {
-                            //     $this->deletePath($gif->path);
-                            //     $gif->delete();
-                            // }
+                            foreach ($version->videos as $video) {
+                                $this->deletePath($video->path);
+                                if ($video->companion_banner_path) {
+                                    $this->deletePath($video->companion_banner_path);
+                                }
+                                $video->delete();
+                            }
+                            foreach ($version->socials as $social) {
+                                $this->deletePath($social->path);
+                                $social->delete();
+                            }
+                            foreach ($version->gifs as $gif) {
+                                $this->deletePath($gif->path);
+                                $gif->delete();
+                            }
                         }
                         $set->delete();
                     }

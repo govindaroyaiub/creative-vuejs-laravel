@@ -11,12 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sub_socials', function (Blueprint $table) {
+        Schema::create('new_videos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('sub_version_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('version_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('path');
-            $table->foreignId('social_id')->nullable()->constrained('socials')->nullOnDelete();
+            $table->foreignId('size_id')->constrained('banner_sizes')->cascadeOnDelete();
+            $table->string('codec')->nullable();
+            $table->string('aspect_ratio')->nullable();
+            $table->string('fps')->nullable();
+            $table->string('file_size')->nullable();
+            $table->string('companion_banner_path')->nullable();
             $table->unsignedInteger('position')->default(0);
             $table->timestamps();
         });
@@ -27,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sub_socials');
+        Schema::dropIfExists('new_videos');
     }
 };

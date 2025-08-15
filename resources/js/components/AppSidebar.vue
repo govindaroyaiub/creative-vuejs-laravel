@@ -20,7 +20,7 @@ const mainNavItems: NavItem[] = [
     { title: 'Previews', href: '/previews', icon: MonitorStop },
     { title: 'Banner Sizes', href: '/banner-sizes', icon: MonitorCog },
     { title: 'Video Sizes', href: '/video-sizes', icon: Clapperboard },
-    { title: 'Social Formats', href: '/socials', icon: Image },
+    // { title: 'Social Formats', href: '/socials', icon: Image },
     { title: 'Color Palettes', href: '/color-palettes', icon: Paintbrush },
     { title: 'File Transfers', href: '/file-transfers', icon: Paperclip },
     { title: 'Bills', href: '/bills', icon: ReceiptText },
