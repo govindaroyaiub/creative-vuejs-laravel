@@ -96,6 +96,7 @@ class NewPreviewController extends Controller
             // 1. Create the Preview
 
             $preview = newPreview::create([
+                'slug' => Str::uuid()->toString(),
                 'name' => $request->name,
                 'client_id' => $request->client_id,
                 'requires_login' => $request->requires_login,
@@ -196,16 +197,15 @@ class NewPreviewController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show($slug)
     {
-        $preview_id = $id;
-
-        $preview = newPreview::with(['client.colorPalette', 'colorPalette', 'uploader'])->findOrFail($id);
+        $preview = newPreview::with(['client.colorPalette', 'colorPalette', 'uploader'])->where('slug', $slug)->firstOrFail();
+        $id = $preview_id = $preview->id;
 
         // ✅ Check if login is required
         if ($preview->requires_login && !Auth::check()) {
             // Store redirect path in session
-            Session::put('preview_redirect_after_login', route('previews-show', $id));
+            Session::put('preview_redirect_after_login', route('previews-show', $slug));
             return Inertia::render('Previews/Login', [
                 'preview_id' => $id,
             ]);

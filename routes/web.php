@@ -198,7 +198,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     //Media Routes End
 });
 
-Route::get('/previews/show/{id}', [NewPreviewController::class, 'show'])->name('previews-show');
+Route::get('/previews/show/{slug}', [NewPreviewController::class, 'show'])->name('previews-show');
 //preview axios get requests start
 
 Route::get('/preview/getallcategories/{id}', [newPreviewApiController::class, 'getAllCategories']);

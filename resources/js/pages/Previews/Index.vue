@@ -289,12 +289,12 @@ const stepProps = computed(() => ({
                                 <div class="text-xs text-gray-400">{{ getTypes(preview) || '-' }}</div>
                             </td>
                             <td class="text-center px-4 py-3 space-x-2">
-                                <a :href="route('previews-show', preview.id)"
+                                <a :href="route('previews-show', preview.slug)"
                                     class="text-green-600 hover:text-green-800" target="_blank" rel="noopener"
                                     aria-label="View Preview">
                                     <Eye class="inline h-5 w-5" />
                                 </a>
-                                <a :href="`${preview.client?.preview_url}/previews/show/${preview.id}`"
+                                <a :href="`${preview.client?.preview_url}/previews/show/${preview.slug}`"
                                     class="text-yellow-600 hover:text-yellow-800" target="_blank" rel="noopener"
                                     aria-label="View Preview">
                                     <Share2 class="inline h-5 w-5" />

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('new_previews', function (Blueprint $table) {
             $table->id();
+            $table->string('slug')->unique();
             $table->string('name');
             $table->foreignId('client_id')->constrained()->cascadeOnDelete();
             $table->json('team_members');

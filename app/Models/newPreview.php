@@ -18,6 +18,7 @@ class newPreview extends Model
     ];
 
     protected $fillable = [
+        'slug',
         'name',
         'client_id',
         'team_members',
