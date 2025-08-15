@@ -26,15 +26,9 @@ class newVersion extends Model
         return $this->hasMany(newBanner::class, 'version_id');
     }
 
-    public function videos(){
+    public function videos() {}
 
-    }
+    public function socials() {}
 
-    public function socials(){
-
-    }
-
-    public function gifs(){
-        
-    }
+    public function gifs() {}
 }

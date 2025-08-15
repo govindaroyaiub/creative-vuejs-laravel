@@ -294,6 +294,55 @@ class NewPreviewController extends Controller
      */
     public function destroy(newPreview $newPreview)
     {
-        //
+        DB::transaction(function () use ($newPreview) {
+            $preview = newPreview::findorFail($newPreview->id);
+
+            foreach ($preview->categories as $category) {
+                foreach ($category->feedbacks as $feedback) {
+                    foreach ($feedback->feedbackSets as $set) {
+                        foreach ($set->versions as $version) {
+                            foreach ($version->banners as $banner) {
+                                $this->deletePath($banner->path);
+                                $banner->delete();
+                            }
+                            // foreach ($version->videos as $video) {
+                            //     $this->deletePath($video->path);
+                            //     if ($video->companion_banner_path) {
+                            //         $this->deletePath($video->companion_banner_path);
+                            //     }
+                            //     $video->delete();
+                            // }
+                            // foreach ($version->socials as $social) {
+                            //     $this->deletePath($social->path);
+                            //     $social->delete();
+                            // }
+                            // foreach ($version->gifs as $gif) {
+                            //     $this->deletePath($gif->path);
+                            //     $gif->delete();
+                            // }
+                        }
+                        $set->delete();
+                    }
+                    $feedback->delete();
+                }
+                $category->delete();
+            }
+            $preview->delete();
+        });
+
+        return redirect()->route('previews-index')->with('success', 'Preview and all related files deleted successfully.');
+    }
+
+    protected function deletePath($relativePath)
+    {
+        $fullPath = public_path($relativePath);
+
+        if (File::exists($fullPath)) {
+            if (File::isDirectory($fullPath)) {
+                File::deleteDirectory($fullPath); // used for banner folders
+            } elseif (File::isFile($fullPath)) {
+                File::delete($fullPath); // used for single video/gif/social files
+            }
+        }
     }
 }
