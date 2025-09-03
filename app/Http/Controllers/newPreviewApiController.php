@@ -111,4 +111,18 @@ class newPreviewApiController extends Controller
         $preview->save();
         return response()->json(['success' => true, 'message' => 'Theme changed successfully']);
     }
+
+    public function updateActiveCategory($id){
+        $category = newCategory::find($id);
+        newCategory::where('id', $id)->update(['is_active' => 1]);
+        $exceptionCategories = newCategory::select('id')->where('preview_id', $category['preview_id'])->where('id', '!=', $id)->get()->toArray();
+        newCategory::whereIn('id', $exceptionCategories)->where('preview_id', $category['preview_id'])->update(['is_active' => 0]);
+
+        $categories = newCategory::where('preview_id', $category['preview_id'])->get();
+
+        return $data = [
+            'categories' => $categories,
+            'activeCategory_id' => $id
+        ];
+    }
 }

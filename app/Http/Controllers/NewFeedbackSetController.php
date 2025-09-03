@@ -28,7 +28,7 @@ class NewFeedbackSetController extends Controller
         $feedback = newFeedback::find($id);
         $feedbackId = $feedback->id;
 
-        return Inertia::render('Previews/Feedbacks/Create', [
+        return Inertia::render('Previews/Categories/Feedbacks/FeedbackSets/Create', [
             'bannerSizes' => BannerSize::orderBy('width')->orderBy('height')->get(['id', 'width', 'height'])->map(fn($s) => tap($s, fn($s) => $s->name = "{$s->width}x{$s->height}")),
             'feedbackId' => (int) $feedbackId,
         ]);

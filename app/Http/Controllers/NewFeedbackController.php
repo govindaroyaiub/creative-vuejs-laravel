@@ -98,8 +98,8 @@ class NewFeedbackController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(newFeedback $newFeedback)
+    public function destroy(newFeedback $newFeedback, $id)
     {
-        //
+        dd($id);
     }
 }

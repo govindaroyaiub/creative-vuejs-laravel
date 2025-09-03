@@ -115,7 +115,12 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/previews/banner/feedback/{id}/add/feedbackSets', [newFeedbackSetController::class, 'create'])->name('previews-add-banner-feedback-sets');
     Route::post('/previews/banner/feedback/{id}/add/feedbackSets', [newFeedbackSetController::class, 'store'])->name('previews.feedback.sets.store');
 
+    Route::get('/previews/add/category/{id}', [newCategoryController::class, 'create'])->name('previews-add-category');
+    Route::post('/previews/add/category/{id}', [newCategoryController::class, 'store'])->name('previews.categories.store');
     // Route::get('/preview/add/version/{id}', [PreviewController::class, 'addVersion'])->name('previews-add-version');
+
+
+    Route::delete('/previews/category/feedback/delete/{id}', [newFeedbackController::class, 'destroy'])->name('previews-delete-category-feedback');
     //Preview Routes End
 
     //Banner Sizes Routes Start
@@ -204,6 +209,7 @@ Route::get('/previews/show/{slug}', [NewPreviewController::class, 'show'])->name
 
 Route::get('/preview/getallcategories/{id}', [newPreviewApiController::class, 'getAllCategories']);
 // Route::get('/preview/updateActiveVersion/{id}', [PreviewApiController::class, 'updateActiveVersion']);
+Route::get('/preview/updateActiveCategory/{id}', [newPreviewApiController::class, 'updateActiveCategory']);
 Route::get('/preview/fetchCategoryType/{id}', [newPreviewApiController::class, 'fetchCategoryType']);
 Route::get('/preview/fetchBannerFeedbackSets/{id}', [newPreviewApiController::class, 'fetchBannerFeedbackSets']);
 Route::get('/preview/getVersionsAndBanners/{feedbackSetId}', [newPreviewApiController::class, 'getVersionsAndBanners']);

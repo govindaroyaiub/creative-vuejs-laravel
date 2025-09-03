@@ -430,6 +430,12 @@
             row2 = row2 + '<span class="' + spanActive + '" style="font-size: 0.85rem;">' + value.name + '</span>';
             row2 = row2 + '<hr>';
             row2 += '<span class="category-row-date" style="font-size: 0.7rem;">' + formatted2 + '</span>';
+            if(authUserClientName == 'Planet Nine'){
+                row2 += '<div class="flex gap-2 flex-row">';
+                    row2 += '<a href="javascript(0)" onclick="editCategory(' + value.id + ')"><span style="font-size: 0.65rem;">Edit</span></a>';
+                    row2 += '<a href="javascript(0)" onclick="deleteCategory(' + value.id + ')"><span style="font-size: 0.65rem;">Delete</span></a>';
+                row2 += '</div>';
+            }
             row2 = row2 + '</div>';
 
             row = row + '<a href="javascript:void(0)" class="nav-link categories" onclick="return updateActiveCategory(' + value.id + ')" id="category' + value.id + '">';
@@ -451,6 +457,10 @@
         $('#menu').html(row);
 
         checkCategoryType(response.data.activeCategory_id);
+    }
+
+    function addNewcategory(preview_id){
+        window.location.href = '/previews/add/category/' + preview_id;
     }
 
     function updateCategoryNav() {
@@ -478,7 +488,13 @@
 
     function updateActiveCategory(category_id) {
         // document.getElementById('menuClick').click();
-        alert('asdasd');
+        axios.get('/preview/updateActiveCategory/' + category_id)
+            .then(function(response) {
+               window.location.reload();
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
     }
 
     function checkCategoryType(category_id){
@@ -556,7 +572,34 @@
     }
 
     function deleteFeedback(feedback_id){
-        window.location.href = "/previews/delete/feedback/" + feedback_id;
+        Swal.fire({
+            title: 'Delete This Feedback?!',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            denyButtonText: `Thinking.....`,
+        }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+                axios.delete('/previews/category/feedback/delete/'+ feedback_id)
+                .then(function (response){
+                    console.log(response);
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Feedback Has Been Deleted!',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    window.location.reload();
+                })
+                .catch(function (error){
+                    console.log(error);
+                })
+            } else if (result.isDenied) {
+                Swal.fire('Thanks for using your brain', '', 'info')
+            }
+        })
     }
 
     function fetchBannerFeedbackSets(feedback_id){
