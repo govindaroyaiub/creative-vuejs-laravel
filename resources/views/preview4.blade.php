@@ -430,13 +430,14 @@
             row2 = row2 + '<span class="' + spanActive + '" style="font-size: 0.85rem;">' + value.name + '</span>';
             row2 = row2 + '<hr>';
             row2 += '<span class="category-row-date" style="font-size: 0.7rem;">' + formatted2 + '</span>';
+            row2 = row2 + '</div>';
+
             if(authUserClientName == 'Planet Nine'){
                 row2 += '<div class="flex gap-2 flex-row">';
-                    row2 += '<a href="javascript(0)" onclick="editCategory(' + value.id + ')"><span style="font-size: 0.65rem;">Edit</span></a>';
-                    row2 += '<a href="javascript(0)" onclick="deleteCategory(' + value.id + ')"><span style="font-size: 0.65rem;">Delete</span></a>';
+                    row2 += '<a href="javascript:void(0)" onclick="editCategory(' + value.id + ')" style="z-index: 99;"><span style="font-size: 0.65rem;">Edit</span></a>';
+                    row2 += '<a href="javascript:void(0)" onclick="deleteCategory(' + value.id + ')" style="z-index: 99;"><span style="font-size: 0.65rem;">Delete</span></a>';
                 row2 += '</div>';
             }
-            row2 = row2 + '</div>';
 
             row = row + '<a href="javascript:void(0)" class="nav-link categories" onclick="return updateActiveCategory(' + value.id + ')" id="category' + value.id + '">';
             row = row + '<li class="' + active + '">' + value.name + '</li>';
