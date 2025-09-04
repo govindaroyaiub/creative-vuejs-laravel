@@ -190,17 +190,22 @@ class NewCategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(newCategory $newCategory)
+    public function edit(newCategory $newCategory, $id)
     {
-        //
+        $category = newCategory::findOrFail($id);
+        $preview = newPreview::findOrFail($category->preview_id);
+        return Inertia::render('Previews/Categories/Edit', [
+            'category' => $category,
+            'preview'  => $preview
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, newCategory $newCategory)
+    public function update(Request $request, newCategory $newCategory, $id)
     {
-        //
+        dd($id);
     }
 
     /**

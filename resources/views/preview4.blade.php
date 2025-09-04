@@ -460,6 +460,10 @@
         checkCategoryType(response.data.activeCategory_id);
     }
 
+    function editCategory(category_id){
+        window.location.href = '/previews/category/edit/' + category_id;
+    }
+
     function addNewcategory(preview_id){
         window.location.href = '/previews/add/category/' + preview_id;
     }
