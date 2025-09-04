@@ -26,18 +26,18 @@ class newVersion extends Model
 
     public function banners()
     {
-        return $this->hasMany(newBanner::class, 'version_id');
+        return $this->hasMany(newBanner::class, 'version_id')->orderBy('position');
     }
-
-    public function videos() {
-        return $this->hasMany(newVideo::class, 'version_id');
+    public function videos()
+    {
+        return $this->hasMany(newVideo::class,  'version_id')->orderBy('position');
     }
-
-    public function socials() {
-        return $this->hasMany(newSocial::class, 'version_id');
+    public function gifs()
+    {
+        return $this->hasMany(newGif::class,    'version_id')->orderBy('position');
     }
-
-    public function gifs() {
-        return $this->hasMany(newGif::class, 'version_id');
+    public function socials()
+    {
+        return $this->hasMany(newSocial::class, 'version_id')->orderBy('position');
     }
 }

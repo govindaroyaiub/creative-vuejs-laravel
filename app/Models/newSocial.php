@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\Version;
+use App\Models\newVersion;
 
 class newSocial extends Model
 {
@@ -19,6 +19,6 @@ class newSocial extends Model
 
     public function version()
     {
-        return $this->belongsTo(Version::class);
+        return $this->belongsTo(newVersion::class, 'version_id');
     }
 }

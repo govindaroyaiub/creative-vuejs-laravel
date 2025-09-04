@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\Version;
+use App\Models\newVersion;
+use App\Models\VideoSize;
 
 class newVideo extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
         'version_id',
         'name',
@@ -23,8 +24,13 @@ class newVideo extends Model
         'position',
     ];
 
-    public function subVersion()
+    public function version()
     {
-        return $this->belongsTo(Version::class);
+        return $this->belongsTo(newVersion::class, 'version_id');
+    }
+
+    public function size()
+    {
+        return $this->belongsTo(VideoSize::class, 'size_id');
     }
 }

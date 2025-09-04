@@ -108,6 +108,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/previews-edit/{newPreview}', [newPreviewController::class, 'edit'])->name('previews-edit');
     Route::put('/previews-edit/{newPreview}', [newPreviewController::class, 'update'])->name('previews-update');
     Route::delete('/previews-delete/{newPreview}', [newPreviewController::class, 'destroy'])->name('previews-delete');
+    Route::get('/previews/update/{id}', [newPreviewController::class, 'updatePreview'])->name('previews.update.all');
+    Route::put('/previews/{preview}/bulk-edit', [newPreviewController::class, 'bulkEdit'])->name('previews.bulkEdit');
 
     Route::get('/previews/edit/feedback/{id}', [newFeedbackController::class, 'edit'])->name('previews-edit-feedback');
     Route::put('/previews/edit/feedback/{id}', [newFeedbackController::class, 'update'])->name('previews-update-feedback');

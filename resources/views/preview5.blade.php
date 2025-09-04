@@ -56,7 +56,7 @@
             Update Preview
         </a>
     </div>
-    @ensif
+    @endif
 
     <main class="main">
         <div class="viewMessage">
@@ -385,7 +385,6 @@
         }
     }
 
-
     const authUserClientName = '{{ $authUserClientName }}';
     const preview_id = '{{ $preview_id }}';
 
@@ -440,40 +439,16 @@
             row2 += '<span class="category-row-date" style="font-size: 0.7rem;">' + formatted2 + '</span>';
             row2 = row2 + '</div>';
 
-            if(authUserClientName == 'Planet Nine'){
-                row2 += '<div class="flex gap-2 flex-row">';
-                    row2 += '<a href="javascript:void(0)" onclick="editCategory(' + value.id + ')" style="z-index: 99;"><span style="font-size: 0.65rem;">Edit</span></a>';
-                    row2 += '<a href="javascript:void(0)" onclick="deleteCategory(' + value.id + ')" style="z-index: 99;"><span style="font-size: 0.65rem;">Delete</span></a>';
-                row2 += '</div>';
-            }
-
             row = row + '<a href="javascript:void(0)" class="nav-link categories" onclick="return updateActiveCategory(' + value.id + ')" id="category' + value.id + '">';
             row = row + '<li class="' + active + '">' + value.name + '</li>';
             row = row + '</a>';
         });
-
-        
-        if(authUserClientName == "Planet Nine"){
-            row2 += `
-                <div class="category-row category-add-btn" onclick="return addNewcategory(${preview_id})" style="cursor: pointer; margin-top: 8px;">
-                    <span class="text-2xl text-green-500 hover:text-green-700 font-bold">+</span>
-                </div>
-            `;
-        }
 
         $('#creative-list2').html(row2);
         $('#creative-list').html(row);
         $('#menu').html(row);
 
         checkCategoryType(response.data.activeCategory_id);
-    }
-
-    function editCategory(category_id){
-        window.location.href = '/previews/category/edit/' + category_id;
-    }
-
-    function addNewcategory(preview_id){
-        window.location.href = '/previews/add/category/' + preview_id;
     }
 
     function updateCategoryNav() {
@@ -537,19 +512,6 @@
                 }
                row += `
                     <div style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
-                        ${authUserClientName == 'Planet Nine' ? `
-                            <div class="feedbackTabActions" style="display: flex; gap: 0.5rem;">
-                                <button onclick="addBannerFeedbackSets(${value.id})" title="Add Set" style="background: none; border: none; cursor: pointer;">
-                                    <i class="fa-solid fa-plus text-green-500 hover:text-green-700"></i>
-                                </button>
-                                <button onclick="editFeedback(${value.id})" title="Edit Feedback " style="background: none; border: none; cursor: pointer;">
-                                    <i class="fa-solid fa-pen-to-square text-blue-500 hover:text-blue-700"></i>
-                                </button>
-                                <button onclick="deleteFeedback(${value.id})" title="Delete Feedback" style="background: none; border: none; cursor: pointer;">
-                                    <i class="fa-solid fa-trash text-red-500 hover:text-red-700"></i>
-                                </button>
-                            </div>
-                        ` : ''}
                         <div id="feedbackTab${value.id}" class="feedbackTab${isActive}" onclick="updateBannerActiveFeedback(${value.id})" style="margin-left: 8px;">
                             <div class="trapezoid-container">
                                 <div class="tab-text text-white text-base">${value.name}</div>
@@ -562,57 +524,7 @@
         } else {
             var row = '';
         }
-        if(authUserClientName == 'Planet Nine'){
-            row += `
-                <div style="display: flex; align-items: center; justify-content: end; flex-direction: column;">
-                    <div class="feedbackTab feedbackAddTab" onclick="addBannerNewFeedback(${category_id})" style="margin-left: 8px;">
-                        <div class="trapezoid-container">
-                            <div class="tab-text text-white text-2xl font-bold">+</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
         $('.feedbacks').html(row);
-    }
-
-    function addBannerFeedbackSets(feedback_id){
-        window.location.href = "/previews/banner/feedback/" + feedback_id + '/add/feedbackSets';
-    }
-
-    function editFeedback(feedback_id){
-        window.location.href = "/previews/edit/feedback/" + feedback_id;
-    }
-
-    function deleteFeedback(feedback_id){
-        Swal.fire({
-            title: 'Delete This Feedback?!',
-            showDenyButton: true,
-            showCancelButton: true,
-            confirmButtonText: 'Delete',
-            denyButtonText: `Thinking.....`,
-        }).then((result) => {
-        /* Read more about isConfirmed, isDenied below */
-            if (result.isConfirmed) {
-                axios.delete('/previews/category/feedback/delete/'+ feedback_id)
-                .then(function (response){
-                    console.log(response);
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'success',
-                        title: 'Feedback Has Been Deleted!',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    window.location.reload();
-                })
-                .catch(function (error){
-                    console.log(error);
-                })
-            } else if (result.isDenied) {
-                Swal.fire('Thanks for using your brain', '', 'info')
-            }
-        })
     }
 
     function fetchBannerFeedbackSets(feedback_id){
@@ -636,13 +548,6 @@
                         <div class="feedbackSetName" style="flex: 1; text-align: center;">
                             ${value.name ? value.name : (authUserClientName == 'Planet Nine' ? '<span style="color:#bbb;">(No name)</span>' : '')}
                         </div>
-                        ${authUserClientName == 'Planet Nine' ? `
-                            <div class="feedbackSetActions" style="display: flex; gap: 0.5rem;">
-                                <button onclick="addFeedbackSet(${value.id})" title="Add"><i class="fa-solid fa-plus"></i></button>
-                                <button onclick="editFeedbackSet(${value.id})" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
-                                <button onclick="deleteFeedbackSet(${value.id})" title="Delete"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        ` : ''}
                     </div>
                 `;
             }
@@ -661,13 +566,6 @@
                                         <div class="version-title" style="font-weight: bold;">
                                             ${version.name ? version.name : (authUserClientName == 'Planet Nine' ? '<span style="color:#bbb;">(No name)</span>' : '')}
                                         </div>
-                                        ${authUserClientName == 'Planet Nine' ? `
-                                            <div class="versionActions" style="display: flex; gap: 0.5rem; justify-content: center;">
-                                                <button onclick="addVersion(${version.id})" title="Add"><i class="fa-solid fa-plus"></i></button>
-                                                <button onclick="editVersion(${version.id})" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
-                                                <button onclick="deleteVersion(${version.id})" title="Delete"><i class="fa-solid fa-trash"></i></button>
-                                            </div>
-                                        ` : ''}
                                         <div class="banners-list">
                             `;
                             }
