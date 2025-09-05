@@ -109,7 +109,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::put('/previews-edit/{newPreview}', [newPreviewController::class, 'update'])->name('previews-update');
     Route::delete('/previews-delete/{newPreview}', [newPreviewController::class, 'destroy'])->name('previews-delete');
     Route::get('/previews/update/{id}', [newPreviewController::class, 'updatePreview'])->name('previews.update.all');
-    Route::put('/previews/{preview}/bulk-edit', [newPreviewController::class, 'bulkEdit'])->name('previews.bulkEdit');
+    Route::post('/previews/{id}/bulk-edit', [newPreviewController::class, 'bulkEdit'])->name('previews.bulkEdit');
 
     Route::get('/previews/edit/feedback/{id}', [newFeedbackController::class, 'edit'])->name('previews-edit-feedback');
     Route::put('/previews/edit/feedback/{id}', [newFeedbackController::class, 'update'])->name('previews-update-feedback');
@@ -120,7 +120,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/previews/add/category/{id}', [newCategoryController::class, 'create'])->name('previews-add-category');
     Route::post('/previews/add/category/{id}', [newCategoryController::class, 'store'])->name('previews.categories.store');
     Route::get('/previews/category/edit/{id}', [newCategoryController::class, 'edit'])->name('previews-edit-category');
-    Route::put('/previews/category/edit/{id}', [newCategoryController::class, 'update'])->name('previews-update-category');
+    Route::post('/previews/category/edit/{id}', [newCategoryController::class, 'update'])->name('previews-update-category');
     // Route::get('/preview/add/version/{id}', [PreviewController::class, 'addVersion'])->name('previews-add-version');
 
 

@@ -1,626 +1,459 @@
-<script setup lang="ts">
-import { Head, usePage, router } from '@inertiajs/vue3';
-import { computed, reactive, ref, watch } from 'vue';
-import draggable from 'vuedraggable';
-import AppLayout from '@/layouts/AppLayout.vue';
-import Swal from 'sweetalert2';
-import axios from 'axios';
-
-/* ========= Types ========= */
-type Id = number;
-type TempId = `tmp-${string}`;
-type Key = Id | TempId;
-type CategoryKind = 'banner' | 'video' | 'gif' | 'social';
-
-type Base = { id?: Id; tempId?: TempId; _state?: 'created' | 'updated' | 'deleted' | 'unchanged' };
-
-type FileRow = Base & {
-    version_id: Key;
-    size_id?: number | null;
-    name?: string;
-    path?: string | null;
-    position: number;
-};
-
-type VersionRow = Base & {
-    feedback_set_id: Key; name: string;
-    banners?: FileRow[]; videos?: FileRow[]; gifs?: FileRow[]; socials?: FileRow[];
-};
-
-type FeedbackSetRow = Base & { feedback_id: Key; name: string; versions?: VersionRow[] };
-type FeedbackRow = Base & { category_id: Key; name: string; feedback_sets?: FeedbackSetRow[] };
-type CategoryRow = Base & { preview_id: Id; name: string; feedbacks?: FeedbackRow[] };
-type PreviewTree = { id: Id; name: string; categories?: CategoryRow[] };
-
-type Changeset = {
-    etag?: string | null;
-    categories: { created: any[]; updated: any[]; deleted: Id[] };
-    feedbacks: { created: any[]; updated: any[]; deleted: Id[] };
-    feedbackSets: { created: any[]; updated: any[]; deleted: Id[] };
-    versions: { created: any[]; updated: any[]; deleted: Id[] };
-    banners: { created: any[]; updated: any[]; deleted: Id[] };
-    videos: { created: any[]; updated: any[]; deleted: Id[] };
-    gifs: { created: any[]; updated: any[]; deleted: Id[] };
-    socials: { created: any[]; updated: any[]; deleted: Id[] };
-    fileReorders: Array<{ version_id: Key; idsInOrder: Key[] }>;
-};
-
-/* ========= Inertia props ========= */
-const page = usePage<{
-    props: {
-        preview: PreviewTree;
-        bannerSizes?: Array<{ id: number; width: number; height: number }>;
-        videoSizes?: Array<{ id: number; name?: string; width?: number; height?: number }>;
-        previewETag?: string;
-    }
-}>();
-const preview = reactive<PreviewTree>(JSON.parse(JSON.stringify(page.props.preview)));
-const bannerSizes = computed(() => page.props.bannerSizes ?? []);
-const videoSizes = computed(() => page.props.videoSizes ?? []);
-const etag = computed(() => page.props.previewETag ?? null);
-
-/* ========= Utils ========= */
-function tmp(): TempId { return `tmp-${Math.random().toString(36).slice(2, 9)}` as TempId; }
-function markUpdated(x: Base) { if (x._state !== 'created') x._state = 'updated'; }
-function ensureTemp(o: any) { if (!o.tempId) o.tempId = (o.id ? (`tmp-${o.id}`) : tmp()); }
-function notDeleted<T extends Base>(arr: T[] | undefined): T[] { return (arr ?? []).filter(x => x._state !== 'deleted'); }
-
-/* Normalize temps once */
-(function normalizeAll() {
-    (preview.categories ?? []).forEach((c) => {
-        ensureTemp(c);
-        (c.feedbacks ?? []).forEach((f: any) => {
-            ensureTemp(f);
-            (f.feedback_sets ?? f.feedbackSets ?? []).forEach((s: any) => {
-                if (s.feedbackSets && !s.feedback_sets) s.feedback_sets = s.feedbackSets;
-                ensureTemp(s);
-                (s.versions ?? []).forEach((v: any) => {
-                    ensureTemp(v);
-                    (v.banners ?? []).forEach(ensureTemp);
-                    (v.videos ?? []).forEach(ensureTemp);
-                    (v.gifs ?? []).forEach(ensureTemp);
-                    (v.socials ?? []).forEach(ensureTemp);
-                });
-            });
-        });
-    });
-})();
-
-/* ========= Selection (Versions only) ========= */
-const sel = reactive<{ versionId?: Key }>({});
-function selectVersion(v: VersionRow) { sel.versionId = v.id ?? v.tempId; }
-const selectedVersion = computed<VersionRow | null>(() => {
-    if (!sel.versionId) return null;
-    for (const c of notDeleted(preview.categories)) {
-        for (const f of notDeleted(c.feedbacks)) {
-            for (const s of notDeleted(f.feedback_sets)) {
-                for (const v of notDeleted(s.versions)) {
-                    if ((v.id ?? v.tempId) === sel.versionId) return v;
-                }
-            }
-        }
-    }
-    return null;
-});
-
-/* ========= Kind & files ========= */
-function findCategoryForVersion(versionId: Key): CategoryRow | null {
-    for (const c of notDeleted(preview.categories)) {
-        for (const f of notDeleted(c.feedbacks)) {
-            for (const s of notDeleted(f.feedback_sets)) {
-                for (const v of notDeleted(s.versions)) {
-                    if ((v.id ?? v.tempId) === versionId) return c;
-                }
-            }
-        }
-    }
-    return null;
-}
-function detectKindForVersion(v: VersionRow): CategoryKind {
-    const cat = findCategoryForVersion(v.id ?? v.tempId!);
-    const n = (cat?.name ?? '').toString().toLowerCase();
-    if (n === 'banner' || n === 'video' || n === 'gif' || n === 'social') return n;
-    if ((v.banners?.length ?? 0) > 0) return 'banner';
-    if ((v.videos?.length ?? 0) > 0) return 'video';
-    if ((v.gifs?.length ?? 0) > 0) return 'gif';
-    if ((v.socials?.length ?? 0) > 0) return 'social';
-    return 'banner';
-}
-function getFilesArrayForKind(v: VersionRow, kind: CategoryKind): FileRow[] {
-    const key = (kind === 'banner' ? 'banners' : kind === 'video' ? 'videos' : kind === 'gif' ? 'gifs' : 'socials') as keyof VersionRow;
-    return ((v as any)[key] ?? []) as FileRow[];
-}
-function setFilesArrayForKind(v: VersionRow, kind: CategoryKind, arr: FileRow[]) {
-    const key = (kind === 'banner' ? 'banners' : kind === 'video' ? 'videos' : kind === 'gif' ? 'gifs' : 'socials') as keyof VersionRow;
-    (v as any)[key] = arr;
-}
-
-/* ========= FilesRef (fixes drag + breaks feedback loop) ========= */
-const filesRef = ref<FileRow[]>([]);
-const currentKind = computed<CategoryKind>(() => selectedVersion.value ? detectKindForVersion(selectedVersion.value) : 'banner');
-const syncing = ref(false); // guard to prevent recursive watchers
-
-// Pull selected version -> filesRef
-watch([selectedVersion, currentKind], () => {
-    if (syncing.value) return;
-    const v = selectedVersion.value;
-    if (!v) { filesRef.value = []; return; }
-    const arr = getFilesArrayForKind(v, currentKind.value)
-        .filter(f => f._state !== 'deleted')
-        .map(f => ({ ...f })) // shallow copy for stable reactivity
-        .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
-    arr.forEach(ensureTemp);
-    syncing.value = true;
-    filesRef.value = arr;
-    syncing.value = false;
-}, { immediate: true });
-
-// Push filesRef -> selected version
-watch(filesRef, (arr) => {
-    if (syncing.value) return;
-    const v = selectedVersion.value; if (!v) return;
-    syncing.value = true;
-    setFilesArrayForKind(v, currentKind.value, arr);
-    syncing.value = false;
-}, { deep: true });
-
-/* ========= Structure CRUD ========= */
-function addCategory(kind: CategoryKind) {
-    const c: CategoryRow = { tempId: tmp(), preview_id: preview.id, name: kind, feedbacks: [], _state: 'created' };
-    preview.categories = [...(preview.categories ?? []), c];
-}
-function deleteCategory(c: CategoryRow) {
-    c._state = 'deleted';
-    const sv = selectedVersion.value;
-    if (sv) {
-        const cat = findCategoryForVersion(sv.id ?? sv.tempId!);
-        if (cat && (cat.id ?? cat.tempId) === (c.id ?? c.tempId)) sel.versionId = undefined;
-    }
-}
-function addFeedback(c: CategoryRow) {
-    c.feedbacks ??= [];
-    c.feedbacks.push({ tempId: tmp(), category_id: (c.id ?? c.tempId!), name: 'New Feedback', feedback_sets: [], _state: 'created' });
-}
-function deleteFeedback(parent: CategoryRow, f: FeedbackRow) {
-    f._state = 'deleted';
-    sel.versionId = undefined;
-}
-function addSet(f: FeedbackRow) {
-    f.feedback_sets ??= [];
-    f.feedback_sets.push({ tempId: tmp(), feedback_id: (f.id ?? f.tempId!), name: 'New Set', versions: [], _state: 'created' });
-}
-function deleteSet(parent: FeedbackRow, s: FeedbackSetRow) {
-    s._state = 'deleted';
-    sel.versionId = undefined;
-}
-function addVersion(s: FeedbackSetRow) {
-    s.versions ??= [];
-    const v: VersionRow = {
-        tempId: tmp(), feedback_set_id: (s.id ?? s.tempId!), name: 'New Version', _state: 'created',
-        banners: [], videos: [], gifs: [], socials: []
-    };
-    s.versions.push(v);
-    selectVersion(v);
-}
-function deleteVersion(parent: FeedbackSetRow, v: VersionRow) {
-    v._state = 'deleted';
-    if (sel.versionId === (v.id ?? v.tempId)) sel.versionId = undefined;
-}
-
-/* ========= Files (upload, delete, reorder) ========= */
-const fileReorders = ref<Array<{ version_id: Key; idsInOrder: Key[] }>>([]);
-
-async function onUploadZips(ev: Event) {
-    const input = ev.target as HTMLInputElement;
-    const files = input.files;
-    if (!files?.length || !selectedVersion.value) return;
-
-    // TODO: replace with your staging upload+unzip endpoint; mocked:
-    const returned = Array.from(files).map(f => ({ name: f.name, path: `staging/${f.name}` }));
-
-    let pos = filesRef.value.length;
-    for (const item of returned) {
-        filesRef.value.push({
-            tempId: tmp(),
-            version_id: (selectedVersion.value!.id ?? selectedVersion.value!.tempId!),
-            name: item.name,
-            path: item.path,
-            size_id: null,
-            position: pos++,
-            _state: 'created',
-        });
-    }
-    onReorder();
-    input.value = '';
-}
-
-function getKindKey(kind: CategoryKind): keyof VersionRow {
-    return (kind === 'banner' ? 'banners' : kind === 'video' ? 'videos' : kind === 'gif' ? 'gifs' : 'socials') as keyof VersionRow;
-}
-
-function findSourceFileAndIndex(v: VersionRow, kind: CategoryKind, key: Key) {
-    const arr = (v as any)[getKindKey(kind)] as FileRow[] | undefined;
-    if (!arr) return { arr: [] as FileRow[], idx: -1 };
-    const idx = arr.findIndex(f => (f.id ?? f.tempId) === key);
-    return { arr, idx };
-}
-
-function deleteFile(row: FileRow) {
-    const v = selectedVersion.value; if (!v) return;
-    const kind = currentKind.value;
-    const fileKey = (row.id ?? row.tempId)!;
-
-    const { arr, idx } = findSourceFileAndIndex(v, kind, fileKey);
-    if (idx === -1) return;
-
-    const src = arr[idx];
-    if (src.id) {
-        src._state = 'deleted';        // existing -> mark deleted (will be sent to server)
-    } else {
-        arr.splice(idx, 1);            // brand new -> just drop
-    }
-
-    filesRef.value = filesRef.value.filter(f => (f.id ?? f.tempId) !== fileKey); // hide in UI
-    onReorder();
-}
-
-function onReorder() {
-    const v = selectedVersion.value; if (!v) return;
-    filesRef.value.forEach((f, i) => f.position = i);
-    const vid = (v.id ?? v.tempId!) as Key;
-    const ids = filesRef.value.map(f => (f.id ?? f.tempId!)) as Key[];
-    const found = fileReorders.value.find(r => r.version_id === vid);
-    if (found) found.idsInOrder = ids; else fileReorders.value.push({ version_id: vid, idsInOrder: ids });
-}
-
-/* ========= Size picker (keyboard + 'x' search) ========= */
-const openSizeFor = ref<Key | null>(null);
-const sizeQuery = ref('');
-const highlightIx = ref(0);
-function norm(s: string) { return (s ?? '').toLowerCase().replace(/×/g, 'x').replace(/\s+/g, ''); }
-
-function sizeOptionsFor(kind: CategoryKind) {
-    return kind === 'video'
-        ? videoSizes.value.map(s => ({ id: s.id, label: s.name ?? `${s.width}x${s.height}` }))
-        : bannerSizes.value.map(s => ({ id: s.id, label: `${s.width}x${s.height}` }));
-}
-function filteredSizes(kind: CategoryKind) {
-    const q = norm(sizeQuery.value);
-    const all = sizeOptionsFor(kind);
-    const list = q ? all.filter(o => norm(o.label).includes(q)) : all;
-    if (highlightIx.value >= list.length) highlightIx.value = Math.max(0, list.length - 1);
-    return list;
-}
-function openSizePicker(id: Key) {
-    openSizeFor.value = openSizeFor.value === id ? null : id;
-    sizeQuery.value = '';
-    highlightIx.value = 0;
-}
-function onSizeKeydown(e: KeyboardEvent, list: Array<{ id: number; label: string }>, file: FileRow) {
-    if (e.key === 'ArrowDown') { e.preventDefault(); if (highlightIx.value < list.length - 1) highlightIx.value++; }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); if (highlightIx.value > 0) highlightIx.value--; }
-    else if (e.key === 'Enter') { e.preventDefault(); const opt = list[highlightIx.value]; if (opt) pickSize(file, opt.id); }
-    else if (e.key === 'Escape') { openSizeFor.value = null; }
-}
-function pickSize(file: FileRow, id: number) {
-    file.size_id = id;
-    markUpdated(file);
-    openSizeFor.value = null;
-    sizeQuery.value = '';
-    highlightIx.value = 0;
-}
-
-/* ========= Changeset & Save ========= */
-function flatten<T extends Base>(ok: boolean, arr: T[] | undefined) { return ok ? (arr ?? []) : []; }
-
-function buildChangeset(): Changeset {
-    const cs: Changeset = {
-        etag: etag.value,
-        categories: { created: [], updated: [], deleted: [] },
-        feedbacks: { created: [], updated: [], deleted: [] },
-        feedbackSets: { created: [], updated: [], deleted: [] },
-        versions: { created: [], updated: [], deleted: [] },
-        banners: { created: [], updated: [], deleted: [] },
-        videos: { created: [], updated: [], deleted: [] },
-        gifs: { created: [], updated: [], deleted: [] },
-        socials: { created: [], updated: [], deleted: [] },
-        fileReorders: fileReorders.value.slice(),
-    };
-
-    for (const c of (preview.categories ?? [])) {
-        if (c._state === 'created') cs.categories.created.push({ tempId: c.tempId, preview_id: c.preview_id, name: c.name });
-        else if (c._state === 'updated') cs.categories.updated.push({ id: c.id, name: c.name });
-        else if (c._state === 'deleted' && c.id) cs.categories.deleted.push(c.id);
-
-        for (const f of flatten(true, c.feedbacks)) {
-            if (f._state === 'created') cs.feedbacks.created.push({ tempId: f.tempId, category_id: (c.id ?? c.tempId), name: f.name });
-            else if (f._state === 'updated') cs.feedbacks.updated.push({ id: f.id, name: f.name });
-            else if (f._state === 'deleted' && f.id) cs.feedbacks.deleted.push(f.id);
-
-            for (const s of flatten(true, f.feedback_sets)) {
-                if (s._state === 'created') cs.feedbackSets.created.push({ tempId: s.tempId, feedback_id: (f.id ?? f.tempId), name: s.name });
-                else if (s._state === 'updated') cs.feedbackSets.updated.push({ id: s.id, name: s.name });
-                else if (s._state === 'deleted' && s.id) cs.feedbackSets.deleted.push(s.id);
-
-                for (const v of flatten(true, s.versions)) {
-                    if (v._state === 'created') cs.versions.created.push({ tempId: v.tempId, feedback_set_id: (s.id ?? s.tempId), name: v.name });
-                    else if (v._state === 'updated') cs.versions.updated.push({ id: v.id, name: v.name });
-                    else if (v._state === 'deleted' && v.id) cs.versions.deleted.push(v.id);
-
-                    const kind = detectKindForVersion(v);
-                    const listAll = getFilesArrayForKind(v, kind) as FileRow[];
-
-                    for (const file of listAll) {
-                        if (file._state === 'created') (cs as any)[`${kind}s`].created.push({
-                            tempId: file.tempId, version_id: (v.id ?? v.tempId), size_id: file.size_id ?? null, path: file.path ?? '', position: file.position ?? 0
-                        });
-                        else if (file._state === 'updated') (cs as any)[`${kind}s`].updated.push({
-                            id: file.id, size_id: file.size_id ?? null, path: file.path ?? '', position: file.position ?? 0
-                        });
-                    }
-                    for (const file of listAll) if (file._state === 'deleted' && file.id) (cs as any)[`${kind}s`].deleted.push(file.id);
-                }
-            }
-        }
-    }
-    return cs;
-}
-
-const saving = ref(false);
-async function saveAll() {
-    saving.value = true;
-    try {
-        const payload = buildChangeset();
-        (payload as any).type = 'banner'; // <— tell backend this is a banner run
-
-        const res = await axios.put(route('previews.bulkEdit', { preview: preview.id }), payload);
-        // ... SweetAlert as you already have ...
-        console.log(res.data);
-    } catch (err: any) {
-        // ... SweetAlert error as you already have ...
-        console.log(err);
-    } finally {
-        saving.value = false;
-    }
-}
-</script>
-
 <template>
 
-    <Head :title="`Update: ${preview.name}`" />
-    <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Edit Preview' }]">
-        <div class="space-y-4">
-            <!-- Top bar -->
-            <header class="sticky top-0 z-10">
-                <div class="max-w-8xl mx-auto px-2 py-3 flex items-center justify-end">
-                    <button
-                        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm shadow-sm"
-                        :disabled="saving" @click="saveAll">
-
-                        {{ saving ? 'Saving…' : 'Save' }}
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                    </button>
-                </div>
-            </header>
-
-            <main class="max-w-8xl mx-auto px-2">
-                <div class="grid grid-cols-12 gap-4">
-                    <!-- Left slim sidebar -->
-                    <aside class="col-span-12 md:col-span-4 lg:col-span-3">
-                        <div class="border rounded-xl p-3 bg-white/70 backdrop-blur">
-                            <div class="flex items-center justify-between mb-2">
-                                <h2 class="text-sm font-semibold text-slate-700">Structure</h2>
-                                <div class="flex gap-1">
-                                    <button class="px-2 py-1 text-xs rounded-lg bg-slate-100 hover:bg-slate-200"
-                                        @click="addCategory('banner')">+ Banner</button>
-                                    <button class="px-2 py-1 text-xs rounded-lg bg-slate-100 hover:bg-slate-200"
-                                        @click="addCategory('video')">+ Video</button>
-                                    <button class="px-2 py-1 text-xs rounded-lg bg-slate-100 hover:bg-slate-200"
-                                        @click="addCategory('gif')">+ Gif</button>
-                                    <button class="px-2 py-1 text-xs rounded-lg bg-slate-100 hover:bg-slate-200"
-                                        @click="addCategory('social')">+ Social</button>
-                                </div>
-                            </div>
-
-                            <span class="text-xs text-slate-500">Categories</span>
-
-                            <div v-for="c in notDeleted(preview.categories)" :key="c.tempId"
-                                class="mb-3 rounded-lg border bg-white">
-                                <div class="p-2 flex items-center gap-2 border-b">
-                                    <!-- ALL categories editable -->
-                                    <input
-                                        class="text-sm w-full border rounded px-2 py-1 focus:ring focus:ring-blue-100"
-                                        v-model="c.name" @input="markUpdated(c)"
-                                        placeholder="banner / video / gif / social" />
-                                    <button class="text-xs text-rose-600 hover:text-rose-700 px-2 py-1"
-                                        @click="deleteCategory(c)">Delete</button>
-                                </div>
-
-                                <!-- Feedbacks -->
-                                <div class="p-2">
-                                    <div class="flex items-center justify-between mb-1">
-                                        <span class="text-xs text-slate-500">Feedbacks</span>
-                                        <button class="text-xs px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200"
-                                            @click="addFeedback(c)">+ Add</button>
-                                    </div>
-
-                                    <div v-for="f in notDeleted(c.feedbacks)" :key="f.tempId"
-                                        class="mb-2 rounded border">
-                                        <div class="p-2 flex items-center gap-2 border-b">
-                                            <input
-                                                class="text-sm w-full border rounded px-2 py-1 focus:ring focus:ring-blue-100"
-                                                v-model="f.name" @input="markUpdated(f)" placeholder="Feedback name" />
-                                            <button class="text-xs text-rose-600 hover:text-rose-700 px-2 py-1"
-                                                @click="deleteFeedback(c, f)">Delete</button>
-                                        </div>
-
-                                        <!-- Sets -->
-                                        <div class="p-2">
-                                            <div class="flex items-center justify-between mb-1">
-                                                <span class="text-xs text-slate-500">Sets</span>
-                                                <button
-                                                    class="text-xs px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200"
-                                                    @click="addSet(f)">+ Add</button>
-                                            </div>
-
-                                            <div v-for="s in notDeleted(f.feedback_sets)" :key="s.tempId"
-                                                class="mb-2 rounded border">
-                                                <div class="p-2 flex items-center gap-2 border-b">
-                                                    <input
-                                                        class="text-xs w-full border rounded px-2 py-1 focus:ring focus:ring-blue-100"
-                                                        v-model="s.name" @input="markUpdated(s)"
-                                                        placeholder="Set name" />
-                                                    <button class="text-xs text-rose-600 hover:text-rose-700 px-2 py-1"
-                                                        @click="deleteSet(f, s)">Delete</button>
-                                                </div>
-
-                                                <!-- Versions -->
-                                                <div class="p-2">
-                                                    <div class="flex items-center justify-between mb-1">
-                                                        <span class="text-xs text-slate-500">Versions</span>
-                                                        <button
-                                                            class="text-xs px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200"
-                                                            @click="addVersion(s)">+ Add</button>
-                                                    </div>
-
-                                                    <div v-for="v in notDeleted(s.versions)" :key="v.tempId"
-                                                        class="flex items-center gap-2 mb-1">
-                                                        <input
-                                                            class="text-xs w-full border rounded px-2 py-1 focus:ring focus:ring-blue-100"
-                                                            v-model="v.name" @input="markUpdated(v)"
-                                                            placeholder="Version name" />
-                                                        <button
-                                                            class="text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100"
-                                                            @click="selectVersion(v)">Select</button>
-                                                        <button
-                                                            class="text-xs text-rose-600 hover:text-rose-700 px-2 py-1"
-                                                            @click="deleteVersion(s, v)">Delete</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </aside>
-
-                    <!-- Right: Files panel -->
-                    <section class="col-span-12 md:col-span-8 lg:col-span-9">
-                        <div v-if="!selectedVersion"
-                            class="border rounded-xl p-6 bg-white/70 backdrop-blur text-sm text-slate-500">
-                            Select a <span class="font-medium text-slate-700">Version</span> on the left to manage its
-                            files.
-                            Upload ZIPs, choose sizes, and drag to reorder.
-                        </div>
-
-                        <div v-else class="space-y-4">
-                            <div class="border rounded-xl p-4 bg-white shadow-sm">
-                                <div class="flex items-center justify-between mb-3">
-                                    <div>
-                                        <div class="text-xs text-slate-500">Editing Version</div>
-                                        <div class="font-medium text-slate-800">{{ selectedVersion.name }}</div>
-                                        <div class="text-[11px] text-slate-400">Kind: {{
-                                            detectKindForVersion(selectedVersion) }}</div>
-                                    </div>
-
-                                    <label
-                                        class="text-xs px-3 py-1.5 rounded-lg bg-slate-900/90 hover:bg-slate-900 text-white cursor-pointer shadow-sm">
-                                        Upload ZIPs
-                                        <input type="file" accept=".zip" multiple class="hidden"
-                                            @change="onUploadZips" />
-                                    </label>
-                                </div>
-
-                                <draggable v-model="filesRef" item-key="tempId" handle=".handle" class="space-y-2"
-                                    @end="onReorder">
-                                    <template #item="{ element, index }">
-                                        <div class="flex items-center gap-3 border rounded-lg p-2 hover:bg-slate-50">
-                                            <span class="handle cursor-grab select-none text-slate-400">≡</span>
-
-                                            <div
-                                                class="w-10 h-8 rounded bg-slate-100 flex items-center justify-center text-xs text-slate-500">
-                                                {{ index + 1 }}
-                                            </div>
-
-                                            <div class="flex-1">
-                                                <div class="text-sm font-medium text-slate-800 truncate">
-                                                    {{ element.name || element.path || ('#' + (element.id ??
-                                                        element.tempId))
-                                                    }}
-                                                </div>
-                                            </div>
-
-                                            <!-- Size picker -->
-                                            <div class="relative text-xs w-44">
-                                                <button type="button"
-                                                    class="w-full border rounded-lg px-2 py-1 text-left hover:bg-slate-50"
-                                                    @click="openSizePicker(element.id ?? element.tempId)">
-                                                    <span v-if="element.size_id == null" class="opacity-50">Pick a
-                                                        size…</span>
-                                                    <span v-else>
-                                                        <template
-                                                            v-if="detectKindForVersion(selectedVersion) === 'video'">
-                                                            {{
-                                                                (videoSizes.find(x => x.id === element.size_id)?.name)
-                                                                ??
-                                                                `${videoSizes.find(x => x.id
-                                                                    === element.size_id)?.width}x${videoSizes.find(x => x.id ===
-                                                                        element.size_id)?.height}`
-                                                            }}
-                                                        </template>
-                                                        <template v-else>
-                                                            {{
-                                                                bannerSizes.find(x => x.id === element.size_id)?.width
-                                                            }}x{{
-                                                                bannerSizes.find(x => x.id === element.size_id)?.height
-                                                            }}
-                                                        </template>
+    <Head title="Bulk Update" />
+    <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Bulk update' }]">
+        <div class="max-w-8xl py-4 px-4">
+            <div v-if="preview">
+                <div v-for="(category, catIdx) in preview.categories" :key="category.id" class="mb-8">
+                    <details open class="mb-4 border rounded shadow">
+                        <summary
+                            class="px-4 py-2 font-semibold text-lg bg-gray-100 dark:bg-gray-800 cursor-pointer flex items-center justify-between">
+                            <span class="flex items-center gap-2">
+                                <input v-model="category.name"
+                                    class="border rounded px-2 py-1 font-semibold text-lg bg-gray-100 dark:bg-gray-800"
+                                    placeholder="Category Name" style="min-width:180px;" />
+                                <span class="text-xs text-gray-500 ml-2">({{ category.type }})</span>
+                            </span>
+                            <button @click.stop="removeCategory(catIdx)"
+                                class="text-red-600 hover:text-red-800 px-2 py-1 rounded text-xs">Delete</button>
+                        </summary>
+                        <div class="p-4">
+                            <div v-for="(feedback, fbIdx) in category.feedbacks" :key="feedback.id" class="mb-6">
+                                <details open class="mb-2 border rounded">
+                                    <summary
+                                        class="px-3 py-1 font-medium bg-gray-50 dark:bg-gray-900 cursor-pointer flex items-center justify-between">
+                                        <span class="flex items-center gap-2">
+                                            <input v-model="feedback.name" class="border rounded px-2 py-1 font-medium"
+                                                placeholder="Feedback Name" style="min-width:120px;" />
+                                            <textarea v-model="feedback.description"
+                                                class="border rounded px-2 py-1 text-xs text-gray-400"
+                                                placeholder="Feedback Description"
+                                                style="min-width:120px;min-height:28px;" />
+                                        </span>
+                                        <button @click.stop="removeFeedback(category, fbIdx)"
+                                            class="text-red-600 hover:text-red-800 px-2 py-1 rounded text-xs">Delete</button>
+                                    </summary>
+                                    <div class="p-3">
+                                        <div v-for="(set, setIdx) in feedback.feedback_sets" :key="set.id" class="mb-4">
+                                            <details open class="mb-2 border rounded">
+                                                <summary
+                                                    class="px-2 py-1 font-medium bg-gray-50 dark:bg-gray-900 cursor-pointer flex items-center justify-between">
+                                                    <span>
+                                                        <input v-model="set.name" class="border rounded px-2 py-1"
+                                                            placeholder="Set Name" style="min-width:100px;" />
                                                     </span>
-                                                </button>
-
-                                                <div v-if="openSizeFor === (element.id ?? element.tempId)"
-                                                    class="absolute right-0 z-10 mt-1 w-56 bg-white border rounded-lg shadow-lg">
-                                                    <input class="w-full px-2 py-1 border-b text-xs rounded-t-lg"
-                                                        v-model="sizeQuery" placeholder="Search 300x250…"
-                                                        @keydown.stop="onSizeKeydown($event, filteredSizes(detectKindForVersion(selectedVersion)), element)" />
-                                                    <div class="max-h-56 overflow-auto">
+                                                    <button @click.stop="removeSet(feedback, setIdx)"
+                                                        class="text-red-600 hover:text-red-800 px-2 py-1 rounded text-xs">Delete</button>
+                                                </summary>
+                                                <div class="p-2">
+                                                    <div v-for="(version, verIdx) in set.versions" :key="version.id"
+                                                        class="mb-4">
+                                                        <details open class="mb-2 border rounded">
+                                                            <summary
+                                                                class="px-2 py-1 font-medium bg-gray-50 dark:bg-gray-900 cursor-pointer flex items-center justify-between">
+                                                                <span>
+                                                                    <input v-model="version.name"
+                                                                        class="border rounded px-2 py-1"
+                                                                        placeholder="Version Name"
+                                                                        style="min-width:100px;" />
+                                                                </span>
+                                                                <button @click.stop="removeVersion(set, verIdx)"
+                                                                    class="text-red-600 hover:text-red-800 px-2 py-1 rounded text-xs">Delete</button>
+                                                            </summary>
+                                                            <div class="p-2">
+                                                                <h4 class="font-semibold mb-2">Assets</h4>
+                                                                <div v-if="category.type === 'banner'">
+                                                                    <!-- Only show FilePond for new versions (id is not from DB) -->
+                                                                    <div v-if="!version.idFromDb"
+                                                                        class="mt-4 flex gap-2 items-center">
+                                                                        <FilePond :allowMultiple="true"
+                                                                            :acceptedFileTypes="['application/zip']"
+                                                                            :labelIdle="'Drag & Drop your zip files or <span class=\'filepond--label-action\'>Browse</span>'"
+                                                                            :files="version._filepondFiles || []"
+                                                                            @updatefiles="files => handleBannerDrop(files, version)"
+                                                                            class="my-4 filepond-dropzone" />
+                                                                    </div>
+                                                                    <!-- Existing banners: edit/delete only, no upload -->
+                                                                    <draggable v-model="version.banners" item-key="id"
+                                                                        @end="updateBannerPositions(version)"
+                                                                        class="space-y-2 mt-4">
+                                                                        <template #item="{ element, index }">
+                                                                            <div
+                                                                                class="flex items-center bg-white dark:bg-gray-800 rounded shadow px-4 py-3">
+                                                                                <!-- Drag handle -->
+                                                                                <div
+                                                                                    class="cursor-move text-gray-400 hover:text-gray-600 mr-3">
+                                                                                    <svg width="20" height="20"
+                                                                                        fill="currentColor">
+                                                                                        <circle cx="10" cy="10" r="8" />
+                                                                                    </svg>
+                                                                                </div>
+                                                                                <!-- Banner name -->
+                                                                                <span
+                                                                                    class="font-medium min-w-[120px]">{{
+                                                                                    element.name }}</span>
+                                                                                <!-- Spacer -->
+                                                                                <div class="flex-1"></div>
+                                                                                <!-- Position and dropdown at end -->
+                                                                                <div class="flex items-center gap-4">
+                                                                                    <span
+                                                                                        class="text-xs text-gray-500">Position:
+                                                                                        {{ index + 1 }}</span>
+                                                                                    <span
+                                                                                        class="text-xs text-gray-500">Size:</span>
+                                                                                    <v-select
+                                                                                        :options="bannerSizeOptions"
+                                                                                        label="label"
+                                                                                        :reduce="size => size.id"
+                                                                                        v-model="element.size_id"
+                                                                                        placeholder="Select Banner Size"
+                                                                                        :clearable="false"
+                                                                                        class="w-40" />
+                                                                                </div>
+                                                                            </div>
+                                                                        </template>
+                                                                    </draggable>
+                                                                </div>
+                                                                <div v-else-if="category.type === 'video'">
+                                                                    <div class="text-gray-400 italic">Video asset
+                                                                        editing coming soon...</div>
+                                                                </div>
+                                                                <div v-else-if="category.type === 'social'">
+                                                                    <div class="text-gray-400 italic">Social asset
+                                                                        editing coming soon...</div>
+                                                                </div>
+                                                                <div v-else-if="category.type === 'gif'">
+                                                                    <div class="text-gray-400 italic">Gif asset editing
+                                                                        coming soon...</div>
+                                                                </div>
+                                                            </div>
+                                                        </details>
+                                                    </div>
+                                                    <!-- Add Version Button at bottom, left aligned -->
+                                                    <div class="mt-4 flex gap-2 items-center justify-start">
                                                         <button
-                                                            v-for="(opt, i) in filteredSizes(detectKindForVersion(selectedVersion))"
-                                                            :key="opt.id" class="w-full text-left px-2 py-1"
-                                                            :class="i === highlightIx ? 'bg-blue-50' : 'hover:bg-slate-50'"
-                                                            @mouseenter="highlightIx = i"
-                                                            @click="pickSize(element, opt.id)">
-                                                            {{ opt.label }}
+                                                            @click="showAddVersion[set.id] = !showAddVersion[set.id]"
+                                                            class="bg-indigo-300 text-white px-3 py-1 rounded text-sm">
+                                                            + Add Version
                                                         </button>
                                                     </div>
+                                                    <div v-if="showAddVersion[set.id]"
+                                                        class="mt-2 flex gap-2 items-center justify-start">
+                                                        <input v-model="newVersionName[set.id]"
+                                                            placeholder="Version Name"
+                                                            class="border rounded px-2 py-1" />
+                                                        <button @click="addVersion(set)"
+                                                            class="bg-green-600 text-white px-3 py-1 rounded">Add</button>
+                                                    </div>
                                                 </div>
-                                            </div>
-
-                                            <button class="text-xs text-rose-600 hover:text-rose-700 px-2 py-1"
-                                                @click="deleteFile(element)">
-                                                Delete
+                                            </details>
+                                        </div>
+                                        <!-- Add Set Button at bottom, left aligned -->
+                                        <div class="mt-4 flex gap-2 items-center justify-start">
+                                            <button @click="showAddSet[feedback.id] = !showAddSet[feedback.id]"
+                                                class="bg-indigo-400 text-white px-3 py-1 rounded text-sm">
+                                                + Add Feedback Set
                                             </button>
                                         </div>
-                                    </template>
-                                </draggable>
-
-                                <div v-if="filesRef.length === 0" class="text-sm text-slate-500">
-                                    No files yet. Upload one or more ZIPs to add files for this version.
+                                        <div v-if="showAddSet[feedback.id]"
+                                            class="mt-2 flex gap-2 items-center justify-start">
+                                            <input v-model="newSetName[feedback.id]" placeholder="Set Name"
+                                                class="border rounded px-2 py-1" />
+                                            <button @click="addSet(feedback)"
+                                                class="bg-green-600 text-white px-3 py-1 rounded">Add</button>
+                                        </div>
+                                    </div>
+                                </details>
+                            </div>
+                            <!-- Add Feedback Button at bottom, left aligned -->
+                            <div class="mt-4 flex gap-2 items-center justify-start">
+                                <button @click="showAddFeedback[category.id] = !showAddFeedback[category.id]"
+                                    class="bg-indigo-500 text-white px-3 py-1 rounded text-sm">
+                                    + Add Feedback
+                                </button>
+                            </div>
+                            <div v-if="showAddFeedback[category.id]"
+                                class="mt-2 flex-col gap-2 items-start justify-start">
+                                <textarea v-model="newFeedbackDesc[category.id]" placeholder="Description"
+                                    class="border rounded px-2 py-1 min-w-[200px] min-h-[60px]" />
+                                <div class="flex gap-2">
+                                    <input v-model="newFeedbackName[category.id]" placeholder="Feedback Name"
+                                        class="border rounded px-2 py-1" />
+                                    <button @click="addFeedback(category)"
+                                        class="bg-green-600 text-white px-3 py-1 rounded">Add</button>
                                 </div>
                             </div>
                         </div>
-                    </section>
+                    </details>
                 </div>
-            </main>
+                <!-- Add Category Button always at the bottom, left aligned -->
+                <div class="mt-4 flex gap-2 items-center justify-start">
+                    <button @click="showAddCategory = !showAddCategory"
+                        class="bg-indigo-600 text-white px-4 py-2 rounded">
+                        + Add Category
+                    </button>
+                </div>
+                <div v-if="showAddCategory" class="mt-2 flex gap-2 items-center justify-start">
+                    <input v-model="newCategoryName" placeholder="Category Name" class="border rounded px-2 py-1" />
+                    <select v-model="newCategoryType" class="border rounded px-2 py-1">
+                        <option value="banner">Banner</option>
+                        <option value="video">Video</option>
+                        <option value="social">Social</option>
+                        <option value="gif">Gif</option>
+                    </select>
+                    <button @click="addCategory" class="bg-green-600 text-white px-3 py-1 rounded">Add</button>
+                </div>
+                <div class="mt-8 text-right space-x-4">
+                    <button type="button" @click="goToPreview"
+                        class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 font-semibold">
+                        View Preview
+                    </button>
+                    <button @click="saveAll"
+                        class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 font-semibold">
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+            <div v-else>
+                <div class="text-center text-gray-500 py-12">Loading preview data...</div>
+            </div>
         </div>
     </AppLayout>
 </template>
 
+<script setup lang="ts">
+import { ref, computed, reactive } from 'vue';
+import { Head, usePage, router } from '@inertiajs/vue3';
+import draggable from 'vuedraggable';
+import AppLayout from '@/layouts/AppLayout.vue';
+import vSelect from "vue-select";
+import "vue-select/dist/vue-select.css";
+import Swal from 'sweetalert2';
+
+import vueFilePond from 'vue-filepond';
+import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
+import 'filepond/dist/filepond.min.css';
+const FilePond = vueFilePond(FilePondPluginFileValidateType);
+
+// Dynamic data from backend
+const page = usePage();
+const preview = computed(() => page.props.preview);
+const bannerSizes = computed(() => page.props.bannerSizes);
+
+function goToPreview() {
+    window.location.href = `/previews/show/${preview.value.slug}`;
+}
+
+// Add forms state
+const showAddCategory = ref(false);
+const newCategoryName = ref('');
+const newCategoryType = ref('banner');
+
+const showAddFeedback = reactive({});
+const newFeedbackName = reactive({});
+const newFeedbackDesc = reactive({});
+
+const showAddSet = reactive({});
+const newSetName = reactive({});
+
+const showAddVersion = reactive({});
+const newVersionName = reactive({});
+
+// Add Category
+function addCategory() {
+    preview.value.categories.push({
+        id: Date.now(),
+        name: newCategoryName.value,
+        type: newCategoryType.value,
+        feedbacks: [],
+    });
+    showAddCategory.value = false;
+    newCategoryName.value = '';
+    newCategoryType.value = 'banner';
+}
+
+const bannerSizeOptions = computed(() =>
+    bannerSizes.value.map(size => ({
+        id: size.id,
+        label: `${size.width}x${size.height}`
+    }))
+);
+
+// Remove Category
+function removeCategory(idx: number) {
+    preview.value.categories.splice(idx, 1);
+}
+
+// Add Feedback
+function addFeedback(category: any) {
+    if (!category.feedbacks) category.feedbacks = [];
+    category.feedbacks.push({
+        id: Date.now(),
+        name: newFeedbackName[category.id] || '',
+        description: newFeedbackDesc[category.id] || '',
+        feedback_sets: [],
+    });
+    showAddFeedback[category.id] = false;
+    newFeedbackName[category.id] = '';
+    newFeedbackDesc[category.id] = '';
+}
+
+// Remove Feedback
+function removeFeedback(category: any, idx: number) {
+    category.feedbacks.splice(idx, 1);
+}
+
+// Add Feedback Set
+function addSet(feedback: any) {
+    if (!feedback.feedback_sets) feedback.feedback_sets = [];
+    feedback.feedback_sets.push({
+        id: Date.now(),
+        name: newSetName[feedback.id] || '',
+        versions: [],
+    });
+    showAddSet[feedback.id] = false;
+    newSetName[feedback.id] = '';
+}
+
+// Remove Set
+function removeSet(feedback: any, idx: number) {
+    feedback.feedback_sets.splice(idx, 1);
+}
+
+// Add Version
+function addVersion(set: any) {
+    if (!set.versions) set.versions = [];
+    set.versions.push({
+        id: Date.now(),
+        name: newVersionName[set.id] || '',
+        banners: [],
+        idFromDb: false, // Mark as new version
+    });
+    showAddVersion[set.id] = false;
+    newVersionName[set.id] = '';
+}
+
+// Remove Version
+function removeVersion(set: any, idx: number) {
+    set.versions.splice(idx, 1);
+}
+
+// Banner CRUD
+function handleBannerDrop(files, version) {
+    // Save FilePond files for UI state
+    version._filepondFiles = files;
+
+    // Clear banners and re-populate from FilePond files
+    version.banners = [];
+    files.forEach((fileWrapper, idx) => {
+        const file = fileWrapper.file;
+        version.banners.push({
+            id: Date.now() + idx,
+            name: file.name,
+            file,
+            size_id: '',
+            position: version.banners.length + 1,
+        });
+    });
+    updateBannerPositions(version);
+}
+
+function removeBanner(version: any, index: number) {
+    version.banners.splice(index, 1);
+    updateBannerPositions(version);
+}
+
+function updateBannerPositions(version: any) {
+    version.banners.forEach((banner: any, idx: number) => {
+        banner.position = idx + 1;
+    });
+}
+
+// Save All
+function saveAll() {
+    const formData = new FormData();
+    formData.append('preview_id', preview.value.id);
+
+    preview.value.categories.forEach((category, catIdx) => {
+        formData.append(`categories[${catIdx}][name]`, category.name);
+        formData.append(`categories[${catIdx}][type]`, category.type);
+
+        category.feedbacks.forEach((feedback, fbIdx) => {
+            formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][name]`, feedback.name);
+            formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][description]`, feedback.description);
+
+            feedback.feedback_sets.forEach((set, setIdx) => {
+                formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][name]`, set.name);
+
+                set.versions.forEach((version, verIdx) => {
+                    formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][name]`, version.name);
+                    // Only send banners for new versions (no idFromDb)
+                    if (!version.idFromDb) {
+                        version.banners.forEach((banner, bIdx) => {
+                            if (banner.file) {
+                                formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][banners][${bIdx}][name]`, banner.name);
+                                formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][banners][${bIdx}][size_id]`, banner.size_id);
+                                formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][banners][${bIdx}][position]`, banner.position);
+                                formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][banners][${bIdx}][file]`, banner.file);
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    });
+
+    router.post(route('previews.bulkEdit', preview.value.id), formData, {
+        forceFormData: true,
+        onSuccess: () => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Saved successfully!',
+                showConfirmButton: false,
+                timer: 1800
+            });
+        },
+        onError: (err) => {
+            // Keep error debug logs for later
+            console.error('Failed', err);
+            if (err && err.response && err.response.data && err.response.data.errors) {
+                console.error('Validation errors:', err.response.data.errors);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    html: `<pre style="text-align:left;">${JSON.stringify(err.response.data.errors, null, 2)}</pre>`,
+                    width: 600
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Failed',
+                    text: 'See console for details.'
+                });
+            }
+        }
+    });
+}
+</script>
+
 <style scoped>
-/* Tailwind covers most styling */
+body {
+    background: #f7f8fa;
+}
+
+details[open]>summary {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+textarea {
+    min-width: 600px;
+}
+
+.filepond-dropzone {
+    width: 100%;
+}
+
+.filepond--credits {
+    display: none !important;
+}
 </style>

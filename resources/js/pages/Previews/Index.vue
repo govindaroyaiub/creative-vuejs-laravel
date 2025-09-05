@@ -5,26 +5,17 @@ import { Eye, Pencil, Trash2, CirclePlus, X, Share2 } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, watch } from 'vue';
 import PreviewStepBasicInfo from './Partials/PreviewStepBasicInfo.vue';
-import PreviewStepProjectType from './Partials/PreviewStepProjectType.vue';
-import CreateBannerForm from './Partials/CreateBannerForm.vue';
-import CreateSocialForm from './Partials/CreateSocialForm.vue';
-import CreateVideoForm from './Partials/CreateVideoForm.vue';
-import CreateGifForm from './Partials/CreateGifForm.vue';
 
 const loading = ref(false);
 const page = usePage();
 const search = ref('');
 const showModal = ref(false);
-const step = ref(1);
-const transitionDirection = ref<'forward' | 'backward'>('forward');
 
 const previews = computed(() => page.props.previews ?? { data: [], links: [] });
 const clients = computed(() => page.props.clients ?? []);
 const users = computed(() => page.props.users ?? []);
 const colorPalettes = computed(() => page.props.colorPalettes ?? []);
 const authUser = computed(() => page.props.auth?.user ?? {});
-const bannerSizes = computed(() => page.props.bannerSizes ?? []);
-const videoSizes = computed(() => page.props.videoSizes ?? []);
 
 function getDefaultFormData() {
     return {
@@ -36,16 +27,6 @@ function getDefaultFormData() {
         show_planetnine_logo: true,
         show_sidebar_logo: true,
         show_footer: true,
-        type: '',
-        category_name: '',
-        feedback_description: 'Project is initialized',
-        feedback_name: 'F1',
-        feedback_active: true,
-        version_name: '',
-        banners: [], // This will now hold banner sets instead of individual banners
-        videos: [],
-        socials: [],
-        gifs: []
     };
 }
 
@@ -97,8 +78,6 @@ const getTypes = (preview: any) => {
 
 const closeModal = () => {
     showModal.value = false;
-    step.value = 1;
-    transitionDirection.value = 'forward';
     formData.value = getDefaultFormData();
 };
 
@@ -111,60 +90,8 @@ const submitForm = () => {
     payload.append('show_planetnine_logo', formData.value.show_planetnine_logo ? '1' : '0');
     payload.append('show_sidebar_logo', formData.value.show_sidebar_logo ? '1' : '0');
     payload.append('show_footer', formData.value.show_footer ? '1' : '0');
-    payload.append('type', formData.value.type);
-    payload.append('category_name', formData.value.category_name);
-    payload.append('feedback_description', formData.value.feedback_description);
-    payload.append('feedback_name', formData.value.feedback_name);
-    payload.append('feedback_active', formData.value.feedback_active ? '1' : '0');
 
     formData.value.team_ids.forEach(id => payload.append('team_ids[]', id));
-
-    if (formData.value.type.toLowerCase() === 'banner') {
-        formData.value.banners.forEach((set, setIndex) => {
-            payload.append(`banner_sets[${setIndex}][position]`, String(setIndex));
-            payload.append(`banner_sets[${setIndex}][name]`, set.name || '');
-
-            (set.versions || []).forEach((version, vIndex) => {
-                payload.append(`banner_sets[${setIndex}][versions][${vIndex}][position]`, String(vIndex));
-                payload.append(`banner_sets[${setIndex}][versions][${vIndex}][name]`, version.name || '');
-
-                (version.banners || []).forEach((banner, bIndex) => {
-                    payload.append(`banner_sets[${setIndex}][versions][${vIndex}][banners][${bIndex}][file]`, banner.file);
-                    payload.append(`banner_sets[${setIndex}][versions][${vIndex}][banners][${bIndex}][size_id]`, banner.size_id);
-                    payload.append(`banner_sets[${setIndex}][versions][${vIndex}][banners][${bIndex}][position]`, String(bIndex));
-                });
-            });
-        });
-    }
-    if (formData.value.type.toLowerCase() === 'social') {
-        formData.value.socials.forEach((social, i) => {
-            payload.append(`socials[${i}][file]`, social.file);
-            payload.append(`socials[${i}][name]`, social.name);
-            payload.append(`socials[${i}][position]`, i);
-        });
-    }
-    if (formData.value.type.toLowerCase() === 'video') {
-        formData.value.videos.forEach((video, i) => {
-            payload.append(`videos[${i}][path]`, video.path);
-            if (video.companion_banner_path) {
-                payload.append(`videos[${i}][companion_banner_path]`, video.companion_banner_path);
-            }
-            payload.append(`videos[${i}][size_id]`, video.size_id);
-            payload.append(`videos[${i}][name]`, video.name);
-            payload.append(`videos[${i}][codec]`, video.codec);
-            payload.append(`videos[${i}][fps]`, video.fps);
-            payload.append(`videos[${i}][position]`, i);
-        });
-    }
-    if (formData.value.type.toLowerCase() === 'gif') {
-        formData.value.gifs.forEach((gif, i) => {
-            payload.append(`gifs[${i}][file]`, gif.file);
-            gif.sizes.forEach((sizeId, j) => {
-                payload.append(`gifs[${i}][sizes][${j}]`, sizeId);
-            });
-            payload.append(`gifs[${i}][position]`, i);
-        });
-    }
 
     router.post(route('previews-store'), payload, {
         forceFormData: true,
@@ -178,53 +105,6 @@ const submitForm = () => {
         }
     });
 };
-
-const handleNextStep = () => {
-    transitionDirection.value = 'forward';
-    if (step.value === 3) {
-        submitForm();
-    } else {
-        step.value++;
-    }
-};
-
-const handlePreviousStep = () => {
-    transitionDirection.value = 'backward';
-    step.value--;
-};
-
-const getStepComponent = (step: number) => {
-    switch (step) {
-        case 1: return PreviewStepBasicInfo;
-        case 2: return PreviewStepProjectType;
-        case 3:
-            if (formData.value.type.toLowerCase() === 'banner') return CreateBannerForm;
-            if (formData.value.type.toLowerCase() === 'video') return CreateVideoForm;
-            if (formData.value.type.toLowerCase() === 'social') return CreateSocialForm;
-            if (formData.value.type.toLowerCase() === 'gif') return CreateGifForm;
-            return { template: '<div class="text-center text-gray-500">Submitting...</div>' };
-        default: return { template: '<div class="text-center text-gray-500">Submitting...</div>' };
-    }
-};
-
-const stepProps = computed(() => ({
-    form: formData.value,
-    ...(step.value === 1 && {
-        users: users.value,
-        clients: clients.value,
-        colorPalettes: colorPalettes.value,
-        authUser: authUser.value,
-    }),
-    ...(step.value === 3 && formData.value.type.toLowerCase() === 'banner' && {
-        bannerSizes: bannerSizes.value,
-    }),
-    ...(step.value === 3 && formData.value.type.toLowerCase() === 'video' && {
-        videoSizes: videoSizes.value,
-    }),
-    ...(step.value === 3 && formData.value.type.toLowerCase() === 'gif' && {
-        bannerSizes: bannerSizes.value,
-    }),
-}));
 </script>
 
 <template>
@@ -337,40 +217,15 @@ const stepProps = computed(() => ({
                     aria-label="Close Modal">
                     <X class="h-6 w-6" />
                 </button>
-                <Transition :name="transitionDirection === 'forward' ? 'slide-left' : 'slide-right'" mode="out-in">
-                    <component :is="getStepComponent(step)" :key="step" v-bind="stepProps" @next="handleNextStep"
-                        @previous="handlePreviousStep" @submit="submitForm" @close="closeModal" />
-                </Transition>
+                <!-- Directly show the form component -->
+                <PreviewStepBasicInfo v-bind="{
+                    form: formData,
+                    users: users,
+                    clients: clients,
+                    colorPalettes: colorPalettes,
+                    authUser: authUser
+                }" @submit="submitForm" @close="closeModal" />
             </div>
         </div>
     </AppLayout>
 </template>
-
-<style scoped>
-.slide-left-enter-active,
-.slide-left-leave-active,
-.slide-right-enter-active,
-.slide-right-leave-active {
-    transition: all 0.3s ease;
-}
-
-.slide-left-enter-from {
-    opacity: 0;
-    transform: translateX(20px);
-}
-
-.slide-left-leave-to {
-    opacity: 0;
-    transform: translateX(-20px);
-}
-
-.slide-right-enter-from {
-    opacity: 0;
-    transform: translateX(-20px);
-}
-
-.slide-right-leave-to {
-    opacity: 0;
-    transform: translateX(20px);
-}
-</style>

@@ -38,8 +38,6 @@
     <!-- Team Members -->
     <div>
       <label class="block mb-1 text-sm font-medium">Team Members</label>
-
-      <!-- Selected users display -->
       <div class="flex flex-wrap gap-2 mb-2">
         <span v-for="user in selectedUsers" :key="user.id"
           class="bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full dark:bg-indigo-800 dark:text-white">
@@ -47,12 +45,8 @@
           <span v-if="user.id !== authUser.id" @click="removeUser(user.id)" class="ml-1 cursor-pointer">×</span>
         </span>
       </div>
-
-      <!-- User search input -->
       <input v-model="userSearch" type="text" placeholder="Search users..."
         class="w-full rounded border px-3 py-2 dark:bg-gray-800 dark:text-white" />
-
-      <!-- Search result list -->
       <ul v-if="userSearch.trim().length > 0 && filteredUsers.length > 0"
         class="mt-1 max-h-32 overflow-y-auto rounded border dark:border-gray-700">
         <li v-for="user in filteredUsers" :key="user.id"
@@ -82,11 +76,11 @@
       </div>
     </div>
 
-    <!-- Navigation -->
+    <!-- Submit Button -->
     <div class="text-right pt-2">
       <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded disabled:opacity-50"
-        :disabled="!isFormValid" @click="$emit('next')">
-        Next →
+        :disabled="!isFormValid" @click="$emit('submit')">
+        Submit
       </button>
     </div>
   </div>
@@ -105,12 +99,10 @@ const props = defineProps<{
 
 const userSearch = ref('');
 
-// Selected users display
 const selectedUsers = computed(() =>
   props.users.filter((u) => props.form.team_ids.includes(u.id))
 );
 
-// Search results
 const filteredUsers = computed(() => {
   const query = userSearch.value.toLowerCase();
   return props.users
@@ -129,7 +121,6 @@ const removeUser = (id: number) => {
   props.form.team_ids = props.form.team_ids.filter((uid: number) => uid !== id);
 };
 
-// Form validation
 const isFormValid = computed(() => {
   return (
     props.form.name.trim() !== '' &&

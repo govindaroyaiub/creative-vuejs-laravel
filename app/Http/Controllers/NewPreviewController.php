@@ -80,25 +80,11 @@ class NewPreviewController extends Controller
             'show_footer' => 'boolean',
             'team_ids' => 'required|array',
             'team_ids.*' => 'exists:users,id',
-            'type' => 'required|in:Banner,Video,Social,Gif',
-            'version_name' => 'nullable|string|max:255',
-            'category_name' => 'nullable|string|max:255',
-            'version_description' => 'nullable|string',
-            'subversion_name' => 'nullable|string|max:255',
-            'subversion_active' => 'nullable|boolean',
-            'banner_sets' => 'nullable|array',
-            'banner_sets.*.name' => 'nullable|string|max:255',
-            'banner_sets.*.versions' => 'nullable|array',
-            'banner_sets.*.versions.*.name' => 'nullable|string|max:255',
-            'banner_sets.*.versions.*.banners' => 'nullable|array',
-            'banner_sets.*.versions.*.banners.*.size_id' => 'required_with:banners.*.file|exists:banner_sizes,id',
-            'banner_sets.*.versions.*.banners.*.file' => 'required_with:banners|file|mimes:zip',
-            'banner_sets.*.versions.*.banners.*.position' => 'required|integer',
         ]);
 
-        DB::transaction(function () use ($request) {
-            // 1. Create the Preview
+        $preview = null;
 
+        DB::transaction(function () use ($request, &$preview) {
             $preview = newPreview::create([
                 'slug' => Str::uuid()->toString(),
                 'name' => $request->name,
@@ -108,94 +94,11 @@ class NewPreviewController extends Controller
                 'color_palette_id' => $request->color_palette_id,
                 'uploader_id' => Auth::id(),
             ]);
-
-            if ($request->type === 'Banner') {
-                // 2. Create Version
-                $category = $preview->categories()->create([
-                    'name' => $request->input('category_name', 'Banners'),
-                    'type' => 'banner',
-                    'is_active' => true,
-                ]);
-
-                // 3. Create SubVersion
-                $feedback = $category->feedbacks()->create([
-                    'name' => $request->input('feedback_name', 'Feedback'),
-                    'description' => $request->input('feedback_description'),
-                    'is_active' => $request->boolean('feedback_active', true),
-                ]);
-
-                if ($request->has('banner_sets')) {
-                    foreach ((array) $request->input('banner_sets', []) as $setIndex => $bannerSet) {
-                        // 3a) Create FeedbackSet for each Set
-                        $feedbackSet = $feedback->feedbackSets()->create([
-                            'name' => $bannerSet['name'],
-                        ]);
-
-                        // 3b) For each Version under this Set
-                        foreach ((array) ($bannerSet['versions'] ?? []) as $vIndex => $versionData) {
-                            $version = $feedbackSet->versions()->create([
-                                'name' => $versionData['name'],
-                            ]);
-
-                            // 3c) For each Banner (ZIP) under this Version
-                            foreach ((array) ($versionData['banners'] ?? []) as $bIndex => $bannerData) {
-                                // Files in nested arrays must be fetched with file()
-                                $file = $request->file("banner_sets.$setIndex.versions.$vIndex.banners.$bIndex.file");
-                                if (!$file) {
-                                    continue;
-                                }
-
-                                $sizeId = $bannerData['size_id'] ?? null;
-                                $size = BannerSize::findOrFail($sizeId);
-                                $dimension = $size->width . 'x' . $size->height;
-
-                                $uploadPath = public_path('uploads/banners');
-                                if (!is_dir($uploadPath)) {
-                                    mkdir($uploadPath, 0755, true);
-                                }
-
-                                $zipName = $request->name . '_' . $dimension . '_' . Str::uuid() . '.zip';
-
-                                // File size display
-                                $sizeInBytes = $file->getSize();
-                                $fileSize = $sizeInBytes >= 1048576
-                                    ? round($sizeInBytes / 1048576, 2) . ' MB'
-                                    : round($sizeInBytes / 1024, 2) . ' KB';
-
-                                // Move
-                                $file->move($uploadPath, $zipName);
-
-                                // Unzip to folder named after zip (without extension)
-                                $zip = new ZipArchive;
-                                $extractedFolder = $uploadPath . '/' . pathinfo($zipName, PATHINFO_FILENAME);
-                                if (!is_dir($extractedFolder)) {
-                                    mkdir($extractedFolder, 0755, true);
-                                }
-                                if ($zip->open($uploadPath . '/' . $zipName) === true) {
-                                    $zip->extractTo($extractedFolder);
-                                    $zip->close();
-                                    @unlink($uploadPath . '/' . $zipName);
-                                } else {
-                                    throw new \RuntimeException("Failed to extract: $zipName");
-                                }
-
-                                // Create Banner for this Version
-                                newBanner::create([
-                                    'version_id' => $version->id,
-                                    'name'       => $preview->name, // or any naming you prefer
-                                    'path'       => 'uploads/banners/' . basename($extractedFolder),
-                                    'size_id'    => $sizeId,
-                                    'file_size'  => $fileSize,
-                                    'position'   => (int)($bannerData['position'] ?? $bIndex),
-                                ]);
-                            }
-                        }
-                    }
-                }
-            }
         });
 
-        return redirect()->route('previews-index')->with('success', 'Preview created successfully.');
+        // Redirect to bulkEdit with the new preview's ID
+        return redirect()->route('previews.update.all', $preview->id)
+            ->with('success', 'Preview created successfully.');
     }
 
     /**
@@ -352,348 +255,280 @@ class NewPreviewController extends Controller
 
     public function updatePreview($id)
     {
-        $preview = newPreview::query()
-            ->with([
-                'categories:id,preview_id,name',
-                'categories.feedbacks:id,category_id,name',
-                'categories.feedbacks.feedbackSets:id,feedback_id,name',
-                'categories.feedbacks.feedbackSets.versions:id,feedback_set_id,name',
-
-                'categories.feedbacks.feedbackSets.versions.banners:id,version_id,id,size_id,path,position',
-                'categories.feedbacks.feedbackSets.versions.videos:id,version_id,id,size_id,path,position',
-                'categories.feedbacks.feedbackSets.versions.gifs:id,version_id,id,size_id,path,position',
-                'categories.feedbacks.feedbackSets.versions.socials:id,version_id,id,path,position', // ← add this
-            ])
-            ->findOrFail($id);
-
-        $bannerSizes = BannerSize::query()->select('id', 'width', 'height')->orderBy('width')->get();
-        $videoSizes  = VideoSize::query()->select('id', 'name', 'width', 'height')->orderBy('width')->get();
+        $preview = newPreview::with([
+            'categories.feedbacks.feedbackSets.versions.banners',
+            'categories.feedbacks.feedbackSets.versions.videos',
+            'categories.feedbacks.feedbackSets.versions.socials',
+            'categories.feedbacks.feedbackSets.versions.gifs',
+        ])->findOrFail($id);
 
         return Inertia::render('Previews/Update', [
-            'preview'      => $preview,
-            'bannerSizes'  => $bannerSizes,
-            'videoSizes'   => $videoSizes,
-            // optionally a concurrency token:
-            'previewETag'  => $preview->updated_at->toISOString(),
+            'preview' => $preview,
+            'bannerSizes' => BannerSize::all(),
+            'videoSizes' => VideoSize::all(),
+            // Add other needed data here
         ]);
     }
 
-    private function kindForVersion(int $versionId): string
+    public function bulkEdit(Request $request, $id)
     {
-        // category.name is one of: banner | video | gif | social
-        return DB::table('new_categories')
-            ->join('new_feedback', 'new_feedback.category_id', '=', 'new_categories.id')
-            ->join('new_feedback_sets', 'new_feedback_sets.feedback_id', '=', 'new_feedback.id')
-            ->join('new_versions', 'new_versions.feedback_set_id', '=', 'new_feedback_sets.id')
-            ->where('new_versions.id', $versionId)
-            ->value('new_categories.name');
-    }
-
-    private function modelForKind(string $kind): string
-    {
-        return match ($kind) {
-            'banner' => \App\Models\newBanner::class,
-            'video'  => \App\Models\newVideo::class,
-            'gif'    => \App\Models\newGif::class,
-            'social' => \App\Models\newSocial::class,
-            default  => throw new \RuntimeException("Unknown kind $kind"),
-        };
-    }
-
-    // Convenience when appending new files
-    private function nextPosition(string $table, int $versionId): int
-    {
-        return (int) DB::table($table)->where('version_id', $versionId)->max('position') + 1;
-    }
-
-    public function bulkEdit(Request $request, newPreview $preview)
-    {
-        // 1) Validate the envelope (keep flexible)
-        $data = $request->validate([
-            'etag'         => ['nullable', 'string'],
-            'type'         => ['nullable', 'in:banner,video,gif,social'], // we’ll use banner path for files
-            'categories'   => ['required', 'array'],
-            'feedbacks'    => ['required', 'array'],
-            'feedbackSets' => ['required', 'array'],
-            'versions'     => ['required', 'array'],
-            'banners'      => ['required', 'array'],
-            'videos'       => ['required', 'array'],
-            'gifs'         => ['required', 'array'],
-            'socials'      => ['required', 'array'],
-            'fileReorders' => ['array'],
+        $validated = $request->validate([
+            'preview_id' => 'required|exists:new_previews,id',
+            'categories' => 'required|array|min:1',
+            'categories.*.name' => 'required|string|max:255',
+            'categories.*.type' => ['required', \Illuminate\Validation\Rule::in(['banner', 'video', 'social', 'gif'])],
+            'categories.*.feedbacks' => 'required|array|min:1',
+            'categories.*.feedbacks.*.name' => 'required|string|max:255',
+            'categories.*.feedbacks.*.description' => 'required|string|max:1000',
+            'categories.*.feedbacks.*.feedback_sets' => 'required|array|min:1',
+            'categories.*.feedbacks.*.feedback_sets.*.name' => 'nullable|string|max:255',
+            'categories.*.feedbacks.*.feedback_sets.*.versions' => 'required|array|min:1',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.name' => 'nullable|string|max:255',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.banners' => 'array',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.banners.*.id' => 'nullable|integer',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.banners.*.name' => 'nullable|string|max:255',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.banners.*.size_id' => 'required_if:categories.*.type,banner|exists:banner_sizes,id',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.banners.*.position' => 'required|integer',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.banners.*.file' => 'nullable|file|mimes:zip',
+            // Add similar validation for video, gif, social when needed
         ]);
 
-        // 2) Optional optimistic concurrency
-        if (!empty($data['etag']) && $preview->updated_at?->toISOString() !== $data['etag']) {
-            return response()->json(['error' => 'Preview changed on the server. Please reload.'], 409);
-        }
+        $preview = newPreview::with([
+            'categories.feedbacks.feedbackSets.versions.banners'
+        ])->findOrFail($id);
 
-        // 3) Early exit if nothing to do
-        $empty = fn($b) => empty($b['created']) && empty($b['updated']) && empty($b['deleted']);
-        if (
-            $empty($data['categories']) && $empty($data['feedbacks']) && $empty($data['feedbackSets']) &&
-            $empty($data['versions'])   && $empty($data['banners'])   && $empty($data['videos']) &&
-            $empty($data['gifs'])       && $empty($data['socials'])   && empty($data['fileReorders'])
-        ) {
-            return response()->json(['success' => 'No changes.']);
-        }
+        DB::transaction(function () use ($validated, $preview) {
+            // 1. Handle deleted categories
+            $existingCategories = $preview->categories->keyBy('id');
+            $submittedCategoryNames = collect($validated['categories'])->pluck('name')->all();
 
-        // 4) Helpers (small & explicit)
-        $onlyIds = function (array $vals): array {
-            $out = [];
-            foreach ($vals as $v) {
-                if (is_int($v)) {
-                    $out[] = $v;
-                    continue;
-                }
-                if (is_string($v) && ctype_digit($v)) {
-                    $out[] = (int) $v;
-                }
-            }
-            return $out;
-        };
-        $resolveParent = function ($key, array $map) {
-            // supports numeric ids and tempIds -> real ids (from $map)
-            if ($key === null) return null;
-            if (is_int($key)) return $key;
-            if (is_string($key) && ctype_digit($key)) return (int)$key;
-            if (is_string($key) && str_starts_with($key, 'tmp-')) return $map[$key] ?? null;
-            return null;
-        };
-        $humanSize = function (int $bytes): string {
-            if ($bytes < 1024) return $bytes . ' B';
-            $units = ['KB', 'MB', 'GB', 'TB'];
-            $val = $bytes / 1024;
-            $i = 0;
-            while ($val >= 1024 && $i < count($units) - 1) {
-                $val /= 1024;
-                $i++;
-            }
-            return number_format($val, 2) . ' ' . $units[$i];
-        };
-        $resolveZipAbs = function (string $p): string {
-            // absolute?
-            if (str_starts_with($p, DIRECTORY_SEPARATOR) || preg_match('/^[A-Za-z]:[\\\\\\/]/', $p)) return $p;
-            $candidates = [
-                public_path($p),
-                storage_path('app/public/' . ltrim($p, '/')),
-                storage_path('app/' . ltrim($p, '/')),
-                base_path($p),
-            ];
-            foreach ($candidates as $c) if (is_file($c)) return $c;
-            return public_path($p); // last attempt
-        };
-        $extractBannerZip = function (string $relativeOrAbsolute) use ($resolveZipAbs, $humanSize): array {
-            $abs = $resolveZipAbs($relativeOrAbsolute);
-            if (!is_file($abs)) {
-                throw new \RuntimeException("Banner ZIP not found: {$relativeOrAbsolute}");
-            }
-            $zipNameNoExt = pathinfo($abs, PATHINFO_FILENAME);
-            $size = filesize($abs) ?: 0;
-            $human = $humanSize($size);
-
-            $targetBase = public_path('uploads/banners');
-            if (!is_dir($targetBase)) mkdir($targetBase, 0755, true);
-            $targetAbs = $targetBase . DIRECTORY_SEPARATOR . $zipNameNoExt;
-            if (!is_dir($targetAbs)) mkdir($targetAbs, 0755, true);
-
-            $zip = new ZipArchive;
-            if ($zip->open($abs) !== true) {
-                throw new \RuntimeException("Failed to open ZIP: {$relativeOrAbsolute}");
-            }
-            $zip->extractTo($targetAbs);
-            $zip->close();
-            @unlink($abs);
-
-            return ['uploads/banners/' . $zipNameNoExt, $human]; // [folder path, human size]
-        };
-
-        try {
-            $result = DB::transaction(function () use ($preview, $data, $onlyIds, $resolveParent, $extractBannerZip) {
-
-                // tempId -> real id maps for creates
-                $mapCat = [];
-                $mapFb = [];
-                $mapSet = [];
-                $mapVer = [];
-
-                /* ========== CREATES (top → down) ========== */
-
-                foreach (($data['categories']['created'] ?? []) as $row) {
-                    $m = new newCategory(['preview_id' => $preview->id, 'name' => $row['name'] ?? '']);
-                    $m->save();
-                    if (!empty($row['tempId'])) $mapCat[$row['tempId']] = $m->id;
-                }
-
-                foreach (($data['feedbacks']['created'] ?? []) as $row) {
-                    $catId = $resolveParent($row['category_id'] ?? null, $mapCat);
-                    if (!$catId) continue;
-                    $m = new newFeedback(['category_id' => $catId, 'name' => $row['name'] ?? '']);
-                    $m->save();
-                    if (!empty($row['tempId'])) $mapFb[$row['tempId']] = $m->id;
-                }
-
-                foreach (($data['feedbackSets']['created'] ?? []) as $row) {
-                    $fbId = $resolveParent($row['feedback_id'] ?? null, $mapFb);
-                    if (!$fbId) continue;
-                    $m = new newFeedbackSet(['feedback_id' => $fbId, 'name' => $row['name'] ?? '']);
-                    $m->save();
-                    if (!empty($row['tempId'])) $mapSet[$row['tempId']] = $m->id;
-                }
-
-                foreach (($data['versions']['created'] ?? []) as $row) {
-                    $setId = $resolveParent($row['feedback_set_id'] ?? null, $mapSet);
-                    if (!$setId) continue;
-                    $m = new newVersion(['feedback_set_id' => $setId, 'name' => $row['name'] ?? '']);
-                    $m->save();
-                    if (!empty($row['tempId'])) $mapVer[$row['tempId']] = $m->id;
-                }
-
-                // Banners (created) – simple, explicit
-                $createdBannerCount = 0;
-                foreach (($data['banners']['created'] ?? []) as $row) {
-                    $verId = $resolveParent($row['version_id'] ?? null, $mapVer);
-                    if (!$verId) continue;
-
-                    $rawPath  = trim((string)($row['path'] ?? ''));
-                    $sizeId   = $row['size_id'] ?? null;
-                    $position = (int)($row['position'] ?? 0);
-                    $name     = $row['name'] ?? $preview->name;
-
-                    if (!$rawPath) throw new \RuntimeException('Banner path is required.');
-                    if (preg_match('/\.zip$/i', $rawPath)) {
-                        [$folder, $human] = $extractBannerZip($rawPath);
-                        newBanner::create([
-                            'version_id' => $verId,
-                            'name'       => $name,
-                            'path'       => $folder,
-                            'size_id'    => $sizeId,
-                            'file_size'  => $human,
-                            'position'   => $position,
-                        ]);
-                    } else {
-                        // already a folder path
-                        newBanner::create([
-                            'version_id' => $verId,
-                            'name'       => $name,
-                            'path'       => $rawPath,
-                            'size_id'    => $sizeId,
-                            'file_size'  => '0 KB',
-                            'position'   => $position,
-                        ]);
+            foreach ($existingCategories as $catId => $category) {
+                if (!in_array($category->name, $submittedCategoryNames)) {
+                    foreach ($category->feedbacks as $feedback) {
+                        foreach ($feedback->feedbackSets as $set) {
+                            foreach ($set->versions as $version) {
+                                foreach ($version->banners as $banner) {
+                                    $this->deletePath($banner->path);
+                                    $banner->delete();
+                                }
+                                $version->delete();
+                            }
+                            $set->delete();
+                        }
+                        $feedback->delete();
                     }
-                    $createdBannerCount++;
+                    $category->delete();
+                }
+            }
+
+            // 2. Upsert categories
+            foreach ($validated['categories'] as $catData) {
+                $category = newCategory::firstOrCreate([
+                    'preview_id' => $preview->id,
+                    'name' => $catData['name'],
+                ], [
+                    'type' => $catData['type'],
+                    'is_active' => true,
+                ]);
+                $category->update(['is_active' => true, 'type' => $catData['type']]);
+
+                newCategory::where('preview_id', $preview->id)
+                    ->where('id', '!=', $category->id)
+                    ->update(['is_active' => false]);
+
+                // 3. Handle deleted feedbacks
+                $existingFeedbacks = $category->feedbacks->keyBy('id');
+                $submittedFeedbackNames = collect($catData['feedbacks'])->pluck('name')->all();
+
+                foreach ($existingFeedbacks as $fbId => $feedback) {
+                    if (!in_array($feedback->name, $submittedFeedbackNames)) {
+                        foreach ($feedback->feedbackSets as $set) {
+                            foreach ($set->versions as $version) {
+                                foreach ($version->banners as $banner) {
+                                    $this->deletePath($banner->path);
+                                    $banner->delete();
+                                }
+                                $version->delete();
+                            }
+                            $set->delete();
+                        }
+                        $feedback->delete();
+                    }
                 }
 
-                /* ========== UPDATES (flat & explicit) ========== */
+                // 4. Upsert feedbacks
+                foreach ($catData['feedbacks'] as $fbData) {
+                    $feedback = newFeedback::firstOrCreate([
+                        'category_id' => $category->id,
+                        'name' => $fbData['name'],
+                    ], [
+                        'description' => $fbData['description'],
+                        'is_active' => true,
+                    ]);
+                    $feedback->update(['description' => $fbData['description'], 'is_active' => true]);
 
-                foreach (($data['categories']['updated'] ?? []) as $row)
-                    if (!empty($row['id'])) newCategory::whereKey((int)$row['id'])->update(['name' => $row['name'] ?? '']);
+                    newFeedback::where('category_id', $category->id)
+                        ->where('id', '!=', $feedback->id)
+                        ->update(['is_active' => false]);
 
-                foreach (($data['feedbacks']['updated'] ?? []) as $row)
-                    if (!empty($row['id'])) newFeedback::whereKey((int)$row['id'])->update(['name' => $row['name'] ?? '']);
+                    // 5. Handle deleted sets
+                    $existingSets = $feedback->feedbackSets->keyBy('id');
+                    $submittedSetNames = collect($fbData['feedback_sets'])->pluck('name')->all();
 
-                foreach (($data['feedbackSets']['updated'] ?? []) as $row)
-                    if (!empty($row['id'])) newFeedbackSet::whereKey((int)$row['id'])->update(['name' => $row['name'] ?? '']);
-
-                foreach (($data['versions']['updated'] ?? []) as $row)
-                    if (!empty($row['id'])) newVersion::whereKey((int)$row['id'])->update(['name' => $row['name'] ?? '']);
-
-                // Banners updated
-                foreach (($data['banners']['updated'] ?? []) as $row) {
-                    if (empty($row['id'])) continue;
-                    $payload = [];
-                    if (array_key_exists('size_id', $row))  $payload['size_id']  = $row['size_id'];
-                    if (array_key_exists('position', $row)) $payload['position'] = (int)$row['position'];
-                    if (!empty($row['path'])) {
-                        $p = trim((string)$row['path']);
-                        if (preg_match('/\.zip$/i', $p)) {
-                            [$folder, $human] = $extractBannerZip($p);
-                            $payload['path'] = $folder;
-                            $payload['file_size'] = $human;
-                        } else {
-                            $payload['path'] = $p;
+                    foreach ($existingSets as $setId => $set) {
+                        if (!in_array($set->name, $submittedSetNames)) {
+                            foreach ($set->versions as $version) {
+                                foreach ($version->banners as $banner) {
+                                    $this->deletePath($banner->path);
+                                    $banner->delete();
+                                }
+                                $version->delete();
+                            }
+                            $set->delete();
                         }
                     }
-                    if ($payload) newBanner::whereKey((int)$row['id'])->update($payload);
-                }
 
-                /* ========== REORDERS (banners only for now) ========== */
+                    // 6. Upsert sets
+                    foreach ($fbData['feedback_sets'] as $setData) {
+                        $set = newFeedbackSet::firstOrCreate([
+                            'feedback_id' => $feedback->id,
+                            'name' => $setData['name'] ?? '',
+                        ]);
+                        $set->update(['name' => $setData['name'] ?? '']);
 
-                foreach (($data['fileReorders'] ?? []) as $r) {
-                    $ids = $onlyIds($r['idsInOrder'] ?? []);
-                    $pos = 0;
-                    foreach ($ids as $id) newBanner::whereKey($id)->update(['position' => $pos++]);
-                }
+                        // 7. Handle deleted versions
+                        $existingVersions = $set->versions->keyBy('id');
+                        $submittedVersionNames = collect($setData['versions'])->pluck('name')->all();
 
-                /* ========== DELETES (expand, clean FS, delete bottom→up) ========== */
+                        foreach ($existingVersions as $verId => $version) {
+                            if (!in_array($version->name, $submittedVersionNames)) {
+                                foreach ($version->banners as $banner) {
+                                    $this->deletePath($banner->path);
+                                    $banner->delete();
+                                }
+                                $version->delete();
+                            }
+                        }
 
-                $toDel = [
-                    'categories'   => $onlyIds($data['categories']['deleted']  ?? []),
-                    'feedbacks'    => $onlyIds($data['feedbacks']['deleted']   ?? []),
-                    'feedbackSets' => $onlyIds($data['feedbackSets']['deleted'] ?? []),
-                    'versions'     => $onlyIds($data['versions']['deleted']    ?? []),
-                    'banners'      => $onlyIds($data['banners']['deleted']     ?? []),
-                    // videos/gifs/socials omitted on purpose to keep it simple now
-                ];
+                        // 8. Upsert versions
+                        foreach ($setData['versions'] as $verData) {
+                            $version = newVersion::firstOrCreate([
+                                'feedback_set_id' => $set->id,
+                                'name' => $verData['name'] ?? '',
+                            ]);
+                            $version->update(['name' => $verData['name'] ?? '']);
 
-                // Expand descendants
-                if ($toDel['categories']) {
-                    $fbIds = newFeedback::whereIn('category_id', $toDel['categories'])->pluck('id')->all();
-                    $toDel['feedbacks'] = array_values(array_unique(array_merge($toDel['feedbacks'], $fbIds)));
-                }
-                if ($toDel['feedbacks']) {
-                    $setIds = newFeedbackSet::whereIn('feedback_id', $toDel['feedbacks'])->pluck('id')->all();
-                    $toDel['feedbackSets'] = array_values(array_unique(array_merge($toDel['feedbackSets'], $setIds)));
-                }
-                if ($toDel['feedbackSets']) {
-                    $verIds = newVersion::whereIn('feedback_set_id', $toDel['feedbackSets'])->pluck('id')->all();
-                    $toDel['versions'] = array_values(array_unique(array_merge($toDel['versions'], $verIds)));
-                }
-                if ($toDel['versions']) {
-                    $toDel['banners'] = array_values(array_unique(array_merge(
-                        $toDel['banners'],
-                        newBanner::whereIn('version_id', $toDel['versions'])->pluck('id')->all()
-                    )));
-                }
+                            // 9. Handle deleted banners (with safe check)
+                            $existingBanners = $version->banners->keyBy('id');
+                            $submittedBannerIds = isset($verData['banners'])
+                                ? collect($verData['banners'])->pluck('id')->filter()->all()
+                                : [];
+                            foreach ($existingBanners as $bannerId => $banner) {
+                                if (!in_array($bannerId, $submittedBannerIds)) {
+                                    $this->deletePath($banner->path);
+                                    $banner->delete();
+                                }
+                            }
 
-                // Filesystem cleanup for banners first
-                if (!empty($toDel['banners'])) {
-                    foreach (newBanner::whereIn('id', $toDel['banners'])->get(['path']) as $b) {
-                        $this->deletePath($b->path); // removes extracted folder
+                            // 10. Upsert banners
+                            if ($category->type === 'banner' && isset($verData['banners'])) {
+                                foreach ($verData['banners'] as $bannerData) {
+                                    if (isset($bannerData['id']) && $existingBanners->has($bannerData['id'])) {
+                                        // Update existing banner
+                                        $banner = $existingBanners[$bannerData['id']];
+                                        $banner->update([
+                                            'name' => $bannerData['name'] ?? $banner->name,
+                                            'size_id' => $bannerData['size_id'],
+                                            'position' => $bannerData['position'],
+                                        ]);
+                                        // If a new file is uploaded, replace the file and update path/size
+                                        if (isset($bannerData['file']) && $bannerData['file'] instanceof \Illuminate\Http\UploadedFile) {
+                                            $this->deletePath($banner->path);
+                                            $previewName = str_replace(' ', '_', $preview->name);
+                                            $uniqueSuffix = uniqid('_');
+                                            $uploadDir = public_path("uploads/banners");
+                                            if (!is_dir($uploadDir)) {
+                                                mkdir($uploadDir, 0777, true);
+                                            }
+                                            $zipName = $previewName . $uniqueSuffix . '.zip';
+                                            $zipPath = $uploadDir . '/' . $zipName;
+                                            $bannerData['file']->move($uploadDir, $zipName);
+
+                                            // Calculate zip size
+                                            $zipSizeBytes = filesize($zipPath);
+                                            $zipSize = $zipSizeBytes < 1048576
+                                                ? round($zipSizeBytes / 1024, 2) . ' KB'
+                                                : round($zipSizeBytes / 1048576, 2) . ' MB';
+
+                                            // Extract zip
+                                            $extractDir = $uploadDir . '/' . $previewName . $uniqueSuffix;
+                                            if (!is_dir($extractDir)) {
+                                                mkdir($extractDir, 0777, true);
+                                            }
+                                            $zip = new \ZipArchive;
+                                            if ($zip->open($zipPath) === TRUE) {
+                                                $zip->extractTo($extractDir);
+                                                $zip->close();
+                                                unlink($zipPath); // Delete zip after extraction
+                                            }
+
+                                            $banner->update([
+                                                'path' => "uploads/banners/{$previewName}{$uniqueSuffix}/",
+                                                'file_size' => $zipSize,
+                                            ]);
+                                        }
+                                    } else {
+                                        // Create new banner
+                                        if (isset($bannerData['file']) && $bannerData['file'] instanceof \Illuminate\Http\UploadedFile) {
+                                            $previewName = str_replace(' ', '_', $preview->name);
+                                            $uniqueSuffix = uniqid('_');
+                                            $uploadDir = public_path("uploads/banners");
+                                            if (!is_dir($uploadDir)) {
+                                                mkdir($uploadDir, 0777, true);
+                                            }
+                                            $zipName = $previewName . $uniqueSuffix . '.zip';
+                                            $zipPath = $uploadDir . '/' . $zipName;
+                                            $bannerData['file']->move($uploadDir, $zipName);
+
+                                            // Calculate zip size
+                                            $zipSizeBytes = filesize($zipPath);
+                                            $zipSize = $zipSizeBytes < 1048576
+                                                ? round($zipSizeBytes / 1024, 2) . ' KB'
+                                                : round($zipSizeBytes / 1048576, 2) . ' MB';
+
+                                            // Extract zip
+                                            $extractDir = $uploadDir . '/' . $previewName . $uniqueSuffix;
+                                            if (!is_dir($extractDir)) {
+                                                mkdir($extractDir, 0777, true);
+                                            }
+                                            $zip = new \ZipArchive;
+                                            if ($zip->open($zipPath) === TRUE) {
+                                                $zip->extractTo($extractDir);
+                                                $zip->close();
+                                                unlink($zipPath); // Delete zip after extraction
+                                            }
+
+                                            newBanner::create([
+                                                'version_id' => $version->id,
+                                                'name' => $bannerData['name'] ?? ($previewName . $uniqueSuffix),
+                                                'size_id' => $bannerData['size_id'],
+                                                'position' => $bannerData['position'],
+                                                'path' => "uploads/banners/{$previewName}{$uniqueSuffix}/",
+                                                'file_size' => $zipSize,
+                                            ]);
+                                        }
+                                    }
+                                }
+                            }
+
+                            // TODO: Add similar granular logic for video, gif, social
+                        }
                     }
                 }
+            }
+        });
 
-                // DB deletes bottom→up
-                $deleted = [
-                    'banners'      => 0,
-                    'versions'     => 0,
-                    'feedbackSets' => 0,
-                    'feedbacks'    => 0,
-                    'categories'   => 0,
-                ];
-                if ($toDel['banners'])      $deleted['banners']      = newBanner::whereIn('id', $toDel['banners'])->delete();
-                if ($toDel['versions'])     $deleted['versions']     = newVersion::whereIn('id', $toDel['versions'])->delete();
-                if ($toDel['feedbackSets']) $deleted['feedbackSets'] = newFeedbackSet::whereIn('id', $toDel['feedbackSets'])->delete();
-                if ($toDel['feedbacks'])    $deleted['feedbacks']    = newFeedback::whereIn('id', $toDel['feedbacks'])->delete();
-                if ($toDel['categories'])   $deleted['categories']   = newCategory::whereIn('id', $toDel['categories'])->delete();
-
-                // Touch for a fresh ETag
-                $preview->touch();
-
-                return ['created_banners' => $createdBannerCount, 'deleted' => $deleted];
-            });
-
-            return response()->json([
-                'success' => 'Preview saved successfully.',
-                'stats'   => $result,
-            ]);
-        } catch (\RuntimeException $e) {
-            report($e);
-            return response()->json(['error' => $e->getMessage()], 422); // clear client error (e.g., ZIP not found)
-        } catch (\Throwable $e) {
-            report($e);
-            return response()->json(['error' => 'Failed to save preview.'], 500);
-        }
+        return redirect()->route('previews.update.all', $preview->id)
+            ->with('success', 'Bulk update successful.');
     }
 }
