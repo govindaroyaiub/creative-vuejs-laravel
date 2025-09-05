@@ -180,7 +180,7 @@ const submitForm = () => {
                                     <Share2 class="inline h-5 w-5" />
                                 </a>
                                 <Link :href="route('previews.update.all', preview.id)"
-                                    class="text-purple-600 hover:text-purple-800" aria-label="Edit Preview">
+                                    class="text-indigo-600 hover:text-indigo-800" aria-label="Edit Preview">
                                     <Settings2 class="inline h-5 w-5" />
                                 </Link>
                                 <Link :href="route('previews-edit', preview.id)"
