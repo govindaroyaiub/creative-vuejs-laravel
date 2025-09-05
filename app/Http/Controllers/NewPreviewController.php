@@ -275,14 +275,18 @@ class NewPreviewController extends Controller
         $validated = $request->validate([
             'preview_id' => 'required|exists:new_previews,id',
             'categories' => 'required|array|min:1',
+            'categories.*.id' => 'nullable|integer',
             'categories.*.name' => 'required|string|max:255',
             'categories.*.type' => ['required', \Illuminate\Validation\Rule::in(['banner', 'video', 'social', 'gif'])],
             'categories.*.feedbacks' => 'required|array|min:1',
+            'categories.*.feedbacks.*.id' => 'nullable|integer',
             'categories.*.feedbacks.*.name' => 'required|string|max:255',
             'categories.*.feedbacks.*.description' => 'required|string|max:1000',
             'categories.*.feedbacks.*.feedback_sets' => 'required|array|min:1',
+            'categories.*.feedbacks.*.feedback_sets.*.id' => 'nullable|integer',
             'categories.*.feedbacks.*.feedback_sets.*.name' => 'nullable|string|max:255',
             'categories.*.feedbacks.*.feedback_sets.*.versions' => 'required|array|min:1',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.id' => 'nullable|integer',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.name' => 'nullable|string|max:255',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.banners' => 'array',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.banners.*.id' => 'nullable|integer',
@@ -290,7 +294,6 @@ class NewPreviewController extends Controller
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.banners.*.size_id' => 'required_if:categories.*.type,banner|exists:banner_sizes,id',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.banners.*.position' => 'required|integer',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.banners.*.file' => 'nullable|file|mimes:zip',
-            // Add similar validation for video, gif, social when needed
         ]);
 
         $preview = newPreview::with([
@@ -298,140 +301,116 @@ class NewPreviewController extends Controller
         ])->findOrFail($id);
 
         DB::transaction(function () use ($validated, $preview) {
-            // 1. Handle deleted categories
-            $existingCategories = $preview->categories->keyBy('id');
-            $submittedCategoryNames = collect($validated['categories'])->pluck('name')->all();
+            // Track submitted IDs for each level
+            $submittedCategoryIds = [];
+            $submittedFeedbackIds = [];
+            $submittedSetIds = [];
+            $submittedVersionIds = [];
+            $submittedBannerIds = [];
 
-            foreach ($existingCategories as $catId => $category) {
-                if (!in_array($category->name, $submittedCategoryNames)) {
-                    foreach ($category->feedbacks as $feedback) {
-                        foreach ($feedback->feedbackSets as $set) {
-                            foreach ($set->versions as $version) {
-                                foreach ($version->banners as $banner) {
-                                    $this->deletePath($banner->path);
-                                    $banner->delete();
-                                }
-                                $version->delete();
-                            }
-                            $set->delete();
-                        }
-                        $feedback->delete();
-                    }
-                    $category->delete();
-                }
-            }
-
-            // 2. Upsert categories
+            // 1. Update or create categories
             foreach ($validated['categories'] as $catData) {
-                $category = newCategory::firstOrCreate([
-                    'preview_id' => $preview->id,
-                    'name' => $catData['name'],
-                ], [
-                    'type' => $catData['type'],
-                    'is_active' => true,
-                ]);
-                $category->update(['is_active' => true, 'type' => $catData['type']]);
-
-                newCategory::where('preview_id', $preview->id)
-                    ->where('id', '!=', $category->id)
-                    ->update(['is_active' => false]);
-
-                // 3. Handle deleted feedbacks
-                $existingFeedbacks = $category->feedbacks->keyBy('id');
-                $submittedFeedbackNames = collect($catData['feedbacks'])->pluck('name')->all();
-
-                foreach ($existingFeedbacks as $fbId => $feedback) {
-                    if (!in_array($feedback->name, $submittedFeedbackNames)) {
-                        foreach ($feedback->feedbackSets as $set) {
-                            foreach ($set->versions as $version) {
-                                foreach ($version->banners as $banner) {
-                                    $this->deletePath($banner->path);
-                                    $banner->delete();
-                                }
-                                $version->delete();
-                            }
-                            $set->delete();
-                        }
-                        $feedback->delete();
+                if (isset($catData['id'])) {
+                    $category = newCategory::find($catData['id']);
+                    if ($category) {
+                        $category->update([
+                            'name' => $catData['name'],
+                            'type' => $catData['type'],
+                            'is_active' => true,
+                        ]);
+                        $submittedCategoryIds[] = $category->id;
                     }
-                }
 
-                // 4. Upsert feedbacks
-                foreach ($catData['feedbacks'] as $fbData) {
-                    $feedback = newFeedback::firstOrCreate([
-                        'category_id' => $category->id,
-                        'name' => $fbData['name'],
-                    ], [
-                        'description' => $fbData['description'],
+                    newCategory::where('preview_id', $preview->id)
+                        ->where('id', '!=', $category->id)
+                        ->update(['is_active' => false]);
+                } else {
+                    $category = newCategory::create([
+                        'preview_id' => $preview->id,
+                        'name' => $catData['name'],
+                        'type' => $catData['type'],
                         'is_active' => true,
                     ]);
-                    $feedback->update(['description' => $fbData['description'], 'is_active' => true]);
+                    $submittedCategoryIds[] = $category->id;
 
-                    newFeedback::where('category_id', $category->id)
-                        ->where('id', '!=', $feedback->id)
+                    newCategory::where('preview_id', $preview->id)
+                        ->where('id', '!=', $category->id)
                         ->update(['is_active' => false]);
+                }
 
-                    // 5. Handle deleted sets
-                    $existingSets = $feedback->feedbackSets->keyBy('id');
-                    $submittedSetNames = collect($fbData['feedback_sets'])->pluck('name')->all();
+                // 2. Update or create feedbacks
+                foreach ($catData['feedbacks'] as $fbData) {
+                    if (isset($fbData['id'])) {
+                        $feedback = newFeedback::find($fbData['id']);
+                        if ($feedback) {
+                            $feedback->update([
+                                'name' => $fbData['name'],
+                                'description' => $fbData['description'],
+                                'is_active' => true,
+                            ]);
+                            $submittedFeedbackIds[] = $feedback->id;
 
-                    foreach ($existingSets as $setId => $set) {
-                        if (!in_array($set->name, $submittedSetNames)) {
-                            foreach ($set->versions as $version) {
-                                foreach ($version->banners as $banner) {
-                                    $this->deletePath($banner->path);
-                                    $banner->delete();
-                                }
-                                $version->delete();
-                            }
-                            $set->delete();
+                            newFeedback::where('category_id', $category->id)
+                                ->where('id', '!=', $feedback->id)
+                                ->update(['is_active' => false]);
                         }
+                    } else {
+                        $feedback = newFeedback::create([
+                            'category_id' => $category->id,
+                            'name' => $fbData['name'],
+                            'description' => $fbData['description'],
+                            'is_active' => true,
+                        ]);
+                        $submittedFeedbackIds[] = $feedback->id;
+
+                        newFeedback::where('category_id', $category->id)
+                            ->where('id', '!=', $feedback->id)
+                            ->update(['is_active' => false]);
                     }
 
-                    // 6. Upsert sets
+                    // 3. Update or create sets
                     foreach ($fbData['feedback_sets'] as $setData) {
-                        $set = newFeedbackSet::firstOrCreate([
-                            'feedback_id' => $feedback->id,
-                            'name' => $setData['name'] ?? '',
-                        ]);
-                        $set->update(['name' => $setData['name'] ?? '']);
-
-                        // 7. Handle deleted versions
-                        $existingVersions = $set->versions->keyBy('id');
-                        $submittedVersionNames = collect($setData['versions'])->pluck('name')->all();
-
-                        foreach ($existingVersions as $verId => $version) {
-                            if (!in_array($version->name, $submittedVersionNames)) {
-                                foreach ($version->banners as $banner) {
-                                    $this->deletePath($banner->path);
-                                    $banner->delete();
-                                }
-                                $version->delete();
+                        if (isset($setData['id'])) {
+                            $set = newFeedbackSet::find($setData['id']);
+                            if ($set) {
+                                $set->update([
+                                    'name' => $setData['name'] ?? '',
+                                ]);
+                                $submittedSetIds[] = $set->id;
                             }
+                        } else {
+                            $set = newFeedbackSet::create([
+                                'feedback_id' => $feedback->id,
+                                'name' => $setData['name'] ?? '',
+                            ]);
+                            $submittedSetIds[] = $set->id;
                         }
 
-                        // 8. Upsert versions
+                        // 4. Update or create versions
                         foreach ($setData['versions'] as $verData) {
-                            $version = newVersion::firstOrCreate([
-                                'feedback_set_id' => $set->id,
-                                'name' => $verData['name'] ?? '',
-                            ]);
-                            $version->update(['name' => $verData['name'] ?? '']);
-
-                            // 9. Handle deleted banners (with safe check)
-                            $existingBanners = $version->banners->keyBy('id');
-                            $submittedBannerIds = isset($verData['banners'])
-                                ? collect($verData['banners'])->pluck('id')->filter()->all()
-                                : [];
-                            foreach ($existingBanners as $bannerId => $banner) {
-                                if (!in_array($bannerId, $submittedBannerIds)) {
-                                    $this->deletePath($banner->path);
-                                    $banner->delete();
+                            if (isset($verData['id'])) {
+                                $version = newVersion::find($verData['id']);
+                                if ($version) {
+                                    $version->update([
+                                        'name' => $verData['name'] ?? '',
+                                    ]);
+                                    $submittedVersionIds[] = $version->id;
                                 }
+                            } else {
+                                $version = newVersion::create([
+                                    'feedback_set_id' => $set->id,
+                                    'name' => $verData['name'] ?? '',
+                                ]);
+                                $submittedVersionIds[] = $version->id;
+                                // Reload to get relationships
+                                $version = newVersion::with('banners')->find($version->id);
                             }
 
-                            // 10. Upsert banners
-                            if ($category->type === 'banner' && isset($verData['banners'])) {
+                            // Always reload version to ensure relationships are loaded
+                            if (!$version) continue;
+                            $existingBanners = $version->banners ? $version->banners->keyBy('id') : collect();
+                            $currentBannerIds = [];
+                            if (isset($verData['banners'])) {
                                 foreach ($verData['banners'] as $bannerData) {
                                     if (isset($bannerData['id']) && $existingBanners->has($bannerData['id'])) {
                                         // Update existing banner
@@ -441,6 +420,8 @@ class NewPreviewController extends Controller
                                             'size_id' => $bannerData['size_id'],
                                             'position' => $bannerData['position'],
                                         ]);
+                                        $submittedBannerIds[] = $banner->id;
+                                        $currentBannerIds[] = $banner->id;
                                         // If a new file is uploaded, replace the file and update path/size
                                         if (isset($bannerData['file']) && $bannerData['file'] instanceof \Illuminate\Http\UploadedFile) {
                                             $this->deletePath($banner->path);
@@ -508,7 +489,7 @@ class NewPreviewController extends Controller
                                                 unlink($zipPath); // Delete zip after extraction
                                             }
 
-                                            newBanner::create([
+                                            $banner = newBanner::create([
                                                 'version_id' => $version->id,
                                                 'name' => $bannerData['name'] ?? ($previewName . $uniqueSuffix),
                                                 'size_id' => $bannerData['size_id'],
@@ -516,16 +497,44 @@ class NewPreviewController extends Controller
                                                 'path' => "uploads/banners/{$previewName}{$uniqueSuffix}/",
                                                 'file_size' => $zipSize,
                                             ]);
+                                            $submittedBannerIds[] = $banner->id;
+                                            $currentBannerIds[] = $banner->id;
                                         }
                                     }
                                 }
                             }
-
-                            // TODO: Add similar granular logic for video, gif, social
+                            // Delete banners not in submitted data
+                            foreach ($existingBanners as $bannerId => $banner) {
+                                if (!in_array($bannerId, $currentBannerIds)) {
+                                    $this->deletePath($banner->path);
+                                    $banner->delete();
+                                }
+                            }
                         }
                     }
                 }
             }
+
+            // Delete categories not in submitted data
+            foreach ($preview->categories as $category) {
+                if (!in_array($category->id, $submittedCategoryIds)) {
+                    foreach ($category->feedbacks as $feedback) {
+                        foreach ($feedback->feedbackSets as $set) {
+                            foreach ($set->versions as $version) {
+                                foreach ($version->banners as $banner) {
+                                    $this->deletePath($banner->path);
+                                    $banner->delete();
+                                }
+                                $version->delete();
+                            }
+                            $set->delete();
+                        }
+                        $feedback->delete();
+                    }
+                    $category->delete();
+                }
+            }
+            // Repeat similar deletion for feedbacks, sets, versions if needed (optional, since children are deleted with parent)
         });
 
         return redirect()->route('previews.update.all', $preview->id)

@@ -12,6 +12,15 @@ use App\Models\SubSocial;
 use App\Models\Preview;
 use App\Models\FileTransfer;
 use App\Models\SubBill;
+use App\Models\newPreview;
+use App\Models\newCategory;
+use App\Models\newFeedback;
+use App\Models\newFeedbackSet;
+use App\Models\newVersion;
+use App\Models\newBanner;
+use App\Models\newGif;
+use App\Models\newVideo;
+use App\Models\newSocial;
 
 class DashboardController extends Controller
 {
@@ -20,20 +29,20 @@ class DashboardController extends Controller
         $year = now()->year;
 
         $monthlyStats = [
-            'banners' => $this->getMonthlyCount(SubBanner::class, $year),
-            'videos' => $this->getMonthlyCount(SubVideo::class, $year),
-            'gifs' => $this->getMonthlyCount(SubGif::class, $year),
-            'socials' => $this->getMonthlyCount(SubSocial::class, $year),
+            'banners' => $this->getMonthlyCount(newBanner::class, $year),
+            'videos' => $this->getMonthlyCount(newVideo::class, $year),
+            'gifs' => $this->getMonthlyCount(newGif::class, $year),
+            'socials' => $this->getMonthlyCount(newSocial::class, $year),
         ];
 
 
         return Inertia::render('Dashboard', [
             'userCount' => User::count(),
-            'previewCount' => Preview::whereYear('created_at', $year)->count(),
-            'bannerCount' => SubBanner::whereYear('created_at', $year)->count(),
-            'videoCount' => SubVideo::whereYear('created_at', $year)->count(),
-            'gifCount' => SubGif::whereYear('created_at', $year)->count(),
-            'socialCount' => SubSocial::whereYear('created_at', $year)->count(),
+            'previewCount' => newPreview::whereYear('created_at', $year)->count(),
+            'bannerCount' => newBanner::whereYear('created_at', $year)->count(),
+            'videoCount' => newVideo::whereYear('created_at', $year)->count(),
+            'gifCount' => newGif::whereYear('created_at', $year)->count(),
+            'socialCount' => newSocial::whereYear('created_at', $year)->count(),
             'fileTransferCount' => FileTransfer::whereYear('created_at', $year)->count(),
             'billCount' => SubBill::whereYear('created_at', $year)->count(),
             'monthlyStats' => $monthlyStats,

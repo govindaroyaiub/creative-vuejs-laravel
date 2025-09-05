@@ -712,6 +712,31 @@ iframe {
     transform: rotate(-90deg);
 }
 
+#bulk-customization{
+    font-size: 1.5rem;
+    /* padding: 5px 10px 5px 10px; */
+    border: 1px solid var(--tertiary-color);
+    position: fixed;
+    right: -1.75rem;
+    top: 9rem;
+    color: white;
+    cursor: pointer;
+    --r: 20px;
+    /* control the radius */
+    /* line-height: 1.8; */
+    /* control the height */
+    padding-inline: .5em;
+    border-inline: var(--r) solid #0000;
+    border-radius: calc(2*var(--r)) calc(2*var(--r)) 0 0/var(--r);
+    mask:
+        radial-gradient(var(--r) at var(--r) 0, #0000 98%, #000 101%) calc(-1*var(--r)) 100%/100% var(--r) repeat-x,
+        conic-gradient(#000 0 0) padding-box;
+    background: var(--tertiary-color) border-box;
+    /* border-box is needed for a gradient coloration */
+    width: fit-content;
+    transform: rotate(-90deg);
+}
+
 
 #mobilecolorPaletteClick {
     font-size: 1rem;

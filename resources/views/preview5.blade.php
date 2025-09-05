@@ -51,11 +51,9 @@
     </div>
 
     @if($authUserClientName == "Planet Nine")
-    <div class="preview-settings">
-        <a href="/previews/update/{{ $preview->id }}" class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded shadow transition cursor-pointer">
-            Update Preview
-        </a>
-    </div>
+    <a href="/previews/update/{{ $preview->id }}" id="bulk-customization" class="text-white font-medium cursor-pointer" style="z-index: 1000;">
+        <i class="fa-solid fa-gear"></i>
+    </a>
     @endif
 
     <main class="main">
