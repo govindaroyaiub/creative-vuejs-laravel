@@ -1,7 +1,7 @@
 <template>
 
-    <Head title="Bulk Customization" />
-    <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Bulk Customization' }]">
+    <Head title="Batch Update" />
+    <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Batch Update' }]">
         <div class="max-w-8xl py-4 px-4">
             <div v-if="preview">
                 <div v-for="(category, catIdx) in preview.categories" :key="category.id" class="mb-8">
@@ -11,7 +11,8 @@
                             <!-- Left side: icon, name, type -->
                             <span class="flex items-center gap-2">
                                 <svg width="16" height="16" class="mr-1">
-                                    <circle cx="8" cy="8" r="7" :fill="category.is_active == 1 ? '#22c55e' : 'red'" />
+                                    <circle cx="8" cy="8" r="7"
+                                        :fill="!isDbId(category.id) ? '#facc15' : (category.is_active == 1 ? '#22c55e' : 'red')" />
                                 </svg>
                                 <span>Category:</span>
                                 <input v-model="category.name"
@@ -37,7 +38,7 @@
                                         <span class="flex items-center gap-2">
                                             <svg width="16" height="16" class="mr-1">
                                                 <circle cx="8" cy="8" r="7"
-                                                    :fill="feedback.is_active == 1 ? '#22c55e' : 'red'" />
+                                                    :fill="!isDbId(feedback.id) ? '#facc15' : (feedback.is_active == 1 ? '#22c55e' : 'red')" />
                                             </svg>
                                             <span>Feedback:</span>
                                             <input :value="feedback.name" @input="onFeedbackNameInput($event, feedback)"
@@ -63,6 +64,7 @@
                                                 <summary
                                                     class="px-2 py-1 font-medium bg-gray-50 dark:bg-gray-900 cursor-pointer flex items-center justify-between">
                                                     <span>
+                                                        <span class="px-2">Set:</span>
                                                         <input v-model="set.name" class="border rounded px-2 py-1"
                                                             placeholder="Set Name" style="min-width:100px;" />
                                                     </span>
@@ -79,6 +81,7 @@
                                                             <summary
                                                                 class="px-2 py-1 font-medium bg-gray-50 dark:bg-gray-900 cursor-pointer flex items-center justify-between">
                                                                 <span>
+                                                                    <span class="px-2">Version:</span>
                                                                     <input v-model="version.name"
                                                                         class="border rounded px-2 py-1"
                                                                         placeholder="Version Name"
@@ -244,6 +247,10 @@
                     <button @click="addCategory" class="bg-green-600 text-white px-3 py-1 rounded">Add</button>
                 </div>
                 <div class="mt-8 text-right space-x-4">
+                    <a :href="route('previews-index')"
+                        class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 font-semibold inline-block">
+                        Back
+                    </a>
                     <button type="button" @click="goToPreview"
                         class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 font-semibold">
                         View Preview
