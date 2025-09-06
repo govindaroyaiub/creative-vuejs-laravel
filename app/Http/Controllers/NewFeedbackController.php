@@ -29,9 +29,7 @@ class NewFeedbackController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index() {
-
-    }
+    public function index() {}
 
     /**
      * Show the form for creating a new resource.
@@ -60,46 +58,85 @@ class NewFeedbackController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id)
-    {
-        $feedback = newFeedback::findOrFail($id);
-        $preview = $feedback->category->preview;
-
-        return Inertia::render('Previews/Categories/Feedbacks/Edit', [
-            'feedback' => $feedback,
-            'description' => $feedback->description,
-            'preview' => $preview
-        ]);
-    }
+    public function edit($id) {}
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, newFeedback $newFeedback, $id)
-    {
-        $feedback = newFeedback::findOrFail($id);
-
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-        ]);
-
-        $feedback->update($validated);
-
-        $preview = $feedback->category->preview; // load the associated preview for props
-
-        return Inertia::render('Previews/Categories/Feedbacks/Edit', [
-            'feedback' => $feedback,
-            'preview' => $preview,
-            'flash' => ['success' => 'Feedback updated successfully!'],
-        ]);
-    }
+    public function update(Request $request, newFeedback $newFeedback, $id) {}
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(newFeedback $newFeedback, $id)
     {
-        dd($id);
+        DB::beginTransaction();
+        try {
+            // Get the feedback to delete
+            $feedback = $newFeedback->findOrFail($id);
+
+            // Get the category type for folder deletion
+            $category = $feedback->category;
+            $folderMap = [
+                'banner' => 'uploads/banners',
+                'video' => 'uploads/videos',
+                'gif' => 'uploads/gifs',
+                'social' => 'uploads/socials',
+            ];
+            $folder = $folderMap[$category->type] ?? null;
+
+            // Delete all related sets, versions, banners, and files
+            foreach ($feedback->feedbackSets as $set) {
+                foreach ($set->versions as $version) {
+                    if ($category->type === 'banner') {
+                        foreach ($version->banners as $banner) {
+                            // Delete banner folder/file based on category type
+                            if ($folder && $banner->path) {
+                                $bannerPath = public_path($banner->path);
+                                if (is_dir($bannerPath)) {
+                                    \Illuminate\Support\Facades\File::deleteDirectory($bannerPath);
+                                }
+                            }
+                            $banner->delete();
+                        }
+                    }
+                    if($category->type === 'video'){
+
+                    }
+                    if($category->type === 'social'){
+
+                    }
+                    if($category->type === 'gif'){
+                        
+                    }
+                    $version->delete();
+                }
+                $set->delete();
+            }
+
+            // Store if this feedback was active
+            $wasActive = $feedback->is_active == 1;
+            $categoryId = $feedback->category_id;
+
+            // Delete the feedback itself
+            $feedback->delete();
+
+            // If deleted feedback was active, set last feedback as active (if any)
+            if ($wasActive) {
+                $lastFeedback = newFeedback::where('category_id', $categoryId)
+                    ->orderByDesc('id')
+                    ->first();
+                if ($lastFeedback) {
+                    $lastFeedback->is_active = 1;
+                    $lastFeedback->save();
+                }
+            }
+
+            DB::commit();
+            return response('', 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response($e->getMessage(), 500);
+        }
     }
 }

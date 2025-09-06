@@ -111,20 +111,12 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/previews/update/{id}', [newPreviewController::class, 'updatePreview'])->name('previews.update.all');
     Route::post('/previews/{id}/bulk-edit', [newPreviewController::class, 'bulkEdit'])->name('previews.bulkEdit');
 
-    Route::get('/previews/edit/feedback/{id}', [newFeedbackController::class, 'edit'])->name('previews-edit-feedback');
-    Route::put('/previews/edit/feedback/{id}', [newFeedbackController::class, 'update'])->name('previews-update-feedback');
-
-    Route::get('/previews/banner/feedback/{id}/add/feedbackSets', [newFeedbackSetController::class, 'create'])->name('previews-add-banner-feedback-sets');
-    Route::post('/previews/banner/feedback/{id}/add/feedbackSets', [newFeedbackSetController::class, 'store'])->name('previews.feedback.sets.store');
-
-    Route::get('/previews/add/category/{id}', [newCategoryController::class, 'create'])->name('previews-add-category');
-    Route::post('/previews/add/category/{id}', [newCategoryController::class, 'store'])->name('previews.categories.store');
-    Route::get('/previews/category/edit/{id}', [newCategoryController::class, 'edit'])->name('previews-edit-category');
-    Route::post('/previews/category/edit/{id}', [newCategoryController::class, 'update'])->name('previews-update-category');
-    // Route::get('/preview/add/version/{id}', [PreviewController::class, 'addVersion'])->name('previews-add-version');
-
-
-    Route::delete('/previews/category/feedback/delete/{id}', [newFeedbackController::class, 'destroy'])->name('previews-delete-category-feedback');
+    Route::delete('/previews/category/delete/{id}', [newCategoryController::class, 'destroy'])->name('previews.category.delete');
+    Route::delete('/previews/feedback/delete/{id}', [newFeedbackController::class, 'destroy'])->name('previews.feedback.delete');
+    Route::delete('/previews/feedbackSet/delete/{id}', [newFeedbackSetController::class, 'destroy'])->name('previews.feedback.set.delete');
+    Route::delete('/previews/version/delete/{id}', [newVersionController::class, 'destroy'])->name('previews.version.delete');
+    Route::post('/previews/banner/edit/{id}', [newBannerController::class, 'update'])->name('previews.banner.edit');
+    Route::delete('/previews/banner/delete/{id}', [newBannerController::class, 'destroy'])->name('previews.banner.delete');
     //Preview Routes End
 
     //Banner Sizes Routes Start

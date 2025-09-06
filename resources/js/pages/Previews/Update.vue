@@ -112,6 +112,8 @@
                                                                         <template #item="{ element, index }">
                                                                             <div
                                                                                 class="flex items-center bg-white dark:bg-gray-800 rounded shadow px-4 py-3">
+                                                                                <span class="text-xs text-gray-500 mr-2">{{
+                                                                                    index + 1 }}</span>
                                                                                 <div
                                                                                     class="cursor-move text-gray-400 hover:text-gray-600 mr-3">
                                                                                     <svg width="20" height="20"
@@ -133,9 +135,6 @@
                                                                                 <div class="flex-1"></div>
                                                                                 <div class="flex items-center gap-4">
                                                                                     <span
-                                                                                        class="text-xs text-gray-500">Position:
-                                                                                        {{ index + 1 }}</span>
-                                                                                    <span
                                                                                         class="text-xs text-gray-500">Size:</span>
                                                                                     <v-select
                                                                                         :options="bannerSizeOptions"
@@ -156,6 +155,52 @@
                                                                                     class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs ml-2">
                                                                                     Delete
                                                                                 </button>
+
+                                                                                <!-- Banner Edit Modal -->
+                                                                                <template v-if="showBannerEdit">
+                                                                                    <div
+                                                                                        class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                                                                                        <div
+                                                                                            class="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-md">
+                                                                                            <h2
+                                                                                                class="text-lg font-bold mb-4">
+                                                                                                Edit Banner</h2>
+                                                                                            <div class="mb-4">
+                                                                                                <label
+                                                                                                    class="block text-sm font-medium mb-1">Banner
+                                                                                                    File</label>
+                                                                                                <FilePond
+                                                                                                    :allowMultiple="false"
+                                                                                                    :acceptedFileTypes="['application/zip']"
+                                                                                                    :files="bannerEditFile"
+                                                                                                    @updatefiles="files => bannerEditFile = files"
+                                                                                                    class="filepond-dropzone" />
+                                                                                            </div>
+                                                                                            <div class="mb-4">
+                                                                                                <label
+                                                                                                    class="block text-sm font-medium mb-1">Banner
+                                                                                                    Size</label>
+                                                                                                <v-select
+                                                                                                    :options="bannerSizeOptions"
+                                                                                                    label="label"
+                                                                                                    :reduce="size => size.id"
+                                                                                                    v-model="bannerEditSizeId"
+                                                                                                    placeholder="Select Banner Size"
+                                                                                                    :clearable="false"
+                                                                                                    class="w-full" />
+                                                                                            </div>
+                                                                                            <div
+                                                                                                class="flex gap-2 mt-6 w-full">
+                                                                                                <button
+                                                                                                    @click="closeBannerEdit"
+                                                                                                    class="w-full bg-gray-300 text-gray-800 px-4 py-2 rounded font-semibold">Cancel</button>
+                                                                                                <button
+                                                                                                    @click="submitBannerEdit"
+                                                                                                    class="w-full bg-blue-600 text-white px-4 py-2 rounded font-semibold">Update</button>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </template>
                                                                             </div>
                                                                         </template>
                                                                     </draggable>
@@ -217,7 +262,7 @@
                             </div>
                             <div v-if="showAddFeedback[category.id]"
                                 class="mt-2 flex-col gap-2 items-start justify-start">
-                                <textarea v-model="newFeedbackDesc[category.id]" placeholder="Description"
+                                <textarea v-model="newFeedbackDesc[category.id]" placeholder="Enter Description"
                                     class="border rounded px-2 py-1 min-w-[200px] min-h-[60px]" />
                                 <div class="flex gap-2">
                                     <input :value="newFeedbackName[category.id]"
@@ -246,18 +291,18 @@
                     </select>
                     <button @click="addCategory" class="bg-green-600 text-white px-3 py-1 rounded">Add</button>
                 </div>
-                <div class="mt-8 text-right space-x-4">
+                <div class="mt-8 text-right space-x-2">
                     <a :href="route('previews-index')"
                         class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 font-semibold inline-block">
                         Back
                     </a>
                     <button type="button" @click="goToPreview"
-                        class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 font-semibold">
-                        View Preview
+                        class="bg-orange-600 text-white px-6 py-2 rounded hover:bg-orange-700 font-semibold">
+                        Preview
                     </button>
                     <button @click="saveAll"
-                        class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 font-semibold">
-                        Save Changes
+                        class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 font-semibold">
+                        HIT IT NIGGA
                     </button>
                 </div>
             </div>
@@ -304,6 +349,13 @@ const newSetName = reactive({});
 const showAddVersion = reactive({});
 const newVersionName = reactive({});
 
+const showBannerEdit = ref(false);
+const bannerEditFile = ref([]);
+const bannerEditSizeId = ref(null);
+let bannerEditObj = null;
+let bannerEditVersion = null;
+let bannerEditIndex = null;
+
 function addCategory() {
     preview.value.categories.push({
         id: Date.now(),
@@ -346,8 +398,38 @@ function removeCategory(idx: number) {
 }
 // Remove Category (saved, just UI for now)
 function deleteCategory(category, idx) {
-    // TODO: Implement API call later
-    alert('This is a saved category. Implement API delete here.');
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'This will permanently delete the category and its contents.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('previews.category.delete', category.id), {
+                onSuccess: () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Category has been deleted.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    // Remove category from UI
+                    preview.value.categories.splice(idx, 1);
+                },
+                onError: (err) => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Delete failed',
+                        text: 'An error occurred.'
+                    });
+                }
+            });
+        }
+    });
 }
 
 // Add Feedback
@@ -371,7 +453,38 @@ function removeFeedback(category: any, idx: number) {
 // Remove Feedback (saved, just UI for now)
 function deleteFeedback(feedback, category, idx) {
     // TODO: Implement API call later
-    alert('This is a saved feedback. Implement API delete here.');
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'This will permanently delete the feedback and its contents.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('previews.feedback.delete', feedback.id), {
+                onSuccess: () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Feedback has been deleted.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    // Remove feedback from UI
+                    category.feedbacks.splice(idx, 1);
+                },
+                onError: (err) => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Delete failed',
+                        text: 'An error occurred.'
+                    });
+                }
+            });
+        }
+    });
 }
 
 // Add Feedback Set
@@ -392,7 +505,38 @@ function removeSet(feedback: any, idx: number) {
 // Remove Set (saved, just UI for now)
 function deleteSet(set, feedback, idx) {
     // TODO: Implement API call later
-    alert('This is a saved set. Implement API delete here.');
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'This will permanently delete the set and its contents.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('previews.feedback.set.delete', set.id), {
+                onSuccess: () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Set has been deleted.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    // Remove set from UI
+                    feedback.feedback_sets.splice(idx, 1);
+                },
+                onError: (err) => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Delete failed',
+                        text: 'An error occurred.'
+                    });
+                }
+            });
+        }
+    });
 }
 
 // Add Version
@@ -414,7 +558,38 @@ function removeVersion(set: any, idx: number) {
 // Remove Version (saved, just UI for now)
 function deleteVersion(version, set, idx) {
     // TODO: Implement API call later
-    alert('This is a saved version. Implement API delete here.');
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'This will permanently delete the version and its contents.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('previews.version.delete', version.id), {
+                onSuccess: () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Version has been deleted.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    // Remove version from UI
+                    set.versions.splice(idx, 1);
+                },
+                onError: (err) => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Delete failed',
+                        text: 'An error occurred.'
+                    });
+                }
+            });
+        }
+    });
 }
 
 // Banner CRUD
@@ -439,13 +614,84 @@ function removeBanner(version: any, index: number) {
     updateBannerPositions(version);
 }
 function editBanner(banner, version, index) {
-    // TODO: Implement API call later
-    alert('This is a saved banner. Implement API edit here.');
+    showBannerEdit.value = true;
+    bannerEditObj = banner;
+    bannerEditVersion = version;
+    bannerEditIndex = index;
+    bannerEditFile.value = [];
+    bannerEditSizeId.value = banner.size_id;
+}
+function closeBannerEdit() {
+    showBannerEdit.value = false;
+    bannerEditObj = null;
+    bannerEditVersion = null;
+    bannerEditIndex = null;
+    bannerEditFile.value = [];
+    bannerEditSizeId.value = null;
+}
+
+function submitBannerEdit() {
+    const formData = new FormData();
+    formData.append('size_id', bannerEditSizeId.value);
+    if (bannerEditFile.value.length > 0 && bannerEditFile.value[0].file) {
+        formData.append('file', bannerEditFile.value[0].file);
+    }
+    router.post(route('previews.banner.edit', bannerEditObj.id), formData, {
+        forceFormData: true,
+        onSuccess: () => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Banner updated!',
+                timer: 1500,
+                showConfirmButton: false
+            });
+            closeBannerEdit();
+            // Optionally, refresh the banner data here
+        },
+        onError: (err) => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Update failed',
+                text: 'An error occurred.'
+            });
+        }
+    });
 }
 // Remove Banner (saved, just UI for now)
 function deleteBanner(banner, version, index) {
     // TODO: Implement API call later
-    alert('This is a saved banner. Implement API delete here.');
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'This will permanently delete the banner and its contents.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('previews.banner.delete', banner.id), {
+                onSuccess: () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Banner has been deleted.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    // Remove banner from UI
+                    version.banners.splice(index, 1);
+                },
+                onError: (err) => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Delete failed',
+                        text: 'An error occurred.'
+                    });
+                }
+            });
+        }
+    });
 }
 
 function updateBannerPositions(version: any) {
