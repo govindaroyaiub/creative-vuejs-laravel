@@ -112,8 +112,9 @@
                                                                         <template #item="{ element, index }">
                                                                             <div
                                                                                 class="flex items-center bg-white dark:bg-gray-800 rounded shadow px-4 py-3">
-                                                                                <span class="text-xs text-gray-500 mr-2">{{
-                                                                                    index + 1 }}</span>
+                                                                                <span
+                                                                                    class="text-xs text-gray-500 mr-2">{{
+                                                                                        index + 1 }}</span>
                                                                                 <div
                                                                                     class="cursor-move text-gray-400 hover:text-gray-600 mr-3">
                                                                                     <svg width="20" height="20"
@@ -155,7 +156,11 @@
                                                                                     class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs ml-2">
                                                                                     Delete
                                                                                 </button>
-
+                                                                                <button v-if="!isDbId(element.id)"
+                                                                                    @click.stop="removeBanner(version, index)"
+                                                                                    class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs ml-2">
+                                                                                    Delete
+                                                                                </button>
                                                                                 <!-- Banner Edit Modal -->
                                                                                 <template v-if="showBannerEdit">
                                                                                     <div
@@ -209,9 +214,77 @@
                                                                     <div class="text-gray-400 italic">Video asset
                                                                         editing coming soon...</div>
                                                                 </div>
-                                                                <div v-else-if="category.type === 'social'">
-                                                                    <div class="text-gray-400 italic">Social asset
-                                                                        editing coming soon...</div>
+                                                                <div v-if="category.type === 'social'">
+                                                                    <!-- Show FilePond only if no socials are uploaded yet -->
+                                                                    <div
+                                                                        v-if="!version.socials || version.socials.length === 0">
+                                                                        <FilePond :allowMultiple="true"
+                                                                            :acceptedFileTypes="['image/jpeg', 'image/png', 'image/webp', 'image/bmp', 'image/svg+xml']"
+                                                                            :labelIdle="'Drag & Drop your images or <span class=\'filepond--label-action\'>Browse</span>'"
+                                                                            :files="version._filepondSocialFiles || []"
+                                                                            @updatefiles="files => handleSocialDrop(files, version)"
+                                                                            class="my-4 filepond-dropzone" />
+                                                                    </div>
+
+                                                                    <!-- Show draggable list if socials exist -->
+                                                                    <draggable
+                                                                        v-if="version.socials && version.socials.length"
+                                                                        v-model="version.socials" item-key="id"
+                                                                        @end="updateSocialPositions(version)"
+                                                                        class="space-y-2 mt-4">
+                                                                        <template #item="{ element, index }">
+                                                                            <div
+                                                                                class="flex items-center bg-white dark:bg-gray-800 rounded shadow px-4 py-3">
+                                                                                <span
+                                                                                    class="text-xs text-gray-500 mr-2">
+                                                                                    {{ index + 1 }}</span>
+                                                                                <div
+                                                                                    class="cursor-move text-gray-400 hover:text-gray-600 mr-3">
+                                                                                    <svg width="20" height="20"
+                                                                                        fill="none" viewBox="0 0 20 20">
+                                                                                        <rect x="3" y="6" width="14"
+                                                                                            height="2" rx="1"
+                                                                                            fill="currentColor" />
+                                                                                        <rect x="3" y="9" width="14"
+                                                                                            height="2" rx="1"
+                                                                                            fill="currentColor" />
+                                                                                        <rect x="3" y="12" width="14"
+                                                                                            height="2" rx="1"
+                                                                                            fill="currentColor" />
+                                                                                    </svg>
+                                                                                </div>
+
+                                                                                <img v-if="element.file && typeof element.file === 'object'"
+                                                                                    :src="URL.createObjectURL(element.file)"
+                                                                                    alt="Social Image"
+                                                                                    class="w-16 h-16 object-cover rounded mr-4" />
+                                                                                <img v-else-if="element.url"
+                                                                                    :src="element.url"
+                                                                                    alt="Social Image"
+                                                                                    class="w-16 h-16 object-cover rounded mr-4" />
+
+                                                                                <span
+                                                                                    class="font-medium min-w-[120px]">{{
+                                                                                        element.name }}</span>
+                                                                                <div class="flex-1"></div>
+                                                                                <button v-if="isDbId(element.id)"
+                                                                                    @click.stop="editSocial(element, version, index)"
+                                                                                    class="text-blue-600 hover:text-blue-800 hover:underline px-2 py-1 rounded text-xs ml-2">
+                                                                                    Edit
+                                                                                </button>
+                                                                                <button v-if="isDbId(element.id)"
+                                                                                    @click.stop="deleteSocial(element, version, index)"
+                                                                                    class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs ml-2">
+                                                                                    Delete
+                                                                                </button>
+                                                                                <button v-if="!isDbId(element.id)"
+                                                                                    @click.stop="removeSocial(version, index)"
+                                                                                    class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs ml-2">
+                                                                                    Delete
+                                                                                </button>
+                                                                            </div>
+                                                                        </template>
+                                                                    </draggable>
                                                                 </div>
                                                                 <div v-else-if="category.type === 'gif'">
                                                                     <div class="text-gray-400 italic">Gif asset editing
@@ -334,6 +407,8 @@ const bannerSizes = computed(() => page.props.bannerSizes);
 function goToPreview() {
     window.open(`/previews/show/${preview.value.slug}`, '_blank');
 }
+
+const URL = window.URL;
 
 const showAddCategory = ref(false);
 const newCategoryName = ref('');
@@ -546,6 +621,7 @@ function addVersion(set: any) {
         id: Date.now(),
         name: newVersionName[set.id] || '',
         banners: [],
+        socials: [],
         idFromDb: false,
     });
     showAddVersion[set.id] = false;
@@ -609,9 +685,13 @@ function handleBannerDrop(files, version) {
     updateBannerPositions(version);
 }
 // Remove Banner (new, unsaved)
-function removeBanner(version: any, index: number) {
+function removeBanner(version, index) {
     version.banners.splice(index, 1);
     updateBannerPositions(version);
+    // Reset FilePond if all banners are deleted
+    if (version.banners.length === 0) {
+        version._filepondFiles = [];
+    }
 }
 function editBanner(banner, version, index) {
     showBannerEdit.value = true;
@@ -700,6 +780,38 @@ function updateBannerPositions(version: any) {
     });
 }
 
+// Social image upload handler
+function handleSocialDrop(files, version) {
+    version._filepondSocialFiles = files;
+    version.socials = [];
+    files.forEach((fileWrapper, idx) => {
+        const file = fileWrapper.file;
+        version.socials.push({
+            id: Date.now() + idx,
+            name: file.name,
+            file,
+            position: version.socials.length + 1,
+        });
+    });
+    updateSocialPositions(version);
+}
+
+// Update positions after drag/drop
+function updateSocialPositions(version) {
+    version.socials.forEach((social, idx) => {
+        social.position = idx + 1;
+    });
+}
+
+function removeSocial(version, index) {
+    version.socials.splice(index, 1);
+    updateSocialPositions(version);
+    // Reset FilePond if all socials are deleted
+    if (version.socials.length === 0) {
+        version._filepondSocialFiles = [];
+    }
+}
+
 function saveAll() {
     const formData = new FormData();
     formData.append('preview_id', preview.value.id);
@@ -730,17 +842,45 @@ function saveAll() {
                     }
                     formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][name]`, version.name);
 
-                    version.banners.forEach((banner, bIdx) => {
-                        if (isDbId(banner.id)) {
-                            formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][banners][${bIdx}][id]`, banner.id);
-                        }
-                        formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][banners][${bIdx}][name]`, banner.name);
-                        formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][banners][${bIdx}][size_id]`, banner.size_id);
-                        formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][banners][${bIdx}][position]`, banner.position);
-                        if (banner.file) {
-                            formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][banners][${bIdx}][file]`, banner.file);
-                        }
-                    });
+                    // Banner assets
+                    if (category.type === 'banner' && version.banners) {
+                        version.banners.forEach((banner, bIdx) => {
+                            if (isDbId(banner.id)) {
+                                formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][banners][${bIdx}][id]`, banner.id);
+                            }
+                            formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][banners][${bIdx}][name]`, banner.name);
+                            formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][banners][${bIdx}][size_id]`, banner.size_id);
+                            formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][banners][${bIdx}][position]`, banner.position);
+                            if (banner.file) {
+                                formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][banners][${bIdx}][file]`, banner.file);
+                            }
+                        });
+                    }
+
+                    // Social assets
+                    if (category.type === 'social' && version.socials) {
+                        version.socials.forEach((social, sIdx) => {
+                            if (isDbId(social.id)) {
+                                formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][socials][${sIdx}][id]`, social.id);
+                            }
+                            formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][socials][${sIdx}][name]`, social.name);
+                            formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][socials][${sIdx}][position]`, social.position);
+                            if (social.file) {
+                                formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][socials][${sIdx}][file]`, social.file);
+                            }
+                        });
+                    }
+
+                    // Video assets
+                    if (category.type === 'video' && version.videos) {
+
+                    }
+
+                    // Gif assets
+                    if (category.type === 'gif' && version.gifs) {
+
+
+                    }
                 });
             });
         });

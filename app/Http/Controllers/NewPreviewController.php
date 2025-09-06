@@ -272,6 +272,7 @@ class NewPreviewController extends Controller
 
     public function bulkEdit(Request $request, $id)
     {
+        dd($request->all());
         $validated = $request->validate([
             'preview_id' => 'required|exists:new_previews,id',
             'categories' => 'required|array|min:1',
@@ -403,138 +404,190 @@ class NewPreviewController extends Controller
                                 ]);
                                 $submittedVersionIds[] = $version->id;
                                 // Reload to get relationships
-                                $version = newVersion::with('banners')->find($version->id);
+                                $version = newVersion::with('banners', 'socials', 'videos', 'gifs')->find($version->id);
                             }
 
                             // Always reload version to ensure relationships are loaded
                             if (!$version) continue;
-                            $existingBanners = $version->banners ? $version->banners->keyBy('id') : collect();
-                            $currentBannerIds = [];
-                            if (isset($verData['banners'])) {
-                                foreach ($verData['banners'] as $bannerData) {
-                                    if (isset($bannerData['id']) && $existingBanners->has($bannerData['id'])) {
-                                        // Update existing banner
-                                        $banner = $existingBanners[$bannerData['id']];
-                                        $banner->update([
-                                            'name' => $bannerData['name'] ?? $banner->name,
-                                            'size_id' => $bannerData['size_id'],
-                                            'position' => $bannerData['position'],
-                                        ]);
-                                        $submittedBannerIds[] = $banner->id;
-                                        $currentBannerIds[] = $banner->id;
-                                        // If a new file is uploaded, replace the file and update path/size
-                                        if (isset($bannerData['file']) && $bannerData['file'] instanceof \Illuminate\Http\UploadedFile) {
-                                            $this->deletePath($banner->path);
-                                            $previewName = str_replace(' ', '_', $preview->name);
-                                            $uniqueSuffix = uniqid('_');
-                                            $uploadDir = public_path("uploads/banners");
-                                            if (!is_dir($uploadDir)) {
-                                                mkdir($uploadDir, 0777, true);
-                                            }
-                                            $zipName = $previewName . $uniqueSuffix . '.zip';
-                                            $zipPath = $uploadDir . '/' . $zipName;
-                                            $bannerData['file']->move($uploadDir, $zipName);
 
-                                            // Calculate zip size
-                                            $zipSizeBytes = filesize($zipPath);
-                                            $zipSize = $zipSizeBytes < 1048576
-                                                ? round($zipSizeBytes / 1024, 2) . ' KB'
-                                                : round($zipSizeBytes / 1048576, 2) . ' MB';
-
-                                            // Extract zip
-                                            $extractDir = $uploadDir . '/' . $previewName . $uniqueSuffix;
-                                            if (!is_dir($extractDir)) {
-                                                mkdir($extractDir, 0777, true);
-                                            }
-                                            $zip = new \ZipArchive;
-                                            if ($zip->open($zipPath) === TRUE) {
-                                                $zip->extractTo($extractDir);
-                                                $zip->close();
-                                                unlink($zipPath); // Delete zip after extraction
-                                            }
-
+                            // BANNERS
+                            if ($catData['type'] === 'banner') {
+                                $existingBanners = $version->banners ? $version->banners->keyBy('id') : collect();
+                                $currentBannerIds = [];
+                                if (isset($verData['banners'])) {
+                                    foreach ($verData['banners'] as $bannerData) {
+                                        if (isset($bannerData['id']) && $existingBanners->has($bannerData['id'])) {
+                                            // Update existing banner
+                                            $banner = $existingBanners[$bannerData['id']];
                                             $banner->update([
-                                                'path' => "uploads/banners/{$previewName}{$uniqueSuffix}/",
-                                                'file_size' => $zipSize,
-                                            ]);
-                                        }
-                                    } else {
-                                        // Create new banner
-                                        if (isset($bannerData['file']) && $bannerData['file'] instanceof \Illuminate\Http\UploadedFile) {
-                                            $previewName = str_replace(' ', '_', $preview->name);
-                                            $uniqueSuffix = uniqid('_');
-                                            $uploadDir = public_path("uploads/banners");
-                                            if (!is_dir($uploadDir)) {
-                                                mkdir($uploadDir, 0777, true);
-                                            }
-                                            $zipName = $previewName . $uniqueSuffix . '.zip';
-                                            $zipPath = $uploadDir . '/' . $zipName;
-                                            $bannerData['file']->move($uploadDir, $zipName);
-
-                                            // Calculate zip size
-                                            $zipSizeBytes = filesize($zipPath);
-                                            $zipSize = $zipSizeBytes < 1048576
-                                                ? round($zipSizeBytes / 1024, 2) . ' KB'
-                                                : round($zipSizeBytes / 1048576, 2) . ' MB';
-
-                                            // Extract zip
-                                            $extractDir = $uploadDir . '/' . $previewName . $uniqueSuffix;
-                                            if (!is_dir($extractDir)) {
-                                                mkdir($extractDir, 0777, true);
-                                            }
-                                            $zip = new \ZipArchive;
-                                            if ($zip->open($zipPath) === TRUE) {
-                                                $zip->extractTo($extractDir);
-                                                $zip->close();
-                                                unlink($zipPath); // Delete zip after extraction
-                                            }
-
-                                            $banner = newBanner::create([
-                                                'version_id' => $version->id,
-                                                'name' => $bannerData['name'] ?? ($previewName . $uniqueSuffix),
+                                                'name' => $bannerData['name'] ?? $banner->name,
                                                 'size_id' => $bannerData['size_id'],
                                                 'position' => $bannerData['position'],
-                                                'path' => "uploads/banners/{$previewName}{$uniqueSuffix}/",
-                                                'file_size' => $zipSize,
                                             ]);
                                             $submittedBannerIds[] = $banner->id;
                                             $currentBannerIds[] = $banner->id;
+                                            // If a new file is uploaded, replace the file and update path/size
+                                            if (isset($bannerData['file']) && $bannerData['file'] instanceof \Illuminate\Http\UploadedFile) {
+                                                $this->deletePath($banner->path);
+                                                $previewName = str_replace(' ', '_', $preview->name);
+                                                $uniqueSuffix = uniqid('_');
+                                                $uploadDir = public_path("uploads/banners");
+                                                if (!is_dir($uploadDir)) {
+                                                    mkdir($uploadDir, 0777, true);
+                                                }
+                                                $zipName = $previewName . $uniqueSuffix . '.zip';
+                                                $zipPath = $uploadDir . '/' . $zipName;
+                                                $bannerData['file']->move($uploadDir, $zipName);
+
+                                                // Calculate zip size
+                                                $zipSizeBytes = filesize($zipPath);
+                                                $zipSize = $zipSizeBytes < 1048576
+                                                    ? round($zipSizeBytes / 1024, 2) . ' KB'
+                                                    : round($zipSizeBytes / 1048576, 2) . ' MB';
+
+                                                // Extract zip
+                                                $extractDir = $uploadDir . '/' . $previewName . $uniqueSuffix;
+                                                if (!is_dir($extractDir)) {
+                                                    mkdir($extractDir, 0777, true);
+                                                }
+                                                $zip = new \ZipArchive;
+                                                if ($zip->open($zipPath) === TRUE) {
+                                                    $zip->extractTo($extractDir);
+                                                    $zip->close();
+                                                    unlink($zipPath); // Delete zip after extraction
+                                                }
+
+                                                $banner->update([
+                                                    'path' => "uploads/banners/{$previewName}{$uniqueSuffix}/",
+                                                    'file_size' => $zipSize,
+                                                ]);
+                                            }
+                                        } else {
+                                            // Create new banner
+                                            if (isset($bannerData['file']) && $bannerData['file'] instanceof \Illuminate\Http\UploadedFile) {
+                                                $previewName = str_replace(' ', '_', $preview->name);
+                                                $uniqueSuffix = uniqid('_');
+                                                $uploadDir = public_path("uploads/banners");
+                                                if (!is_dir($uploadDir)) {
+                                                    mkdir($uploadDir, 0777, true);
+                                                }
+                                                $zipName = $previewName . $uniqueSuffix . '.zip';
+                                                $zipPath = $uploadDir . '/' . $zipName;
+                                                $bannerData['file']->move($uploadDir, $zipName);
+
+                                                // Calculate zip size
+                                                $zipSizeBytes = filesize($zipPath);
+                                                $zipSize = $zipSizeBytes < 1048576
+                                                    ? round($zipSizeBytes / 1024, 2) . ' KB'
+                                                    : round($zipSizeBytes / 1048576, 2) . ' MB';
+
+                                                // Extract zip
+                                                $extractDir = $uploadDir . '/' . $previewName . $uniqueSuffix;
+                                                if (!is_dir($extractDir)) {
+                                                    mkdir($extractDir, 0777, true);
+                                                }
+                                                $zip = new \ZipArchive;
+                                                if ($zip->open($zipPath) === TRUE) {
+                                                    $zip->extractTo($extractDir);
+                                                    $zip->close();
+                                                    unlink($zipPath); // Delete zip after extraction
+                                                }
+
+                                                $banner = newBanner::create([
+                                                    'version_id' => $version->id,
+                                                    'name' => $bannerData['name'] ?? ($previewName . $uniqueSuffix),
+                                                    'size_id' => $bannerData['size_id'],
+                                                    'position' => $bannerData['position'],
+                                                    'path' => "uploads/banners/{$previewName}{$uniqueSuffix}/",
+                                                    'file_size' => $zipSize,
+                                                ]);
+                                                $submittedBannerIds[] = $banner->id;
+                                                $currentBannerIds[] = $banner->id;
+                                            }
                                         }
                                     }
                                 }
-                            }
-                            // Delete banners not in submitted data
-                            foreach ($existingBanners as $bannerId => $banner) {
-                                if (!in_array($bannerId, $currentBannerIds)) {
-                                    $this->deletePath($banner->path);
-                                    $banner->delete();
+                                // Delete banners not in submitted data
+                                foreach ($existingBanners as $bannerId => $banner) {
+                                    if (!in_array($bannerId, $currentBannerIds)) {
+                                        $this->deletePath($banner->path);
+                                        $banner->delete();
+                                    }
                                 }
                             }
-                        }
-                    }
-                }
-            }
 
-            // Delete categories not in submitted data
-            foreach ($preview->categories as $category) {
-                if (!in_array($category->id, $submittedCategoryIds)) {
-                    foreach ($category->feedbacks as $feedback) {
-                        foreach ($feedback->feedbackSets as $set) {
-                            foreach ($set->versions as $version) {
-                                foreach ($version->banners as $banner) {
-                                    $this->deletePath($banner->path);
-                                    $banner->delete();
+                            // SOCIALS
+                            if ($catData['type'] === 'social') {
+                                $existingSocials = $version->socials ? $version->socials->keyBy('id') : collect();
+                                $currentSocialIds = [];
+                                if (isset($verData['socials'])) {
+                                    foreach ($verData['socials'] as $socialData) {
+                                        if (isset($socialData['id']) && $existingSocials->has($socialData['id'])) {
+                                            // Update existing social
+                                            $social = $existingSocials[$socialData['id']];
+                                            $social->update([
+                                                'name' => $socialData['name'] ?? $social->name,
+                                                'position' => $socialData['position'],
+                                            ]);
+                                            $currentSocialIds[] = $social->id;
+                                            // If a new file is uploaded, replace the file and update path
+                                            if (isset($socialData['file']) && $socialData['file'] instanceof \Illuminate\Http\UploadedFile) {
+                                                $this->deletePath($social->path);
+                                                $uploadDir = public_path("uploads/socials");
+                                                if (!is_dir($uploadDir)) {
+                                                    mkdir($uploadDir, 0777, true);
+                                                }
+                                                $filename = uniqid('social_') . '.' . $socialData['file']->getClientOriginalExtension();
+                                                $socialData['file']->move($uploadDir, $filename);
+                                                $social->update([
+                                                    'path' => "uploads/socials/{$filename}",
+                                                ]);
+                                            }
+                                        } else {
+                                            // Create new social
+                                            if (isset($socialData['file']) && $socialData['file'] instanceof \Illuminate\Http\UploadedFile) {
+                                                // Only accept non-gif images
+                                                if ($socialData['file']->getMimeType() !== 'image/gif') {
+                                                    $uploadDir = public_path("uploads/socials");
+                                                    if (!is_dir($uploadDir)) {
+                                                        mkdir($uploadDir, 0777, true);
+                                                    }
+                                                    $filename = uniqid('social_') . '.' . $socialData['file']->getClientOriginalExtension();
+                                                    $socialData['file']->move($uploadDir, $filename);
+                                                    $social = newSocial::create([
+                                                        'version_id' => $version->id,
+                                                        'name' => $socialData['name'] ?? $filename,
+                                                        'position' => $socialData['position'],
+                                                        'path' => "uploads/socials/{$filename}",
+                                                    ]);
+                                                    $currentSocialIds[] = $social->id;
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
-                                $version->delete();
+                                // Delete socials not in submitted data
+                                foreach ($existingSocials as $socialId => $social) {
+                                    if (!in_array($socialId, $currentSocialIds)) {
+                                        $this->deletePath($social->path);
+                                        $social->delete();
+                                    }
+                                }
                             }
-                            $set->delete();
+
+                            // VIDEOS (placeholder)
+                            if ($catData['type'] === 'video') {
+                                // TODO: Video asset logic will go here
+                            }
+
+                            // GIFS (placeholder)
+                            if ($catData['type'] === 'gif') {
+                                // TODO: Gif asset logic will go here
+                            }
                         }
-                        $feedback->delete();
                     }
-                    $category->delete();
                 }
             }
-            // Repeat similar deletion for feedbacks, sets, versions if needed (optional, since children are deleted with parent)
         });
 
         return redirect()->route('previews.update.all', $preview->id)
