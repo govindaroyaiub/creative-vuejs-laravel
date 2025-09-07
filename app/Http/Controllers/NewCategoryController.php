@@ -86,6 +86,16 @@ class NewCategoryController extends Controller
                         }
                         if ($category->type === 'gif') {
                             //TODO
+                            foreach ($version->gifs as $gif) {
+                                // Delete gif image file
+                                if ($gif->path) {
+                                    $gifPath = public_path($gif->path);
+                                    if (file_exists($gifPath)) {
+                                        @unlink($gifPath);
+                                    }
+                                }
+                                $gif->delete();
+                            }
                         }
                         if ($category->type === 'social') {
                             //TODO

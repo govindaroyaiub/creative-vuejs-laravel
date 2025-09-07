@@ -112,6 +112,16 @@ class NewVersionController extends Controller
                 }
             }
             if ($category->type === 'gif') {
+                foreach ($version->gifs as $gif) {
+                    // Delete gif image file
+                    if ($folder && $gif->path) {
+                        $gifPath = public_path($gif->path);
+                        if (file_exists($gifPath)) {
+                            @unlink($gifPath);
+                        }
+                    }
+                    $gif->delete();
+                }
             }
             $version->delete();
 

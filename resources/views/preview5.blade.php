@@ -580,9 +580,7 @@
                                     bannersHtml += '<li><i id="relBt' + banner.id + '" onClick="reloadBanner(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
                                 // Add your Planet Nine options here
                                     bannersHtml += '@if($authUserClientName == "Planet Nine")'
-                                        bannersHtml += '<li class="banner-options"><a href="/previews/banner/single/edit/' + value.id + '"><i class="fa-solid fa-pen-to-square" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
                                         bannersHtml += '<li class="banner-options"><a href="/previews/banner/single/download/' + value.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
-                                        bannersHtml += '<li class="banner-options"><a href="javascript:void(0)" onclick="return confirmDeleteBanner(' + value.id + ')"><i class="fa-solid fa-trash" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
                                     bannersHtml += '@endif';
                                 bannersHtml += '</ul>';
                                 bannersHtml += '</div>';

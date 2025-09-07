@@ -306,9 +306,120 @@
                                                                     </template>
                                                                 </div>
 
-                                                                <div v-else-if="category.type === 'gif'">
-                                                                    <div class="text-gray-400 italic">Gif asset editing
-                                                                        coming soon...</div>
+                                                                <div v-if="category.type === 'gif'">
+                                                                    <div v-if="!version.gifs || version.gifs.length === 0"
+                                                                        class="mt-4 flex gap-2 items-center">
+                                                                        <FilePond :allowMultiple="true"
+                                                                            :acceptedFileTypes="['image/gif']"
+                                                                            :labelIdle="'Drag & Drop your GIF files or <span class=\'filepond--label-action\'>Browse</span>'"
+                                                                            :files="version._filepondGifFiles || []"
+                                                                            @updatefiles="files => handleGifDrop(files, version)"
+                                                                            class="my-4 filepond-dropzone" />
+                                                                    </div>
+                                                                    <draggable
+                                                                        v-if="version.gifs && version.gifs.length"
+                                                                        v-model="version.gifs" item-key="id"
+                                                                        @end="updateGifPositions(version)"
+                                                                        class="space-y-2 mt-4">
+                                                                        <template #item="{ element, index }">
+                                                                            <div
+                                                                                class="flex items-center bg-white dark:bg-gray-800 rounded shadow px-4 py-3">
+                                                                                <span
+                                                                                    class="text-xs text-gray-500 mr-2">{{
+                                                                                        index + 1 }}</span>
+                                                                                <div
+                                                                                    class="cursor-move text-gray-400 hover:text-gray-600 mr-3">
+                                                                                    <svg width="20" height="20"
+                                                                                        fill="none" viewBox="0 0 20 20">
+                                                                                        <rect x="3" y="6" width="14"
+                                                                                            height="2" rx="1"
+                                                                                            fill="currentColor" />
+                                                                                        <rect x="3" y="9" width="14"
+                                                                                            height="2" rx="1"
+                                                                                            fill="currentColor" />
+                                                                                        <rect x="3" y="12" width="14"
+                                                                                            height="2" rx="1"
+                                                                                            fill="currentColor" />
+                                                                                    </svg>
+                                                                                </div>
+                                                                                <img v-if="element.file && typeof element.file === 'object'"
+                                                                                    :src="URL.createObjectURL(element.file)"
+                                                                                    alt="GIF"
+                                                                                    class="w-16 h-16 object-cover rounded mr-4" />
+                                                                                <img v-else-if="element.path"
+                                                                                    :src="`/${element.path}`" alt="GIF"
+                                                                                    class="w-16 h-16 object-cover rounded mr-4" />
+                                                                                <span
+                                                                                    class="font-medium min-w-[120px]">{{
+                                                                                        element.name }}</span>
+                                                                                <div class="flex-1"></div>
+                                                                                <div class="flex items-center gap-4">
+                                                                                    <span
+                                                                                        class="text-xs text-gray-500">Size:</span>
+                                                                                    <v-select
+                                                                                        :options="bannerSizeOptions"
+                                                                                        label="label"
+                                                                                        :reduce="size => size.id"
+                                                                                        v-model="element.size_id"
+                                                                                        placeholder="Select GIF Size"
+                                                                                        :clearable="false"
+                                                                                        class="w-40" />
+                                                                                </div>
+                                                                                <button v-if="isDbId(element.id)"
+                                                                                    @click.stop="editGif(element, version, index)"
+                                                                                    class="text-blue-600 hover:text-blue-800 hover:underline px-2 py-1 rounded text-xs ml-2">
+                                                                                    Edit
+                                                                                </button>
+                                                                                <button v-if="isDbId(element.id)"
+                                                                                    @click.stop="deleteGif(element, version, index)"
+                                                                                    class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs ml-2">
+                                                                                    Delete
+                                                                                </button>
+                                                                                <button v-if="!isDbId(element.id)"
+                                                                                    @click.stop="removeGif(version, index)"
+                                                                                    class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs ml-2">
+                                                                                    Delete
+                                                                                </button>
+                                                                            </div>
+                                                                        </template>
+                                                                    </draggable>
+                                                                    <!-- GIF Edit Modal (see script section below) -->
+                                                                    <template v-if="showGifEdit">
+                                                                        <div
+                                                                            class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                                                                            <div
+                                                                                class="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-md">
+                                                                                <h2 class="text-lg font-bold mb-4">Edit
+                                                                                    GIF</h2>
+                                                                                <div class="mb-4">
+                                                                                    <FilePond :allowMultiple="false"
+                                                                                        :acceptedFileTypes="['image/gif']"
+                                                                                        :files="gifEditFile"
+                                                                                        @updatefiles="files => gifEditFile = files"
+                                                                                        class="filepond-dropzone" />
+                                                                                </div>
+                                                                                <div class="mb-4">
+                                                                                    <label
+                                                                                        class="block text-sm font-medium mb-1">GIF
+                                                                                        Size</label>
+                                                                                    <v-select
+                                                                                        :options="bannerSizeOptions"
+                                                                                        label="label"
+                                                                                        :reduce="size => size.id"
+                                                                                        v-model="gifEditSizeId"
+                                                                                        placeholder="Select GIF Size"
+                                                                                        :clearable="false"
+                                                                                        class="w-full" />
+                                                                                </div>
+                                                                                <div class="flex gap-2 mt-6 w-full">
+                                                                                    <button @click="closeGifEdit"
+                                                                                        class="w-full bg-gray-300 text-gray-800 px-4 py-2 rounded font-semibold">Cancel</button>
+                                                                                    <button @click="submitGifEdit"
+                                                                                        class="w-full bg-blue-600 text-white px-4 py-2 rounded font-semibold">Update</button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </template>
                                                                 </div>
                                                             </div>
                                                         </details>
@@ -934,6 +1045,123 @@ function deleteSocial(social, version, index) {
     });
 }
 
+const showGifEdit = ref(false);
+const gifEditFile = ref([]);
+const gifEditSizeId = ref(null);
+let gifEditObj = null;
+let gifEditVersion = null;
+let gifEditIndex = null;
+
+function handleGifDrop(files, version) {
+    version._filepondGifFiles = files;
+    version.gifs = [];
+    files.forEach((fileWrapper, idx) => {
+        const file = fileWrapper.file;
+        version.gifs.push({
+            id: Date.now() + idx,
+            name: file.name,
+            file,
+            size_id: '',
+            position: version.gifs.length + 1,
+        });
+    });
+    updateGifPositions(version);
+}
+
+function updateGifPositions(version) {
+    version.gifs.forEach((gif, idx) => {
+        gif.position = idx + 1;
+    });
+}
+
+function removeGif(version, index) {
+    version.gifs.splice(index, 1);
+    updateGifPositions(version);
+    if (version.gifs.length === 0) {
+        version._filepondGifFiles = [];
+    }
+}
+
+function editGif(gif, version, index) {
+    showGifEdit.value = true;
+    gifEditObj = gif;
+    gifEditVersion = version;
+    gifEditIndex = index;
+    gifEditFile.value = [];
+    gifEditSizeId.value = gif.size_id;
+}
+
+function closeGifEdit() {
+    showGifEdit.value = false;
+    gifEditObj = null;
+    gifEditVersion = null;
+    gifEditIndex = null;
+    gifEditFile.value = [];
+    gifEditSizeId.value = null;
+}
+
+function submitGifEdit() {
+    const formData = new FormData();
+    formData.append('size_id', gifEditSizeId.value);
+    if (gifEditFile.value.length > 0 && gifEditFile.value[0].file) {
+        formData.append('file', gifEditFile.value[0].file);
+    }
+    router.post(route('previews.gif.edit', gifEditObj.id), formData, {
+        forceFormData: true,
+        onSuccess: () => {
+            Swal.fire({
+                icon: 'success',
+                title: 'GIF updated!',
+                timer: 1500,
+                showConfirmButton: false
+            });
+            closeGifEdit();
+            // Optionally, refresh the GIF data here
+        },
+        onError: (err) => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Update failed',
+                text: 'An error occurred.'
+            });
+        }
+    });
+}
+
+function deleteGif(gif, version, index) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'This will permanently delete the GIF and its record.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('previews.gif.delete', gif.id), {
+                onSuccess: () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'GIF has been deleted.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    version.gifs.splice(index, 1);
+                },
+                onError: (err) => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Delete failed',
+                        text: 'An error occurred.'
+                    });
+                }
+            });
+        }
+    });
+}
+
 function saveAll() {
     const formData = new FormData();
     formData.append('preview_id', preview.value.id);
@@ -1000,8 +1228,17 @@ function saveAll() {
 
                     // Gif assets
                     if (category.type === 'gif' && version.gifs) {
-
-
+                        version.gifs.forEach((gif, gIdx) => {
+                            if (isDbId(gif.id)) {
+                                formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][gifs][${gIdx}][id]`, gif.id);
+                            }
+                            formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][gifs][${gIdx}][name]`, gif.name);
+                            formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][gifs][${gIdx}][size_id]`, gif.size_id);
+                            formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][gifs][${gIdx}][position]`, gif.position);
+                            if (gif.file) {
+                                formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][gifs][${gIdx}][file]`, gif.file);
+                            }
+                        });
                     }
                 });
             });

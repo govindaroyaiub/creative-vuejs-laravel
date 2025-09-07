@@ -299,6 +299,12 @@ class NewPreviewController extends Controller
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.name' => 'nullable|string|max:255',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.position' => 'required|integer',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.file' => 'nullable|file|mimes:jpeg,png,webp,bmp,svg',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.gifs' => 'array',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.gifs.*.id' => 'nullable|integer',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.gifs.*.name' => 'nullable|string|max:255',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.gifs.*.size_id' => 'required|exists:banner_sizes,id',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.gifs.*.position' => 'required|integer',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.gifs.*.file' => 'nullable|file|mimes:gif',
             // Add similar validation for socials, videos, gifs if needed
         ]);
 
@@ -571,7 +577,77 @@ class NewPreviewController extends Controller
 
                             // GIFS (placeholder)
                             if ($catData['type'] === 'gif') {
-                                // TODO: Gif asset logic will go here
+                                $existingGifs = $version->gifs ? $version->gifs->keyBy('id') : collect();
+                                $currentGifIds = [];
+                                if (isset($verData['gifs'])) {
+                                    foreach ($verData['gifs'] as $gifData) {
+                                        if (isset($gifData['id']) && $existingGifs->has($gifData['id'])) {
+                                            $gif = $existingGifs[$gifData['id']];
+                                            $gif->update([
+                                                'size_id' => $gifData['size_id'],
+                                                'position' => $gifData['position'],
+                                            ]);
+                                            $currentGifIds[] = $gif->id;
+                                            if (isset($gifData['file']) && $gifData['file'] instanceof \Illuminate\Http\UploadedFile) {
+                                                // Delete old GIF
+                                                $this->deletePath($gif->path);
+
+                                                // Save new GIF
+                                                $uploadDir = public_path("uploads/gifs");
+                                                if (!is_dir($uploadDir)) {
+                                                    mkdir($uploadDir, 0777, true);
+                                                }
+                                                $filename = uniqid('gif_') . '.gif';
+                                                $gifData['file']->move($uploadDir, $filename);
+
+                                                // Calculate file size
+                                                $filePath = $uploadDir . '/' . $filename;
+                                                $fileSizeBytes = filesize($filePath);
+                                                $fileSize = $fileSizeBytes < 1048576
+                                                    ? round($fileSizeBytes / 1024, 2) . ' KB'
+                                                    : round($fileSizeBytes / 1048576, 2) . ' MB';
+
+                                                $gif->update([
+                                                    'path' => "uploads/gifs/{$filename}",
+                                                    'file_size' => $fileSize,
+                                                ]);
+                                            }
+                                        } else {
+                                            if (isset($gifData['file']) && $gifData['file'] instanceof \Illuminate\Http\UploadedFile) {
+                                                $uploadDir = public_path("uploads/gifs");
+                                                if (!is_dir($uploadDir)) {
+                                                    mkdir($uploadDir, 0777, true);
+                                                }
+                                                $filename = uniqid('gif_') . '.gif';
+                                                $gifData['file']->move($uploadDir, $filename);
+
+                                                // Calculate file size
+                                                $filePath = $uploadDir . '/' . $filename;
+                                                $fileSizeBytes = filesize($filePath);
+                                                $fileSize = $fileSizeBytes < 1048576
+                                                    ? round($fileSizeBytes / 1024, 2) . ' KB'
+                                                    : round($fileSizeBytes / 1048576, 2) . ' MB';
+
+                                                $gif = newGif::create([
+                                                    'name' => $gifData['name'] ?? $filename,
+                                                    'version_id' => $version->id,
+                                                    'size_id' => $gifData['size_id'],
+                                                    'position' => $gifData['position'],
+                                                    'path' => "uploads/gifs/{$filename}",
+                                                    'file_size' => $fileSize,
+                                                ]);
+                                                $currentGifIds[] = $gif->id;
+                                            }
+                                        }
+                                    }
+                                }
+                                // Delete removed GIFs
+                                foreach ($existingGifs as $gifId => $gif) {
+                                    if (!in_array($gifId, $currentGifIds)) {
+                                        $this->deletePath($gif->path);
+                                        $gif->delete();
+                                    }
+                                }
                             }
                         }
                     }
