@@ -263,27 +263,17 @@ class DatabaseSeeder extends Seeder
 
         $videoSizes = [
             [
-                'name' => 'Video',
+                'name' => '3840x2160',
                 'width' => '3840',
                 'height' => '2160',
             ],
             [
-                'name' => 'Video',
+                'name' => '2160x3840',
                 'width' => '2160',
                 'height' => '3840',
             ],
             [
-                'name' => 'Youtube Bumper Ad 6"',
-                'width' => '1920',
-                'height' => '1080',
-            ],
-            [
-                'name' => 'Youtube Pre-Roll 15" (Skippable)',
-                'width' => '1920',
-                'height' => '1080',
-            ],
-            [
-                'name' => 'Youtube Pre-Roll 20" (Skippable)',
+                'name' => '1920x1080',
                 'width' => '1920',
                 'height' => '1080',
             ],
@@ -293,82 +283,57 @@ class DatabaseSeeder extends Seeder
                 'height' => '1080',
             ],
             [
-                'name' => 'Facebook Shared Post Video Landscape 15"',
+                'name' => '1280x720',
                 'width' => '1280',
                 'height' => '720',
             ],
             [
-                'name' => 'Facebook / Instagram Social Video 1:1 15"',
+                'name' => '1080x1080',
                 'width' => '1080',
                 'height' => '1080',
             ],
             [
-                'name' => 'Facebook Carousel Video 15" ',
-                'width' => '1080',
-                'height' => '1080',
-            ],
-            [
-                'name' => 'Facebook / Instagram Social Video 1:1 6',
-                'width' => '1080',
-                'height' => '1080',
-            ],
-            [
-                'name' => 'Logo animation',
-                'width' => '1080',
-                'height' => '1080',
-            ],
-            [
-                'name' => 'Social Video 6"',
+                'name' => '1080x1920',
                 'width' => '1080',
                 'height' => '1920',
             ],
             [
-                'name' => 'Social Video 9:16 1080x1920',
-                'width' => '1080',
-                'height' => '1920',
-            ],
-            [
-                'name' => 'Facebook Video',
+                'name' => '1080x1350',
                 'width' => '1080',
                 'height' => '1350',
             ],
             [
-                'name' => 'Youtube Portrait for Mobile Devices',
+                'name' => '1080x1920',
                 'width' => '1080',
                 'height' => '1920',
             ],
             [
-                'name' => 'Social Video 10 Sec',
-                'width' => '1080',
-                'height' => '1920',
-            ],
-            [
-                'name' => 'Video',
+                'name' => '1080x1536',
                 'width' => '1080',
                 'height' => '1536',
             ],
             [
-                'name' => 'Video 6sec',
+                'name' => '1080x2536',
                 'width' => '1080',
                 'height' => '2536',
             ],
             [
-                'name' => 'Facebook Shared Post Video Portrait 15"',
+                'name' => '720x1280',
                 'width' => '720',
                 'height' => '1280',
             ],
             [
-                'name' => 'Video',
+                'name' => '416x346',
                 'width' => '416',
                 'height' => '346',
             ],
             [
-                'name' => 'Video',
+                'name' => '336x280',
                 'width' => '336',
                 'height' => '280',
             ],
             [
-                'name' => 'Video',
+                'name' => '328x574',
                 'width' => '328',
                 'height' => '574',
             ]
