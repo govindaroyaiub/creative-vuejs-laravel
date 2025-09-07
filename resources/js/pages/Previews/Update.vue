@@ -161,61 +161,57 @@
                                                                                     class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs ml-2">
                                                                                     Delete
                                                                                 </button>
-                                                                                <!-- Banner Edit Modal -->
-                                                                                <template v-if="showBannerEdit">
-                                                                                    <div
-                                                                                        class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                                                                                        <div
-                                                                                            class="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-md">
-                                                                                            <h2
-                                                                                                class="text-lg font-bold mb-4">
-                                                                                                Edit Banner</h2>
-                                                                                            <div class="mb-4">
-                                                                                                <label
-                                                                                                    class="block text-sm font-medium mb-1">Banner
-                                                                                                    File</label>
-                                                                                                <FilePond
-                                                                                                    :allowMultiple="false"
-                                                                                                    :acceptedFileTypes="['application/zip']"
-                                                                                                    :files="bannerEditFile"
-                                                                                                    @updatefiles="files => bannerEditFile = files"
-                                                                                                    class="filepond-dropzone" />
-                                                                                            </div>
-                                                                                            <div class="mb-4">
-                                                                                                <label
-                                                                                                    class="block text-sm font-medium mb-1">Banner
-                                                                                                    Size</label>
-                                                                                                <v-select
-                                                                                                    :options="bannerSizeOptions"
-                                                                                                    label="label"
-                                                                                                    :reduce="size => size.id"
-                                                                                                    v-model="bannerEditSizeId"
-                                                                                                    placeholder="Select Banner Size"
-                                                                                                    :clearable="false"
-                                                                                                    class="w-full" />
-                                                                                            </div>
-                                                                                            <div
-                                                                                                class="flex gap-2 mt-6 w-full">
-                                                                                                <button
-                                                                                                    @click="closeBannerEdit"
-                                                                                                    class="w-full bg-gray-300 text-gray-800 px-4 py-2 rounded font-semibold">Cancel</button>
-                                                                                                <button
-                                                                                                    @click="submitBannerEdit"
-                                                                                                    class="w-full bg-blue-600 text-white px-4 py-2 rounded font-semibold">Update</button>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </template>
+
                                                                             </div>
                                                                         </template>
                                                                     </draggable>
+                                                                    <!-- Banner Edit Modal -->
+                                                                    <template v-if="showBannerEdit">
+                                                                        <div
+                                                                            class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                                                                            <div
+                                                                                class="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-md">
+                                                                                <h2 class="text-lg font-bold mb-4">
+                                                                                    Edit Banner</h2>
+                                                                                <div class="mb-4">
+                                                                                    <label
+                                                                                        class="block text-sm font-medium mb-1">Banner
+                                                                                        File</label>
+                                                                                    <FilePond :allowMultiple="false"
+                                                                                        :acceptedFileTypes="['application/zip']"
+                                                                                        :files="bannerEditFile"
+                                                                                        @updatefiles="files => bannerEditFile = files"
+                                                                                        class="filepond-dropzone" />
+                                                                                </div>
+                                                                                <div class="mb-4">
+                                                                                    <label
+                                                                                        class="block text-sm font-medium mb-1">Banner
+                                                                                        Size</label>
+                                                                                    <v-select
+                                                                                        :options="bannerSizeOptions"
+                                                                                        label="label"
+                                                                                        :reduce="size => size.id"
+                                                                                        v-model="bannerEditSizeId"
+                                                                                        placeholder="Select Banner Size"
+                                                                                        :clearable="false"
+                                                                                        class="w-full" />
+                                                                                </div>
+                                                                                <div class="flex gap-2 mt-6 w-full">
+                                                                                    <button @click="closeBannerEdit"
+                                                                                        class="w-full bg-gray-300 text-gray-800 px-4 py-2 rounded font-semibold">Cancel</button>
+                                                                                    <button @click="submitBannerEdit"
+                                                                                        class="w-full bg-blue-600 text-white px-4 py-2 rounded font-semibold">Update</button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </template>
                                                                 </div>
                                                                 <div v-else-if="category.type === 'video'">
                                                                     <div class="text-gray-400 italic">Video asset
                                                                         editing coming soon...</div>
                                                                 </div>
+                                                                <!-- Socials FilePond for new upload -->
                                                                 <div v-if="category.type === 'social'">
-                                                                    <!-- Show FilePond only if no socials are uploaded yet -->
                                                                     <div
                                                                         v-if="!version.socials || version.socials.length === 0">
                                                                         <FilePond :allowMultiple="true"
@@ -226,7 +222,7 @@
                                                                             class="my-4 filepond-dropzone" />
                                                                     </div>
 
-                                                                    <!-- Show draggable list if socials exist -->
+                                                                    <!-- Draggable list of socials -->
                                                                     <draggable
                                                                         v-if="version.socials && version.socials.length"
                                                                         v-model="version.socials" item-key="id"
@@ -236,8 +232,8 @@
                                                                             <div
                                                                                 class="flex items-center bg-white dark:bg-gray-800 rounded shadow px-4 py-3">
                                                                                 <span
-                                                                                    class="text-xs text-gray-500 mr-2">
-                                                                                    {{ index + 1 }}</span>
+                                                                                    class="text-xs text-gray-500 mr-2">{{
+                                                                                        index + 1 }}</span>
                                                                                 <div
                                                                                     class="cursor-move text-gray-400 hover:text-gray-600 mr-3">
                                                                                     <svg width="20" height="20"
@@ -253,16 +249,14 @@
                                                                                             fill="currentColor" />
                                                                                     </svg>
                                                                                 </div>
-
                                                                                 <img v-if="element.file && typeof element.file === 'object'"
                                                                                     :src="URL.createObjectURL(element.file)"
                                                                                     alt="Social Image"
                                                                                     class="w-16 h-16 object-cover rounded mr-4" />
-                                                                                <img v-else-if="element.url"
-                                                                                    :src="element.url"
+                                                                                <img v-else-if="element.path"
+                                                                                    :src="`/${element.path}`"
                                                                                     alt="Social Image"
                                                                                     class="w-16 h-16 object-cover rounded mr-4" />
-
                                                                                 <span
                                                                                     class="font-medium min-w-[120px]">{{
                                                                                         element.name }}</span>
@@ -285,7 +279,33 @@
                                                                             </div>
                                                                         </template>
                                                                     </draggable>
+                                                                    <template v-if="showSocialEdit">
+                                                                        <div
+                                                                            class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                                                                            <div
+                                                                                class="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-md">
+                                                                                <h2 class="text-lg font-bold mb-4">Edit
+                                                                                    Social Image</h2>
+                                                                                <div class="mb-4">
+                                                                                    <FilePond :allowMultiple="false"
+                                                                                        :acceptedFileTypes="['image/jpeg', 'image/png', 'image/webp', 'image/bmp', 'image/svg+xml']"
+                                                                                        :files="socialEditFile.value"
+                                                                                        @updatefiles="files => { socialEditFile = files; }"
+                                                                                        class="filepond-dropzone" />
+                                                                                </div>
+                                                                                <div class="flex gap-2 mt-6 w-full">
+                                                                                    <button @click="closeSocialEdit"
+                                                                                        class="w-full bg-gray-300 text-gray-800 px-4 py-2 rounded font-semibold">Cancel</button>
+                                                                                    <button @click="submitSocialEdit"
+                                                                                        class="w-full bg-blue-600 text-white px-4 py-2 rounded font-semibold">
+                                                                                        Update
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </template>
                                                                 </div>
+
                                                                 <div v-else-if="category.type === 'gif'">
                                                                     <div class="text-gray-400 italic">Gif asset editing
                                                                         coming soon...</div>
@@ -484,7 +504,8 @@ function deleteCategory(category, idx) {
     }).then((result) => {
         if (result.isConfirmed) {
             router.delete(route('previews.category.delete', category.id), {
-                onSuccess: () => {
+                preserveState: true,
+                onSuccess: (page) => {
                     Swal.fire({
                         icon: 'success',
                         title: 'Deleted!',
@@ -492,10 +513,12 @@ function deleteCategory(category, idx) {
                         timer: 1500,
                         showConfirmButton: false
                     });
-                    // Remove category from UI
-                    preview.value.categories.splice(idx, 1);
+                    // Update categories with returned data
+                    if (page.props.categories) {
+                        preview.value.categories = page.props.categories;
+                    }
                 },
-                onError: (err) => {
+                onError: () => {
                     Swal.fire({
                         icon: 'error',
                         title: 'Delete failed',
@@ -806,10 +829,109 @@ function updateSocialPositions(version) {
 function removeSocial(version, index) {
     version.socials.splice(index, 1);
     updateSocialPositions(version);
-    // Reset FilePond if all socials are deleted
     if (version.socials.length === 0) {
         version._filepondSocialFiles = [];
     }
+}
+
+const showSocialEdit = ref(false);
+const socialEditFile = ref([]);
+let socialEditObj = null;
+let socialEditVersion = null;
+let socialEditIndex = null;
+
+// Open modal for editing a social image
+function editSocial(social, version, index) {
+    showSocialEdit.value = true;
+    socialEditObj = social;
+    socialEditVersion = version;
+    socialEditIndex = index;
+    socialEditFile.value = [];
+}
+
+// Close modal
+function closeSocialEdit() {
+    showSocialEdit.value = false;
+    socialEditObj = null;
+    socialEditVersion = null;
+    socialEditIndex = null;
+    socialEditFile.value = [];
+}
+
+// Submit new image for social
+function submitSocialEdit() {
+    if (socialEditFile.value.length === 0 || !socialEditFile.value[0].file) {
+        Swal.fire({
+            icon: 'error',
+            title: 'No image selected',
+            text: 'Please select an image to upload.'
+        });
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', socialEditFile.value[0].file);
+    formData.append('position', socialEditObj.position);
+
+    // Optional: log FormData before submission
+    for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+    }
+
+    router.post(route('previews.social.edit', socialEditObj.id), formData, {
+        forceFormData: true,
+        onSuccess: () => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Social image updated!',
+                timer: 1500,
+                showConfirmButton: false
+            });
+            closeSocialEdit();
+            // Optionally, refresh the social data here
+        },
+        onError: (err) => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Update failed',
+                text: 'An error occurred.'
+            });
+        }
+    });
+}
+
+function deleteSocial(social, version, index) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'This will permanently delete the social image and its record.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('previews.social.delete', social.id), {
+                onSuccess: () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Social image has been deleted.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    version.socials.splice(index, 1);
+                },
+                onError: (err) => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Delete failed',
+                        text: 'An error occurred.'
+                    });
+                }
+            });
+        }
+    });
 }
 
 function saveAll() {

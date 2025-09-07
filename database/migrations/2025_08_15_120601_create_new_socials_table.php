@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('new_socials', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('version_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('version_id')->constrained('new_versions')->cascadeOnDelete();
             $table->string('name');
             $table->string('path');
             $table->unsignedInteger('position')->default(0);

@@ -89,6 +89,16 @@ class NewCategoryController extends Controller
                         }
                         if ($category->type === 'social') {
                             //TODO
+                            foreach ($version->socials as $social) {
+                                // Delete social image file
+                                if ($folder && $social->path) {
+                                    $socialPath = public_path($social->path);
+                                    if (file_exists($socialPath)) {
+                                        @unlink($socialPath);
+                                    }
+                                }
+                                $social->delete();
+                            }
                         }
                         $version->delete();
                     }
@@ -132,7 +142,7 @@ class NewCategoryController extends Controller
             }
 
             DB::commit();
-            return response('', 200);
+            return redirect()->route('previews.update.all', $category->preview_id)->with('success', 'Category and all related data deleted successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => $e->getMessage()], 500);

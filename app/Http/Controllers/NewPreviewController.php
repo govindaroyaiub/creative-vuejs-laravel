@@ -272,7 +272,6 @@ class NewPreviewController extends Controller
 
     public function bulkEdit(Request $request, $id)
     {
-        dd($request->all());
         $validated = $request->validate([
             'preview_id' => 'required|exists:new_previews,id',
             'categories' => 'required|array|min:1',
@@ -295,22 +294,30 @@ class NewPreviewController extends Controller
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.banners.*.size_id' => 'required_if:categories.*.type,banner|exists:banner_sizes,id',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.banners.*.position' => 'required|integer',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.banners.*.file' => 'nullable|file|mimes:zip',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials' => 'array',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.id' => 'nullable|integer',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.name' => 'nullable|string|max:255',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.position' => 'required|integer',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.file' => 'nullable|file|mimes:jpeg,png,webp,bmp,svg',
+            // Add similar validation for socials, videos, gifs if needed
         ]);
 
         $preview = newPreview::with([
-            'categories.feedbacks.feedbackSets.versions.banners'
+            'categories.feedbacks.feedbackSets.versions.banners',
+            'categories.feedbacks.feedbackSets.versions.socials',
+            'categories.feedbacks.feedbackSets.versions.videos',
+            'categories.feedbacks.feedbackSets.versions.gifs',
         ])->findOrFail($id);
 
         DB::transaction(function () use ($validated, $preview) {
-            // Track submitted IDs for each level
             $submittedCategoryIds = [];
             $submittedFeedbackIds = [];
             $submittedSetIds = [];
             $submittedVersionIds = [];
             $submittedBannerIds = [];
 
-            // 1. Update or create categories
             foreach ($validated['categories'] as $catData) {
+                // Category
                 if (isset($catData['id'])) {
                     $category = newCategory::find($catData['id']);
                     if ($category) {
@@ -321,7 +328,6 @@ class NewPreviewController extends Controller
                         ]);
                         $submittedCategoryIds[] = $category->id;
                     }
-
                     newCategory::where('preview_id', $preview->id)
                         ->where('id', '!=', $category->id)
                         ->update(['is_active' => false]);
@@ -333,13 +339,12 @@ class NewPreviewController extends Controller
                         'is_active' => true,
                     ]);
                     $submittedCategoryIds[] = $category->id;
-
                     newCategory::where('preview_id', $preview->id)
                         ->where('id', '!=', $category->id)
                         ->update(['is_active' => false]);
                 }
 
-                // 2. Update or create feedbacks
+                // Feedbacks
                 foreach ($catData['feedbacks'] as $fbData) {
                     if (isset($fbData['id'])) {
                         $feedback = newFeedback::find($fbData['id']);
@@ -350,7 +355,6 @@ class NewPreviewController extends Controller
                                 'is_active' => true,
                             ]);
                             $submittedFeedbackIds[] = $feedback->id;
-
                             newFeedback::where('category_id', $category->id)
                                 ->where('id', '!=', $feedback->id)
                                 ->update(['is_active' => false]);
@@ -363,13 +367,12 @@ class NewPreviewController extends Controller
                             'is_active' => true,
                         ]);
                         $submittedFeedbackIds[] = $feedback->id;
-
                         newFeedback::where('category_id', $category->id)
                             ->where('id', '!=', $feedback->id)
                             ->update(['is_active' => false]);
                     }
 
-                    // 3. Update or create sets
+                    // Feedback Sets
                     foreach ($fbData['feedback_sets'] as $setData) {
                         if (isset($setData['id'])) {
                             $set = newFeedbackSet::find($setData['id']);
@@ -387,7 +390,7 @@ class NewPreviewController extends Controller
                             $submittedSetIds[] = $set->id;
                         }
 
-                        // 4. Update or create versions
+                        // Versions
                         foreach ($setData['versions'] as $verData) {
                             if (isset($verData['id'])) {
                                 $version = newVersion::find($verData['id']);
@@ -403,11 +406,9 @@ class NewPreviewController extends Controller
                                     'name' => $verData['name'] ?? '',
                                 ]);
                                 $submittedVersionIds[] = $version->id;
-                                // Reload to get relationships
                                 $version = newVersion::with('banners', 'socials', 'videos', 'gifs')->find($version->id);
                             }
 
-                            // Always reload version to ensure relationships are loaded
                             if (!$version) continue;
 
                             // BANNERS
@@ -417,7 +418,6 @@ class NewPreviewController extends Controller
                                 if (isset($verData['banners'])) {
                                     foreach ($verData['banners'] as $bannerData) {
                                         if (isset($bannerData['id']) && $existingBanners->has($bannerData['id'])) {
-                                            // Update existing banner
                                             $banner = $existingBanners[$bannerData['id']];
                                             $banner->update([
                                                 'name' => $bannerData['name'] ?? $banner->name,
@@ -426,7 +426,6 @@ class NewPreviewController extends Controller
                                             ]);
                                             $submittedBannerIds[] = $banner->id;
                                             $currentBannerIds[] = $banner->id;
-                                            // If a new file is uploaded, replace the file and update path/size
                                             if (isset($bannerData['file']) && $bannerData['file'] instanceof \Illuminate\Http\UploadedFile) {
                                                 $this->deletePath($banner->path);
                                                 $previewName = str_replace(' ', '_', $preview->name);
@@ -439,13 +438,11 @@ class NewPreviewController extends Controller
                                                 $zipPath = $uploadDir . '/' . $zipName;
                                                 $bannerData['file']->move($uploadDir, $zipName);
 
-                                                // Calculate zip size
                                                 $zipSizeBytes = filesize($zipPath);
                                                 $zipSize = $zipSizeBytes < 1048576
                                                     ? round($zipSizeBytes / 1024, 2) . ' KB'
                                                     : round($zipSizeBytes / 1048576, 2) . ' MB';
 
-                                                // Extract zip
                                                 $extractDir = $uploadDir . '/' . $previewName . $uniqueSuffix;
                                                 if (!is_dir($extractDir)) {
                                                     mkdir($extractDir, 0777, true);
@@ -454,7 +451,7 @@ class NewPreviewController extends Controller
                                                 if ($zip->open($zipPath) === TRUE) {
                                                     $zip->extractTo($extractDir);
                                                     $zip->close();
-                                                    unlink($zipPath); // Delete zip after extraction
+                                                    unlink($zipPath);
                                                 }
 
                                                 $banner->update([
@@ -463,7 +460,6 @@ class NewPreviewController extends Controller
                                                 ]);
                                             }
                                         } else {
-                                            // Create new banner
                                             if (isset($bannerData['file']) && $bannerData['file'] instanceof \Illuminate\Http\UploadedFile) {
                                                 $previewName = str_replace(' ', '_', $preview->name);
                                                 $uniqueSuffix = uniqid('_');
@@ -475,13 +471,11 @@ class NewPreviewController extends Controller
                                                 $zipPath = $uploadDir . '/' . $zipName;
                                                 $bannerData['file']->move($uploadDir, $zipName);
 
-                                                // Calculate zip size
                                                 $zipSizeBytes = filesize($zipPath);
                                                 $zipSize = $zipSizeBytes < 1048576
                                                     ? round($zipSizeBytes / 1024, 2) . ' KB'
                                                     : round($zipSizeBytes / 1048576, 2) . ' MB';
 
-                                                // Extract zip
                                                 $extractDir = $uploadDir . '/' . $previewName . $uniqueSuffix;
                                                 if (!is_dir($extractDir)) {
                                                     mkdir($extractDir, 0777, true);
@@ -490,7 +484,7 @@ class NewPreviewController extends Controller
                                                 if ($zip->open($zipPath) === TRUE) {
                                                     $zip->extractTo($extractDir);
                                                     $zip->close();
-                                                    unlink($zipPath); // Delete zip after extraction
+                                                    unlink($zipPath);
                                                 }
 
                                                 $banner = newBanner::create([
@@ -507,7 +501,6 @@ class NewPreviewController extends Controller
                                         }
                                     }
                                 }
-                                // Delete banners not in submitted data
                                 foreach ($existingBanners as $bannerId => $banner) {
                                     if (!in_array($bannerId, $currentBannerIds)) {
                                         $this->deletePath($banner->path);
@@ -523,14 +516,12 @@ class NewPreviewController extends Controller
                                 if (isset($verData['socials'])) {
                                     foreach ($verData['socials'] as $socialData) {
                                         if (isset($socialData['id']) && $existingSocials->has($socialData['id'])) {
-                                            // Update existing social
                                             $social = $existingSocials[$socialData['id']];
                                             $social->update([
                                                 'name' => $socialData['name'] ?? $social->name,
                                                 'position' => $socialData['position'],
                                             ]);
                                             $currentSocialIds[] = $social->id;
-                                            // If a new file is uploaded, replace the file and update path
                                             if (isset($socialData['file']) && $socialData['file'] instanceof \Illuminate\Http\UploadedFile) {
                                                 $this->deletePath($social->path);
                                                 $uploadDir = public_path("uploads/socials");
@@ -544,9 +535,7 @@ class NewPreviewController extends Controller
                                                 ]);
                                             }
                                         } else {
-                                            // Create new social
                                             if (isset($socialData['file']) && $socialData['file'] instanceof \Illuminate\Http\UploadedFile) {
-                                                // Only accept non-gif images
                                                 if ($socialData['file']->getMimeType() !== 'image/gif') {
                                                     $uploadDir = public_path("uploads/socials");
                                                     if (!is_dir($uploadDir)) {
@@ -554,6 +543,7 @@ class NewPreviewController extends Controller
                                                     }
                                                     $filename = uniqid('social_') . '.' . $socialData['file']->getClientOriginalExtension();
                                                     $socialData['file']->move($uploadDir, $filename);
+
                                                     $social = newSocial::create([
                                                         'version_id' => $version->id,
                                                         'name' => $socialData['name'] ?? $filename,
@@ -566,7 +556,6 @@ class NewPreviewController extends Controller
                                         }
                                     }
                                 }
-                                // Delete socials not in submitted data
                                 foreach ($existingSocials as $socialId => $social) {
                                     if (!in_array($socialId, $currentSocialIds)) {
                                         $this->deletePath($social->path);

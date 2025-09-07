@@ -25,6 +25,7 @@ use App\Http\Controllers\newFeedbackSetController;
 use App\Http\Controllers\newVersionController;
 use App\Http\Controllers\newBannerController;
 use App\Http\Controllers\newPreviewApiController;
+use App\Http\Controllers\NewSocialController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -61,6 +62,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::delete('/previews/version/delete/{id}', [newVersionController::class, 'destroy'])->name('previews.version.delete');
     Route::post('/previews/banner/edit/{id}', [newBannerController::class, 'update'])->name('previews.banner.edit');
     Route::delete('/previews/banner/delete/{id}', [newBannerController::class, 'destroy'])->name('previews.banner.delete');
+    Route::post('/previews/social/edit/{id}', [NewSocialController::class, 'update'])->name('previews.social.edit');
+    Route::delete('/previews/social/delete/{id}', [NewSocialController::class, 'destroy'])->name('previews.social.delete');
     //Preview Routes End
 
     //Banner Sizes Routes Start

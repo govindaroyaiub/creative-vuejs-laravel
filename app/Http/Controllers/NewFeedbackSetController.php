@@ -94,6 +94,16 @@ class NewFeedbackSetController extends Controller
                 if ($category->type === 'video') {
                 }
                 if ($category->type === 'social') {
+                    foreach ($version->socials as $social) {
+                        // Delete social image file
+                        if ($folder && $social->path) {
+                            $socialPath = public_path($social->path);
+                            if (file_exists($socialPath)) {
+                                @unlink($socialPath);
+                            }
+                        }
+                        $social->delete();
+                    }
                 }
                 if ($category->type === 'gif') {
                 }
