@@ -216,31 +216,77 @@
                                                                             <div
                                                                                 class="bg-white dark:bg-gray-800 rounded shadow px-4 py-3 mb-2">
                                                                                 <div
-                                                                                    class="flex items-center gap-4 mb-2 w-full">
+                                                                                    class="flex items-center gap-2 mb-2 w-full">
                                                                                     <span
-                                                                                        class="text-xs text-gray-500 mr-2">{{
+                                                                                        class="text-xs text-gray-500 mr-1">{{
                                                                                             index + 1 }}</span>
                                                                                     <div class="w-full">
                                                                                         <label
                                                                                             class="block text-xs mb-1">Video
                                                                                             File</label>
-                                                                                        <FilePond :allowMultiple="false"
-                                                                                            :acceptedFileTypes="['video/mp4', 'video/webm']"
-                                                                                            :files="element._filepondVideo || []"
-                                                                                            @updatefiles="files => handleVideoFile(files, element)"
-                                                                                            class="filepond-dropzone" />
+                                                                                        <template v-if="element.path">
+                                                                                            <video
+                                                                                                :src="`/${element.path}`"
+                                                                                                controls
+                                                                                                class="w-40 h-24 rounded" />
+                                                                                        </template>
+                                                                                        <template v-else>
+                                                                                            <FilePond
+                                                                                                :allowMultiple="false"
+                                                                                                :acceptedFileTypes="['video/mp4', 'video/webm']"
+                                                                                                :files="element._filepondVideo || []"
+                                                                                                @updatefiles="files => handleVideoFile(files, element)"
+                                                                                                class="filepond-dropzone" />
+                                                                                        </template>
                                                                                     </div>
                                                                                     <div class="w-full">
                                                                                         <label
                                                                                             class="block text-xs mb-1">Companion
                                                                                             Banner</label>
-                                                                                        <FilePond :allowMultiple="false"
-                                                                                            :acceptedFileTypes="['image/png', 'image/jpeg', 'image/gif']"
-                                                                                            :files="element._filepondBanner || []"
-                                                                                            @updatefiles="files => handleCompanionBanner(files, element)"
-                                                                                            class="filepond-dropzone" />
+                                                                                        <template
+                                                                                            v-if="!isDbId(element.id)">
+                                                                                            <!-- New row: show FilePond for companion banner -->
+                                                                                            <FilePond
+                                                                                                :allowMultiple="false"
+                                                                                                :acceptedFileTypes="['image/png', 'image/jpeg', 'image/gif']"
+                                                                                                :files="element._filepondBanner || []"
+                                                                                                @updatefiles="files => handleCompanionBanner(files, element)"
+                                                                                                class="filepond-dropzone" />
+                                                                                        </template>
+                                                                                        <template v-else>
+                                                                                            <!-- Saved row: show image or fallback -->
+                                                                                            <template
+                                                                                                v-if="element.companion_banner_path">
+                                                                                                <img :src="`/${element.companion_banner_path}`"
+                                                                                                    alt="Companion Banner"
+                                                                                                    class="w-24 h-24 object-cover rounded" />
+                                                                                            </template>
+                                                                                            <button
+                                                                                                v-if="element.companion_banner_path"
+                                                                                                @click.stop="deleteCompanionBanner(element, version, index)"
+                                                                                                class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs ml-2">
+                                                                                                Delete
+                                                                                            </button>
+                                                                                            <template
+                                                                                                v-else-if="!element.companion_banner_path">
+                                                                                                <div
+                                                                                                    class="text-gray-400 text-xs py-8 text-center border rounded bg-gray-50">
+                                                                                                    Nothing To See Here
+                                                                                                </div>
+                                                                                            </template>
+                                                                                        </template>
                                                                                     </div>
-                                                                                    <button
+                                                                                    <button v-if="isDbId(element.id)"
+                                                                                        @click.stop="editVideo(element, version, index)"
+                                                                                        class="text-blue-600 hover:text-blue-800 hover:underline px-2 py-1 rounded text-xs ml-2">
+                                                                                        Edit
+                                                                                    </button>
+                                                                                    <button v-if="isDbId(element.id)"
+                                                                                        @click.stop="deleteVideo(element, version, index)"
+                                                                                        class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs ml-2">
+                                                                                        Delete
+                                                                                    </button>
+                                                                                    <button v-if="!isDbId(element.id)"
                                                                                         @click.stop="removeVideo(version, index)"
                                                                                         class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs ml-2">
                                                                                         Delete
@@ -294,6 +340,84 @@
                                                                             + Add Video
                                                                         </button>
                                                                     </div>
+
+                                                                    <template v-if="showVideoEdit">
+                                                                        <div
+                                                                            class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                                                                            <div
+                                                                                class="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-md">
+                                                                                <h2 class="text-lg font-bold mb-4">Edit
+                                                                                    Video</h2>
+                                                                                <div class="mb-4">
+                                                                                    <label
+                                                                                        class="block text-sm font-medium mb-1">Video
+                                                                                        File</label>
+                                                                                    <FilePond :allowMultiple="false"
+                                                                                        :acceptedFileTypes="['video/mp4', 'video/webm']"
+                                                                                        :files="videoEditFile.value"
+                                                                                        @updatefiles="files => videoEditFile = files"
+                                                                                        class="filepond-dropzone" />
+                                                                                </div>
+                                                                                <div class="mb-4">
+                                                                                    <label
+                                                                                        class="block text-sm font-medium mb-1">Companion
+                                                                                        Banner</label>
+                                                                                    <FilePond :allowMultiple="false"
+                                                                                        :acceptedFileTypes="['image/png', 'image/jpeg', 'image/gif']"
+                                                                                        :files="videoEditBannerFile.value"
+                                                                                        @updatefiles="files => videoEditBannerFile = files"
+                                                                                        class="filepond-dropzone" />
+                                                                                </div>
+                                                                                <div class="mb-4">
+                                                                                    <label
+                                                                                        class="block text-sm font-medium mb-1">Video
+                                                                                        Size</label>
+                                                                                    <v-select
+                                                                                        :options="videoSizeOptions"
+                                                                                        label="label"
+                                                                                        :reduce="size => size.id"
+                                                                                        v-model="videoEditSizeId"
+                                                                                        placeholder="Select Video Size"
+                                                                                        :clearable="false"
+                                                                                        class="w-full" />
+                                                                                </div>
+                                                                                <div class="flex gap-1 w-full">
+                                                                                    <div class="mb-4">
+                                                                                        <label
+                                                                                            class="block text-sm font-medium mb-1">Codec</label>
+                                                                                        <input v-model="videoEditCodec"
+                                                                                            placeholder="Codec"
+                                                                                            class="border rounded px-2 py-1 text-xs w-full" />
+                                                                                    </div>
+                                                                                    <div class="mb-4">
+                                                                                        <label
+                                                                                            class="block text-sm font-medium mb-1">Aspect
+                                                                                            Ratio</label>
+                                                                                        <input
+                                                                                            v-model="videoEditAspectRatio"
+                                                                                            placeholder="Aspect Ratio"
+                                                                                            class="border rounded px-2 py-1 text-xs w-full" />
+                                                                                    </div>
+                                                                                    <div class="mb-4">
+                                                                                        <label
+                                                                                            class="block text-sm font-medium mb-1">FPS</label>
+                                                                                        <input v-model="videoEditFps"
+                                                                                            placeholder="FPS"
+                                                                                            class="border rounded px-2 py-1 text-xs w-full" />
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div class="flex gap-2 mt-6 w-full">
+                                                                                    <button @click="closeVideoEdit"
+                                                                                        class="w-full bg-gray-300 text-gray-800 px-4 py-2 rounded font-semibold">Cancel</button>
+                                                                                    <button @click="submitVideoEdit"
+                                                                                        class="w-full bg-blue-600 text-white px-4 py-2 rounded font-semibold">
+                                                                                        Update
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </template>
                                                                 </div>
                                                                 <!-- Socials FilePond for new upload -->
                                                                 <div v-if="category.type === 'social'">
@@ -448,7 +572,7 @@
                                                                                         v-model="element.size_id"
                                                                                         placeholder="Select GIF Size"
                                                                                         :clearable="false"
-                                                                                        class="w-40" />
+                                                                                        class="w-48" />
                                                                                 </div>
                                                                                 <button v-if="isDbId(element.id)"
                                                                                     @click.stop="editGif(element, version, index)"
@@ -1250,7 +1374,7 @@ function deleteGif(gif, version, index) {
 const videoSizes = computed(() => page.props.videoSizes);
 const videoSizeOptions = computed(() =>
     videoSizes.value.map(size => ({
-        id: size.id,
+        id: Number(size.id), // <-- Ensure id is a number
         label: `${size.width}x${size.height}`
     }))
 );
@@ -1288,6 +1412,150 @@ function removeVideo(version, index) {
 function updateVideoPositions(version) {
     version.videos.forEach((video, idx) => {
         video.position = idx + 1;
+    });
+}
+
+function deleteVideo(video, version, index) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'This will permanently delete the video and its files.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('previews.video.delete', video.id), {
+                onSuccess: () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Video has been deleted.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    version.videos.splice(index, 1);
+                },
+                onError: (err) => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Delete failed',
+                        text: 'An error occurred.'
+                    });
+                }
+            });
+        }
+    });
+}
+
+const showVideoEdit = ref(false);
+const videoEditFile = ref([]);
+const videoEditBannerFile = ref([]);
+const videoEditSizeId = ref(null);
+const videoEditCodec = ref('');
+const videoEditAspectRatio = ref('');
+const videoEditFps = ref('');
+let videoEditObj = null;
+let videoEditVersion = null;
+let videoEditIndex = null;
+
+function editVideo(video, version, index) {
+    showVideoEdit.value = true;
+    videoEditObj = video;
+    videoEditVersion = version;
+    videoEditIndex = index;
+    videoEditFile.value = [];
+    videoEditBannerFile.value = [];
+    videoEditSizeId.value = video.size_id;
+    videoEditCodec.value = video.codec || '';
+    videoEditAspectRatio.value = video.aspect_ratio || '';
+    videoEditFps.value = video.fps || '';
+}
+
+function closeVideoEdit() {
+    showVideoEdit.value = false;
+    videoEditObj = null;
+    videoEditVersion = null;
+    videoEditIndex = null;
+    videoEditFile.value = [];
+    videoEditBannerFile.value = [];
+    videoEditSizeId.value = null;
+}
+
+function submitVideoEdit() {
+    const formData = new FormData();
+    formData.append('size_id', videoEditSizeId.value);
+    formData.append('codec', videoEditCodec.value);
+    formData.append('aspect_ratio', videoEditAspectRatio.value);
+    formData.append('fps', videoEditFps.value);
+    if (videoEditFile.value.length > 0 && videoEditFile.value[0].file) {
+        formData.append('file', videoEditFile.value[0].file);
+    }
+    if (videoEditBannerFile.value.length > 0 && videoEditBannerFile.value[0].file) {
+        formData.append('companion_banner', videoEditBannerFile.value[0].file);
+    }
+    router.post(route('previews.video.edit', videoEditObj.id), formData, {
+        forceFormData: true,
+        onSuccess: () => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Video updated!',
+                timer: 1500,
+                showConfirmButton: false
+            });
+            closeVideoEdit();
+        },
+        onError: (err) => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Update failed',
+                text: 'An error occurred.'
+            });
+        }
+    });
+}
+
+function deleteCompanionBanner(video, version, index) {
+    // If video is not saved in DB, just remove the companion_banner from UI
+    if (!isDbId(video.id)) {
+        video.companion_banner = null;
+        video.companion_banner_path = null;
+        video._filepondBanner = [];
+        return;
+    }
+
+    // If video is saved in DB, call API to delete companion banner
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'This will permanently delete the companion banner image.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('previews.companion.banner.delete', video.id), {
+                onSuccess: () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Companion banner has been deleted.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    video.companion_banner_path = null;
+                },
+                onError: (err) => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Delete failed',
+                        text: 'An error occurred.'
+                    });
+                }
+            });
+        }
     });
 }
 

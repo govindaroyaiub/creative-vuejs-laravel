@@ -101,6 +101,23 @@ class NewFeedbackController extends Controller
                         }
                     }
                     if ($category->type === 'video') {
+                        foreach ($version->videos as $video) {
+                            // Delete video file
+                            if ($folder && $video->path) {
+                                $videoPath = public_path($video->path);
+                                if (file_exists($videoPath)) {
+                                    @unlink($videoPath);
+                                }
+                            }
+                            // Delete companion banner file
+                            if ($folder && $video->companion_banner_path) {
+                                $bannerPath = public_path($video->companion_banner_path);
+                                if (file_exists($bannerPath)) {
+                                    @unlink($bannerPath);
+                                }
+                            }
+                            $video->delete();
+                        }
                     }
                     if ($category->type === 'social') {
                         foreach ($version->socials as $social) {

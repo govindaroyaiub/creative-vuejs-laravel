@@ -298,13 +298,22 @@ class NewPreviewController extends Controller
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.id' => 'nullable|integer',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.name' => 'nullable|string|max:255',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.position' => 'required|integer',
-            'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.file' => 'nullable|file|mimes:jpeg,png,webp,bmp,svg',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.file' => 'nullable|file|mimes:jpeg,png,webp,bmp,svg,jpg',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.gifs' => 'array',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.gifs.*.id' => 'nullable|integer',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.gifs.*.name' => 'nullable|string|max:255',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.gifs.*.size_id' => 'required|exists:banner_sizes,id',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.gifs.*.position' => 'required|integer',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.gifs.*.file' => 'nullable|file|mimes:gif',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos' => 'array',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.id' => 'nullable|integer',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.codec' => 'nullable|string|max:255',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.aspect_ratio' => 'nullable|string|max:255',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.fps' => 'nullable|string|max:255',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.size_id' => 'required_if:categories.*.type,video|exists:video_sizes,id',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.position' => 'required|integer',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.file' => 'nullable|file|mimes:mp4,mov,avi,wmv,mkv',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.companion_banner' => 'nullable|file|mimes:jpeg,png,webp,bmp,svg,gif,jpg',
             // Add similar validation for socials, videos, gifs if needed
         ]);
 
@@ -573,6 +582,130 @@ class NewPreviewController extends Controller
                             // VIDEOS (placeholder)
                             if ($catData['type'] === 'video') {
                                 // TODO: Video asset logic will go here
+                                if ($catData['type'] === 'video') {
+                                    $existingVideos = $version->videos ? $version->videos->keyBy('id') : collect();
+                                    $currentVideoIds = [];
+                                    if (isset($verData['videos'])) {
+                                        foreach ($verData['videos'] as $videoData) {
+                                            // Prepare file names
+                                            $previewName = str_replace(' ', '_', $preview->name);
+                                            $uniqueSuffix = uniqid('_');
+                                            $videoFilename = $previewName . $uniqueSuffix . '.mp4';
+                                            $bannerFilename = $previewName . $uniqueSuffix . '_banner';
+                                            // Use extension from uploaded file if available
+                                            if (isset($videoData['companion_banner']) && $videoData['companion_banner'] instanceof \Illuminate\Http\UploadedFile) {
+                                                $bannerFilename .= '.' . $videoData['companion_banner']->getClientOriginalExtension();
+                                            } else {
+                                                $bannerFilename .= '.png';
+                                            }
+
+                                            if (isset($videoData['id']) && $existingVideos->has($videoData['id'])) {
+                                                $video = $existingVideos[$videoData['id']];
+                                                $video->update([
+                                                    'name' => $videoData['name'] ?? $video->name,
+                                                    'codec' => $videoData['codec'] ?? $video->codec,
+                                                    'aspect_ratio' => $videoData['aspect_ratio'] ?? $video->aspect_ratio,
+                                                    'fps' => $videoData['fps'] ?? $video->fps,
+                                                    'size_id' => $videoData['size_id'],
+                                                    'position' => $videoData['position'],
+                                                ]);
+                                                $currentVideoIds[] = $video->id;
+
+                                                // Handle video file update
+                                                if (isset($videoData['file']) && $videoData['file'] instanceof \Illuminate\Http\UploadedFile) {
+                                                    $this->deletePath($video->path);
+                                                    $uploadDir = public_path("uploads/videos");
+                                                    if (!is_dir($uploadDir)) {
+                                                        mkdir($uploadDir, 0777, true);
+                                                    }
+                                                    $videoData['file']->move($uploadDir, $videoFilename);
+
+                                                    // Calculate file size
+                                                    $filePath = $uploadDir . '/' . $videoFilename;
+                                                    $fileSizeBytes = filesize($filePath);
+                                                    $fileSize = $fileSizeBytes < 1048576
+                                                        ? round($fileSizeBytes / 1024, 2) . ' KB'
+                                                        : round($fileSizeBytes / 1048576, 2) . ' MB';
+
+                                                    $video->update([
+                                                        'path' => "uploads/videos/{$videoFilename}",
+                                                        'file_size' => $fileSize,
+                                                    ]);
+                                                }
+
+                                                // Handle companion banner update
+                                                if (isset($videoData['companion_banner']) && $videoData['companion_banner'] instanceof \Illuminate\Http\UploadedFile) {
+                                                    if ($video->companion_banner_path) {
+                                                        $this->deletePath($video->companion_banner_path);
+                                                    }
+                                                    $uploadDir = public_path("uploads/videos");
+                                                    if (!is_dir($uploadDir)) {
+                                                        mkdir($uploadDir, 0777, true);
+                                                    }
+                                                    $videoData['companion_banner']->move($uploadDir, $bannerFilename);
+                                                    $video->update([
+                                                        'companion_banner_path' => "uploads/videos/{$bannerFilename}",
+                                                    ]);
+                                                }
+                                            } else {
+                                                // New video row
+                                                $videoPath = null;
+                                                $bannerPath = null;
+                                                $fileSize = null;
+
+                                                // Handle video file upload
+                                                if (isset($videoData['file']) && $videoData['file'] instanceof \Illuminate\Http\UploadedFile) {
+                                                    $uploadDir = public_path("uploads/videos");
+                                                    if (!is_dir($uploadDir)) {
+                                                        mkdir($uploadDir, 0777, true);
+                                                    }
+                                                    $videoData['file']->move($uploadDir, $videoFilename);
+
+                                                    $videoPath = "uploads/videos/{$videoFilename}";
+                                                    $filePath = $uploadDir . '/' . $videoFilename;
+                                                    $fileSizeBytes = filesize($filePath);
+                                                    $fileSize = $fileSizeBytes < 1048576
+                                                        ? round($fileSizeBytes / 1024, 2) . ' KB'
+                                                        : round($fileSizeBytes / 1048576, 2) . ' MB';
+                                                }
+
+                                                // Handle companion banner upload
+                                                if (isset($videoData['companion_banner']) && $videoData['companion_banner'] instanceof \Illuminate\Http\UploadedFile) {
+                                                    $uploadDir = public_path("uploads/videos");
+                                                    if (!is_dir($uploadDir)) {
+                                                        mkdir($uploadDir, 0777, true);
+                                                    }
+                                                    $videoData['companion_banner']->move($uploadDir, $bannerFilename);
+                                                    $bannerPath = "uploads/videos/{$bannerFilename}";
+                                                }
+
+                                                $video = newVideo::create([
+                                                    'name' => $videoData['name'] ?? $videoFilename,
+                                                    'version_id' => $version->id,
+                                                    'codec' => $videoData['codec'] ?? 'H264',
+                                                    'aspect_ratio' => $videoData['aspect_ratio'] ?? '',
+                                                    'fps' => $videoData['fps'] ?? '30 FPS',
+                                                    'size_id' => $videoData['size_id'],
+                                                    'position' => $videoData['position'],
+                                                    'path' => $videoPath,
+                                                    'file_size' => $fileSize,
+                                                    'companion_banner_path' => $bannerPath,
+                                                ]);
+                                                $currentVideoIds[] = $video->id;
+                                            }
+                                        }
+                                    }
+                                    // Delete removed videos
+                                    foreach ($existingVideos as $videoId => $video) {
+                                        if (!in_array($videoId, $currentVideoIds)) {
+                                            $this->deletePath($video->path);
+                                            if ($video->companion_banner_path) {
+                                                $this->deletePath($video->companion_banner_path);
+                                            }
+                                            $video->delete();
+                                        }
+                                    }
+                                }
                             }
 
                             // GIFS (placeholder)

@@ -27,6 +27,7 @@ use App\Http\Controllers\newBannerController;
 use App\Http\Controllers\NewGifController;
 use App\Http\Controllers\newPreviewApiController;
 use App\Http\Controllers\NewSocialController;
+use App\Http\Controllers\NewVideoController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -67,6 +68,9 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::delete('/previews/social/delete/{id}', [NewSocialController::class, 'destroy'])->name('previews.social.delete');
     Route::post('/previews/gif/edit/{id}', [NewGifController::class, 'update'])->name('previews.gif.edit');
     Route::delete('/previews/gif/delete/{id}', [NewGifController::class, 'destroy'])->name('previews.gif.delete');
+    Route::post('/previews/video/edit/{id}', [NewVideoController::class, 'update'])->name('previews.video.edit');
+    Route::delete('/previews/video/delete/{id}', [NewVideoController::class, 'destroy'])->name('previews.video.delete');
+    Route::delete('/previews/companion-banner/delete/{id}', [NewVideoController::class, 'deleteCompanionBanner'])->name('previews.companion.banner.delete');
     //Preview Routes End
 
     //Banner Sizes Routes Start
