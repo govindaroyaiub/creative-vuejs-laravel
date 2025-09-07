@@ -206,9 +206,94 @@
                                                                         </div>
                                                                     </template>
                                                                 </div>
-                                                                <div v-else-if="category.type === 'video'">
-                                                                    <div class="text-gray-400 italic">Video asset
-                                                                        editing coming soon...</div>
+                                                                <div v-if="category.type === 'video'">
+                                                                    <draggable
+                                                                        v-if="version.videos && version.videos.length"
+                                                                        v-model="version.videos" item-key="id"
+                                                                        @end="updateVideoPositions(version)"
+                                                                        class="space-y-2 mt-4">
+                                                                        <template #item="{ element, index }">
+                                                                            <div
+                                                                                class="bg-white dark:bg-gray-800 rounded shadow px-4 py-3 mb-2">
+                                                                                <div
+                                                                                    class="flex items-center gap-4 mb-2 w-full">
+                                                                                    <span
+                                                                                        class="text-xs text-gray-500 mr-2">{{
+                                                                                            index + 1 }}</span>
+                                                                                    <div class="w-full">
+                                                                                        <label
+                                                                                            class="block text-xs mb-1">Video
+                                                                                            File</label>
+                                                                                        <FilePond :allowMultiple="false"
+                                                                                            :acceptedFileTypes="['video/mp4', 'video/webm']"
+                                                                                            :files="element._filepondVideo || []"
+                                                                                            @updatefiles="files => handleVideoFile(files, element)"
+                                                                                            class="filepond-dropzone" />
+                                                                                    </div>
+                                                                                    <div class="w-full">
+                                                                                        <label
+                                                                                            class="block text-xs mb-1">Companion
+                                                                                            Banner</label>
+                                                                                        <FilePond :allowMultiple="false"
+                                                                                            :acceptedFileTypes="['image/png', 'image/jpeg', 'image/gif']"
+                                                                                            :files="element._filepondBanner || []"
+                                                                                            @updatefiles="files => handleCompanionBanner(files, element)"
+                                                                                            class="filepond-dropzone" />
+                                                                                    </div>
+                                                                                    <button
+                                                                                        @click.stop="removeVideo(version, index)"
+                                                                                        class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs ml-2">
+                                                                                        Delete
+                                                                                    </button>
+                                                                                </div>
+                                                                                <div
+                                                                                    class="flex items-center gap-4 w-full">
+                                                                                    <div class="w-full">
+                                                                                        <label
+                                                                                            class="block text-xs mb-1">Video
+                                                                                            Size</label>
+                                                                                        <v-select
+                                                                                            :options="videoSizeOptions"
+                                                                                            label="label"
+                                                                                            :reduce="size => size.id"
+                                                                                            v-model="element.size_id"
+                                                                                            placeholder="Select Video Size"
+                                                                                            :clearable="false"
+                                                                                            class="w-fill" />
+                                                                                    </div>
+                                                                                    <div class="w-full">
+                                                                                        <label
+                                                                                            class="block text-xs mb-1">Aspect
+                                                                                            Ratio</label>
+                                                                                        <input
+                                                                                            v-model="element.aspect_ratio"
+                                                                                            placeholder="Aspect Ratio"
+                                                                                            class="border rounded px-2 py-1 text-xs w-full" />
+                                                                                    </div>
+                                                                                    <div class="w-full">
+                                                                                        <label
+                                                                                            class="block text-xs mb-1">Codec</label>
+                                                                                        <input v-model="element.codec"
+                                                                                            placeholder="Codec"
+                                                                                            class="border rounded px-2 py-1 text-xs w-full" />
+                                                                                    </div>
+                                                                                    <div class="w-full">
+                                                                                        <label
+                                                                                            class="block text-xs mb-1">FPS</label>
+                                                                                        <input v-model="element.fps"
+                                                                                            placeholder="FPS"
+                                                                                            class="border rounded px-2 py-1 text-xs w-full" />
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </template>
+                                                                    </draggable>
+                                                                    <div class="mb-2">
+                                                                        <button @click="addVideo(version)"
+                                                                            class="bg-indigo-500 text-white px-3 py-1 rounded text-sm">
+                                                                            + Add Video
+                                                                        </button>
+                                                                    </div>
                                                                 </div>
                                                                 <!-- Socials FilePond for new upload -->
                                                                 <div v-if="category.type === 'social'">
@@ -1162,6 +1247,50 @@ function deleteGif(gif, version, index) {
     });
 }
 
+const videoSizes = computed(() => page.props.videoSizes);
+const videoSizeOptions = computed(() =>
+    videoSizes.value.map(size => ({
+        id: size.id,
+        label: `${size.width}x${size.height}`
+    }))
+);
+
+function addVideo(version) {
+    if (!version.videos) version.videos = [];
+    version.videos.push({
+        id: Date.now(),
+        codec: 'H264',
+        aspect_ratio: '',
+        fps: '30 FPS',
+        size_id: '',
+        position: version.videos.length + 1,
+        _filepondVideo: [],
+        _filepondBanner: [],
+    });
+    updateVideoPositions(version);
+}
+
+function handleVideoFile(files, video) {
+    video._filepondVideo = files;
+    video.file = files.length > 0 ? files[0].file : null;
+}
+
+function handleCompanionBanner(files, video) {
+    video._filepondBanner = files;
+    video.companion_banner = files.length > 0 ? files[0].file : null;
+}
+
+function removeVideo(version, index) {
+    version.videos.splice(index, 1);
+    updateVideoPositions(version);
+}
+
+function updateVideoPositions(version) {
+    version.videos.forEach((video, idx) => {
+        video.position = idx + 1;
+    });
+}
+
 function saveAll() {
     const formData = new FormData();
     formData.append('preview_id', preview.value.id);
@@ -1223,7 +1352,22 @@ function saveAll() {
 
                     // Video assets
                     if (category.type === 'video' && version.videos) {
-
+                        version.videos.forEach((video, vIdx) => {
+                            if (isDbId(video.id)) {
+                                formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][videos][${vIdx}][id]`, video.id);
+                            }
+                            formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][videos][${vIdx}][codec]`, video.codec);
+                            formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][videos][${vIdx}][aspect_ratio]`, video.aspect_ratio);
+                            formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][videos][${vIdx}][fps]`, video.fps);
+                            formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][videos][${vIdx}][size_id]`, video.size_id);
+                            formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][videos][${vIdx}][position]`, video.position);
+                            if (video.file) {
+                                formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][videos][${vIdx}][file]`, video.file);
+                            }
+                            if (video.companion_banner) {
+                                formData.append(`categories[${catIdx}][feedbacks][${fbIdx}][feedback_sets][${setIdx}][versions][${verIdx}][videos][${vIdx}][companion_banner]`, video.companion_banner);
+                            }
+                        });
                     }
 
                     // Gif assets
