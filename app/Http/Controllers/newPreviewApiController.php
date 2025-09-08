@@ -150,4 +150,11 @@ class newPreviewApiController extends Controller
             'socials' => $socials
         ]);
     }
+
+    function renderVideos($version_id){
+        $videos = newVideo::with('size')->where('version_id', $version_id)->get();
+        return response()->json([
+            'videos' => $videos
+        ]);
+    }
 }

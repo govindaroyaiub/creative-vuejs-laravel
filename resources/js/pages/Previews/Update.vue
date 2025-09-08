@@ -29,7 +29,7 @@
                             </span>
                         </summary>
                         <div class="p-4">
-                            <div v-for="(feedback, fbIdx) in category.feedbacks" :key="feedback.id" class="mb-6">
+                            <div v-for="(feedback, fbIdx) in category.feedbacks" :key="feedback.id" class="mb-4">
                                 <details v-bind="feedback.is_active == 1 ? { open: true } : {}"
                                     class="mb-2 border rounded">
                                     <summary

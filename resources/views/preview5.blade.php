@@ -606,8 +606,83 @@
         });
     }
 
-    function renderVideo(){
-        alert('hi i am video');
+    function renderVideo(version_id){
+        document.getElementById('loaderArea').style.display = 'flex';
+        axios.get('/preview/renderVideos/' + version_id)
+        .then(function(response) {
+            var row = '';
+
+            $.each(response.data.videos, function(key, value) {
+                // Give each block a unique id for targeting
+                var uniqueId = 'videoBlock_' + value.id;
+                row += `
+                    <div id="${uniqueId}" class="mx-auto mb-8" style="max-width: 100%;">
+                        <!-- Video -->
+                        <div style="background:transparent; display:flex; justify-content:center;" class="mt-2 mb-2 rounded-lg">
+                            <video 
+                                src="/${value.path}" 
+                                controls 
+                                muted
+                                class="block mx-auto rounded-2xl video-preview"
+                                style="max-width:70vw; max-height:50vh; width:auto; height:auto; background:#000;"
+                                controlsList="nodownload noremoteplayback"
+                                disablePictureInPicture
+                                onloadedmetadata="matchVideoMetaWidth(this)"
+                            ></video>
+                        </div>
+                        <!-- Media Info -->
+                        <div class="bg-gray-50 text-gray-800 text-sm rounded-2xl p-3 mt-2 w-full video-media-info" style="margin:0 auto;">
+                            @if($authUserClientName == "Planet Nine")
+                            <div class="flex gap-4 mb-2 justify-center">
+                                <a href="/${value.path}" download title="Download"><i class="fa-solid fa-download" style="display: flex; margin-left: 0.5rem; font-size:20px;"></i></a>                                </div>
+                            @endif
+                            <div class="font-semibold text-base mb-1 underline text-center flex justify-center align-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info-icon lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                            </div>
+                            <div class="font-semibold text-base mb-1 underline text-center">Media Info</div>
+                            <div><strong>Resolution:</strong> ${value.size.width} x ${value.size.height}</div>
+                            <div><strong>Aspect Ratio:</strong> ${value.aspect_ratio ?? '-'}</div>
+                            <div><strong>Codec:</strong> ${value.codec ?? '-'}</div>
+                            <div><strong>FPS:</strong> ${value.fps ?? '-'}</div>
+                            <div><strong>File Size:</strong> ${value.file_size ?? '-'}</div>
+                            <div class="mt-2 w-full flex flex-col items-center justify-center">
+                                ${
+                                    value.companion_banner_path
+                                    ? `
+                                        <img src="/${value.companion_banner_path}" alt="Companion Banner" class="rounded border mx-auto" style="max-width:970px;max-height:auto;" />
+                                        @if($authUserClientName == "Planet Nine")
+                                            <a href="/${value.companion_banner_path}" download title="Download Companion Banner" class="mt-2 flex items-center gap-1 text-blue-600 hover:text-blue-800">
+                                                <i class="fa-solid fa-download" style="font-size:18px;"></i>
+                                                <span class="text-xs">Download Companion Banner</span>
+                                            </a>
+                                        @endif
+                                    `
+                                    : ''
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            $('#bannersList' + version_id).html(row);
+        })
+        .catch(function(error) {
+            console.log(error);
+        })
+        .finally(function() {
+            document.getElementById('loaderArea').style.display = 'none';
+        })
+    }
+
+    function matchVideoMetaWidth(videoEl) {
+        setTimeout(function() {
+            var $video = $(videoEl);
+            var width = $video.width();
+            var $container = $video.closest('.mb-8');
+            $container.find('.video-name-bar').css('width', width + 'px');
+            $container.find('.video-media-info').css('width', width + 'px');
+        }, 50);
     }
 
     function renderSocial(version_id){

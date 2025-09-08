@@ -339,13 +339,11 @@ class NewPreviewController extends Controller
                         $category->update([
                             'name' => $catData['name'],
                             'type' => $catData['type'],
-                            'is_active' => true,
+                            // Do NOT update is_active here!
                         ]);
                         $submittedCategoryIds[] = $category->id;
                     }
-                    newCategory::where('preview_id', $preview->id)
-                        ->where('id', '!=', $category->id)
-                        ->update(['is_active' => false]);
+                    // Do NOT update other categories' is_active here!
                 } else {
                     $category = newCategory::create([
                         'preview_id' => $preview->id,
@@ -354,6 +352,7 @@ class NewPreviewController extends Controller
                         'is_active' => true,
                     ]);
                     $submittedCategoryIds[] = $category->id;
+                    // Set all other categories to inactive
                     newCategory::where('preview_id', $preview->id)
                         ->where('id', '!=', $category->id)
                         ->update(['is_active' => false]);

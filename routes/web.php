@@ -163,6 +163,7 @@ Route::get('/preview/renderVersions/{feedbackSet_id}', [newPreviewApiController:
 Route::get('/preview/renderBanners/{version_id}', [newPreviewApiController::class, 'renderBanners']);
 Route::get('/preview/renderGifs/{version_id}', [newPreviewApiController::class, 'renderGifs']);
 Route::get('/preview/renderSocials/{version_id}', [newPreviewApiController::class, 'renderSocials']);
+Route::get('/preview/renderVideos/{version_id}', [newPreviewApiController::class, 'renderVideos']);
 Route::get('/preview/{preview_id}/change/theme/{color_id}', [newPreviewApiController::class, 'changeTheme']);
 
 //preview axios get requests end
