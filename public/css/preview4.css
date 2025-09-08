@@ -1037,10 +1037,10 @@ iframe {
 
 .category-row {
     text-align: center;
-    width: 100%;
+    width: calc(100% - 30px);
     max-width: 400px;
     /* or whatever fits your sidebar */
-    min-height: 50px;
+    min-height: 60px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1295,6 +1295,12 @@ iframe {
         --r: 15px;
         right: -1.2rem;
     }
+
+    #feedbackDescription {
+        position: fixed;
+        right: 0;
+        top: 20rem;
+    }
 }
 
 /* Extra small devices (phones, 600px and down) */
@@ -1349,6 +1355,12 @@ iframe {
     #bulk-customization {
         display: none;
     }
+
+    #feedbackDescription {
+        position: fixed;
+        right: 0;
+        top: 20rem;
+    }
 }
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
@@ -1402,6 +1414,12 @@ iframe {
 
     #bulk-customization {
         display: none;
+    }
+
+    #feedbackDescription {
+        position: fixed;
+        right: 0;
+        top: 20rem;
     }
 }
 
