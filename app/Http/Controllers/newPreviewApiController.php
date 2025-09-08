@@ -30,6 +30,19 @@ use Illuminate\Validation\Rule;
 
 class newPreviewApiController extends Controller
 {
+    public function changeTheme($preview_id, $color_id)
+    {
+        $preview = newPreview::find($preview_id);
+
+        if (!$preview) {
+            return response()->json(['error' => 'Preview not found'], 404);
+        }
+
+        $preview->color_palette_id = $color_id;
+        $preview->save();
+        return response()->json(['success' => true, 'message' => 'Theme changed successfully']);
+    }
+    
     function renderCategories($id)
     {
         $preview = newPreview::with([
@@ -104,7 +117,8 @@ class newPreviewApiController extends Controller
         ]);
     }
 
-    function updateActiveFeedback($id){
+    function updateActiveFeedback($id)
+    {
         $feedback = newFeedback::findOrFail($id);
 
         // Set all feedbacks under the same category to inactive
@@ -137,21 +151,24 @@ class newPreviewApiController extends Controller
         ]);
     }
 
-    function renderGifs($version_id){
+    function renderGifs($version_id)
+    {
         $gifs = newGif::with('size')->where('version_id', $version_id)->get();
         return response()->json([
             'gifs' => $gifs
         ]);
     }
 
-    function renderSocials($version_id){
+    function renderSocials($version_id)
+    {
         $socials = newSocial::where('version_id', $version_id)->get();
         return response()->json([
             'socials' => $socials
         ]);
     }
 
-    function renderVideos($version_id){
+    function renderVideos($version_id)
+    {
         $videos = newVideo::with('size')->where('version_id', $version_id)->get();
         return response()->json([
             'videos' => $videos

@@ -151,4 +151,45 @@ class NewBannerController extends Controller
             return response($e->getMessage(), 500);
         }
     }
+
+    function download($id)
+    {
+        $banner = newBanner::findOrFail($id);
+        $folderPath = public_path($banner->path);
+
+        // Ensure trailing slash
+        if (substr($folderPath, -1) !== DIRECTORY_SEPARATOR) {
+            $folderPath .= DIRECTORY_SEPARATOR;
+        }
+
+        if (!is_dir($folderPath)) {
+            abort(404, 'Banner folder not found.');
+        }
+
+        // Create a temporary zip file
+        $zipFileName = 'banner_' . basename($folderPath) . '.zip';
+        $zipFilePath = public_path($zipFileName);
+
+        $zip = new \ZipArchive;
+        if ($zip->open($zipFilePath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === true) {
+            $files = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($folderPath),
+                \RecursiveIteratorIterator::LEAVES_ONLY
+            );
+
+            foreach ($files as $name => $file) {
+                if (!$file->isDir()) {
+                    $filePath = $file->getRealPath();
+                    $relativePath = substr($filePath, strlen($folderPath));
+                    $zip->addFile($filePath, $relativePath);
+                }
+            }
+            $zip->close();
+        } else {
+            abort(500, 'Could not create ZIP file.');
+        }
+
+        // Return the zip as a download and delete after send
+        return response()->download($zipFilePath)->deleteFileAfterSend(true);
+    }
 }

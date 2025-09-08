@@ -133,11 +133,11 @@
                         <div class="right-column">
                             <div class="justify-center items-center mt-2 py-2 px-2 absolute top-0 left-0 right-0 currentTotalFeedbacks">
                                 <button id="categoryLeft" disabled style="margin-right:10px;">
-                                    &#11207;
+                                    <i class="fa-solid fa-arrow-left"></i>
                                 </button>
                                 <span id="categoryCounter"></span>
                                 <button id="categoryRight" disabled style="margin-left:10px;">
-                                   &#11208;
+                                   <i class="fa-solid fa-arrow-right"></i>
                                 </button>
                             </div>
 
@@ -301,7 +301,6 @@
                 colorBox.title = hex; // optional: show hex on hover
 
                 colorBox.addEventListener('click', () => {
-                    document.getElementById('loaderArea').style.display = 'flex';
                     axios.get('/preview/'+ preview_id +'/change/theme/' + id)
                     .then(response => {
                         if (response.data.success) {
@@ -341,7 +340,6 @@
                 colorBox.title = hex; // optional: show hex on hover
 
                 colorBox.addEventListener('click', () => {
-                    document.getElementById('loaderArea').style.display = 'flex';
                     axios.get('/preview/'+ preview_id +'/change/theme/' + id)
                     .then(response => {
                         if (response.data.success) {
@@ -387,10 +385,10 @@
         axios.get('/preview/renderCategories/' + preview_id)
         .then(function(response) {
             // Find active category index
-            currentCategoryIndex = categories.findIndex(c => c.id == response.data.activeCategory_id);
+            categories = response.data.categories || [];
+            currentCategoryIndex = categories.findIndex(c => c.id == response.data.activeCategory.id);
             if (currentCategoryIndex === -1) currentCategoryIndex = 0;
             
-            updateCategoryNav();
             var active;
             var categoryActive;
             var spanActive;
@@ -433,6 +431,7 @@
             });
 
             renderFeedbacks(response);
+            updateCategoryNav();
 
             $('#creative-list2').html(row2);
             $('#creative-list').html(row);
@@ -590,7 +589,7 @@
                 bannersHtml += '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
                 bannersHtml += '<li><i id="relBt' + banner.id + '" onClick="reloadBanner(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
                 bannersHtml += '@if($authUserClientName == "Planet Nine")'
-                bannersHtml += '<li class="banner-options"><a href="/previews/banner/single/download/' + banner.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                bannersHtml += '<li class="banner-options"><a href="/previews/banner/download/' + banner.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
                 bannersHtml += '@endif';
                 bannersHtml += '</ul>';
                 bannersHtml += '</div>';

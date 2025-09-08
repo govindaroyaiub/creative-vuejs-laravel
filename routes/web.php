@@ -64,6 +64,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::delete('/previews/version/delete/{id}', [newVersionController::class, 'destroy'])->name('previews.version.delete');
     Route::post('/previews/banner/edit/{id}', [newBannerController::class, 'update'])->name('previews.banner.edit');
     Route::delete('/previews/banner/delete/{id}', [newBannerController::class, 'destroy'])->name('previews.banner.delete');
+    Route::get('/previews/banner/download/{id}', [newBannerController::class, 'download'])->name('preview.banner.download');
     Route::post('/previews/social/edit/{id}', [NewSocialController::class, 'update'])->name('previews.social.edit');
     Route::delete('/previews/social/delete/{id}', [NewSocialController::class, 'destroy'])->name('previews.social.delete');
     Route::post('/previews/gif/edit/{id}', [NewGifController::class, 'update'])->name('previews.gif.edit');

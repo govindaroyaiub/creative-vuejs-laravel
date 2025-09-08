@@ -1378,6 +1378,10 @@ iframe {
     .banner-options {
         display: none;
     }
+
+    #bulk-customization {
+        display: none;
+    }
 }
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
@@ -1428,6 +1432,10 @@ iframe {
     .currentTotalFeedbacks {
         display: flex;
     }
+
+    #bulk-customization {
+        display: none;
+    }
 }
 
 /* Medium devices (landscape tablets, 768px and up) */
@@ -1477,6 +1485,10 @@ iframe {
 
     .currentTotalFeedbacks {
         display: flex;
+    }
+
+    #bulk-customization {
+        display: none;
     }
 }
 
