@@ -2,127 +2,152 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\newPreview;
+use Illuminate\Http\Request;
+use ZipArchive;
+use Inertia\Inertia;
+use getID3;
+use App\Models\Client;
+use App\Models\User;
+use App\Models\BannerSize;
 use App\Models\newCategory;
 use App\Models\newFeedback;
 use App\Models\newFeedbackSet;
 use App\Models\newVersion;
 use App\Models\newBanner;
+use App\Models\ColorPalette;
+use App\Models\VideoSize;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+use App\Models\newVideo;
+use App\Models\newGif;
+use App\Models\newSocial;
+use Illuminate\Validation\Rule;
 
 class newPreviewApiController extends Controller
 {
-    public function getAllCategories($id)
+    function renderCategories($id)
     {
-        $categories = newCategory::where('preview_id', $id)->get();
-        $activeCategory = newCategory::where('preview_id', $id)->where('is_active', 1)->first();
-        return $data = [
-            'categories' => $categories,
-            'activeCategory_id' => $activeCategory['id']
-        ];
-    }
+        $preview = newPreview::with([
+            'categories.feedbacks.feedbackSets.versions'
+        ])->findOrFail($id);
 
-    public function fetchCategoryType($id)
-    {
-        $category = newCategory::find($id);
-        $feedbacks = newFeedback::where('category_id', $id)->get();
-        $activeFeedback = newFeedback::where('category_id', $id)->where('is_active', 1)->first();
-
-        return $data = [
-            'type' => $category['type'],
-            'feedbacks' => $feedbacks,
-            'category_name' => $category['name'],
-            'activeFeedback_id' => $activeFeedback['id'],
-            'category_id' => $id
-        ];
-    }
-
-    public function fetchBannerFeedbackSets($id)
-    {
-        $feedbackSets = newFeedbackSet::where('feedback_id', $id)->get();
-
-        return $data = [
-            'feedbackSets' => $feedbackSets
-        ];
-    }
-
-    public function getVersionsAndBanners($feedbackSetId)
-    {
-        // Get all versions for this feedback set
-        $versions = newVersion::where('feedback_set_id', $feedbackSetId)->get();
-
-        // Get all banners for these versions, join with banner_sizes for dimensions
-        $versionIds = $versions->pluck('id');
-        $banners = DB::table('new_banners')
-            ->join('banner_sizes', 'new_banners.size_id', '=', 'banner_sizes.id')
-            ->whereIn('new_banners.version_id', $versionIds)
-            ->orderBy('new_banners.position', 'asc')
-            ->select(
-                'new_banners.id',
-                'new_banners.name',
-                'new_banners.path',
-                'new_banners.file_size',
-                'new_banners.position',
-                'new_banners.version_id', // <-- Add this line!
-                'banner_sizes.width',
-                'banner_sizes.height'
-            )
-            ->get();
-
-        // Group banners under their version
-        $versionsWithBanners = $versions->map(function ($version) use ($banners) {
-            $versionBanners = $banners->where('version_id', $version->id)->values();
-            // Filter banners for this version
-            $filteredBanners = $banners->filter(function ($banner) use ($version) {
-                return $banner->version_id == $version->id;
-            })->values()->map(function ($banner) {
-                return [
-                    'id' => $banner->id,
-                    'name' => $banner->name,
-                    'path' => $banner->path,
-                    'file_size' => $banner->file_size,
-                    'position' => $banner->position,
-                    'width' => $banner->width,
-                    'height' => $banner->height,
-                ];
-            });
-            return [
-                'id' => $version->id,
-                'name' => $version->name,
-                'banners' => $filteredBanners
-            ];
-        });
+        // Flatten categories, feedbacks, etc.
+        $categories = $preview->categories;
+        $activeCategory = $categories->where('is_active', 1)->first();
+        $feedbacks = $activeCategory->feedbacks;
+        $activeFeedback = $feedbacks->where('is_active', 1)->first();
+        $feedbackSets = $activeFeedback->feedbackSets;
+        $versions = $feedbackSets->flatMap->versions;
 
         return response()->json([
-            'versions' => $versionsWithBanners
+            'preview' => $preview,
+            'categories' => $categories,
+            'feedbacks' => $feedbacks,
+            'feedbackSets' => $feedbackSets,
+            'activeCategory' => $activeCategory,
+            'versions' => $versions
         ]);
     }
 
-    public function changeTheme($preview_id, $color_id)
+    function renderVersions($feedbackSet_id)
     {
-        $preview = newPreview::find($preview_id);
-
-        if (!$preview) {
-            return response()->json(['error' => 'Preview not found'], 404);
-        }
-
-        $preview->color_palette_id = $color_id;
-        $preview->save();
-        return response()->json(['success' => true, 'message' => 'Theme changed successfully']);
+        $versions = newVersion::where('feedback_set_id', $feedbackSet_id)->get();
+        return response()->json([
+            'versions' => $versions
+        ]);
     }
 
-    public function updateActiveCategory($id){
-        $category = newCategory::find($id);
-        newCategory::where('id', $id)->update(['is_active' => 1]);
-        $exceptionCategories = newCategory::select('id')->where('preview_id', $category['preview_id'])->where('id', '!=', $id)->get()->toArray();
-        newCategory::whereIn('id', $exceptionCategories)->where('preview_id', $category['preview_id'])->update(['is_active' => 0]);
+    function renderBanners($version_id)
+    {
+        $banners = newBanner::with('size')->where('version_id', $version_id)->get();
+        return response()->json([
+            'banners' => $banners
+        ]);
+    }
 
-        $categories = newCategory::where('preview_id', $category['preview_id'])->get();
+    function updateActiveCategory($id)
+    {
+        $category = newCategory::findOrFail($id);
 
-        return $data = [
+        // Set all categories under the same preview to inactive
+        newCategory::where('preview_id', $category->preview_id)
+            ->update(['is_active' => 0]);
+
+        // Set the selected category to active
+        $category->is_active = 1;
+        $category->save();
+
+        $preview = newPreview::with([
+            'categories.feedbacks.feedbackSets.versions'
+        ])->findOrFail($category->preview_id);
+
+        // Flatten categories, feedbacks, etc.
+        $categories = $preview->categories;
+        $activeCategory = $categories->where('is_active', 1)->first();
+        $feedbacks = $activeCategory->feedbacks;
+        $activeFeedback = $feedbacks->where('is_active', 1)->first();
+        $feedbackSets = $activeFeedback->feedbackSets;
+        $versions = $feedbackSets->flatMap->versions;
+
+        return response()->json([
+            'preview' => $preview,
             'categories' => $categories,
-            'activeCategory_id' => $id
-        ];
+            'feedbacks' => $feedbacks,
+            'feedbackSets' => $feedbackSets,
+            'activeCategory' => $activeCategory,
+            'versions' => $versions
+        ]);
+    }
+
+    function updateActiveFeedback($id){
+        $feedback = newFeedback::findOrFail($id);
+
+        // Set all feedbacks under the same category to inactive
+        newFeedback::where('category_id', $feedback->category_id)
+            ->update(['is_active' => 0]);
+
+        // Set the selected feedback to active
+        $feedback->is_active = 1;
+        $feedback->save();
+
+        $preview = newPreview::with([
+            'categories.feedbacks.feedbackSets.versions'
+        ])->findOrFail($feedback->category->preview_id);
+
+        // Flatten categories, feedbacks, etc.
+        $categories = $preview->categories;
+        $activeCategory = $categories->where('is_active', 1)->first();
+        $feedbacks = $activeCategory->feedbacks;
+        $activeFeedback = $feedbacks->where('is_active', 1)->first();
+        $feedbackSets = $activeFeedback->feedbackSets;
+        $versions = $feedbackSets->flatMap->versions;
+
+        return response()->json([
+            'preview' => $preview,
+            'categories' => $categories,
+            'feedbacks' => $feedbacks,
+            'feedbackSets' => $feedbackSets,
+            'activeCategory' => $activeCategory,
+            'versions' => $versions
+        ]);
+    }
+
+    function renderGifs($version_id){
+        $gifs = newGif::with('size')->where('version_id', $version_id)->get();
+        return response()->json([
+            'gifs' => $gifs
+        ]);
+    }
+
+    function renderSocials($version_id){
+        $socials = newSocial::where('version_id', $version_id)->get();
+        return response()->json([
+            'socials' => $socials
+        ]);
     }
 }

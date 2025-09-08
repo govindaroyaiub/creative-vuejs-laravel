@@ -4,7 +4,7 @@
     <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Batch Update' }]">
         <div class="max-w-8xl py-4 px-4">
             <div v-if="preview">
-                <div v-for="(category, catIdx) in preview.categories" :key="category.id" class="mb-8">
+                <div v-for="(category, catIdx) in preview.categories" :key="category.id" class="mb-4">
                     <details v-bind="category.is_active == 1 ? { open: true } : {}" class="mb-4 border rounded shadow">
                         <summary
                             class="px-4 py-2 font-semibold text-lg bg-gray-100 dark:bg-gray-800 cursor-pointer flex items-center justify-between">
@@ -44,10 +44,6 @@
                                             <input :value="feedback.name" @input="onFeedbackNameInput($event, feedback)"
                                                 class="border rounded px-2 py-1 font-medium" placeholder="Feedback Name"
                                                 style="min-width:120px;" />
-                                            <textarea v-model="feedback.description"
-                                                class="border rounded px-2 py-1 text-xs text-gray-400"
-                                                placeholder="Feedback Description"
-                                                style="min-width:120px;min-height:28px;" />
                                         </span>
                                         <!-- Right side: delete buttons -->
                                         <span class="flex items-center gap-2">
@@ -59,14 +55,18 @@
                                         </span>
                                     </summary>
                                     <div class="p-3">
+                                        <textarea v-model="feedback.description"
+                                            class="border rounded px-2 py-1 mb-2 w-1/2"
+                                            placeholder="Feedback Description"
+                                            />
                                         <div v-for="(set, setIdx) in feedback.feedback_sets" :key="set.id" class="mb-4">
                                             <details open class="mb-2 border rounded">
                                                 <summary
-                                                    class="px-2 py-1 font-medium bg-gray-50 dark:bg-gray-900 cursor-pointer flex items-center justify-between">
+                                                    class="px-2 py-1 mb-2 font-medium bg-gray-50 dark:bg-gray-900 cursor-pointer flex items-center justify-between">
                                                     <span>
                                                         <span class="px-2">Set:</span>
                                                         <input v-model="set.name" class="border rounded px-2 py-1"
-                                                            placeholder="Set Name" style="min-width:100px;" />
+                                                            placeholder="Set Name (Optional)" style="min-width:100px;" />
                                                     </span>
                                                     <button v-if="!isDbId(set.id)"
                                                         @click.stop="removeSet(feedback, setIdx)"
@@ -84,7 +84,7 @@
                                                                     <span class="px-2">Version:</span>
                                                                     <input v-model="version.name"
                                                                         class="border rounded px-2 py-1"
-                                                                        placeholder="Version Name"
+                                                                        placeholder="Version Name (Optional)"
                                                                         style="min-width:100px;" />
                                                                 </span>
                                                                 <button v-if="!isDbId(version.id)"
@@ -643,7 +643,7 @@
                                                     <div v-if="showAddVersion[set.id]"
                                                         class="mt-2 flex gap-2 items-center justify-start">
                                                         <input v-model="newVersionName[set.id]"
-                                                            placeholder="Version Name"
+                                                            placeholder="Version Name (Optional)"
                                                             class="border rounded px-2 py-1" />
                                                         <button @click="addVersion(set)"
                                                             class="bg-green-600 text-white px-3 py-1 rounded">Add</button>
@@ -659,7 +659,7 @@
                                         </div>
                                         <div v-if="showAddSet[feedback.id]"
                                             class="mt-2 flex gap-2 items-center justify-start">
-                                            <input v-model="newSetName[feedback.id]" placeholder="Set Name"
+                                            <input v-model="newSetName[feedback.id]" placeholder="Set Name (Optional)"
                                                 class="border rounded px-2 py-1" />
                                             <button @click="addSet(feedback)"
                                                 class="bg-green-600 text-white px-3 py-1 rounded">Add</button>
@@ -704,7 +704,7 @@
                     </select>
                     <button @click="addCategory" class="bg-green-600 text-white px-3 py-1 rounded">Add</button>
                 </div>
-                <div class="mt-8 text-right space-x-2">
+                <div class="sticky-action-bar">
                     <a :href="route('previews-index')"
                         class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 font-semibold inline-block">
                         Back
@@ -1707,5 +1707,21 @@ textarea {
 
 .filepond--credits {
     display: none !important;
+}
+
+.sticky-action-bar {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: auto;
+    background: #fff;
+    border-top: 1px solid #e5e7eb;
+    border-top-left-radius: 0.5rem;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    padding: 16px 32px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    z-index: 50;
 }
 </style>

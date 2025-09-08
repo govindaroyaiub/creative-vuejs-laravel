@@ -173,11 +173,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="categoryControl">
-                                <div id="categorySettings"></div>
-                                <div id="feedbackSettings" style="position: absolute; right: 0;"></div>
-                            </div>
-                            <!-- <div id="bannerShowcase"></div> -->
                         </div>
                     </div>
                 </div>
@@ -198,6 +193,11 @@
 
 <script>
     const pageId = '{{ $preview->id }}';
+    const authUserClientName = '{{ $authUserClientName }}';
+    const preview_id = '{{ $preview_id }}';
+
+    let categories = [];
+    let currentCategoryIndex = 0;
 
     // Assign a unique name to guest using localStorage
     let guestName = localStorage.getItem('guest_name');
@@ -383,70 +383,61 @@
         }
     }
 
-    const authUserClientName = '{{ $authUserClientName }}';
-    const preview_id = '{{ $preview_id }}';
-
-    let categories = [];
-    let currentCategoryIndex = 0;
-
-    function getAllCategories() {
-        axios.get('/preview/getallcategories/' + preview_id)
+    function renderCategories() {
+        axios.get('/preview/renderCategories/' + preview_id)
         .then(function(response) {
-            categories = response.data.categories || [];
             // Find active category index
             currentCategoryIndex = categories.findIndex(c => c.id == response.data.activeCategory_id);
             if (currentCategoryIndex === -1) currentCategoryIndex = 0;
-            renderCategories(response);
+            
             updateCategoryNav();
-        });
-    }
+            var active;
+            var categoryActive;
+            var spanActive;
+            var row = '';
+            var row2 = '';
 
-    function renderCategories(response) {
-        var active;
-        var categoryActive;
-        var spanActive;
-        var row = '';
-        var row2 = '';
-
-        row = row + '@if($preview['show_sidebar_logo'] == 1)';
-            row = row + '<div class="w-full">';
-                row = row + '<div class="mb-2 mt-2 px-2 py-2 mx-auto">';
-                    row = row + '<img src="{{ asset('logos/' . $client['logo']) }}" alt="clientLogo" style="width: 250px;">';
+            row = row + '@if($preview['show_sidebar_logo'] == 1)';
+                row = row + '<div class="w-full">';
+                    row = row + '<div class="mb-2 mt-2 px-2 py-2 mx-auto">';
+                        row = row + '<img src="{{ asset('logos/' . $client['logo']) }}" alt="clientLogo" style="width: 250px;">';
+                    row = row + '</div>';
                 row = row + '</div>';
-            row = row + '</div>';
-        row = row + '@endif';
+            row = row + '@endif';
 
-        $.each(response.data.categories, function(key, value) {
-            if (value.is_active == 1) {
-                active = 'menuToggleActive';
-                categoryActive = 'category-active';
-                spanActive = 'span-active';
-            } else {
-                active = '';
-                categoryActive = '';
-                spanActive = '';
-            }
+            $.each(response.data.categories, function(key, value) {
+                if (value.is_active == 1) {
+                    active = 'menuToggleActive';
+                    categoryActive = 'category-active';
+                    spanActive = 'span-active';
+                    var clickHandler = ''; // No click for active
+                } else {
+                    active = '';
+                    categoryActive = '';
+                    spanActive = '';
+                    var clickHandler = 'onclick="return updateActiveCategory(' + value.id + ')"';
+                }
 
-            const date = new Date(value.created_at);
-            const formatted = date.toLocaleDateString('en-GB'); // DD/MM/YYYY
-            const formatted2 = `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getFullYear()}`;
+                const date = new Date(value.created_at);
+                const formatted2 = `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getFullYear()}`;
 
-            row2 = row2 + '<div class="category-row ' + categoryActive + '" onclick="return updateActiveCategory(' + value.id + ')" id="category' + value.id + '">';
-            row2 = row2 + '<span class="' + spanActive + '" style="font-size: 0.85rem;">' + value.name + '</span>';
-            row2 = row2 + '<hr>';
-            row2 += '<span class="category-row-date" style="font-size: 0.7rem;">' + formatted2 + '</span>';
-            row2 = row2 + '</div>';
+                row2 += '<div class="category-row ' + categoryActive + '" ' + clickHandler + ' id="category' + value.id + '">';
+                row2 += '<span class="' + spanActive + '" style="font-size: 0.85rem;">' + value.name + '</span>';
+                row2 += '<hr>';
+                row2 += '<span class="category-row-date" style="font-size: 0.7rem;">' + formatted2 + '</span>';
+                row2 += '</div>';
 
-            row = row + '<a href="javascript:void(0)" class="nav-link categories" onclick="return updateActiveCategory(' + value.id + ')" id="category' + value.id + '">';
-            row = row + '<li class="' + active + '">' + value.name + '</li>';
-            row = row + '</a>';
+                row += '<a href="javascript:void(0)" class="nav-link categories" ' + clickHandler + ' id="category' + value.id + '">';
+                row += '<li class="' + active + '">' + value.name + '</li>';
+                row += '</a>';
+            });
+
+            renderFeedbacks(response);
+
+            $('#creative-list2').html(row2);
+            $('#creative-list').html(row);
+            $('#menu').html(row);
         });
-
-        $('#creative-list2').html(row2);
-        $('#creative-list').html(row);
-        $('#menu').html(row);
-
-        checkCategoryType(response.data.activeCategory_id);
     }
 
     function updateCategoryNav() {
@@ -476,27 +467,15 @@
         // document.getElementById('menuClick').click();
         axios.get('/preview/updateActiveCategory/' + category_id)
             .then(function(response) {
-               window.location.reload();
+               renderCategories();
             })
             .catch(function(error) {
                 console.log(error);
             })
     }
 
-    function checkCategoryType(category_id){
-        axios.get('/preview/fetchCategoryType/' + category_id)
-            .then(function(response) {
-                if (response.data.type == "banner") {
-                    renderBannerFeedbacks(response.data.feedbacks, response.data.category_id);
-                    fetchBannerFeedbackSets(response.data.activeFeedback_id);
-                }
-            })
-            .catch(function(error) {
-                console.log(error);
-            })
-    }
-
-    function renderBannerFeedbacks(feedbacks, category_id){
+    function renderFeedbacks(response){
+        var feedbacks = response.data.feedbacks;
         var feedbackCount = feedbacks.length;
         var isActive;
 
@@ -505,12 +484,14 @@
             $.each(feedbacks, function(key, value) {
                 if (value.is_active == 1) {
                     isActive = ' feedbackTabActive';
+                    var clickHandler = ''; // No click for active feedback
                 } else {
                     isActive = '';
+                    var clickHandler = 'onclick="updateBannerActiveFeedback(' + value.id + ')"';
                 }
-               row += `
+                row += `
                     <div style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
-                        <div id="feedbackTab${value.id}" class="feedbackTab${isActive}" onclick="updateBannerActiveFeedback(${value.id})" style="margin-left: 8px;">
+                        <div id="feedbackTab${value.id}" class="feedbackTab${isActive}" ${clickHandler} style="margin-left: 8px;">
                             <div class="trapezoid-container">
                                 <div class="tab-text text-white text-base">${value.name}</div>
                             </div>
@@ -523,79 +504,326 @@
             var row = '';
         }
         $('.feedbacks').html(row);
+        renderFeedbackSets(response);
     }
 
-    function fetchBannerFeedbackSets(feedback_id){
-        axios.get('/preview/fetchBannerFeedbackSets/' + feedback_id)
+    function updateBannerActiveFeedback(feedback_id){
+        axios.get('/preview/updateActiveFeedback/' + feedback_id)
             .then(function(response) {
-                renderFeedbackSets(response.data.feedbackSets);
+               renderFeedbacks(response);
             })
             .catch(function(error) {
                 console.log(error);
-            });
+            })
     }
 
-    function renderFeedbackSets(feedbackSets){
+    function renderFeedbackSets(response){
+        var feedbackSets = response.data.feedbackSets;
         var row = '';
-        var requests = [];
 
         $.each(feedbackSets, function(key, value) {
-            if (authUserClientName == 'Planet Nine' || value.name) {
+            if (value.name) {
                 row += `
                     <div class="feedbackSet" id="feedbackSet${value.id}" style="display: flex; align-items: center; justify-content: space-between;">
                         <div class="feedbackSetName" style="flex: 1; text-align: center;">
-                            ${value.name ? value.name : (authUserClientName == 'Planet Nine' ? '<span style="color:#bbb;">(No name)</span>' : '')}
+                            ${value.name}
                         </div>
                     </div>
                 `;
             }
-            row += `<div class="versionsAndBanners" id="versionsAndBanners${value.id}"></div>`;
-            // Collect requests
-            requests.push(
-                axios.get('/preview/getVersionsAndBanners/' + value.id)
-                    .then(function(response) {
-                        const versions = response.data.versions;
-                        let bannersHtml = '';
-                        let versionName;
-                        versions.forEach(version => {
-                            if(version.name != null || authUserClientName == 'Planet Nine'){
-                                bannersHtml += `
-                                    <div class="version" id="version${version.id}">
-                                        <div class="version-title" style="font-weight: bold;">
-                                            ${version.name ? version.name : (authUserClientName == 'Planet Nine' ? '<span style="color:#bbb;">(No name)</span>' : '')}
-                                        </div>
-                                        <div class="banners-list">
-                            `;
-                            }
-                            version.banners.forEach(function(banner) {
-                                var bannerPath = '/' + banner.path + '/index.html';
-                                var bannerReloadID = banner.id;
-                                bannersHtml += '<div class="banner-creatives banner-area-'+ banner.width +'" style="display: inline-block; width: ' + banner.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem;">';
-                                bannersHtml += '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
-                                bannersHtml += '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + banner.width + 'x' + banner.height + '</small>';
-                                bannersHtml += '<small style="float: right; font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + banner.file_size + '</small>';
-                                bannersHtml += '</div>';
-                                bannersHtml += '<iframe class="iframe-banners" style="margin-top: 2px;" src="' + bannerPath + '" width="' + banner.width + '" height="' + banner.height + '" frameBorder="0" scrolling="no" id="rel' + banner.id + '"></iframe>';
-                                bannersHtml += '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
-                                    bannersHtml += '<li><i id="relBt' + banner.id + '" onClick="reloadBanner(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
-                                // Add your Planet Nine options here
-                                    bannersHtml += '@if($authUserClientName == "Planet Nine")'
-                                        bannersHtml += '<li class="banner-options"><a href="/previews/banner/single/download/' + value.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
-                                    bannersHtml += '@endif';
-                                bannersHtml += '</ul>';
-                                bannersHtml += '</div>';
-                            });
-                            bannersHtml += `</div></div>`;
-                        });
-                        // Insert into the correct feedbackSet container
-                        $('#versionsAndBanners' + value.id).html(bannersHtml);
-                    })
-            );
+            // Unique versions container for each feedbackSet
+            row += `<div class="versions" id="versions${value.id}"></div>`;
         });
         $('.feedbackSetsContainer').html(row);
-        Promise.all(requests);
+
+        // Now render versions for each feedbackSet in its own container
+        feedbackSets.forEach(function(set) {
+            renderVersions(set.id, response);
+        });
     }
 
-    getAllCategories();
+    function renderVersions(feedbackSet_id, res){
+        axios.get('/preview/renderVersions/' + feedbackSet_id)
+        .then(function(response) {
+            const versions = response.data.versions;
+            let versionRows = '';
+            versions.forEach(version => {
+                versionRows += `
+                    <div>
+                        ${version.name ? `<div class="version-title" style="font-weight: bold;">${version.name}</div>` : ''}
+                        <div class="banners-list" id="bannersList${version.id}"></div>
+                    </div>
+                `;
+                if(res.data.activeCategory.type == 'banner'){
+                    renderBanners(version.id);
+                }
+                if(res.data.activeCategory.type == 'video'){
+                    renderVideo(version.id);
+                }
+                if(res.data.activeCategory.type == 'social'){
+                    renderSocial(version.id);
+                }
+                if(res.data.activeCategory.type == 'gif'){
+                    renderGif(version.id);
+                }
+            });
+            // Render versions in the correct feedbackSet container
+            $('#versions' + feedbackSet_id).html(versionRows);
+        });
+    }
+
+    function renderBanners(version_id){
+        document.getElementById('loaderArea').style.display = 'flex';
+        axios.get('/preview/renderBanners/' + version_id)
+        .then(function(response) {
+            const banners = response.data.banners;
+            let bannersHtml = '';
+            banners.forEach(function(banner) {
+                var bannerPath = '/' + banner.path + '/index.html';
+                var bannerReloadID = banner.id;
+                bannersHtml += '<div class="banner-creatives banner-area-'+ banner.size.width +'" style="display: inline-block; width: ' + banner.size.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem;">';
+                bannersHtml += '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
+                bannersHtml += '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + banner.size.width + 'x' + banner.size.height + '</small>';
+                bannersHtml += '<small style="float: right; font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + banner.file_size + '</small>';
+                bannersHtml += '</div>';
+                bannersHtml += '<iframe class="iframe-banners" style="margin-top: 2px;" src="' + bannerPath + '" width="' + banner.size.width + '" height="' + banner.size.height + '" frameBorder="0" scrolling="no" id="rel' + banner.id + '"></iframe>';
+                bannersHtml += '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
+                bannersHtml += '<li><i id="relBt' + banner.id + '" onClick="reloadBanner(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
+                bannersHtml += '@if($authUserClientName == "Planet Nine")'
+                bannersHtml += '<li class="banner-options"><a href="/previews/banner/single/download/' + banner.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                bannersHtml += '@endif';
+                bannersHtml += '</ul>';
+                bannersHtml += '</div>';
+            });
+            // Render banners in the correct version container
+            $('#bannersList' + version_id).html(bannersHtml);
+        })
+        .catch(function(error) {
+            console.log(error);
+        })
+        .finally(function() {
+            document.getElementById('loaderArea').style.display = 'none';
+        });
+    }
+
+    function renderVideo(){
+        alert('hi i am video');
+    }
+
+    function renderSocial(version_id){
+        document.getElementById('loaderArea').style.display = 'flex';
+        axios.get('/preview/renderSocials/' + version_id)
+        .then(function(response) {
+            var row = '';
+            $.each(response.data.socials, function(key, value) {
+                row += `
+                    <div style="display: inline-block; margin: 10px; max-width: 1200px;">
+                        <img src="/${value.path}" 
+                            alt="${value.name}"
+                            class="social-preview-img rounded-2xl"
+                            style="width: 100%; height: auto; object-fit: contain; box-shadow: 0 2px 8px #0001; cursor: pointer; margin-top: 0;"
+                            onclick="openSocialImageModal('/${value.path}', '${value.name}')"
+                        >
+                        <ul style="display: flex; flex-direction: row; justify-content: left; margin-top: 10px;" class="previewIcons">
+                            @if($authUserClientName == "Planet Nine")
+                                <li>
+                                    <a href="/${value.path}" download="${value.name}.jpg">
+                                        <i class="fa-solid fa-download" style="display: flex; margin-left: 0.5rem; font-size:20px;"></i>
+                                    </a>
+                                </li>
+                            @endif
+                        </ul>
+                    </div>
+                `;
+            });
+            // Render into the correct version container
+            $('#bannersList' + version_id).html(row);
+        })
+        .catch(function(error) {
+            console.log(error);
+        })
+        .finally(function() {
+            setTimeout(function() {
+                document.getElementById('loaderArea').style.display = 'none';
+            }, 200); // Optional: delay for smoother UX
+        });
+    }
+
+    // Modal HTML (add this at the end of your <body>)
+    if (!document.getElementById('socialImageModal')) {
+        $('body').append(`
+            <div id="socialImageModal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); align-items:center; justify-content:center;">
+                <span id="closeSocialModal" style="position:absolute; top:30px; right:40px; font-size:2.5rem; color:white; cursor:pointer; z-index:10001;">&times;</span>
+                <img id="socialModalImg" src="" alt="" 
+                    style="max-width:80vw; max-height:80vh; transition:transform 0.2s; cursor:zoom-in; display:block; margin:auto; padding:40px; background:rgba(0,0,0,0.1); border-radius:12px;">
+            </div>
+        `);
+    }
+
+    // When opening the modal
+    window.openSocialImageModal = function(src, label) {
+        // Always reset zoom and styles
+        $('#socialModalImg')
+            .attr('src', src)
+            .css({
+                width: '',
+                height: '',
+                'max-width': '80vw',
+                'max-height': '80vh',
+                'cursor': 'zoom-in',
+                'position': 'absolute',
+                'top': '50%',
+                'left': 0,
+                'right': 0,
+                'transform': 'translateY(-50%)'
+            })
+            .data('zoom', 1);
+        $('#socialModalImgLabel').text(label);
+        $('#socialImageModal').fadeIn(150);
+        $('body').css('overflow', 'hidden'); // Disable background scroll
+    };
+
+    // When closing the modal
+    $(document).on('click', '#closeSocialModal', function() {
+        $('#socialImageModal').fadeOut(150);
+        $('body').css('overflow', ''); // Re-enable background scroll
+    });
+
+    $(document).on('click', '#socialImageModal', function(e) {
+        if (e.target === this) {
+            $('#socialImageModal').fadeOut(150);
+            $('body').css('overflow', ''); // Re-enable background scroll
+        }
+    });
+
+    $('#socialImageModal').css('overflow', 'auto');
+
+    let isDragging = false;
+    let startX, startY, scrollLeft, scrollTop;
+    let dragMoved = false; // <-- Add this
+
+    $('#socialModalImg').on('mousedown', function(e) {
+        if ($(this).data('zoom') === 2) {
+            isDragging = true;
+            dragMoved = false; // <-- Reset on mousedown
+            $(this).css('cursor', 'grabbing');
+            startX = e.pageX;
+            startY = e.pageY;
+            scrollLeft = $('#socialImageModal').scrollLeft();
+            scrollTop = $('#socialImageModal').scrollTop();
+            e.preventDefault();
+        }
+    });
+
+    $(document).on('mousemove', function(e) {
+        if (isDragging) {
+            const x = e.pageX;
+            const y = e.pageY;
+            if (Math.abs(x - startX) > 3 || Math.abs(y - startY) > 3) { // <-- Threshold for drag
+                dragMoved = true;
+            }
+            $('#socialImageModal').scrollLeft(scrollLeft - (x - startX));
+            $('#socialImageModal').scrollTop(scrollTop - (y - startY));
+        }
+    });
+
+    $(document).on('mouseup', function() {
+        isDragging = false;
+        $('#socialModalImg').css('cursor', $('#socialModalImg').data('zoom') === 2 ? 'zoom-out' : 'zoom-in');
+    });
+
+    // Zoom in/out on image click
+    $(document).on('click', '#socialModalImg', function(e) {
+        if (dragMoved) {
+            dragMoved = false;
+            return;
+        }
+        var zoom = $(this).data('zoom') || 1;
+
+        if (zoom === 1) {
+            $(this)
+                .css({
+                    width: '1600px',
+                    height: 'auto',
+                    'max-width': 'none',
+                    'max-height': 'none',
+                    'cursor': 'zoom-in',
+                    'position': 'absolute',
+                    'top': '50%',
+                    'left': 0,
+                    'right': 0,
+                    'transform': 'translateY(-50%)'
+                })
+                .data('zoom', 2);
+        } else if (zoom === 2) {
+            $(this)
+                .css({
+                    width: '2200px', // or any larger value
+                    height: 'auto',
+                    'max-width': 'none',
+                    'max-height': 'none',
+                    'cursor': 'zoom-out',
+                    'position': 'absolute',
+                    'top': '50%',
+                    'left': 0,
+                    'right': 0,
+                    'transform': 'translateY(-50%)'
+                })
+                .data('zoom', 3);
+        } else {
+            $(this)
+                .css({
+                    width: '',
+                    height: '',
+                    'max-width': '80vw',
+                    'max-height': '80vh',
+                    'cursor': 'zoom-in',
+                    'transform': 'none',
+                    'position': 'absolute',
+                    'top': '50%',
+                    'left': 0,
+                    'right': 0,
+                    'transform': 'translateY(-50%)'
+                })
+                .data('zoom', 1);
+            $('#socialImageModal').scrollTop(0).scrollLeft(0);
+        }
+    });
+
+    function renderGif(version_id){
+        document.getElementById('loaderArea').style.display = 'flex';
+        axios.get('/preview/renderGifs/' + version_id)
+        .then(function(response) {
+            const gifs = response.data.gifs;
+            let gifsHtml = '';
+            gifs.forEach(function(gif) {
+                var gifPath = '/' + gif.path;
+                var gifReloadID = gif.id;
+                gifsHtml += '<div class="banner-creatives banner-area-'+ gif.size.width +'" style="display: inline-block; width: ' + gif.size.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem;">';
+                gifsHtml += '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
+                gifsHtml += '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + gif.size.width + 'x' + gif.size.height + '</small>';
+                gifsHtml += '<small style="float: right; font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + gif.file_size + '</small>';
+                gifsHtml += '</div>';
+                gifsHtml += '<img class="iframe-banners" style="margin-top: 2px;" src="' + gifPath + '" width="' + gif.size.width + '" height="' + gif.size.height + '" frameBorder="0" scrolling="no" id="rel' + gif.id + '"></img>';
+                gifsHtml += '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
+                gifsHtml += '<li><i id="relBt' + gif.id + '" onClick="reloadBanner(' + gifReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
+                gifsHtml += '@if($authUserClientName == "Planet Nine")'
+                gifsHtml += '<li class="banner-options"><a href="/previews/gif/single/download/' + gif.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                gifsHtml += '@endif';
+                gifsHtml += '</ul>';
+                gifsHtml += '</div>';
+            });
+            // Render gifs in the correct version container
+            $('#bannersList' + version_id).html(gifsHtml);
+        })
+        .catch(function(error) {
+            console.log(error);
+        })
+        .finally(function() {
+            document.getElementById('loaderArea').style.display = 'none';
+        });
+    }
+
+    renderCategories();
 
 </script>
