@@ -366,12 +366,10 @@ class NewPreviewController extends Controller
                             $feedback->update([
                                 'name' => $fbData['name'],
                                 'description' => $fbData['description'],
-                                'is_active' => true,
+                                // Do NOT update is_active here!
                             ]);
                             $submittedFeedbackIds[] = $feedback->id;
-                            newFeedback::where('category_id', $category->id)
-                                ->where('id', '!=', $feedback->id)
-                                ->update(['is_active' => false]);
+                            // Do NOT update other feedbacks' is_active here!
                         }
                     } else {
                         $feedback = newFeedback::create([
@@ -381,6 +379,7 @@ class NewPreviewController extends Controller
                             'is_active' => true,
                         ]);
                         $submittedFeedbackIds[] = $feedback->id;
+                        // Set all other feedbacks to inactive
                         newFeedback::where('category_id', $category->id)
                             ->where('id', '!=', $feedback->id)
                             ->update(['is_active' => false]);
