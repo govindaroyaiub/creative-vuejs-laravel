@@ -882,8 +882,7 @@
                 gifsHtml += '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
                 gifsHtml += '<li><i id="relBt' + gif.id + '" onClick="reloadBanner(' + gifReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
                 gifsHtml += '@if($authUserClientName == "Planet Nine")'
-                gifsHtml += '<li class="banner-options"><a href="/previews/gif/single/download/' + gif.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
-                gifsHtml += '@endif';
+                gifsHtml += `<li class="banner-options"><a href="/${gif.path}" download="${gif.name}"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>`;                gifsHtml += '@endif';
                 gifsHtml += '</ul>';
                 gifsHtml += '</div>';
             });
