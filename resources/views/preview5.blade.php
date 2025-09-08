@@ -95,8 +95,8 @@
                                 alt="clientLogo" style="max-width: 200px; margin: 0 auto;">
                         @endif
                     </div>
-                    <div style="flex: 1;">
-                        <div class="feedbacks relative flex justify-center flex-row"></div>
+                    <div style="flex: 1;" class="feedbackTabs-parent">
+                        <div class="feedbacks relative flex justify-center flex-row" style="width: 97%;"></div>
                     </div>
                     <!-- <div style="width: 270px; min-height: 60px;" class="sidebar-top-extra"></div> -->
                 </div>
@@ -512,6 +512,7 @@
 
         if (feedbackCount > 0) {
             var row = '';
+            row += `<div class="feedbackTabsContainer">`;
             $.each(feedbacks, function(key, value) {
                 if (value.is_active == 1) {
                     isActive = ' feedbackTabActive';
@@ -534,8 +535,19 @@
         } else {
             var row = '';
         }
+        row += '</div>';
         $('.feedbacks').html(row);
         renderFeedbackSets(response);
+        scrollActiveFeedbackTabIntoView();
+    }
+
+    function scrollActiveFeedbackTabIntoView() {
+        const container = document.querySelector('.feedbackTabsContainer');
+        if (!container) return;
+        const activeTab = container.querySelector('.feedbackTabActive');
+        if (activeTab) {
+            activeTab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
     }
 
     function updateBannerActiveFeedback(feedback_id){
