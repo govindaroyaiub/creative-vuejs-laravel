@@ -103,13 +103,14 @@
                 <div id="showcase">
                     <div id="bannershowCustom">
                         <nav role="navigation" class="mobileShowcase">
-                            <div id="menuToggle">
-                                <input type="checkbox" id="menuClick" />
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                                
-                                <ul id="menu"></ul>
+                            <div id="mobileMenuToggle">
+                                <button id="openMobileMenu" aria-label="Open menu">
+                                    <i class="fa-solid fa-bars"></i>
+                                </button>
+                            </div>
+                            <div id="mobileMenu" class="mobile-menu-panel">
+                                <button id="closeMobileMenu" aria-label="Close menu">&times;</button>
+                                <ul id="mobileCategoryList"></ul>
                             </div>
                         </nav>
                         <div class="navbar tabDesktopShowcase" id="navbar">
@@ -234,6 +235,18 @@
     // Call every 10 seconds
     setInterval(fetchViewers, 10000);
     fetchViewers();
+
+    // Open/close mobile menu
+    document.getElementById('openMobileMenu').onclick = function() {
+        document.getElementById('mobileMenu').classList.add('open');
+        document.getElementById('mobileMenuToggle').classList.add('hidden');
+        document.body.style.overflow = 'hidden';
+    };
+    document.getElementById('closeMobileMenu').onclick = function() {
+        document.getElementById('mobileMenu').classList.remove('open');
+        document.getElementById('mobileMenuToggle').classList.remove('hidden');
+        document.body.style.overflow = '';
+    };
 
     function showFeedbackDescription() {
         viewFeedback = true;
@@ -425,17 +438,36 @@
                 row2 += '<span class="category-row-date" style="font-size: 0.7rem;">' + formatted2 + '</span>';
                 row2 += '</div>';
 
-                row += '<a href="javascript:void(0)" class="nav-link categories" ' + clickHandler + ' id="category' + value.id + '">';
-                row += '<li class="' + active + '">' + value.name + '</li>';
-                row += '</a>';
+                row += `<a href="javascript:void(0)" class="nav-link categories ${active}" ${clickHandler} id="category${value.id}" style="display: block; padding: 8px 0;">`;
+                row += `<span class="category-number">${key + 1}.</span> ${value.name}`;
+                row += `</a>`;
             });
 
             renderFeedbacks(response);
             updateCategoryNav();
+            renderMobileCategories(categories, response.data.activeCategory.id);
 
             $('#creative-list2').html(row2);
             $('#creative-list').html(row);
             $('#menu').html(row);
+        });
+    }
+
+    // Render categories in mobile menu
+    function renderMobileCategories(categories, activeCategoryId) {
+        const list = document.getElementById('mobileCategoryList');
+        list.innerHTML = '';
+        categories.forEach((cat, idx) => {
+            const li = document.createElement('li');
+            li.textContent = `${idx + 1}. ${cat.name}`;
+            if (cat.id === activeCategoryId) li.classList.add('active');
+            li.onclick = function() {
+                // Switch category logic here (same as desktop)
+                updateActiveCategory(cat.id);
+                document.getElementById('mobileMenu').classList.remove('open');
+                document.body.style.overflow = '';
+            };
+            list.appendChild(li);
         });
     }
 

@@ -210,159 +210,6 @@ section .content {
     flex-shrink: 0;
 }
 
-#menuToggle {
-    display: block;
-    position: relative;
-    top: 50px;
-    left: 11px;
-    z-index: 1;
-    width: 35px;
-}
-
-#menuToggle a {
-    text-decoration: none;
-    color: white;
-    transition: color 0.3s ease;
-}
-
-#menuToggle a:hover {
-    color: var(--quaternary-color);
-}
-
-.menuToggleActive {
-    color: var(--quaternary-color);
-}
-
-
-#menuToggle input {
-    display: block;
-    width: 40px;
-    height: 32px;
-    position: absolute;
-    top: -7px;
-    left: -5px;
-    cursor: pointer;
-    opacity: 0;
-    /* hide this */
-    z-index: 2;
-    /* and place it over the hamburger */
-    -webkit-touch-callout: none;
-}
-
-/*
-* Just a quick hamburger
-*/
-#menuToggle span {
-    display: block;
-    width: 33px;
-    height: 4px;
-    margin-bottom: 5px;
-    position: relative;
-    background: var(--tertiary-color);
-    border-radius: 3px;
-    z-index: 1;
-    transform-origin: 4px 0px;
-    transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), background 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), opacity 0.55s ease;
-    -webkit-transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), background 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), opacity 0.55s ease;
-    -moz-transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), background 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), opacity 0.55s ease;
-    -ms-transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), background 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), opacity 0.55s ease;
-    -o-transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), background 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), opacity 0.55s ease;
-}
-
-#menuToggle span:first-child {
-    transform-origin: 0% 0%;
-}
-
-#menuToggle span:nth-last-child(2) {
-    transform-origin: 0% 100%;
-}
-
-/* 
-* Transform all the slices of hamburger
-* into a crossmark.
-*/
-#menuToggle input:checked~span {
-    opacity: 1;
-    transform: rotate(45deg) translate(2px, 0px);
-    background: white;
-}
-
-/*
-* But let's hide the middle one.
-*/
-#menuToggle input:checked~span:nth-last-child(3) {
-    opacity: 0;
-    transform: rotate(0deg) scale(0.2, 0.2);
-}
-
-/*
-* Ohyeah and the last one should go the other direction
-*/
-#menuToggle input:checked~span:nth-last-child(2) {
-    transform: rotate(-45deg) translate(0px, 4px);
-}
-
-/*
-* Make this absolute positioned
-* at the top left of the screen
-*/
-#menu {
-    opacity: 0;
-    position: absolute;
-    width: 300px;
-    max-height: 550px;
-    overflow-y: scroll;
-    margin: -50px 0px 0px -12px;
-    padding: 30px;
-    padding-top: 55px;
-    background: var(--primary-color);
-    border: 2px solid var(--primary-color);
-    list-style-type: disclosure-closed;
-    -webkit-font-smoothing: antialiased;
-    /*tostopflickeringoftextinsafari*/
-    transform-origin: 0% 0%;
-    transform: translate(-100%, 0);
-    transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), opacity 0.3s ease;
-    -webkit-transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), opacity 0.3s ease;
-    -moz-transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), opacity 0.3s ease;
-    -ms-transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), opacity 0.3s ease;
-    -o-transition: transform 0.5s cubic-bezier(0.77, 0.2, 0.05, 1.0), opacity 0.3s ease;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
-    border-right-color: var(--tertiary-color);
-    border-bottom-color: var(--tertiary-color);
-}
-
-#menu li {
-    padding: 5px 0;
-    font-size: 1.25rem;
-}
-
-/*
-* And let's slide it in from the left
-*/
-#menuToggle input:checked~ul {
-    transform: none;
-    text-align: center;
-    opacity: 1;
-    pointer-events: auto;
-}
-
-#bannershow {
-    width: 100%;
-    height: auto;
-    border: 1px solid var(--default_color);
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
-    border-top-right-radius: 8px;
-    border-top-left-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    overflow: hidden;
-    min-height: 320px;
-}
-
 #bannershowCustom {
     width: 100%;
     height: auto;
@@ -737,6 +584,113 @@ iframe {
     transform: rotate(-90deg);
 }
 
+#mobileMenuToggle {
+    position: fixed;
+    bottom: 20px;
+    /* Place near the top */
+    left: 2.5px;
+    /* Place near the left edge */
+    z-index: 10001;
+    background: var(--tertiary-color);
+    border: 1px solid var(--tertiary-color);
+    border-radius: 50%;
+    /* Circular button */
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    color: white;
+}
+
+#mobileMenuToggle.hidden {
+    display: none;
+}
+
+.hamburger {
+    display: block;
+    width: 30px;
+    height: 4px;
+    background: white;
+    border-radius: 3px;
+    position: relative;
+}
+
+.hamburger::before,
+.hamburger::after {
+    content: '';
+    display: block;
+    width: 30px;
+    height: 4px;
+    background: var(--tertiary-color);
+    border-radius: 3px;
+    position: absolute;
+    left: 0;
+    transition: 0.3s;
+}
+
+.hamburger::before {
+    top: -10px;
+}
+
+.hamburger::after {
+    top: 10px;
+}
+
+.mobile-menu-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 70vw;
+    max-width: 350px;
+    height: 100vh;
+    background: var(--primary-color);
+    z-index: 10000;
+    padding: 60px 20px 20px 20px;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.2);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    opacity: 1;
+    overflow-y: auto;
+    list-style: none;
+}
+
+.mobile-menu-panel.open {
+    transform: translateX(0);
+}
+
+#closeMobileMenu {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 2rem;
+    color: white;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+#mobileCategoryList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#mobileCategoryList li {
+    padding: 15px 0;
+    font-size: 1.2rem;
+    border-bottom: 1px solid var(--tertiary-color);
+    color: var(--tertiary-color);
+    cursor: pointer;
+}
+
+#mobileCategoryList li.active {
+    /* background: var(--tertiary-color); */
+    color: #fff;
+    font-weight: bold;
+}
 
 #mobilecolorPaletteClick {
     font-size: 1rem;
@@ -1050,6 +1004,12 @@ iframe {
     padding: 3px;
 }
 
+#creative-list2,
+#creative-list {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
 #creative-list2 {
     font-size: 1.25rem;
     padding-top: 10px;
@@ -1077,8 +1037,10 @@ iframe {
 
 .category-row {
     text-align: center;
-    width: calc(100% - 60px);
-    min-height: 65px;
+    width: 100%;
+    max-width: 400px;
+    /* or whatever fits your sidebar */
+    min-height: 50px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1090,9 +1052,11 @@ iframe {
     border-radius: 40px;
     border-bottom: 4px solid black;
     transition: all 0.25s;
-    /* font-size: 1rem; */
     flex-direction: column;
-    justify-content: space-evenly;
+    margin: 0 auto 10px auto;
+    /* center and space out */
+    word-break: break-word;
+    /* prevent overflow */
 }
 
 .category-row:hover {
@@ -1103,24 +1067,17 @@ iframe {
 
 
 .category-active {
-    width: calc(100% - 60px);
-    height: 100%;
-    border-radius: 40px;
-    z-index: 0;
     background-color: var(--tertiary-color);
     color: white;
-    box-shadow: 0;
     border-bottom: 4px solid var(--tertiary-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.categoryControl {
-    position: relative;
-    top: 0;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    padding: 0.25rem;
+.category-row span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    max-width: 90%;
 }
 
 .sidebar-top-desktop {
@@ -1134,6 +1091,16 @@ iframe {
     border-left: 3px solid var(--tertiary-color);
     border-top: 3px solid var(--tertiary-color);
     border-right: 3px solid var(--tertiary-color); */
+}
+
+@media only screen and (max-width: 700px) {
+    .category-row {
+        max-width: 100%;
+        min-height: 45px;
+        font-size: 1rem;
+        margin: 0 0 8px 0;
+        border-radius: 20px;
+    }
 }
 
 .feedbackSetsContainer {
@@ -1310,7 +1277,7 @@ iframe {
 
     body {
         box-shadow: inset 0 0 20px 5px #ffffff;
-        overflow-x: hidden;
+        overflow-x: hidden !important;
     }
 
     #colorPaletteClick {
@@ -1490,6 +1457,10 @@ iframe {
     #bulk-customization {
         display: none;
     }
+
+    .right-column {
+        border-top-left-radius: 25px;
+    }
 }
 
 /* Large devices (laptops/desktops, 992px and up) */
@@ -1549,6 +1520,15 @@ iframe {
 
     .currentTotalFeedbacks {
         display: none;
+    }
+
+    #bulk-customization {
+        display: block;
+    }
+
+
+    .right-column {
+        border-top-left-radius: 0px;
     }
 }
 
