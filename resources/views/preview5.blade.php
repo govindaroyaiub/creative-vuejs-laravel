@@ -96,7 +96,7 @@
                         @endif
                     </div>
                     <div style="flex: 1;" class="feedbackTabs-parent">
-                        <div class="feedbacks relative flex justify-center flex-row" style="width: 97%;"></div>
+                        <div class="feedbacks relative flex justify-center flex-row"></div>
                     </div>
                     <!-- <div style="width: 270px; min-height: 60px;" class="sidebar-top-extra"></div> -->
                 </div>
@@ -110,6 +110,9 @@
                             </div>
                             <div id="mobileMenu" class="mobile-menu-panel">
                                 <button id="closeMobileMenu" aria-label="Close menu">&times;</button>
+                                <div class="sidebar-image mx-auto mb-4">
+                                        <span>Creative Showcase</span>
+                                    </div>
                                 <ul id="mobileCategoryList"></ul>
                             </div>
                         </nav>
@@ -148,7 +151,6 @@
                                 <div id="feedbackCLick" onclick="showFeedbackDescription()">
                                     <i class="fa-regular fa-message" style="transform: rotate(90deg) scaleX(-1);"></i>
                                 </div>
-
 
                                 @php
                                     $colorsData = $all_colors->map(fn($color) => ['id' => $color->id, 'hex' => $color->primary, 'border' => $color->tertiary]);
