@@ -6,10 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\newVersion;
 use App\Models\BannerSize;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class newGif extends Model
 {
     use HasFactory;
+    use LogsActivity;
+
+    protected static $logAttributes = ['*']; // logs all attributes
+    protected static $logName = 'Gif'; // name for this log
 
     protected $fillable = [
         'version_id',
@@ -19,6 +25,13 @@ class newGif extends Model
         'file_size',
         'position',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->useLogName('Gif');
+    }
 
     public function version()
     {

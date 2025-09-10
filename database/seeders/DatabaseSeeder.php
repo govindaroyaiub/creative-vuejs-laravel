@@ -210,7 +210,8 @@ class DatabaseSeeder extends Seeder
             ['title' => 'Registration', 'href' => '/welcome-to-planetnine/register'],
             ['title' => 'Change Password', 'href' => '/change-password'],
             ['title' => 'Color Palettes', 'href' => '/color-palettes'],
-            ['title' => 'Media Library', 'href' => '/medias']
+            ['title' => 'Media Library', 'href' => '/medias'],
+            ['title' => 'Activity Logs', 'href' => '/activity-logs'],
         ];
 
         foreach ($routes as $route) {

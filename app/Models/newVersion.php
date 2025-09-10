@@ -9,15 +9,28 @@ use App\Models\newBanner;
 use App\Models\newVideo;
 use App\Models\newSocial;
 use App\Models\newGif;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class newVersion extends Model
 {
     use HasFactory;
+    use LogsActivity;
+
+    protected static $logAttributes = ['*']; // logs all attributes
+    protected static $logName = 'Version'; // name for this log
 
     protected $fillable = [
         'feedback_set_id',
         'name'
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->useLogName('Version');
+    }
 
     public function feedbackset()
     {

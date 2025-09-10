@@ -8,10 +8,16 @@ use App\Models\Client;
 use App\Models\User;
 use App\Models\ColorPalette;
 use App\Models\newCategory;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class newPreview extends Model
 {
     use HasFactory;
+    use LogsActivity;
+
+    protected static $logAttributes = ['*']; // logs all attributes
+    protected static $logName = 'Preview'; // name for this log
 
     protected $casts = [
         'team_members' => 'array',
@@ -29,6 +35,13 @@ class newPreview extends Model
         'show_sidebar_logo',
         'show_footer',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->useLogName('Preview');
+    }
 
     public function client()
     {

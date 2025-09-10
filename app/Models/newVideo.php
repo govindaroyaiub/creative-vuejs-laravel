@@ -6,10 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\newVersion;
 use App\Models\VideoSize;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class newVideo extends Model
 {
     use HasFactory;
+    use LogsActivity;
+
+    protected static $logAttributes = ['*']; // logs all attributes
+    protected static $logName = 'Video'; // name for this log
 
     protected $fillable = [
         'version_id',
@@ -23,6 +29,13 @@ class newVideo extends Model
         'companion_banner_path',
         'position',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->useLogName('Video');
+    }
 
     public function version()
     {

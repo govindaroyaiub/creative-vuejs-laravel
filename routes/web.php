@@ -28,6 +28,7 @@ use App\Http\Controllers\NewGifController;
 use App\Http\Controllers\newPreviewApiController;
 use App\Http\Controllers\NewSocialController;
 use App\Http\Controllers\NewVideoController;
+use App\Http\Controllers\ActivityLogController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -152,6 +153,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::delete('/medias-delete/{id}', [MediaController::class, 'destroy'])->name('medias-delete');
     Route::get('/medias-download/{id}', [MediaController::class, 'download'])->name('medias-download');
     //Media Routes End
+
+    Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 });
 
 Route::get('/previews/show/{slug}', [NewPreviewController::class, 'show'])->name('previews-show');

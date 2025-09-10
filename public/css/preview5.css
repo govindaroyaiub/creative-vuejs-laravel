@@ -312,6 +312,7 @@ iframe {
     box-sizing: border-box;
     position: relative;
     top: 1px;
+    gap: 2px;
 }
 
 .feedbackTabsContainer.dragging {
