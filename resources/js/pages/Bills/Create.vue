@@ -44,17 +44,20 @@ const handleSubmit = () => {
 </script>
 
 <template>
+
     <Head title="Create Bill" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6 max-w-4xl mx-auto">
             <form @submit.prevent="handleSubmit" class="space-y-6">
                 <div>
                     <label class="block font-medium text-sm">Name</label>
-                    <input v-model="form.name" type="text" class="w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white" required />
+                    <input v-model="form.name" type="text"
+                        class="w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white" required />
                 </div>
                 <div>
                     <label class="block font-medium text-sm">Client</label>
-                    <input v-model="form.client" type="text" class="w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white" required />
+                    <input v-model="form.client" type="text"
+                        class="w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white" required />
                 </div>
 
                 <!-- Sub-Bills Table -->
@@ -71,17 +74,27 @@ const handleSubmit = () => {
                         </thead>
                         <tbody>
                             <tr v-for="(row, index) in form.sub_bills" :key="index" class="border-t">
-                                <td class="px-2 py-1"><input v-model="row.item" type="text" class="w-full rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" required /></td>
-                                <td class="px-2 py-1"><input v-model.number="row.quantity" @input="calculateAmount(index)" type="number" min="1" class="w-full rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" required /></td>
-                                <td class="px-2 py-1"><input v-model.number="row.unit_price" @input="calculateAmount(index)" type="number" step="0.01" class="w-full rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" required /></td>
+                                <td class="px-2 py-1"><input v-model="row.item" type="text"
+                                        class="w-full rounded border px-2 py-1 dark:bg-gray-700 dark:text-white"
+                                        required /></td>
+                                <td class="px-2 py-1"><input v-model.number="row.quantity"
+                                        @input="calculateAmount(index)" type="number" min="1"
+                                        class="w-full rounded border px-2 py-1 dark:bg-gray-700 dark:text-white"
+                                        required /></td>
+                                <td class="px-2 py-1"><input v-model.number="row.unit_price"
+                                        @input="calculateAmount(index)" type="number" step="0.01"
+                                        class="w-full rounded border px-2 py-1 dark:bg-gray-700 dark:text-white"
+                                        required /></td>
                                 <td class="px-2 py-1 text-right">{{ row.amount.toFixed(2) }}</td>
                                 <td class="px-2 py-1 text-center">
-                                    <button type="button" @click="removeRow(index)" class="text-red-600 hover:underline" v-if="form.sub_bills.length > 1">Remove</button>
+                                    <button type="button" @click="removeRow(index)" class="text-red-600 hover:underline"
+                                        v-if="form.sub_bills.length > 1">Remove</button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                    <button type="button" @click="addRow" class="mt-2 text-sm text-blue-600 hover:underline">+ Add</button>
+                    <button type="button" @click="addRow" class="mt-2 text-sm text-blue-600 hover:underline">+
+                        Add</button>
                 </div>
 
                 <div class="text-right font-semibold">
@@ -89,8 +102,11 @@ const handleSubmit = () => {
                 </div>
 
                 <div class="flex justify-end space-x-4">
-                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save</button>
-                    <Link :href="route('bills')" class="bg-red-600 px-4 py-2 rounded hover:bg-red-700 dark:bg-gray-600 dark:text-white text-white">Cancel</Link>
+                    <Link :href="route('bills')"
+                        class="bg-red-600 px-4 py-2 rounded hover:bg-red-700 dark:bg-gray-600 dark:text-white text-white">
+                    Cancel</Link>
+                    <button type="submit"
+                        class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save</button>
                 </div>
             </form>
         </div>

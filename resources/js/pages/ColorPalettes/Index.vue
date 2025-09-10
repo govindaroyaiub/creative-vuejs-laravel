@@ -176,8 +176,8 @@ const copyToClipboard = (text: string) => {
               </label>
             </td>
             <td class="px-4 py-3 text-center space-x-2">
-              <button @click="saveNew" class="text-green-600 hover:underline text-sm">Save</button>
               <button @click="cancelAdding" class="text-gray-500 hover:underline text-sm">Cancel</button>
+              <button @click="saveNew" class="text-green-600 hover:underline text-sm">Save</button>
             </td>
           </tr>
 
@@ -262,8 +262,8 @@ const copyToClipboard = (text: string) => {
             <td class="px-4 py-3 text-center">
               <template v-if="editingId === palette.id">
                 <div class="flex justify-center gap-2">
-                  <button @click="saveEdit(palette.id)" class="text-blue-600 hover:underline text-sm">Update</button>
                   <button @click="cancelEditing" class="text-red-500 hover:underline text-sm">Cancel</button>
+                  <button @click="saveEdit(palette.id)" class="text-blue-600 hover:underline text-sm">Update</button>
                 </div>
               </template>
               <template v-else>

@@ -136,8 +136,8 @@ const handleSubmit = () => {
 
                 <!-- Submit -->
                 <div class="flex justify-end space-x-4">
-                    <button type="submit" class="rounded bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">Update</button>
                     <Link :href="route('bills')" class="rounded bg-red-600 px-4 py-2 hover:bg-red-700 text-white">Cancel</Link>
+                    <button type="submit" class="rounded bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">Update</button>
                 </div>
             </form>
         </div>

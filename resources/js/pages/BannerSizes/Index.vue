@@ -129,8 +129,8 @@ const deleteBannerSize = async (id: number) => {
                                 class="w-20 rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" />
                         </td>
                         <td class="px-4 py-2 space-x-2">
-                            <button @click="saveNew" class="text-green-600 hover:underline text-sm">Save</button>
                             <button @click="cancelAdding" class="text-gray-500 hover:underline text-sm">Cancel</button>
+                            <button @click="saveNew" class="text-green-600 hover:underline text-sm">Save</button>
                         </td>
                     </tr>
 
@@ -153,10 +153,10 @@ const deleteBannerSize = async (id: number) => {
 
                         <td class="space-x-2 px-4 py-2">
                             <template v-if="editingId === size.id">
-                                <button @click="saveEdit(size.id)"
-                                    class="text-blue-600 hover:underline text-sm">Update</button>
                                 <button @click="cancelEditing"
                                     class="text-red-500 hover:underline text-sm">Cancel</button>
+                                <button @click="saveEdit(size.id)"
+                                    class="text-blue-600 hover:underline text-sm">Update</button>
                             </template>
                             <template v-else>
                                 <button @click="startEditing(size)" class="text-blue-600 hover:text-blue-800">

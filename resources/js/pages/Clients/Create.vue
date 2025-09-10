@@ -104,15 +104,15 @@ const handleSubmit = () => {
 
         <!-- Submit Button -->
         <div class="flex space-x-4">
-          <button type="submit"
-            class="w-full rounded-lg bg-green-600 px-6 py-3 text-white shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-green-500 dark:hover:bg-green-600">
-            Save
-          </button>
           <Link type="button"
             class="w-full text-center rounded-lg bg-red-600 px-6 py-3 text-white shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-red-500 dark:hover:bg-red-600"
             :href="route('clients')">
           Back
           </Link>
+          <button type="submit"
+            class="w-full rounded-lg bg-green-600 px-6 py-3 text-white shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 dark:bg-green-500 dark:hover:bg-green-600">
+            Save
+          </button>
         </div>
       </form>
     </div>

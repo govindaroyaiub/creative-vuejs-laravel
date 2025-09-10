@@ -341,12 +341,12 @@ const deleteUser = async (id: number) => {
                     </div>
 
                     <div class="mt-6 flex justify-end space-x-2">
-                        <Button size="sm" variant="outline" @click="permissionsModalVisible = false"
-                            :disabled="savingPermissions">Cancel</Button>
                         <Button size="sm" @click="savePermissions" :disabled="savingPermissions">
                             <span v-if="savingPermissions">Saving...</span>
                             <span v-else>Save</span>
                         </Button>
+                        <Button size="sm" variant="outline" @click="permissionsModalVisible = false"
+                            :disabled="savingPermissions">Cancel</Button>
                     </div>
                 </div>
             </div>

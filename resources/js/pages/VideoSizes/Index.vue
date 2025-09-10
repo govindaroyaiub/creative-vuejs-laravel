@@ -146,13 +146,13 @@ const saveNewSize = async () => {
                                 class="w-full max-w-[100px] rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" />
                         </td>
                         <td class="px-4 py-2 space-x-2">
+                            <button @click="adding = false" :disabled="saving"
+                                class="text-gray-500 hover:underline text-sm">Cancel</button>
                             <button @click="saveNewSize" :disabled="saving"
                                 class="text-green-600 hover:underline text-sm">
                                 <LoaderCircle v-if="saving" class="h-4 w-4 animate-spin" />
                                 <span v-else>Save</span>
                             </button>
-                            <button @click="adding = false" :disabled="saving"
-                                class="text-gray-500 hover:underline text-sm">Cancel</button>
                         </td>
                     </tr>
 
@@ -175,10 +175,10 @@ const saveNewSize = async () => {
                                     class="w-full max-w-[100px] rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" />
                             </td>
                             <td class="flex justify-center gap-2 px-4 py-2">
-                                <button @click="saveEdit(size.id)" :disabled="saving"
-                                    class="text-blue-600 hover:underline text-sm">Update</button>
                                 <button @click="cancelEdit" :disabled="saving"
                                     class="text-red-500 hover:underline text-sm">Cancel</button>
+                                <button @click="saveEdit(size.id)" :disabled="saving"
+                                    class="text-blue-600 hover:underline text-sm">Update</button>
                             </td>
                         </template>
 
