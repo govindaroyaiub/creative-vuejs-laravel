@@ -25,12 +25,12 @@ const mainNavItems: NavItem[] = [
     { title: 'File Transfers', href: '/file-transfers', icon: Paperclip },
     { title: 'Bills', href: '/bills', icon: ReceiptText },
     { title: 'Media Library', 'href': '/medias', icon: ImagePlay },
-    { title: 'Activity Logs', 'href': '/activity-logs', icon: History }
 ];
 
 const footerNavItems: NavItem[] = [
     { title: 'Clients', href: '/clients', icon: CircleDollarSign },
     { title: 'Access Manager', href: '/user-managements/designations', icon: Users },
+    { title: 'Activity Logs', 'href': '/activity-logs', icon: History }
 ];
 
 // Permission check function
