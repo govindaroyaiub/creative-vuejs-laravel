@@ -141,12 +141,12 @@ class UserManagementController extends Controller
             'permissions' => $permissions,
         ]);
 
-        if ($data['send_mail']) {
-            Mail::send('emails.welcome', ['user' => $user], function ($message) use ($user) {
-                $message->to($user->email, $user->name)
-                    ->subject('Welcome to Planet Nine!');
-            });
-        }
+        // if ($data['send_mail']) {
+        //     Mail::send('emails.welcome', ['user' => $user], function ($message) use ($user) {
+        //         $message->to($user->email, $user->name)
+        //             ->subject('Welcome to Planet Nine!');
+        //     });
+        // }
 
         return response()->json([
             'success' => true,

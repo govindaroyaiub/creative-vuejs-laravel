@@ -149,14 +149,14 @@ const submit = () => {
 
                 <!-- Submit Buttons -->
                 <div class="flex space-x-4">
-                    <button type="submit" :disabled="form.processing"
-                        class="w-full rounded-lg bg-indigo-600 px-6 py-3 text-white shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600">
-                        Update
-                    </button>
                     <Link :href="route('previews-index')"
                         class="w-full rounded-lg bg-red-600 px-6 py-3 text-center text-white shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-red-500 dark:hover:bg-red-600">
                     Back
                     </Link>
+                    <button type="submit" :disabled="form.processing"
+                        class="w-full rounded-lg bg-indigo-600 px-6 py-3 text-white shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600">
+                        Update
+                    </button>
                 </div>
             </form>
         </div>
