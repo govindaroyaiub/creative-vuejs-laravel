@@ -63,23 +63,8 @@ class newPreviewApiController extends Controller
             'feedbacks' => $feedbacks,
             'feedbackSets' => $feedbackSets,
             'activeCategory' => $activeCategory,
+            'activeFeedback' => $activeFeedback,
             'versions' => $versions
-        ]);
-    }
-
-    function renderVersions($feedbackSet_id)
-    {
-        $versions = newVersion::where('feedback_set_id', $feedbackSet_id)->get();
-        return response()->json([
-            'versions' => $versions
-        ]);
-    }
-
-    function renderBanners($version_id)
-    {
-        $banners = newBanner::with('size')->where('version_id', $version_id)->get();
-        return response()->json([
-            'banners' => $banners
         ]);
     }
 
@@ -113,6 +98,7 @@ class newPreviewApiController extends Controller
             'feedbacks' => $feedbacks,
             'feedbackSets' => $feedbackSets,
             'activeCategory' => $activeCategory,
+            'activeFeedback' => $activeFeedback,
             'versions' => $versions
         ]);
     }
@@ -147,7 +133,24 @@ class newPreviewApiController extends Controller
             'feedbacks' => $feedbacks,
             'feedbackSets' => $feedbackSets,
             'activeCategory' => $activeCategory,
+            'activeFeedback' => $activeFeedback,
             'versions' => $versions
+        ]);
+    }
+
+    function renderVersions($feedbackSet_id)
+    {
+        $versions = newVersion::where('feedback_set_id', $feedbackSet_id)->get();
+        return response()->json([
+            'versions' => $versions
+        ]);
+    }
+
+    function renderBanners($version_id)
+    {
+        $banners = newBanner::with('size')->where('version_id', $version_id)->get();
+        return response()->json([
+            'banners' => $banners
         ]);
     }
 

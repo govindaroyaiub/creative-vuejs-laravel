@@ -25,7 +25,7 @@
             --quaternary-color: {{ $quaternary }};
         }
     </style>
-    <link href="{{ asset('css/preview4.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/preview5.css') }}" rel="stylesheet">
 </head>
 
 <body>
@@ -135,12 +135,21 @@
                         </div>
 
                         <div class="right-column">
-                            <div class="justify-center items-center mt-2 py-2 px-2 absolute top-0 left-0 right-0 currentTotalFeedbacks">
+                            <!-- <div class="justify-center items-center mt-2 py-2 px-2 absolute top-0 left-0 right-0 currentTotalFeedbacks">
                                 <button id="categoryLeft" disabled style="margin-right:10px;">
                                     <i class="fa-solid fa-arrow-left"></i>
                                 </button>
                                 <span id="categoryCounter"></span>
                                 <button id="categoryRight" disabled style="margin-left:10px;">
+                                   <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div> -->
+                            <div class="justify-center items-center mt-1 py-2 px-2 absolute top-0 left-0 right-0 currentTotalFeedbacks">
+                                <button id="feedbackLeft" disabled style="margin-right:10px;">
+                                    <i class="fa-solid fa-arrow-left"></i>
+                                </button>
+                                <span id="feedbackCounter"></span>
+                                <button id="feedbackRight" disabled style="margin-left:10px;">
                                    <i class="fa-solid fa-arrow-right"></i>
                                 </button>
                             </div>
@@ -201,6 +210,8 @@
 
     let categories = [];
     let currentCategoryIndex = 0;
+    let feedbacks = [];
+    let currentFeedbackIndex = 0;
 
     // Assign a unique name to guest using localStorage
     let guestName = localStorage.getItem('guest_name');
@@ -234,20 +245,18 @@
             });
     }
 
-    // Call every 10 seconds
-    setInterval(fetchViewers, 10000);
-    fetchViewers();
-
     // Open/close mobile menu
     document.getElementById('openMobileMenu').onclick = function() {
         document.getElementById('mobileMenu').classList.add('open');
         document.getElementById('mobileMenuToggle').classList.add('hidden');
         document.body.style.overflow = 'hidden';
+        document.addEventListener('click', handleOutsideClick);
     };
     document.getElementById('closeMobileMenu').onclick = function() {
         document.getElementById('mobileMenu').classList.remove('open');
         document.getElementById('mobileMenuToggle').classList.remove('hidden');
         document.body.style.overflow = '';
+        document.removeEventListener('click', handleOutsideClick);
     };
 
     function showFeedbackDescription() {
@@ -373,26 +382,43 @@
         }
 
         paletteDiv2.classList.add('visible');
-        document.addEventListener('click', handleOutsideClick2);
+        document.addEventListener('click', handleOutsideClick);
     }
 
     function handleOutsideClick(event) {
+        // Color palette desktop
         const paletteDiv = document.getElementById('colorPaletteSelection');
         const paletteToggle = document.getElementById('colorPaletteClick');
-
-        if (!paletteDiv.contains(event.target) && !paletteToggle.contains(event.target)) {
-            paletteDiv.classList.remove('visible');
-            document.removeEventListener('click', handleOutsideClick);
+        if (paletteDiv && paletteDiv.classList.contains('visible')) {
+            if (!paletteDiv.contains(event.target) && !paletteToggle.contains(event.target)) {
+                paletteDiv.classList.remove('visible');
+                document.removeEventListener('click', handleOutsideClick);
+                return;
+            }
         }
-    }
 
-    function handleOutsideClick2(event) {
+        // Color palette mobile
         const paletteDiv2 = document.getElementById('mobilecolorPaletteSelection');
         const paletteToggle2 = document.getElementById('mobilecolorPaletteClick');
+        if (paletteDiv2 && paletteDiv2.classList.contains('visible')) {
+            if (!paletteDiv2.contains(event.target) && !paletteToggle2.contains(event.target)) {
+                paletteDiv2.classList.remove('visible');
+                document.removeEventListener('click', handleOutsideClick);
+                return;
+            }
+        }
 
-        if (!paletteDiv2.contains(event.target) && !paletteToggle2.contains(event.target)) {
-            paletteDiv2.classList.remove('visible');
-            document.removeEventListener('click', handleOutsideClick2);
+        // Mobile menu
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        if (mobileMenu && mobileMenu.classList.contains('open')) {
+            if (!mobileMenu.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
+                mobileMenu.classList.remove('open');
+                mobileMenuToggle.classList.remove('hidden');
+                document.body.style.overflow = '';
+                document.removeEventListener('click', handleOutsideClick);
+                return;
+            }
         }
     }
 
@@ -464,9 +490,9 @@
             li.textContent = `${idx + 1}. ${cat.name}`;
             if (cat.id === activeCategoryId) li.classList.add('active');
             li.onclick = function() {
-                // Switch category logic here (same as desktop)
                 updateActiveCategory(cat.id);
                 document.getElementById('mobileMenu').classList.remove('open');
+                document.getElementById('mobileMenuToggle').classList.remove('hidden'); // <-- Add this line
                 document.body.style.overflow = '';
             };
             list.appendChild(li);
@@ -507,52 +533,7 @@
             })
     }
 
-    function renderFeedbacks(response){
-        var feedbacks = response.data.feedbacks;
-        var feedbackCount = feedbacks.length;
-        var isActive;
-
-        if (feedbackCount > 0) {
-            var row = '';
-            row += `<div class="feedbackTabsContainer">`;
-            $.each(feedbacks, function(key, value) {
-                if (value.is_active == 1) {
-                    isActive = ' feedbackTabActive';
-                    var clickHandler = ''; // No click for active feedback
-                } else {
-                    isActive = '';
-                    var clickHandler = 'onclick="updateBannerActiveFeedback(' + value.id + ')"';
-                }
-                row += `
-                    <div style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
-                        <div id="feedbackTab${value.id}" class="feedbackTab${isActive}" ${clickHandler} style="margin-left: 8px;">
-                            <div class="trapezoid-container">
-                                <div class="tab-text text-white text-base">${value.name}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                $('#feedbackMessage').html(value.description);
-            });
-        } else {
-            var row = '';
-        }
-        row += '</div>';
-        $('.feedbacks').html(row);
-        renderFeedbackSets(response);
-        scrollActiveFeedbackTabIntoView();
-    }
-
-    function scrollActiveFeedbackTabIntoView() {
-        const container = document.querySelector('.feedbackTabsContainer');
-        if (!container) return;
-        const activeTab = container.querySelector('.feedbackTabActive');
-        if (activeTab) {
-            activeTab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-        }
-    }
-
-    function updateBannerActiveFeedback(feedback_id){
+    function updateActiveFeedback(feedback_id) {
         axios.get('/preview/updateActiveFeedback/' + feedback_id)
             .then(function(response) {
                renderFeedbacks(response);
@@ -560,6 +541,138 @@
             .catch(function(error) {
                 console.log(error);
             })
+    }
+
+    function renderFeedbacks(response){
+        feedbacks = response.data.feedbacks || [];
+        var feedbackCount = feedbacks.length;
+        var isActive;
+
+        currentFeedbackIndex = feedbacks.findIndex(f => f.is_active == 1);
+        if (currentFeedbackIndex === -1) currentFeedbackIndex = 0;
+
+        var row = '';
+        row += `<div class="feedbackTabsContainer">`;
+        $.each(feedbacks, function(key, value) {
+            if (value.is_active == 1) {
+                isActive = ' feedbackTabActive';
+                var clickHandler = ''; // No click for active feedback
+            } else {
+                isActive = '';
+                var clickHandler = 'onclick="updateActiveFeedback(' + value.id + ')"';
+            }
+            row += `
+                <div style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                    <div id="feedbackTab${value.id}" class="feedbackTab${isActive}" ${clickHandler}>
+                        <div class="trapezoid-container">
+                            <div class="tab-text text-white text-base">${value.name}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            $('#feedbackMessage').html(value.description);
+        });
+        row += '</div>';
+        $('.feedbacks').html(row);
+        updateFeedbackNav();
+        renderFeedbackSets(response);
+        setTimeout(enableFeedbackTabsDragScroll, 10);
+        scrollActiveFeedbackTabIntoView();
+    }
+
+    function updateFeedbackNav() {
+        const total = feedbacks.length;
+        if(total > 1){
+            $('#feedbackCounter').text(total ? `Feedbacks: ${currentFeedbackIndex + 1} of ${total}` : 'No Feedbacks');
+        }
+        $('#feedbackCounter').text(total ? `Feedbacks: ${currentFeedbackIndex + 1} of ${total}` : 'No Feedbacks');
+        if (currentFeedbackIndex === 0) {
+            $('#feedbackLeft').prop('disabled', true).css('opacity', 0.5);
+        } else {
+            $('#feedbackLeft').prop('disabled', false).css('opacity', 1);
+        }
+
+        // Disable and set opacity for right arrow
+        if (currentFeedbackIndex === total - 1 || total === 0) {
+            $('#feedbackRight').prop('disabled', true).css('opacity', 0.5);
+        } else {
+            $('#feedbackRight').prop('disabled', false).css('opacity', 1);
+        }
+    }
+
+    $('#feedbackLeft').on('click', function() {
+        if (currentFeedbackIndex > 0 && feedbacks[currentFeedbackIndex - 1]) {
+            currentFeedbackIndex--;
+            updateActiveFeedback(feedbacks[currentFeedbackIndex].id);
+            updateFeedbackNav();
+            setTimeout(scrollActiveFeedbackTabIntoView, 100);
+        }
+    });
+
+    $('#feedbackRight').on('click', function() {
+        if (currentFeedbackIndex < feedbacks.length - 1 && feedbacks[currentFeedbackIndex + 1]) {
+            currentFeedbackIndex++;
+            updateActiveFeedback(feedbacks[currentFeedbackIndex].id);
+            updateFeedbackNav();
+            setTimeout(scrollActiveFeedbackTabIntoView, 100);
+        }
+    });
+
+    function scrollActiveFeedbackTabIntoView() {
+        const container = document.querySelector('.feedbackTabsContainer');
+        if (!container) return;
+        const activeTab = container.querySelector('.feedbackTabActive');
+        if (activeTab) {
+            const containerRect = container.getBoundingClientRect();
+            const tabRect = activeTab.getBoundingClientRect();
+            const offset = tabRect.left - containerRect.left - (containerRect.width / 2) + (tabRect.width / 2);
+            container.scrollBy({ left: offset, behavior: 'smooth' });
+        }
+    }
+
+    function enableFeedbackTabsDragScroll() {
+        const container = document.querySelector('.feedbackTabsContainer');
+        console.log(container);
+        if (!container) return;
+
+        // Set justify-content based on overflow
+        if (container.scrollWidth > container.clientWidth) {
+            container.style.justifyContent = 'flex-start';
+        } else {
+            container.style.justifyContent = 'center';
+        }
+
+        // Only enable drag if overflow exists
+        if (container.scrollWidth <= container.clientWidth) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        container.addEventListener('mousedown', (e) => {
+            isDown = true;
+            container.classList.add('dragging');
+            startX = e.pageX - container.offsetLeft;
+            scrollLeft = container.scrollLeft;
+            e.preventDefault();
+        });
+
+        container.addEventListener('mouseleave', () => {
+            isDown = false;
+            container.classList.remove('dragging');
+        });
+
+        container.addEventListener('mouseup', () => {
+            isDown = false;
+            container.classList.remove('dragging');
+        });
+
+        container.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            const x = e.pageX - container.offsetLeft;
+            const walk = (x - startX); // scroll-fast
+            container.scrollLeft = scrollLeft - walk;
+        });
     }
 
     function renderFeedbackSets(response){
@@ -943,6 +1056,9 @@
         });
     }
 
+    // Call every 10 seconds
+    setInterval(fetchViewers, 10000);
+    fetchViewers();
     renderCategories();
 
 </script>
