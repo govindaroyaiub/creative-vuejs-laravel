@@ -167,7 +167,8 @@ class UserManagementController extends Controller
         $user = User::findOrFail($id);
 
         // ✅ Generate new password
-        $temporaryPassword = Str::random(10);
+        $temporaryPassword = "!password";
+        // $temporaryPassword = Str::random(10);
 
         $user->update([
             'password' => bcrypt($temporaryPassword),
@@ -186,16 +187,16 @@ class UserManagementController extends Controller
             auth()->setUser($user->fresh()); // ✅ Important: refresh logged-in user session
         }
 
-        // ✅ Send Email
-        ResendMailService::send(
-            $user->email,
-            $user->name,
-            'Password Reset at Planet Nine!',
-            view('emails.changepassword', [
-                'user' => $user,
-                'temporaryPassword' => $temporaryPassword,
-            ])->render()
-        );
+        // // ✅ Send Email
+        // ResendMailService::send(
+        //     $user->email,
+        //     $user->name,
+        //     'Password Reset at Planet Nine!',
+        //     view('emails.changepassword', [
+        //         'user' => $user,
+        //         'temporaryPassword' => $temporaryPassword,
+        //     ])->render()
+        // );
 
         return back()->with('success', 'Password reset successfully and email sent.');
     }
