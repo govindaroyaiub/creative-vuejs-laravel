@@ -148,7 +148,7 @@ class newPreviewApiController extends Controller
 
     function renderBanners($version_id)
     {
-        $banners = newBanner::with('size')->where('version_id', $version_id)->get();
+        $banners = newBanner::with('size')->where('version_id', $version_id)->orderBy('position')->get();
         return response()->json([
             'banners' => $banners
         ]);
@@ -156,7 +156,7 @@ class newPreviewApiController extends Controller
 
     function renderGifs($version_id)
     {
-        $gifs = newGif::with('size')->where('version_id', $version_id)->get();
+        $gifs = newGif::with('size')->where('version_id', $version_id)->orderBy('position')->get();
         return response()->json([
             'gifs' => $gifs
         ]);
@@ -164,7 +164,7 @@ class newPreviewApiController extends Controller
 
     function renderSocials($version_id)
     {
-        $socials = newSocial::where('version_id', $version_id)->get();
+        $socials = newSocial::where('version_id', $version_id)->orderBy('position')->get();
         return response()->json([
             'socials' => $socials
         ]);
@@ -172,7 +172,7 @@ class newPreviewApiController extends Controller
 
     function renderVideos($version_id)
     {
-        $videos = newVideo::with('size')->where('version_id', $version_id)->get();
+        $videos = newVideo::with('size')->where('version_id', $version_id)->orderBy('position')->get();
         return response()->json([
             'videos' => $videos
         ]);

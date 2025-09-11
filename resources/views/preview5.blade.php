@@ -782,7 +782,7 @@
                                 controls 
                                 muted
                                 class="block mx-auto rounded-2xl video-preview"
-                                style="max-width:70vw; max-height:50vh; width:auto; height:auto; background:#000;"
+                                style="max-width:70vw; max-height:50vh; min-width: 340px; width:auto; height:auto; background:#000;"
                                 controlsList="nodownload noremoteplayback"
                                 disablePictureInPicture
                                 onloadedmetadata="matchVideoMetaWidth(this)"
@@ -850,7 +850,7 @@
             var row = '';
             $.each(response.data.socials, function(key, value) {
                 row += `
-                    <div style="display: inline-block; margin: 10px; max-width: 1200px;">
+                    <div style="display: inline-block; margin: 10px; max-width: 1000px;">
                         <img src="/${value.path}" 
                             alt="${value.name}"
                             class="social-preview-img rounded-2xl"
