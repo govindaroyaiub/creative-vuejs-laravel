@@ -572,7 +572,7 @@ iframe {
     /* background-color: var(--primary-color); */
     background-color: #f2f2f2;
     color: black;
-    padding: 5px 10px 15px 5px;
+    padding: 5px;
     height: auto;
     width: 300px;
     white-space: pre-line;
@@ -1552,6 +1552,10 @@ iframe {
     .feedbacks {
         width: 97%;
     }
+
+    #feedbackDescription {
+        top: 23rem;
+    }
 }
 
 /* Large devices (laptops/desktops, 992px and up) */
@@ -1625,6 +1629,10 @@ iframe {
     .feedbacks {
         width: 97%;
     }
+
+    #feedbackDescription {
+        top: 23rem;
+    }
 }
 
 /* Extra large devices (large laptops and desktops, 1200px and up) */
@@ -1678,5 +1686,9 @@ iframe {
 
     .feedbacks {
         width: 97%;
+    }
+
+    #feedbackDescription {
+        top: 23rem;
     }
 }
