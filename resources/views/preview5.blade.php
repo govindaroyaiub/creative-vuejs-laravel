@@ -56,9 +56,6 @@
     @endif
 
     <main class="main">
-        <div class="viewMessage">
-            For the best experience, view this showcase on a laptop or desktop.
-        </div>
         <section id="top" class="mb-4">
             <div class="px-4 py-4 flex justify-center content text-center relative">
                 <div id="topDetails" class="mt-4">
@@ -853,7 +850,7 @@
                         <img src="/${value.path}" 
                             alt="${value.name}"
                             class="social-preview-img rounded-2xl"
-                            style="width: 100%; height: auto; object-fit: contain; box-shadow: 0 2px 8px #0001; cursor: pointer; margin-top: 0;"
+                            style="width: 100%; max-width: 700px; height: auto; object-fit: contain; box-shadow: 0 2px 8px #0001; cursor: pointer; margin-top: 0;"
                             onclick="openSocialImageModal('/${value.path}', '${value.name}')"
                         >
                         <ul style="display: flex; flex-direction: row; justify-content: left; margin-top: 10px;" class="previewIcons">
@@ -885,7 +882,7 @@
     if (!document.getElementById('socialImageModal')) {
         $('body').append(`
             <div id="socialImageModal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); align-items:center; justify-content:center;">
-                <span id="closeSocialModal" style="position:absolute; top:30px; right:40px; font-size:2.5rem; color:white; cursor:pointer; z-index:10001;">&times;</span>
+                <span id="closeSocialModal" style="position:fixed; top:30px; right:40px; font-size:2.5rem; color:red; cursor:pointer; z-index:10001;">&times;</span>
                 <img id="socialModalImg" src="" alt="" 
                     style="max-width:80vw; max-height:80vh; transition:transform 0.2s; cursor:zoom-in; display:block; margin:auto; padding:40px; background:rgba(0,0,0,0.1); border-radius:12px;">
             </div>
@@ -900,8 +897,8 @@
             .css({
                 width: '',
                 height: '',
-                'max-width': '80vw',
-                'max-height': '80vh',
+                'max-width': '90vw',
+                'max-height': '90vh',
                 'cursor': 'zoom-in',
                 'position': 'absolute',
                 'top': '50%',
@@ -973,6 +970,7 @@
         var zoom = $(this).data('zoom') || 1;
 
         if (zoom === 1) {
+            // 2x zoom
             $(this)
                 .css({
                     width: '1600px',
@@ -980,29 +978,31 @@
                     'max-width': 'none',
                     'max-height': 'none',
                     'cursor': 'zoom-in',
-                    'position': 'absolute',
-                    'top': '50%',
-                    'left': 0,
-                    'right': 0,
-                    'transform': 'translateY(-50%)'
+                    'position': 'static', // <-- allow overflow
+                    'top': '',
+                    'left': '',
+                    'right': '',
+                    'transform': ''
                 })
                 .data('zoom', 2);
         } else if (zoom === 2) {
+            // 3x zoom
             $(this)
                 .css({
-                    width: '2200px', // or any larger value
+                    width: '2200px',
                     height: 'auto',
                     'max-width': 'none',
                     'max-height': 'none',
                     'cursor': 'zoom-out',
-                    'position': 'absolute',
-                    'top': '50%',
-                    'left': 0,
-                    'right': 0,
-                    'transform': 'translateY(-50%)'
+                    'position': 'static', // <-- allow overflow
+                    'top': '',
+                    'left': '',
+                    'right': '',
+                    'transform': ''
                 })
                 .data('zoom', 3);
         } else {
+            // Back to initial
             $(this)
                 .css({
                     width: '',
@@ -1010,7 +1010,6 @@
                     'max-width': '80vw',
                     'max-height': '80vh',
                     'cursor': 'zoom-in',
-                    'transform': 'none',
                     'position': 'absolute',
                     'top': '50%',
                     'left': 0,
