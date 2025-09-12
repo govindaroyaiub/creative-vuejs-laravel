@@ -149,7 +149,7 @@ const submit = () => {
 
                 <!-- Submit Buttons -->
                 <div class="flex space-x-4">
-                    <Link :href="route('previews-index')"
+                    <Link :href="route('previews.update.all', preview.id)"
                         class="w-full rounded-lg bg-red-600 px-6 py-3 text-center text-white shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-red-500 dark:hover:bg-red-600">
                     Back
                     </Link>

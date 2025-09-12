@@ -183,10 +183,7 @@ const submitForm = () => {
                                     class="text-indigo-600 hover:text-indigo-800" aria-label="Edit Preview">
                                     <Settings2 class="inline h-5 w-5" />
                                 </Link>
-                                <Link :href="route('previews-edit', preview.id)"
-                                    class="text-blue-600 hover:text-blue-800" aria-label="Edit Preview">
-                                <Pencil class="inline h-5 w-5" />
-                                </Link>
+                                
                                 <button @click="deletePreview(preview.id)" class="text-red-600 hover:text-red-800"
                                     aria-label="Delete Preview">
                                     <Trash2 class="inline h-5 w-5" />

@@ -12,11 +12,10 @@
     <link rel="preload" as="image" href="/preview_images/white-smart.png">
     <link rel="shortcut icon" href="https://www.planetnine.com/logo/new_favicon.png">
     @vite('resources/css/app.css')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.9.0/axios.min.js" integrity="sha512-FPlUpimug7gt7Hn7swE8N2pHw/+oQMq/+R/hH/2hZ43VOQ+Kjh25rQzuLyPz7aUWKlRpI7wXbY6+U3oFPGjPOA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/js/all.min.js" integrity="sha512-rpLlll167T5LJHwp0waJCh3ZRf7pO6IT1+LZOhAyP6phAirwchClbTZV3iqL3BMrVxIYRbzGTpli4rfxsCK6Vw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://s0.2mdn.net/ads/studio/cached_libs/gsap_3.5.1_min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('previewcssandjsfiles/js/jquery.min.js') }}" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{{ asset('previewcssandjsfiles/js/axios.min.js') }}" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{{ asset('previewcssandjsfiles/js/fontawesome.all.min.js') }}" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{{ asset('previewcssandjsfiles/js/gsap_3.5.1_min.js') }}" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         :root {
             --primary-color: {{ $primary }};
@@ -25,7 +24,7 @@
             --quaternary-color: {{ $quaternary }};
         }
     </style>
-    <link href="{{ asset('css/preview5.css') }}" rel="stylesheet">
+    <link href="{{ asset('previewcssandjsfiles/css/preview5.css') }}" rel="stylesheet">
 </head>
 
 <body>
