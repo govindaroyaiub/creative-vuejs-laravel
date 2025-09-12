@@ -29,6 +29,7 @@ use App\Http\Controllers\newPreviewApiController;
 use App\Http\Controllers\NewSocialController;
 use App\Http\Controllers\NewVideoController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\TetrisController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -155,6 +156,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     //Media Routes End
 
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+    Route::get('/play/tetris', [TetrisController::class, 'index'])->name('tetris.index');
+    Route::post('/tetris/submit/score', [TetrisController::class, 'submitScore'])->name('tetris.submit.score');
 });
 
 Route::get('/previews/show/{slug}', [NewPreviewController::class, 'show'])->name('previews-show');
