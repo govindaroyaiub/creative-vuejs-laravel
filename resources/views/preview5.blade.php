@@ -196,7 +196,17 @@
                 </a> - {{ now()->year }}
             </div>
         </footer>
-        @endif
+    @endif
+        
+    <div id="mobilePopup" style="display:none; position:fixed; z-index:99999; bottom:5px; left:0; right: 0; margin: 0 auto; background:#fff; border-radius:16px; box-shadow:0 2px 16px #0002; padding:24px 32px; text-align:center; max-width:90vw;">
+        <button id="closeMobilePopup" style="position:absolute; top:8px; right:12px; background:none; border:none; font-size:1.5rem; color:#888; cursor:pointer;">&times;</button>
+        <div style="font-size:1.2rem; font-weight:600; color:#222; margin-bottom:8px;">
+            Switch to desktop or laptop for better view.
+        </div>
+        <div style="font-size:0.95rem; color:#666;">
+            For the best experience, please use a desktop or laptop device.
+        </div>
+    </div>
 </body>
 
 <script>
@@ -216,13 +226,12 @@
         localStorage.setItem('guest_name', guestName);
     }
 
-    // Send ping every 8 seconds
     setInterval(() => {
         axios.post('/track-viewer', {
             page_id: pageId,
             guest_name: guestName
         });
-    }, 8000); // every 8 seconds
+    }, 8000);
 
     // Fetch and render current viewers
     function fetchViewers() {
@@ -734,7 +743,7 @@
             banners.forEach(function(banner) {
                 var bannerPath = '/' + banner.path + '/index.html';
                 var bannerReloadID = banner.id;
-                bannersHtml += '<div class="banner-creatives banner-area-'+ banner.size.width +'" style="display: inline-block; width: ' + banner.size.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem;">';
+                bannersHtml += '<div class="banner-creatives banner-area-'+ banner.size.width +'" style="display: inline-block; width: ' + banner.size.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem; margin-bottom: 1rem;">';
                 bannersHtml += '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
                 bannersHtml += '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + banner.size.width + 'x' + banner.size.height + '</small>';
                 bannersHtml += '<small style="float: right; font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + banner.file_size + '</small>';
@@ -1034,7 +1043,7 @@
             gifs.forEach(function(gif) {
                 var gifPath = '/' + gif.path;
                 var gifReloadID = gif.id;
-                gifsHtml += '<div class="banner-creatives banner-area-'+ gif.size.width +'" style="display: inline-block; width: ' + gif.size.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem;">';
+                gifsHtml += '<div class="banner-creatives banner-area-'+ gif.size.width +'" style="display: inline-block; width: ' + gif.size.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem; margin-bottomn: 1rem;">';
                 gifsHtml += '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
                 gifsHtml += '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + gif.size.width + 'x' + gif.size.height + '</small>';
                 gifsHtml += '<small style="float: right; font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + gif.file_size + '</small>';
@@ -1062,5 +1071,40 @@
     setInterval(fetchViewers, 10000);
     fetchViewers();
     renderCategories();
+
+    function isMobileDevice() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+
+    function setCookie(name, value, days) {
+        let expires = "";
+        if (days) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days*24*60*60*1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+    }
+
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i=0;i < ca.length;i++) {
+            let c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        }
+        return null;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (isMobileDevice() && !getCookie('hideMobilePopup')) {
+            document.getElementById('mobilePopup').style.display = 'block';
+        }
+        document.getElementById('closeMobilePopup').onclick = function() {
+            document.getElementById('mobilePopup').style.display = 'none';
+            setCookie('hideMobilePopup', '1', 7); // Hide for 7 days
+        };
+    });
 
 </script>
