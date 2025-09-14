@@ -46,7 +46,8 @@ class FileTransferController extends Controller
 
         if ($search = $request->input('search')) {
             $query->where('name', 'like', "%{$search}%")
-                ->orWhere('client', 'like', "%{$search}%");
+                ->orWhere('client', 'like', "%{$search}%")
+                ->orWhereRaw("DATE_FORMAT(created_at, '%d %M %Y') LIKE ?", ["%{$search}%"]);
         }
 
         $fileTransfers = $query->latest()->paginate(10)->withQueryString();

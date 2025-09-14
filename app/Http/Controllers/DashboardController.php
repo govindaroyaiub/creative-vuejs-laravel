@@ -47,6 +47,7 @@ class DashboardController extends Controller
             'fileTransferCount' => FileTransfer::whereYear('created_at', $year)->count(),
             'totalBill' => Bill::whereYear('created_at', $year)->sum('total_amount'),
             'monthlyStats' => $monthlyStats,
+            'monthlyBillTotals' => $this->getMonthlyBillTotals($year)
         ]);
     }
 
@@ -63,7 +64,7 @@ class DashboardController extends Controller
 
     private function getMonthlyBillTotals($year)
     {
-        return \App\Models\Bill::selectRaw('MONTH(created_at) as month, SUM(total_amount) as total')
+        return Bill::selectRaw('MONTH(created_at) as month, SUM(total_amount) as total')
             ->whereYear('created_at', $year)
             ->groupBy('month')
             ->orderBy('month')

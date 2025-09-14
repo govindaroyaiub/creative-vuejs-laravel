@@ -38,9 +38,12 @@ class NewPreviewController extends Controller
         $query = newPreview::with(['client', 'uploader', 'colorPalette', 'categories.feedbacks']);
 
         if ($search = $request->input('search')) {
-            $query->where('name', 'like', "%{$search}%")
-                ->orWhereHas('client', fn($q) => $q->where('name', 'like', "%{$search}%"))
-                ->orWhereHas('uploader', fn($q) => $q->where('name', 'like', "%{$search}%"));
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhereHas('client', fn($q2) => $q2->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('uploader', fn($q3) => $q3->where('name', 'like', "%{$search}%"))
+                    ->orWhereRaw("DATE_FORMAT(created_at, '%d %M %Y') LIKE ?", ["%{$search}%"]);
+            });
         }
 
         $previews = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString()->through(function ($preview) {
