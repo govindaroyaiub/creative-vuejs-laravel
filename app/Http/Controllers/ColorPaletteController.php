@@ -24,8 +24,33 @@ class ColorPaletteController extends Controller
             'secondary' => 'required|string|max:7',
             'tertiary' => 'required|string|max:7',
             'quaternary' => 'required|string|max:7',
-            'status' => 'boolean',
+            'quinary' => 'nullable|string|max:7',
+            'senary' => 'nullable|string|max:7',
+            'septenary' => 'nullable|string|max:7',
+            'feedbackTab_inactive_image' => 'nullable|image|max:2048',
+            'feedbackTab_active_image' => 'nullable|image|max:2048',
+            'rightSideTab_inactive_image' => 'nullable|image|max:2048',
+            'rightSideTab_active_image' => 'nullable|image|max:2048',
         ]);
+
+        // Set status to 0 by default
+        $data['status'] = 0;
+
+        foreach (
+            [
+                'feedbackTab_inactive_image',
+                'feedbackTab_active_image',
+                'rightSideTab_inactive_image',
+                'rightSideTab_active_image'
+            ] as $field
+        ) {
+            if ($request->hasFile($field)) {
+                $file = $request->file($field);
+                $filename = uniqid() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('uploads/colorPalette'), $filename);
+                $data[$field] = 'uploads/colorPalette/' . $filename;
+            }
+        }
 
         ColorPalette::create($data);
 
@@ -40,7 +65,50 @@ class ColorPaletteController extends Controller
             'secondary' => 'required|string|max:7',
             'tertiary' => 'required|string|max:7',
             'quaternary' => 'required|string|max:7',
-            'status' => 'boolean',
+            'quinary' => 'nullable|string|max:7',
+            'senary' => 'nullable|string|max:7',
+            'septenary' => 'nullable|string|max:7',
+            'feedbackTab_inactive_image' => 'nullable|image|max:2048',
+            'feedbackTab_active_image' => 'nullable|image|max:2048',
+            'rightSideTab_inactive_image' => 'nullable|image|max:2048',
+            'rightSideTab_active_image' => 'nullable|image|max:2048',
+        ]);
+
+        $palette = ColorPalette::findOrFail($id);
+
+        foreach (
+            [
+                'feedbackTab_inactive_image',
+                'feedbackTab_active_image',
+                'rightSideTab_inactive_image',
+                'rightSideTab_active_image'
+            ] as $field
+        ) {
+            if ($request->hasFile($field)) {
+                // Delete old image if exists
+                if ($palette[$field]) {
+                    $oldPath = public_path($palette[$field]);
+                    if (file_exists($oldPath)) {
+                        @unlink($oldPath);
+                    }
+                }
+                // Store new image
+                $file = $request->file($field);
+                $filename = uniqid() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('uploads/colorPalette'), $filename);
+                $data[$field] = 'uploads/colorPalette/' . $filename;
+            }
+        }
+
+        $palette->update($data);
+
+        return redirect()->route('color-palettes')->with('success', 'Color palette updated successfully.');
+    }
+
+    public function toggleStatus(Request $request, $id)
+    {
+        $data = $request->validate([
+            'status' => 'required|boolean',
         ]);
 
         $palette = ColorPalette::findOrFail($id);
@@ -54,14 +122,31 @@ class ColorPaletteController extends Controller
             }
         }
 
-        $palette->update($data);
+        $palette->update(['status' => $data['status']]);
 
-        return redirect()->route('color-palettes')->with('success', 'Color palette updated successfully.');
+        return redirect()->route('color-palettes')->with('success', 'Color palette status updated successfully.');
     }
 
     public function destroy($id)
     {
         $palette = ColorPalette::findOrFail($id);
+
+        foreach (
+            [
+                'feedbackTab_inactive_image',
+                'feedbackTab_active_image',
+                'rightSideTab_inactive_image',
+                'rightSideTab_active_image'
+            ] as $field
+        ) {
+            if ($palette[$field]) {
+                $filePath = public_path($palette[$field]);
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+            }
+        }
+
         $palette->delete();
 
         return redirect()->route('color-palettes')->with('success', 'Color palette deleted successfully.');

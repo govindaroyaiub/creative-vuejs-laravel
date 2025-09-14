@@ -1,5 +1,4 @@
 <template>
-
     <Head title="Tetris Game" />
     <AppLayout :breadcrumbs="[{ title: 'Tetris Game' }]">
         <div class="flex flex-col items-center justify-center w-full h-full bg-gray-100 dark:bg-black">

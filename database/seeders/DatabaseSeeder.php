@@ -24,7 +24,18 @@ class DatabaseSeeder extends Seeder
     {
         $colorPalettes = [
             [
-                'name' => 'Gold Theme', 'primary' => '#e2d39a', 'secondary' => '#fbf5de', 'tertiary' => '#a67c00', 'quaternary' => '#a67c00',
+                'name' => 'Gold Theme',
+                'primary' => '#e2d39a',
+                'secondary' => '#fbf5de',
+                'tertiary' => '#a67c00',
+                'quaternary' => '#a67c00',
+                'quinary' => '#000',
+                'senary' => '#000',
+                'septenary' => '#000',
+                'feedbackTab_inactive_image' => 'feedbackTab_inactive_image.png',
+                'feedbackTab_active_image' => 'feedbackTab_active_image.png',
+                'rightSideTab_inactive_image' => 'rightSideTab_inactive_image.png',
+                'rightSideTab_active_image' => 'rightSideTab_active_image.png',
                 'status' => 1,
             ],
             [
@@ -33,6 +44,13 @@ class DatabaseSeeder extends Seeder
                 'secondary' => '#e0fbfc',
                 'tertiary' => '#3d5a80',
                 'quaternary' => '#3d5a80',
+                'quinary' => '#000',
+                'senary' => '#000',
+                'septenary' => '#000',
+                'feedbackTab_inactive_image' => 'feedbackTab_inactive_image.png',
+                'feedbackTab_active_image' => 'feedbackTab_active_image.png',
+                'rightSideTab_inactive_image' => 'rightSideTab_inactive_image.png',
+                'rightSideTab_active_image' => 'rightSideTab_active_image.png',
                 'status' => 1,
             ],
             [
@@ -41,6 +59,13 @@ class DatabaseSeeder extends Seeder
                 'secondary' => '#f2e3d6',
                 'tertiary' => '#8a624f',
                 'quaternary' => '#8a624f',
+                'quinary' => '#000',
+                'senary' => '#000',
+                'septenary' => '#000',
+                'feedbackTab_inactive_image' => 'feedbackTab_inactive_image.png',
+                'feedbackTab_active_image' => 'feedbackTab_active_image.png',
+                'rightSideTab_inactive_image' => 'rightSideTab_inactive_image.png',
+                'rightSideTab_active_image' => 'rightSideTab_active_image.png',
                 'status' => 1,
             ],
             [
@@ -49,6 +74,13 @@ class DatabaseSeeder extends Seeder
                 'secondary' => '#eaf5e2',
                 'tertiary' => '#6f8357',
                 'quaternary' => '#6f8357',
+                'quinary' => '#000',
+                'senary' => '#000',
+                'septenary' => '#000',
+                'feedbackTab_inactive_image' => 'feedbackTab_inactive_image.png',
+                'feedbackTab_active_image' => 'feedbackTab_active_image.png',
+                'rightSideTab_inactive_image' => 'rightSideTab_inactive_image.png',
+                'rightSideTab_active_image' => 'rightSideTab_active_image.png',
                 'status' => 1,
             ],
             [
@@ -57,6 +89,13 @@ class DatabaseSeeder extends Seeder
                 'secondary' => '#cbcef5',
                 'tertiary' => '#57698a',
                 'quaternary' => '#57698a',
+                'quinary' => '#000',
+                'senary' => '#000',
+                'septenary' => '#000',
+                'feedbackTab_inactive_image' => 'feedbackTab_inactive_image.png',
+                'feedbackTab_active_image' => 'feedbackTab_active_image.png',
+                'rightSideTab_inactive_image' => 'rightSideTab_inactive_image.png',
+                'rightSideTab_active_image' => 'rightSideTab_active_image.png',
                 'status' => 1,
             ],
             [
@@ -65,6 +104,13 @@ class DatabaseSeeder extends Seeder
                 'secondary' => '#ffdfe0',
                 'tertiary' => '#a1070d',
                 'quaternary' => '#a1070d',
+                'quinary' => '#000',
+                'senary' => '#000',
+                'septenary' => '#000',
+                'feedbackTab_inactive_image' => 'feedbackTab_inactive_image.png',
+                'feedbackTab_active_image' => 'feedbackTab_active_image.png',
+                'rightSideTab_inactive_image' => 'rightSideTab_inactive_image.png',
+                'rightSideTab_active_image' => 'rightSideTab_active_image.png',
                 'status' => 1,
             ],
         ];
@@ -76,10 +122,10 @@ class DatabaseSeeder extends Seeder
 
         $clients = [
             [
-                'name' => 'Planet Nine', 
-                'website' => 'https://www.planetnine.com', 
-                'preview_url' => 'https://preview.creative-planetnine.com', 
-                'logo' => 'planetnine.png', 
+                'name' => 'Planet Nine',
+                'website' => 'https://www.planetnine.com',
+                'preview_url' => 'https://preview.creative-planetnine.com',
+                'logo' => 'planetnine.png',
                 'color_palette_id' => 5
             ],
         ];

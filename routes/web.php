@@ -143,8 +143,9 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
 
     // Color palette routes start
     Route::get('/color-palettes', [ColorPaletteController::class, 'index'])->name('color-palettes');
-    Route::post('/color-palettes-create', [ColorPaletteController::class, 'store'])->name('color-palettes-store');
+    Route::post('/color-palettes/store', [ColorPaletteController::class, 'store'])->name('color-palettes-store');
     Route::put('/color-palettes-update/{id}', [ColorPaletteController::class, 'update'])->name('color-palettes-update');
+    Route::put('/color-palettes-toggle-status/{id}', [ColorPaletteController::class, 'toggleStatus'])->name('color-palettes-toggle-status');
     Route::delete('/color-palettes-delete/{id}', [ColorPaletteController::class, 'destroy'])->name('color-palettes-delete');
     // Color Palette Routes
 

@@ -18,6 +18,13 @@ return new class extends Migration
             $table->string('secondary');
             $table->string('tertiary');
             $table->string('quaternary');
+            $table->string('quinary');
+            $table->string('senary');
+            $table->string('septenary');
+            $table->string('feedbackTab_inactive_image');
+            $table->string('feedbackTab_active_image');
+            $table->string('rightSideTab_inactive_image');
+            $table->string('rightSideTab_active_image');
             $table->boolean('status')->default(0);
             $table->timestamps();
         });

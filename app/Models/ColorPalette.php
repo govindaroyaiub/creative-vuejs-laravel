@@ -13,6 +13,13 @@ class ColorPalette extends Model
         'secondary',
         'tertiary',
         'quaternary',
+        'quinary',
+        'senary',
+        'septenary',
+        'feedbackTab_inactive_image',
+        'feedbackTab_active_image',
+        'rightSideTab_inactive_image',
+        'rightSideTab_active_image',
         'status',
     ];
 
