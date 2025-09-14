@@ -19,14 +19,13 @@ const user = computed(() => page.props.auth.user);
 const mainNavItems: NavItem[] = [
     { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { title: 'Previews', href: '/previews', icon: MonitorStop },
+    { title: 'Color Palettes', href: '/color-palettes', icon: Paintbrush },
     { title: 'Banner Sizes', href: '/banner-sizes', icon: MonitorCog },
     { title: 'Video Sizes', href: '/video-sizes', icon: Clapperboard },
-    // { title: 'Social Formats', href: '/socials', icon: Image },
-    { title: 'Color Palettes', href: '/color-palettes', icon: Paintbrush },
-    { title: 'File Transfers', href: '/file-transfers', icon: Paperclip },
+    { title: 'Tetris', href: '/play/tetris', icon: Type },
     { title: 'Bills', href: '/bills', icon: ReceiptText },
+    { title: 'File Transfers', href: '/file-transfers', icon: Paperclip },
     { title: 'Media Library', 'href': '/medias', icon: ImagePlay },
-    { title: 'Tetris', href: '/play/tetris', icon: Type }
 ];
 
 const footerNavItems: NavItem[] = [
@@ -84,6 +83,5 @@ const { appearance, updateAppearance } = useAppearance();
             <NavUser />
         </SidebarFooter>
     </Sidebar>
-
     <slot />
 </template>

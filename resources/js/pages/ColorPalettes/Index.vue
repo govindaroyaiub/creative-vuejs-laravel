@@ -5,12 +5,12 @@
     <div class="flex justify-between items-center mb-6 px-4 mt-4">
       <input v-model="search" type="text" placeholder="Search color palettes..."
         class="w-full max-w-sm rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" @input="onSearch" />
-      <button @click="openAddModal" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-500">Add
+      <button @click="openAddModal" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500">Add
         New</button>
     </div>
-    <div class="overflow-x-auto px-4">
+    <div class="overflow-x-auto px-4 mb-4 rounded-lg shadow">
       <table class="min-w-full table-auto border bg-white dark:bg-black text-black dark:text-white text-center">
-        <thead>
+        <thead class="bg-gray-100 dark:bg-gray-700 text-xs uppercase">
           <tr>
             <th class="px-2 py-2">#</th>
             <th class="px-2 py-2">Theme</th>
