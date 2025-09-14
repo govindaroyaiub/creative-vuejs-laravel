@@ -5,7 +5,7 @@
         <div class="container mx-auto py-4 px-4">
             <div class="mb-4 flex justify-between items-center">
                 <input v-model="search" @input="onSearchInput" type="text"
-                    placeholder="Search description, log name, or user..."
+                    placeholder="Search logs..."
                     class="border rounded px-3 py-2 w-1/2 bg-white dark:bg-black text-black dark:text-white" />
             </div>
             <table class="min-w-full border bg-white dark:bg-black text-black dark:text-white text-center">

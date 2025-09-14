@@ -1,4 +1,5 @@
 <template>
+
   <Head title="Color Palettes" />
   <AppLayout :breadcrumbs="[{ title: 'Color Palettes' }]">
     <div class="flex justify-end items-center mb-6 px-4 mt-4">
@@ -81,27 +82,27 @@
             <div class="flex-1">
               <div class="mb-4 mt-5">
                 <label class="block mb-1 font-semibold">FeedbackTab Inactive Image</label>
-                <input type="file" @change="onFileChange('feedbackTab_inactive_image', $event)" />
                 <img v-if="form.feedbackTab_inactive_image_preview" :src="form.feedbackTab_inactive_image_preview"
                   class="h-10 mt-2" />
+                <input type="file" @change="onFileChange('feedbackTab_inactive_image', $event)" />
               </div>
               <div class="mb-4">
                 <label class="block mb-1 font-semibold">FeedbackTab Active Image</label>
-                <input type="file" @change="onFileChange('feedbackTab_active_image', $event)" />
                 <img v-if="form.feedbackTab_active_image_preview" :src="form.feedbackTab_active_image_preview"
                   class="h-10 mt-2" />
+                <input type="file" @change="onFileChange('feedbackTab_active_image', $event)" />
               </div>
               <div class="mb-4">
                 <label class="block mb-1 font-semibold">RightSideTab Inactive Image</label>
-                <input type="file" @change="onFileChange('rightSideTab_inactive_image', $event)" />
                 <img v-if="form.rightSideTab_inactive_image_preview" :src="form.rightSideTab_inactive_image_preview"
                   class="h-10 mt-2" />
+                <input type="file" @change="onFileChange('rightSideTab_inactive_image', $event)" />
               </div>
               <div class="mb-4">
                 <label class="block mb-1 font-semibold">RightSideTab Active Image</label>
-                <input type="file" @change="onFileChange('rightSideTab_active_image', $event)" />
                 <img v-if="form.rightSideTab_active_image_preview" :src="form.rightSideTab_active_image_preview"
                   class="h-10 mt-2" />
+                <input type="file" @change="onFileChange('rightSideTab_active_image', $event)" />
               </div>
             </div>
           </div>
