@@ -628,7 +628,6 @@
 
     function enableFeedbackTabsDragScroll() {
         const container = document.querySelector('.feedbackTabsContainer');
-        console.log(container);
         if (!container) return;
 
         // Set justify-content based on overflow
@@ -758,6 +757,11 @@
         .finally(function() {
             document.getElementById('loaderArea').style.display = 'none';
         });
+    }
+
+    function reloadBanner(bannerReloadID) {
+        var iframe = document.getElementById("rel" + bannerReloadID);
+        iframe.src = iframe.src;
     }
 
     function renderVideo(version_id){
