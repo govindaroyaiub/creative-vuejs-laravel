@@ -106,7 +106,42 @@ const animatedCounts = {
     gifCount: animateCount(page.props.gifCount),
     socialCount: animateCount(page.props.socialCount),
     fileTransferCount: animateCount(page.props.fileTransferCount),
-    billCount: animateCount(page.props.billCount),
+    totalBill: animateCount(page.props.totalBill),
+};
+
+const monthlyBillTotals = computed(() => page.props.monthlyBillTotals ?? {});
+
+const billChartData = computed(() => ({
+    labels,
+    datasets: [
+        {
+            label: 'Monthly Bill Total',
+            data: labels.map((_, i) => monthlyBillTotals.value[i + 1] || 0),
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99,102,241,0.1)',
+            tension: 0.4,
+            fill: true,
+        },
+    ],
+}));
+
+const billChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: {
+        duration: 1000,
+        easing: 'easeOutQuart',
+    },
+    plugins: {
+        legend: { position: 'bottom' },
+        title: { display: true, text: `Monthly Bill Total (${year})` }
+    },
+    scales: {
+        y: {
+            beginAtZero: true,
+            title: { display: true, text: 'Total Amount' }
+        }
+    }
 };
 </script>
 
@@ -150,13 +185,17 @@ const animatedCounts = {
                     <div class="text-2xl font-bold">{{ animatedCounts.fileTransferCount }}</div>
                 </div>
                 <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
-                    <div class="text-sm text-gray-500">Bills</div>
-                    <div class="text-2xl font-bold">{{ animatedCounts.billCount }}</div>
+                    <div class="text-sm text-gray-500">Total Bills (BDT)</div>
+                    <div class="text-2xl font-bold">{{ animatedCounts.totalBill }}</div>
                 </div>
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow" :style="{ height: `calc(100vh - 350px)` }">
                 <Line :data="chartData" :options="chartOptions" />
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow mt-8" :style="{ height: `350px` }">
+                <Line :data="billChartData" :options="billChartOptions" />
             </div>
         </div>
     </AppLayout>

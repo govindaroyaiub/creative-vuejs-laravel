@@ -3,13 +3,14 @@
   <Head title="Color Palettes" />
   <AppLayout :breadcrumbs="[{ title: 'Color Palettes' }]">
     <div class="flex justify-end items-center mb-6 px-4 mt-4">
-      <button @click="openAddModal" class="bg-indigo-600 text-white px-4 py-2 rounded">Add New</button>
+      <button @click="openAddModal" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-500">Add New</button>
     </div>
     <div class="overflow-x-auto px-4">
       <table class="min-w-full table-auto border bg-white dark:bg-black text-black dark:text-white text-center">
         <thead>
           <tr>
-            <th class="px-2 py-2">Name</th>
+            <th class="px-2 py-2">#</th>
+            <th class="px-2 py-2">Theme</th>
             <th class="px-2 py-2">Colors</th>
             <th class="px-2 py-2">FeedbackTabs</th>
             <th class="px-2 py-2">RightSideTabs</th>
@@ -18,8 +19,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="palette in colorPalettes" :key="palette.id"
+          <tr v-for="(palette, index) in colorPalettes" :key="palette.id"
             class="border-t hover:bg-gray-100 dark:hover:bg-gray-800">
+            <td class="px-2 py-2">{{ index + 1 }}</td>
             <td class="px-2 py-2">{{ palette.name }}</td>
             <td class="px-2 py-2" style="width: 270px;">
               <div class="grid grid-cols-2 gap-2">
@@ -49,8 +51,8 @@
               </label>
             </td>
             <td class="px-2 py-2">
-              <button @click="openEditModal(palette)" class="text-indigo-600 underline mr-2">Edit</button>
-              <button @click="deletePalette(palette.id)" class="text-red-600 underline">Delete</button>
+              <button @click="openEditModal(palette)" class="text-indigo-600 hover:underline mr-2">Edit</button>
+              <button @click="deletePalette(palette.id)" class="text-red-600 hover:underline">Delete</button>
             </td>
           </tr>
         </tbody>

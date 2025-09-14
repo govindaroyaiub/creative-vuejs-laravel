@@ -12,6 +12,7 @@ use App\Models\SubSocial;
 use App\Models\Preview;
 use App\Models\FileTransfer;
 use App\Models\SubBill;
+use App\Models\Bill;
 use App\Models\newPreview;
 use App\Models\newCategory;
 use App\Models\newFeedback;
@@ -44,7 +45,7 @@ class DashboardController extends Controller
             'gifCount' => newGif::whereYear('created_at', $year)->count(),
             'socialCount' => newSocial::whereYear('created_at', $year)->count(),
             'fileTransferCount' => FileTransfer::whereYear('created_at', $year)->count(),
-            'billCount' => SubBill::whereYear('created_at', $year)->count(),
+            'totalBill' => Bill::whereYear('created_at', $year)->sum('total_amount'),
             'monthlyStats' => $monthlyStats,
         ]);
     }
@@ -57,6 +58,17 @@ class DashboardController extends Controller
             ->orderBy('month')
             ->get()
             ->mapWithKeys(fn($row) => [intval($row->month) => $row->count])
+            ->all();
+    }
+
+    private function getMonthlyBillTotals($year)
+    {
+        return \App\Models\Bill::selectRaw('MONTH(created_at) as month, SUM(total_amount) as total')
+            ->whereYear('created_at', $year)
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->mapWithKeys(fn($row) => [intval($row->month) => floatval($row->total)])
             ->all();
     }
 }
