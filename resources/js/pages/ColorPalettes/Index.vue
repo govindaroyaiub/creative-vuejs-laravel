@@ -2,65 +2,70 @@
 
   <Head title="Color Palettes" />
   <AppLayout :breadcrumbs="[{ title: 'Color Palettes' }]">
-    <div class="flex justify-between items-center mb-6 px-4 mt-4">
-      <input v-model="search" type="text" placeholder="Search color palettes..."
-        class="w-full max-w-sm rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" @input="onSearch" />
-      <button @click="openAddModal" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500">Add
-        New</button>
-    </div>
-    <div class="overflow-x-auto px-4 mb-4 rounded-lg shadow">
-      <table class="min-w-full table-auto border bg-white dark:bg-black text-black dark:text-white text-center">
-        <thead class="bg-gray-100 dark:bg-gray-700 text-xs uppercase">
-          <tr>
-            <th class="px-2 py-2">#</th>
-            <th class="px-2 py-2">Theme</th>
-            <th class="px-2 py-2">Colors</th>
-            <th class="px-2 py-2">FeedbackTabs</th>
-            <th class="px-2 py-2">RightSideTabs</th>
-            <th class="px-2 py-2">Status</th>
-            <th class="px-2 py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(palette, index) in colorPalettes" :key="palette.id"
-            class="border-t hover:bg-gray-100 dark:hover:bg-gray-800">
-            <td class="px-2 py-2">{{ index + 1 }}</td>
-            <td class="px-2 py-2">{{ palette.name }}</td>
-            <td class="px-2 py-2" style="width: 270px;">
-              <div class="grid grid-cols-2 gap-2">
-                <span v-for="key in colorKeys" :key="key" class="flex items-center justify-between">
-                  <span class="text-xs font-semibold">{{ key.charAt(0).toUpperCase() + key.slice(1) }}:</span>
-                  <span :style="{ background: palette[key], border: '1px solid #ccc', cursor: 'pointer' }"
-                    class="w-6 h-6 rounded" @click="copyColor(palette[key], key)" title="Click to copy"></span>
-                </span>
-              </div>
-            </td>
-            <td class="px-2 py-2">
-              <img :src="`/${palette.feedbackTab_inactive_image}`" alt="Inactive" class="h-10 mx-auto mb-1 mt-1" />
-              <hr>
-              <img :src="`/${palette.feedbackTab_active_image}`" alt="Active" class="h-10 mx-auto mb-1 mt-1" />
-            </td>
-            <td class="px-2 py-2">
-              <img :src="`/${palette.rightSideTab_inactive_image}`" alt="Inactive" class="h-10 mx-auto mt-1 mb-1" />
-              <hr>
-              <img :src="`/${palette.rightSideTab_active_image}`" alt="Active" class="h-10 mx-auto mt-1 mb-1" />
-            </td>
-            <td class="px-2 py-2">
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" :checked="palette.status" @change="toggleStatus(palette)" class="sr-only peer" />
-                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-indigo-600 transition"></div>
-                <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5">
+    <div class="p-6">
+      <div class="flex justify-between items-center mb-6mt-4">
+        <input v-model="search" type="text" placeholder="Search..."
+          class="w-full max-w-sm rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" @input="onSearch" />
+        <button @click="openAddModal" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500">Add
+          New</button>
+      </div>
+      <div class="overflow-x-auto mb-4 mt-4 rounded shadow">
+        <table class="min-w-full table-auto border bg-white dark:bg-black text-black dark:text-white text-center">
+          <thead class="bg-gray-100 dark:bg-gray-700 text-xs uppercase">
+            <tr>
+              <th class="px-2 py-2">#</th>
+              <th class="px-2 py-2">Theme</th>
+              <th class="px-2 py-2">Colors</th>
+              <th class="px-2 py-2">FeedbackTabs</th>
+              <th class="px-2 py-2">RightSideTabs</th>
+              <th class="px-2 py-2">Status</th>
+              <th class="px-2 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(palette, index) in colorPalettes" :key="palette.id"
+              class="border-t hover:bg-gray-100 dark:hover:bg-gray-800">
+              <td class="px-2 py-2">{{ index + 1 }}</td>
+              <td class="px-2 py-2">{{ palette.name }}</td>
+              <td class="px-2 py-2" style="width: 270px;">
+                <div class="grid grid-cols-2 gap-2">
+                  <span v-for="key in colorKeys" :key="key" class="flex items-center justify-between">
+                    <span class="text-xs font-semibold">{{ key.charAt(0).toUpperCase() + key.slice(1) }}:</span>
+                    <span :style="{ background: palette[key], border: '1px solid #ccc', cursor: 'pointer' }"
+                      class="w-6 h-6 rounded" @click="copyColor(palette[key], key)" title="Click to copy"></span>
+                  </span>
                 </div>
-              </label>
-            </td>
-            <td class="px-2 py-2">
-              <button @click="openEditModal(palette)" class="text-indigo-600 hover:underline mr-2">Edit</button>
-              <button @click="deletePalette(palette.id)" class="text-red-600 hover:underline">Delete</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              </td>
+              <td class="px-2 py-2">
+                <img :src="`/${palette.feedbackTab_inactive_image}`" alt="Inactive" class="h-10 mx-auto mb-1 mt-1" />
+                <hr>
+                <img :src="`/${palette.feedbackTab_active_image}`" alt="Active" class="h-10 mx-auto mb-1 mt-1" />
+              </td>
+              <td class="px-2 py-2">
+                <img :src="`/${palette.rightSideTab_inactive_image}`" alt="Inactive" class="h-10 mx-auto mt-1 mb-1" />
+                <hr>
+                <img :src="`/${palette.rightSideTab_active_image}`" alt="Active" class="h-10 mx-auto mt-1 mb-1" />
+              </td>
+              <td class="px-2 py-2">
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" :checked="palette.status" @change="toggleStatus(palette)"
+                    class="sr-only peer" />
+                  <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-indigo-600 transition"></div>
+                  <div
+                    class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5">
+                  </div>
+                </label>
+              </td>
+              <td class="px-2 py-2">
+                <button @click="openEditModal(palette)" class="text-indigo-600 hover:underline mr-2">Edit</button>
+                <button @click="deletePalette(palette.id)" class="text-red-600 hover:underline">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
+
 
     <!-- Modal (Add/Edit) -->
     <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">

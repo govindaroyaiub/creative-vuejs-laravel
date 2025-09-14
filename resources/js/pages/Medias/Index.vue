@@ -93,7 +93,7 @@ const handleDrop = (e: DragEvent) => {
     <Head title="Media Library" />
     <AppLayout :breadcrumbs="[{ title: 'Media Library', href: '/medias' }]">
         <div class="p-6">
-            <div class="mb-6 flex items-center justify-between">
+            <div class="mb-4 flex items-center justify-between">
                 <input v-model="search" placeholder="Search..."
                     class="w-full max-w-xs rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" />
                 <button @click="openUploadModal"
@@ -168,8 +168,8 @@ const handleDrop = (e: DragEvent) => {
                         <div class="w-full rounded border-2 border-dashed px-4 py-8 text-center transition-all cursor-pointer"
                             :class="[
                                 dragOver ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-600'
-                            ]" @dragover.prevent="dragOver = true" @dragleave.prevent="dragOver = false" @drop.prevent="handleDrop"
-                            @click="fileInput?.click()">
+                            ]" @dragover.prevent="dragOver = true" @dragleave.prevent="dragOver = false"
+                            @drop.prevent="handleDrop" @click="fileInput?.click()">
                             <input type="file" ref="fileInput" class="hidden" @change="handleFileChange" />
                             <p class="text-sm text-gray-500 dark:text-gray-300">
                                 Drag & drop your file here, or <span

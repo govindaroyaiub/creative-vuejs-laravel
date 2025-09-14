@@ -123,7 +123,7 @@ const submitForm = () => {
             </div>
 
             <!-- Table -->
-            <div class="overflow-x-auto rounded-lg shadow">
+            <div class="overflow-x-auto rounded shadow">
                 <table class="min-w-full table-auto text-sm text-gray-700 dark:text-gray-200">
                     <thead class="bg-gray-100 dark:bg-gray-700 text-xs uppercase">
                         <tr>
