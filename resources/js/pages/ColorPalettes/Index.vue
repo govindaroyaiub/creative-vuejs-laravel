@@ -2,8 +2,11 @@
 
   <Head title="Color Palettes" />
   <AppLayout :breadcrumbs="[{ title: 'Color Palettes' }]">
-    <div class="flex justify-end items-center mb-6 px-4 mt-4">
-      <button @click="openAddModal" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-500">Add New</button>
+    <div class="flex justify-between items-center mb-6 px-4 mt-4">
+      <input v-model="search" type="text" placeholder="Search color palettes..."
+        class="w-full max-w-sm rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" @input="onSearch" />
+      <button @click="openAddModal" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-500">Add
+        New</button>
     </div>
     <div class="overflow-x-auto px-4">
       <table class="min-w-full table-auto border bg-white dark:bg-black text-black dark:text-white text-center">
@@ -121,7 +124,7 @@
 
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import Swal from 'sweetalert2'
 import { Head } from '@inertiajs/vue3'
@@ -130,6 +133,8 @@ const props = defineProps({
   colorPalettes: Array
 })
 
+const search = ref('')
+
 const colorKeys = [
   'primary', 'secondary', 'tertiary', 'quaternary', 'quinary', 'senary', 'septenary'
 ]
@@ -137,6 +142,14 @@ const colorKeys = [
 const showModal = ref(false)
 const modalMode = ref('add') // 'add' or 'edit'
 const selectedPalette = ref(null)
+
+watch(search, (val) => {
+  router.get(route('color-palettes'), { search: val }, {
+    preserveScroll: true,
+    preserveState: true,
+    replace: true,
+  })
+})
 
 const form = ref({
   name: '',

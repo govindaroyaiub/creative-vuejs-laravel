@@ -8,11 +8,28 @@ use Inertia\Inertia;
 
 class ColorPaletteController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $colorPalettes = ColorPalette::all();
+        $query = ColorPalette::query();
+
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('primary', 'like', "%{$search}%")
+                    ->orWhere('secondary', 'like', "%{$search}%")
+                    ->orWhere('tertiary', 'like', "%{$search}%")
+                    ->orWhere('quaternary', 'like', "%{$search}%")
+                    ->orWhere('quinary', 'like', "%{$search}%")
+                    ->orWhere('senary', 'like', "%{$search}%")
+                    ->orWhere('septenary', 'like', "%{$search}%");
+            });
+        }
+
+        $colorPalettes = $query->orderBy('created_at', 'desc')->get();
+
         return Inertia::render('ColorPalettes/Index', [
             'colorPalettes' => $colorPalettes,
+            'search' => $search,
         ]);
     }
 
