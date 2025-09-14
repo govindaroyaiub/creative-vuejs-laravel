@@ -632,7 +632,7 @@ iframe {
 
 #mobileMenuToggle {
     position: fixed;
-    top: 21.5rem;
+    top: 19rem;
     /* Place near the top */
     left: 2.5px;
     /* Place near the left edge */
@@ -1348,7 +1348,7 @@ iframe {
         position: fixed;
         font-size: 1rem;
         /* line-height: 1.8; */
-        top: 22rem;
+        top: 19rem;
         --r: 15px;
         right: -1.2rem;
     }

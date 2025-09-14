@@ -162,7 +162,7 @@ const submitForm = () => {
                             <td class="px-4 py-3 text-center">
                                 <div class="flex items-center justify-center gap-2">
                                     <div class="h-4 w-4 rounded-full border"
-                                        :style="{ backgroundColor: preview.color_palette?.primary ?? '#ccc' }"
+                                        :style="{ backgroundColor: preview.color_palette?.tertiary ?? '#ccc' }"
                                         title="Primary Color"></div>
                                     <span class="text-sm">{{ preview.color_palette?.name ?? '-' }}</span>
                                 </div>
@@ -181,9 +181,9 @@ const submitForm = () => {
                                 </a>
                                 <Link :href="route('previews.update.all', preview.id)"
                                     class="text-indigo-600 hover:text-indigo-800" aria-label="Edit Preview">
-                                    <Settings2 class="inline h-5 w-5" />
+                                <Settings2 class="inline h-5 w-5" />
                                 </Link>
-                                
+
                                 <button @click="deletePreview(preview.id)" class="text-red-600 hover:text-red-800"
                                     aria-label="Delete Preview">
                                     <Trash2 class="inline h-5 w-5" />
