@@ -119,89 +119,91 @@ const saveNewSize = async () => {
             </div>
 
             <!-- Table -->
-            <table class="w-full rounded bg-white shadow dark:bg-black">
-                <thead class="bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300">
-                    <tr class="text-center text-sm uppercase">
-                        <th class="px-4 py-2">#</th>
-                        <th class="px-4 py-2">Name</th>
-                        <th class="px-2 py-2">Width</th>
-                        <th class="px-2 py-2">Height</th>
-                        <th class="px-4 py-2">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Add Row -->
-                    <tr v-if="adding" class="text-center">
-                        <td class="px-4 py-2">#</td>
-                        <td class="px-4 py-2">
-                            <input v-model="newSize.name" placeholder="Name"
-                                class="w-full max-w-[200px] rounded border px-2 py-1 dark:bg-black dark:text-white" />
-                        </td>
-                        <td class="px-2 py-2">
-                            <input v-model="newSize.width" type="number" placeholder="Width"
-                                class="w-full max-w-[100px] rounded border px-2 py-1 dark:bg-black dark:text-white" />
-                        </td>
-                        <td class="px-2 py-2">
-                            <input v-model="newSize.height" type="number" placeholder="Height"
-                                class="w-full max-w-[100px] rounded border px-2 py-1 dark:bg-black dark:text-white" />
-                        </td>
-                        <td class="px-4 py-2 space-x-2">
-                            <button @click="adding = false" :disabled="saving"
-                                class="text-gray-500 hover:underline text-sm">Cancel</button>
-                            <button @click="saveNewSize" :disabled="saving"
-                                class="text-green-600 hover:underline text-sm">
-                                <LoaderCircle v-if="saving" class="h-4 w-4 animate-spin" />
-                                <span v-else>Save</span>
-                            </button>
-                        </td>
-                    </tr>
-
-                    <!-- Existing Rows -->
-                    <tr v-for="(size, index) in videoSizes.data" :key="size.id"
-                        class="border-t text-center text-sm dark:border-gray-700">
-                        <td class="px-4 py-2">{{ index + 1 }}</td>
-
-                        <template v-if="editingId === size.id">
-                            <td class="px-4 py-2">
-                                <input v-model="editedSize.name"
+            <div class="rounded overflow-x-auto shadow">
+                <table class="w-full bg-white dark:bg-black border">
+                    <thead class="bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300">
+                        <tr class="text-center text-sm uppercase">
+                            <th class="border-b px-4 py-2">#</th>
+                            <th class="border-b px-4 py-2">Name</th>
+                            <th class="border-b px-2 py-2">Width</th>
+                            <th class="border-b px-2 py-2">Height</th>
+                            <th class="border-b px-4 py-2">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Add Row -->
+                        <tr v-if="adding" class="text-center">
+                            <td class="border-b px-4 py-2">#</td>
+                            <td class="border-b px-4 py-2">
+                                <input v-model="newSize.name" placeholder="Name"
                                     class="w-full max-w-[200px] rounded border px-2 py-1 dark:bg-black dark:text-white" />
                             </td>
-                            <td class="px-2 py-2">
-                                <input v-model="editedSize.width" type="number"
+                            <td class="border-b px-2 py-2">
+                                <input v-model="newSize.width" type="number" placeholder="Width"
                                     class="w-full max-w-[100px] rounded border px-2 py-1 dark:bg-black dark:text-white" />
                             </td>
-                            <td class="px-2 py-2">
-                                <input v-model="editedSize.height" type="number"
+                            <td class="border-b px-2 py-2">
+                                <input v-model="newSize.height" type="number" placeholder="Height"
                                     class="w-full max-w-[100px] rounded border px-2 py-1 dark:bg-black dark:text-white" />
                             </td>
-                            <td class="flex justify-center gap-2 px-4 py-2">
-                                <button @click="cancelEdit" :disabled="saving"
-                                    class="text-red-500 hover:underline text-sm">Cancel</button>
-                                <button @click="saveEdit(size.id)" :disabled="saving"
-                                    class="text-blue-600 hover:underline text-sm">Update</button>
-                            </td>
-                        </template>
-
-                        <template v-else>
-                            <td class="px-4 py-2">{{ size.name }}</td>
-                            <td class="px-2 py-2">{{ size.width }}</td>
-                            <td class="px-2 py-2">{{ size.height }}</td>
-                            <td class="space-x-2 px-4 py-2">
-                                <button @click="startEdit(size)" class="text-blue-600 hover:text-blue-800">
-                                    <Pencil class="inline h-5 w-5" />
-                                </button>
-                                <button @click="deleteVideoSize(size.id)" class="text-red-600 hover:text-red-800">
-                                    <Trash2 class="inline h-5 w-5" />
+                            <td class="border-b px-4 py-2 space-x-2">
+                                <button @click="adding = false" :disabled="saving"
+                                    class="text-gray-500 hover:underline text-sm">Cancel</button>
+                                <button @click="saveNewSize" :disabled="saving"
+                                    class="text-green-600 hover:underline text-sm">
+                                    <LoaderCircle v-if="saving" class="h-4 w-4 animate-spin" />
+                                    <span v-else>Save</span>
                                 </button>
                             </td>
-                        </template>
-                    </tr>
+                        </tr>
 
-                    <tr v-if="videoSizes.data.length === 0 && !adding">
-                        <td colspan="5" class="px-4 py-4 text-center text-gray-500">No video sizes found.</td>
-                    </tr>
-                </tbody>
-            </table>
+                        <!-- Existing Rows -->
+                        <tr v-for="(size, index) in videoSizes.data" :key="size.id"
+                            class="border-t text-center text-sm dark:border-gray-700">
+                            <td class="px-4 py-2">{{ index + 1 }}</td>
+
+                            <template v-if="editingId === size.id">
+                                <td class="px-4 py-2">
+                                    <input v-model="editedSize.name"
+                                        class="w-full max-w-[200px] rounded border px-2 py-1 dark:bg-black dark:text-white" />
+                                </td>
+                                <td class="px-2 py-2">
+                                    <input v-model="editedSize.width" type="number"
+                                        class="w-full max-w-[100px] rounded border px-2 py-1 dark:bg-black dark:text-white" />
+                                </td>
+                                <td class="px-2 py-2">
+                                    <input v-model="editedSize.height" type="number"
+                                        class="w-full max-w-[100px] rounded border px-2 py-1 dark:bg-black dark:text-white" />
+                                </td>
+                                <td class="flex justify-center gap-2 px-4 py-2">
+                                    <button @click="cancelEdit" :disabled="saving"
+                                        class="text-red-500 hover:underline text-sm">Cancel</button>
+                                    <button @click="saveEdit(size.id)" :disabled="saving"
+                                        class="text-blue-600 hover:underline text-sm">Update</button>
+                                </td>
+                            </template>
+
+                            <template v-else>
+                                <td class="px-4 py-2">{{ size.name }}</td>
+                                <td class="px-2 py-2">{{ size.width }}</td>
+                                <td class="px-2 py-2">{{ size.height }}</td>
+                                <td class="space-x-2 px-4 py-2">
+                                    <button @click="startEdit(size)" class="text-blue-600 hover:text-blue-800">
+                                        <Pencil class="inline h-5 w-5" />
+                                    </button>
+                                    <button @click="deleteVideoSize(size.id)" class="text-red-600 hover:text-red-800">
+                                        <Trash2 class="inline h-5 w-5" />
+                                    </button>
+                                </td>
+                            </template>
+                        </tr>
+
+                        <tr v-if="videoSizes.data.length === 0 && !adding">
+                            <td colspan="5" class="px-4 py-4 text-center text-gray-500">No video sizes found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <!-- Pagination -->
             <div class="mt-6 flex justify-center space-x-2"

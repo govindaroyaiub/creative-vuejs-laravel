@@ -69,54 +69,55 @@ onMounted(() => {
             </div>
 
             <!-- Bills Table -->
-            <table class="w-full rounded bg-white shadow dark:bg-black">
-                <thead class="bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300">
-                    <tr class="text-center text-sm uppercase">
-                        <th class="px-4 py-2">#</th>
-                        <th class="px-4 py-2">Name</th>
-                        <th class="px-4 py-2">Client</th>
-                        <th class="px-4 py-2">Total Amount</th>
-                        <th class="px-4 py-2">Date</th>
-                        <th class="px-4 py-2">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(bill, index) in bills.data" :key="bill.id"
-                        class="border-t text-center text-sm dark:border-gray-700">
-                        <td class="px-4 py-2">{{ index + 1 }}</td>
-                        <td class="px-4 py-2">{{ bill.name }}</td>
-                        <td class="px-4 py-2">{{ bill.client }}</td>
-                        <td class="px-4 py-2">{{ bill.total_amount }}</td>
-                        <td class="px-4 py-2">
-                            {{ new Date(bill.created_at).toLocaleDateString('en-GB', {
-                                day: '2-digit',
-                                month: 'long',
-                                year: 'numeric',
-                            }) }}
-                        </td>
-                        <td class="space-x-2 px-4 py-2">
-                            <a :href="route('bills-download', bill.id)" target="_blank"
-                                class="text-green-600 hover:text-green-800">
-                                <Download class="inline h-5 w-5" />
-                            </a>
-                            <button @click="goToEdit(bill.id)" class="text-blue-600 hover:text-blue-800">
-                                <Pencil class="inline h-5 w-5" />
-                            </button>
-                            <button @click="deleteBill(bill.id)" class="text-red-600 hover:text-red-800">
-                                <Trash2 class="inline h-5 w-5" />
-                            </button>
-                        </td>
-                    </tr>
-                    <tr v-if="bills.data.length === 0">
-                        <td colspan="6" class="px-4 py-4 text-center text-gray-500">No bills found.</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="rounded overflow-x-auto shadow">
+                <table class="w-full rounded bg-white dark:bg-black dark:border border">
+                    <thead class="bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300 border">
+                        <tr class="text-center text-sm uppercase">
+                            <th class="px-4 py-2 border-b">#</th>
+                            <th class="px-4 py-2 border-b">Name</th>
+                            <th class="px-4 py-2 border-b">Client</th>
+                            <th class="px-4 py-2 border-b">Total Amount</th>
+                            <th class="px-4 py-2 border-b">Date</th>
+                            <th class="px-4 py-2 border-b">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(bill, index) in bills.data" :key="bill.id"
+                            class="border-t text-center text-sm dark:border-gray-700">
+                            <td class="px-4 py-2 border-b">{{ index + 1 }}</td>
+                            <td class="px-4 py-2 border-b">{{ bill.name }}</td>
+                            <td class="px-4 py-2 border-b">{{ bill.client }}</td>
+                            <td class="px-4 py-2 border-b">{{ bill.total_amount }}</td>
+                            <td class="px-4 py-2 border-b">
+                                {{ new Date(bill.created_at).toLocaleDateString('en-GB', {
+                                    day: '2-digit',
+                                    month: 'long',
+                                    year: 'numeric',
+                                }) }}
+                            </td>
+                            <td class="space-x-2 px-4 py-2 border-b">
+                                <a :href="route('bills-download', bill.id)" target="_blank"
+                                    class="text-green-600 hover:text-green-800">
+                                    <Download class="inline h-5 w-5" />
+                                </a>
+                                <button @click="goToEdit(bill.id)" class="text-blue-600 hover:text-blue-800">
+                                    <Pencil class="inline h-5 w-5" />
+                                </button>
+                                <button @click="deleteBill(bill.id)" class="text-red-600 hover:text-red-800">
+                                    <Trash2 class="inline h-5 w-5" />
+                                </button>
+                            </td>
+                        </tr>
+                        <tr v-if="bills.data.length === 0">
+                            <td colspan="6" class="px-4 py-4 text-center text-gray-500">No bills found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <!-- Pagination -->
-            <div class="mt-6 flex justify-center space-x-2" v-if="bills.data.length && bills.links.length"> 
-                <template
-                    v-for="link in bills.links" :key="link.label">
+            <div class="mt-6 flex justify-center space-x-2" v-if="bills.data.length && bills.links.length">
+                <template v-for="link in bills.links" :key="link.label">
                     <component :is="link.url ? 'a' : 'span'" v-html="link.label" :href="link.url"
                         class="rounded border px-4 py-2 text-sm" :class="{
                             'bg-indigo-600 text-white': link.active,

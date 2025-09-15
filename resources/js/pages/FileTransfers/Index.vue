@@ -64,54 +64,58 @@ const getTransferLink = (id: number) => {
             </div>
 
             <!-- Table -->
-            <table class="w-full rounded bg-white shadow dark:bg-black">
-                <thead class="bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300">
-                    <tr class="text-center text-sm uppercase">
-                        <th class="px-4 py-2">#</th>
-                        <th class="px-4 py-2">Name</th>
-                        <th class="px-4 py-2">Client</th>
-                        <th class="px-4 py-2">Uploader</th>
-                        <th class="px-4 py-2">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(transfer, index) in fileTransfers.data" :key="transfer.id"
-                        class="border-t text-center text-sm dark:border-gray-700">
-                        <td class="px-4 py-2">{{ index + 1 }}</td>
-                        <td class="px-4 py-2">{{ transfer.name }}</td>
-                        <td class="px-4 py-2">{{ transfer.client }}</td>
-                        <td class="px-4 py-2">
-                            {{ transfer.user.name }}
-                            <hr />
-                            {{ new Date(transfer.created_at).toLocaleDateString('en-GB', {
-                                day: '2-digit',
-                                month: 'long',
-                                year: 'numeric',
-                            }) }}
-                        </td>
-                        <td class="space-x-2 px-4 py-2">
-                            <a :href="`/file-transfers-view/${transfer.id}`" target="_blank"
-                                class="text-green-600 hover:text-green-800">
-                                <Eye class="inline h-6 w-6" />
-                            </a>
-                            <button @click="getTransferLink(transfer.id)" class="text-purple-600 hover:text-purple-800">
-                                <Share2 class="inline h-6 w-6" />
-                            </button>
-                            <Link :href="route('file-transfers-edit', transfer.id)"
-                                class="text-blue-600 hover:text-blue-800">
-                            <Pencil class="inline h-5 w-5" />
-                            </Link>
-                            <button @click="deleteFileTransfer(transfer.id)" class="text-red-600 hover:text-red-800">
-                                <Trash2 class="inline h-5 w-5" />
-                            </button>
-                        </td>
-                    </tr>
+            <div class="rounded overflow-x-auto shadow">
+                <table class="w-full rounded bg-white dark:bg-black dark:border border">
+                    <thead class="bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300">
+                        <tr class="text-center text-sm uppercase">
+                            <th class="px-4 py-2 border-b">#</th>
+                            <th class="px-4 py-2 border-b">Name</th>
+                            <th class="px-4 py-2 border-b">Client</th>
+                            <th class="px-4 py-2 border-b">Uploader</th>
+                            <th class="px-4 py-2 border-b">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(transfer, index) in fileTransfers.data" :key="transfer.id"
+                            class="border-t text-center text-sm dark:border-gray-700">
+                            <td class="px-4 py-2 border-b">{{ index + 1 }}</td>
+                            <td class="px-4 py-2 border-b">{{ transfer.name }}</td>
+                            <td class="px-4 py-2 border-b">{{ transfer.client }}</td>
+                            <td class="px-4 py-2 border-b">
+                                {{ transfer.user.name }}
+                                <hr />
+                                {{ new Date(transfer.created_at).toLocaleDateString('en-GB', {
+                                    day: '2-digit',
+                                    month: 'long',
+                                    year: 'numeric',
+                                }) }}
+                            </td>
+                            <td class="space-x-2 px-4 py-2 border-b">
+                                <a :href="`/file-transfers-view/${transfer.id}`" target="_blank"
+                                    class="text-green-600 hover:text-green-800">
+                                    <Eye class="inline h-6 w-6" />
+                                </a>
+                                <button @click="getTransferLink(transfer.id)"
+                                    class="text-purple-600 hover:text-purple-800">
+                                    <Share2 class="inline h-6 w-6" />
+                                </button>
+                                <Link :href="route('file-transfers-edit', transfer.id)"
+                                    class="text-blue-600 hover:text-blue-800">
+                                <Pencil class="inline h-5 w-5" />
+                                </Link>
+                                <button @click="deleteFileTransfer(transfer.id)"
+                                    class="text-red-600 hover:text-red-800">
+                                    <Trash2 class="inline h-5 w-5" />
+                                </button>
+                            </td>
+                        </tr>
 
-                    <tr v-if="fileTransfers.data.length === 0">
-                        <td colspan="5" class="px-4 py-4 text-center text-gray-500">No file transfers found.</td>
-                    </tr>
-                </tbody>
-            </table>
+                        <tr v-if="fileTransfers.data.length === 0">
+                            <td colspan="5" class="px-4 py-4 text-center text-gray-500">No file transfers found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <!-- Pagination -->
             <div v-if="fileTransfers.data.length && fileTransfers.links?.length"

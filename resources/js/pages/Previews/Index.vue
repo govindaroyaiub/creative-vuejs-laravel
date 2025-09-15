@@ -111,7 +111,7 @@ const submitForm = () => {
 
     <Head title="Previews" />
     <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }]">
-        <div class="p-6 space-y-6">
+        <div class="p-6 space-y-4">
             <!-- Search & Create -->
             <div class="flex items-center justify-between">
                 <input v-model="search" placeholder="Search..." aria-label="Search previews"
@@ -124,26 +124,26 @@ const submitForm = () => {
 
             <!-- Table -->
             <div class="overflow-x-auto rounded shadow">
-                <table class="min-w-full table-auto text-sm text-gray-700 dark:text-gray-200">
+                <table class="w-full rounded bg-white shadow dark:bg-black dark:border border">
                     <thead class="bg-gray-100 dark:bg-black text-xs uppercase">
                         <tr>
-                            <th class="px-4 py-3 text-center">#</th>
-                            <th class="px-4 py-3 text-left">Name & Client</th>
-                            <th class="px-4 py-3 text-center">Team</th>
-                            <th class="px-4 py-3 text-center">Uploader</th>
-                            <th class="px-4 py-3 text-center">Theme & Types</th>
-                            <th class="px-4 py-3 text-center">Actions</th>
+                            <th class="px-4 py-3 text-center border-b">#</th>
+                            <th class="px-4 py-3 text-left border-b">Name & Client</th>
+                            <th class="px-4 py-3 text-center border-b">Team</th>
+                            <th class="px-4 py-3 text-center border-b">Uploader</th>
+                            <th class="px-4 py-3 text-center border-b">Theme & Types</th>
+                            <th class="px-4 py-3 text-center border-b">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-black">
                         <tr v-for="(preview, index) in filteredPreviews" :key="preview.id"
-                            class="hover:bg-gray-50 dark:hover:bg-gray-800">
-                            <td class="text-center px-4 py-3 font-medium">{{ index + 1 }}</td>
-                            <td class="px-4 py-3 text-left">
+                            class="hover:bg-gray-50 dark:hover:bg-gray-800 border-b">
+                            <td class="text-center px-4 py-3 font-medium border-b">{{ index + 1 }}</td>
+                            <td class="px-4 py-3 text-left border-b">
                                 <div class="font-semibold capitalize">{{ preview.name }}</div>
                                 <div class="text-xs text-gray-500">{{ preview.client?.name ?? '-' }}</div>
                             </td>
-                            <td class="px-4 py-3 text-center">
+                            <td class="px-4 py-3 text-center border-b">
                                 <div class="flex justify-center flex-wrap gap-1">
                                     <span v-for="u in preview.team_users" :key="u.id"
                                         class="inline-block rounded-full bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700 dark:bg-indigo-800 dark:text-white">
@@ -151,7 +151,7 @@ const submitForm = () => {
                                     </span>
                                 </div>
                             </td>
-                            <td class="px-4 py-3 text-center">
+                            <td class="px-4 py-3 text-center border-b">
                                 <div class="text-sm">{{ preview.uploader?.name ?? '-' }}</div>
                                 <div class="text-xs text-gray-400">{{ new
                                     Date(preview.created_at).toLocaleDateString('en-GB', {
@@ -159,7 +159,7 @@ const submitForm = () => {
                                             'short', year: 'numeric'
                                     }) }}</div>
                             </td>
-                            <td class="px-4 py-3 text-center">
+                            <td class="px-4 py-3 text-center border-b">
                                 <div class="flex items-center justify-center gap-2">
                                     <div class="h-4 w-4 rounded-full border"
                                         :style="{ backgroundColor: preview.color_palette?.tertiary ?? '#ccc' }"
@@ -168,7 +168,7 @@ const submitForm = () => {
                                 </div>
                                 <div class="text-xs text-gray-400">{{ getTypes(preview) || '-' }}</div>
                             </td>
-                            <td class="text-center px-4 py-3 space-x-2">
+                            <td class="text-center px-4 py-3 space-x-2 border-b">
                                 <a :href="route('previews-show', preview.slug)"
                                     class="text-green-600 hover:text-green-800" target="_blank" rel="noopener"
                                     aria-label="View Preview">

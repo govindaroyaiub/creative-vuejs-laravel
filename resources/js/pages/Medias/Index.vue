@@ -102,45 +102,49 @@ const handleDrop = (e: DragEvent) => {
                 </button>
             </div>
 
-            <table class="w-full rounded bg-white shadow dark:bg-black">
-                <thead class="bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300">
-                    <tr class="bg-gray-100 dark:bg-black uppercase">
-                        <th class="border-b px-4 py-2 text-center">#</th>
-                        <th class="border-b px-4 py-2 text-center">Name</th>
-                        <th class="border-b px-4 py-2 text-center">Uploader</th>
-                        <th class="border-b px-4 py-2 text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(media, index) in medias" :key="media.id" class="bg-white dark:bg-gray-900">
-                        <td class="border-b px-4 py-2 text-center">{{ index + 1 }}</td>
-                        <td class="border-b px-4 py-2 text-center">{{ media.name }}</td>
-                        <td class="border-b px-4 py-2 text-center">
-                            {{ media.uploader?.name ?? 'N/A' }}
-                            <hr />
-                            {{ new Date(media.created_at).toLocaleDateString('en-GB', {
-                                day: '2-digit',
-                                month: 'long',
-                                year: 'numeric'
-                            }) }}
-                        </td>
-                        <td class="border-b px-4 py-2 text-center space-x-2">
-                            <a :href="`/${media.path}`" target="_blank" class="text-indigo-600 hover:text-indigo-800">
-                                <Eye class="inline h-5 w-5" />
-                            </a>
-                            <a :href="route('medias-download', media.id)" class="text-green-600 hover:text-green-800">
-                                <Download class="inline h-5 w-5" />
-                            </a>
-                            <button @click="deleteMedia(media.id)" class="text-red-600 hover:text-red-800">
-                                <Trash2 class="inline h-5 w-5" />
-                            </button>
-                        </td>
-                    </tr>
-                    <tr v-if="medias.length === 0">
-                        <td colspan="4" class="px-4 py-4 text-center text-gray-500">No media files found.</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="rounded overflow-x-auto shadow">
+                <table class="w-full rounded bg-white dark:bg-black dark:border border">
+                    <thead class="bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300">
+                        <tr class="bg-gray-100 dark:bg-black uppercase">
+                            <th class="border-b px-4 py-2 text-center">#</th>
+                            <th class="border-b px-4 py-2 text-center">Name</th>
+                            <th class="border-b px-4 py-2 text-center">Uploader</th>
+                            <th class="border-b px-4 py-2 text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(media, index) in medias" :key="media.id" class="bg-white dark:bg-gray-900">
+                            <td class="border-b px-4 py-2 text-center">{{ index + 1 }}</td>
+                            <td class="border-b px-4 py-2 text-center">{{ media.name }}</td>
+                            <td class="border-b px-4 py-2 text-center">
+                                {{ media.uploader?.name ?? 'N/A' }}
+                                <hr />
+                                {{ new Date(media.created_at).toLocaleDateString('en-GB', {
+                                    day: '2-digit',
+                                    month: 'long',
+                                    year: 'numeric'
+                                }) }}
+                            </td>
+                            <td class="border-b px-4 py-2 text-center space-x-2">
+                                <a :href="`/${media.path}`" target="_blank"
+                                    class="text-indigo-600 hover:text-indigo-800">
+                                    <Eye class="inline h-5 w-5" />
+                                </a>
+                                <a :href="route('medias-download', media.id)"
+                                    class="text-green-600 hover:text-green-800">
+                                    <Download class="inline h-5 w-5" />
+                                </a>
+                                <button @click="deleteMedia(media.id)" class="text-red-600 hover:text-red-800">
+                                    <Trash2 class="inline h-5 w-5" />
+                                </button>
+                            </td>
+                        </tr>
+                        <tr v-if="medias.length === 0">
+                            <td colspan="4" class="px-4 py-4 text-center text-gray-500">No media files found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <!-- Pagination -->
             <div v-if="page.props.medias?.total && links.length" class="mt-6 flex justify-center space-x-2">
@@ -156,7 +160,7 @@ const handleDrop = (e: DragEvent) => {
 
             <!-- Upload Modal -->
             <div v-if="modalVisible" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                <div class="w-full max-w-md rounded bg-white p-6 shadow-lg dark:bg-black">
+                <div class="w-full max-w-md rounded bg-white p-6 shadow-lg dark:bg-black border">
                     <h2 class="text-lg font-bold mb-4 text-gray-800 dark:text-white">Upload Media</h2>
 
                     <div class="space-y-4">
@@ -186,7 +190,7 @@ const handleDrop = (e: DragEvent) => {
 
                         <!-- Buttons -->
                         <div class="flex justify-end gap-2 pt-4">
-                            <button @click="modalVisible = false" class="px-4 py-2 rounded border dark:text-white">
+                            <button @click="modalVisible = false" class="px-4 py-2 rounded border dark:text-white bg-red-600 hover:bg-red-700">
                                 Cancel
                             </button>
                             <button @click="uploadFile" :disabled="uploading"

@@ -117,8 +117,8 @@
             </div>
           </div>
           <div class="flex justify-end gap-2 mt-6">
-            <button type="button" @click="closeModal" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
-            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded">{{ modalMode === 'edit' ? 'Update'
+            <button type="button" @click="closeModal" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Cancel</button>
+            <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded">{{ modalMode === 'edit' ? 'Update'
               : 'Save' }}</button>
           </div>
         </form>

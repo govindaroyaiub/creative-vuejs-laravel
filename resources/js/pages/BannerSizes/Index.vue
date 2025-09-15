@@ -107,74 +107,76 @@ const deleteBannerSize = async (id: number) => {
                 </button>
             </div>
 
-            <table class="w-full rounded bg-white shadow dark:bg-black">
-                <thead class="bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300">
-                    <tr class="text-center text-sm uppercase">
-                        <th class="px-4 py-2">#</th>
-                        <th class="px-4 py-2">Width</th>
-                        <th class="px-4 py-2">Height</th>
-                        <th class="px-4 py-2">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- New Row -->
-                    <tr v-if="adding" class="border-t text-center text-sm dark:border-gray-700">
-                        <td class="px-4 py-2">#</td>
-                        <td class="px-4 py-2">
-                            <input v-model="newForm.width" type="number"
-                                class="w-20 rounded border px-2 py-1 dark:bg-black dark:text-white" />
-                        </td>
-                        <td class="px-4 py-2">
-                            <input v-model="newForm.height" type="number"
-                                class="w-20 rounded border px-2 py-1 dark:bg-black dark:text-white" />
-                        </td>
-                        <td class="px-4 py-2 space-x-2">
-                            <button @click="cancelAdding" class="text-gray-500 hover:underline text-sm">Cancel</button>
-                            <button @click="saveNew" class="text-green-600 hover:underline text-sm">Save</button>
-                        </td>
-                    </tr>
+            <div class="overflow-x-auto rounded shadow">
+                <table class="w-full rounded bg-white dark:bg-black border">
+                    <thead class="bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300">
+                        <tr class="text-center text-sm uppercase">
+                            <th class="px-4 py-2">#</th>
+                            <th class="px-4 py-2">Width</th>
+                            <th class="px-4 py-2">Height</th>
+                            <th class="px-4 py-2">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- New Row -->
+                        <tr v-if="adding" class="border-t text-center text-sm dark:border-gray-700">
+                            <td class="px-4 py-2">#</td>
+                            <td class="px-4 py-2">
+                                <input v-model="newForm.width" type="number"
+                                    class="w-20 rounded border px-2 py-1 dark:bg-black dark:text-white" />
+                            </td>
+                            <td class="px-4 py-2">
+                                <input v-model="newForm.height" type="number"
+                                    class="w-20 rounded border px-2 py-1 dark:bg-black dark:text-white" />
+                            </td>
+                            <td class="px-4 py-2 space-x-2">
+                                <button @click="cancelAdding"
+                                    class="text-gray-500 hover:underline text-sm">Cancel</button>
+                                <button @click="saveNew" class="text-green-600 hover:underline text-sm">Save</button>
+                            </td>
+                        </tr>
 
-                    <!-- Existing Rows -->
-                    <tr v-for="(size, index) in bannerSizes.data" :key="size.id"
-                        class="border-t text-center text-sm uppercase dark:border-gray-700">
-                        <td class="px-4 py-2">{{ index + 1 }}</td>
+                        <!-- Existing Rows -->
+                        <tr v-for="(size, index) in bannerSizes.data" :key="size.id"
+                            class="border-t text-center text-sm uppercase dark:border-gray-700">
+                            <td class="px-4 py-2">{{ index + 1 }}</td>
 
-                        <td class="px-4 py-2">
-                            <div v-if="editingId !== size.id">{{ size.width }}</div>
-                            <input v-else v-model="editForm.width" type="number"
-                                class="w-20 rounded border px-2 py-1 dark:bg-black dark:text-white" />
-                        </td>
+                            <td class="px-4 py-2">
+                                <div v-if="editingId !== size.id">{{ size.width }}</div>
+                                <input v-else v-model="editForm.width" type="number"
+                                    class="w-20 rounded border px-2 py-1 dark:bg-black dark:text-white" />
+                            </td>
 
-                        <td class="px-4 py-2">
-                            <div v-if="editingId !== size.id">{{ size.height }}</div>
-                            <input v-else v-model="editForm.height" type="number"
-                                class="w-20 rounded border px-2 py-1 dark:bg-black dark:text-white" />
-                        </td>
+                            <td class="px-4 py-2">
+                                <div v-if="editingId !== size.id">{{ size.height }}</div>
+                                <input v-else v-model="editForm.height" type="number"
+                                    class="w-20 rounded border px-2 py-1 dark:bg-black dark:text-white" />
+                            </td>
 
-                        <td class="space-x-2 px-4 py-2">
-                            <template v-if="editingId === size.id">
-                                <button @click="cancelEditing"
-                                    class="text-red-500 hover:underline text-sm">Cancel</button>
-                                <button @click="saveEdit(size.id)"
-                                    class="text-blue-600 hover:underline text-sm">Update</button>
-                            </template>
-                            <template v-else>
-                                <button @click="startEditing(size)" class="text-blue-600 hover:text-blue-800">
-                                    <Pencil class="inline h-5 w-5" />
-                                </button>
-                                <button @click="deleteBannerSize(size.id)" class="text-red-600 hover:text-red-800">
-                                    <Trash2 class="inline h-5 w-5" />
-                                </button>
-                            </template>
-                        </td>
-                    </tr>
+                            <td class="space-x-2 px-4 py-2">
+                                <template v-if="editingId === size.id">
+                                    <button @click="cancelEditing"
+                                        class="text-red-500 hover:underline text-sm">Cancel</button>
+                                    <button @click="saveEdit(size.id)"
+                                        class="text-blue-600 hover:underline text-sm">Update</button>
+                                </template>
+                                <template v-else>
+                                    <button @click="startEditing(size)" class="text-blue-600 hover:text-blue-800">
+                                        <Pencil class="inline h-5 w-5" />
+                                    </button>
+                                    <button @click="deleteBannerSize(size.id)" class="text-red-600 hover:text-red-800">
+                                        <Trash2 class="inline h-5 w-5" />
+                                    </button>
+                                </template>
+                            </td>
+                        </tr>
 
-                    <tr v-if="bannerSizes.data.length === 0 && !adding">
-                        <td colspan="4" class="px-4 py-4 text-center text-gray-500">No banner sizes found.</td>
-                    </tr>
-                </tbody>
-            </table>
-
+                        <tr v-if="bannerSizes.data.length === 0 && !adding">
+                            <td colspan="4" class="px-4 py-4 text-center text-gray-500">No banner sizes found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             <!-- Pagination -->
             <div class="mt-6 flex justify-center space-x-2" v-if="bannerSizes.data.length && bannerSizes.links.length">
                 <template v-for="link in bannerSizes.links" :key="link.label">

@@ -199,7 +199,7 @@
                                                                                 </div>
                                                                                 <div class="flex gap-2 mt-6 w-full">
                                                                                     <button @click="closeBannerEdit"
-                                                                                        class="w-full bg-gray-300 text-gray-800 px-4 py-2 rounded font-semibold">Cancel</button>
+                                                                                        class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold">Cancel</button>
                                                                                     <button @click="submitBannerEdit"
                                                                                         class="w-full bg-blue-600 text-white px-4 py-2 rounded font-semibold">Update</button>
                                                                                 </div>
@@ -410,7 +410,7 @@
 
                                                                                 <div class="flex gap-2 mt-6 w-full">
                                                                                     <button @click="closeVideoEdit"
-                                                                                        class="w-full bg-gray-300 text-gray-800 px-4 py-2 rounded font-semibold">Cancel</button>
+                                                                                        class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold">Cancel</button>
                                                                                     <button @click="submitVideoEdit"
                                                                                         class="w-full bg-blue-600 text-white px-4 py-2 rounded font-semibold">
                                                                                         Update
@@ -505,7 +505,7 @@
                                                                                 </div>
                                                                                 <div class="flex gap-2 mt-6 w-full">
                                                                                     <button @click="closeSocialEdit"
-                                                                                        class="w-full bg-gray-300 text-gray-800 px-4 py-2 rounded font-semibold">Cancel</button>
+                                                                                        class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold">Cancel</button>
                                                                                     <button @click="submitSocialEdit"
                                                                                         class="w-full bg-blue-600 text-white px-4 py-2 rounded font-semibold">
                                                                                         Update
@@ -623,7 +623,7 @@
                                                                                 </div>
                                                                                 <div class="flex gap-2 mt-6 w-full">
                                                                                     <button @click="closeGifEdit"
-                                                                                        class="w-full bg-gray-300 text-gray-800 px-4 py-2 rounded font-semibold">Cancel</button>
+                                                                                        class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold">Cancel</button>
                                                                                     <button @click="submitGifEdit"
                                                                                         class="w-full bg-blue-600 text-white px-4 py-2 rounded font-semibold">Update</button>
                                                                                 </div>
