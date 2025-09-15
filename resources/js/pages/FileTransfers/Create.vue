@@ -71,7 +71,7 @@ const goBack = () => window.history.back();
                 <div>
                     <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Name</label>
                     <input id="name" v-model="form.name" required type="text"
-                        class="mt-1 block w-full rounded-md border px-3 py-2 dark:bg-gray-700 dark:text-white" />
+                        class="mt-1 block w-full rounded-md border px-3 py-2 dark:bg-black dark:text-white" />
                 </div>
 
                 <!-- Client -->
@@ -79,7 +79,7 @@ const goBack = () => window.history.back();
                     <label for="client"
                         class="block text-sm font-medium text-gray-700 dark:text-gray-200">Client</label>
                     <input id="client" v-model="form.client" required type="text"
-                        class="mt-1 block w-full rounded-md border px-3 py-2 dark:bg-gray-700 dark:text-white" />
+                        class="mt-1 block w-full rounded-md border px-3 py-2 dark:bg-black dark:text-white" />
                 </div>
 
                 <!-- Drag & Drop Upload -->

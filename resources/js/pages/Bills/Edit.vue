@@ -86,20 +86,20 @@ const handleSubmit = () => {
                 <!-- Name -->
                 <div>
                     <label class="block text-sm font-medium">Name</label>
-                    <input v-model="form.name" type="text" class="w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white" required />
+                    <input v-model="form.name" type="text" class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white" required />
                 </div>
 
                 <!-- Client -->
                 <div>
                     <label class="block text-sm font-medium">Client</label>
-                    <input v-model="form.client" type="text" class="w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white" required />
+                    <input v-model="form.client" type="text" class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white" required />
                 </div>
 
                 <!-- Sub-Bills Table -->
                 <div>
                     <label class="mb-2 block text-sm font-medium">Sub-Bills</label>
                     <table class="w-full border text-sm">
-                        <thead class="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                        <thead class="bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300">
                             <tr class="text-left">
                                 <th class="px-2 py-1">Item</th>
                                 <th class="px-2 py-1">Qty</th>
@@ -111,13 +111,13 @@ const handleSubmit = () => {
                         <tbody>
                             <tr v-for="(row, index) in form.sub_bills" :key="index" class="border-t">
                                 <td class="px-2 py-1">
-                                    <input v-model="row.item" type="text" class="w-full rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" required />
+                                    <input v-model="row.item" type="text" class="w-full rounded border px-2 py-1 dark:bg-black dark:text-white" required />
                                 </td>
                                 <td class="px-2 py-1">
-                                    <input v-model.number="row.quantity" @input="calculateAmount(index)" type="number" min="1" class="w-full rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" required />
+                                    <input v-model.number="row.quantity" @input="calculateAmount(index)" type="number" min="1" class="w-full rounded border px-2 py-1 dark:bg-black dark:text-white" required />
                                 </td>
                                 <td class="px-2 py-1">
-                                    <input v-model.number="row.unit_price" @input="calculateAmount(index)" type="number" step="0.01" class="w-full rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" required />
+                                    <input v-model.number="row.unit_price" @input="calculateAmount(index)" type="number" step="0.01" class="w-full rounded border px-2 py-1 dark:bg-black dark:text-white" required />
                                 </td>
                                 <td class="px-2 py-1 text-right">
                                     {{ Number(row.amount || 0).toFixed(2) }}

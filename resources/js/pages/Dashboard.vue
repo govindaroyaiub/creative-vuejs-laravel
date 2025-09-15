@@ -185,52 +185,52 @@ const previewChartOptions = {
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+                <div class="p-4 bg-white dark:bg-black rounded-lg shadow">
                     <div class="text-sm text-gray-500">Users</div>
                     <div class="text-2xl font-bold">{{ animatedCounts.userCount }}</div>
                 </div>
-                <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+                <div class="p-4 bg-white dark:bg-black rounded-lg shadow">
                     <div class="text-sm text-gray-500">Previews</div>
                     <div class="text-2xl font-bold">{{ animatedCounts.previewCount }}</div>
                 </div>
-                <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+                <div class="p-4 bg-white dark:bg-black rounded-lg shadow">
                     <div class="text-sm text-gray-500">Banners</div>
                     <div class="text-2xl font-bold">{{ animatedCounts.bannerCount }}</div>
                 </div>
-                <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+                <div class="p-4 bg-white dark:bg-black rounded-lg shadow">
                     <div class="text-sm text-gray-500">Videos</div>
                     <div class="text-2xl font-bold">{{ animatedCounts.videoCount }}</div>
                 </div>
-                <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+                <div class="p-4 bg-white dark:bg-black rounded-lg shadow">
                     <div class="text-sm text-gray-500">GIFs</div>
                     <div class="text-2xl font-bold">{{ animatedCounts.gifCount }}</div>
                 </div>
-                <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+                <div class="p-4 bg-white dark:bg-black rounded-lg shadow">
                     <div class="text-sm text-gray-500">Socials</div>
                     <div class="text-2xl font-bold">{{ animatedCounts.socialCount }}</div>
                 </div>
-                <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+                <div class="p-4 bg-white dark:bg-black rounded-lg shadow">
                     <div class="text-sm text-gray-500">File Transfers</div>
                     <div class="text-2xl font-bold">{{ animatedCounts.fileTransferCount }}</div>
                 </div>
-                <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+                <div class="p-4 bg-white dark:bg-black rounded-lg shadow">
                     <div class="text-sm text-gray-500">Total Bills (BDT)</div>
                     <div class="text-2xl font-bold">{{ animatedCounts.totalBill }}</div>
                 </div>
             </div>
 
             <div class="flex gap-4">
-                <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow w-full"
+                <div class="bg-white dark:bg-black rounded-lg p-4 shadow w-full"
                     :style="{ height: `calc(100vh - 350px)` }">
                     <Line :data="chartData" :options="chartOptions" />
                 </div>
-                <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow w-full"
+                <div class="bg-white dark:bg-black rounded-lg p-4 shadow w-full"
                     :style="{ height: `calc(100vh - 350px)` }">
                     <Line :data="previewChartData" :options="previewChartOptions" />
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow mt-8"
+            <div class="bg-white dark:bg-black rounded-lg p-4 shadow mt-8"
                 :style="{ height: `calc(100vh - 350px)` }">
                 <Line :data="billChartData" :options="billChartOptions" />
             </div>

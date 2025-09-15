@@ -188,13 +188,13 @@ const deleteUser = async (id: number) => {
 
                 <div class="flex items-center justify-between gap-4">
                     <input v-model="search" type="text" placeholder="Search users..."
-                        class="w-full max-w-sm rounded-md border px-4 py-2 dark:bg-gray-700 dark:text-white" />
+                        class="w-full max-w-sm rounded-md border px-4 py-2 dark:bg-black dark:text-white" />
                     <Button size="sm" class="whitespace-nowrap" @click="addingUser = true">Add</Button>
                 </div>
 
-                <div class="overflow-x-auto rounded-lg bg-white shadow dark:bg-gray-800">
+                <div class="overflow-x-auto rounded-lg bg-white shadow dark:bg-black">
                     <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
-                        <thead class="bg-gray-100 text-xs uppercase dark:bg-gray-700 dark:text-gray-300">
+                        <thead class="bg-gray-100 text-xs uppercase dark:bg-black dark:text-gray-300">
                             <tr>
                                 <th class="px-6 py-3 text-center font-semibold">#</th>
                                 <th class="px-6 py-3 text-center font-semibold">Name</th>
@@ -210,11 +210,11 @@ const deleteUser = async (id: number) => {
                                 <td class="px-6 py-4">#</td>
                                 <td class="px-6 py-4 text-left font-medium text-gray-900 dark:text-white">
                                     <input v-model="newUserName" placeholder="Name"
-                                        class="w-full rounded-md border px-2 py-1 dark:bg-gray-700 dark:text-white" />
+                                        class="w-full rounded-md border px-2 py-1 dark:bg-black dark:text-white" />
                                     <input v-model="newUserEmail" placeholder="Email"
-                                        class="mt-2 w-full rounded-md border px-2 py-1 dark:bg-gray-700 dark:text-white" />
+                                        class="mt-2 w-full rounded-md border px-2 py-1 dark:bg-black dark:text-white" />
                                     <select v-model="newUserClientId"
-                                        class="mt-2 w-full rounded-md border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white">
+                                        class="mt-2 w-full rounded-md border px-2 py-1 text-sm dark:bg-black dark:text-white">
                                         <option disabled value="">Select client</option>
                                         <option v-for="client in clients" :key="client.id" :value="client.id">
                                             {{ client.name }}
@@ -223,7 +223,7 @@ const deleteUser = async (id: number) => {
                                 </td>
                                 <td class="px-6 py-4">
                                     <select v-model="newUserRole"
-                                        class="w-full rounded-md border px-2 py-1 dark:bg-gray-700 dark:text-white">
+                                        class="w-full rounded-md border px-2 py-1 dark:bg-black dark:text-white">
                                         <option disabled value="">Select role</option>
                                         <option value="super_admin">Super Admin</option>
                                         <option value="admin">Admin</option>
@@ -264,7 +264,7 @@ const deleteUser = async (id: number) => {
 
                             <!-- Existing Users -->
                             <tr v-for="(user, index) in filteredUsers" :key="user.id"
-                                class="text-center hover:bg-gray-50 dark:hover:bg-gray-700">
+                                class="text-center hover:bg-gray-50 dark:hover:bg-black">
                                 <td class="px-6 py-4">{{ index + 1 }}</td>
                                 <td class="px-6 py-4 text-left font-medium text-gray-900 dark:text-white">
                                     {{ user.name }}<br />
@@ -272,7 +272,7 @@ const deleteUser = async (id: number) => {
                                     <div class="mt-1">
                                         <select :value="user.client_id"
                                             @change="updateUserClient(user.id, Number($event.target.value))"
-                                            class="mt-1 w-full rounded border px-2 py-1 text-sm dark:bg-gray-700 dark:text-white">
+                                            class="mt-1 w-full rounded border px-2 py-1 text-sm dark:bg-black dark:text-white">
                                             <option disabled value="">Select client</option>
                                             <option v-for="client in clients" :key="client.id" :value="client.id">
                                                 {{ client.name }}
@@ -282,7 +282,7 @@ const deleteUser = async (id: number) => {
                                 </td>
                                 <td class="px-6 py-4 capitalize">
                                     <select v-model="user.role" @change="updateUserRole(user.id, user.role)"
-                                        class="w-full rounded border text-center px-2 py-1 dark:bg-gray-700 dark:text-white"
+                                        class="w-full rounded border text-center px-2 py-1 dark:bg-black dark:text-white"
                                         :disabled="updatingRoleUserId === user.id">
                                         <option value="super_admin">Super Admin</option>
                                         <option value="admin">Admin</option>

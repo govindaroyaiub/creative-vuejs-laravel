@@ -109,7 +109,7 @@ const dismissMessage = () => {
                         id="name"
                         v-model="form.name"
                         required
-                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:ring-indigo-400"
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-600 dark:bg-black dark:text-white dark:focus:ring-indigo-400"
                     />
                 </div>
 
@@ -122,7 +122,7 @@ const dismissMessage = () => {
                         id="client"
                         v-model="form.client"
                         required
-                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:ring-indigo-400"
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-600 dark:bg-black dark:text-white dark:focus:ring-indigo-400"
                     />
                 </div>
 
@@ -156,7 +156,7 @@ const dismissMessage = () => {
                         multiple
                         accept=".zip"
                         @change="handleFileChange"
-                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:ring-indigo-400"
+                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-600 dark:bg-black dark:text-white dark:focus:ring-indigo-400"
                     />
 
                     <!-- Individual file sizes -->
@@ -193,7 +193,7 @@ const dismissMessage = () => {
 </template>
 
 <style scoped>
-.dark .bg-gray-700 {
+.dark .bg-black {
     background-color: #2a2a2a;
 }
 

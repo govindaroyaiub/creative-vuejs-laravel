@@ -119,6 +119,7 @@ const deleteDesignation = async (id: number) => {
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
+
         <Head title="Designations" />
         <SettingsLayout>
             <div class="space-y-6">
@@ -128,17 +129,14 @@ const deleteDesignation = async (id: number) => {
                 </div>
 
                 <div class="mb-6 flex items-center justify-between space-x-4">
-                    <input
-                        v-model="search"
-                        placeholder="Search designations..."
-                        class="w-full max-w-xs rounded border px-3 py-2 dark:bg-gray-700 dark:text-white"
-                    />
+                    <input v-model="search" placeholder="Search designations..."
+                        class="w-full max-w-xs rounded border px-3 py-2 dark:bg-black dark:text-white" />
                     <Button size="sm" @click="startAdding" v-if="!adding"> Add </Button>
                 </div>
 
-                <div class="overflow-x-auto rounded-lg bg-white shadow dark:bg-gray-800">
-                    <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
-                        <thead class="bg-gray-100 text-xs uppercase dark:bg-gray-700 dark:text-gray-300">
+                <div class="overflow-x-auto rounded-lg bg-white shadow dark:bg-black">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-black">
+                        <thead class="bg-gray-100 text-xs uppercase dark:bg-black dark:text-gray-300">
                             <tr>
                                 <th class="px-6 py-3">#</th>
                                 <th class="px-6 py-3">Name</th>
@@ -149,11 +147,9 @@ const deleteDesignation = async (id: number) => {
                             <tr v-if="adding" class="border-b dark:border-gray-700">
                                 <td class="px-6 py-4">#</td>
                                 <td class="px-6 py-4">
-                                    <input
-                                        v-model="newDesignation"
-                                        class="w-full rounded border px-2 py-1 dark:bg-gray-700 dark:text-white"
-                                        placeholder="New designation"
-                                    />
+                                    <input v-model="newDesignation"
+                                        class="w-full rounded border px-2 py-1 dark:bg-black dark:text-white"
+                                        placeholder="New designation" />
                                 </td>
                                 <td class="space-x-2 px-6 py-4 text-center">
                                     <Button size="sm" @click="saveDesignation">Save</Button>
@@ -161,22 +157,27 @@ const deleteDesignation = async (id: number) => {
                                 </td>
                             </tr>
 
-                            <tr v-for="(designation, index) in filteredDesignations" :key="designation.id" class="border-b dark:border-gray-700">
+                            <tr v-for="(designation, index) in filteredDesignations" :key="designation.id"
+                                class="border-b dark:border-gray-700">
                                 <td class="px-6 py-4 text-center">{{ index + 1 }}</td>
                                 <td class="px-6 py-4 text-center">
                                     <template v-if="editingId !== designation.id">{{ designation.name }}</template>
                                     <template v-else>
-                                        <input v-model="editName" class="w-full rounded border px-2 py-1 dark:bg-gray-700 dark:text-white" />
+                                        <input v-model="editName"
+                                            class="w-full rounded border px-2 py-1 dark:bg-black dark:text-white" />
                                     </template>
                                 </td>
                                 <td class="space-x-2 px-6 py-4 text-center">
                                     <template v-if="editingId === designation.id">
-                                        <Button size="sm" @click="updateDesignation(designation.id)">Update</Button>
+                                        <Button size="sm" variant="outline"
+                                            @click="updateDesignation(designation.id)">Update</Button>
                                         <Button size="sm" variant="outline" @click="cancelEditing">Cancel</Button>
                                     </template>
                                     <template v-else>
-                                        <Button size="sm" variant="ghost" @click="startEditing(designation)">Edit</Button>
-                                        <Button size="sm" variant="destructive" @click="deleteDesignation(designation.id)">Delete</Button>
+                                        <Button size="sm" variant="outline"
+                                            @click="startEditing(designation)">Edit</Button>
+                                        <Button size="sm" variant="destructive"
+                                            @click="deleteDesignation(designation.id)">Delete</Button>
                                     </template>
                                 </td>
                             </tr>

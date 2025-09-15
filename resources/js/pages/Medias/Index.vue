@@ -95,16 +95,16 @@ const handleDrop = (e: DragEvent) => {
         <div class="p-6">
             <div class="mb-4 flex items-center justify-between">
                 <input v-model="search" placeholder="Search..."
-                    class="w-full max-w-xs rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" />
+                    class="w-full max-w-xs rounded border px-4 py-2 dark:bg-black dark:text-white" />
                 <button @click="openUploadModal"
                     class="ml-4 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
                     <Upload class="mr-1 inline h-5 w-5" /> Upload
                 </button>
             </div>
 
-            <table class="w-full rounded bg-white shadow dark:bg-gray-800">
-                <thead class="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
-                    <tr class="bg-gray-100 dark:bg-gray-800 uppercase">
+            <table class="w-full rounded bg-white shadow dark:bg-black">
+                <thead class="bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300">
+                    <tr class="bg-gray-100 dark:bg-black uppercase">
                         <th class="border-b px-4 py-2 text-center">#</th>
                         <th class="border-b px-4 py-2 text-center">Name</th>
                         <th class="border-b px-4 py-2 text-center">Uploader</th>
@@ -149,20 +149,20 @@ const handleDrop = (e: DragEvent) => {
                         class="rounded border px-4 py-2 text-sm" :class="{
                             'bg-indigo-600 text-white': link.active,
                             'cursor-not-allowed text-gray-400': !link.url,
-                            'hover:bg-gray-200 dark:hover:bg-gray-700': link.url && !link.active,
+                            'hover:bg-gray-200 dark:hover:bg-black': link.url && !link.active,
                         }" />
                 </template>
             </div>
 
             <!-- Upload Modal -->
             <div v-if="modalVisible" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                <div class="w-full max-w-md rounded bg-white p-6 shadow-lg dark:bg-gray-800">
+                <div class="w-full max-w-md rounded bg-white p-6 shadow-lg dark:bg-black">
                     <h2 class="text-lg font-bold mb-4 text-gray-800 dark:text-white">Upload Media</h2>
 
                     <div class="space-y-4">
                         <!-- File Name Input -->
                         <input type="text" v-model="newForm.name" placeholder="File name"
-                            class="w-full rounded border px-3 py-2 dark:bg-gray-700 dark:text-white" />
+                            class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white" />
 
                         <!-- Drag & Drop Upload Area -->
                         <div class="w-full rounded border-2 border-dashed px-4 py-8 text-center transition-all cursor-pointer"

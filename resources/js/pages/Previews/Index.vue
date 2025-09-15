@@ -115,7 +115,7 @@ const submitForm = () => {
             <!-- Search & Create -->
             <div class="flex items-center justify-between">
                 <input v-model="search" placeholder="Search..." aria-label="Search previews"
-                    class="w-full max-w-sm rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" />
+                    class="w-full max-w-sm rounded border px-4 py-2 dark:bg-black dark:text-white" />
                 <button @click="showModal = true"
                     class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700" aria-label="Add Preview">
                     <CirclePlus class="mr-1 inline h-5 w-5" /> Add
@@ -125,7 +125,7 @@ const submitForm = () => {
             <!-- Table -->
             <div class="overflow-x-auto rounded shadow">
                 <table class="min-w-full table-auto text-sm text-gray-700 dark:text-gray-200">
-                    <thead class="bg-gray-100 dark:bg-gray-700 text-xs uppercase">
+                    <thead class="bg-gray-100 dark:bg-black text-xs uppercase">
                         <tr>
                             <th class="px-4 py-3 text-center">#</th>
                             <th class="px-4 py-3 text-left">Name & Client</th>
@@ -135,7 +135,7 @@ const submitForm = () => {
                             <th class="px-4 py-3 text-center">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    <tbody class="divide-y divide-gray-200 dark:divide-black">
                         <tr v-for="(preview, index) in filteredPreviews" :key="preview.id"
                             class="hover:bg-gray-50 dark:hover:bg-gray-800">
                             <td class="text-center px-4 py-3 font-medium">{{ index + 1 }}</td>
@@ -213,7 +213,7 @@ const submitForm = () => {
 
         <!-- Modal -->
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div class="bg-white dark:bg-gray-900 p-6 rounded-lg w-full max-w-6xl relative overflow-hidden">
+            <div class="bg-white dark:bg-black p-6 rounded-lg w-full max-w-6xl relative overflow-hidden">
                 <button class="absolute top-2 right-2 text-gray-400 hover:text-red-500" @click="closeModal"
                     aria-label="Close Modal">
                     <X class="h-6 w-6" />

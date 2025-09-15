@@ -5,13 +5,13 @@
     <div class="p-6">
       <div class="flex justify-between items-center mb-6mt-4">
         <input v-model="search" type="text" placeholder="Search..."
-          class="w-full max-w-sm rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" @input="onSearch" />
+          class="w-full max-w-sm rounded border px-4 py-2 dark:bg-black dark:text-white" @input="onSearch" />
         <button @click="openAddModal" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500">Add
           New</button>
       </div>
       <div class="overflow-x-auto mb-4 mt-4 rounded shadow">
         <table class="min-w-full table-auto border bg-white dark:bg-black text-black dark:text-white text-center">
-          <thead class="bg-gray-100 dark:bg-gray-700 text-xs uppercase">
+          <thead class="bg-gray-100 dark:bg-black text-xs uppercase">
             <tr>
               <th class="px-2 py-2">#</th>
               <th class="px-2 py-2">Theme</th>
@@ -24,7 +24,7 @@
           </thead>
           <tbody>
             <tr v-for="(palette, index) in colorPalettes" :key="palette.id"
-              class="border-t hover:bg-gray-100 dark:hover:bg-gray-800">
+              class="border-t hover:bg-gray-100 dark:hover:bg-gray-900">
               <td class="px-2 py-2">{{ index + 1 }}</td>
               <td class="px-2 py-2">{{ palette.name }}</td>
               <td class="px-2 py-2" style="width: 270px;">
@@ -69,16 +69,16 @@
 
     <!-- Modal (Add/Edit) -->
     <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div class="bg-white dark:bg-gray-900 p-6 rounded shadow-lg w-full max-w-4xl">
+      <div class="bg-white dark:bg-black border p-6 rounded-md shadow-lg w-full max-w-5xl">
         <h2 class="text-xl font-bold mb-4">{{ modalMode === 'edit' ? 'Edit Palette' : 'Add Palette' }}</h2>
         <form @submit.prevent="submit">
           <div class="flex flex-row gap-8">
             <!-- Left: Colors -->
-            <div class="flex-1">
+            <div class="flex-1 pr-4 border-r-2">
               <div class="mb-4">
                 <label class="block mb-1 font-semibold">Name</label>
                 <input v-model="form.name" type="text" placeholder="Palette Name"
-                  class="w-full border rounded px-3 py-2 dark:bg-gray-800 dark:text-white" required />
+                  class="w-full border rounded px-3 py-2 dark:bg-black dark:text-white" required />
               </div>
               <div class="mb-4 grid grid-cols-2 gap-4">
                 <div v-for="key in colorKeys" :key="key">

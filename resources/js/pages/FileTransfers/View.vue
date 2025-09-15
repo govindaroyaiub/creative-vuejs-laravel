@@ -313,7 +313,7 @@ li a:hover {
 }
 
 .stars {
-    background: url(http://salehriaz.com/404Page/img/overlay_stars.svg);
+    background: url('/Transfer Files/overlay_stars.svg');
     background-repeat: repeat;
     background-size: contain;
     background-position: left top;
@@ -388,13 +388,13 @@ li a:hover {
     <div class="bg-purple">
         <div class="stars">
             <div class="objects">
-                <img class="object_rocket" src="http://salehriaz.com/404Page/img/rocket.svg" width="40px" />
+                <img class="object_rocket" src="/Transfer Files/rocket.svg" width="40px" />
                 <div class="earth-moon">
-                    <img class="object_earth" src="http://salehriaz.com/404Page/img/earth.svg" width="100px" />
-                    <img class="object_moon" src="http://salehriaz.com/404Page/img/moon.svg" width="80px" />
+                    <img class="object_earth" src="/Transfer Files/earth.svg" width="100px" />
+                    <img class="object_moon" src="/Transfer Files/download.png" width="80px" />
                 </div>
                 <div class="box_astronaut">
-                    <img class="object_astronaut" src="http://salehriaz.com/404Page/img/astronaut.svg" width="140px" />
+                    <img class="object_astronaut" src="/Transfer Files/astronaut.svg" width="140px" />
                 </div>
             </div>
             <div class="glowing_stars">

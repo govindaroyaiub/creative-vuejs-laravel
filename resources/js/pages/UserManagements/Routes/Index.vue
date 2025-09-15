@@ -107,6 +107,7 @@ const deleteRoute = async (id: number) => {
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
+
         <Head title="Routes" />
         <SettingsLayout>
             <div class="space-y-6">
@@ -116,17 +117,14 @@ const deleteRoute = async (id: number) => {
                 </div>
 
                 <div class="mb-6 flex items-center justify-between space-x-4">
-                    <input
-                        v-model="search"
-                        placeholder="Search routes..."
-                        class="w-full max-w-xs rounded border px-3 py-2 text-left dark:bg-gray-700 dark:text-white"
-                    />
+                    <input v-model="search" placeholder="Search routes..."
+                        class="w-full max-w-xs rounded border px-3 py-2 text-left dark:bg-black dark:text-white" />
                     <Button size="sm" @click="startAdding" v-if="!adding"> Add </Button>
                 </div>
 
-                <div class="overflow-x-auto rounded-lg bg-white shadow dark:bg-gray-800">
+                <div class="overflow-x-auto rounded-lg bg-white shadow dark:bg-black">
                     <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
-                        <thead class="bg-gray-100 text-xs uppercase dark:bg-gray-700 dark:text-gray-300 text-center">
+                        <thead class="bg-gray-100 text-xs uppercase dark:bg-black dark:text-gray-300 text-center">
                             <tr>
                                 <th class="px-6 py-3">#</th>
                                 <th class="px-6 py-3">Title</th>
@@ -139,18 +137,12 @@ const deleteRoute = async (id: number) => {
                             <tr v-if="adding" class="border-b dark:border-gray-700">
                                 <td class="px-6 py-4">#</td>
                                 <td class="px-6 py-4">
-                                    <input
-                                        v-model="newRoute.title"
-                                        placeholder="Route Title"
-                                        class="w-full rounded border px-2 py-1 text-center dark:bg-gray-700 dark:text-white"
-                                    />
+                                    <input v-model="newRoute.title" placeholder="Route Title"
+                                        class="w-full rounded border px-2 py-1 text-center dark:bg-black dark:text-white" />
                                 </td>
                                 <td class="px-6 py-4">
-                                    <input
-                                        v-model="newRoute.href"
-                                        placeholder="Route Href"
-                                        class="w-full rounded border px-2 py-1 text-center dark:bg-gray-700 dark:text-white"
-                                    />
+                                    <input v-model="newRoute.href" placeholder="Route Href"
+                                        class="w-full rounded border px-2 py-1 text-center dark:bg-black dark:text-white" />
                                 </td>
                                 <td class="px-6 py-4 space-x-2">
                                     <Button size="sm" @click="saveRoute">Save</Button>
@@ -158,18 +150,21 @@ const deleteRoute = async (id: number) => {
                                 </td>
                             </tr>
 
-                            <tr v-for="(route, index) in filteredRoutes" :key="route.id" class="border-b dark:border-gray-700">
+                            <tr v-for="(route, index) in filteredRoutes" :key="route.id"
+                                class="border-b dark:border-gray-700">
                                 <td class="px-6 py-4">{{ index + 1 }}</td>
                                 <td class="px-6 py-4">
                                     <template v-if="editingId !== route.id">{{ route.title }}</template>
                                     <template v-else>
-                                        <input v-model="editForm.title" class="w-full rounded border px-2 py-1 text-center dark:bg-gray-700 dark:text-white" />
+                                        <input v-model="editForm.title"
+                                            class="w-full rounded border px-2 py-1 text-center dark:bg-black dark:text-white" />
                                     </template>
                                 </td>
                                 <td class="px-6 py-4">
                                     <template v-if="editingId !== route.id">{{ route.href }}</template>
                                     <template v-else>
-                                        <input v-model="editForm.href" class="w-full rounded border px-2 py-1 text-center dark:bg-gray-700 dark:text-white" />
+                                        <input v-model="editForm.href"
+                                            class="w-full rounded border px-2 py-1 text-center dark:bg-black dark:text-white" />
                                     </template>
                                 </td>
                                 <td class="space-x-2 px-6 py-4">
@@ -178,8 +173,9 @@ const deleteRoute = async (id: number) => {
                                         <Button size="sm" variant="outline" @click="cancelEditing">Cancel</Button>
                                     </template>
                                     <template v-else>
-                                        <Button size="sm" variant="ghost" @click="startEditing(route)">Edit</Button>
-                                        <Button size="sm" variant="destructive" @click="deleteRoute(route.id)">Delete</Button>
+                                        <Button size="sm" variant="outline" @click="startEditing(route)">Edit</Button>
+                                        <Button size="sm" variant="destructive"
+                                            @click="deleteRoute(route.id)">Delete</Button>
                                     </template>
                                 </td>
                             </tr>

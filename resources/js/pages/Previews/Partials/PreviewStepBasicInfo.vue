@@ -6,7 +6,7 @@
     <div>
       <label class="block mb-1 text-sm font-medium">Preview Name</label>
       <input v-model="form.name" type="text" placeholder="e.g. Facebook Ad - June"
-        class="w-full rounded border px-3 py-2 dark:bg-gray-800 dark:text-white" />
+        class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white" />
     </div>
 
     <!-- Client and Color Palette on same row -->
@@ -14,7 +14,7 @@
       <!-- Client Dropdown -->
       <div class="flex-1">
         <label class="block mb-1 text-sm font-medium">Client</label>
-        <select v-model="form.client_id" class="w-full rounded border px-3 py-2 dark:bg-gray-800 dark:text-white">
+        <select v-model="form.client_id" class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white">
           <option disabled value="">Select Client</option>
           <option v-for="client in clients" :key="client.id" :value="client.id">
             {{ client.name }}
@@ -26,7 +26,7 @@
       <div class="flex-1">
         <label class="block mb-1 text-sm font-medium">Theme</label>
         <select v-model="form.color_palette_id"
-          class="w-full rounded border px-3 py-2 dark:bg-gray-800 dark:text-white">
+          class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white">
           <option disabled value="">Select Theme</option>
           <option v-for="palette in colorPalettes" :key="palette.id" :value="palette.id">
             {{ palette.name }}
@@ -46,7 +46,7 @@
         </span>
       </div>
       <input v-model="userSearch" type="text" placeholder="Search users..."
-        class="w-full rounded border px-3 py-2 dark:bg-gray-800 dark:text-white" />
+        class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white" />
       <ul v-if="userSearch.trim().length > 0 && filteredUsers.length > 0"
         class="mt-1 max-h-32 overflow-y-auto rounded border dark:border-gray-700">
         <li v-for="user in filteredUsers" :key="user.id"
