@@ -38,7 +38,6 @@ class DashboardController extends Controller
 
         $monthlyPreviewStats = $this->getMonthlyPreviewCount(newPreview::class, $year);
 
-
         return Inertia::render('Dashboard', [
             'userCount' => User::count(),
             'previewCount' => newPreview::whereYear('created_at', $year)->count(),

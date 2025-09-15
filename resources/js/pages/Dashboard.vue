@@ -143,6 +143,35 @@ const billChartOptions = {
         }
     }
 };
+
+const monthlyPreviewStats = computed(() => page.props.monthlyPreviewStats ?? {});
+
+const previewChartData = computed(() => ({
+    labels,
+    datasets: [
+        {
+            label: 'Monthly Previews',
+            data: labels.map((_, i) => monthlyPreviewStats.value[i + 1] || 0),
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59,130,246,0.1)',
+            tension: 0.4,
+            fill: true,
+        },
+    ],
+}));
+
+const previewChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: {
+        duration: 1000,
+        easing: 'easeOutQuart',
+    },
+    plugins: {
+        legend: { position: 'bottom' },
+        title: { display: true, text: `Monthly Previews Statistics (${year})` }
+    }
+};
 </script>
 
 <template>
@@ -191,15 +220,18 @@ const billChartOptions = {
             </div>
 
             <div class="flex gap-4">
-                <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow w-full" :style="{ height: `calc(100vh - 350px)` }">
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow w-full"
+                    :style="{ height: `calc(100vh - 350px)` }">
                     <Line :data="chartData" :options="chartOptions" />
                 </div>
-                <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow w-full" :style="{ height: `calc(100vh - 350px)` }">
-                    <Line :data="chartData" :options="chartOptions" />
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow w-full"
+                    :style="{ height: `calc(100vh - 350px)` }">
+                    <Line :data="previewChartData" :options="previewChartOptions" />
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow mt-8" :style="{ height: `350px` }">
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow mt-8"
+                :style="{ height: `calc(100vh - 350px)` }">
                 <Line :data="billChartData" :options="billChartOptions" />
             </div>
         </div>
