@@ -115,7 +115,7 @@ const submitForm = () => {
             <!-- Search & Create -->
             <div class="flex items-center justify-between">
                 <input v-model="search" placeholder="Search..." aria-label="Search previews"
-                    class="w-full max-w-sm rounded border px-4 py-2 dark:bg-black dark:text-white" />
+                    class="w-full max-w-xs rounded border px-4 py-2 dark:bg-black dark:text-white" />
                 <button @click="showModal = true"
                     class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700" aria-label="Add Preview">
                     <CirclePlus class="mr-1 inline h-5 w-5" /> Add

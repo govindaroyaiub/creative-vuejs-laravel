@@ -5,9 +5,10 @@
     <div class="p-6">
       <div class="flex justify-between items-center mb-6mt-4">
         <input v-model="search" type="text" placeholder="Search..."
-          class="w-full max-w-sm rounded border px-4 py-2 dark:bg-black dark:text-white" @input="onSearch" />
-        <button @click="openAddModal" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500">Add
-          New</button>
+          class="w-full max-w-xs rounded border px-4 py-2 dark:bg-black dark:text-white" @input="onSearch" />
+        <button @click="openAddModal" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500">
+          <CirclePlus class="mr-1 inline h-5 w-5" /> Add
+        </button>
       </div>
       <div class="overflow-x-auto mb-4 mt-4 rounded shadow">
         <table class="min-w-full table-auto border bg-white dark:bg-black text-black dark:text-white text-center">
@@ -137,6 +138,7 @@ import { ref, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import Swal from 'sweetalert2'
 import { Head } from '@inertiajs/vue3'
+import { CirclePlus } from 'lucide-vue-next'
 
 const props = defineProps({
   colorPalettes: Array

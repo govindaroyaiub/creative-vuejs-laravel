@@ -190,7 +190,7 @@ const handleDrop = (e: DragEvent) => {
 
                         <!-- Buttons -->
                         <div class="flex justify-end gap-2 pt-4">
-                            <button @click="modalVisible = false" class="px-4 py-2 rounded border dark:text-white bg-red-600 hover:bg-red-700">
+                            <button @click="modalVisible = false" class="px-4 py-2 rounded border text-white bg-red-600 hover:bg-red-700">
                                 Cancel
                             </button>
                             <button @click="uploadFile" :disabled="uploading"

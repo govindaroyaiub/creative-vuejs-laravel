@@ -68,9 +68,9 @@ onMounted(() => {
         <div class="p-6">
             <div class="mb-4 flex items-center justify-between">
                 <input v-model="search" placeholder="Search..."
-                    class="w-full max-w-xs rounded-lg border px-4 py-2 dark:bg-black dark:text-white" />
+                    class="w-full max-w-xs rounded border px-4 py-2 dark:bg-black dark:text-white" />
                 <Link :href="route('clients-create')"
-                    class="ml-4 rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700">
+                    class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
                 <CirclePlus class="mr-1 inline h-5 w-5" /> Add
                 </Link>
             </div>

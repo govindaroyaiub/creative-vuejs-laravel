@@ -180,10 +180,10 @@ const deleteUser = async (id: number) => {
 
         <Head title="Users" />
         <SettingsLayout>
-            <div class="mx-auto max-w-6xl space-y-6 px-4">
-                <div class="flex flex-col gap-1">
-                    <h2 class="text-2xl font-bold">Users</h2>
-                    <p class="text-sm text-muted-foreground">Manage users, roles, clients, and permissions.</p>
+            <div class="space-y-6">
+                <div class="flex flex-col items-start">
+                    <h2 class="text-lg font-bold">Users</h2>
+                    <small>Manage Users and their permissions</small>
                 </div>
 
                 <div class="flex items-center justify-between gap-4">
