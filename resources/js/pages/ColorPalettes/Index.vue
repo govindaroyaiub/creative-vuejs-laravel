@@ -81,10 +81,12 @@
                   class="w-full border rounded px-3 py-2 dark:bg-black dark:text-white" required />
               </div>
               <div class="mb-4 grid grid-cols-2 gap-4">
-                <div v-for="key in colorKeys" :key="key">
+                <div v-for="key in colorKeys" :key="key" class="mb-4">
                   <label class="block mb-1 font-semibold">{{ key.charAt(0).toUpperCase() + key.slice(1) }}</label>
-                  <input type="color" v-model="form[key]" class="w-10 h-10 border rounded" />
-                  <span class="ml-2 text-xs">{{ form[key] }}</span>
+                  <div class="flex items-center gap-2">
+                    <input type="color" v-model="form[key]" class="w-10 h-10 border rounded" />
+                    <span class="ml-2 text-xs">{{ form[key] }}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -117,8 +119,10 @@
             </div>
           </div>
           <div class="flex justify-end gap-2 mt-6">
-            <button type="button" @click="closeModal" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Cancel</button>
-            <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded">{{ modalMode === 'edit' ? 'Update'
+            <button type="button" @click="closeModal"
+              class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded">Cancel</button>
+            <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded">{{ modalMode
+              === 'edit' ? 'Update'
               : 'Save' }}</button>
           </div>
         </form>
