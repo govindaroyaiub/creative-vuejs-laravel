@@ -190,8 +190,13 @@ const billChartOptions = {
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow" :style="{ height: `calc(100vh - 350px)` }">
-                <Line :data="chartData" :options="chartOptions" />
+            <div class="flex gap-4">
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow w-full" :style="{ height: `calc(100vh - 350px)` }">
+                    <Line :data="chartData" :options="chartOptions" />
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow w-full" :style="{ height: `calc(100vh - 350px)` }">
+                    <Line :data="chartData" :options="chartOptions" />
+                </div>
             </div>
 
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow mt-8" :style="{ height: `350px` }">

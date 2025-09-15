@@ -36,6 +36,8 @@ class DashboardController extends Controller
             'socials' => $this->getMonthlyCount(newSocial::class, $year),
         ];
 
+        $monthlyPreviewStats = $this->getMonthlyPreviewCount(newPreview::class, $year);
+
 
         return Inertia::render('Dashboard', [
             'userCount' => User::count(),
@@ -47,7 +49,8 @@ class DashboardController extends Controller
             'fileTransferCount' => FileTransfer::whereYear('created_at', $year)->count(),
             'totalBill' => Bill::whereYear('created_at', $year)->sum('total_amount'),
             'monthlyStats' => $monthlyStats,
-            'monthlyBillTotals' => $this->getMonthlyBillTotals($year)
+            'monthlyBillTotals' => $this->getMonthlyBillTotals($year),
+            'monthlyPreviewStats' => $monthlyPreviewStats,
         ]);
     }
 
@@ -70,6 +73,17 @@ class DashboardController extends Controller
             ->orderBy('month')
             ->get()
             ->mapWithKeys(fn($row) => [intval($row->month) => floatval($row->total)])
+            ->all();
+    }
+
+    private function getMonthlyPreviewCount($model, $year)
+    {
+        return newPreview::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+            ->whereYear('created_at', $year)
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get()
+            ->mapWithKeys(fn($row) => [intval($row->month) => $row->count])
             ->all();
     }
 }
