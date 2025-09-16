@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\File;
 use Inertia\Inertia;
 use App\Models\FileTransfer;
+use Illuminate\Support\Str;
 
 class FileTransferController extends Controller
 {
@@ -19,9 +20,9 @@ class FileTransferController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function show($id)
+    public function show($slug)
     {
-        $fileTransfer = FileTransfer::with('user:id,name')->findOrFail($id);
+        $fileTransfer = FileTransfer::with('user:id,name')->where('slug', $slug)->firstOrFail();
 
         // Remove 'Transfer Files' from each file path, then split by commas
         $filePaths = array_map(function ($file) {
@@ -30,6 +31,7 @@ class FileTransferController extends Controller
 
         return Inertia::render('FileTransfers/View', [
             'fileTransfer' => [
+                'slug' => $fileTransfer->slug,
                 'id' => $fileTransfer->id,
                 'name' => $fileTransfer->name,
                 'client' => $fileTransfer->client,
@@ -120,6 +122,7 @@ class FileTransferController extends Controller
 
         // Create a new record in the database
         $fileTransfer = new FileTransfer();
+        $fileTransfer->slug = Str::uuid()->toString(); // Generate a unique slug
         $fileTransfer->name = $request->input('name');
         $fileTransfer->client = $request->input('client');
         $fileTransfer->user_id = Auth::id(); // Assuming the user ID is stored in the 'id' column

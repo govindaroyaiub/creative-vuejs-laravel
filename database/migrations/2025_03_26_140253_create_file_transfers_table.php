@@ -12,6 +12,7 @@ class CreateFileTransfersTable extends Migration
     {
         Schema::create('file_transfers', function (Blueprint $table) {
             $table->id();
+            $table->string('slug')->unique();
             $table->string('name');
             $table->string('client');
             $table->integer('user_id');

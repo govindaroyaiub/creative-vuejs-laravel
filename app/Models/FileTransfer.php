@@ -17,7 +17,7 @@ class FileTransfer extends Model
     protected static $logAttributes = ['*']; // logs all attributes
     protected static $logName = 'File Transfer'; // name for this log
 
-    protected $fillable = ['name', 'client', 'user_id', 'file_path']; // Ensure 'user_id' is fillable
+    protected $fillable = ['slug', 'name', 'client', 'user_id', 'file_path']; // Ensure 'user_id' is fillable
 
     // Define the relationship
     public function user()

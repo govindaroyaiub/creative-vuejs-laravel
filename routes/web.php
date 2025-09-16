@@ -176,7 +176,7 @@ Route::get('/preview/{preview_id}/change/theme/{color_id}', [newPreviewApiContro
 
 //preview axios get requests end
 
-Route::get('/file-transfers-view/{id}', [FileTransferController::class, 'show'])->name('file-transfers-view');
+Route::get('/file-transfers-view/{slug}', [FileTransferController::class, 'show'])->name('file-transfers-view');
 
 Route::prefix('welcome-to-planetnine')->group(function () {
     Route::get('/register', [UserManagementController::class, 'register'])->name('welcome-to-planetnine-register');

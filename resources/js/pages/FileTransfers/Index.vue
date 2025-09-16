@@ -91,7 +91,7 @@ const getTransferLink = (id: number) => {
                                 }) }}
                             </td>
                             <td class="space-x-2 px-4 py-2 border-b">
-                                <a :href="`/file-transfers-view/${transfer.id}`" target="_blank"
+                                <a :href="`/file-transfers-view/${transfer.slug}`" target="_blank"
                                     class="text-green-600 hover:text-green-800">
                                     <Eye class="inline h-6 w-6" />
                                 </a>
