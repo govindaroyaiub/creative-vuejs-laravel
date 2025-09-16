@@ -166,7 +166,7 @@ onMounted(() => {
         <!-- Download Panel -->
         <div class="relative z-10 flex min-h-screen items-center justify-center px-4">
             <div
-                class="w-full max-w-3xl rounded-2xl bg-white/10 p-6 sm:p-8 shadow-xl backdrop-blur-lg border border-white/20">
+                class="w-full max-w-3xl rounded-2xl bg-white/10 p-6 sm:p-8 shadow-xl backdrop-blur-xl border border-white/20">
                 <h1
                     class="mb-4 flex items-center gap-2 text-left text-2xl sm:text-3xl font-extrabold text-yellow-300 drop-shadow-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"
@@ -199,7 +199,7 @@ onMounted(() => {
 
 .object_rocket {
     position: absolute;
-    top: 70%;
+    top: 25%;
     left: 10%;
     width: 50px;
     animation: rocket-float 6s ease-in-out infinite alternate;
@@ -218,7 +218,7 @@ onMounted(() => {
 .box_astronaut {
     position: absolute;
     top: 55%;
-    right: 20%;
+    right: 15%;
     z-index: 5;
 }
 
