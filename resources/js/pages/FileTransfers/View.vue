@@ -11,6 +11,7 @@ let renderer: THREE.WebGLRenderer;
 let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
 let animationId: number;
+let smallEarth: THREE.Mesh;
 
 onMounted(() => {
     const canvas = document.getElementById('starfield') as HTMLCanvasElement;
@@ -48,11 +49,9 @@ onMounted(() => {
         'position',
         new THREE.Float32BufferAttribute(positions, 3)
     );
-
     const starTexture = new THREE.TextureLoader().load(
         'https://threejs.org/examples/textures/sprites/disc.png'
     );
-
     const starsMaterial = new THREE.PointsMaterial({
         size: 1.2,
         map: starTexture,
@@ -61,11 +60,10 @@ onMounted(() => {
         blending: THREE.AdditiveBlending,
         depthWrite: false,
     });
-
     const stars = new THREE.Points(starsGeometry, starsMaterial);
     scene.add(stars);
 
-    // --- PLANET ---
+    // --- CENTER PLANET ---
     const planetTexture = new THREE.TextureLoader().load('/Transfer Files/earth.svg');
     const planet = new THREE.Mesh(
         new THREE.SphereGeometry(1, 64, 64),
@@ -84,7 +82,17 @@ onMounted(() => {
     );
     scene.add(glow);
 
-    const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+    // --- SMALL FLOATING EARTH ---
+    const smallEarthTexture = new THREE.TextureLoader().load('/Transfer Files/earth.svg');
+    smallEarth = new THREE.Mesh(
+        new THREE.SphereGeometry(0.3, 32, 32),
+        new THREE.MeshStandardMaterial({ map: smallEarthTexture })
+    );
+    smallEarth.position.set(-2.5, 1.8, -2); // top-left corner placement
+    scene.add(smallEarth);
+
+    // Lighting
+    const ambient = new THREE.AmbientLight(0xffffff, 0.5);
     const point = new THREE.PointLight(0x9cf, 1.5);
     point.position.set(5, 5, 5);
     scene.add(ambient, point);
@@ -95,7 +103,7 @@ onMounted(() => {
         mouse.y = (e.clientY / window.innerHeight - 0.5) * 0.4;
     });
 
-    // Animate
+    // Animation
     let lastTime = 0;
     const animate = (time = 0) => {
         const delta = time - lastTime;
@@ -103,6 +111,11 @@ onMounted(() => {
             planet.rotation.y += 0.0015;
             glow.rotation.y += 0.001;
             stars.rotation.y += 0.0005;
+
+            if (smallEarth) {
+                smallEarth.rotation.y += 0.01; // Spin small Earth
+                smallEarth.position.y = 1.8 + Math.sin(time * 0.001) * 0.05; // Float slightly
+            }
 
             camera.rotation.x += (mouse.y - camera.rotation.x) * 0.02;
             camera.rotation.y += (mouse.x - camera.rotation.y) * 0.02;
@@ -114,7 +127,6 @@ onMounted(() => {
     };
     animate();
 
-    // Handle Resize
     const handleResize = () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
@@ -122,11 +134,9 @@ onMounted(() => {
     };
     window.addEventListener('resize', handleResize);
 
-    // Cleanup
     onUnmounted(() => {
         cancelAnimationFrame(animationId);
         window.removeEventListener('resize', handleResize);
-
         scene.traverse((object) => {
             if ((object as THREE.Mesh).geometry)
                 (object as THREE.Mesh).geometry.dispose();
@@ -148,7 +158,6 @@ onMounted(() => {
 
         <!-- Decorative Assets -->
         <img class="object_rocket" src="/Transfer Files/rocket.svg" alt="rocket" aria-hidden="true" />
-        <img class="object_earth" src="/Transfer Files/earth.svg" alt="earth" aria-hidden="true" />
         <img class="object_moon" src="/Transfer Files/download.png" alt="moon" aria-hidden="true" />
         <div class="box_astronaut">
             <img id="astronaut" class="object_astronaut" src="/Transfer Files/astronaut.svg" alt="astronaut" />
@@ -188,7 +197,6 @@ onMounted(() => {
 <style scoped>
 @import url('https://fonts.googleapis.com/css?family=Dosis:300,400,500');
 
-/* Floating Assets */
 .object_rocket {
     position: absolute;
     top: 70%;
@@ -196,13 +204,6 @@ onMounted(() => {
     width: 50px;
     animation: rocket-float 6s ease-in-out infinite alternate;
     will-change: transform;
-}
-
-.object_earth {
-    position: absolute;
-    top: 15%;
-    left: 15%;
-    width: 120px;
 }
 
 .object_moon {
@@ -227,7 +228,6 @@ onMounted(() => {
     will-change: transform;
 }
 
-/* Animations */
 @keyframes float-around {
     0% {
         transform: translate(0, 0) rotate(0deg);
@@ -270,16 +270,10 @@ onMounted(() => {
     }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .object_rocket {
         width: 35px;
         top: 75%;
-    }
-
-    .object_earth {
-        width: 90px;
-        top: 18%;
     }
 
     .object_moon {
@@ -300,10 +294,6 @@ onMounted(() => {
 @media (max-width: 480px) {
     .object_rocket {
         width: 25px;
-    }
-
-    .object_earth {
-        width: 70px;
     }
 
     .object_moon {

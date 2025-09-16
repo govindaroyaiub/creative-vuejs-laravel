@@ -39,12 +39,6 @@ const deleteFileTransfer = async (id: number) => {
         });
     }
 };
-
-const getTransferLink = (id: number) => {
-    const url = `${window.location.origin}/file-transfers-view/${id}`;
-    navigator.clipboard.writeText(url);
-    Swal.fire('Link Copied!', 'The link has been copied to your clipboard.', 'success');
-};
 </script>
 
 <template>
@@ -95,10 +89,6 @@ const getTransferLink = (id: number) => {
                                     class="text-green-600 hover:text-green-800">
                                     <Eye class="inline h-6 w-6" />
                                 </a>
-                                <button @click="getTransferLink(transfer.id)"
-                                    class="text-purple-600 hover:text-purple-800">
-                                    <Share2 class="inline h-6 w-6" />
-                                </button>
                                 <Link :href="route('file-transfers-edit', transfer.id)"
                                     class="text-blue-600 hover:text-blue-800">
                                 <Pencil class="inline h-5 w-5" />
