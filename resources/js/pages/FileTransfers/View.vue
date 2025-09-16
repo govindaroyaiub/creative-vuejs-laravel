@@ -181,10 +181,10 @@ onMounted(() => {
                 </p>
                 <div class="space-y-4">
                     <div v-for="(file, index) in fileTransfer.file_paths" :key="index"
-                        class="flex items-center justify-between rounded-md bg-white/10 px-3 sm:px-4 py-2 sm:py-3 shadow hover:bg-white/20 transition">
+                        class="flex items-center justify-between rounded-xl bg-white/10 px-3 sm:px-4 py-2 sm:py-3 shadow hover:bg-white/20 transition">
                         <span class="truncate text-sm sm:text-base">{{ file }}</span>
                         <a :href="`/Transfer Files/${file}`" download
-                            class="mt-2 sm:mt-0 rounded bg-yellow-400 px-3 sm:px-4 py-1 sm:py-2 text-sm font-medium text-black transition hover:bg-yellow-300 focus:outline-dashed focus:outline-2 focus:outline-yellow-400">
+                            class="mt-2 sm:mt-0 rounded-md bg-yellow-400 px-3 sm:px-4 py-1 sm:py-2 text-sm font-medium text-black transition hover:bg-yellow-300 focus:outline-dashed focus:outline-2 focus:outline-yellow-400">
                             Download
                         </a>
                     </div>

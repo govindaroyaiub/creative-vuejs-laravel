@@ -22,10 +22,10 @@ const mainNavItems: NavItem[] = [
     { title: 'Color Palettes', href: '/color-palettes', icon: Paintbrush },
     { title: 'Banner Sizes', href: '/banner-sizes', icon: MonitorCog },
     { title: 'Video Sizes', href: '/video-sizes', icon: Clapperboard },
-    { title: 'Tetris', href: '/play/tetris', icon: Type },
     { title: 'Bills', href: '/bills', icon: ReceiptText },
     { title: 'File Transfers', href: '/file-transfers', icon: Paperclip },
     { title: 'Media Library', 'href': '/medias', icon: ImagePlay },
+    { title: 'Tetris', href: '/play/tetris', icon: Type },
 ];
 
 const footerNavItems: NavItem[] = [
@@ -75,7 +75,7 @@ const { appearance, updateAppearance } = useAppearance();
                         class="w-11 h-6 bg-black peer-focus:outline-none peer-focus:ring-2 rounded-full peer dark:bg-white transition">
                     </div>
                     <div
-                        class="absolute left-1 top-1 bg-white dark:bg-black w-4 h-4 rounded-full transition peer-checked:translate-x-5">
+                        class="absolute left-0.5 top-0.5 bg-white dark:bg-black w-5 h-5 rounded-full transition peer-checked:translate-x-5">
                     </div>
                 </label>
                 <span class="text-xs text-black dark:text-white">Dark</span>
