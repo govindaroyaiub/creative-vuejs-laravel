@@ -67,20 +67,6 @@ const { appearance, updateAppearance } = useAppearance();
 
         <SidebarFooter>
             <NavFooter :items="footerNavItems.filter(item => hasPermission(item.href))" />
-            <div class="flex items-center gap-2 px-4">
-                <span class="text-xs text-black dark:text-white">Light</span>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" class="sr-only peer" :checked="appearance === 'dark'"
-                        @change="updateAppearance(appearance === 'dark' ? 'light' : 'dark')" />
-                    <div
-                        class="w-11 h-6 bg-black peer-focus:outline-none peer-focus:ring-2 rounded-full peer dark:bg-white transition">
-                    </div>
-                    <div
-                        class="absolute left-0.5 top-0.5 bg-white dark:bg-black w-5 h-5 rounded-full transition peer-checked:translate-x-5">
-                    </div>
-                </label>
-                <span class="text-xs text-black dark:text-white">Dark</span>
-            </div>
             <NavUser />
         </SidebarFooter>
     </Sidebar>
