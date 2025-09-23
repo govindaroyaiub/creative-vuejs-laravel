@@ -46,6 +46,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/tinypng', [TinyPngController::class, 'index'])->name('tinypng.index');
     Route::post('/tinypng/compress', [TinyPngController::class, 'compress'])->name('tinypng.compress');
     Route::post('/tinypng/download-zip', [TinyPngController::class, 'downloadZip'])->name('tinypng.download-zip');
+    Route::get('/tinypng/compression-count', [TinyPngController::class, 'compressionCount'])->name('tinypng.compression-count');
 
     //File Transfer Routes Start
     Route::get('/file-transfers', [FileTransferController::class, 'index'])->name('file-transfers');
