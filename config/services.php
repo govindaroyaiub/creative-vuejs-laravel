@@ -37,4 +37,7 @@ return [
     'openai' => [
         'key' => env('OPENAI_API_KEY'),
     ],
+    'tinypng' => [
+        'key' => env('TINYPNG_API_KEY'),
+    ],
 ];

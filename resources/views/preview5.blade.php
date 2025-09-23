@@ -750,16 +750,16 @@
             banners.forEach(function(banner) {
                 var bannerPath = '/' + banner.path + '/index.html';
                 var bannerReloadID = banner.id;
-                bannersHtml += '<div class="banner-creatives banner-area-'+ banner.size.width +'" style="display: inline-block; width: ' + banner.size.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem; margin-bottom: 1rem;">';
+                bannersHtml += '<div class="banner-creatives banner-area-'+ banner.size.width +'" style="display: inline-block; width: ' + banner.size.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem; margin-bottom: 2rem;">';
                 bannersHtml += '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
                 bannersHtml += '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + banner.size.width + 'x' + banner.size.height + '</small>';
                 bannersHtml += '<small style="float: right; font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + banner.file_size + '</small>';
                 bannersHtml += '</div>';
-                bannersHtml += '<iframe class="iframe-banners" style="margin-top: 2px;" src="' + bannerPath + '" width="' + banner.size.width + '" height="' + banner.size.height + '" frameBorder="0" scrolling="no" id="rel' + banner.id + '"></iframe>';
+                bannersHtml += '<iframe class="iframe-banners" src="' + bannerPath + '" width="' + banner.size.width + '" height="' + banner.size.height + '" frameBorder="0" scrolling="no" id="rel' + banner.id + '"></iframe>';
                 bannersHtml += '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
-                bannersHtml += '<li><i id="relBt' + banner.id + '" onClick="reloadBanner(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
+                bannersHtml += '<li><i id="relBt' + banner.id + '" onClick="reloadBanner(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:1rem;"></i></li>';
                 bannersHtml += '@if($authUserClientName == "Planet Nine")'
-                bannersHtml += '<li class="banner-options"><a href="/previews/banner/download/' + banner.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>';
+                bannersHtml += '<li class="banner-options"><a href="/previews/banner/download/' + banner.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:1rem;"></i></a></li>';
                 bannersHtml += '@endif';
                 bannersHtml += '</ul>';
                 bannersHtml += '</div>';

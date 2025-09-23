@@ -30,6 +30,7 @@ use App\Http\Controllers\NewSocialController;
 use App\Http\Controllers\NewVideoController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\TetrisController;
+use App\Http\Controllers\TinyPngController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -41,6 +42,10 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/tinypng', [TinyPngController::class, 'index'])->name('tinypng.index');
+    Route::post('/tinypng/compress', [TinyPngController::class, 'compress'])->name('tinypng.compress');
+    Route::post('/tinypng/download-zip', [TinyPngController::class, 'downloadZip'])->name('tinypng.download-zip');
 
     //File Transfer Routes Start
     Route::get('/file-transfers', [FileTransferController::class, 'index'])->name('file-transfers');
