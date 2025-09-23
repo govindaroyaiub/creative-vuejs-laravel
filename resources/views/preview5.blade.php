@@ -131,23 +131,8 @@
                         </div>
 
                         <div class="right-column">
-                            <!-- <div class="justify-center items-center mt-2 py-2 px-2 absolute top-0 left-0 right-0 currentTotalFeedbacks">
-                                <button id="categoryLeft" disabled style="margin-right:10px;">
-                                    <i class="fa-solid fa-arrow-left"></i>
-                                </button>
-                                <span id="categoryCounter"></span>
-                                <button id="categoryRight" disabled style="margin-left:10px;">
-                                   <i class="fa-solid fa-arrow-right"></i>
-                                </button>
-                            </div> -->
-                            <div class="justify-center items-center mt-1 py-2 px-2 absolute top-0 left-0 right-0 currentTotalFeedbacks">
-                                <button id="feedbackLeft" disabled style="margin-right:10px;">
-                                    <i class="fa-solid fa-arrow-left"></i>
-                                </button>
+                            <div class="justify-center items-center mt-1 py-2 px-2 relative top-0 left-0 right-0 currentTotalFeedbacks">
                                 <span id="feedbackCounter"></span>
-                                <button id="feedbackRight" disabled style="margin-left:10px;">
-                                   <i class="fa-solid fa-arrow-right"></i>
-                                </button>
                             </div>
 
                             <div class="feedbackSetsContainer"></div>
@@ -477,55 +462,11 @@
             });
 
             renderFeedbacks(response);
-            updateCategoryNav();
-            renderMobileCategories(categories, response.data.activeCategory.id);
-
             $('#creative-list2').html(row2);
             $('#creative-list').html(row);
             $('#menu').html(row);
         });
     }
-
-    // Render categories in mobile menu
-    function renderMobileCategories(categories, activeCategoryId) {
-        const list = document.getElementById('mobileCategoryList');
-        list.innerHTML = '';
-        categories.forEach((cat, idx) => {
-            const li = document.createElement('li');
-            li.textContent = `${idx + 1}. ${cat.name}`;
-            if (cat.id === activeCategoryId) li.classList.add('active');
-            li.onclick = function() {
-                updateActiveCategory(cat.id);
-                document.getElementById('mobileMenu').classList.remove('open');
-                document.getElementById('mobileMenuToggle').classList.remove('hidden'); // <-- Add this line
-                document.body.style.overflow = '';
-            };
-            list.appendChild(li);
-        });
-    }
-
-    function updateCategoryNav() {
-        const total = categories.length;
-        $('#categoryCounter').text(total ? `${currentCategoryIndex + 1} of ${total}` : '0 of 0');
-        $('#categoryLeft').prop('disabled', currentCategoryIndex === 0);
-        $('#categoryRight').prop('disabled', currentCategoryIndex === total - 1 || total === 0);
-    }
-
-    $('#categoryLeft').on('click', function() {
-        if (currentCategoryIndex > 0) {
-            currentCategoryIndex--;
-            updateActiveCategory(categories[currentCategoryIndex].id);
-            updateCategoryNav();
-        }
-    });
-
-    $('#categoryRight').on('click', function() {
-        if (currentCategoryIndex < categories.length - 1) {
-            currentCategoryIndex++;
-            updateActiveCategory(categories[currentCategoryIndex].id);
-            updateCategoryNav();
-        }
-    });
 
     function updateActiveCategory(category_id) {
         // document.getElementById('menuClick').click();
@@ -587,17 +528,65 @@
 
     function updateFeedbackNav() {
         const total = feedbacks.length;
-        if(total > 1){
-            $('#feedbackCounter').text(total ? `Feedbacks: ${currentFeedbackIndex + 1} of ${total}` : 'No Feedbacks');
+        var row = '';
+        if (total > 0) {
+            if(currentFeedbackIndex === 0){
+                row += '<span class="font-bold selectedFeedback"> Feedback ' + (currentFeedbackIndex + 1) + '</span>';
+                row += '<button id="feedbackRight" disabled style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold">></span></button>';
+                row += '<span>' + (currentFeedbackIndex + 2) + '</span>';
+                row += '<button id="feedbackFarRight" style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold">>></span></button>';
+                row += '<span>' + total + '</span>';
+            }
+            else if((currentFeedbackIndex + 1) === total){
+                row += '<span>'+ 1 +'</span>';
+                row += '<button id="feedbackFarLeft" style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold"><<</span></button>';
+                row += '<span>'+ (currentFeedbackIndex) +'</span>';
+                row += '<button id="feedbackLeft" disabled style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold"><</span></button>';
+                row += '<span class="font-bold selectedFeedback"> Feedback ' + (currentFeedbackIndex + 1) + '</span>';
+            }
+            else if((currentFeedbackIndex + 1) === 2){
+                row += '<span>'+ (currentFeedbackIndex) +'</span>';
+                row += '<button id="feedbackLeft" disabled style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold"><</span></button>';
+                row += '<span class="font-bold selectedFeedback"> Feedback ' + (currentFeedbackIndex + 1) + '</span>';
+                row += '<button id="feedbackRight" disabled style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold">></span></button>';
+                row += '<span>' + (currentFeedbackIndex + 2) + '</span>';
+                row += '<button id="feedbackFarRight" style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold">>></span></button>';
+                row += '<span>' + total + '</span>';
+            }
+            else if((currentFeedbackIndex + 1) === (total - 1)){
+                row += '<span>'+ 1 +'</span>';
+                row += '<button id="feedbackFarLeft" style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold"><<</span></button>';
+                row += '<span>'+ (currentFeedbackIndex) +'</span>';
+                row += '<button id="feedbackLeft" disabled style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold"><</span></button>';
+                row += '<span class="font-bold selectedFeedback"> Feedback ' + (currentFeedbackIndex + 1) + '</span>';
+                row += '<button id="feedbackRight" disabled style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold">></span></button>';
+                row += '<span>' + total + '</span>';
+            }
+            else{
+                row += '<span>'+ 1 +'</span>';
+                row += '<button id="feedbackFarLeft" style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold"><<</span></button>';
+                row += '<span>'+ (currentFeedbackIndex) +'</span>';
+                row += '<button id="feedbackLeft" disabled style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold"><</span></button>';
+                row += '<span class="font-bold selectedFeedback"> Feedback ' + (currentFeedbackIndex + 1) + '</span>';
+                row += '<button id="feedbackRight" disabled style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold">></span></button>';
+                row += '<span>' + (currentFeedbackIndex + 2) + '</span>';
+                row += '<button id="feedbackFarRight" style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold">>></span></button>';
+                row += '<span>' + total + '</span>';
+            }
+            
+            $('#feedbackCounter').html(row);
+        } else {
+            $('#feedbackCounter').text('No Feedbacks');
         }
-        $('#feedbackCounter').text(total ? `Feedbacks: ${currentFeedbackIndex + 1} of ${total}` : 'No Feedbacks');
+
+        // Disable/enable left arrow
         if (currentFeedbackIndex === 0) {
             $('#feedbackLeft').prop('disabled', true).css('opacity', 0.5);
         } else {
             $('#feedbackLeft').prop('disabled', false).css('opacity', 1);
         }
 
-        // Disable and set opacity for right arrow
+        // Disable/enable right arrow
         if (currentFeedbackIndex === total - 1 || total === 0) {
             $('#feedbackRight').prop('disabled', true).css('opacity', 0.5);
         } else {
@@ -605,21 +594,39 @@
         }
     }
 
-    $('#feedbackLeft').on('click', function() {
-        if (currentFeedbackIndex > 0 && feedbacks[currentFeedbackIndex - 1]) {
-            currentFeedbackIndex--;
-            updateActiveFeedback(feedbacks[currentFeedbackIndex].id);
+    $(document).on('click', '#feedbackFarLeft', function() {
+        if (currentFeedbackIndex > 0) {
+            currentFeedbackIndex = 0;
+            updateActiveFeedback(feedbacks[0].id);
             updateFeedbackNav();
-            setTimeout(scrollActiveFeedbackTabIntoView, 100);
+            setTimeout(scrollActiveFeedbackTabIntoView, 10);
         }
     });
 
-    $('#feedbackRight').on('click', function() {
-        if (currentFeedbackIndex < feedbacks.length - 1 && feedbacks[currentFeedbackIndex + 1]) {
+    $(document).on('click', '#feedbackLeft', function() {
+        if (currentFeedbackIndex > 0) {
+            currentFeedbackIndex--;
+            updateActiveFeedback(feedbacks[currentFeedbackIndex].id);
+            updateFeedbackNav();
+            setTimeout(scrollActiveFeedbackTabIntoView, 10);
+        }
+    });
+
+    $(document).on('click', '#feedbackRight', function() {
+        if (currentFeedbackIndex < feedbacks.length - 1) {
             currentFeedbackIndex++;
             updateActiveFeedback(feedbacks[currentFeedbackIndex].id);
             updateFeedbackNav();
-            setTimeout(scrollActiveFeedbackTabIntoView, 100);
+            setTimeout(scrollActiveFeedbackTabIntoView, 10);
+        }
+    });
+
+    $(document).on('click', '#feedbackFarRight', function() {
+        if (currentFeedbackIndex < feedbacks.length - 1) {
+            currentFeedbackIndex = feedbacks.length - 1;
+            updateActiveFeedback(feedbacks[currentFeedbackIndex].id);
+            updateFeedbackNav();
+            setTimeout(scrollActiveFeedbackTabIntoView, 10);
         }
     });
 

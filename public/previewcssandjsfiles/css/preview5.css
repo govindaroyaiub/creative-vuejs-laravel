@@ -1614,7 +1614,7 @@ iframe {
     }
 
     .currentTotalFeedbacks {
-        display: none;
+        display: flex;
     }
 
     #bulk-customization {
@@ -1681,7 +1681,7 @@ iframe {
     }
 
     .currentTotalFeedbacks {
-        display: none;
+        display: flex;
     }
 
     .feedbacks {
@@ -1691,4 +1691,10 @@ iframe {
     #feedbackDescription {
         top: 23rem;
     }
+}
+
+.selectedFeedback{
+    border: 1px solid var(--tertiary-color);
+    border-radius: 10px;
+    padding: 5px;
 }

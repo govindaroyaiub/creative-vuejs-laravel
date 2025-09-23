@@ -722,7 +722,7 @@
                     </button>
                     <button @click="saveAll"
                         class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 font-semibold">
-                        HIT IT NIGGA
+                        Save
                     </button>
                 </div>
             </div>
