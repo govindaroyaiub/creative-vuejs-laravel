@@ -75,7 +75,7 @@ const submit = () => {
                 <div>
                     <label class="block mb-1 font-medium">Preview Name</label>
                     <input v-model="form.name" type="text"
-                        class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white" />
+                        class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white" />
                 </div>
 
                 <!-- Client & Color Palette -->
@@ -83,7 +83,7 @@ const submit = () => {
                     <div class="flex-1">
                         <label class="block mb-1 font-medium">Client</label>
                         <select v-model="form.client_id"
-                            class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white">
+                            class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white">
                             <option disabled value="">Select Client</option>
                             <option v-for="client in clients" :key="client.id" :value="client.id">
                                 {{ client.name }}
@@ -94,7 +94,7 @@ const submit = () => {
                     <div class="flex-1">
                         <label class="block mb-1 font-medium">Color Palette</label>
                         <select v-model="form.color_palette_id"
-                            class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white">
+                            class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white">
                             <option disabled value="">Select Theme</option>
                             <option v-for="palette in colorPalettes" :key="palette.id" :value="palette.id">
                                 {{ palette.name }}
@@ -108,16 +108,16 @@ const submit = () => {
                     <label class="block mb-1 font-medium">Team Members</label>
                     <div class="flex flex-wrap gap-2 mb-2">
                         <span v-for="user in selectedUsers" :key="user.id"
-                            class="bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full dark:bg-indigo-800 dark:text-white">
+                            class="bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-2xl dark:bg-indigo-800 dark:text-white">
                             {{ user.name }}
                             <span v-if="user.id !== authUser.id" @click="removeUser(user.id)"
                                 class="ml-1 cursor-pointer">×</span>
                         </span>
                     </div>
                     <input v-model="userSearch" type="text" placeholder="Search users..."
-                        class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white" />
+                        class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white" />
                     <ul v-if="userSearch.trim().length > 0 && filteredUsers.length > 0"
-                        class="mt-1 max-h-32 overflow-y-auto rounded border dark:border-gray-700 bg-white dark:bg-black">
+                        class="mt-1 max-h-32 overflow-y-auto rounded-2xl border dark:border-gray-700 bg-white dark:bg-black">
                         <li v-for="user in filteredUsers" :key="user.id"
                             class="cursor-pointer px-3 py-1 hover:bg-gray-100 dark:hover:bg-gray-700"
                             @click="addUser(user)">
@@ -150,11 +150,11 @@ const submit = () => {
                 <!-- Submit Buttons -->
                 <div class="flex space-x-4">
                     <Link :href="route('previews.update.all', preview.id)"
-                        class="w-full rounded-lg bg-red-600 px-6 py-3 text-center text-white shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-red-500 dark:hover:bg-red-600">
+                        class="w-full rounded-2xl bg-red-600 px-6 py-3 text-center text-white shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-red-500 dark:hover:bg-red-600">
                     Back
                     </Link>
                     <button type="submit" :disabled="form.processing"
-                        class="w-full rounded-lg bg-indigo-600 px-6 py-3 text-white shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600">
+                        class="w-full rounded-2xl bg-indigo-600 px-6 py-3 text-white shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600">
                         Update
                     </button>
                 </div>

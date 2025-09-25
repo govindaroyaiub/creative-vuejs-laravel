@@ -188,11 +188,11 @@ const deleteUser = async (id: number) => {
 
                 <div class="flex items-center justify-between gap-4">
                     <input v-model="search" type="text" placeholder="Search users..."
-                        class="w-full max-w-sm rounded-md border px-4 py-2 dark:bg-black dark:text-white" />
-                    <Button size="sm" class="whitespace-nowrap" @click="addingUser = true">Add</Button>
+                        class="w-full max-w-sm rounded-2xl border px-4 py-2 dark:bg-black dark:text-white" />
+                    <Button size="sm" class="whitespace-nowrap rounded-xl" @click="addingUser = true">Add</Button>
                 </div>
 
-                <div class="overflow-x-auto rounded-lg bg-white shadow dark:bg-black">
+                <div class="overflow-x-auto rounded-2xl bg-white shadow dark:bg-black">
                     <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
                         <thead class="bg-gray-100 text-xs uppercase dark:bg-black dark:text-gray-300">
                             <tr>
@@ -282,7 +282,7 @@ const deleteUser = async (id: number) => {
                                 </td>
                                 <td class="px-6 py-4 capitalize">
                                     <select v-model="user.role" @change="updateUserRole(user.id, user.role)"
-                                        class="w-full rounded border text-center px-2 py-1 dark:bg-black dark:text-white"
+                                        class="w-full rounded-2xl border text-center px-2 py-1 dark:bg-black dark:text-white"
                                         :disabled="updatingRoleUserId === user.id">
                                         <option value="super_admin">Super Admin</option>
                                         <option value="admin">Admin</option>
@@ -310,9 +310,11 @@ const deleteUser = async (id: number) => {
                     </table>
                 </div>
             </div>
-            <!-- Permissions Modal -->
+            
+        </SettingsLayout>
+        <!-- Permissions Modal -->
             <div v-if="permissionsModalVisible"
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                class="fixed top-0 inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
                 <div class="w-full max-w-lg rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
                     <h2 class="mb-4 text-center text-xl font-bold text-gray-800 dark:text-white">Manage Permissions</h2>
 
@@ -350,6 +352,5 @@ const deleteUser = async (id: number) => {
                     </div>
                 </div>
             </div>
-        </SettingsLayout>
     </AppLayout>
 </template>

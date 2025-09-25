@@ -6,7 +6,7 @@
     <div>
       <label class="block mb-1 text-sm font-medium">Preview Name</label>
       <input v-model="form.name" type="text" placeholder="e.g. Facebook Ad - June"
-        class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white" />
+        class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white" />
     </div>
 
     <!-- Client and Color Palette on same row -->
@@ -14,7 +14,7 @@
       <!-- Client Dropdown -->
       <div class="flex-1">
         <label class="block mb-1 text-sm font-medium">Client</label>
-        <select v-model="form.client_id" class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white">
+        <select v-model="form.client_id" class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white">
           <option disabled value="">Select Client</option>
           <option v-for="client in clients" :key="client.id" :value="client.id">
             {{ client.name }}
@@ -26,7 +26,7 @@
       <div class="flex-1">
         <label class="block mb-1 text-sm font-medium">Theme</label>
         <select v-model="form.color_palette_id"
-          class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white">
+          class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white">
           <option disabled value="">Select Theme</option>
           <option v-for="palette in colorPalettes" :key="palette.id" :value="palette.id">
             {{ palette.name }}
@@ -40,15 +40,15 @@
       <label class="block mb-1 text-sm font-medium">Team Members</label>
       <div class="flex flex-wrap gap-2 mb-2">
         <span v-for="user in selectedUsers" :key="user.id"
-          class="bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full dark:bg-indigo-800 dark:text-white">
+          class="bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-2xl dark:bg-indigo-800 dark:text-white">
           {{ user.name }}
           <span v-if="user.id !== authUser.id" @click="removeUser(user.id)" class="ml-1 cursor-pointer">×</span>
         </span>
       </div>
       <input v-model="userSearch" type="text" placeholder="Search users..."
-        class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white" />
+        class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white" />
       <ul v-if="userSearch.trim().length > 0 && filteredUsers.length > 0"
-        class="mt-1 max-h-32 overflow-y-auto rounded border dark:border-gray-700">
+        class="mt-1 max-h-32 overflow-y-auto rounded-2xl border dark:border-gray-700">
         <li v-for="user in filteredUsers" :key="user.id"
           class="cursor-pointer px-3 py-1 hover:bg-gray-100 dark:hover:bg-gray-700" @click="addUser(user)">
           {{ user.name }}
@@ -78,7 +78,7 @@
 
     <!-- Submit Button -->
     <div class="text-right pt-2">
-      <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded disabled:opacity-50"
+      <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-2xl disabled:opacity-50"
         :disabled="!isFormValid" @click="$emit('submit')">
         Submit
       </button>

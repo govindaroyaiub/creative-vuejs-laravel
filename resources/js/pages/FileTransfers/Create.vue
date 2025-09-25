@@ -64,14 +64,14 @@ const goBack = () => window.history.back();
 
     <Head title="Add File Transfers" />
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+        <div class="flex h-full flex-1 flex-col gap-4 rounded-2xl p-4">
             <form @submit.prevent="handleSubmit" class="mx-auto w-full max-w-2xl space-y-6">
 
                 <!-- Name -->
                 <div>
                     <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Name</label>
                     <input id="name" v-model="form.name" required type="text"
-                        class="mt-1 block w-full rounded-md border px-3 py-2 dark:bg-black dark:text-white" />
+                        class="mt-1 block w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white" />
                 </div>
 
                 <!-- Client -->
@@ -79,7 +79,7 @@ const goBack = () => window.history.back();
                     <label for="client"
                         class="block text-sm font-medium text-gray-700 dark:text-gray-200">Client</label>
                     <input id="client" v-model="form.client" required type="text"
-                        class="mt-1 block w-full rounded-md border px-3 py-2 dark:bg-black dark:text-white" />
+                        class="mt-1 block w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white" />
                 </div>
 
                 <!-- Drag & Drop Upload -->
@@ -89,7 +89,7 @@ const goBack = () => window.history.back();
 
                     <div @dragover.prevent="dragOver = true" @dragleave.prevent="dragOver = false"
                         @drop.prevent="handleFileDrop"
-                        :class="['flex flex-col items-center justify-center border-2 border-dashed p-6 rounded-lg transition-all',
+                        :class="['flex flex-col items-center justify-center border-2 border-dashed p-6 rounded-2xl transition-all',
                             dragOver ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-gray-300 dark:border-gray-600']">
                         <input type="file" multiple accept=".zip" @change="handleFileChange" hidden id="fileUpload" />
                         <label for="fileUpload"
@@ -111,11 +111,11 @@ const goBack = () => window.history.back();
                 <!-- Submit / Back -->
                 <div class="flex space-x-4">
                     <button type="button" @click="goBack"
-                        class="w-full rounded-lg bg-red-600 px-6 py-3 text-white shadow hover:bg-red-700">
+                        class="w-full rounded-2xl bg-red-600 px-6 py-3 text-white shadow hover:bg-red-700">
                         Back
                     </button>
                     <button type="submit"
-                        class="w-full rounded-lg bg-green-600 px-6 py-3 text-white shadow hover:bg-green-700">
+                        class="w-full rounded-2xl bg-green-600 px-6 py-3 text-white shadow hover:bg-green-700">
                         Save
                     </button>
                 </div>

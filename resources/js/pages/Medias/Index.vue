@@ -95,14 +95,14 @@ const handleDrop = (e: DragEvent) => {
         <div class="p-6">
             <div class="mb-4 flex items-center justify-between">
                 <input v-model="search" placeholder="Search..."
-                    class="w-full max-w-xs rounded border px-4 py-2 dark:bg-black dark:text-white" />
+                    class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-black dark:text-white" />
                 <button @click="openUploadModal"
-                    class="ml-4 rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                    class="ml-4 rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
                     <Upload class="mr-1 inline h-5 w-5" /> Upload
                 </button>
             </div>
 
-            <div class="rounded overflow-x-auto shadow">
+            <div class="rounded-2xl overflow-x-auto shadow">
                 <table class="w-full rounded bg-white dark:bg-black dark:border border">
                     <thead class="bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300">
                         <tr class="bg-gray-100 dark:bg-black uppercase">
@@ -150,7 +150,7 @@ const handleDrop = (e: DragEvent) => {
             <div v-if="page.props.medias?.total && links.length" class="mt-6 flex justify-center space-x-2">
                 <template v-for="link in links" :key="link.label">
                     <component :is="link.url ? 'a' : 'span'" v-html="link.label" :href="link.url"
-                        class="rounded border px-4 py-2 text-sm" :class="{
+                        class="rounded-2xl border px-4 py-2 text-sm" :class="{
                             'bg-indigo-600 text-white': link.active,
                             'cursor-not-allowed text-gray-400': !link.url,
                             'hover:bg-gray-200 dark:hover:bg-black': link.url && !link.active,
@@ -160,16 +160,16 @@ const handleDrop = (e: DragEvent) => {
 
             <!-- Upload Modal -->
             <div v-if="modalVisible" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                <div class="w-full max-w-md rounded bg-white p-6 shadow-lg dark:bg-black border">
+                <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-lg dark:bg-black border">
                     <h2 class="text-lg font-bold mb-4 text-gray-800 dark:text-white">Upload Media</h2>
 
                     <div class="space-y-4">
                         <!-- File Name Input -->
                         <input type="text" v-model="newForm.name" placeholder="File name"
-                            class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white" />
+                            class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white" />
 
                         <!-- Drag & Drop Upload Area -->
-                        <div class="w-full rounded border-2 border-dashed px-4 py-8 text-center transition-all cursor-pointer"
+                        <div class="w-full rounded-2xl border-2 border-dashed px-4 py-8 text-center transition-all cursor-pointer"
                             :class="[
                                 dragOver ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-600'
                             ]" @dragover.prevent="dragOver = true" @dragleave.prevent="dragOver = false"
@@ -190,11 +190,11 @@ const handleDrop = (e: DragEvent) => {
 
                         <!-- Buttons -->
                         <div class="flex justify-end gap-2 pt-4">
-                            <button @click="modalVisible = false" class="px-4 py-2 rounded border text-white bg-red-600 hover:bg-red-700">
+                            <button @click="modalVisible = false" class="px-4 py-2 rounded-2xl border text-white bg-red-600 hover:bg-red-700">
                                 Cancel
                             </button>
                             <button @click="uploadFile" :disabled="uploading"
-                                class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center gap-2">
+                                class="px-4 py-2 rounded-2xl bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center gap-2">
                                 <svg v-if="uploading" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                                         stroke-width="4" />

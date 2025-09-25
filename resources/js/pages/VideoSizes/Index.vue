@@ -111,15 +111,15 @@ const saveNewSize = async () => {
             <!-- Search & Add -->
             <div class="mb-4 flex items-center justify-between">
                 <input v-model="search" placeholder="Search..."
-                    class="w-full max-w-xs rounded border px-4 py-2 dark:bg-black dark:text-white" />
+                    class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-black dark:text-white" />
                 <button @click="adding = true" v-if="!adding && editingId === null"
-                    class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
+                    class="ml-4 rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700">
                     <CirclePlus class="mr-1 inline h-5 w-5" /> Add
                 </button>
             </div>
 
             <!-- Table -->
-            <div class="rounded overflow-x-auto shadow">
+            <div class="rounded-2xl overflow-x-auto shadow">
                 <table class="w-full bg-white dark:bg-black border">
                     <thead class="bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300">
                         <tr class="text-center text-sm uppercase">
@@ -136,15 +136,15 @@ const saveNewSize = async () => {
                             <td class="border-b px-4 py-2">#</td>
                             <td class="border-b px-4 py-2">
                                 <input v-model="newSize.name" placeholder="Name"
-                                    class="w-full max-w-[200px] rounded border px-2 py-1 dark:bg-black dark:text-white" />
+                                    class="w-full max-w-[200px] rounded-2xl border px-2 py-1 dark:bg-black dark:text-white" />
                             </td>
                             <td class="border-b px-2 py-2">
                                 <input v-model="newSize.width" type="number" placeholder="Width"
-                                    class="w-full max-w-[100px] rounded border px-2 py-1 dark:bg-black dark:text-white" />
+                                    class="w-full max-w-[100px] rounded-2xl border px-2 py-1 dark:bg-black dark:text-white" />
                             </td>
                             <td class="border-b px-2 py-2">
                                 <input v-model="newSize.height" type="number" placeholder="Height"
-                                    class="w-full max-w-[100px] rounded border px-2 py-1 dark:bg-black dark:text-white" />
+                                    class="w-full max-w-[100px] rounded-2xl border px-2 py-1 dark:bg-black dark:text-white" />
                             </td>
                             <td class="border-b px-4 py-2 space-x-2">
                                 <button @click="adding = false" :disabled="saving"
@@ -165,15 +165,15 @@ const saveNewSize = async () => {
                             <template v-if="editingId === size.id">
                                 <td class="px-4 py-2">
                                     <input v-model="editedSize.name"
-                                        class="w-full max-w-[200px] rounded border px-2 py-1 dark:bg-black dark:text-white" />
+                                        class="w-full max-w-[200px] rounded-2xl border px-2 py-1 dark:bg-black dark:text-white" />
                                 </td>
                                 <td class="px-2 py-2">
                                     <input v-model="editedSize.width" type="number"
-                                        class="w-full max-w-[100px] rounded border px-2 py-1 dark:bg-black dark:text-white" />
+                                        class="w-full max-w-[100px] rounded-2xl border px-2 py-1 dark:bg-black dark:text-white" />
                                 </td>
                                 <td class="px-2 py-2">
                                     <input v-model="editedSize.height" type="number"
-                                        class="w-full max-w-[100px] rounded border px-2 py-1 dark:bg-black dark:text-white" />
+                                        class="w-full max-w-[100px] rounded-2xl border px-2 py-1 dark:bg-black dark:text-white" />
                                 </td>
                                 <td class="flex justify-center gap-2 px-4 py-2">
                                     <button @click="cancelEdit" :disabled="saving"

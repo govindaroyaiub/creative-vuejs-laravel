@@ -4,7 +4,7 @@
         <div class="flex flex-col items-center justify-center w-full h-full bg-gray-100 dark:bg-black">
             <h1 class="text-2xl font-bold mb-4 text-black dark:text-white">Tetris Game</h1>
             <div class="mb-4 flex gap-4 justify-between w-full max-w-3xl">
-                <button @click="startGame" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">New
+                <button @click="startGame" class="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700">New
                     Game</button>
                 <span class="text-lg text-black dark:text-white ml-auto">Score: {{ score }}</span>
             </div>
@@ -22,7 +22,7 @@
                 <div class="flex-1">
                     <h2 class="text-xl font-bold mb-2 text-black dark:text-white">Top 10 High Scores</h2>
                     <table
-                        class="min-w-full table-auto border bg-white dark:bg-black text-black dark:text-white text-center">
+                        class="min-w-full table-auto border bg-white dark:bg-black text-black dark:text-white text-center rounded-2xl shadow">
                         <thead>
                             <tr>
                                 <th class="py-2 px-4 border-b text-center">Rank</th>
@@ -47,7 +47,7 @@
     </AppLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted } from 'vue'

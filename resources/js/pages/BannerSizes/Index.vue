@@ -100,14 +100,14 @@ const deleteBannerSize = async (id: number) => {
         <div class="p-6">
             <div class="mb-4 flex items-center justify-between">
                 <input v-model="search" placeholder="Search..."
-                    class="w-full max-w-xs rounded border px-4 py-2 dark:bg-black dark:text-white" />
-                <button @click="startAdding" class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
+                    class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-black dark:text-white" />
+                <button @click="startAdding" class="ml-4 rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700">
                     <CirclePlus class="mr-1 inline h-5 w-5" />
                     Add
                 </button>
             </div>
 
-            <div class="overflow-x-auto rounded shadow">
+            <div class="overflow-x-auto rounded-2xl shadow">
                 <table class="w-full rounded bg-white dark:bg-black border">
                     <thead class="bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300">
                         <tr class="text-center text-sm uppercase">
@@ -123,11 +123,11 @@ const deleteBannerSize = async (id: number) => {
                             <td class="px-4 py-2">#</td>
                             <td class="px-4 py-2">
                                 <input v-model="newForm.width" type="number"
-                                    class="w-20 rounded border px-2 py-1 dark:bg-black dark:text-white" />
+                                    class="w-20 rounded-2xl border px-2 py-1 dark:bg-black dark:text-white" />
                             </td>
                             <td class="px-4 py-2">
                                 <input v-model="newForm.height" type="number"
-                                    class="w-20 rounded border px-2 py-1 dark:bg-black dark:text-white" />
+                                    class="w-20 rounded-2xl border px-2 py-1 dark:bg-black dark:text-white" />
                             </td>
                             <td class="px-4 py-2 space-x-2">
                                 <button @click="cancelAdding"
@@ -144,13 +144,13 @@ const deleteBannerSize = async (id: number) => {
                             <td class="px-4 py-2">
                                 <div v-if="editingId !== size.id">{{ size.width }}</div>
                                 <input v-else v-model="editForm.width" type="number"
-                                    class="w-20 rounded border px-2 py-1 dark:bg-black dark:text-white" />
+                                    class="w-20 rounded-2xl border px-2 py-1 dark:bg-black dark:text-white" />
                             </td>
 
                             <td class="px-4 py-2">
                                 <div v-if="editingId !== size.id">{{ size.height }}</div>
                                 <input v-else v-model="editForm.height" type="number"
-                                    class="w-20 rounded border px-2 py-1 dark:bg-black dark:text-white" />
+                                    class="w-20 rounded-2xl border px-2 py-1 dark:bg-black dark:text-white" />
                             </td>
 
                             <td class="space-x-2 px-4 py-2">
@@ -181,7 +181,7 @@ const deleteBannerSize = async (id: number) => {
             <div class="mt-6 flex justify-center space-x-2" v-if="bannerSizes.data.length && bannerSizes.links.length">
                 <template v-for="link in bannerSizes.links" :key="link.label">
                     <component :is="link.url ? 'a' : 'span'" v-html="link.label" :href="link.url"
-                        class="rounded border px-4 py-2 text-sm" :class="{
+                        class="rounded-2xl border px-4 py-2 text-sm" :class="{
                             'bg-indigo-600 text-white': link.active,
                             'cursor-not-allowed text-gray-400': !link.url,
                             'hover:bg-gray-200 dark:hover:bg-black': link.url && !link.active,

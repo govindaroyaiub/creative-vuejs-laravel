@@ -49,16 +49,16 @@ const deleteFileTransfer = async (id: number) => {
             <!-- Search & Add -->
             <div class="mb-4 flex items-center justify-between">
                 <input v-model="search" placeholder="Search..."
-                    class="w-full max-w-xs rounded border px-4 py-2 dark:bg-black dark:text-white" />
+                    class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-black dark:text-white" />
                 <Link :href="route('file-transfers-add')"
-                    class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700">
+                    class="ml-4 rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700">
                 <CirclePlus class="mr-1 inline h-5 w-5" />
                 Add
                 </Link>
             </div>
 
             <!-- Table -->
-            <div class="rounded overflow-x-auto shadow">
+            <div class="rounded-2xl overflow-x-auto shadow">
                 <table class="w-full rounded bg-white dark:bg-black dark:border border">
                     <thead class="bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300">
                         <tr class="text-center text-sm uppercase">

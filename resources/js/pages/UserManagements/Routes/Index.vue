@@ -118,11 +118,11 @@ const deleteRoute = async (id: number) => {
 
                 <div class="mb-6 flex items-center justify-between space-x-4">
                     <input v-model="search" placeholder="Search routes..."
-                        class="w-full max-w-xs rounded border px-3 py-2 text-left dark:bg-black dark:text-white" />
-                    <Button size="sm" @click="startAdding" v-if="!adding"> Add </Button>
+                        class="w-full max-w-xs rounded-2xl border px-3 py-2 text-left dark:bg-black dark:text-white" />
+                    <Button size="sm" class="rounded-xl" @click="startAdding" v-if="!adding"> Add </Button>
                 </div>
 
-                <div class="overflow-x-auto rounded-lg bg-white shadow dark:bg-black">
+                <div class="overflow-x-auto rounded-2xl bg-white shadow dark:bg-black">
                     <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
                         <thead class="bg-gray-100 text-xs uppercase dark:bg-black dark:text-gray-300 text-center">
                             <tr>

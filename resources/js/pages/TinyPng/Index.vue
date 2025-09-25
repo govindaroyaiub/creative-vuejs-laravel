@@ -12,7 +12,7 @@
                     </div>
 
                     <!-- ✅ Compression Count Display with Loading State -->
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 min-w-[200px]">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow p-4 min-w-[200px]">
                         <div class="text-center">
                             <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">API Usage This Month
                             </h3>
@@ -105,7 +105,7 @@
             </div>
 
             <!-- Upload Area -->
-            <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 mb-6 text-center transition-colors"
+            <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 mb-6 text-center transition-colors"
                 :class="{ 'border-blue-500 bg-blue-50 dark:bg-blue-900/10': dragOver }" @drop="handleDrop"
                 @dragover="handleDragOver" @dragenter="handleDragEnter" @dragleave="handleDragLeave">
                 <div class="space-y-4">
@@ -147,11 +147,11 @@
                     <div class="space-x-2">
                         <button @click="compressAll"
                             :disabled="isProcessing || files.every(f => f.status === 'completed') || (remainingCompressions !== null && remainingCompressions < files.filter(f => f.status === 'pending').length) || isLoadingCount"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                             {{ isProcessing ? 'Compressing...' : 'Compress All' }}
                         </button>
                         <button @click="clearAll" :disabled="isProcessing"
-                            class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 disabled:opacity-50 transition-colors">
+                            class="px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 disabled:opacity-50 transition-colors">
                             Clear All
                         </button>
                     </div>
@@ -159,7 +159,7 @@
 
                 <!-- ✅ Warning if not enough compressions left -->
                 <div v-if="remainingCompressions !== null && remainingCompressions < files.filter(f => f.status === 'pending').length"
-                    class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-lg p-4">
+                    class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 rounded-2xl p-4">
                     <div class="flex items-center space-x-2">
                         <svg class="w-5 h-5 text-orange-600 flex-shrink-0" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
@@ -175,7 +175,7 @@
                 </div>
 
                 <!-- Files Table -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow overflow-hidden">
                     <div class="max-h-96 overflow-y-auto">
                         <table class="w-full">
                             <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0">

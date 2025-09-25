@@ -90,9 +90,9 @@ const dismissMessage = () => {
     <Head title="Edit File Transfers" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+        <div class="flex h-full flex-1 flex-col gap-4 rounded-2xl p-4">
             <form @submit.prevent="handleSubmit" class="mx-auto w-full max-w-2xl space-y-6" enctype="multipart/form-data">
-                <div v-if="successMessage" class="relative mb-4 rounded-md bg-green-500 p-3 pr-10 text-white">
+                <div v-if="successMessage" class="relative mb-4 rounded-2xl bg-green-500 p-3 pr-10 text-white">
                     {{ successMessage }}
                     <button @click="dismissMessage" type="button" class="absolute right-2 top-2 text-white hover:text-gray-200 focus:outline-none">
                         <X class="inline h-5 w-5" />
@@ -109,7 +109,7 @@ const dismissMessage = () => {
                         id="name"
                         v-model="form.name"
                         required
-                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-600 dark:bg-black dark:text-white dark:focus:ring-indigo-400"
+                        class="mt-1 block w-full rounded-2xl border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-600 dark:bg-black dark:text-white dark:focus:ring-indigo-400"
                     />
                 </div>
 
@@ -122,11 +122,11 @@ const dismissMessage = () => {
                         id="client"
                         v-model="form.client"
                         required
-                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-600 dark:bg-black dark:text-white dark:focus:ring-indigo-400"
+                        class="mt-1 block w-full rounded-2xl border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-600 dark:bg-black dark:text-white dark:focus:ring-indigo-400"
                     />
                 </div>
 
-                <div v-if="fileTransfer.file_paths.length > 0" class="rounded-md border bg-transparent p-4 shadow-none dark:bg-transparent">
+                <div v-if="fileTransfer.file_paths.length > 0" class="rounded-2xl border bg-transparent p-4 shadow-none dark:bg-transparent">
                     <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200"> Existing Files </label>
                     <ul class="space-y-1">
                         <li
@@ -156,7 +156,7 @@ const dismissMessage = () => {
                         multiple
                         accept=".zip"
                         @change="handleFileChange"
-                        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-600 dark:bg-black dark:text-white dark:focus:ring-indigo-400"
+                        class="mt-1 block w-full rounded-2xl border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-600 dark:bg-black dark:text-white dark:focus:ring-indigo-400"
                     />
 
                     <!-- Individual file sizes -->
@@ -175,14 +175,14 @@ const dismissMessage = () => {
                 <div class="flex space-x-4">
                     <Link
                         type="button"
-                        class="w-full rounded-lg bg-red-600 px-6 py-3 text-center text-white shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-red-500 dark:hover:bg-red-600"
+                        class="w-full rounded-2xl bg-red-600 px-6 py-3 text-center text-white shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-red-500 dark:hover:bg-red-600"
                         :href="route('file-transfers')"
                     >
                         Back
                     </Link>
                     <button
                         type="submit"
-                        class="w-full rounded-lg bg-indigo-600 px-6 py-3 text-white shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+                        class="w-full rounded-2xl bg-indigo-600 px-6 py-3 text-white shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600"
                     >
                         Update
                     </button>

@@ -21,7 +21,9 @@
                             class="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Documentation</span>
                     </h1>
                     <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                        Everything you need to know about our preview system, from basics to advanced features.
+                        Everything you need to know about our preview system, from basics to advanced features. <span
+                            class="font-bold bg-gradient-to-r from-blue-600 to-indigo-200 bg-clip-text text-transparent">(At
+                            least some of it)-ish</span>
                     </p>
                 </div>
 
@@ -56,7 +58,7 @@
                                     <div
                                         class="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 rounded-lg flex items-center justify-center group-hover:from-blue-200 group-hover:to-indigo-200 dark:group-hover:from-blue-800 dark:group-hover:to-indigo-800 transition-colors">
                                         <span class="text-blue-600 dark:text-blue-400 font-bold text-lg">{{ idx + 1
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                     <div>
                                         <h3

@@ -115,16 +115,16 @@ const submitForm = () => {
             <!-- Search & Create -->
             <div class="flex items-center justify-between">
                 <input v-model="search" placeholder="Search..." aria-label="Search previews"
-                    class="w-full max-w-xs rounded border px-4 py-2 dark:bg-black dark:text-white" />
+                    class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-black dark:text-white" />
                 <button @click="showModal = true"
-                    class="ml-4 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700" aria-label="Add Preview">
+                    class="ml-4 rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700" aria-label="Add Preview">
                     <CirclePlus class="mr-1 inline h-5 w-5" /> Add
                 </button>
             </div>
 
             <!-- Table -->
-            <div class="overflow-x-auto rounded shadow">
-                <table class="w-full rounded bg-white shadow dark:bg-black dark:border border">
+            <div class="overflow-x-auto rounded-2xl shadow">
+                <table class="w-full rounded-2xl bg-white shadow dark:bg-black dark:border border">
                     <thead class="bg-gray-100 dark:bg-black text-xs uppercase">
                         <tr>
                             <th class="px-4 py-3 text-center border-b">#</th>
@@ -146,7 +146,7 @@ const submitForm = () => {
                             <td class="px-4 py-3 text-center border-b">
                                 <div class="flex justify-center flex-wrap gap-1">
                                     <span v-for="u in preview.team_users" :key="u.id"
-                                        class="inline-block rounded-full bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700 dark:bg-indigo-800 dark:text-white">
+                                        class="inline-block rounded-2xl bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700 dark:bg-indigo-800 dark:text-white">
                                         {{ u.name }}
                                     </span>
                                 </div>
@@ -201,11 +201,11 @@ const submitForm = () => {
             <!-- Pagination -->
             <div v-if="previews.data.length > 0 && previews.links.length > 1" class="flex justify-center space-x-2">
                 <template v-for="(link, i) in previews.links" :key="i">
-                    <a v-if="link.url" :href="link.url" class="rounded border px-4 py-2 text-sm" :class="{
+                    <a v-if="link.url" :href="link.url" class="rounded-2xl border px-4 py-2 text-sm" :class="{
                         'bg-indigo-600 text-white': link.active,
                         'hover:bg-gray-200 dark:hover:bg-gray-700': !link.active
                     }" v-html="link.label" />
-                    <span v-else class="rounded border px-4 py-2 text-sm text-gray-400 cursor-not-allowed"
+                    <span v-else class="rounded-2xl border px-4 py-2 text-sm text-gray-400 cursor-not-allowed"
                         v-html="link.label" />
                 </template>
             </div>
@@ -213,7 +213,7 @@ const submitForm = () => {
 
         <!-- Modal -->
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div class="bg-white dark:bg-black p-6 rounded-lg w-full max-w-6xl relative overflow-hidden">
+            <div class="bg-white dark:bg-black p-6 rounded-2xl-lg w-full max-w-6xl relative overflow-hidden">
                 <button class="absolute top-2 right-2 text-gray-400 hover:text-red-500" @click="closeModal"
                     aria-label="Close Modal">
                     <X class="h-6 w-6" />

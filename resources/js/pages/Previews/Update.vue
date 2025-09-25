@@ -709,19 +709,19 @@
                 </div>
                 <div class="sticky-action-bar bg-white dark:bg-black">
                     <a :href="route('previews-index')"
-                        class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 font-semibold inline-block">
+                        class="bg-red-600 text-white px-6 py-2 rounded-2xl hover:bg-red-700 font-semibold inline-block">
                         Back
                     </a>
-                    <a :href="route('previews-edit', preview.id)" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 font-semibold inline-block"
+                    <a :href="route('previews-edit', preview.id)" class="bg-blue-600 text-white px-6 py-2 rounded-2xl hover:bg-blue-700 font-semibold inline-block"
                         aria-label="Edit Preview">
                         More Infos
                     </a>
                     <button type="button" @click="goToPreview"
-                        class="bg-orange-600 text-white px-6 py-2 rounded hover:bg-orange-700 font-semibold">
+                        class="bg-orange-600 text-white px-6 py-2 rounded-2xl hover:bg-orange-700 font-semibold">
                         Preview
                     </button>
                     <button @click="saveAll"
-                        class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 font-semibold">
+                        class="bg-green-600 text-white px-6 py-2 rounded-2xl hover:bg-green-700 font-semibold">
                         Save
                     </button>
                 </div>
