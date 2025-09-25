@@ -41,6 +41,10 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(function () {
 
+    Route::get('/lazyDoc', function () {
+        return Inertia::render('LazyDoc');
+    })->name('lazyDoc');
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/tinypng', [TinyPngController::class, 'index'])->name('tinypng.index');

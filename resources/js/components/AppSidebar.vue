@@ -6,7 +6,7 @@ import { useAppearance } from '@/composables/useAppearance';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutDashboard, Paperclip, Clapperboard, MonitorCog, MonitorStop, ReceiptText, Users, History, Type, CircleDollarSign, Paintbrush, ImagePlay, ImageMinus } from 'lucide-vue-next';
+import { LayoutDashboard, Paperclip, Clapperboard, MonitorCog, MonitorStop, ReceiptText, Users, History, Type, FileCode, CircleDollarSign, Paintbrush, ImagePlay, ImageMinus } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 import { computed } from 'vue'; // ✅ important to make reactive
@@ -27,6 +27,7 @@ const mainNavItems: NavItem[] = [
     { title: 'Media Library', 'href': '/medias', icon: ImagePlay },
     { title: 'TinyPNG', 'href': '/tinypng', icon: ImageMinus },
     { title: 'Tetris', href: '/play/tetris', icon: Type },
+    { title: 'Documentation', href: '/lazyDoc', icon: FileCode }
 ];
 
 const footerNavItems: NavItem[] = [
