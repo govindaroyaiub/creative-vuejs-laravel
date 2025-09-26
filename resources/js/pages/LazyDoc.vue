@@ -6,7 +6,7 @@
             class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-black dark:via-black dark:to-black">
             <div class="container mx-auto px-4 py-8 max-w-5xl">
                 <!-- Header Section -->
-                <div class="text-center mb-12">
+                <div class="text-center mb-6">
                     <div
                         class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full mb-4">
                         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -15,7 +15,7 @@
                             </path>
                         </svg>
                     </div>
-                    <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                    <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-1">
                         Creative Planet Nine
                         <span
                             class="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Documentation</span>
@@ -28,7 +28,7 @@
                 </div>
 
                 <!-- Search Section -->
-                <div class="relative mb-8">
+                <div class="relative mb-4">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -52,7 +52,7 @@
                     <div v-for="(qa, idx) in filteredQA" :key="idx" :id="'qa-' + idx"
                         class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-700">
                         <button @click="toggle(idx)"
-                            class="w-full text-left px-6 py-5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset group">
+                            class="w-full text-left px-6 py-5 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:ring-inset group">
                             <div class="flex justify-between items-center">
                                 <div class="flex items-start space-x-4">
                                     <div
@@ -138,11 +138,6 @@
                 <div class="mt-16 text-center">
                     <div
                         class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full text-sm font-medium">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
-                            </path>
-                        </svg>
                         Made with ❤️ by Govinda Roy
                     </div>
                 </div>
@@ -172,191 +167,261 @@ const quickNav = ref([
 const qaList = ref([
     {
         question: 'What is Creative Planet Nine?',
-        answer: 'Creative Planet Nine is a platform where the main focus is to create preview links for clients in such a way that the user can upload Banners, Videos, Gifs and Social Images/Images. We call this the Preview System. In order to make this preview system work there is a heirarchy of users, models and permissions.',
+        answer: 'Creative Planet Nine is a platform designed to generate preview links for clients. It allows uploading Banners, Videos, GIFs, and Social Images (collectively called Creatives). This system is called the Preview System. To manage it, there is a hierarchy of users, models, and permissions.',
         additionalInfo: `
-        Lets try to get you familiar with what you can do in the system. I will try to cover as much as I can on this page. Just like any developer I am lazy. So dont expect too much. <span class="font-bold">Look at the left sidebar whole reading the points.</span>
+        The system offers multiple features. Please refer to the left sidebar while reading the points:
         <ul class="list-disc list-inside space-y-3 mt-4">
-            <li><span class="font-bold text-blue-600">Color Palettes:</span> Add/Edit Colors with tabs(preview page thing) as image upload.</li>
-            <li><span class="font-bold text-green-600">Client Handling:</span> Each client has their own color theme. Which comes from Color Palettes.</li>
-            <li><span class="font-bold text-purple-600">Banner and Video Sizes:</span> Banners, Videos, Gifs, Social -> we call them creatives. Each creative has their own size. To show each size dynamic on the preview page (which client will see), maintaining Banner sizes and video sizes is necessary.</li>
-            <li><span class="font-bold text-orange-600">File Transfers:</span> We create transfer links and provide to our clients so that they can download their creatives and upload them on their end.</li>
-            <li><span class="font-bold text-red-600">Bills:</span> This is for Limon Bhai only. The guy who will not just give you life lessions but also take care of you like his own brother/sister. Kindly respect him. If you dont, I will make sure that your self respect gets sold to the highest bidder in LGBTQ++ community and the bidder ends up on your doorstep knocking late at night to make love to you.</li>
-            <li><span class="font-bold text-indigo-600">Media Library:</span> Sometimes in video banners we need to provide an external link for the banner to work. This segment will do the part. Of course you can upload other files as well.</li>
-            <li><span class="font-bold text-teal-600">TinyPNG:</span> 500 free image compression per month. This was built as a learning curve. Works fine af though.</li>
-            <li><span class="font-bold text-pink-600">Preview System:</span> This is the original preview system that started it all. It has evolved over time but the core functionality remains the same. More info is to the other Q/A module.</li>
+            <li><span class="font-bold text-blue-600">Color Palettes:</span> Manage colors/themes for clients. Supports adding/editing colors and uploading preview images.</li>
+            <li><span class="font-bold text-green-600">Client Handling:</span> Each client has a unique color theme (derived from Color Palettes), logo, and preview URL.</li>
+            <li><span class="font-bold text-purple-600">Banner and Video Sizes:</span> Creatives (Banners, Videos, GIFs, Socials) require predefined sizes. These sizes are maintained to display previews dynamically.</li>
+            <li><span class="font-bold text-orange-600">File Transfers:</span> Generate secure transfer links so clients can download their creatives. Transfers are auto-deleted after a specific period.</li>
+            <li><span class="font-bold text-red-600">Bills:</span> Module for managing office bills.</li>
+            <li><span class="font-bold text-indigo-600">Media Library:</span> Central place for uploading and referencing assets (images, videos, external links).</li>
+            <li><span class="font-bold text-teal-600">TinyPNG:</span> API integration for image compression (500 free compressions/month).</li>
+            <li><span class="font-bold text-pink-600">Preview System:</span> The core feature. Enables creation of preview links and uploading creatives. Evolved over time, but core remains the same.</li>
         </ul>
-        `
+
+        <div class="mt-6 p-4 bg-green-50 dark:bg-green-900/30 rounded-lg border-l-4 border-green-400">
+            <h5 class="font-bold text-green-800 dark:text-green-300 mb-2">Key Points</h5>
+            <ul class="list-disc list-inside space-y-1 text-sm text-green-700 dark:text-green-300">
+                <li>Backend: Laravel 12</li>
+                <li>Frontend: Vue.js 3</li>
+                <li>Scaffolding: Vite.js</li>
+                <li>SPA Rendering: Inertia.js</li>
+                <li>Creative Assets stored in: <code>public/uploads</code></li>
+                <li>File Transfers stored in: <code>public/Transfer Files</code></li>
+            </ul>
+        </div>
+    `
     },
     {
         question: 'What is a Client?',
-        answer: 'Well like the name suggests, client page is to manage the clients. However, there some other things as well. Each Client has their own logo, brand color, url and preview url as well. For example: CMN is a client where the preview url is creative.cmn.com. Another example: for Merkle it will be creative.merkle.com. But its not necessary to have a different preview url for each client. Only if the client requires it then you have to create it.',
+        answer: 'Clients are the organizations for whom creatives are developed/designed. Each client has its own logo, brand colors, URL, and optionally a dedicated preview URL (e.g., creative.cmn.com or creative.merkle.com).',
         additionalInfo: `
-        In case you want to change anything for the client, here are the technical details:
+        Technical details:
         <ul class="list-disc list-inside space-y-2 mt-4">
-            <li>📄 <strong>Model:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">Client.php</code></li>
-            <li>🗃️ <strong>Migration:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">2025_05_02_135230_create_clients_table.php</code></li>
-            <li>🎛️ <strong>Controller:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">ClientController.php</code></li>
-            <li>🖼️ <strong>Vue Files:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">Pages/Clients</code></li>
+            <li>📄 <strong>Model:</strong> <code>Client.php</code></li>
+            <li>🗃️ <strong>Migration:</strong> <code>2025_05_02_135230_create_clients_table.php</code></li>
+            <li>🎛️ <strong>Controller:</strong> <code>ClientController.php</code></li>
+            <li>🖼️ <strong>Vue Files:</strong> <code>Pages/Clients</code></li>
         </ul>
-        `
+    `
     },
     {
-        question: 'What are Color Palettes?',
-        answer: 'Color Palettes are the colors that are used in the preview system. The name does say Color Palette but we are developing a theme. A theme can have multiple colors. Each Color Palette has a name and colors.',
+        question: 'What are the Color Palettes?',
+        answer: 'Color Palettes define themes for the preview system. A theme can include multiple colors and improves the overall interface design. Each Color Palette has a name and color set.',
         additionalInfo: `
-        In case you want to change anything for the Color Palette, here are the technical details:
+        Technical details:
         <ul class="list-disc list-inside space-y-2 mt-4">
-            <li>📄 <strong>Model:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">ColorPalette.php</code></li>
-            <li>🗃️ <strong>Migration:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">2025_05_01_082516_create_color_palettes_table.php</code></li>
-            <li>🎛️ <strong>Controller:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">ColorPaletteController.php</code></li>
-            <li>🖼️ <strong>Vue Files:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">Pages/ColorPalettes</code></li>
+            <li>📄 <strong>Model:</strong> <code>ColorPalette.php</code></li>
+            <li>🗃️ <strong>Migration:</strong> <code>2025_05_01_082516_create_color_palettes_table.php</code></li>
+            <li>🎛️ <strong>Controller:</strong> <code>ColorPaletteController.php</code></li>
+            <li>🖼️ <strong>Vue Files:</strong> <code>Pages/ColorPalettes</code></li>
         </ul>
-        `
+    `
     },
     {
         question: 'What are Banner Sizes and Video Sizes?',
-        answer: 'Banner Sizes are the sizes of the banners that are used in the preview system. Video Sizes are the sizes of the videos that are used in the preview system. Each Banner Size has a name, width and height. Each Video Size has a name, width and height as well. The difference between Banner Size and Video Size is that Banner Size is used for banners only. Video Size is used for videos only.',
+        answer: 'These define the dimensions of creatives. Banner Sizes are for banners only; Video Sizes are for videos only. Each has a name, width, and height.',
         additionalInfo: `
-        In case you want to change anything for Banner Size or Video Size, here are the technical details:
+        Technical details:
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border">
+            <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
                 <h5 class="font-bold text-blue-600 mb-2">Banner Sizes</h5>
-                <ul class="list-disc list-inside space-y-1 text-sm">
-                    <li><strong>Model:</strong> <code class="px-1 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">BannerSize.php</code></li>
-                    <li><strong>Migration:</strong> <code class="px-1 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">2025_04_15_070726_create_banner_sizes_table.php</code></li>
-                    <li><strong>Controller:</strong> <code class="px-1 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">BannerSizeController.php</code></li>
-                    <li><strong>Vue Files:</strong> <code class="px-1 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">Pages/BannerSizes</code></li>
+                <ul class="list-disc list-inside text-sm">
+                    <li><strong>Model:</strong> <code>BannerSize.php</code></li>
+                    <li><strong>Migration:</strong> <code>2025_04_15_070726_create_banner_sizes_table.php</code></li>
+                    <li><strong>Controller:</strong> <code>BannerSizeController.php</code></li>
+                    <li><strong>Vue Files:</strong> <code>Pages/BannerSizes</code></li>
                 </ul>
             </div>
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border">
+            <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
                 <h5 class="font-bold text-green-600 mb-2">Video Sizes</h5>
-                <ul class="list-disc list-inside space-y-1 text-sm">
-                    <li><strong>Model:</strong> <code class="px-1 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">VideoSize.php</code></li>
-                    <li><strong>Migration:</strong> <code class="px-1 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">2025_04_17_173143_create_video_sizes_table.php</code></li>
-                    <li><strong>Controller:</strong> <code class="px-1 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">VideoSizeController.php</code></li>
-                    <li><strong>Vue Files:</strong> <code class="px-1 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-xs">Pages/VideoSizes</code></li>
+                <ul class="list-disc list-inside text-sm">
+                    <li><strong>Model:</strong> <code>VideoSize.php</code></li>
+                    <li><strong>Migration:</strong> <code>2025_04_17_173143_create_video_sizes_table.php</code></li>
+                    <li><strong>Controller:</strong> <code>VideoSizeController.php</code></li>
+                    <li><strong>Vue Files:</strong> <code>Pages/VideoSizes</code></li>
                 </ul>
             </div>
         </div>
-        `
+    `
     },
     {
         question: 'What are File Transfers?',
-        answer: 'File Transfers are the links that are used to transfer files from the server to the client. Each File Transfer has a unique link that can be used to download the files. Making sure that the server stays clean, we have to delete the file transfers after 1 Year 1 Month. But make sure that the files are stored at our <span class="font-bold text-red-600">DIVANAS</span> server.',
+        answer: 'File Transfers allow clients to download creatives via secure links. Each transfer has a unique URL and is must be deleted after 1 year and 1 month. Files are to be stored on the <span class="font-bold">DIVANAS</span> server.',
         additionalInfo: `
-        In case you want to change anything for File Transfer, here are the technical details:
+        Technical details:
         <ul class="list-disc list-inside space-y-2 mt-4">
-            <li>📄 <strong>Model:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">FileTransfer.php</code></li>
-            <li>🗃️ <strong>Migration:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">2025_05_01_134500_create_file_transfers_table.php</code></li>
-            <li>🎛️ <strong>Controller:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">FileTransferController.php</code></li>
-            <li>🖼️ <strong>Vue Files:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">Pages/FileTransfers</code></li>
+            <li>📄 <strong>Model:</strong> <code>FileTransfer.php</code></li>
+            <li>🗃️ <strong>Migration:</strong> <code>2025_05_01_134500_create_file_transfers_table.php</code></li>
+            <li>🎛️ <strong>Controller:</strong> <code>FileTransferController.php</code></li>
+            <li>🖼️ <strong>Vue Files:</strong> <code>Pages/FileTransfers</code></li>
         </ul>
-        `
+    `
     },
     {
         question: 'What is Media Library?',
-        answer: 'Media Library is a place where you can upload files that are used in the preview system. Each file has a name, url and type. The type can be image, video or other.',
+        answer: 'The Media Library is a central storage for assets used in previews. Each file has a name, type (image, video, or other), and URL.',
         additionalInfo: `
-        In case you want to change anything for Media Library, here are the technical details:
+        Technical details:
         <ul class="list-disc list-inside space-y-2 mt-4">
-            <li>📄 <strong>Model:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">Media.php</code></li>
-            <li>🗃️ <strong>Migration:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">2025_05_03_114912_create_media_table.php</code></li>
-            <li>🎛️ <strong>Controller:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">MediaController.php</code></li>
-            <li>🖼️ <strong>Vue Files:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">Pages/Medias</code></li>
+            <li>📄 <strong>Model:</strong> <code>Media.php</code></li>
+            <li>🗃️ <strong>Migration:</strong> <code>2025_05_03_114912_create_media_table.php</code></li>
+            <li>🎛️ <strong>Controller:</strong> <code>MediaController.php</code></li>
+            <li>🖼️ <strong>Vue Files:</strong> <code>Pages/Medias</code></li>
         </ul>
-        `
+    `
     },
     {
         question: 'What is TinyPNG?',
-        answer: 'TinyPNG is a place where you can compress your images. You get 500 free compressions per month. After that you have to pay for it. If the free trial is over then just head to <a href="https://tinypng.com" target="_blank" class="text-blue-500 underline hover:text-blue-700">TinyPNG</a>. Or if you want to use your own API key then you can set it in the .env file. The key is TINYPNG_API_KEY and you can get it from <a href="https://tinypng.com/developers" target="_blank" class="text-blue-500 underline hover:text-blue-700">here</a>.',
+        answer: 'TinyPNG is integrated for image compression (500 free compressions/month). Additional compressions require a paid key. Configure your API key in the .env file (TINYPNG_API_KEY).',
         additionalInfo: `
-        <div class="bg-yellow-50 dark:bg-yellow-900/30 p-4 rounded-lg border-l-4 border-yellow-400 mb-4">
-            <p class="text-sm"><strong>Note:</strong> There is no Model or Migration for TinyPNG as we are not storing any data in the database plus it's a third party service that works with API key.</p>
-        </div>
-        In case you want to change anything for TinyPNG, here are the technical details:
+        Technical details:
         <ul class="list-disc list-inside space-y-2 mt-4">
-            <li>🎛️ <strong>Controller:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">TinyPngController.php</code></li>
-            <li>🖼️ <strong>Vue Files:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">Pages/TinyPng</code></li>
-            <li>🔑 <strong>ENV Variable:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">TINYPNG_API_KEY</code></li>
+            <li>🎛️ <strong>Controller:</strong> <code>TinyPngController.php</code></li>
+            <li>🖼️ <strong>Vue Files:</strong> <code>Pages/TinyPng</code></li>
+            <li>🔑 <strong>ENV Variable:</strong> <code>TINYPNG_API_KEY</code></li>
         </ul>
-        `
+    `
     },
     {
         question: 'What is Bills?',
-        answer: 'Bills is a place where Limon Bhai can manage his bills. Each bill has a sub bill. And total of sub bills is the total of the bill. This is used mainly to keep the record of bills that is being used in the office.',
+        answer: 'Bills module helps manage office expenses. Each Bill can contain multiple Sub Bills, and totals are auto-calculated.',
         additionalInfo: `
-        In case you want to change anything for Bills, here are the technical details:
+        Technical details:
         <ul class="list-disc list-inside space-y-2 mt-4">
-            <li>📄 <strong>Models:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">Bill.php</code>, <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">SubBill.php</code></li>
-            <li>🗃️ <strong>Migrations:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">2025_04_21_123650_create_bills_table.php</code>, <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">2025_04_21_123714_create_sub_bills_table.php</code></li>
-            <li>🎛️ <strong>Controller:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">BillController.php</code></li>
-            <li>🖼️ <strong>Vue Files:</strong> <code class="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-sm">Pages/Bills</code></li>
+            <li>📄 <strong>Models:</strong> <code>Bill.php</code>, <code>SubBill.php</code></li>
+            <li>🗃️ <strong>Migrations:</strong> <code>2025_04_21_123650_create_bills_table.php</code>, <code>2025_04_21_123714_create_sub_bills_table.php</code></li>
+            <li>🎛️ <strong>Controller:</strong> <code>BillController.php</code></li>
+            <li>🖼️ <strong>Vue Files:</strong> <code>Pages/Bills</code></li>
         </ul>
-        `
+    `
     },
     {
-        question: 'What is the Preview Mechanism?',
-        answer: 'Now, lets dive into the main feature of this app. A versatile system that allows users to create Preview links with additional info and enables the user to upload Banners(zip), Videos, Gifs and Social Images/Images. I tried to make the system user friendly and easy to use.',
+        question: 'How does the Preview System work and what are the relations?',
+        answer: 'The Preview System is the core of Creative Planet Nine. It allows creating preview links, uploading creatives, and managing feedbacks. It follows a hierarchical relationship between entities.',
         additionalInfo: `
-            <div class="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg mb-4">
-                <h5 class="font-bold text-blue-800 dark:text-blue-300 mb-2">System Hierarchy</h5>
-                <p class="text-sm text-blue-700 dark:text-blue-300">Understanding the relationship between different components:</p>
-            </div>
-            
-            <div class="space-y-4">
-                <div class="flex items-start space-x-3">
-                    <div class="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">1</div>
-                    <div>
-                        <p>Each <span class="font-bold text-blue-600">Preview</span> is associated with a <span class="font-bold text-green-600">Client</span>, <span class="font-bold text-purple-600">Color Palette</span>, and <span class="font-bold text-orange-600">User</span>.</p>
-                    </div>
-                </div>
-                
-                <div class="flex items-start space-x-3">
-                    <div class="flex-shrink-0 w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-bold">2</div>
-                    <div>
-                        <p>Each <span class="font-bold text-blue-600">Preview</span> can have multiple <span class="font-bold text-indigo-600">Categories</span> (Banner, Video, Gif, Social).</p>
-                    </div>
-                </div>
-                
-                <div class="flex items-start space-x-3">
-                    <div class="flex-shrink-0 w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-xs font-bold">3</div>
-                    <div>
-                        <p>Each <span class="font-bold text-indigo-600">Category</span> can have multiple <span class="font-bold text-teal-600">Feedbacks</span>. Feedbacks will come from the client or the manager.</p>
-                    </div>
-                </div>
-                
-                <div class="flex items-start space-x-3">
-                    <div class="flex-shrink-0 w-6 h-6 bg-teal-500 text-white rounded-full flex items-center justify-center text-xs font-bold">4</div>
-                    <div>
-                        <p>Each <span class="font-bold text-teal-600">Feedback</span> can have multiple <span class="font-bold text-pink-600">Feedback Sets</span>.</p>
-                    </div>
-                </div>
-                
-                <div class="flex items-start space-x-3">
-                    <div class="flex-shrink-0 w-6 h-6 bg-pink-500 text-white rounded-full flex items-center justify-center text-xs font-bold">5</div>
-                    <div>
-                        <p>Each <span class="font-bold text-pink-600">Feedback Set</span> can have multiple <span class="font-bold text-red-600">Versions</span>.</p>
-                    </div>
-                </div>
-                
-                <div class="flex items-start space-x-3">
-                    <div class="flex-shrink-0 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold">6</div>
-                    <div>
-                        <p>Each <span class="font-bold text-red-600">Version</span> can have multiple <span class="font-bold text-gray-700 dark:text-gray-300">Creatives</span>. (Depending on the Category type, the creative can be Banner, Video, Gif or Social Image/Image).</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="mt-6 p-4 bg-green-50 dark:bg-green-900/30 rounded-lg border-l-4 border-green-400">
-                <h5 class="font-bold text-green-800 dark:text-green-300 mb-2">Key Features</h5>
-                <ul class="list-disc list-inside space-y-1 text-sm text-green-700 dark:text-green-300">
-                    <li>User can change the color theme by switching the color palette</li>
-                    <li>Each Feedback has its own description that users can view</li>
-                    <li>Dynamic preview system adapts to different creative types</li>
+        <h5 class="font-bold mb-2">System Hierarchy</h5>
+        <ol class="list-decimal list-inside space-y-2">
+            <li>Each <strong>Preview</strong> is linked to a <strong>Client</strong>, <strong>Color Palette</strong>, and <strong>User</strong>.</li>
+            <li>Each Preview contains multiple <strong>Categories</strong> (Banner, Video, Gif, Social).</li>
+            <li>Each Category can have multiple <strong>Feedbacks</strong>.</li>
+            <li>Each Feedback can contain multiple <strong>Feedback Sets</strong>.</li>
+            <li>Each Feedback Set can contain multiple <strong>Versions</strong>.</li>
+            <li>Each Version can contain multiple <strong>Creatives</strong> (Banner, Video, Gif, Social Image).</li>
+        </ol>
+
+        <div class="mt-6 p-4 bg-green-50 rounded-lg border-l-4 border-green-400">
+            <h5 class="font-bold mb-2">Key Features</h5>
+            <ul class="list-disc list-inside text-sm">
+                <li>Dynamic previews adapt to creative type.</li>
+                <li>Feedback system supports multiple iterations.</li>
+                <li>Color themes can be changed per Preview.</li>
+            </ul>
+        </div>
+    `
+    },
+    {
+        question: 'What are the files related to Preview System?',
+        answer: 'The Preview System uses multiple interconnected models, controllers, and migrations. The main Preview has its own Vue page, while related entities are handled inside Update.vue.',
+        additionalInfo: `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <!-- Previews -->
+            <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
+                <h5 class="font-bold text-blue-600 mb-2">Preview</h5>
+                <ul class="list-disc list-inside text-sm">
+                    <li><strong>Model:</strong> <code>newPreview.php</code></li>
+                    <li><strong>Migration:</strong> <code>2025_08_12_123503_create_new_previews_table.php</code></li>
+                    <li><strong>Controller:</strong> <code>newPreviewController.php</code></li>
+                    <li><strong>Vue Files:</strong> <code>Pages/Previews</code></li>
                 </ul>
             </div>
-        `
+            <!-- Categories -->
+            <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
+                <h5 class="font-bold text-green-600 mb-2">Categories</h5>
+                <ul class="list-disc list-inside text-sm">
+                    <li><strong>Model:</strong> <code>newCategory.php</code></li>
+                    <li><strong>Migration:</strong> <code>2025_08_12_123522_create_new_categories_table.php</code></li>
+                    <li><strong>Controller:</strong> <code>newCategoryController.php</code></li>
+                </ul>
+            </div>
+            <!-- Feedback -->
+            <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
+                <h5 class="font-bold text-green-600 mb-2">Feedback</h5>
+                <ul class="list-disc list-inside text-sm">
+                    <li><strong>Model:</strong> <code>newFeedback.php</code></li>
+                    <li><strong>Migration:</strong> <code>2025_08_12_123537_create_new_feedback_table.php</code></li>
+                    <li><strong>Controller:</strong> <code>newFeedbackController.php</code></li>
+                </ul>
+            </div>
+            <!-- Feedback Set -->
+            <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
+                <h5 class="font-bold text-green-600 mb-2">Feedback Set</h5>
+                <ul class="list-disc list-inside text-sm">
+                    <li><strong>Model:</strong> <code>newFeedbackSet.php</code></li>
+                    <li><strong>Migration:</strong> <code>2025_08_12_123556_create_new_feedback_sets_table.php</code></li>
+                    <li><strong>Controller:</strong> <code>newFeedbackSetController.php</code></li>
+                </ul>
+            </div>
+            <!-- Versions -->
+            <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
+                <h5 class="font-bold text-green-600 mb-2">Versions</h5>
+                <ul class="list-disc list-inside text-sm">
+                    <li><strong>Model:</strong> <code>newVersion.php</code></li>
+                    <li><strong>Migration:</strong> <code>2025_08_12_123611_create_new_versions_table.php</code></li>
+                    <li><strong>Controller:</strong> <code>newVersionController.php</code></li>
+                </ul>
+            </div>
+            <!-- Banners -->
+            <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
+                <h5 class="font-bold text-green-600 mb-2">Banners</h5>
+                <ul class="list-disc list-inside text-sm">
+                    <li><strong>Model:</strong> <code>newBanner.php</code></li>
+                    <li><strong>Migration:</strong> <code>2025_08_12_123653_create_new_banners_table.php</code></li>
+                    <li><strong>Controller:</strong> <code>newBannerController.php</code></li>
+                </ul>
+            </div>
+            <!-- Videos -->
+            <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
+                <h5 class="font-bold text-green-600 mb-2">Videos</h5>
+                <ul class="list-disc list-inside text-sm">
+                    <li><strong>Model:</strong> <code>newVideo.php</code></li>
+                    <li><strong>Migration:</strong> <code>2025_08_15_120554_create_new_videos_table.php</code></li>
+                    <li><strong>Controller:</strong> <code>newVideoController.php</code></li>
+                </ul>
+            </div>
+            <!-- Gifs -->
+            <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
+                <h5 class="font-bold text-green-600 mb-2">Gifs</h5>
+                <ul class="list-disc list-inside text-sm">
+                    <li><strong>Model:</strong> <code>newGif.php</code></li>
+                    <li><strong>Migration:</strong> <code>2025_08_15_120605_create_new_gifs_table.php</code></li>
+                    <li><strong>Controller:</strong> <code>newGifController.php</code></li>
+                </ul>
+            </div>
+            <!-- Socials -->
+            <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
+                <h5 class="font-bold text-green-600 mb-2">Socials</h5>
+                <ul class="list-disc list-inside text-sm">
+                    <li><strong>Model:</strong> <code>newSocial.php</code></li>
+                    <li><strong>Migration:</strong> <code>2025_08_15_120601_create_new_socials_table.php</code></li>
+                    <li><strong>Controller:</strong> <code>newSocialController.php</code></li>
+                </ul>
+            </div>
+        </div>
+        <div class="mt-6 p-4 bg-green-50 dark:bg-green-900/30 rounded-lg border-l-4 border-green-400">
+            <h5 class="font-bold text-green-800 dark:text-green-300 mb-2">Key Points</h5>
+            <ul class="list-disc list-inside space-y-1 text-sm text-green-700 dark:text-green-300">
+                <li>Only Previews has a dedicated Vue view file.</li>
+                <li>Other entities are managed within <code>Pages/Previews/Update.vue</code>.</li>
+                <li>The Update.vue file allows creating, editing, and deleting all related entities.</li>
+                <li>The codebase is complex; consider using AI/code analysis tools for better understanding.</li>
+            </ul>
+        </div>
+    `
     }
+
 ])
 
 const filteredQA = computed(() => {
@@ -406,7 +471,7 @@ function scrollToSection(id: string) {
 /* Custom styles for lists */
 :deep(ul) {
     list-style-type: disc;
-    padding-left: 1.5rem;
+    padding-left: .5rem;
 }
 
 :deep(li) {

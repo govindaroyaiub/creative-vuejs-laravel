@@ -259,6 +259,7 @@ class DatabaseSeeder extends Seeder
             ['title' => 'Media Library', 'href' => '/medias'],
             ['title' => 'Activity Logs', 'href' => '/activity-logs'],
             ['title' => 'Tetris', 'href' => '/play/tetris'],
+            ['title' => 'Documentation', 'href' => '/lazyDoc'],
         ];
 
         foreach ($routes as $route) {

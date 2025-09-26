@@ -77,12 +77,13 @@ const deleteFileTransfer = async (id: number) => {
                             <td class="px-4 py-2 border-b">{{ transfer.client }}</td>
                             <td class="px-4 py-2 border-b">
                                 {{ transfer.user.name }}
-                                <hr />
+                                (
                                 {{ new Date(transfer.created_at).toLocaleDateString('en-GB', {
                                     day: '2-digit',
                                     month: 'long',
                                     year: 'numeric',
                                 }) }}
+                                )
                             </td>
                             <td class="space-x-2 px-4 py-2 border-b">
                                 <a :href="`/file-transfers-view/${transfer.slug}`" target="_blank"
