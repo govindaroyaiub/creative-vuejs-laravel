@@ -356,7 +356,7 @@ const formatNumber = (num: number) => {
                             Dashboard Overview
                         </h1>
                         <p class="text-gray-600 dark:text-white mt-1">
-                            Analytics and insights for {{ year }} • Updated in real-time
+                            Analytics and insights for {{ year }}
                         </p>
                     </div>
                     <div class="text-right">

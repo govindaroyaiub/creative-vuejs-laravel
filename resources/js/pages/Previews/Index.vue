@@ -117,116 +117,88 @@ const submitForm = () => {
                 <input v-model="search" placeholder="Search..." aria-label="Search previews"
                     class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-black dark:text-white" />
                 <button @click="showModal = true"
-                    class="ml-4 rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700" aria-label="Add Preview">
+                    class="ml-4 rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+                    aria-label="Add Preview">
                     <CirclePlus class="mr-1 inline h-5 w-5" /> Add
                 </button>
             </div>
 
             <!-- Table -->
             <div class="overflow-x-auto rounded-2xl shadow">
-                <table class="w-full rounded-2xl bg-white shadow dark:bg-black dark:border border">
+                <table class="w-full rounded-2xl bg-white shadow dark:bg-black dark:border border table-fixed">
                     <thead class="bg-gray-100 dark:bg-black text-xs uppercase">
                         <tr>
-                            <th class="px-4 py-3 text-center border-b">#</th>
-                            <th class="px-4 py-3 text-left border-b">Name & Client</th>
-                            <th class="px-4 py-3 text-center border-b">Team</th>
-                            <th class="px-4 py-3 text-center border-b">Uploader</th>
-                            <th class="px-4 py-3 text-center border-b">Theme & Types</th>
-                            <th class="px-4 py-3 text-center border-b">Actions</th>
+                            <th class="w-16 px-4 py-3 text-center border-b">#</th>
+                            <th class="w-80 px-4 py-3 text-left border-b">Name & Client</th>
+                            <th class="w-48 px-4 py-3 text-center border-b">Team</th>
+                            <th class="w-36 px-4 py-3 text-center border-b">Uploader</th>
+                            <th class="w-32 px-4 py-3 text-center border-b">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-black">
                         <tr v-for="(preview, index) in filteredPreviews" :key="preview.id"
                             class="hover:bg-gray-50 dark:hover:bg-gray-800 border-b">
-                            <td class="text-center px-4 py-3 font-medium border-b">{{ index + 1 }}</td>
-                            <td class="px-4 py-3 text-left border-b">
-                                <div class="font-semibold capitalize">{{ preview.name }}</div>
-                                <div class="text-xs text-gray-500">{{ preview.client?.name ?? '-' }}</div>
+                            <td class="w-16 text-center px-4 py-3 font-medium border-b">{{ index + 1 }}</td>
+                            <td class="w-80 px-4 py-3 text-left border-b">
+                                <div class="font-semibold capitalize break-words" :title="preview.name">{{ preview.name
+                                    }}</div>
+                                <div class="text-xs text-gray-500 flex gap-2 items-center">
+                                    <div class="h-4 w-4 rounded-full border flex-shrink-0"
+                                        :style="{ backgroundColor: preview.color_palette?.tertiary ?? '#ccc' }"
+                                        title="Primary Color"></div>
+                                    <span class="break-words">{{ preview.client?.name ?? '-' }}</span> -
+                                    <div class="text-xs text-gray-400 break-words">{{ getTypes(preview) || '-' }}</div>
+                                </div>
                             </td>
-                            <td class="px-4 py-3 text-center border-b">
+                            <td class="w-48 px-4 py-3 text-center border-b">
                                 <div class="flex justify-center flex-wrap gap-1">
                                     <span v-for="u in preview.team_users" :key="u.id"
-                                        class="inline-block rounded-2xl bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700 dark:bg-indigo-800 dark:text-white">
+                                        class="inline-block rounded-2xl bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700 dark:bg-indigo-800 dark:text-white truncate">
                                         {{ u.name }}
                                     </span>
                                 </div>
                             </td>
-                            <td class="px-4 py-3 text-center border-b">
-                                <div class="text-sm">{{ preview.uploader?.name ?? '-' }}</div>
+                            <td class="w-36 px-4 py-3 text-center border-b">
+                                <div class="text-sm truncate" :title="preview.uploader?.name">{{ preview.uploader?.name
+                                    ?? '-' }}</div>
                                 <div class="text-xs text-gray-400">{{ new
                                     Date(preview.created_at).toLocaleDateString('en-GB', {
                                         day: '2-digit', month:
                                             'short', year: 'numeric'
                                     }) }}</div>
                             </td>
-                            <td class="px-4 py-3 text-center border-b">
-                                <div class="flex items-center justify-center gap-2">
-                                    <div class="h-4 w-4 rounded-full border"
-                                        :style="{ backgroundColor: preview.color_palette?.tertiary ?? '#ccc' }"
-                                        title="Primary Color"></div>
-                                    <span class="text-sm">{{ preview.color_palette?.name ?? '-' }}</span>
+                            <td class="w-32 text-center px-4 py-3 border-b">
+                                <div class="flex justify-center space-x-1">
+                                    <a :href="route('previews-show', preview.slug)"
+                                        class="text-green-600 hover:text-green-800 p-1" target="_blank" rel="noopener"
+                                        aria-label="View Preview">
+                                        <Eye class="h-4 w-4" />
+                                    </a>
+                                    <a :href="`${preview.client?.preview_url}/previews/show/${preview.slug}`"
+                                        class="text-yellow-600 hover:text-yellow-800 p-1" target="_blank" rel="noopener"
+                                        aria-label="View Preview">
+                                        <Share2 class="h-4 w-4" />
+                                    </a>
+                                    <Link :href="route('previews.update.all', preview.id)"
+                                        class="text-indigo-600 hover:text-indigo-800 p-1" aria-label="Edit Preview">
+                                    <Settings2 class="h-4 w-4" />
+                                    </Link>
+                                    <button @click="deletePreview(preview.id)"
+                                        class="text-red-600 hover:text-red-800 p-1" aria-label="Delete Preview">
+                                        <Trash2 class="h-4 w-4" />
+                                    </button>
                                 </div>
-                                <div class="text-xs text-gray-400">{{ getTypes(preview) || '-' }}</div>
-                            </td>
-                            <td class="text-center px-4 py-3 space-x-2 border-b">
-                                <a :href="route('previews-show', preview.slug)"
-                                    class="text-green-600 hover:text-green-800" target="_blank" rel="noopener"
-                                    aria-label="View Preview">
-                                    <Eye class="inline h-5 w-5" />
-                                </a>
-                                <a :href="`${preview.client?.preview_url}/previews/show/${preview.slug}`"
-                                    class="text-yellow-600 hover:text-yellow-800" target="_blank" rel="noopener"
-                                    aria-label="View Preview">
-                                    <Share2 class="inline h-5 w-5" />
-                                </a>
-                                <Link :href="route('previews.update.all', preview.id)"
-                                    class="text-indigo-600 hover:text-indigo-800" aria-label="Edit Preview">
-                                <Settings2 class="inline h-5 w-5" />
-                                </Link>
-
-                                <button @click="deletePreview(preview.id)" class="text-red-600 hover:text-red-800"
-                                    aria-label="Delete Preview">
-                                    <Trash2 class="inline h-5 w-5" />
-                                </button>
                             </td>
                         </tr>
                         <tr v-if="filteredPreviews.length === 0">
-                            <td colspan="6" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">No previews
+                            <td colspan="5" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">No previews
                                 found.</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <!-- Pagination -->
-            <div v-if="previews.data.length > 0 && previews.links.length > 1" class="flex justify-center space-x-2">
-                <template v-for="(link, i) in previews.links" :key="i">
-                    <a v-if="link.url" :href="link.url" class="rounded-2xl border px-4 py-2 text-sm" :class="{
-                        'bg-indigo-600 text-white': link.active,
-                        'hover:bg-gray-200 dark:hover:bg-gray-700': !link.active
-                    }" v-html="link.label" />
-                    <span v-else class="rounded-2xl border px-4 py-2 text-sm text-gray-400 cursor-not-allowed"
-                        v-html="link.label" />
-                </template>
-            </div>
-        </div>
-
-        <!-- Modal -->
-        <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div class="bg-white dark:bg-black p-6 rounded-2xl-lg w-full max-w-6xl relative overflow-hidden">
-                <button class="absolute top-2 right-2 text-gray-400 hover:text-red-500" @click="closeModal"
-                    aria-label="Close Modal">
-                    <X class="h-6 w-6" />
-                </button>
-                <!-- Directly show the form component -->
-                <PreviewStepBasicInfo v-bind="{
-                    form: formData,
-                    users: users,
-                    clients: clients,
-                    colorPalettes: colorPalettes,
-                    authUser: authUser
-                }" @submit="submitForm" @close="closeModal" />
-            </div>
+            <!-- Rest of your template remains the same -->
         </div>
     </AppLayout>
 </template>

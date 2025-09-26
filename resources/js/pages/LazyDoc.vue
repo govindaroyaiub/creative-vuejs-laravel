@@ -89,7 +89,7 @@
                                         <div v-html="qa.answer"
                                             class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4"></div>
                                         <div v-if="qa.additionalInfo"
-                                            class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border-l-4 border-blue-400">
+                                            class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border-l-4 shadow border-blue-400">
                                             <h4
                                                 class="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2 flex items-center">
                                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
@@ -181,7 +181,7 @@ const qaList = ref([
             <li><span class="font-bold text-pink-600">Preview System:</span> The core feature. Enables creation of preview links and uploading creatives. Evolved over time, but core remains the same.</li>
         </ul>
 
-        <div class="mt-6 p-4 bg-green-50 dark:bg-green-900/30 rounded-lg border-l-4 border-green-400">
+        <div class="mt-6 p-4 bg-green-50 dark:bg-green-900/30 rounded-lg border-l-4 border-green-400 shadow">
             <h5 class="font-bold text-green-800 dark:text-green-300 mb-2">Key Points</h5>
             <ul class="list-disc list-inside space-y-1 text-sm text-green-700 dark:text-green-300">
                 <li>Backend: Laravel 12</li>
@@ -312,7 +312,7 @@ const qaList = ref([
             <li>Each Version can contain multiple <strong>Creatives</strong> (Banner, Video, Gif, Social Image).</li>
         </ol>
 
-        <div class="mt-6 p-4 bg-green-50 rounded-lg border-l-4 border-green-400">
+        <div class="mt-6 p-4 bg-green-50 rounded-lg border-l-4 border-green-400 shadow">
             <h5 class="font-bold mb-2">Key Features</h5>
             <ul class="list-disc list-inside text-sm">
                 <li>Dynamic previews adapt to creative type.</li>
@@ -324,12 +324,13 @@ const qaList = ref([
     },
     {
         question: 'What are the files related to Preview System?',
-        answer: 'The Preview System uses multiple interconnected models, controllers, and migrations. The main Preview has its own Vue page, while related entities are handled inside Update.vue.',
+        answer: 'The Preview System uses multiple interconnected models, controllers, and migrations. The main Preview has its own Vue page, while related entities are handled inside Update.vue. For better understanding I have serialized each component below.',
         additionalInfo: `
+        There are total 6 <span class="font-bold">LAYERS:</span>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <!-- Previews -->
             <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
-                <h5 class="font-bold text-blue-600 mb-2">Preview</h5>
+                <h5 class="font-bold text-blue-600 mb-2 mt-2"><span class="rounded-full border bg-purple-500 text-white px-3 py-1 dark:bg-white">1</span> Preview</h5>
                 <ul class="list-disc list-inside text-sm">
                     <li><strong>Model:</strong> <code>newPreview.php</code></li>
                     <li><strong>Migration:</strong> <code>2025_08_12_123503_create_new_previews_table.php</code></li>
@@ -339,7 +340,7 @@ const qaList = ref([
             </div>
             <!-- Categories -->
             <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
-                <h5 class="font-bold text-green-600 mb-2">Categories</h5>
+                <h5 class="font-bold text-blue-600 mb-2 mt-2"><span class="rounded-full border bg-purple-500 text-white px-3 py-1 dark:bg-white">2</span> Categories</h5>
                 <ul class="list-disc list-inside text-sm">
                     <li><strong>Model:</strong> <code>newCategory.php</code></li>
                     <li><strong>Migration:</strong> <code>2025_08_12_123522_create_new_categories_table.php</code></li>
@@ -348,7 +349,7 @@ const qaList = ref([
             </div>
             <!-- Feedback -->
             <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
-                <h5 class="font-bold text-green-600 mb-2">Feedback</h5>
+                <h5 class="font-bold text-blue-600 mb-2 mt-2"><span class="rounded-full border bg-purple-500 text-white px-3 py-1 dark:bg-white">3</span> Feedback</h5>
                 <ul class="list-disc list-inside text-sm">
                     <li><strong>Model:</strong> <code>newFeedback.php</code></li>
                     <li><strong>Migration:</strong> <code>2025_08_12_123537_create_new_feedback_table.php</code></li>
@@ -357,7 +358,7 @@ const qaList = ref([
             </div>
             <!-- Feedback Set -->
             <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
-                <h5 class="font-bold text-green-600 mb-2">Feedback Set</h5>
+                <h5 class="font-bold text-blue-600 mb-2 mt-2"><span class="rounded-full border bg-purple-500 text-white px-3 py-1 dark:bg-white">4</span> Feedback Set</h5>
                 <ul class="list-disc list-inside text-sm">
                     <li><strong>Model:</strong> <code>newFeedbackSet.php</code></li>
                     <li><strong>Migration:</strong> <code>2025_08_12_123556_create_new_feedback_sets_table.php</code></li>
@@ -366,7 +367,7 @@ const qaList = ref([
             </div>
             <!-- Versions -->
             <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
-                <h5 class="font-bold text-green-600 mb-2">Versions</h5>
+                <h5 class="font-bold text-blue-600 mb-2 mt-2"><span class="rounded-full border bg-purple-500 text-white px-3 py-1 dark:bg-white">5</span> Versions</h5>
                 <ul class="list-disc list-inside text-sm">
                     <li><strong>Model:</strong> <code>newVersion.php</code></li>
                     <li><strong>Migration:</strong> <code>2025_08_12_123611_create_new_versions_table.php</code></li>
@@ -375,7 +376,7 @@ const qaList = ref([
             </div>
             <!-- Banners -->
             <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
-                <h5 class="font-bold text-green-600 mb-2">Banners</h5>
+                <h5 class="font-bold text-blue-600 mb-2 mt-2"><span class="rounded-full border bg-purple-500 text-white px-3 py-1 dark:bg-white">6A</span> Banners</h5>
                 <ul class="list-disc list-inside text-sm">
                     <li><strong>Model:</strong> <code>newBanner.php</code></li>
                     <li><strong>Migration:</strong> <code>2025_08_12_123653_create_new_banners_table.php</code></li>
@@ -384,7 +385,7 @@ const qaList = ref([
             </div>
             <!-- Videos -->
             <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
-                <h5 class="font-bold text-green-600 mb-2">Videos</h5>
+                <h5 class="font-bold text-blue-600 mb-2 mt-2"><span class="rounded-full border bg-purple-500 text-white px-3 py-1 dark:bg-white">6B</span> Videos</h5>
                 <ul class="list-disc list-inside text-sm">
                     <li><strong>Model:</strong> <code>newVideo.php</code></li>
                     <li><strong>Migration:</strong> <code>2025_08_15_120554_create_new_videos_table.php</code></li>
@@ -393,7 +394,7 @@ const qaList = ref([
             </div>
             <!-- Gifs -->
             <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
-                <h5 class="font-bold text-green-600 mb-2">Gifs</h5>
+                <h5 class="font-bold text-blue-600 mb-2 mt-2"><span class="rounded-full border bg-purple-500 text-white px-3 py-1 dark:bg-white">6C</span> Gifs</h5>
                 <ul class="list-disc list-inside text-sm">
                     <li><strong>Model:</strong> <code>newGif.php</code></li>
                     <li><strong>Migration:</strong> <code>2025_08_15_120605_create_new_gifs_table.php</code></li>
@@ -402,7 +403,7 @@ const qaList = ref([
             </div>
             <!-- Socials -->
             <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
-                <h5 class="font-bold text-green-600 mb-2">Socials</h5>
+                <h5 class="font-bold text-blue-600 mb-2 mt-2"><span class="rounded-full border bg-purple-500 text-white px-3 py-1 dark:bg-white">6D</span> Socials</h5>
                 <ul class="list-disc list-inside text-sm">
                     <li><strong>Model:</strong> <code>newSocial.php</code></li>
                     <li><strong>Migration:</strong> <code>2025_08_15_120601_create_new_socials_table.php</code></li>
@@ -410,13 +411,14 @@ const qaList = ref([
                 </ul>
             </div>
         </div>
-        <div class="mt-6 p-4 bg-green-50 dark:bg-green-900/30 rounded-lg border-l-4 border-green-400">
+        <div class="mt-6 p-4 bg-green-50 dark:bg-green-900/30 rounded-lg border-l-4 border-green-400 shadow">
             <h5 class="font-bold text-green-800 dark:text-green-300 mb-2">Key Points</h5>
             <ul class="list-disc list-inside space-y-1 text-sm text-green-700 dark:text-green-300">
                 <li>Only Previews has a dedicated Vue view file.</li>
                 <li>Other entities are managed within <code>Pages/Previews/Update.vue</code>.</li>
                 <li>The Update.vue file allows creating, editing, and deleting all related entities.</li>
                 <li>The codebase is complex; consider using AI/code analysis tools for better understanding.</li>
+                <li>The reason there are 6 Layers is to show the client a robust preview to differentiate their contents and requirements.</li>
             </ul>
         </div>
     `

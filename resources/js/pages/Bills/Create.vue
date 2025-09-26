@@ -149,14 +149,14 @@ const formatCurrency = (amount: number) => {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
             class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-black dark:via-gray-950 dark:to-black">
-            <div class="p-6">
+            <div class="p-4">
                 <div class="max-w-6xl mx-auto space-y-6">
                     <!-- Bill Form -->
-                    <form @submit.prevent="handleSubmit" class="space-y-6">
+                    <form @submit.prevent="handleSubmit" class="space-y-2">
                         <!-- Basic Information -->
                         <div
-                            class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-6">
-                            <div class="flex items-center mb-6">
+                            class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-4">
+                            <div class="flex items-center mb-2">
                                 <FileText class="w-5 h-5 text-blue-600 mr-2" />
                                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Bill Information</h2>
                             </div>
@@ -186,9 +186,9 @@ const formatCurrency = (amount: number) => {
                         </div>
 
                         <!-- Bill Statistics -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div
-                                class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-6">
+                                class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-4">
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Items</p>
@@ -202,7 +202,7 @@ const formatCurrency = (amount: number) => {
                             </div>
 
                             <div
-                                class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-6">
+                                class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-4">
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Quantity
@@ -217,7 +217,7 @@ const formatCurrency = (amount: number) => {
                             </div>
 
                             <div
-                                class="bg-gradient-to-r from-purple-600 to-purple-700 rounded-2xl shadow-sm p-6 text-white">
+                                class="bg-gradient-to-r from-purple-600 to-purple-700 rounded-2xl shadow-sm p-4 text-white">
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-purple-100">Total Amount</p>
@@ -233,14 +233,14 @@ const formatCurrency = (amount: number) => {
                         <!-- Bill Items -->
                         <div
                             class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
-                            <div class="p-6 border-b border-gray-200 dark:border-gray-800">
+                            <div class="p-4 border-b border-gray-200 dark:border-gray-800">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center">
                                         <Calculator class="w-5 h-5 text-purple-600 mr-2" />
                                         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Bill Items</h2>
                                     </div>
                                     <button type="button" @click="addRow"
-                                        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition-colors duration-200 group">
+                                        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors duration-200 group">
                                         <Plus
                                             class="w-4 h-4 mr-2 group-hover:rotate-90 transition-transform duration-200" />
                                         Add Item
@@ -316,7 +316,7 @@ const formatCurrency = (amount: number) => {
                             </div>
 
                             <!-- Mobile Cards -->
-                            <div class="md:hidden p-6 space-y-4">
+                            <div class="md:hidden p-4 space-y-4">
                                 <div v-for="(row, index) in form.sub_bills" :key="index"
                                     class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 space-y-4">
                                     <div class="flex items-center justify-between">
@@ -372,7 +372,7 @@ const formatCurrency = (amount: number) => {
 
                         <!-- Total Summary -->
                         <div
-                            class="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-950 dark:to-black rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+                            class="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-950 dark:to-black rounded-2xl p-4 border border-gray-200 dark:border-gray-800">
                             <div class="flex justify-between items-center">
                                 <div class="text-lg font-medium text-gray-700 dark:text-gray-300">
                                     Grand Total:
