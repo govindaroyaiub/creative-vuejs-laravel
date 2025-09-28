@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-2">
     <h2 class="text-lg font-semibold">Step 1: Basic Information</h2>
 
     <!-- Preview Name -->
@@ -56,23 +56,47 @@
       </ul>
     </div>
 
-    <div class="space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <div v-for="toggle in [
-        { label: 'Requires Login?', model: 'requires_login' },
-        { label: 'Show Planet Nine Logo?', model: 'show_planetnine_logo' },
-        { label: 'Show Sidebar Logo?', model: 'show_sidebar_logo' },
-        { label: 'Show Footer?', model: 'show_footer' },
-      ]" :key="toggle.model" class="flex items-center justify-between">
-        <label class="text-sm font-medium">{{ toggle.label }}</label>
-        <label class="relative inline-flex items-center cursor-pointer">
-          <input type="checkbox" v-model="form[toggle.model]" class="sr-only peer" />
-          <div
-            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer peer-checked:bg-green-600 transition-colors">
+        { label: 'Requires Login?', model: 'requires_login', description: 'User authentication required' },
+        { label: 'Show Planet Nine Logo?', model: 'show_planetnine_logo', description: 'Display company branding' },
+        { label: 'Show Sidebar Logo?', model: 'show_sidebar_logo', description: 'Logo in navigation' },
+        { label: 'Show Footer?', model: 'show_footer', description: 'Display page footer' },
+      ]" :key="toggle.model"
+        class="bg-gray-50 dark:bg-gray-950 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+
+        <!-- Toggle Header -->
+        <div class="flex items-start justify-between mb-2">
+          <div class="flex-1">
+            <label class="text-sm font-semibold text-gray-900 dark:text-white block mb-1 text-center">
+              {{ toggle.label }}
+            </label>
+            <p class="text-xs text-gray-500 dark:text-gray-400 text-center">
+              {{ toggle.description }}
+            </p>
           </div>
-          <div
-            class="absolute w-5 h-5 bg-white border rounded-full left-0.5 top-0.5 peer-checked:translate-x-full transition-transform">
-          </div>
-        </label>
+        </div>
+
+        <!-- Toggle Switch -->
+        <div class="flex justify-center mt-3">
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" v-model="form[toggle.model]" class="sr-only peer" />
+            <div
+              class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer peer-checked:bg-green-600 transition-colors duration-200">
+            </div>
+            <div
+              class="absolute w-5 h-5 bg-white rounded-full left-0.5 top-0.5 peer-checked:translate-x-full transition-transform duration-200 shadow-sm">
+            </div>
+          </label>
+        </div>
+
+        <!-- Status Indicator -->
+        <div class="text-center mt-2">
+          <span class="text-xs font-medium"
+            :class="form[toggle.model] ? 'text-green-600 dark:text-green-400' : 'text-gray-500 dark:text-gray-400'">
+            {{ form[toggle.model] ? 'Enabled' : 'Disabled' }}
+          </span>
+        </div>
       </div>
     </div>
 

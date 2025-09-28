@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Eye, Pencil, Trash2, CirclePlus, X, Share2, Settings2 } from 'lucide-vue-next';
+import { Eye, Pencil, Trash2, CirclePlus, X, Share2, Settings2, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, watch } from 'vue';
 import PreviewStepBasicInfo from './Partials/PreviewStepBasicInfo.vue';
@@ -33,13 +33,16 @@ function getDefaultFormData() {
 const formData = ref(getDefaultFormData());
 
 const filteredPreviews = computed(() => {
-    const q = search.value.toLowerCase();
-    return previews.value.data.filter(
-        (p: any) =>
-            p.name.toLowerCase().includes(q) ||
-            p.client?.name?.toLowerCase().includes(q) ||
-            p.uploader?.name?.toLowerCase().includes(q)
-    );
+    if (search.value) {
+        const q = search.value.toLowerCase();
+        return previews.value.data.filter(
+            (p: any) =>
+                p.name.toLowerCase().includes(q) ||
+                p.client?.name?.toLowerCase().includes(q) ||
+                p.uploader?.name?.toLowerCase().includes(q)
+        );
+    }
+    return previews.value.data;
 });
 
 watch(search, (val) => {
@@ -105,6 +108,26 @@ const submitForm = () => {
         }
     });
 };
+
+// Pagination functions
+const changePage = (url: string) => {
+    if (url) {
+        router.get(url, { search: search.value }, {
+            preserveScroll: true,
+            preserveState: true,
+        });
+    }
+};
+
+const goToPage = (pageNumber: number) => {
+    router.get(route('previews-index'), {
+        page: pageNumber,
+        search: search.value
+    }, {
+        preserveScroll: true,
+        preserveState: true,
+    });
+};
 </script>
 
 <template>
@@ -138,10 +161,12 @@ const submitForm = () => {
                     <tbody class="divide-y divide-gray-200 dark:divide-black">
                         <tr v-for="(preview, index) in filteredPreviews" :key="preview.id"
                             class="hover:bg-gray-50 dark:hover:bg-gray-800 border-b">
-                            <td class="w-16 text-center px-4 py-3 font-medium border-b">{{ index + 1 }}</td>
+                            <td class="w-16 text-center px-4 py-3 font-medium border-b">
+                                {{ ((previews.current_page - 1) * previews.per_page) + index + 1 }}
+                            </td>
                             <td class="w-80 px-4 py-3 text-left border-b">
                                 <div class="font-semibold capitalize break-words" :title="preview.name">{{ preview.name
-                                    }}</div>
+                                }}</div>
                                 <div class="text-xs text-gray-500 flex gap-2 items-center">
                                     <div class="h-4 w-4 rounded-full border flex-shrink-0"
                                         :style="{ backgroundColor: preview.color_palette?.tertiary ?? '#ccc' }"
@@ -163,8 +188,7 @@ const submitForm = () => {
                                     ?? '-' }}</div>
                                 <div class="text-xs text-gray-400">{{ new
                                     Date(preview.created_at).toLocaleDateString('en-GB', {
-                                        day: '2-digit', month:
-                                            'short', year: 'numeric'
+                                        day: '2-digit', month: 'short', year: 'numeric'
                                     }) }}</div>
                             </td>
                             <td class="w-32 text-center px-4 py-3 border-b">
@@ -198,7 +222,84 @@ const submitForm = () => {
                 </table>
             </div>
 
-            <!-- Rest of your template remains the same -->
+            <!-- Pagination -->
+            <div v-if="previews.links && previews.links.length"
+                class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+                <div class="flex items-center justify-between">
+                    <!-- Results Info -->
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        Showing {{ previews.from }} to {{ previews.to }} of {{ previews.total }} previews
+                    </div>
+
+                    <!-- Quick Page Jump -->
+                    <div class="flex items-center justify-center space-x-2 text-sm">
+                        <span class="text-gray-500 dark:text-gray-400">Go to page:</span>
+                        <select :value="previews.current_page" @change="goToPage(parseInt($event.target.value))"
+                            class="px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-black text-gray-900 dark:text-white text-sm">
+                            <option v-for="pageNum in previews.last_page" :key="pageNum" :value="pageNum">
+                                {{ pageNum }}
+                            </option>
+                        </select>
+                        <span class="text-gray-500 dark:text-gray-400">of {{ previews.last_page }}</span>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="flex items-center space-x-2">
+                        <!-- Previous Button -->
+                        <button @click="changePage(previews.prev_page_url)" :disabled="!previews.prev_page_url"
+                            class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center" :class="previews.prev_page_url
+                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900'
+                                : 'text-gray-400 cursor-not-allowed'">
+                            <ChevronLeft class="w-4 h-4 mr-1" />
+                            Previous
+                        </button>
+
+                        <!-- Page Numbers -->
+                        <div class="flex items-center space-x-1">
+                            <template v-for="link in previews.links.slice(1, -1)" :key="link.label">
+                                <button v-if="link.url" @click="changePage(link.url)"
+                                    class="px-3 py-2 text-sm rounded-lg transition-all duration-200" :class="link.active
+                                        ? 'bg-blue-600 text-white'
+                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900'"
+                                    v-html="link.label" />
+                                <span v-else class="px-3 py-2 text-sm text-gray-400 cursor-not-allowed"
+                                    v-html="link.label" />
+                            </template>
+                        </div>
+
+                        <!-- Next Button -->
+                        <button @click="changePage(previews.next_page_url)" :disabled="!previews.next_page_url"
+                            class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center" :class="previews.next_page_url
+                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900'
+                                : 'text-gray-400 cursor-not-allowed'">
+                            Next
+                            <ChevronRight class="w-4 h-4 ml-1" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div v-if="showModal"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+            <div
+                class="bg-white dark:bg-black rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700 m-4">
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Create New Preview</h2>
+                    <button @click="closeModal"
+                        class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-all duration-200">
+                        <X class="w-5 h-5" />
+                    </button>
+                </div>
+
+                <!-- Modal Content -->
+                <div class="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+                    <PreviewStepBasicInfo :form="formData" :users="users" :clients="clients"
+                        :colorPalettes="colorPalettes" :authUser="authUser" @submit="submitForm" @close="closeModal" />
+                </div>
+            </div>
         </div>
     </AppLayout>
 </template>

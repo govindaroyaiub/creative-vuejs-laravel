@@ -325,7 +325,7 @@ const activeClients = computed(() =>
                         <div class="flex space-x-1">
                             <template v-for="link in clients.links" :key="link.label">
                                 <component :is="link.url ? 'a' : 'span'" v-html="link.label" :href="link.url"
-                                    class="px-3 py-2 text-sm rounded-lg transition-all duration-200" :class="{
+                                    class="px-3 py-2 text-sm rounded-xl transition-all duration-200" :class="{
                                         'bg-blue-600 text-white shadow-sm': link.active,
                                         'text-gray-400 cursor-not-allowed': !link.url,
                                         'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white': link.url && !link.active,

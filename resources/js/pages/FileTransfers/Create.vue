@@ -111,11 +111,11 @@ const goBack = () => window.history.back();
                 <!-- Submit / Back -->
                 <div class="flex space-x-4">
                     <button type="button" @click="goBack"
-                        class="w-full rounded-2xl bg-red-600 px-6 py-3 text-white shadow hover:bg-red-700">
+                        class="w-full rounded-xl bg-red-600 px-6 py-3 text-white shadow hover:bg-red-700">
                         Back
                     </button>
                     <button type="submit"
-                        class="w-full rounded-2xl bg-green-600 px-6 py-3 text-white shadow hover:bg-green-700">
+                        class="w-full rounded-xl bg-green-600 px-6 py-3 text-white shadow hover:bg-green-700">
                         Save
                     </button>
                 </div>

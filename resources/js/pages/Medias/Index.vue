@@ -190,11 +190,11 @@ const handleDrop = (e: DragEvent) => {
 
                         <!-- Buttons -->
                         <div class="flex justify-end gap-2 pt-4">
-                            <button @click="modalVisible = false" class="px-4 py-2 rounded-2xl border text-white bg-red-600 hover:bg-red-700">
+                            <button @click="modalVisible = false" class="px-4 py-2 rounded-xl border text-white bg-red-600 hover:bg-red-700">
                                 Cancel
                             </button>
                             <button @click="uploadFile" :disabled="uploading"
-                                class="px-4 py-2 rounded-2xl bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center gap-2">
+                                class="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center gap-2">
                                 <svg v-if="uploading" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                                         stroke-width="4" />

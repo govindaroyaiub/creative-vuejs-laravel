@@ -181,7 +181,7 @@ const deleteBannerSize = async (id: number) => {
             <div class="mt-6 flex justify-center space-x-2" v-if="bannerSizes.data.length && bannerSizes.links.length">
                 <template v-for="link in bannerSizes.links" :key="link.label">
                     <component :is="link.url ? 'a' : 'span'" v-html="link.label" :href="link.url"
-                        class="rounded-2xl border px-4 py-2 text-sm" :class="{
+                        class="rounded-xl border px-4 py-2 text-sm" :class="{
                             'bg-indigo-600 text-white': link.active,
                             'cursor-not-allowed text-gray-400': !link.url,
                             'hover:bg-gray-200 dark:hover:bg-black': link.url && !link.active,

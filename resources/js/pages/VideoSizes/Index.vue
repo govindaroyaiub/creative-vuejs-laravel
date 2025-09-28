@@ -210,7 +210,7 @@ const saveNewSize = async () => {
                 v-if="videoSizes.data.length > 0 && videoSizes.links.length">
                 <template v-for="link in videoSizes.links" :key="link.label">
                     <component :is="link.url ? 'a' : 'span'" v-html="link.label" :href="link.url"
-                        class="rounded border px-4 py-2 text-sm" :class="{
+                        class="rounded-xl border px-4 py-2 text-sm" :class="{
                             'bg-indigo-600 text-white': link.active,
                             'cursor-not-allowed text-gray-400': !link.url,
                             'hover:bg-gray-200 dark:hover:bg-black': link.url && !link.active,

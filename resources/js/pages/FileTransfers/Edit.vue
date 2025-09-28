@@ -175,14 +175,14 @@ const dismissMessage = () => {
                 <div class="flex space-x-4">
                     <Link
                         type="button"
-                        class="w-full rounded-2xl bg-red-600 px-6 py-3 text-center text-white shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-red-500 dark:hover:bg-red-600"
+                        class="w-full rounded-xl bg-red-600 px-6 py-3 text-center text-white shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 dark:bg-red-500 dark:hover:bg-red-600"
                         :href="route('file-transfers')"
                     >
                         Back
                     </Link>
                     <button
                         type="submit"
-                        class="w-full rounded-2xl bg-indigo-600 px-6 py-3 text-white shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+                        class="w-full rounded-xl bg-indigo-600 px-6 py-3 text-white shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600"
                     >
                         Update
                     </button>
