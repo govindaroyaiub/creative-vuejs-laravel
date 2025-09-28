@@ -909,136 +909,354 @@
         `);
     }
 
-    // When opening the modal
-    window.openSocialImageModal = function(src, label) {
-        // Always reset zoom and styles
-        $('#socialModalImg')
-            .attr('src', src)
-            .css({
-                width: '',
-                height: '',
-                'max-width': '90vw',
-                'max-height': '90vh',
-                'cursor': 'zoom-in',
-                'position': 'absolute',
-                'top': '50%',
-                'left': 0,
-                'right': 0,
-                'transform': 'translateY(-50%)'
-            })
-            .data('zoom', 1);
-        $('#socialModalImgLabel').text(label);
-        $('#socialImageModal').fadeIn(150);
-        $('body').css('overflow', 'hidden'); // Disable background scroll
-    };
-
-    // When closing the modal
-    $(document).on('click', '#closeSocialModal', function() {
-        $('#socialImageModal').fadeOut(150);
-        $('body').css('overflow', ''); // Re-enable background scroll
-    });
-
-    $(document).on('click', '#socialImageModal', function(e) {
-        if (e.target === this) {
-            $('#socialImageModal').fadeOut(150);
-            $('body').css('overflow', ''); // Re-enable background scroll
-        }
-    });
-
-    $('#socialImageModal').css('overflow', 'auto');
+    // Enhanced Image Modal with Better Zoom & Pan
+    $('#socialImageModal').css('overflow', 'hidden'); // Changed to hidden for better control
 
     let isDragging = false;
-    let startX, startY, scrollLeft, scrollTop;
-    let dragMoved = false; // <-- Add this
+    let startX, startY, initialX, initialY;
+    let currentX = 0, currentY = 0;
+    let dragMoved = false;
+    let currentScale = 1;
+    let isZoomed = false;
 
+    // Reset modal state
+    function resetModalState() {
+        currentScale = 1;
+        currentX = 0;
+        currentY = 0;
+        isZoomed = false;
+        isDragging = false;
+        dragMoved = false;
+    }
+
+    // Apply transform to image
+    function applyTransform() {
+        const img = $('#socialModalImg');
+        img.css({
+            'transform': `translate(calc(-50% + ${currentX}px), calc(-50% + ${currentY}px)) scale(${currentScale})`,
+            'transition': isDragging ? 'none' : 'transform 0.3s ease'
+        });
+    }
+
+    // Enhanced modal opening
+    window.openSocialImageModal = function(src, label) {
+        resetModalState();
+        
+        const img = $('#socialModalImg');
+        img.attr('src', src)
+        .css({
+            'max-width': '90vw',
+            'max-height': '90vh',
+            'cursor': 'zoom-in',
+            'position': 'absolute',
+            'top': '50%',
+            'left': '50%',
+            'transform': 'translate(-50%, -50%) scale(1)', // Keep initial centering
+            'transition': 'transform 0.3s ease',
+            'user-select': 'none',
+            'pointer-events': 'auto',
+            'transform-origin': 'center center' // Add this for proper zoom center
+        });
+        
+        $('#socialImageModal').fadeIn(150);
+        $('body').css('overflow', 'hidden');
+        
+        // Add zoom controls (same as before)
+        if (!$('#zoomControls').length) {
+            $('#socialImageModal').append(`
+                <div id="zoomControls" style="position: fixed; top: 20px; left: 20px; z-index: 10002; display: flex; flex-direction: column; gap: 10px;">
+                    <button id="zoomIn" style="background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;">+</button>
+                    <button id="zoomOut" style="background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;">−</button>
+                    <button id="zoomReset" style="background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 20px; padding: 8px 12px; font-size: 12px; cursor: pointer;">Reset</button>
+                </div>
+                <div id="zoomInfo" style="position: fixed; bottom: 20px; left: 20px; z-index: 10002; background: rgba(0,0,0,0.7); color: white; padding: 8px 12px; border-radius: 15px; font-size: 12px;">
+                    Zoom: <span id="zoomLevel">100%</span>
+                </div>
+                <div id="modalInstructions" style="position: fixed; bottom: 20px; right: 20px; z-index: 10002; background: rgba(0,0,0,0.7); color: white; padding: 8px 12px; border-radius: 15px; font-size: 11px; max-width: 200px;">
+                    <div>• Click to zoom in/out</div>
+                    <div>• Drag to pan when zoomed</div>
+                    <div>• Mouse wheel to zoom</div>
+                    <div>• Double-click to reset</div>
+                </div>
+            `);
+        }
+        
+        updateZoomInfo();
+    };
+
+    // Update zoom level display
+    function updateZoomInfo() {
+        $('#zoomLevel').text(Math.round(currentScale * 100) + '%');
+        
+        const img = $('#socialModalImg');
+        if (currentScale > 1) {
+            img.css('cursor', 'grab');
+            isZoomed = true;
+        } else {
+            img.css('cursor', 'zoom-in');
+            isZoomed = false;
+        }
+    }
+
+    // Zoom functions
+    function zoomIn(centerX = null, centerY = null) {
+        const newScale = Math.min(currentScale * 1.5, 5); // Max 5x zoom
+        
+        if (centerX !== null && centerY !== null) {
+            // Zoom towards specific point
+            const rect = $('#socialImageModal')[0].getBoundingClientRect();
+            const modalCenterX = rect.width / 2;
+            const modalCenterY = rect.height / 2;
+            
+            const deltaX = (centerX - modalCenterX) * (newScale / currentScale - 1);
+            const deltaY = (centerY - modalCenterY) * (newScale / currentScale - 1);
+            
+            currentX -= deltaX;
+            currentY -= deltaY;
+        }
+        
+        currentScale = newScale;
+        applyTransform();
+        updateZoomInfo();
+    }
+
+    function zoomOut() {
+        const newScale = Math.max(currentScale / 1.5, 0.5); // Min 0.5x zoom
+        currentScale = newScale;
+        
+        // Keep image centered when zooming out
+        if (currentScale <= 1) {
+            currentX = 0;
+            currentY = 0;
+            currentScale = 1;
+        }
+        
+        applyTransform();
+        updateZoomInfo();
+    }
+
+    function resetZoom() {
+        currentScale = 1;
+        currentX = 0;
+        currentY = 0;
+        const img = $('#socialModalImg');
+        img.css({
+            'transform': 'translate(-50%, -50%) scale(1)',
+            'transition': 'transform 0.3s ease'
+        });
+        updateZoomInfo();
+    }
+
+    // Mouse events for dragging
     $('#socialModalImg').on('mousedown', function(e) {
-        if ($(this).data('zoom') === 2) {
+        if (isZoomed) {
             isDragging = true;
-            dragMoved = false; // <-- Reset on mousedown
+            dragMoved = false;
             $(this).css('cursor', 'grabbing');
-            startX = e.pageX;
-            startY = e.pageY;
-            scrollLeft = $('#socialImageModal').scrollLeft();
-            scrollTop = $('#socialImageModal').scrollTop();
+            
+            startX = e.clientX;
+            startY = e.clientY;
+            initialX = currentX;
+            initialY = currentY;
+            
             e.preventDefault();
         }
     });
 
     $(document).on('mousemove', function(e) {
-        if (isDragging) {
-            const x = e.pageX;
-            const y = e.pageY;
-            if (Math.abs(x - startX) > 3 || Math.abs(y - startY) > 3) { // <-- Threshold for drag
+        if (isDragging && isZoomed) {
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+            
+            if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
                 dragMoved = true;
             }
-            $('#socialImageModal').scrollLeft(scrollLeft - (x - startX));
-            $('#socialImageModal').scrollTop(scrollTop - (y - startY));
+            
+            currentX = initialX + deltaX;
+            currentY = initialY + deltaY;
+            
+            applyTransform();
         }
     });
 
     $(document).on('mouseup', function() {
-        isDragging = false;
-        $('#socialModalImg').css('cursor', $('#socialModalImg').data('zoom') === 2 ? 'zoom-out' : 'zoom-in');
+        if (isDragging) {
+            isDragging = false;
+            $('#socialModalImg').css('cursor', isZoomed ? 'grab' : 'zoom-in');
+        }
     });
 
-    // Zoom in/out on image click
+    // Click to zoom
     $(document).on('click', '#socialModalImg', function(e) {
         if (dragMoved) {
             dragMoved = false;
             return;
         }
-        var zoom = $(this).data('zoom') || 1;
-
-        if (zoom === 1) {
-            // 2x zoom
-            $(this)
-                .css({
-                    width: '1600px',
-                    height: 'auto',
-                    'max-width': 'none',
-                    'max-height': 'none',
-                    'cursor': 'zoom-in',
-                    'position': 'static', // <-- allow overflow
-                    'top': '',
-                    'left': '',
-                    'right': '',
-                    'transform': ''
-                })
-                .data('zoom', 2);
-        } else if (zoom === 2) {
-            // 3x zoom
-            $(this)
-                .css({
-                    width: '2200px',
-                    height: 'auto',
-                    'max-width': 'none',
-                    'max-height': 'none',
-                    'cursor': 'zoom-out',
-                    'position': 'static', // <-- allow overflow
-                    'top': '',
-                    'left': '',
-                    'right': '',
-                    'transform': ''
-                })
-                .data('zoom', 3);
+        
+        const rect = this.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const clickY = e.clientY - rect.top;
+        
+        if (currentScale < 2) {
+            zoomIn(e.clientX - $('#socialImageModal').offset().left, 
+                e.clientY - $('#socialImageModal').offset().top);
         } else {
-            // Back to initial
-            $(this)
-                .css({
-                    width: '',
-                    height: '',
-                    'max-width': '80vw',
-                    'max-height': '80vh',
-                    'cursor': 'zoom-in',
-                    'position': 'absolute',
-                    'top': '50%',
-                    'left': 0,
-                    'right': 0,
-                    'transform': 'translateY(-50%)'
-                })
-                .data('zoom', 1);
-            $('#socialImageModal').scrollTop(0).scrollLeft(0);
+            resetZoom();
         }
+    });
+
+    // Double-click to reset
+    $(document).on('dblclick', '#socialModalImg', function(e) {
+        e.preventDefault();
+        resetZoom();
+    });
+
+    // Mouse wheel zoom
+    $('#socialImageModal').on('wheel', function(e) {
+        e.preventDefault();
+        
+        const rect = this.getBoundingClientRect();
+        const mouseX = e.originalEvent.clientX - rect.left;
+        const mouseY = e.originalEvent.clientY - rect.top;
+        
+        if (e.originalEvent.deltaY < 0) {
+            zoomIn(mouseX, mouseY);
+        } else {
+            zoomOut();
+        }
+    });
+
+    // Zoom control buttons
+    $(document).on('click', '#zoomIn', function(e) {
+        e.stopPropagation();
+        zoomIn();
+    });
+
+    $(document).on('click', '#zoomOut', function(e) {
+        e.stopPropagation();
+        zoomOut();
+    });
+
+    $(document).on('click', '#zoomReset', function(e) {
+        e.stopPropagation();
+        resetZoom();
+    });
+
+    // Keyboard controls
+    $(document).on('keydown', function(e) {
+        if ($('#socialImageModal').is(':visible')) {
+            switch(e.key) {
+                case 'Escape':
+                    $('#closeSocialModal').click();
+                    break;
+                case '+':
+                case '=':
+                    zoomIn();
+                    break;
+                case '-':
+                    zoomOut();
+                    break;
+                case '0':
+                    resetZoom();
+                    break;
+                case 'ArrowLeft':
+                    if (isZoomed) {
+                        currentX += 50;
+                        applyTransform();
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (isZoomed) {
+                        currentX -= 50;
+                        applyTransform();
+                    }
+                    break;
+                case 'ArrowUp':
+                    if (isZoomed) {
+                        currentY += 50;
+                        applyTransform();
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (isZoomed) {
+                        currentY -= 50;
+                        applyTransform();
+                    }
+                    break;
+            }
+        }
+    });
+
+    // Close modal events
+    $(document).on('click', '#closeSocialModal', function() {
+        $('#socialImageModal').fadeOut(150);
+        $('body').css('overflow', '');
+        resetModalState();
+    });
+
+    $(document).on('click', '#socialImageModal', function(e) {
+        if (e.target === this) {
+            $('#socialImageModal').fadeOut(150);
+            $('body').css('overflow', '');
+            resetModalState();
+        }
+    });
+
+    // Prevent context menu on image
+    $('#socialModalImg').on('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
+    // Touch events for mobile support
+    let touchStartX = 0, touchStartY = 0;
+    let touchStartDistance = 0;
+    let touchStartScale = 1;
+
+    $('#socialModalImg').on('touchstart', function(e) {
+        const touches = e.originalEvent.touches;
+        
+        if (touches.length === 1) {
+            // Single touch - start pan
+            touchStartX = touches[0].clientX;
+            touchStartY = touches[0].clientY;
+            initialX = currentX;
+            initialY = currentY;
+        } else if (touches.length === 2) {
+            // Pinch to zoom
+            const dx = touches[0].clientX - touches[1].clientX;
+            const dy = touches[0].clientY - touches[1].clientY;
+            touchStartDistance = Math.sqrt(dx * dx + dy * dy);
+            touchStartScale = currentScale;
+        }
+        
+        e.preventDefault();
+    });
+
+    $('#socialModalImg').on('touchmove', function(e) {
+        const touches = e.originalEvent.touches;
+        
+        if (touches.length === 1 && isZoomed) {
+            // Pan
+            const deltaX = touches[0].clientX - touchStartX;
+            const deltaY = touches[0].clientY - touchStartY;
+            
+            currentX = initialX + deltaX;
+            currentY = initialY + deltaY;
+            
+            applyTransform();
+        } else if (touches.length === 2) {
+            // Pinch zoom
+            const dx = touches[0].clientX - touches[1].clientX;
+            const dy = touches[0].clientY - touches[1].clientY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const scale = touchStartScale * (distance / touchStartDistance);
+            
+            currentScale = Math.max(0.5, Math.min(5, scale));
+            applyTransform();
+            updateZoomInfo();
+        }
+        
+        e.preventDefault();
     });
 
     function renderGif(version_id){

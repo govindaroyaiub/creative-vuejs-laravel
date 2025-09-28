@@ -128,6 +128,7 @@ const goToPage = (pageNumber: number) => {
         preserveState: true,
     });
 };
+
 </script>
 
 <template>
