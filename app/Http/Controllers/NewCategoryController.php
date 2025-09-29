@@ -66,6 +66,23 @@ class NewCategoryController extends Controller
             $category = $newCategory->findOrFail($id);
 
             // Delete all related feedbacks, sets, versions, banners, and files
+            // Delete category folder based on type
+            $folderMap = [
+                'banner' => 'uploads/banners',
+                'video' => 'uploads/videos',
+                'gif' => 'uploads/gifs',
+                'social' => 'uploads/socials',
+            ];
+            $folder = $folderMap[$category->type] ?? null;
+            if ($folder) {
+                // If you store category folders by name or id, adjust this path
+                $categoryFolder = $folder . '/' . $category->id;
+                $fullPath = public_path($categoryFolder);
+                if (is_dir($fullPath)) {
+                    File::deleteDirectory($fullPath);
+                }
+            }
+            
             foreach ($category->feedbacks as $feedback) {
                 foreach ($feedback->feedbackSets as $set) {
                     foreach ($set->versions as $version) {
@@ -132,23 +149,6 @@ class NewCategoryController extends Controller
                     $set->delete();
                 }
                 $feedback->delete();
-            }
-
-            // Delete category folder based on type
-            $folderMap = [
-                'banner' => 'uploads/banners',
-                'video' => 'uploads/videos',
-                'gif' => 'uploads/gifs',
-                'social' => 'uploads/socials',
-            ];
-            $folder = $folderMap[$category->type] ?? null;
-            if ($folder) {
-                // If you store category folders by name or id, adjust this path
-                $categoryFolder = $folder . '/' . $category->id;
-                $fullPath = public_path($categoryFolder);
-                if (is_dir($fullPath)) {
-                    File::deleteDirectory($fullPath);
-                }
             }
 
             // Store if this category was active

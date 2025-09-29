@@ -242,6 +242,7 @@
         document.body.style.overflow = 'hidden';
         document.addEventListener('click', handleOutsideClick);
     };
+
     document.getElementById('closeMobileMenu').onclick = function() {
         document.getElementById('mobileMenu').classList.remove('open');
         document.getElementById('mobileMenuToggle').classList.remove('hidden');
@@ -428,8 +429,8 @@
 
             row = row + '@if($preview['show_sidebar_logo'] == 1)';
                 row = row + '<div class="w-full">';
-                    row = row + '<div class="mb-2 mt-2 px-2 py-2 mx-auto">';
-                        row = row + '<img src="{{ asset('logos/' . $client['logo']) }}" alt="clientLogo" style="width: 250px;">';
+                    row = row + '<div class="mb-2 mt-2 px-2 py-2 mx-auto flex justify-center">';
+                        row = row + '<img src="{{ asset('logos/' . $client['logo']) }}" alt="clientLogo" style="width: 200px;">';
                     row = row + '</div>';
                 row = row + '</div>';
             row = row + '@endif';
@@ -456,14 +457,14 @@
                 row2 += '<span class="category-row-date" style="font-size: 0.7rem;">' + formatted2 + '</span>';
                 row2 += '</div>';
 
-                row += `<a href="javascript:void(0)" class="nav-link categories ${active}" ${clickHandler} id="category${value.id}" style="display: block; padding: 8px 0;">`;
+                row += `<a href="javascript:void(0)" class="nav-link categories ${active}" ${clickHandler} id="category${value.id}">`;
                 row += `<span class="category-number">${key + 1}.</span> ${value.name}`;
                 row += `</a>`;
             });
 
             renderFeedbacks(response);
             $('#creative-list2').html(row2);
-            $('#creative-list').html(row);
+            $('#mobileCategoryList').html(row);
             $('#menu').html(row);
         });
     }
@@ -528,70 +529,60 @@
 
     function updateFeedbackNav() {
         const total = feedbacks.length;
-        var row = '';
-        if (total > 0) {
-            if(currentFeedbackIndex === 0){
-                row += '<span class="font-bold selectedFeedback"> Feedback ' + (currentFeedbackIndex + 1) + '</span>';
-                row += '<button id="feedbackRight" disabled style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold">></span></button>';
-                row += '<span>' + (currentFeedbackIndex + 2) + '</span>';
-                row += '<button id="feedbackFarRight" style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold">>></span></button>';
-                row += '<span>' + total + '</span>';
-            }
-            else if((currentFeedbackIndex + 1) === total){
-                row += '<span>'+ 1 +'</span>';
-                row += '<button id="feedbackFarLeft" style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold"><<</span></button>';
-                row += '<span>'+ (currentFeedbackIndex) +'</span>';
-                row += '<button id="feedbackLeft" disabled style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold"><</span></button>';
-                row += '<span class="font-bold selectedFeedback"> Feedback ' + (currentFeedbackIndex + 1) + '</span>';
-            }
-            else if((currentFeedbackIndex + 1) === 2){
-                row += '<span>'+ (currentFeedbackIndex) +'</span>';
-                row += '<button id="feedbackLeft" disabled style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold"><</span></button>';
-                row += '<span class="font-bold selectedFeedback"> Feedback ' + (currentFeedbackIndex + 1) + '</span>';
-                row += '<button id="feedbackRight" disabled style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold">></span></button>';
-                row += '<span>' + (currentFeedbackIndex + 2) + '</span>';
-                row += '<button id="feedbackFarRight" style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold">>></span></button>';
-                row += '<span>' + total + '</span>';
-            }
-            else if((currentFeedbackIndex + 1) === (total - 1)){
-                row += '<span>'+ 1 +'</span>';
-                row += '<button id="feedbackFarLeft" style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold"><<</span></button>';
-                row += '<span>'+ (currentFeedbackIndex) +'</span>';
-                row += '<button id="feedbackLeft" disabled style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold"><</span></button>';
-                row += '<span class="font-bold selectedFeedback"> Feedback ' + (currentFeedbackIndex + 1) + '</span>';
-                row += '<button id="feedbackRight" disabled style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold">></span></button>';
-                row += '<span>' + total + '</span>';
-            }
-            else{
-                row += '<span>'+ 1 +'</span>';
-                row += '<button id="feedbackFarLeft" style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold"><<</span></button>';
-                row += '<span>'+ (currentFeedbackIndex) +'</span>';
-                row += '<button id="feedbackLeft" disabled style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold"><</span></button>';
-                row += '<span class="font-bold selectedFeedback"> Feedback ' + (currentFeedbackIndex + 1) + '</span>';
-                row += '<button id="feedbackRight" disabled style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold">></span></button>';
-                row += '<span>' + (currentFeedbackIndex + 2) + '</span>';
-                row += '<button id="feedbackFarRight" style="margin-right:0.5rem; margin-left:0.5rem;"><span class="font-bold">>></span></button>';
-                row += '<span>' + total + '</span>';
-            }
-            
-            $('#feedbackCounter').html(row);
-        } else {
+        let row = '';
+        
+        if (total === 0) {
             $('#feedbackCounter').text('No Feedbacks');
+            return;
         }
 
-        // Disable/enable left arrow
-        if (currentFeedbackIndex === 0) {
-            $('#feedbackLeft').prop('disabled', true).css('opacity', 0.5);
-        } else {
-            $('#feedbackLeft').prop('disabled', false).css('opacity', 1);
-        }
+        const current = currentFeedbackIndex + 1;
+        const isFirst = currentFeedbackIndex === 0;
+        const isLast = currentFeedbackIndex === total - 1;
+        
+        // Helper function to create buttons
+        const btn = (id, symbol, disabled = false) => 
+            `<button id="${id}" ${disabled ? 'disabled' : ''} style="margin:0 0.5rem"><span class="font-bold">${symbol}</span></button>`;
+        
+        const span = (text, selected = false) => 
+            `<span${selected ? ' class="font-bold selectedFeedback"' : ''}>${selected ? `Feedback ${text}` : text}</span>`;
 
-        // Disable/enable right arrow
-        if (currentFeedbackIndex === total - 1 || total === 0) {
-            $('#feedbackRight').prop('disabled', true).css('opacity', 0.5);
-        } else {
-            $('#feedbackRight').prop('disabled', false).css('opacity', 1);
+        if (total === 2) {
+            // Simple 2-item pagination
+            if (isFirst) {
+                row = span(current, true) + btn('feedbackRight', '>', true) + span(current + 1);
+            } else {
+                row = span(current - 1) + btn('feedbackLeft', '<') + span(current, true);
+            }
+        } else if (total === 3) {
+            // 3-item pagination
+            if (isFirst) {
+                row = span(current, true) + btn('feedbackRight', '>', true) + span(current + 1) + btn('feedbackFarRight', '>>') + span(total);
+            } else if (currentFeedbackIndex === 1) {
+                row = span(1) + btn('feedbackLeft', '<<', true) + span(current, true) + btn('feedbackFarRight', '>>') + span(total);
+            } else {
+                row = span(1) + btn('feedbackFarLeft', '<<') + span(current - 1) + btn('feedbackLeft', '<', true) + span(current, true);
+            }
+        } else if (total > 3) {
+            // 4+ items pagination
+            if (isFirst) {
+                row = span(current, true) + btn('feedbackRight', '>', true) + span(current + 1) + btn('feedbackFarRight', '>>') + span(total);
+            } else if (isLast) {
+                row = span(1) + btn('feedbackFarLeft', '<<') + span(current - 1) + btn('feedbackLeft', '<', true) + span(current, true);
+            } else if (current === 2) {
+                row = span(1) + btn('feedbackLeft', '<', true) + span(current, true) + btn('feedbackRight', '>', true) + span(current + 1) + btn('feedbackFarRight', '>>') + span(total);
+            } else if (current === total - 1) {
+                row = span(1) + btn('feedbackFarLeft', '<<') + span(current - 1) + btn('feedbackLeft', '<', true) + span(current, true) + btn('feedbackRight', '>', true) + span(total);
+            } else {
+                row = span(1) + btn('feedbackFarLeft', '<<') + span(current - 1) + btn('feedbackLeft', '<', true) + span(current, true) + btn('feedbackRight', '>', true) + span(current + 1) + btn('feedbackFarRight', '>>') + span(total);
+            }
         }
+        
+        $('#feedbackCounter').html(row);
+        
+        // Update button states
+        $('#feedbackLeft').prop('disabled', isFirst).css('opacity', isFirst ? 0.5 : 1);
+        $('#feedbackRight').prop('disabled', isLast).css('opacity', isLast ? 0.5 : 1);
     }
 
     $(document).on('click', '#feedbackFarLeft', function() {
@@ -750,7 +741,7 @@
             banners.forEach(function(banner) {
                 var bannerPath = '/' + banner.path + '/index.html';
                 var bannerReloadID = banner.id;
-                bannersHtml += '<div class="banner-creatives banner-area-'+ banner.size.width +'" style="display: inline-block; width: ' + banner.size.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem; margin-bottom: 2rem;">';
+                bannersHtml += '<div class="banner-creatives banner-area-'+ banner.size.width +'-' + banner.size.height +'" style="display: inline-block; width: ' + banner.size.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem; margin-bottom: 2rem;">';
                 bannersHtml += '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
                 bannersHtml += '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + banner.size.width + 'x' + banner.size.height + '</small>';
                 bannersHtml += '<small style="float: right; font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + banner.file_size + '</small>';
