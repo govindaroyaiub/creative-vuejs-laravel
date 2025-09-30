@@ -225,7 +225,7 @@ const goToPage = (pageNumber: number) => {
 
             <!-- Pagination -->
             <div v-if="previews.links && previews.links.length"
-                class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+                class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 px-4 py-2">
                 <div class="flex items-center justify-between">
                     <!-- Results Info -->
                     <div class="text-sm text-gray-600 dark:text-gray-400">

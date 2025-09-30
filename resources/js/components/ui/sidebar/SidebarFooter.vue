@@ -8,7 +8,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div data-sidebar="footer" :class="cn('flex flex-col gap-2', props.class)">
+    <div data-sidebar="footer" :class="cn('flex flex-col gap-1', props.class)">
         <slot />
     </div>
 </template>

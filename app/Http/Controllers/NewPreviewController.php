@@ -146,6 +146,18 @@ class NewPreviewController extends Controller
             'preview_id',
             'all_colors'
         ));
+
+        // return Inertia::render('Previews/Show', [
+        //     'preview' => $preview,
+        //     'primary' => $primary,
+        //     'secondary' => $secondary,
+        //     'tertiary' => $tertiary,
+        //     'quaternary' => $quaternary,
+        //     'client' => $client,
+        //     'authUserClientName' => $authUserClientName,
+        //     'preview_id' => $preview_id,
+        //     'all_colors' => $all_colors,
+        // ]);
     }
 
     /**
