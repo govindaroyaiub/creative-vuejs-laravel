@@ -10,8 +10,9 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="flex items-center space-x-4">
               <div class="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl">
-                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400 lucide lucide-paintbrush-icon lucide-paintbrush" fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400 lucide lucide-paintbrush-icon lucide-paintbrush"
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round">
                   <path d="m14.622 17.897-10.68-2.913" />
                   <path
                     d="M18.376 2.622a1 1 0 1 1 3.002 3.002L17.36 9.643a.5.5 0 0 0 0 .707l.944.944a2.41 2.41 0 0 1 0 3.408l-.944.944a.5.5 0 0 1-.707 0L8.354 7.348a.5.5 0 0 1 0-.707l.944-.944a2.41 2.41 0 0 1 3.408 0l.944.944a.5.5 0 0 0 .707 0z" />
@@ -128,6 +129,15 @@
                 </div>
               </div>
 
+              <!-- Header Image -->
+              <div v-if="palette.header_image" class="mb-4">
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Header Image</p>
+                <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-3">
+                  <img :src="`/${palette.header_image}`" alt="Header"
+                    class="h-12 mx-auto rounded border border-gray-200 dark:border-gray-700" />
+                </div>
+              </div>
+
               <!-- Tab Images -->
               <div class="space-y-4">
                 <div>
@@ -151,15 +161,17 @@
                   <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Right Side Tabs</p>
                   <div class="flex items-center justify-between space-x-4 bg-gray-50 dark:bg-gray-900 rounded-xl p-3">
                     <div class="text-center">
-                      <img :src="`/${palette.rightSideTab_inactive_image}`" alt="Inactive" class="h-8 mx-auto mb-1" />
-                      <span class="text-xs text-gray-500 dark:text-gray-400">Inactive</span>
+                      <img :src="`/${palette.rightSideTab_feedback_description_image}`" alt="Feedback Description"
+                        class="h-8 mx-auto mb-1" />
+                      <span class="text-xs text-gray-500 dark:text-gray-400">Feedback</span>
                     </div>
                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                     <div class="text-center">
-                      <img :src="`/${palette.rightSideTab_active_image}`" alt="Active" class="h-8 mx-auto mb-1" />
-                      <span class="text-xs text-gray-500 dark:text-gray-400">Active</span>
+                      <img :src="`/${palette.rightSideTab_color_palette_image}`" alt="Color Palette"
+                        class="h-8 mx-auto mb-1" />
+                      <span class="text-xs text-gray-500 dark:text-gray-400">Palette</span>
                     </div>
                   </div>
                 </div>
@@ -269,6 +281,17 @@
 
             <!-- Right Column: Images -->
             <div class="space-y-6">
+              <!-- Header Image -->
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Header Image</label>
+                <div class="p-4 bg-gray-50 dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800">
+                  <img v-if="form.header_image_preview" :src="form.header_image_preview"
+                    class="h-16 mb-3 mx-auto rounded border border-gray-200 dark:border-gray-700" />
+                  <input type="file" @change="onFileChange('header_image', $event)" accept="image/*"
+                    class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900 dark:file:text-blue-300" />
+                </div>
+              </div>
+
               <!-- Feedback Tab Images -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Feedback Tab
@@ -299,19 +322,24 @@
                   Images</label>
                 <div class="space-y-4">
                   <div class="p-4 bg-gray-50 dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800">
-                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Inactive
-                      State</label>
-                    <img v-if="form.rightSideTab_inactive_image_preview" :src="form.rightSideTab_inactive_image_preview"
+                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Feedback
+                      Description</label>
+                    <img v-if="form.rightSideTab_feedback_description_image_preview"
+                      :src="form.rightSideTab_feedback_description_image_preview"
                       class="h-12 mb-3 rounded border border-gray-200 dark:border-gray-700" />
-                    <input type="file" @change="onFileChange('rightSideTab_inactive_image', $event)" accept="image/*"
+                    <input type="file" @change="onFileChange('rightSideTab_feedback_description_image', $event)"
+                      accept="image/*"
                       class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900 dark:file:text-blue-300" />
                   </div>
 
                   <div class="p-4 bg-gray-50 dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800">
-                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Active State</label>
-                    <img v-if="form.rightSideTab_active_image_preview" :src="form.rightSideTab_active_image_preview"
+                    <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Color Palette
+                      Tab</label>
+                    <img v-if="form.rightSideTab_color_palette_image_preview"
+                      :src="form.rightSideTab_color_palette_image_preview"
                       class="h-12 mb-3 rounded border border-gray-200 dark:border-gray-700" />
-                    <input type="file" @change="onFileChange('rightSideTab_active_image', $event)" accept="image/*"
+                    <input type="file" @change="onFileChange('rightSideTab_color_palette_image', $event)"
+                      accept="image/*"
                       class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900 dark:file:text-blue-300" />
                   </div>
                 </div>
@@ -375,14 +403,16 @@ const form = ref({
   quinary: '#000000',
   senary: '#000000',
   septenary: '#000000',
+  header_image: null,
   feedbackTab_inactive_image: null,
   feedbackTab_active_image: null,
-  rightSideTab_inactive_image: null,
-  rightSideTab_active_image: null,
+  rightSideTab_feedback_description_image: null,
+  rightSideTab_color_palette_image: null,
+  header_image_preview: null,
   feedbackTab_inactive_image_preview: null,
   feedbackTab_active_image_preview: null,
-  rightSideTab_inactive_image_preview: null,
-  rightSideTab_active_image_preview: null,
+  rightSideTab_feedback_description_image_preview: null,
+  rightSideTab_color_palette_image_preview: null,
 })
 
 function openEditModal(palette) {
@@ -396,18 +426,26 @@ function openEditModal(palette) {
   form.value.quinary = palette.quinary ?? '#000000'
   form.value.senary = palette.senary ?? '#000000'
   form.value.septenary = palette.septenary ?? '#000000'
+
+  // Updated image field mappings
+  form.value.header_image_preview = palette.header_image
+    ? `/${palette.header_image}` : null
   form.value.feedbackTab_inactive_image_preview = palette.feedbackTab_inactive_image
     ? `/${palette.feedbackTab_inactive_image}` : null
   form.value.feedbackTab_active_image_preview = palette.feedbackTab_active_image
     ? `/${palette.feedbackTab_active_image}` : null
-  form.value.rightSideTab_inactive_image_preview = palette.rightSideTab_inactive_image
-    ? `/${palette.rightSideTab_inactive_image}` : null
-  form.value.rightSideTab_active_image_preview = palette.rightSideTab_active_image
-    ? `/${palette.rightSideTab_active_image}` : null
+  form.value.rightSideTab_feedback_description_image_preview = palette.rightSideTab_feedback_description_image
+    ? `/${palette.rightSideTab_feedback_description_image}` : null
+  form.value.rightSideTab_color_palette_image_preview = palette.rightSideTab_color_palette_image
+    ? `/${palette.rightSideTab_color_palette_image}` : null
+
+  // Reset file inputs
+  form.value.header_image = null
   form.value.feedbackTab_inactive_image = null
   form.value.feedbackTab_active_image = null
-  form.value.rightSideTab_inactive_image = null
-  form.value.rightSideTab_active_image = null
+  form.value.rightSideTab_feedback_description_image = null
+  form.value.rightSideTab_color_palette_image = null
+
   showModal.value = true
 }
 
@@ -423,14 +461,16 @@ function openAddModal() {
     quinary: '#000000',
     senary: '#000000',
     septenary: '#000000',
+    header_image: null,
     feedbackTab_inactive_image: null,
     feedbackTab_active_image: null,
-    rightSideTab_inactive_image: null,
-    rightSideTab_active_image: null,
+    rightSideTab_feedback_description_image: null,
+    rightSideTab_color_palette_image: null,
+    header_image_preview: null,
     feedbackTab_inactive_image_preview: null,
     feedbackTab_active_image_preview: null,
-    rightSideTab_inactive_image_preview: null,
-    rightSideTab_active_image_preview: null,
+    rightSideTab_feedback_description_image_preview: null,
+    rightSideTab_color_palette_image_preview: null,
   })
   showModal.value = true
 }

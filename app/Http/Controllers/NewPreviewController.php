@@ -130,6 +130,14 @@ class NewPreviewController extends Controller
         $secondary = $color_palettes->secondary;
         $tertiary = $color_palettes->tertiary;
         $quaternary = $color_palettes->quaternary;
+        $quinary = $color_palettes->quinary;
+        $senary = $color_palettes->senary;
+        $septenary = $color_palettes->septenary;
+        $feedback_active_image = $color_palettes->feedbackTab_active_image;
+        $feedback_inactive_image = $color_palettes->feedbackTab_inactive_image;
+        $rightTab_feedback_description_image = $color_palettes->rightSideTab_feedback_description_image;
+        $rightTab_color_palette_image = $color_palettes->rightSideTab_color_palette_image;
+        $header_image = $color_palettes->header_image;
 
         $authUserClientName = Auth::check()
             ? (Client::find(Auth::user()->client_id)?->name ?? 'Unknown')
@@ -141,10 +149,18 @@ class NewPreviewController extends Controller
             'secondary',
             'tertiary',
             'quaternary',
+            'quinary',
+            'senary',
+            'septenary',
             'client',
             'authUserClientName',
             'preview_id',
-            'all_colors'
+            'all_colors',
+            'feedback_active_image',
+            'feedback_inactive_image',
+            'rightTab_feedback_description_image',
+            'rightTab_color_palette_image',
+            'header_image',
         ));
 
         // return Inertia::render('Previews/Show', [

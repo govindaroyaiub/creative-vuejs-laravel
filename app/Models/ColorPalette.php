@@ -18,8 +18,9 @@ class ColorPalette extends Model
         'septenary',
         'feedbackTab_inactive_image',
         'feedbackTab_active_image',
-        'rightSideTab_inactive_image',
-        'rightSideTab_active_image',
+        'rightSideTab_feedback_description_image',
+        'rightSideTab_color_palette_image',
+        'header_image',
         'status',
     ];
 

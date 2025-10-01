@@ -241,7 +241,7 @@ hr {
     box-sizing: border-box;
     position: relative;
     top: 1px;
-    gap: 2px
+    gap: 5px;
 }
 
 .feedbackTabsContainer.dragging {
@@ -255,22 +255,18 @@ hr {
 
 .feedbackTab {
     cursor: pointer;
-    --r: 18px;
-    line-height: 1.8;
-    padding-inline: .5em;
-    border-inline: var(--r) solid #0000;
-    border-radius: calc(2.5*var(--r)) calc(2.5*var(--r)) 0 0/var(--r);
-    mask: radial-gradient(var(--r) at var(--r) 0, #0000 98%, #000 101%) calc(-1*var(--r)) 100%/100% var(--r) repeat-x, conic-gradient(#000 0 0) padding-box;
-    background: var(--primary-color) border-box;
-    flex: 0 0 auto;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     min-width: 110px;
     width: 130px;
-    max-width: 140px
-}
-
-.feedbackTab:hover,
-.feedbackTabActive {
-    background: var(--tertiary-color) border-box
+    max-width: 140px;
+    height: 35px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: background-image 0.2s ease;
 }
 
 .feedbackTabs-parent {
@@ -294,7 +290,14 @@ hr {
 }
 
 #feedbackCLick,
-#colorPaletteClick,
+#colorPaletteClick {
+    position: relative;
+    right: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+
 #bulk-customization {
     font-size: 1.5rem;
     border: 1px solid var(--tertiary-color);
@@ -316,8 +319,18 @@ hr {
     top: 2rem
 }
 
+#feedbackCLick img {
+    width: 30px;
+    height: auto;
+}
+
 #colorPaletteClick {
-    top: 9rem
+    top: 5rem
+}
+
+#colorPaletteClick img {
+    width: 30px;
+    height: auto;
 }
 
 #bulk-customization {
@@ -326,54 +339,73 @@ hr {
 }
 
 #feedbackDescription {
-    display: flex;
-    flex-direction: column;
-    transform: translateX(310px);
-    opacity: 0;
-    display: none
+    position: absolute;
+    top: 3rem;
+    right: -320px;
+    /* Start hidden off-screen */
+    width: 302px;
+    background: white;
+    border: 1px solid var(--tertiary-color);
+    border-radius: 10px 0 0 10px;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+    transition: right 0.3s ease-in-out;
+    z-index: 1000;
+    display: block;
+}
+
+#feedbackDescription.show {
+    right: 0;
 }
 
 /* Color Palette */
-#colorPaletteSelection,
-#mobilecolorPaletteSelection {
-    opacity: 0;
-    pointer-events: none;
-    transform: translateX(100px);
-    transition: opacity .3s ease, transform .3s ease;
-    z-index: 9999;
-    position: absolute;
-    right: 0;
-    background: #f2f2f2;
-    padding: 7px;
-    max-width: 330px;
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px
-}
-
 #colorPaletteSelection {
-    top: 8rem
+    position: absolute;
+    top: 12rem;
+    right: -320px;
+    /* Start hidden off-screen */
+    width: 8rem;
+    background: white;
+    border: 1px solid var(--tertiary-color);
+    border-radius: 10px 0 0 10px;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+    transition: right 0.3s ease-in-out;
+    z-index: 1000;
+}
+
+#colorPaletteSelection.visible {
+    right: 0;
 }
 
 #mobilecolorPaletteSelection {
+    position: absolute;
+    top: 10rem;
+    right: -340px;
+    /* Start hidden */
+    width: 100px;
+    background: #f2f2f2;
+    padding: 3px;
+    border-radius: 10px 0 0 10px;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+    transition: right 0.3s ease-in-out;
+    z-index: 1000;
     display: none;
-    top: 12rem
+}
+
+#mobilecolorPaletteSelection.visible {
+    display: grid;
+    right: 0;
 }
 
 #colorPaletteSelection.visible,
 #mobilecolorPaletteSelection.visible {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateX(0)
-}
-
-#mobilecolorPaletteSelection.visible {
-    display: block
+    right: 0;
 }
 
 .color-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: .5rem
+    gap: .5rem;
+    padding: 5px;
 }
 
 #mobilecolorPaletteSelection.color-grid {
@@ -455,9 +487,12 @@ hr {
 }
 
 #feedbackDescriptionUpperpart {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
     border: 1px solid var(--tertiary-color);
-    border-top-left-radius: 10px;
-    padding: 5px;
+    border-top-left-radius: 8px;
+    padding: 0;
     background-color: var(--tertiary-color);
     color: white
 }
@@ -468,7 +503,7 @@ hr {
     padding: 5px;
     height: auto;
     width: 300px;
-    white-space: pre-line;
+    white-space: nowrap;
     text-overflow: ellipsis;
     border-bottom-left-radius: 10px
 }
@@ -532,7 +567,12 @@ hr {
 #mobileCategoryList {
     list-style: none;
     padding: 0;
-    margin: 0
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    justify-content: center;
+    align-items: center;
 }
 
 #mobileCategoryList li {
@@ -549,22 +589,17 @@ hr {
 }
 
 #mobilecolorPaletteClick {
-    font-size: 1rem;
-    border: 1px solid var(--tertiary-color);
     position: absolute;
-    right: -1.2rem;
-    top: 13rem;
+    right: 0;
+    top: 10rem;
     color: white;
     cursor: pointer;
-    --r: 15px;
-    padding-inline: .5em;
-    border-inline: var(--r) solid #0000;
-    border-radius: calc(2*var(--r)) calc(2*var(--r)) 0 0/var(--r);
-    mask: radial-gradient(var(--r) at var(--r) 0, #0000 98%, #000 101%) calc(-1*var(--r)) 100%/100% var(--r) repeat-x, conic-gradient(#000 0 0) padding-box;
-    background: var(--tertiary-color) border-box;
-    width: fit-content;
-    transform: rotate(-90deg);
     z-index: 99
+}
+
+#mobilecolorPaletteClick img {
+    width: auto;
+    height: 75px;
 }
 
 /* Social Grid */
@@ -835,7 +870,8 @@ hr {
     transition: all .25s;
     flex-direction: column;
     margin: 0 auto 10px auto;
-    word-break: break-word
+    word-break: break-word;
+    gap: 5px;
 }
 
 .category-row:hover,
@@ -966,10 +1002,6 @@ hr {
 
     .feedbackTab {
         width: 110px
-    }
-
-    #topDetails {
-        background: url('/preview_images/white-smart.png') no-repeat center center
     }
 
     .banner-creatives {
@@ -1128,8 +1160,13 @@ hr {
         position: fixed;
         font-size: 1rem;
         top: 19rem;
-        --r: 15px;
-        right: -1.2rem
+        width: auto;
+        height: auto;
+    }
+
+    #feedbackCLick img {
+        width: 20px;
+        height: auto;
     }
 
     #feedbackDescription {
@@ -1178,8 +1215,13 @@ hr {
 
     #feedbackDescription {
         position: fixed;
+        right: -320px;
+        top: 19rem;
+        transition: right 0.3s ease-in-out;
+    }
+
+    #feedbackDescription.show {
         right: 0;
-        top: 18rem
     }
 
     .feedbacks {
@@ -1212,10 +1254,6 @@ hr {
 
     .feedbackTab {
         width: 110px
-    }
-
-    #topDetails {
-        background: url('/preview_images/white-smart.png') no-repeat center center
     }
 
     .banner-creatives {
@@ -1374,14 +1412,19 @@ hr {
         position: fixed;
         font-size: 1rem;
         top: 19rem;
-        --r: 15px;
-        right: -1.2rem
+        width: auto;
+        height: auto;
     }
 
     #feedbackDescription {
         position: fixed;
+        right: -320px;
+        top: 20rem;
+        transition: right 0.3s ease-in-out;
+    }
+
+    #feedbackDescription.show {
         right: 0;
-        top: 20rem
     }
 
     .feedbacks {
@@ -1476,10 +1519,6 @@ hr {
     .feedbacks {
         width: 97%
     }
-
-    #feedbackDescription {
-        top: 23rem
-    }
 }
 
 @media (min-width:1200px) {
@@ -1491,7 +1530,7 @@ hr {
     .feedbackAddTab,
     #customPreviewLogoutForm,
     .sidebar-top-desktop,
-    .sidebar-top-extra{
+    .sidebar-top-extra {
         display: block
     }
 
@@ -1511,9 +1550,5 @@ hr {
 
     .feedbacks {
         width: 97%
-    }
-
-    #feedbackDescription {
-        top: 23rem
     }
 }

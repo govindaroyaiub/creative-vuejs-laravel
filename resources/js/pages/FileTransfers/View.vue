@@ -63,18 +63,68 @@ onMounted(() => {
     const stars = new THREE.Points(starsGeometry, starsMaterial);
     scene.add(stars);
 
-    // --- CENTER PLANET ---
-    const planetTexture = new THREE.TextureLoader().load('/Transfer Files/earth.svg');
-    const planet = new THREE.Mesh(
-        new THREE.SphereGeometry(1, 64, 64),
-        new THREE.MeshStandardMaterial({ map: planetTexture })
-    );
+    // --- CENTER PLANET (Purple Planet) ---
+    const planetGeometry = new THREE.SphereGeometry(1, 64, 64);
+    const planetMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+            time: { value: 0 },
+            primaryColor: { value: new THREE.Color(0x4c1d95) }, // Deep purple
+            secondaryColor: { value: new THREE.Color(0x7c3aed) }, // Brighter purple
+            glowColor: { value: new THREE.Color(0xa855f7) } // Purple glow
+        },
+        vertexShader: `
+            varying vec2 vUv;
+            varying vec3 vNormal;
+            varying vec3 vPosition;
+            uniform float time;
+            
+            void main() {
+                vUv = uv;
+                vNormal = normalize(normalMatrix * normal);
+                vPosition = position;
+                
+                // Subtle surface displacement
+                vec3 pos = position + normal * sin(time * 0.8 + position.x * 8.0) * 0.03;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform float time;
+            uniform vec3 primaryColor;
+            uniform vec3 secondaryColor;
+            uniform vec3 glowColor;
+            varying vec2 vUv;
+            varying vec3 vNormal;
+            varying vec3 vPosition;
+            
+            void main() {
+                // Create surface patterns
+                float noise = sin(vPosition.x * 12.0 + time) * 
+                             sin(vPosition.y * 10.0 + time * 0.7) * 
+                             sin(vPosition.z * 14.0 + time * 0.5);
+                
+                // Fresnel effect for atmospheric glow
+                float fresnel = pow(1.0 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.5);
+                
+                // Mix colors with surface patterns
+                vec3 surfaceColor = mix(primaryColor, secondaryColor, noise * 0.4 + 0.3);
+                vec3 color = mix(surfaceColor, glowColor, fresnel * 0.6);
+                
+                // Add pulsing glow effect
+                float pulse = 0.85 + sin(time * 2.5) * 0.15;
+                color *= pulse;
+                
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `
+    });
+    const planet = new THREE.Mesh(planetGeometry, planetMaterial);
     scene.add(planet);
 
     const glow = new THREE.Mesh(
         new THREE.SphereGeometry(1.3, 64, 64),
         new THREE.MeshBasicMaterial({
-            color: 0x4facfe,
+            color: 0x8b5cf6,
             transparent: true,
             opacity: 0.2,
             side: THREE.BackSide,
@@ -108,6 +158,11 @@ onMounted(() => {
     const animate = (time = 0) => {
         const delta = time - lastTime;
         if (delta > 16) {
+            // Update planet shader time
+            if (planetMaterial.uniforms) {
+                planetMaterial.uniforms.time.value = time * 0.001;
+            }
+
             planet.rotation.y += 0.0015;
             glow.rotation.y += 0.001;
             stars.rotation.y += 0.0005;
@@ -168,9 +223,9 @@ onMounted(() => {
             <div
                 class="w-full max-w-3xl rounded-2xl bg-white/10 p-6 sm:p-8 shadow-xl backdrop-blur-xl border border-white/20">
                 <h1
-                    class="mb-4 flex items-center gap-2 text-left text-2xl sm:text-3xl font-extrabold text-yellow-300 drop-shadow-lg">
+                    class="mb-4 flex items-center gap-2 text-left text-2xl sm:text-3xl font-extrabold text-indigo-300 drop-shadow-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"
-                        class="w-8 h-8 text-yellow-300 drop-shadow-md animate-pulse">
+                        class="w-8 h-8 text-indigo-300 drop-shadow-md animate-pulse">
                         <path d="M12 2C8 6 7 10 7 13l-4 4 3 3 4-4c3 0 7-1 11-5-1-4-5-8-9-9Z" />
                         <circle cx="12" cy="12" r="1.5" fill="#1a1a2e" />
                     </svg>

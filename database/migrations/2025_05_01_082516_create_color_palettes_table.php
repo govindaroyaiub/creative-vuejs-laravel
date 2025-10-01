@@ -23,8 +23,9 @@ return new class extends Migration
             $table->string('septenary');
             $table->string('feedbackTab_inactive_image');
             $table->string('feedbackTab_active_image');
-            $table->string('rightSideTab_inactive_image');
-            $table->string('rightSideTab_active_image');
+            $table->string('rightSideTab_feedback_description_image');
+            $table->string('rightSideTab_color_palette_image');
+            $table->string('header_image');
             $table->boolean('status')->default(0);
             $table->timestamps();
         });

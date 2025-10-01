@@ -141,9 +141,9 @@ const goToPage = (pageNumber: number) => {
                 <input v-model="search" placeholder="Search..." aria-label="Search previews"
                     class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-black dark:text-white" />
                 <button @click="showModal = true"
-                    class="ml-4 rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+                    class="ml-4 rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700 group flex items-center"
                     aria-label="Add Preview">
-                    <CirclePlus class="mr-1 inline h-5 w-5" /> Add
+                    <CirclePlus class="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-200" /> Add Preview
                 </button>
             </div>
 
@@ -167,7 +167,7 @@ const goToPage = (pageNumber: number) => {
                             </td>
                             <td class="w-80 px-4 py-3 text-left border-b">
                                 <div class="font-semibold capitalize break-words" :title="preview.name">{{ preview.name
-                                }}</div>
+                                    }}</div>
                                 <div class="text-xs text-gray-500 flex gap-2 items-center">
                                     <div class="h-4 w-4 rounded-full border flex-shrink-0"
                                         :style="{ backgroundColor: preview.color_palette?.tertiary ?? '#ccc' }"

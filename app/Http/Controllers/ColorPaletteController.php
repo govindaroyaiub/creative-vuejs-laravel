@@ -46,8 +46,9 @@ class ColorPaletteController extends Controller
             'septenary' => 'nullable|string|max:7',
             'feedbackTab_inactive_image' => 'nullable|image|max:2048',
             'feedbackTab_active_image' => 'nullable|image|max:2048',
-            'rightSideTab_inactive_image' => 'nullable|image|max:2048',
-            'rightSideTab_active_image' => 'nullable|image|max:2048',
+            'rightSideTab_feedback_description_image' => 'nullable|image|max:2048',
+            'rightSideTab_color_palette_image' => 'nullable|image|max:2048',
+            'header_image' => 'nullable|image|max:2048',
         ]);
 
         // Set status to 0 by default
@@ -57,8 +58,9 @@ class ColorPaletteController extends Controller
             [
                 'feedbackTab_inactive_image',
                 'feedbackTab_active_image',
-                'rightSideTab_inactive_image',
-                'rightSideTab_active_image'
+                'rightSideTab_feedback_description_image',
+                'rightSideTab_color_palette_image',
+                'header_image'
             ] as $field
         ) {
             if ($request->hasFile($field)) {
@@ -87,8 +89,9 @@ class ColorPaletteController extends Controller
             'septenary' => 'nullable|string|max:7',
             'feedbackTab_inactive_image' => 'nullable|image|max:2048',
             'feedbackTab_active_image' => 'nullable|image|max:2048',
-            'rightSideTab_inactive_image' => 'nullable|image|max:2048',
-            'rightSideTab_active_image' => 'nullable|image|max:2048',
+            'rightSideTab_feedback_description_image' => 'nullable|image|max:2048',
+            'rightSideTab_color_palette_image' => 'nullable|image|max:2048',
+            'header_image' => 'nullable|image|max:2048',
         ]);
 
         $palette = ColorPalette::findOrFail($id);
@@ -97,8 +100,9 @@ class ColorPaletteController extends Controller
             [
                 'feedbackTab_inactive_image',
                 'feedbackTab_active_image',
-                'rightSideTab_inactive_image',
-                'rightSideTab_active_image'
+                'rightSideTab_feedback_description_image',
+                'rightSideTab_color_palette_image',
+                'header_image'
             ] as $field
         ) {
             if ($request->hasFile($field)) {
@@ -152,8 +156,9 @@ class ColorPaletteController extends Controller
             [
                 'feedbackTab_inactive_image',
                 'feedbackTab_active_image',
-                'rightSideTab_inactive_image',
-                'rightSideTab_active_image'
+                'rightSideTab_feedback_description_image',
+                'rightSideTab_color_palette_image',
+                'header_image'
             ] as $field
         ) {
             if ($palette[$field]) {
