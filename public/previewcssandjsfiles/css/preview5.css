@@ -17,9 +17,7 @@ body {
     box-shadow: inset 0 0 30px 25px #fff;
     background-color: var(--secondary-color);
     font-family: "Montserrat", sans-serif;
-    display: flex;
-    flex-direction: column;
-    overflow-x: hidden
+    overflow-x: hidden;
 }
 
 .main {
@@ -102,7 +100,6 @@ hr {
     align-items: center;
     text-align: center;
     color: black;
-    background: url('/preview_images/top-bg.png') no-repeat center center;
     background-size: contain;
     width: 100%;
     min-height: 170px;
@@ -269,6 +266,10 @@ hr {
     transition: background-image 0.2s ease;
 }
 
+.feedbackTabHover:hover {
+    transition: background-image 0.2s ease-in-out;
+}
+
 .feedbackTabs-parent {
     flex: 1 1 0;
     min-width: 0;
@@ -286,7 +287,7 @@ hr {
 .previewIcons,
 #bannerRes,
 #bannerSize {
-    color: var(--tertiary-color)
+    color: var(--septenary-color)
 }
 
 #feedbackCLick,
@@ -590,7 +591,7 @@ hr {
 
 #mobilecolorPaletteClick {
     position: absolute;
-    right: 0;
+    right: -2px;
     top: 10rem;
     color: white;
     cursor: pointer;
@@ -598,8 +599,8 @@ hr {
 }
 
 #mobilecolorPaletteClick img {
-    width: auto;
-    height: 75px;
+    width: 30px;
+    height: auto;
 }
 
 /* Social Grid */
@@ -990,7 +991,7 @@ hr {
         min-height: 45px;
         font-size: 1rem;
         margin: 0 0 8px 0;
-        border-radius: 20px
+        border-radius: 40px
     }
 
     .banners-list {
@@ -1093,6 +1094,27 @@ hr {
         margin-bottom: -10px !important
     }
 
+    .banner-area-500-500{
+        width: 336px !important;
+        height: auto;
+        display: flex !important;
+        flex-direction: column;
+        justify-content: space-between;
+        margin-right: 0 !important;
+        overflow: hidden
+    }
+
+    .banner-area-500-500 iframe {
+        transform: scale(.672);
+        transform-origin: center left;
+        width: 500px;
+        height: 500px;
+        border: none;
+        display: block;
+        margin-top: -20px !important;
+        margin-bottom: -20px !important
+    }
+
     .modal-contentSocial {
         width: 100%
     }
@@ -1165,6 +1187,11 @@ hr {
     }
 
     #feedbackCLick img {
+        width: 20px;
+        height: auto;
+    }
+
+    #mobilecolorPaletteClick img{
         width: 20px;
         height: auto;
     }

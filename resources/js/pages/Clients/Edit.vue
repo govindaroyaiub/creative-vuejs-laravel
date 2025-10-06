@@ -89,28 +89,28 @@ const handleSubmit = () => {
                 <div>
                     <label class="block text-sm font-medium">Name</label>
                     <input v-model="form.name" type="text"
-                        class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white" required />
+                        class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white" required />
                 </div>
 
                 <!-- Website -->
                 <div>
                     <label class="block text-sm font-medium">Website</label>
                     <input v-model="form.website" type="url"
-                        class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white" required />
+                        class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white" required />
                 </div>
 
                 <!-- Preview URL -->
                 <div>
                     <label class="block text-sm font-medium">Preview URL</label>
                     <input v-model="form.preview_url" type="url"
-                        class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white" />
+                        class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white" />
                 </div>
 
                 <!-- Color Palette -->
                 <div>
                     <label class="block text-sm font-medium">Color Palette</label>
                     <select v-model="form.color_palette_id"
-                        class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white">
+                        class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white">
                         <option :value="null">Select a palette</option>
                         <option v-for="palette in props.palettes" :key="palette.id" :value="palette.id">
                             {{ palette.name }} ({{ palette.primary }})

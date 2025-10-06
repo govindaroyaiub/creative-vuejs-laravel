@@ -12,7 +12,6 @@
     <script src="{{ asset('previewcssandjsfiles/js/jquery.min.js') }}" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="{{ asset('previewcssandjsfiles/js/axios.min.js') }}" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="{{ asset('previewcssandjsfiles/js/fontawesome.all.min.js') }}" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="{{ asset('previewcssandjsfiles/js/gsap_3.5.1_min.js') }}" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         :root {
             --primary-color: {{$primary}};
@@ -22,11 +21,6 @@
             --quinary-color: {{$quinary}};
             --senary-color: {{$senary}};
             --septenary-color: {{$septenary}};
-            --feedback-active-image: {{$feedback_active_image}};
-            --feedback-inactive-image: {{$feedback_inactive_image}};
-            --right-tab-feedback-description-image: {{$rightTab_feedback_description_image}};
-            --right-tab-color-palette-image: {{$rightTab_color_palette_image}};
-            --header-image: {{$header_image}};
         }
     </style>
     <link href="{{ asset('previewcssandjsfiles/css/preview5.css') }}" rel="stylesheet">
@@ -65,7 +59,7 @@
             <div class="px-4 py-4 flex justify-center content text-center relative">
                 <div id="topDetails" class="mt-4" style="background-image: url('/{{ $header_image }}'); background-repeat: no-repeat; background-position: center center;">
                     @if($preview->show_planetnine_logo)
-                    <img src="{{ asset('logos/' . $client['logo']) }}" id="planetnineLogo" class="py-3" alt="planetnineLogo">
+                    <img src="{{url('/logos/planetnineLogo.png')}}" id="planetnineLogo" class="py-3" alt="planetnineLogo">
                     @endif
                     <h1 style="font-size: 1rem;"><span class="font-semibold">Name: </span> <span class="capitalize">{{ $preview['name'] }}</span></h1>
                     <h1 class="mt-1" style="font-size: 1rem;"><span class="font-semibold">Client: </span> <span class="capitalize">{{ $client['name'] }}</span></h1>
@@ -111,6 +105,12 @@
                             </div>
                             <div id="mobileMenu" class="mobile-menu-panel">
                                 <button id="closeMobileMenu" aria-label="Close menu">&times;</button>
+                                @if($preview['show_sidebar_logo'] == 1)
+                                <div class="w-full">
+                                    <div class="mb-2 mt-2 px-2 py-2 mx-auto flex justify-center">
+                                        <img src="{{ asset('logos/' . $client['logo']) }}" alt="clientLogo" style="width: 230px;">
+                                    </div>
+                                @endif
                                 <div class="sidebar-image mx-auto mb-4">
                                     <span>Creative Showcase</span>
                                 </div>
@@ -183,22 +183,15 @@
         </div>
     </footer>
     @endif
-
-    <div id="mobilePopup" style="display:none; position:fixed; z-index:99999; bottom:5px; left:0; right: 0; margin: 0 auto; background:#fff; border-radius:16px; box-shadow:0 2px 16px #0002; padding:24px 32px; text-align:center; max-width:90vw;">
-        <button id="closeMobilePopup" style="position:absolute; top:8px; right:12px; background:none; border:none; font-size:1.5rem; color:#888; cursor:pointer;">&times;</button>
-        <div style="font-size:1.2rem; font-weight:600; color:#222; margin-bottom:8px;">
-            Switch to desktop or laptop for better view.
-        </div>
-        <div style="font-size:0.95rem; color:#666;">
-            For the best experience, please use a desktop or laptop device.
-        </div>
-    </div>
 </body>
 
 <script>
     const pageId = '{{ $preview->id }}';
     const authUserClientName = '{{ $authUserClientName }}';
     const preview_id = '{{ $preview_id }}';
+    const showSidebarLogo = '{{ $preview['show_sidebar_logo'] }}';
+    const feedbackActiveImage = '{{ $feedback_active_image }}';
+    const feedbackInactiveImage = '{{ $feedback_inactive_image }}';
 
     let categories = [];
     let currentCategoryIndex = 0;
@@ -419,17 +412,6 @@
                 var row = '';
                 var row2 = '';
 
-                row = row + '@if($preview['
-                show_sidebar_logo '] == 1)';
-                row = row + '<div class="w-full">';
-                row = row + '<div class="mb-2 mt-2 px-2 py-2 mx-auto flex justify-center">';
-                row = row + '<img src="{{ asset('
-                logos / ' . $client['
-                logo ']) }}" alt="clientLogo" style="width: 200px;">';
-                row = row + '</div>';
-                row = row + '</div>';
-                row = row + '@endif';
-
                 $.each(response.data.categories, function(key, value) {
                     if (value.is_active == 1) {
                         active = 'menuToggleActive';
@@ -502,18 +484,19 @@
                 isActive = ' feedbackTabActive';
                 var clickHandler = ''; // No click for active feedback
                 var tabImagePath = '/{{ $feedback_active_image }}';
-                var hoverEvents = ''; // No hover events for active tabs
+                var hoverEvents = ''; // no hover for active
             } else {
                 isActive = '';
                 var clickHandler = 'onclick="updateActiveFeedback(' + value.id + ')"';
                 var tabImagePath = '/{{ $feedback_inactive_image }}';
-                var hoverEvents = `onmouseover="this.style.backgroundImage='url(/{{ $feedback_active_image }})'" onmouseout="this.style.backgroundImage='url(/{{ $feedback_inactive_image }})'"`;
+                // only attach hover handlers for inactive tabs
+                var hoverEvents = `onmouseover="changeFeedbackActiveBackground(this)" onmouseout="changeFeedbackInactiveBackground(this)"`;
             }
+
             row += `
                 <div style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
-                    <div id="feedbackTab${value.id}" class="feedbackTab${isActive}" ${clickHandler} 
-                        style="bottom: -1px; background-image: url('${tabImagePath}'); background-size: cover; background-position: center; background-repeat: no-repeat; position: relative; cursor: pointer; min-width: 110px; width: 100%; max-width: 110px; height: 35px;"
-                        ${hoverEvents}>
+                    <div id="feedbackTab${value.id}" class="feedbackTab${isActive}" ${clickHandler} ${hoverEvents}
+                        style="bottom: -1px; background-image: url('${tabImagePath}'); background-size: cover; background-position: center; background-repeat: no-repeat; position: relative; cursor: pointer; min-width: 110px; width: 100%; max-width: 110px; height: 35px;">
                         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 0.875rem; font-weight: 500; text-align: center; width: 100%; text-shadow: 1px 1px 2px rgba(0,0,0,0.7);">
                             ${value.name}
                         </div>
@@ -522,13 +505,27 @@
             `;
             $('#feedbackMessage').html(value.description);
         });
-        
+
         row += '</div>';
         $('.feedbacks').html(row);
         updateFeedbackNav();
         renderFeedbackSets(response);
         setTimeout(enableFeedbackTabsDragScroll, 10);
         scrollActiveFeedbackTabIntoView();
+    }
+
+    function changeFeedbackActiveBackground(element) {
+        // only change if this tab is NOT active (safety)
+        if (!element.classList.contains('feedbackTabActive')) {
+            element.style.backgroundImage = `url('/${feedbackActiveImage}')`;
+        }
+    }
+
+    function changeFeedbackInactiveBackground(element){
+        // only revert if this tab is NOT active (safety)
+        if (!element.classList.contains('feedbackTabActive')) {
+            element.style.backgroundImage = `url('/${feedbackInactiveImage}')`;
+        }
     }
 
     function updateFeedbackNav() {
@@ -1297,39 +1294,4 @@
     setInterval(fetchViewers, 10000);
     fetchViewers();
     renderCategories();
-
-    function isMobileDevice() {
-        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    }
-
-    function setCookie(name, value, days) {
-        let expires = "";
-        if (days) {
-            const date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-            expires = "; expires=" + date.toUTCString();
-        }
-        document.cookie = name + "=" + (value || "") + expires + "; path=/";
-    }
-
-    function getCookie(name) {
-        const nameEQ = name + "=";
-        const ca = document.cookie.split(';');
-        for (let i = 0; i < ca.length; i++) {
-            let c = ca[i];
-            while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
-        }
-        return null;
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        if (isMobileDevice() && !getCookie('hideMobilePopup')) {
-            document.getElementById('mobilePopup').style.display = 'block';
-        }
-        document.getElementById('closeMobilePopup').onclick = function() {
-            document.getElementById('mobilePopup').style.display = 'none';
-            setCookie('hideMobilePopup', '1', 7); // Hide for 7 days
-        };
-    });
 </script>

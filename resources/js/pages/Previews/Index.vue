@@ -169,8 +169,8 @@ const goToPage = (pageNumber: number) => {
                                 <div class="font-semibold capitalize break-words" :title="preview.name">{{ preview.name
                                     }}</div>
                                 <div class="text-xs text-gray-500 flex gap-2 items-center">
-                                    <div class="h-4 w-4 rounded-full border flex-shrink-0"
-                                        :style="{ backgroundColor: preview.color_palette?.tertiary ?? '#ccc' }"
+                                    <div class="h-5 w-5 rounded-full border flex-shrink-0"
+                                        :style="{ backgroundColor: preview.color_palette?.primary ?? '#ccc' }"
                                         title="Primary Color"></div>
                                     <span class="break-words">{{ preview.client?.name ?? '-' }}</span> -
                                     <div class="text-xs text-gray-400 break-words">{{ getTypes(preview) || '-' }}</div>
