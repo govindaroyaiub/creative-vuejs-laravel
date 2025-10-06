@@ -8,7 +8,6 @@ use App\Http\Middleware\CheckUserPermission;
 use App\Http\Controllers\FileTransferController;
 use App\Http\Controllers\BannerSizeController;
 use App\Http\Controllers\VideoSizeController;
-use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\SocialController;
 use App\Http\Controllers\ClientController;
@@ -171,7 +170,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::post('/tetris/submit/score', [TetrisController::class, 'submitScore'])->name('tetris.submit.score');
 });
 
-Route::get('/previews/show/{slug}', [NewPreviewController::class, 'show'])->name('previews-show');
+Route::get('/previews/show/{slug}', [newPreviewController::class, 'show'])->name('previews-show');
 //preview axios get requests start
 
 Route::get('/preview/renderCategories/{id}', [newPreviewApiController::class, 'renderCategories']);
