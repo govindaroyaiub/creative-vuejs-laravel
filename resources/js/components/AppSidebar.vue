@@ -25,7 +25,6 @@ const mainNavItems: NavItem[] = [
     { title: 'Bills', href: '/bills', icon: ReceiptText },
     { title: 'File Transfers', href: '/file-transfers', icon: Paperclip },
     { title: 'Media Library', 'href': '/medias', icon: ImagePlay },
-    { title: 'TinyPNG', 'href': '/tinypng', icon: ImageMinus },
     { title: 'Tetris', href: '/play/tetris', icon: Type },
     { title: 'Documentation', href: '/lazyDoc', icon: FileCode }
 ];

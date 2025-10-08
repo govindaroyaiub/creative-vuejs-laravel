@@ -177,7 +177,6 @@ const qaList = ref([
             <li><span class="font-bold text-orange-600">File Transfers:</span> Generate secure transfer links so clients can download their creatives. Transfers are to be deleted after a specific period.</li>
             <li><span class="font-bold text-red-600">Bills:</span> Module for managing office bills.</li>
             <li><span class="font-bold text-indigo-600">Media Library:</span> Central place for uploading and referencing assets (images, videos, external links).</li>
-            <li><span class="font-bold text-teal-600">TinyPNG:</span> API integration for image compression (500 free compressions/month).</li>
             <li><span class="font-bold text-pink-600">Preview System:</span> The core feature. Enables creation of preview links and uploading creatives. Evolved over time, but core remains the same.</li>
         </ul>
 
@@ -270,18 +269,6 @@ const qaList = ref([
             <li>🗃️ <strong>Migration:</strong> <code>2025_05_03_114912_create_media_table.php</code></li>
             <li>🎛️ <strong>Controller:</strong> <code>MediaController.php</code></li>
             <li>🖼️ <strong>Vue Files:</strong> <code>Pages/Medias</code></li>
-        </ul>
-    `
-    },
-    {
-        question: 'What is TinyPNG?',
-        answer: 'TinyPNG is integrated for image compression (500 free compressions/month). Additional compressions require a paid key. Configure your API key in the .env file (TINYPNG_API_KEY).',
-        additionalInfo: `
-        Technical details:
-        <ul class="list-disc list-inside space-y-2 mt-4">
-            <li>🎛️ <strong>Controller:</strong> <code>TinyPngController.php</code></li>
-            <li>🖼️ <strong>Vue Files:</strong> <code>Pages/TinyPng</code></li>
-            <li>🔑 <strong>ENV Variable:</strong> <code>TINYPNG_API_KEY</code></li>
         </ul>
     `
     },
