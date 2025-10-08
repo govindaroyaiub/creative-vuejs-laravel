@@ -12,6 +12,7 @@
 /public/storage
 /storage/*.key
 /storage/pail
+!storage/app/tinypng_count.json
 /vendor
 .env
 .env.backup
