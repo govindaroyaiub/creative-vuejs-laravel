@@ -3,7 +3,11 @@
 /node_modules
 /public/build
 /public/hot
-/public/uploads
+/public/uploads/banners
+/public/uploads/media
+/public/uploads/socials
+/public/uploads/videos
+/public/uploads/gifs
 /public/Transfer Files
 /public/storage
 /storage/*.key
