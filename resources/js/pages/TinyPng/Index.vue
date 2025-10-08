@@ -34,24 +34,6 @@
                                 <div class="text-xs text-gray-400">Loading...</div>
                             </div>
 
-                            <!-- Free Tier Display -->
-                            <div v-else-if="compressionCount === null" class="space-y-1">
-                                <div
-                                    class="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-2 py-1 rounded-full">
-                                    🎉 Free Plan Active
-                                </div>
-                                <div class="text-xs text-gray-500">
-                                    500 compressions/month
-                                </div>
-                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                    <div class="h-2 rounded-full bg-blue-500 transition-all duration-300"
-                                        style="width: 100%"></div>
-                                </div>
-                                <div class="text-xs text-blue-600">
-                                    500 available
-                                </div>
-                            </div>
-
                             <!-- Loaded state -->
                             <div v-else-if="compressionCount !== null" class="space-y-1">
                                 <div class="text-2xl font-bold"
@@ -63,7 +45,7 @@
                                 </div>
                                 <div
                                     class="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2 py-1 rounded-full">
-                                    💎 Paid Plan
+                                    Free Plan
                                 </div>
                                 <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                                     <div class="h-2 rounded-full transition-all duration-300"
@@ -302,6 +284,8 @@ import type { BreadcrumbItem } from '@/types';
 // ✅ Add props for compression count (passed from controller)
 const props = defineProps<{
     compressionCount?: number;
+    remainingCount?: number;
+    currentMonth?: string;
     isNewAccount?: boolean;
 }>();
 
@@ -319,6 +303,9 @@ const fileInput = ref<HTMLInputElement | null>(null);
 const compressionCount = ref<number | null>(
     props.compressionCount !== undefined ? props.compressionCount : null
 );
+const remainingCount = ref<number | null>(
+    props.remainingCount !== undefined ? props.remainingCount : null
+);
 const isNewAccount = ref(props.isNewAccount || false);
 
 let fileCounter = 0;
@@ -329,15 +316,12 @@ const isFreeTier = ref(false);
 
 // ✅ Computed properties for API usage
 const remainingCompressions = computed(() => {
-    if (compressionCount.value === null) {
-        return 500; // Show 500 for free tier since we don't know exact usage
-    }
-    return 500 - compressionCount.value;
+    return remainingCount.value ?? 500;
 });
 
 const usagePercent = computed(() => {
     if (compressionCount.value === null) {
-        return 0; // Unknown usage on free tier
+        return 0;
     }
     return Math.round((compressionCount.value / 500) * 100);
 });
@@ -354,35 +338,34 @@ const refreshCompressionCount = async () => {
         const response = await axios.get('/tinypng/compression-count');
 
         compressionCount.value = response.data.compression_count;
-        isFreeTier.value = response.data.is_free_tier || false;
+        remainingCount.value = response.data.remaining;
 
-        if (response.data.is_free_tier) {
-            
-        } else if (response.data.compression_count === null) {
+        // Show success message
+        if (!isLoadingCount.value) {
             Swal.fire({
-                icon: 'warning',
-                title: 'API Issue',
-                text: response.data.message || 'Could not fetch API usage.',
+                icon: 'success',
+                title: 'Usage Updated',
+                text: `${response.data.compression_count}/500 compressions used this month`,
                 toast: true,
                 position: 'top-end',
                 showConfirmButton: false,
-                timer: 5000
+                timer: 3000
             });
         }
     } catch (error: any) {
         console.error('Failed to fetch compression count:', error);
-        compressionCount.value = null;
 
         Swal.fire({
             icon: 'error',
-            title: 'Failed to refresh API usage',
-            text: 'Could not connect to TinyPNG API.',
+            title: 'Failed to refresh usage',
+            text: 'Could not load compression count.',
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
             timer: 4000
         });
     }
+
     isRefreshing.value = false;
     isLoadingCount.value = false;
 };
@@ -678,7 +661,7 @@ const compressFile = async (file: any): Promise<boolean> => {
             onUploadProgress: (progressEvent: any) => {
                 if (progressEvent.total) {
                     const progress = Math.round((progressEvent.loaded / progressEvent.total) * 50);
-                    file.progress = 10 + progress; // 10-60% for upload
+                    file.progress = 10 + progress;
                 }
             },
         });
@@ -691,9 +674,10 @@ const compressFile = async (file: any): Promise<boolean> => {
             file.status = 'completed';
             file.progress = 100;
 
-            // ✅ Update compression count after successful compression
+            // ✅ Update both counts from response
             if (response.data.compression_count !== undefined) {
                 compressionCount.value = response.data.compression_count;
+                remainingCount.value = response.data.remaining_count;
             }
 
             return true;

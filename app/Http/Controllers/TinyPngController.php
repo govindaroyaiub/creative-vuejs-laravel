@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\CompressionCountService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -11,93 +12,41 @@ use Tinify\Tinify;
 
 class TinyPngController extends Controller
 {
-    public function __construct()
+    private CompressionCountService $compressionService;
+
+    public function __construct(CompressionCountService $compressionService)
     {
-        Tinify::setKey(config('services.tinypng.key'));
+        $this->compressionService = $compressionService;
+
+        // Only set the key when we actually need to use TinyPNG
+        if (config('services.tinypng.key')) {
+            Tinify::setKey(config('services.tinypng.key'));
+        }
     }
 
     public function index()
     {
-        // Get current compression count
-        $compressionData = $this->getCompressionData();
+        // Get local compression data instead of calling TinyPNG API
+        $compressionData = $this->compressionService->getCompressionData();
 
         return Inertia::render('TinyPng/Index', [
             'compressionCount' => $compressionData['count'],
-            'isNewAccount' => $compressionData['isNew']
+            'remainingCount' => $compressionData['remaining'],
+            'currentMonth' => $compressionData['month'],
+            'isNewAccount' => false // We don't need this anymore
         ]);
-    }
-
-    private function getCompressionData()
-    {
-        try {
-            // Check if API key is configured
-            $apiKey = config('services.tinypng.key');
-            if (!$apiKey || strlen($apiKey) < 20) {
-                return [
-                    'count' => null,
-                    'isNew' => false,
-                    'message' => 'TinyPNG API key not configured or invalid format.'
-                ];
-            }
-
-            \Tinify\Tinify::setKey($apiKey);
-            $count = \Tinify\Tinify::getCompressionCount();
-
-            // IMPORTANT: TinyPNG behavior explanation:
-            // - getCompressionCount() returns NULL when you're on the FREE plan (500 free compressions)
-            // - getCompressionCount() returns a NUMBER when you're on a PAID plan
-            // - This means NULL doesn't mean "0 used" - it means "still in free tier, unknown usage"
-
-            if ($count === null) {
-                return [
-                    'count' => null, // Keep as null to indicate unknown free tier usage
-                    'isNew' => false, // Not necessarily new, just free tier
-                    'message' => 'Free plan active - 500 compressions available. Usage tracking starts with paid plan.'
-                ];
-            }
-
-            return [
-                'count' => $count,
-                'isNew' => false,
-                'message' => 'Paid plan active - API usage retrieved successfully.'
-            ];
-        } catch (\Tinify\AccountException $e) {
-            return [
-                'count' => null,
-                'isNew' => false,
-                'message' => 'Invalid API key: ' . $e->getMessage()
-            ];
-        } catch (\Tinify\ClientException $e) {
-            return [
-                'count' => null,
-                'isNew' => false,
-                'message' => 'API request error: ' . $e->getMessage()
-            ];
-        } catch (\Tinify\ConnectionException $e) {
-            return [
-                'count' => null,
-                'isNew' => false,
-                'message' => 'Connection error: ' . $e->getMessage()
-            ];
-        } catch (\Exception $e) {
-            return [
-                'count' => null,
-                'isNew' => false,
-                'message' => 'API error: ' . $e->getMessage()
-            ];
-        }
     }
 
     public function compressionCount()
     {
-        $compressionData = $this->getCompressionData();
+        $compressionData = $this->compressionService->getCompressionData();
 
         return response()->json([
             'compression_count' => $compressionData['count'],
-            'remaining' => null, // Can't calculate remaining for free tier
-            'is_new_account' => $compressionData['isNew'],
-            'is_free_tier' => $compressionData['count'] === null,
-            'message' => $compressionData['message']
+            'remaining' => $compressionData['remaining'],
+            'current_month' => $compressionData['month'],
+            'is_free_tier' => true, // Always true since we're tracking locally
+            'message' => "Local tracking: {$compressionData['count']}/500 compressions used this month"
         ]);
     }
 
@@ -107,8 +56,25 @@ class TinyPngController extends Controller
             'image' => 'required|image|mimes:png,jpg,jpeg|max:5120',
         ]);
 
+        // Check if user has remaining compressions
+        if (!$this->compressionService->hasRemainingCompressions()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Monthly compression limit reached (500/500). Please wait for next month or upgrade to paid plan.',
+            ], 422);
+        }
+
+        // Check API key
+        $apiKey = config('services.tinypng.key');
+        if (!$apiKey) {
+            return response()->json([
+                'success' => false,
+                'message' => 'TinyPNG API key not configured. Please add TINYPNG_API_KEY to your .env file.',
+            ], 422);
+        }
+
         try {
-            \Tinify\Tinify::setKey(config('services.tinypng.key'));
+            \Tinify\Tinify::setKey($apiKey);
 
             $file = $request->file('image');
             $originalSize = $file->getSize();
@@ -125,13 +91,17 @@ class TinyPngController extends Controller
 
             $file->move(dirname($originalPath), basename($originalPath));
 
+            // Perform compression
             $source = \Tinify\fromFile($originalPath);
             $source->toFile($compressedPath);
 
             $compressedSize = filesize($compressedPath);
             $savingsPercent = round((($originalSize - $compressedSize) / $originalSize) * 100, 1);
 
-            // Store in session
+            // ✅ Increment our local counter after successful compression
+            $newCount = $this->compressionService->incrementCount();
+
+            // Store in session for ZIP download
             $sessionKey = 'tinypng_files';
             $files = session($sessionKey, []);
             $files[] = [
@@ -146,15 +116,13 @@ class TinyPngController extends Controller
                 unlink($originalPath);
             }
 
-            // Get updated compression count after successful compression
-            $newCount = \Tinify\Tinify::getCompressionCount();
-
             return response()->json([
                 'success' => true,
                 'compressed_size' => $compressedSize,
                 'original_size' => $originalSize,
                 'savings_percent' => $savingsPercent,
-                'compression_count' => $newCount, // This should now have a value (1, 2, 3, etc.)
+                'compression_count' => $newCount,
+                'remaining_count' => 500 - $newCount,
             ]);
         } catch (\Tinify\AccountException $e) {
             return response()->json([
@@ -222,5 +190,18 @@ class TinyPngController extends Controller
                 'message' => 'Failed to create ZIP: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Admin route to reset compression count
+     */
+    public function resetCount()
+    {
+        $this->compressionService->resetCount();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Compression count has been reset to 0'
+        ]);
     }
 }
