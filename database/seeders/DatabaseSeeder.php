@@ -131,7 +131,49 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Planet Nine',
                 'website' => 'https://www.planetnine.com',
                 'preview_url' => 'https://preview.creative-planetnine.com',
-                'logo' => 'planetnine.png',
+                'logo' => '1759917729_P9 Logo 350X180.png',
+                'color_palette_id' => 5
+            ],
+            [
+                'name' => 'Deka Mart',
+                'website' => 'https://dekamart.nl',
+                'preview_url' => 'https://creative.planetnine.com',
+                'logo' => '1759917760_Deka Markt.png',
+                'color_palette_id' => 6
+            ],
+            [
+                'name' => 'DIRK',
+                'website' => 'https://dirk.nl',
+                'preview_url' => 'https://creative.planetnine.com',
+                'logo' => '1759917780_DIRK.png',
+                'color_palette_id' => 6
+            ],
+            [
+                'name' => 'Hoogvliet',
+                'website' => 'https://hoogvliet.nl',
+                'preview_url' => 'https://creative.planetnine.com',
+                'logo' => '1759917802_Hoogvliet.png',
+                'color_palette_id' => 2
+            ],
+            [
+                'name' => 'Talpa - Radio 10',
+                'website' => 'https://radio10.nl',
+                'preview_url' => 'https://creative.planetnine.com',
+                'logo' => '1759917853_Radio 10.png',
+                'color_palette_id' => 5
+            ],
+            [
+                'name' => 'Talpa - Radio 538',
+                'website' => 'https://radio538.nl',
+                'preview_url' => 'https://creative.planetnine.com',
+                'logo' => '1759917880_RADIO 538.png',
+                'color_palette_id' => 5
+            ],
+            [
+                'name' => 'Talpa - Sky Radio',
+                'website' => 'https://skyradio.nl',
+                'preview_url' => 'https://creative.planetnine.com',
+                'logo' => '1759917903_Talpa Sky Radio.png',
                 'color_palette_id' => 5
             ],
         ];
