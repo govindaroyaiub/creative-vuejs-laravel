@@ -64,7 +64,16 @@ const saveEdit = async (id: number) => {
         {
             preserveScroll: true,
             onSuccess: () => {
-                Swal.fire('Updated!', 'Video size updated.', 'success');
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Success!',
+                    text: 'Video Size created successfully!',
+                    timer: 3000,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end',
+                    timerProgressBar: true,
+                });
                 cancelEdit();
             },
             onError: () => {
@@ -88,7 +97,16 @@ const saveNewSize = async () => {
         {
             preserveScroll: true,
             onSuccess: () => {
-                Swal.fire('Success!', 'Video size added.', 'success');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Video Size created successfully!',
+                    timer: 3000,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end',
+                    timerProgressBar: true,
+                });
                 newSize.value = { name: '', width: '', height: '' };
                 adding.value = false;
             },

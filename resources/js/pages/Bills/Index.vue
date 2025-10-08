@@ -48,7 +48,16 @@ const goToEdit = (id: number) => {
 
 onMounted(() => {
     if (flash.value?.success) {
-        Swal.fire('Success!', flash.value.success, 'success');
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Bill created successfully!',
+            timer: 3000,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end',
+            timerProgressBar: true,
+        });
     }
 });
 </script>

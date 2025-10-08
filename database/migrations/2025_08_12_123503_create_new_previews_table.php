@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->string('name');
             $table->foreignId('client_id')->constrained()->cascadeOnDelete();
+            $table->integer('header_logo_id');
             $table->json('team_members');
             $table->foreignId('uploader_id')->constrained('users')->cascadeOnDelete();
             $table->boolean('requires_login')->default(false);

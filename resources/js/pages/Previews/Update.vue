@@ -712,7 +712,8 @@
                         class="bg-red-600 text-white px-6 py-2 rounded-xl hover:bg-red-700 font-semibold inline-block">
                         Back
                     </a>
-                    <a :href="route('previews-edit', preview.id)" class="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 font-semibold inline-block"
+                    <a :href="route('previews-edit', preview.id)"
+                        class="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 font-semibold inline-block"
                         aria-label="Edit Preview">
                         More Infos
                     </a>
@@ -1669,9 +1670,13 @@ function saveAll() {
         onSuccess: () => {
             Swal.fire({
                 icon: 'success',
-                title: 'Saved successfully!',
+                title: 'Success!',
+                text: 'Saved successfully!',
+                timer: 3000,
                 showConfirmButton: false,
-                timer: 1800
+                toast: true,
+                position: 'top-end',
+                timerProgressBar: true,
             });
         },
         onError: (err) => {

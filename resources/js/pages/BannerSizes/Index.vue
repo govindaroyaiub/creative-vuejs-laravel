@@ -37,7 +37,16 @@ const saveEdit = (id: number) => {
         preserveScroll: true,
         onSuccess: () => {
             editingId.value = null;
-            Swal.fire('Updated!', 'Banner size updated.', 'success');
+            Swal.fire({
+                icon: 'info',
+                title: 'Success!',
+                text: 'Banner size updated successfully!',
+                timer: 3000,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end',
+                timerProgressBar: true,
+            });
         },
         onError: () => {
             Swal.fire('Error!', 'Size Already Exists!', 'error');
@@ -62,7 +71,16 @@ const saveNew = () => {
                 Swal.fire('Error!', page.props.flash.error, 'error');
             } else {
                 adding.value = false;
-                Swal.fire('Added!', 'Banner size added successfully.', 'success');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Banner size created successfully!',
+                    timer: 3000,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end',
+                    timerProgressBar: true,
+                });
             }
         },
     });
@@ -101,7 +119,8 @@ const deleteBannerSize = async (id: number) => {
             <div class="mb-4 flex items-center justify-between">
                 <input v-model="search" placeholder="Search..."
                     class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-black dark:text-white" />
-                <button @click="startAdding" class="ml-4 rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700">
+                <button @click="startAdding"
+                    class="ml-4 rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700">
                     <CirclePlus class="mr-1 inline h-5 w-5" />
                     Add
                 </button>

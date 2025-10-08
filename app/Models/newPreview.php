@@ -27,6 +27,7 @@ class newPreview extends Model
         'slug',
         'name',
         'client_id',
+        'header_logo_id',
         'team_members',
         'uploader_id',
         'color_palette_id',

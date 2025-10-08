@@ -111,12 +111,14 @@ const handleSubmit = async () => {
     router.post(route('bills-create-post'), payload, {
         onSuccess: () => {
             Swal.fire({
-                title: 'Success!',
-                text: 'Bill created successfully.',
                 icon: 'success',
-                timer: 2000,
+                title: 'Success!',
+                text: 'Bill created successfully!',
+                timer: 3000,
                 showConfirmButton: false,
-                customClass: { popup: 'rounded-2xl' }
+                toast: true,
+                position: 'top-end',
+                timerProgressBar: true,
             });
         },
         onError: (errors) => {

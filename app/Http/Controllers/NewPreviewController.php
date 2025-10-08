@@ -76,6 +76,7 @@ class NewPreviewController extends Controller
         $validates = $request->validate([
             'name' => 'required|string|max:255',
             'client_id' => 'required|exists:clients,id',
+            'header_logo_id' => 'required|exists:clients,id',
             'color_palette_id' => 'required|exists:color_palettes,id',
             'requires_login' => 'boolean',
             'show_planetnine_logo' => 'boolean',
@@ -92,6 +93,7 @@ class NewPreviewController extends Controller
                 'slug' => Str::uuid()->toString(),
                 'name' => $request->name,
                 'client_id' => $request->client_id,
+                'header_logo_id' => $request->header_logo_id,
                 'requires_login' => $request->requires_login,
                 'team_members' => $request->team_ids,
                 'color_palette_id' => $request->color_palette_id,
@@ -124,6 +126,7 @@ class NewPreviewController extends Controller
         // Continue with preview rendering
         $color_palettes = ColorPalette::find($preview->color_palette_id);
         $client = Client::find($preview->client_id);
+        $header_logo = Client::find($preview->header_logo_id);
         $all_colors = ColorPalette::where('status', 1)->select('id', 'primary', 'tertiary')->get();
 
         $primary = $color_palettes->primary;
@@ -153,6 +156,7 @@ class NewPreviewController extends Controller
             'senary',
             'septenary',
             'client',
+            'header_logo',
             'authUserClientName',
             'preview_id',
             'all_colors',
@@ -188,6 +192,7 @@ class NewPreviewController extends Controller
         return Inertia::render('Previews/Edit', [
             'preview' => $newPreview,
             'clients' => Client::all(['id', 'name']),
+            'headerLogos' => Client::all(['id', 'name']),
             'users' => User::all(['id', 'name']),
             'palettes' => ColorPalette::all(['id', 'name']),
             'teamUsers' => $teamUsers,
@@ -202,6 +207,7 @@ class NewPreviewController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'client_id' => ['required', 'exists:clients,id'],
+            'header_logo_id' => ['required', 'exists:clients,id'],
             'team_ids' => ['required', 'array'],
             'team_ids.*' => ['exists:users,id'],
             'color_palette_id' => ['nullable', 'exists:color_palettes,id'],
@@ -214,6 +220,7 @@ class NewPreviewController extends Controller
         $newPreview->update([
             'name' => $validated['name'],
             'client_id' => $validated['client_id'],
+            'header_logo_id' => $validated['header_logo_id'],
             'team_members' => $validated['team_ids'], // will be stored as JSON
             'color_palette_id' => $validated['color_palette_id'],
             'requires_login' => $validated['requires_login'],

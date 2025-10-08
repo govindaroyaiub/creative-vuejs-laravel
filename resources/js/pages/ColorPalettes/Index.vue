@@ -511,13 +511,15 @@ function submit() {
       onSuccess: () => {
         showModal.value = false
         Swal.fire({
-          title: 'Updated!',
-          text: 'Color palette updated successfully.',
-          icon: 'success',
+          icon: 'info',
+          title: 'Success!',
+          text: 'Color Palette Updated successfully!',
           timer: 3000,
           showConfirmButton: false,
-          customClass: { popup: 'rounded-2xl' }
-        })
+          toast: true,
+          position: 'top-end',
+          timerProgressBar: true,
+        });
       }
     })
   } else {
@@ -525,13 +527,15 @@ function submit() {
       onSuccess: () => {
         showModal.value = false
         Swal.fire({
-          title: 'Created!',
-          text: 'Color palette created successfully.',
           icon: 'success',
+          title: 'Success!',
+          text: 'Color Palette created successfully!',
           timer: 3000,
           showConfirmButton: false,
-          customClass: { popup: 'rounded-2xl' }
-        })
+          toast: true,
+          position: 'top-end',
+          timerProgressBar: true,
+        });
       }
     })
   }

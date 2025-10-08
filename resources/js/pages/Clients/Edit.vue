@@ -73,7 +73,16 @@ const handleSubmit = () => {
     router.post(`/clients-update/${props.client.id}`, formData, {
         preserveScroll: true,
         forceFormData: true,
-        onSuccess: () => Swal.fire('Updated!', 'Client updated successfully.', 'success'),
+        onSuccess: () => Swal.fire({
+            icon: 'info',
+            title: 'Success!',
+            text: 'Preview updated successfully!',
+            timer: 3000,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end',
+            timerProgressBar: true,
+        }),
         onError: () => Swal.fire('Error!', 'Failed to update client.', 'error'),
     });
 };

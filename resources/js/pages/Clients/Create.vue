@@ -16,7 +16,7 @@ const colorPalettes = computed(() => page.props.colorPalettes);
 const form = ref({
   name: '',
   website: '',
-  preview_url: '',
+  preview_url: 'https://creative.planetnine.com',
   color_palette_id: '',
   logo: null as File | null,
 });
@@ -40,7 +40,16 @@ const handleSubmit = () => {
 
   router.post('/clients-store', formData, {
     preserveScroll: true,
-    onSuccess: () => Swal.fire('Success!', 'Client created successfully.', 'success'),
+    onSuccess: () => Swal.fire({
+      icon: 'success',
+      title: 'Success!',
+      text: 'Client created successfully!',
+      timer: 3000,
+      showConfirmButton: false,
+      toast: true,
+      position: 'top-end',
+      timerProgressBar: true,
+    }),
     onError: () => Swal.fire('Error!', 'Failed to create client.', 'error'),
   });
 };
@@ -55,14 +64,14 @@ const handleSubmit = () => {
         <!-- Name -->
         <div>
           <label class="block text-sm font-medium">Name</label>
-          <input v-model="form.name" type="text"
+          <input v-model="form.name" type="text" placeholder="e.g. Acme Corp"
             class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white" required />
         </div>
 
         <!-- Website -->
         <div>
           <label class="block text-sm font-medium">Website</label>
-          <input v-model="form.website" type="url"
+          <input v-model="form.website" type="url" placeholder="e.g. https://example.com"
             class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white" required />
         </div>
 
@@ -76,8 +85,8 @@ const handleSubmit = () => {
         <!-- Brand Color (from Color Palettes) -->
         <div>
           <label class="block text-sm font-medium mb-1">Brand Color</label>
-          <select v-model="form.color_palette_id"
-            class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white" required>
+          <select v-model="form.color_palette_id" class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white"
+            required>
             <option disabled value="">Select a color palette</option>
             <option v-for="palette in colorPalettes" :key="palette.id" :value="palette.id">
               {{ palette.name }}

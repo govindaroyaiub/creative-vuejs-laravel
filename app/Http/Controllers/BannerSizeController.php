@@ -92,7 +92,7 @@ class BannerSizeController extends Controller
             'height' => $request->height,
         ]);
 
-        return redirect()->route('banner-sizes', $id)
+        return redirect()->route('banner-sizes-index', $id)
             ->with('success', 'Banner size updated successfully.');
     }
 

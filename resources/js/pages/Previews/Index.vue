@@ -21,6 +21,7 @@ function getDefaultFormData() {
     return {
         name: '',
         client_id: '',
+        header_logo_id: '',
         team_ids: [authUser.value.id],
         color_palette_id: '5',
         requires_login: false,
@@ -88,6 +89,7 @@ const submitForm = () => {
     const payload = new FormData();
     payload.append('name', formData.value.name);
     payload.append('client_id', formData.value.client_id);
+    payload.append('header_logo_id', formData.value.header_logo_id);
     payload.append('color_palette_id', formData.value.color_palette_id ?? '');
     payload.append('requires_login', formData.value.requires_login ? '1' : '0');
     payload.append('show_planetnine_logo', formData.value.show_planetnine_logo ? '1' : '0');
