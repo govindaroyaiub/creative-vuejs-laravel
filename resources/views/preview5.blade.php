@@ -743,18 +743,18 @@
             .then(function(response) {
                 const banners = response.data.banners;
                 let bannersHtml = '';
-
+                
                 banners.forEach(function(banner, index) {
                     var bannerPath = '/' + banner.path + '/index.html';
                     var bannerReloadID = banner.id;
                     var loadPriority = index < 3 ? 'immediate' : 'lazy';
-
+                    
                     bannersHtml += '<div class="banner-creatives banner-area-' + banner.size.width + '-' + banner.size.height + '" style="display: inline-block; width: ' + banner.size.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem; margin-bottom: 2rem;">';
                     bannersHtml += '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
                     bannersHtml += '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + banner.size.width + 'x' + banner.size.height + '</small>';
                     bannersHtml += '<small style="float: right; font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + banner.file_size + '</small>';
                     bannersHtml += '</div>';
-
+                    
                     // Add placeholder or iframe based on priority
                     if (loadPriority === 'immediate') {
                         // Load immediately for first 3 banners
@@ -766,7 +766,7 @@
                         bannersHtml += '<div class="loading-spinner" style="display: none; border: 2px solid #f3f4f6; border-top: 2px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; position: absolute;"></div>';
                         bannersHtml += '</div>';
                     }
-
+                    
                     bannersHtml += '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
                     bannersHtml += '<li><i id="relBt' + banner.id + '" onClick="reloadBanner(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:1rem;"></i></li>';
                     bannersHtml += '@if($authUserClientName == "Planet Nine")';
@@ -775,13 +775,13 @@
                     bannersHtml += '</ul>';
                     bannersHtml += '</div>';
                 });
-
+                
                 // Render banners in the correct version container
                 $('#bannersList' + version_id).html(bannersHtml);
-
+                
                 // Initialize lazy loading and intersection observer
                 initializeBannerLazyLoading();
-
+                
             })
             .catch(function(error) {
                 console.log(error);
