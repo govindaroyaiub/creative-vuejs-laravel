@@ -745,7 +745,7 @@
                 banners.forEach(function(banner) {
                     var bannerPath = '/' + banner.path + '/index.html';
                     var bannerReloadID = banner.id;
-                    bannersHtml += '<div class="banner-creatives banner-area-' + banner.size.width + '-' + banner.size.height + '" style="display: inline-block; width: ' + banner.size.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem; margin-bottom: 2rem;">';
+                    bannersHtml += '<div class="banner-creatives banner-area-' + banner.size.width + '-' + banner.size.height + '" style="display: inline-block; width: ' + banner.size.width + 'px; margin-bottom: 2rem;">';
                     bannersHtml += '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
                     bannersHtml += '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + banner.size.width + 'x' + banner.size.height + '</small>';
                     bannersHtml += '<small style="float: right; font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + banner.file_size + '</small>';
