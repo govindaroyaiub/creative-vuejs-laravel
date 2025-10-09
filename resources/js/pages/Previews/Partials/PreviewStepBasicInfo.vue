@@ -1,7 +1,5 @@
 <template>
-  <div class="space-y-6">
-    <h2 class="text-lg font-semibold">Step 1: Basic Information</h2>
-
+  <div class="space-y-4">
     <!-- Preview Name -->
     <div>
       <label for="preview-name" class="block mb-1 text-sm font-medium">Preview Name *</label>

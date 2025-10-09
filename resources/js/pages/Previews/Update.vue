@@ -709,7 +709,7 @@
                 </div>
                 <div class="sticky-action-bar bg-white dark:bg-black">
                     <a :href="route('previews-index')"
-                        class="bg-red-600 text-white px-6 py-2 rounded-xl hover:bg-red-700 font-semibold inline-block">
+                        class="bg-gray-400 text-white px-6 py-2 rounded-xl hover:bg-gray-500 font-semibold inline-block">
                         Back
                     </a>
                     <a :href="route('previews-edit', preview.id)"

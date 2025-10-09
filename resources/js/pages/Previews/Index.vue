@@ -21,7 +21,7 @@ function getDefaultFormData() {
     return {
         name: '',
         client_id: '',
-        header_logo_id: '',
+        header_logo_id: '1',
         team_ids: [authUser.value.id],
         color_palette_id: '5',
         requires_login: false,

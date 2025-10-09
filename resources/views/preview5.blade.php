@@ -110,12 +110,12 @@
                                     <div class="mb-2 mt-2 px-2 py-2 mx-auto flex justify-center">
                                         <img src="{{ asset('logos/' . $client['logo']) }}" alt="clientLogo" style="width: 230px;">
                                     </div>
-                                @endif
-                                <div class="sidebar-image mx-auto mb-4">
-                                    <span>Creative Showcase</span>
+                                    @endif
+                                    <div class="sidebar-image mx-auto mb-4">
+                                        <span>Creative Showcase</span>
+                                    </div>
+                                    <ul id="mobileCategoryList"></ul>
                                 </div>
-                                <ul id="mobileCategoryList"></ul>
-                            </div>
                         </nav>
                         <div class="navbar tabDesktopShowcase" id="navbar">
                             @if($preview['show_sidebar_logo'] == 1)
@@ -189,7 +189,8 @@
     const pageId = '{{ $preview->id }}';
     const authUserClientName = '{{ $authUserClientName }}';
     const preview_id = '{{ $preview_id }}';
-    const showSidebarLogo = '{{ $preview['show_sidebar_logo'] }}';
+    const showSidebarLogo = '{{ $preview['
+    show_sidebar_logo '] }}';
     const feedbackActiveImage = '{{ $feedback_active_image }}';
     const feedbackInactiveImage = '{{ $feedback_inactive_image }}';
 
@@ -521,7 +522,7 @@
         }
     }
 
-    function changeFeedbackInactiveBackground(element){
+    function changeFeedbackInactiveBackground(element) {
         // only revert if this tab is NOT active (safety)
         if (!element.classList.contains('feedbackTabActive')) {
             element.style.backgroundImage = `url('/${feedbackInactiveImage}')`;
@@ -742,25 +743,45 @@
             .then(function(response) {
                 const banners = response.data.banners;
                 let bannersHtml = '';
-                banners.forEach(function(banner) {
+
+                banners.forEach(function(banner, index) {
                     var bannerPath = '/' + banner.path + '/index.html';
                     var bannerReloadID = banner.id;
+                    var loadPriority = index < 3 ? 'immediate' : 'lazy';
+
                     bannersHtml += '<div class="banner-creatives banner-area-' + banner.size.width + '-' + banner.size.height + '" style="display: inline-block; width: ' + banner.size.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem; margin-bottom: 2rem;">';
                     bannersHtml += '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
                     bannersHtml += '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + banner.size.width + 'x' + banner.size.height + '</small>';
                     bannersHtml += '<small style="float: right; font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + banner.file_size + '</small>';
                     bannersHtml += '</div>';
-                    bannersHtml += '<iframe class="iframe-banners" src="' + bannerPath + '" width="' + banner.size.width + '" height="' + banner.size.height + '" frameBorder="0" scrolling="no" id="rel' + banner.id + '"></iframe>';
+
+                    // Add placeholder or iframe based on priority
+                    if (loadPriority === 'immediate') {
+                        // Load immediately for first 3 banners
+                        bannersHtml += '<iframe class="iframe-banners" src="' + bannerPath + '" width="' + banner.size.width + '" height="' + banner.size.height + '" frameBorder="0" scrolling="no" id="rel' + banner.id + '" loading="eager"></iframe>';
+                    } else {
+                        // Lazy load for the rest
+                        bannersHtml += '<div class="banner-placeholder" data-banner-path="' + bannerPath + '" data-banner-id="' + banner.id + '" data-width="' + banner.size.width + '" data-height="' + banner.size.height + '" style="width: ' + banner.size.width + 'px; height: ' + banner.size.height + 'px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; border: 1px solid #dee2e6; cursor: pointer; position: relative;">';
+                        bannersHtml += '<div style="text-align: center; color: #6c757d;"><div style="font-size: 14px; margin-bottom: 5px;">Click to Load</div><div style="font-size: 12px;">Banner Preview</div></div>';
+                        bannersHtml += '<div class="loading-spinner" style="display: none; border: 2px solid #f3f4f6; border-top: 2px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; position: absolute;"></div>';
+                        bannersHtml += '</div>';
+                    }
+
                     bannersHtml += '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
                     bannersHtml += '<li><i id="relBt' + banner.id + '" onClick="reloadBanner(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:1rem;"></i></li>';
-                    bannersHtml += '@if($authUserClientName == "Planet Nine")'
+                    bannersHtml += '@if($authUserClientName == "Planet Nine")';
                     bannersHtml += '<li class="banner-options"><a href="/previews/banner/download/' + banner.id + '"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:1rem;"></i></a></li>';
                     bannersHtml += '@endif';
                     bannersHtml += '</ul>';
                     bannersHtml += '</div>';
                 });
+
                 // Render banners in the correct version container
                 $('#bannersList' + version_id).html(bannersHtml);
+
+                // Initialize lazy loading and intersection observer
+                initializeBannerLazyLoading();
+
             })
             .catch(function(error) {
                 console.log(error);
@@ -768,6 +789,106 @@
             .finally(function() {
                 document.getElementById('loaderArea').style.display = 'none';
             });
+    }
+
+    // Function to load individual banner
+    function loadBanner(bannerId) {
+        const placeholder = $(`.banner-placeholder[data-banner-id="${bannerId}"]`);
+        if (placeholder.length === 0 || placeholder.siblings('iframe').length > 0) return;
+
+        const bannerPath = placeholder.data('banner-path');
+        const width = placeholder.data('width');
+        const height = placeholder.data('height');
+
+        // Show loading spinner
+        placeholder.find('.loading-spinner').show();
+        placeholder.find('div:first-child').hide();
+
+        // Create iframe
+        const iframe = $('<iframe>', {
+            class: 'iframe-banners',
+            src: bannerPath,
+            width: width,
+            height: height,
+            frameBorder: 0,
+            scrolling: 'no',
+            id: 'rel' + bannerId,
+            loading: 'lazy'
+        });
+
+        // Handle iframe load
+        iframe.on('load', function() {
+            placeholder.hide();
+        });
+
+        // Handle iframe error
+        iframe.on('error', function() {
+            placeholder.find('.loading-spinner').hide();
+            placeholder.find('div:first-child').show().html('<div style="color: #dc3545; font-size: 12px;">Failed to load</div>');
+        });
+
+        // Insert iframe after placeholder
+        placeholder.after(iframe);
+    }
+
+    // Initialize lazy loading with Intersection Observer
+    function initializeBannerLazyLoading() {
+        // Add click handlers for manual loading
+        $('.banner-placeholder').on('click', function() {
+            const bannerId = $(this).data('banner-id');
+            loadBanner(bannerId);
+        });
+
+        // Initialize Intersection Observer for auto-loading when in viewport
+        if ('IntersectionObserver' in window) {
+            const bannerObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const placeholder = $(entry.target);
+                        const bannerId = placeholder.data('banner-id');
+
+                        // Add small delay to prevent overwhelming the browser
+                        setTimeout(() => {
+                            loadBanner(bannerId);
+                            bannerObserver.unobserve(entry.target);
+                        }, 100);
+                    }
+                });
+            }, {
+                root: null,
+                rootMargin: '100px', // Start loading 100px before banner comes into view
+                threshold: 0.1
+            });
+
+            // Observe all banner placeholders
+            $('.banner-placeholder').each(function() {
+                bannerObserver.observe(this);
+            });
+        } else {
+            // Fallback for older browsers - load all after 2 seconds
+            setTimeout(() => {
+                $('.banner-placeholder').each(function() {
+                    const bannerId = $(this).data('banner-id');
+                    loadBanner(bannerId);
+                });
+            }, 2000);
+        }
+    }
+
+    // Add CSS for spinner animation (add this to your CSS file or in a style tag)
+    const spinnerCSS = `
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+`;
+
+    // Inject CSS if not already present
+    if (!document.querySelector('#banner-lazy-loading-styles')) {
+        const style = document.createElement('style');
+        style.id = 'banner-lazy-loading-styles';
+        style.textContent = spinnerCSS;
+        document.head.appendChild(style);
     }
 
     function reloadBanner(bannerReloadID) {
