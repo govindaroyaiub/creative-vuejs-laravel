@@ -87,7 +87,7 @@
                     <div class="py-2 flex items-end justify-center sidebar-top-desktop">
                         @if($preview['show_sidebar_logo'] == 1)
                         <img src="{{ asset('logos/' . $client['logo']) }}"
-                            alt="clientLogo" style="max-width: 200px; margin: 0 auto;">
+                            alt="clientLogo" style="min-width:50px; width: 100%; max-width: 160px; margin: 0 auto;">
                         @endif
                     </div>
                     <div style="flex: 1;" class="feedbackTabs-parent">
@@ -108,7 +108,7 @@
                                 @if($preview['show_sidebar_logo'] == 1)
                                 <div class="w-full">
                                     <div class="mb-2 mt-2 px-2 py-2 mx-auto flex justify-center">
-                                        <img src="{{ asset('logos/' . $client['logo']) }}" alt="clientLogo" style="width: 230px;">
+                                        <img src="{{ asset('logos/' . $client['logo']) }}" alt="clientLogo" style="width: 180px;">
                                     </div>
                                     @endif
                                     <div class="sidebar-image mx-auto mb-4">
