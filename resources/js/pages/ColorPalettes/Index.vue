@@ -79,12 +79,12 @@
         </div>
 
         <!-- Palettes Grid -->
-        <div v-if="colorPalettes?.length > 0" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div v-if="colorPalettes?.length > 0" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           <div v-for="(palette, index) in colorPalettes" :key="palette.id"
             class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200 overflow-hidden group">
             <!-- Card Header -->
-            <div class="p-6 pb-4">
-              <div class="flex items-center justify-between mb-4">
+            <div class="p-4 pb-4">
+              <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center space-x-3">
                   <div
                     class="w-10 h-10 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-white dark:to-white rounded-xl flex items-center justify-center">
@@ -130,11 +130,11 @@
               </div>
 
               <!-- Header Image -->
-              <div v-if="palette.header_image" class="mb-4">
+              <div v-if="palette.header_image" class="mb-2">
                 <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Header Image</p>
                 <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-3">
                   <img :src="`/${palette.header_image}`" alt="Header"
-                    class="h-12 mx-auto rounded border border-gray-200 dark:border-gray-700" />
+                    class="h-12 mx-auto rounded dark:border-gray-700" />
                 </div>
               </div>
 
@@ -260,7 +260,7 @@
 
               <!-- Color Inputs -->
               <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Color
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Color
                   Variations</label>
                 <div class="grid grid-cols-1 gap-4">
                   <div v-for="key in colorKeys" :key="key"
@@ -283,7 +283,7 @@
             <div class="space-y-6">
               <!-- Header Image -->
               <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Header Image</label>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Header Image</label>
                 <div class="p-4 bg-gray-50 dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800">
                   <img v-if="form.header_image_preview" :src="form.header_image_preview"
                     class="h-16 mb-3 mx-auto rounded border border-gray-200 dark:border-gray-700" />
@@ -294,7 +294,7 @@
 
               <!-- Feedback Tab Images -->
               <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Feedback Tab
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Feedback Tab
                   Images</label>
                 <div class="space-y-4">
                   <div class="p-4 bg-gray-50 dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800">
@@ -318,7 +318,7 @@
 
               <!-- Right Side Tab Images -->
               <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Right Side Tab
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Right Side Tab
                   Images</label>
                 <div class="space-y-4">
                   <div class="p-4 bg-gray-50 dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800">
