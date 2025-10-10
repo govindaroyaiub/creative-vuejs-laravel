@@ -122,7 +122,7 @@ const deleteBannerSize = async (id: number) => {
                 <button @click="startAdding"
                     class="ml-4 rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700">
                     <CirclePlus class="mr-1 inline h-5 w-5" />
-                    Add
+                    Add Size
                 </button>
             </div>
 

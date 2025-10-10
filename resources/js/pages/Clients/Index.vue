@@ -181,7 +181,7 @@ const activeClients = computed(() =>
 
                 <!-- Search and Filters -->
                 <div
-                    class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex items-center space-x-4">
+                    class="bg-white dark:bg-black rounded-2xl shadow-sm flex items-center space-x-4">
                     <div class="flex flex-col sm:flex-row gap-4 w-full">
                         <div class="relative flex-1">
                             <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />

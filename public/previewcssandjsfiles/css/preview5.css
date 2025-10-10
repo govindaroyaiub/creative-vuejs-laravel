@@ -263,11 +263,11 @@ hr {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    transition: background-image 0.2s ease;
+    transition: background-image 0.1s ease;
 }
 
 .feedbackTabHover:hover {
-    transition: background-image 0.2s ease-in-out;
+    transition: background-image 0.1s ease-in-out;
 }
 
 .feedbackTabs-parent {

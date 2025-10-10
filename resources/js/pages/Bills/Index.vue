@@ -73,7 +73,7 @@ onMounted(() => {
                 <Link :href="route('bills-create')"
                     class="ml-4 rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700">
                 <CirclePlus class="mr-1 inline h-5 w-5" />
-                Add
+                Add Bill
                 </Link>
             </div>
 

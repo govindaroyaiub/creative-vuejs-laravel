@@ -61,7 +61,7 @@
 
         <!-- Search Section -->
         <div
-          class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 flex items-center space-x-4">
+          class="bg-white dark:bg-black rounded-2xl shadow-sm dark:border-gray-800 flex items-center space-x-4">
           <div class="relative w-full">
             <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" fill="none"
               stroke="currentColor" viewBox="0 0 24 24">

@@ -132,7 +132,7 @@ const saveNewSize = async () => {
                     class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-black dark:text-white" />
                 <button @click="adding = true" v-if="!adding && editingId === null"
                     class="ml-4 rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700">
-                    <CirclePlus class="mr-1 inline h-5 w-5" /> Add
+                    <CirclePlus class="mr-1 inline h-5 w-5" /> Add Size
                 </button>
             </div>
 

@@ -2,6 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { Line, Doughnut, Bar } from 'vue-chartjs';
+import { MonitorStop, Video, ImagePlay, Wallpaper, Paperclip, UsersRound, MonitorCog, PiggyBank } from 'lucide-vue-next';
 import {
     Chart as ChartJS,
     Title,
@@ -383,12 +384,7 @@ const formatNumber = (num: number) => {
                                 </p>
                             </div>
                             <div class="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl">
-                                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
-                                    </path>
-                                </svg>
+                                <UsersRound class="w-6 h-6 text-blue-600 dark:text-blue-400" />
                             </div>
                         </div>
                     </div>
@@ -414,14 +410,7 @@ const formatNumber = (num: number) => {
                                 </div>
                             </div>
                             <div class="p-3 bg-green-100 dark:bg-green-900/50 rounded-xl">
-                                <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                                    </path>
-                                </svg>
+                                <MonitorStop class="w-6 h-6 text-green-600 dark:text-green-400" />
                             </div>
                         </div>
                     </div>
@@ -439,12 +428,7 @@ const formatNumber = (num: number) => {
                                 </div>
                                 <div
                                     class="w-8 h-8 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center">
-                                    <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                        </path>
-                                    </svg>
+                                    <MonitorCog class="w-4 h-4 text-purple-600 dark:text-purple-400" />
                                 </div>
                             </div>
                         </div>
@@ -460,12 +444,7 @@ const formatNumber = (num: number) => {
                                 </div>
                                 <div
                                     class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg flex items-center justify-center">
-                                    <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.586a1 1 0 01.707.293L12 11l.707-.707A1 1 0 0113.414 10H15m-6 0V9a2 2 0 012-2h2a2 2 0 012 2v1m-6 0H4m0 0L2 8m0 0l2-2m2 2l2 2">
-                                        </path>
-                                    </svg>
+                                    <Video class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                                 </div>
                             </div>
                         </div>
@@ -481,12 +460,7 @@ const formatNumber = (num: number) => {
                                 </div>
                                 <div
                                     class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/50 rounded-lg flex items-center justify-center">
-                                    <svg class="w-4 h-4 text-yellow-600 dark:text-yellow-400" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m0 0V1h2a2 2 0 012 2v18a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2h2v3z">
-                                        </path>
-                                    </svg>
+                                    <ImagePlay class="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
                                 </div>
                             </div>
                         </div>
@@ -502,12 +476,7 @@ const formatNumber = (num: number) => {
                                 </div>
                                 <div
                                     class="w-8 h-8 bg-pink-100 dark:bg-pink-900/50 rounded-lg flex items-center justify-center">
-                                    <svg class="w-4 h-4 text-pink-600 dark:text-pink-400" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z">
-                                        </path>
-                                    </svg>
+                                    <Wallpaper class="w-4 h-4 text-pink-600 dark:text-pink-400" />
                                 </div>
                             </div>
                         </div>
@@ -526,12 +495,7 @@ const formatNumber = (num: number) => {
                                 </p>
                             </div>
                             <div class="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl">
-                                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10">
-                                    </path>
-                                </svg>
+                                <Paperclip class="w-6 h-6 text-blue-600 dark:text-blue-400" />
                             </div>
                         </div>
                     </div>
@@ -552,11 +516,7 @@ const formatNumber = (num: number) => {
                                 </div>
                             </div>
                             <div class="p-3 bg-white/20 rounded-xl">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1">
-                                    </path>
-                                </svg>
+                                <PiggyBank class="w-6 h-6 text-white" />
                             </div>
                         </div>
                     </div>
