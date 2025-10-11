@@ -227,7 +227,7 @@ onMounted(() => {
                     <!-- Simple prev/next + page selector -->
                     <div class="flex items-center justify-between gap-2">
                         <button @click="changePage(bills.prev_page_url)" :disabled="!bills.prev_page_url"
-                            class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center flex-1 justify-center"
+                            class="px-3 py-2 text-sm rounded-xl transition-all duration-200 flex items-center flex-1 justify-center"
                             :class="bills.prev_page_url
                                 ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-600'
                                 : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-gray-700'">
@@ -236,14 +236,14 @@ onMounted(() => {
                         </button>
 
                         <select :value="bills.current_page" @change="goToPage(parseInt($event.target.value))"
-                            class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-black text-gray-900 dark:text-white text-sm min-w-0">
+                            class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-black text-gray-900 dark:text-white text-sm min-w-0">
                             <option v-for="pageNum in bills.last_page" :key="pageNum" :value="pageNum">
                                 {{ pageNum }}
                             </option>
                         </select>
 
                         <button @click="changePage(bills.next_page_url)" :disabled="!bills.next_page_url"
-                            class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center flex-1 justify-center"
+                            class="px-3 py-2 text-sm rounded-xl transition-all duration-200 flex items-center flex-1 justify-center"
                             :class="bills.next_page_url
                                 ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-600'
                                 : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-gray-700'">

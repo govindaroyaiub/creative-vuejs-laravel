@@ -267,7 +267,7 @@ const getFileSize = (bytes: number) => {
                     <div class="flex items-center justify-between gap-2">
                         <button @click="changePage(mediasPagination.prev_page_url)"
                             :disabled="!mediasPagination.prev_page_url"
-                            class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center flex-1 justify-center"
+                            class="px-3 py-2 text-sm rounded-xl transition-all duration-200 flex items-center flex-1 justify-center"
                             :class="mediasPagination.prev_page_url
                                 ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-600'
                                 : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-gray-700'">
@@ -276,7 +276,7 @@ const getFileSize = (bytes: number) => {
                         </button>
 
                         <select :value="mediasPagination.current_page" @change="goToPage(parseInt($event.target.value))"
-                            class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-black text-gray-900 dark:text-white text-sm min-w-0"
+                            class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-black text-gray-900 dark:text-white text-sm min-w-0"
                             v-if="mediasPagination.last_page">
                             <option v-for="pageNum in mediasPagination.last_page" :key="pageNum" :value="pageNum">
                                 {{ pageNum }}
@@ -285,7 +285,7 @@ const getFileSize = (bytes: number) => {
 
                         <button @click="changePage(mediasPagination.next_page_url)"
                             :disabled="!mediasPagination.next_page_url"
-                            class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center flex-1 justify-center"
+                            class="px-3 py-2 text-sm rounded-xl transition-all duration-200 flex items-center flex-1 justify-center"
                             :class="mediasPagination.next_page_url
                                 ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-600'
                                 : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-gray-700'">

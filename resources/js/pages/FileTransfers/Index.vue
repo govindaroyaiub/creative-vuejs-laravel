@@ -219,7 +219,7 @@ const goToPage = (pageNumber: number) => {
                         </button>
 
                         <select :value="fileTransfers.current_page" @change="goToPage(parseInt($event.target.value))"
-                            class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-black text-gray-900 dark:text-white text-sm min-w-0">
+                            class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-black text-gray-900 dark:text-white text-sm min-w-0">
                             <option v-for="pageNum in fileTransfers.last_page" :key="pageNum" :value="pageNum">
                                 {{ pageNum }}
                             </option>
