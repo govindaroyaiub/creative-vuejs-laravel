@@ -241,7 +241,7 @@ const goToPage = (pageNumber: number) => {
                 <div class="hidden lg:flex justify-center space-x-2">
                     <template v-for="link in fileTransfers.links" :key="link.label">
                         <component :is="link.url ? 'a' : 'span'" v-html="link.label" :href="link.url"
-                            class="rounded border px-4 py-2 text-sm transition-all duration-200" :class="{
+                            class="rounded-xl border px-4 py-2 text-sm transition-all duration-200" :class="{
                                 'bg-indigo-600 text-white': link.active,
                                 'cursor-not-allowed text-gray-400': !link.url,
                                 'hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300': link.url && !link.active,
