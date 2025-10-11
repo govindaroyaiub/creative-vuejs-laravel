@@ -210,7 +210,7 @@ const goToPage = (pageNumber: number) => {
                     <div class="flex items-center justify-between gap-2">
                         <button @click="changePage(fileTransfers.prev_page_url)"
                             :disabled="!fileTransfers.prev_page_url"
-                            class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center flex-1 justify-center"
+                            class="px-3 py-2 text-sm rounded-xl transition-all duration-200 flex items-center flex-1 justify-center"
                             :class="fileTransfers.prev_page_url
                                 ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-600'
                                 : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-gray-700'">
@@ -227,7 +227,7 @@ const goToPage = (pageNumber: number) => {
 
                         <button @click="changePage(fileTransfers.next_page_url)"
                             :disabled="!fileTransfers.next_page_url"
-                            class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center flex-1 justify-center"
+                            class="px-3 py-2 text-sm rounded-xl transition-all duration-200 flex items-center flex-1 justify-center"
                             :class="fileTransfers.next_page_url
                                 ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-600'
                                 : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-gray-700'">
