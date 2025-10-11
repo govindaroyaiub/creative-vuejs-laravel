@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Creative - {{ $preview['name'] }}</title>
     <link rel="shortcut icon" href="https://www.planetnine.com/logo/new_favicon.png">
-    @vite('resources/css/app.css')
+    <!-- @vite('resources/css/app.css') -->
     <script src="{{ asset('previewcssandjsfiles/js/jquery.min.js') }}" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="{{ asset('previewcssandjsfiles/js/axios.min.js') }}" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="{{ asset('previewcssandjsfiles/js/fontawesome.all.min.js') }}" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
