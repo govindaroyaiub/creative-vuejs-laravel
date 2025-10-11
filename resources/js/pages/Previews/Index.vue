@@ -146,21 +146,21 @@ const goToPage = (pageNumber: number) => {
 
     <Head title="Previews" />
     <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }]">
-        <div class="p-6 space-y-4">
+        <div class="p-4 md:p-6 space-y-4">
             <!-- Search & Create -->
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
                 <input v-model="search" placeholder="Search..." aria-label="Search previews"
-                    class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-black dark:text-white" />
+                    class="w-full sm:max-w-xs rounded-2xl border px-4 py-2 dark:bg-black dark:text-white" />
                 <button @click="showModal = true"
-                    class="ml-4 rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700 group flex items-center"
+                    class="rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700 group flex items-center justify-center whitespace-nowrap"
                     aria-label="Add Preview">
-                    <CirclePlus class="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-200" /> Add
-                    Preview
+                    <CirclePlus class="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-200" />
+                    Add Preview
                 </button>
             </div>
 
-            <!-- Table -->
-            <div class="overflow-x-auto rounded-2xl shadow">
+            <!-- Desktop Table -->
+            <div class="hidden lg:block overflow-x-auto rounded-2xl shadow">
                 <table class="w-full rounded-2xl bg-white shadow dark:bg-black dark:border border table-fixed">
                     <thead class="bg-gray-100 dark:bg-black text-xs uppercase">
                         <tr>
@@ -179,7 +179,7 @@ const goToPage = (pageNumber: number) => {
                             </td>
                             <td class="w-80 px-4 py-3 text-left border-b">
                                 <div class="font-semibold capitalize break-words" :title="preview.name">{{ preview.name
-                                }}</div>
+                                    }}</div>
                                 <div class="text-xs text-gray-500 flex gap-2 items-center">
                                     <div class="h-5 w-5 rounded-full border flex-shrink-0"
                                         :style="{ backgroundColor: preview.color_palette?.primary ?? '#ccc' }"
@@ -213,7 +213,7 @@ const goToPage = (pageNumber: number) => {
                                     </a>
                                     <a :href="`${preview.client?.preview_url}/previews/show/${preview.slug}`"
                                         class="text-yellow-600 hover:text-yellow-800 p-1" target="_blank" rel="noopener"
-                                        aria-label="View Preview">
+                                        aria-label="Share Preview">
                                         <Share2 class="h-4 w-4" />
                                     </a>
                                     <Link :href="route('previews.update.all', preview.id)"
@@ -235,10 +235,135 @@ const goToPage = (pageNumber: number) => {
                 </table>
             </div>
 
-            <!-- Pagination -->
+            <!-- Mobile/Tablet Cards -->
+            <div class="lg:hidden space-y-4">
+                <div v-for="(preview, index) in filteredPreviews" :key="preview.id"
+                    class="bg-white dark:bg-black rounded-2xl shadow border border-gray-200 dark:border-gray-700 p-4">
+
+                    <!-- Header: Number + Name -->
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    #{{ ((previews.current_page - 1) * previews.per_page) + index + 1 }}
+                                </span>
+                                <div class="h-4 w-4 rounded-full border flex-shrink-0"
+                                    :style="{ backgroundColor: preview.color_palette?.primary ?? '#ccc' }"
+                                    title="Primary Color"></div>
+                            </div>
+                            <h3 class="font-semibold text-lg capitalize break-words text-gray-900 dark:text-white">
+                                {{ preview.name }}
+                            </h3>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex gap-2 ml-3">
+                            <a :href="route('previews-show', preview.slug)"
+                                class="text-green-600 hover:text-green-800 p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20"
+                                target="_blank" rel="noopener" aria-label="View Preview">
+                                <Eye class="h-5 w-5" />
+                            </a>
+                            <a :href="`${preview.client?.preview_url}/previews/show/${preview.slug}`"
+                                class="text-yellow-600 hover:text-yellow-800 p-2 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20"
+                                target="_blank" rel="noopener" aria-label="Share Preview">
+                                <Share2 class="h-5 w-5" />
+                            </a>
+                            <Link :href="route('previews.update.all', preview.id)"
+                                class="text-indigo-600 hover:text-indigo-800 p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                                aria-label="Edit Preview">
+                            <Settings2 class="h-5 w-5" />
+                            </Link>
+                            <button @click="deletePreview(preview.id)"
+                                class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
+                                aria-label="Delete Preview">
+                                <Trash2 class="h-5 w-5" />
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Client & Types -->
+                    <div class="mb-3">
+                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                            <span class="font-medium">Client:</span> {{ preview.client?.name ?? 'No client' }}
+                        </div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400" v-if="getTypes(preview)">
+                            <span class="font-medium">Types:</span> {{ getTypes(preview) }}
+                        </div>
+                    </div>
+
+                    <!-- Team -->
+                    <div class="mb-3" v-if="preview.team_users?.length">
+                        <div class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Team:</div>
+                        <div class="flex flex-wrap gap-2">
+                            <span v-for="u in preview.team_users" :key="u.id"
+                                class="inline-block rounded-xl bg-indigo-100 px-3 py-1 text-sm text-indigo-700 dark:bg-indigo-800 dark:text-white">
+                                {{ u.name }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Uploader & Date -->
+                    <div class="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
+                        <div>
+                            <span class="font-medium">Uploader:</span> {{ preview.uploader?.name ?? 'Unknown' }}
+                        </div>
+                        <div>
+                            {{ new Date(preview.created_at).toLocaleDateString('en-GB', {
+                                day: '2-digit', month: 'short', year: 'numeric'
+                            }) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- No results card -->
+                <div v-if="filteredPreviews.length === 0"
+                    class="bg-white dark:bg-black rounded-2xl shadow border border-gray-200 dark:border-gray-700 p-8 text-center">
+                    <div class="text-gray-500 dark:text-gray-400">No previews found.</div>
+                </div>
+            </div>
+
+            <!-- Pagination - responsive -->
             <div v-if="previews.links && previews.links.length"
-                class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 px-4 py-2">
-                <div class="flex items-center justify-between">
+                class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+
+                <!-- Mobile pagination (simplified) -->
+                <div class="lg:hidden">
+                    <!-- Results Info -->
+                    <div class="text-sm text-gray-600 dark:text-gray-400 text-center mb-3">
+                        Showing {{ previews.from }} to {{ previews.to }} of {{ previews.total }} previews
+                    </div>
+
+                    <!-- Simple prev/next + page selector -->
+                    <div class="flex items-center justify-between gap-2">
+                        <button @click="changePage(previews.prev_page_url)" :disabled="!previews.prev_page_url"
+                            class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center flex-1 justify-center"
+                            :class="previews.prev_page_url
+                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-600'
+                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-gray-700'">
+                            <ChevronLeft class="w-4 h-4 mr-1" />
+                            Previous
+                        </button>
+
+                        <select :value="previews.current_page" @change="goToPage(parseInt($event.target.value))"
+                            class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-black text-gray-900 dark:text-white text-sm min-w-0">
+                            <option v-for="pageNum in previews.last_page" :key="pageNum" :value="pageNum">
+                                {{ pageNum }}
+                            </option>
+                        </select>
+
+                        <button @click="changePage(previews.next_page_url)" :disabled="!previews.next_page_url"
+                            class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center flex-1 justify-center"
+                            :class="previews.next_page_url
+                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-600'
+                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-gray-700'">
+                            Next
+                            <ChevronRight class="w-4 h-4 ml-1" />
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Desktop pagination (full features) -->
+                <div class="hidden lg:flex items-center justify-between">
                     <!-- Results Info -->
                     <div class="text-sm text-gray-600 dark:text-gray-400">
                         Showing {{ previews.from }} to {{ previews.to }} of {{ previews.total }} previews
@@ -295,9 +420,9 @@ const goToPage = (pageNumber: number) => {
 
         <!-- Modal -->
         <div v-if="showModal"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
             <div
-                class="bg-white dark:bg-black rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700 m-4">
+                class="bg-white dark:bg-black rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700">
                 <!-- Modal Header -->
                 <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white">Create New Preview</h2>
