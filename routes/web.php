@@ -17,12 +17,12 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PreviewApiController;
 use App\Http\Controllers\PreviewTrackerController;
-use App\Http\Controllers\newPreviewController;
-use App\Http\Controllers\newCategoryController;
-use App\Http\Controllers\newFeedbackController;
-use App\Http\Controllers\newFeedbackSetController;
-use App\Http\Controllers\newVersionController;
-use App\Http\Controllers\newBannerController;
+use App\Http\Controllers\NewPreviewController;
+use App\Http\Controllers\NewCategoryController;
+use App\Http\Controllers\NewFeedbackController;
+use App\Http\Controllers\NewFeedbackSetController;
+use App\Http\Controllers\NewVersionController;
+use App\Http\Controllers\NewBannerController;
 use App\Http\Controllers\NewGifController;
 use App\Http\Controllers\newPreviewApiController;
 use App\Http\Controllers\NewSocialController;
@@ -55,21 +55,21 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     //File Transfer Routes End
 
     //Preview Routes Start
-    Route::get('/previews', [newPreviewController::class, 'index'])->name('previews-index');
-    Route::post('/previews-store', [newPreviewController::class, 'store'])->name('previews-store');
-    Route::get('/previews-edit/{newPreview}', [newPreviewController::class, 'edit'])->name('previews-edit');
-    Route::put('/previews-edit/{newPreview}', [newPreviewController::class, 'update'])->name('previews-update');
-    Route::delete('/previews-delete/{newPreview}', [newPreviewController::class, 'destroy'])->name('previews-delete');
-    Route::get('/previews/update/{id}', [newPreviewController::class, 'updatePreview'])->name('previews.update.all');
-    Route::post('/previews/{id}/bulk-edit', [newPreviewController::class, 'bulkEdit'])->name('previews.bulkEdit');
+    Route::get('/previews', [NewPreviewController::class, 'index'])->name('previews-index');
+    Route::post('/previews-store', [NewPreviewController::class, 'store'])->name('previews-store');
+    Route::get('/previews-edit/{newPreview}', [NewPreviewController::class, 'edit'])->name('previews-edit');
+    Route::put('/previews-edit/{newPreview}', [NewPreviewController::class, 'update'])->name('previews-update');
+    Route::delete('/previews-delete/{newPreview}', [NewPreviewController::class, 'destroy'])->name('previews-delete');
+    Route::get('/previews/update/{id}', [NewPreviewController::class, 'updatePreview'])->name('previews.update.all');
+    Route::post('/previews/{id}/bulk-edit', [NewPreviewController::class, 'bulkEdit'])->name('previews.bulkEdit');
 
-    Route::delete('/previews/category/delete/{id}', [newCategoryController::class, 'destroy'])->name('previews.category.delete');
-    Route::delete('/previews/feedback/delete/{id}', [newFeedbackController::class, 'destroy'])->name('previews.feedback.delete');
-    Route::delete('/previews/feedbackSet/delete/{id}', [newFeedbackSetController::class, 'destroy'])->name('previews.feedback.set.delete');
-    Route::delete('/previews/version/delete/{id}', [newVersionController::class, 'destroy'])->name('previews.version.delete');
-    Route::post('/previews/banner/edit/{id}', [newBannerController::class, 'update'])->name('previews.banner.edit');
-    Route::delete('/previews/banner/delete/{id}', [newBannerController::class, 'destroy'])->name('previews.banner.delete');
-    Route::get('/previews/banner/download/{id}', [newBannerController::class, 'download'])->name('preview.banner.download');
+    Route::delete('/previews/category/delete/{id}', [NewCategoryController::class, 'destroy'])->name('previews.category.delete');
+    Route::delete('/previews/feedback/delete/{id}', [NewFeedbackController::class, 'destroy'])->name('previews.feedback.delete');
+    Route::delete('/previews/feedbackSet/delete/{id}', [NewFeedbackSetController::class, 'destroy'])->name('previews.feedback.set.delete');
+    Route::delete('/previews/version/delete/{id}', [NewVersionController::class, 'destroy'])->name('previews.version.delete');
+    Route::post('/previews/banner/edit/{id}', [NewBannerController::class, 'update'])->name('previews.banner.edit');
+    Route::delete('/previews/banner/delete/{id}', [NewBannerController::class, 'destroy'])->name('previews.banner.delete');
+    Route::get('/previews/banner/download/{id}', [NewBannerController::class, 'download'])->name('preview.banner.download');
     Route::post('/previews/social/edit/{id}', [NewSocialController::class, 'update'])->name('previews.social.edit');
     Route::delete('/previews/social/delete/{id}', [NewSocialController::class, 'destroy'])->name('previews.social.delete');
     Route::post('/previews/gif/edit/{id}', [NewGifController::class, 'update'])->name('previews.gif.edit');
