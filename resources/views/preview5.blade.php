@@ -986,7 +986,7 @@
                         <img src="/${value.path}" 
                             alt="${value.name}"
                             class="social-preview-img rounded-2xl"
-                            style="width: 100%; max-width: 700px; height: auto; object-fit: contain; box-shadow: 0 2px 8px #0001; cursor: pointer; margin-top: 0;"
+                            style="width: 100%; max-width: 1200px; height: auto; object-fit: contain; box-shadow: 0 2px 8px #0001; cursor: pointer; margin-top: 0;"
                             onclick="openSocialImageModal('/${value.path}', '${value.name}')"
                         >
                         <ul style="display: flex; flex-direction: row; justify-content: left; margin-top: 10px;" class="previewIcons">
@@ -1386,12 +1386,12 @@
                 gifs.forEach(function(gif) {
                     var gifPath = '/' + gif.path;
                     var gifReloadID = gif.id;
-                    gifsHtml += '<div class="banner-creatives banner-area-' + gif.size.width + '" style="display: inline-block; width: ' + gif.size.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem; margin-bottomn: 1rem;">';
+                    gifsHtml += '<div class="banner-creatives banner-area-' + gif.size.width + '-' + gif.size.height + '" style="display: inline-block; width: ' + gif.size.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem; margin-bottomn: 1rem;">';
                     gifsHtml += '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
                     gifsHtml += '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + gif.size.width + 'x' + gif.size.height + '</small>';
                     gifsHtml += '<small style="float: right; font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + gif.file_size + '</small>';
                     gifsHtml += '</div>';
-                    gifsHtml += '<img class="iframe-banners" style="margin-top: 2px;" src="' + gifPath + '" width="' + gif.size.width + '" height="' + gif.size.height + '" frameBorder="0" scrolling="no" id="rel' + gif.id + '"></img>';
+                    gifsHtml += '<iframe class="iframe-banners" style="margin-top: 2px;" src="' + gifPath + '" width="' + gif.size.width + '" height="' + gif.size.height + '" frameBorder="0" scrolling="no" id="rel' + gif.id + '"></iframe>';
                     gifsHtml += '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
                     gifsHtml += '<li><i id="relBt' + gif.id + '" onClick="reloadBanner(' + gifReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>';
                     gifsHtml += '@if($authUserClientName == "Planet Nine")'
