@@ -739,6 +739,7 @@
 
     function renderBanners(version_id) {
         document.getElementById('loaderArea').style.display = 'flex';
+        document.querySelector('.versions').style.flexDirection = 'row';
         axios.get('/preview/renderBanners/' + version_id)
             .then(function(response) {
                 const banners = response.data.banners;
@@ -898,6 +899,7 @@
 
     function renderVideo(version_id) {
         document.getElementById('loaderArea').style.display = 'flex';
+        document.querySelector('.versions').style.flexDirection = 'column';
         axios.get('/preview/renderVideos/' + version_id)
             .then(function(response) {
                 var row = '';
@@ -956,6 +958,7 @@
                 });
 
                 $('#bannersList' + version_id).html(row);
+                document.querySelector('.banners-list').style.flexDirection = 'column';
             })
             .catch(function(error) {
                 console.log(error);
@@ -977,6 +980,7 @@
 
     function renderSocial(version_id) {
         document.getElementById('loaderArea').style.display = 'flex';
+        document.querySelector('.versions').style.flexDirection = 'column';
         axios.get('/preview/renderSocials/' + version_id)
             .then(function(response) {
                 var row = '';

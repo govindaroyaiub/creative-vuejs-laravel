@@ -1936,7 +1936,179 @@ hr {
     .feedbacks {
         width: 97%
     }
+}
 
+@media(min-width: 800px) and (max-width: 1199px) {
+    .banner-area-1272-328 {
+        width: 800px !important;
+        height: auto;
+        display: flex !important;
+        flex-direction: column;
+        justify-content: space-between;
+        margin-right: 0 !important;
+        overflow: hidden
+    }
+
+    .banner-area-1272-328 iframe {
+        transform: scale(calc(800 / 1272));
+        transform-origin: center left;
+        width: 1272px;
+        height: 328px;
+        border: none;
+        display: block;
+        margin-top: -60px !important;
+        margin-bottom: -60px !important;
+    }
+
+    .banner-area-1115-300 {
+        width: 800px !important;
+        height: auto;
+        display: flex !important;
+        flex-direction: column;
+        justify-content: space-between;
+        margin-right: 0 !important;
+        overflow: hidden
+    }
+
+    .banner-area-1115-300 iframe {
+        transform: scale(calc(800 / 1115));
+        transform-origin: center left;
+        width: 1115px;
+        height: 300px;
+        border: none;
+        display: block;
+        margin-top: -40px !important;
+        margin-bottom: -40px !important;
+    }
+
+    .banner-area-1080-1080 {
+        width: 800px !important;
+        height: auto;
+        display: flex !important;
+        flex-direction: column;
+        justify-content: space-between;
+        margin-right: 0 !important;
+        overflow: hidden
+    }
+
+    .banner-area-1080-1080 iframe {
+        transform: scale(calc(800 / 1080));
+        transform-origin: center left;
+        width: 1080px;
+        height: 1080px;
+        border: none;
+        display: block;
+        margin-top: -140px !important;
+        margin-bottom: -140px !important;
+    }
+
+    .banner-area-1024-768 {
+        width: 800px !important;
+        height: auto;
+        display: flex !important;
+        flex-direction: column;
+        justify-content: space-between;
+        margin-right: 0 !important;
+        overflow: hidden
+    }
+
+    .banner-area-1024-768 iframe {
+        transform: scale(calc(800 / 1024));
+        transform-origin: center left;
+        width: 1024px;
+        height: 768px;
+        border: none;
+        display: block;
+        margin-top: -85px !important;
+        margin-bottom: -85px !important;
+    }
+
+    .banner-area-970-500 {
+        width: 800px !important;
+        height: auto;
+        display: flex !important;
+        flex-direction: column;
+        justify-content: space-between;
+        margin-right: 0 !important;
+        overflow: hidden
+    }
+
+    .banner-area-970-500 iframe {
+        transform: scale(calc(800 / 970));
+        transform-origin: center left;
+        width: 970px;
+        height: 500px;
+        border: none;
+        display: block;
+        margin-top: -40px !important;
+        margin-bottom: -40px !important;
+    }
+
+    .banner-area-970-250 {
+        width: 800px !important;
+        height: auto;
+        display: flex !important;
+        flex-direction: column;
+        justify-content: space-between;
+        margin-right: 0 !important;
+        overflow: hidden
+    }
+
+    .banner-area-970-250 iframe {
+        transform: scale(calc(800 / 970));
+        transform-origin: center left;
+        width: 970px;
+        height: 250px;
+        border: none;
+        display: block;
+        margin-top: -20px !important;
+        margin-bottom: -20px !important;
+    }
+
+    .banner-area-970-90 {
+        width: 800px !important;
+        height: auto;
+        display: flex !important;
+        flex-direction: column;
+        justify-content: space-between;
+        margin-right: 0 !important;
+        overflow: hidden
+    }
+
+    .banner-area-970-90 iframe {
+        transform: scale(calc(800 / 970));
+        transform-origin: center left;
+        width: 970px;
+        height: 90px;
+        border: none;
+        display: block;
+        margin-top: -7px !important;
+        margin-bottom: -7px !important;
+    }
+
+    .banner-area-960-300 {
+        width: 800px !important;
+        height: auto;
+        display: flex !important;
+        flex-direction: column;
+        justify-content: space-between;
+        margin-right: 0 !important;
+        overflow: hidden
+    }
+
+    .banner-area-960-300 iframe {
+        transform: scale(calc(800 / 960));
+        transform-origin: center left;
+        width: 960px;
+        height: 300px;
+        border: none;
+        display: block;
+        margin-top: -25px !important;
+        margin-bottom: -25px !important;
+    }
+}
+
+@media(min-width: 1200px) and (max-width: 1600px) {
     .banner-area-1272-328 {
         width: 800px !important;
         height: auto;
