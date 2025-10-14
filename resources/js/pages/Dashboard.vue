@@ -409,7 +409,7 @@ const formatNumber = (num: number) => {
                     <div class="space-y-3">
                         <!-- World Clocks - Responsive Layout -->
                         <div
-                            class="bg-gradient-to-r from-indigo-300 to-blue-300 dark:from-neutral-800 dark:to-neutral-800 rounded-xl p-3 md:p-4">
+                            class="bg-gradient-to-r from-indigo-300 to-blue-300 dark:from-neutral-800 dark:to-neutral-800 rounded-xl p-3 md:p-3">
                             <!-- Mobile: Stacked Layout -->
                             <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 md:justify-around sm:justify-around">
                                 <!-- Bangladesh -->
