@@ -113,7 +113,7 @@
               </div>
 
               <!-- Color Swatches -->
-              <div class="mb-4">
+              <div class="mb-4 pt-2">
                 <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Color Palette</p>
                 <div class="grid grid-cols-7 gap-2">
                   <div v-for="key in colorKeys" :key="key" class="group/color cursor-pointer"

@@ -62,7 +62,7 @@
                     <img src="{{ asset('logos/' . $header_logo['logo']) }}" id="planetnineLogo" alt="planetnineLogo">
                     @endif
                     <h1 style="font-size: 1rem;"><span class="font-semibold">Name: </span> <span class="capitalize">{{ $preview['name'] }}</span></h1>
-                    <h1 class="mt-1" style="font-size: 1rem;"><span class="font-semibold">Client: </span> <span class="capitalize">{{ $client['name'] }}</span></h1>
+                    <h1 style="font-size: 1rem;"><span class="font-semibold">Client: </span> <span class="capitalize">{{ $client['name'] }}</span></h1>
                     <h1 style="font-size: 1rem;">
                         <span class="font-semibold">Date: </span> <span>{{ \Carbon\Carbon::parse($preview['created_at'])->format('F j, Y') }}</span>
                     </h1>

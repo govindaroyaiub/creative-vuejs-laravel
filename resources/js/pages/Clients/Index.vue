@@ -211,13 +211,13 @@ const activeClients = computed(() =>
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center space-x-3">
                                     <div
-                                        class="w-12 h-12 bg-gradient-to-r from-white to-white dark:from-blue-900 dark:to-indigo-900 rounded-md flex items-center justify-center">
+                                        class="w-48 h-12 bg-gradient-to-r from-white to-white rounded-md flex items-center justify-center">
                                         <img v-if="client.logo" :src="`/logos/${client.logo}`"
-                                            :alt="client.name + ' logo'" class="w-8 h-8 object-contain rounded" />
+                                            :alt="client.name + ' logo'" class="w-20 object-contain rounded" />
                                         <Building2 v-else class="w-6 h-6 text-blue-600 dark:text-blue-400" />
                                     </div>
                                     <div>
-                                        <h3 class="font-semibold text-gray-900 dark:text-white text-lg">{{ client.name
+                                        <h3 class="font-semibold text-gray-900 dark:text-white text-base">{{ client.name
                                         }}</h3>
                                         <div class="flex items-center mt-1">
                                             <span :class="getStatusColor(client)"
@@ -231,7 +231,7 @@ const activeClients = computed(() =>
                         </div>
 
                         <!-- Card Content -->
-                        <div class="px-6 pb-4 space-y-4">
+                        <div class="px-6 pb-4 pt-2 space-y-4">
                             <!-- Website -->
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-600 dark:text-gray-400">Website:</span>

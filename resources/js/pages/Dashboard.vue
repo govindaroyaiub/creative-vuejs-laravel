@@ -393,62 +393,78 @@ const formatNumber = (num: number) => {
             class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-black dark:via-black dark:to-black">
             <div class="p-6 space-y-8">
                 <!-- Header -->
-                <div class="flex items-center justify-between">
-                    <div>
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-0">
+                    <div class="flex-1">
                         <h1
-                            class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                             Dashboard Overview
                         </h1>
-                        <p class="text-gray-600 dark:text-white mt-1">
+                        <p class="text-gray-600 dark:text-white mt-1 text-sm md:text-base">
                             Analytics and insights for {{ year }}
                         </p>
                     </div>
-                    <div class="text-right space-y-3">
+
+                    <div class="space-y-3">
                         <!-- Current Period -->
-                        <div>
+                        <div class="text-center lg:text-right">
                             <div class="text-sm text-gray-500 dark:text-gray-400">Current Period</div>
-                            <div class="text-xl font-bold text-gray-900 dark:text-white">
+                            <div class="text-lg md:text-xl font-bold text-gray-900 dark:text-white">
                                 {{ new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) }}
                             </div>
                         </div>
 
-                        <!-- World Clocks with Flags -->
+                        <!-- World Clocks - Responsive Layout -->
                         <div
-                            class="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-neutral-800 dark:to-neutral-800 rounded-xl p-4 flex flex-row gap-4">
-                            <!-- Bangladesh -->
-                            <div
-                                class="flex items-center justify-between bg-white dark:bg-neutral-900 rounded-lg p-3 shadow-sm">
-                                <div class="flex items-center space-x-3">
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900 dark:text-white">Dhaka</div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">Bangladesh</div>
+                            class="bg-gradient-to-r from-indigo-300 to-blue-100 dark:from-neutral-800 dark:to-neutral-800 rounded-xl p-3 md:p-4">
+                            <!-- Mobile: Stacked Layout -->
+                            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                                <!-- Bangladesh -->
+                                <div
+                                    class="flex items-center justify-between bg-white dark:bg-neutral-900 rounded-lg p-2 md:p-3 shadow-sm flex-1">
+                                    <div class="flex items-center space-x-2 md:space-x-3 min-w-0">
+                                        <div class="min-w-0 flex-1">
+                                            <div
+                                                class="text-xs md:text-sm font-medium text-gray-900 dark:text-white truncate">
+                                                Dhaka
+                                            </div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                                Bangladesh
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right ml-2">
+                                        <div
+                                            class="text-xs md:text-sm font-mono font-bold text-green-600 dark:text-green-400">
+                                            {{ bangladeshTime.time }}
+                                        </div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ bangladeshTime.date }}
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="text-right">
-                                    <div class="text-sm font-mono font-bold text-green-600 dark:text-green-400">
-                                        - {{ bangladeshTime.time }}
-                                    </div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">
-                                        {{ bangladeshTime.date }}
-                                    </div>
-                                </div>
-                            </div>
 
-                            <!-- Netherlands -->
-                            <div
-                                class="flex items-center justify-between bg-white dark:bg-neutral-900 rounded-lg p-3 shadow-sm">
-                                <div class="flex items-center space-x-3">
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900 dark:text-white">Amsterdam </div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">Netherlands</div>
+                                <!-- Netherlands -->
+                                <div
+                                    class="flex items-center justify-between bg-white dark:bg-neutral-900 rounded-lg p-2 md:p-3 shadow-sm flex-1">
+                                    <div class="flex items-center space-x-2 md:space-x-3 min-w-0">
+                                        <div class="min-w-0 flex-1">
+                                            <div
+                                                class="text-xs md:text-sm font-medium text-gray-900 dark:text-white truncate">
+                                                Amsterdam
+                                            </div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                                Netherlands
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-sm font-mono font-bold text-blue-600 dark:text-blue-400">
-                                        - {{ netherlandsTime.time }}
-                                    </div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">
-                                        {{ netherlandsTime.date }}
+                                    <div class="text-right ml-2">
+                                        <div
+                                            class="text-xs md:text-sm font-mono font-bold text-blue-600 dark:text-blue-400">
+                                            {{ netherlandsTime.time }}
+                                        </div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ netherlandsTime.date }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
