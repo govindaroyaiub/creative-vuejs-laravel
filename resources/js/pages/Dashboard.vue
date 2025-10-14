@@ -470,7 +470,7 @@ const formatNumber = (num: number) => {
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <!-- Users Card -->
                     <div
-                        class="group relative bg-white dark:bg-orange-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-orange-300 dark:hover:border-orange-600 transition-all duration-300 overflow-hidden">
+                        class="group relative bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-orange-300 dark:hover:border-orange-600 transition-all duration-300 overflow-hidden">
                         <div
                             class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-orange-500/10 to-500/10 rounded-full -translate-y-10 translate-x-10">
                         </div>
