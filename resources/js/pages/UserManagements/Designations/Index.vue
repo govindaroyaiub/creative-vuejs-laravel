@@ -130,13 +130,13 @@ const deleteDesignation = async (id: number) => {
 
                 <div class="mb-6 flex items-center justify-between space-x-4">
                     <input v-model="search" placeholder="Search designations..."
-                        class="w-full max-w-xs rounded-2xl border px-3 py-2 dark:bg-black dark:text-white" />
+                        class="w-full max-w-xs rounded-2xl border px-3 py-2 dark:bg-neutral-800 dark:text-white" />
                     <Button class="rounded-xl" size="sm" @click="startAdding" v-if="!adding"> Add </Button>
                 </div>
 
-                <div class="overflow-x-auto rounded-2xl bg-white shadow dark:bg-black">
+                <div class="overflow-x-auto rounded-2xl bg-white shadow dark:bg-neutral-800">
                     <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-black">
-                        <thead class="bg-gray-100 text-xs uppercase dark:bg-black dark:text-gray-300">
+                        <thead class="bg-gray-100 text-xs uppercase dark:bg-neutral-900 dark:text-gray-300">
                             <tr>
                                 <th class="px-6 py-3">#</th>
                                 <th class="px-6 py-3">Name</th>
@@ -148,7 +148,7 @@ const deleteDesignation = async (id: number) => {
                                 <td class="px-6 py-4">#</td>
                                 <td class="px-6 py-4">
                                     <input v-model="newDesignation"
-                                        class="w-full rounded border px-2 py-1 dark:bg-black dark:text-white"
+                                        class="w-full rounded border px-2 py-1 dark:bg-neutral-700 dark:text-white"
                                         placeholder="New designation" />
                                 </td>
                                 <td class="space-x-2 px-6 py-4 text-center">
@@ -164,7 +164,7 @@ const deleteDesignation = async (id: number) => {
                                     <template v-if="editingId !== designation.id">{{ designation.name }}</template>
                                     <template v-else>
                                         <input v-model="editName"
-                                            class="w-full rounded border px-2 py-1 dark:bg-black dark:text-white" />
+                                            class="w-full rounded border px-2 py-1 dark:bg-neutral-700 dark:text-white" />
                                     </template>
                                 </td>
                                 <td class="space-x-2 px-6 py-4 text-center">

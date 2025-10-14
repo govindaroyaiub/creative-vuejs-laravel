@@ -125,7 +125,7 @@ const getFileSize = (bytes: number) => {
             <!-- Search & Upload -->
             <div class="mb-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
                 <input v-model="search" placeholder="Search..."
-                    class="w-full sm:max-w-xs rounded-2xl border px-4 py-2 dark:bg-black dark:text-white" />
+                    class="w-full sm:max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
                 <button @click="openUploadModal"
                     class="rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 flex items-center justify-center whitespace-nowrap">
                     <Upload class="mr-2 h-5 w-5" />
@@ -135,9 +135,9 @@ const getFileSize = (bytes: number) => {
 
             <!-- Desktop Table -->
             <div class="hidden lg:block rounded-2xl overflow-x-auto shadow">
-                <table class="w-full rounded bg-white dark:bg-black dark:border border">
-                    <thead class="bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300">
-                        <tr class="bg-gray-100 dark:bg-black uppercase text-sm">
+                <table class="w-full rounded bg-white dark:bg-neutral-800 dark:border border">
+                    <thead class="bg-gray-100 text-gray-700 dark:bg-neutral-900 dark:text-gray-300">
+                        <tr class="bg-gray-100 dark:bg-neutral-900 uppercase text-sm">
                             <th class="border-b px-4 py-2 text-center">#</th>
                             <th class="border-b px-4 py-2 text-center">Name</th>
                             <th class="border-b px-4 py-2 text-center">Uploader</th>
@@ -146,7 +146,7 @@ const getFileSize = (bytes: number) => {
                     </thead>
                     <tbody>
                         <tr v-for="(media, index) in medias" :key="media.id"
-                            class="hover:bg-gray-50 dark:hover:bg-gray-800 border-b dark:border-gray-700">
+                            class="hover:bg-gray-50 dark:hover:bg-gray-800 border-b dark:hover:bg-neutral-700">
                             <td class="border-b px-4 py-2 text-center">{{ index + 1 }}</td>
                             <td class="border-b px-4 py-2 text-center font-medium">{{ media.name }}</td>
                             <td class="border-b px-4 py-2 text-center">
@@ -185,7 +185,7 @@ const getFileSize = (bytes: number) => {
             <!-- Mobile/Tablet Cards -->
             <div class="lg:hidden space-y-4">
                 <div v-for="(media, index) in medias" :key="media.id"
-                    class="bg-white dark:bg-black rounded-2xl shadow border border-gray-200 dark:border-gray-700 p-4">
+                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-4">
 
                     <!-- Header: Number + Name -->
                     <div class="flex items-start justify-between mb-3">
@@ -245,14 +245,14 @@ const getFileSize = (bytes: number) => {
 
                 <!-- No results card -->
                 <div v-if="medias.length === 0"
-                    class="bg-white dark:bg-black rounded-2xl shadow border border-gray-200 dark:border-gray-700 p-8 text-center">
+                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-8 text-center">
                     <div class="text-gray-500 dark:text-gray-400">No media files found.</div>
                 </div>
             </div>
 
             <!-- Pagination - responsive -->
             <div v-if="medias.length && links.length"
-                class="mt-6 bg-white dark:bg-black p-4">
+                class="mt-6 p-4">
 
                 <!-- Mobile pagination (simplified) -->
                 <div class="lg:hidden">
@@ -269,14 +269,14 @@ const getFileSize = (bytes: number) => {
                             :disabled="!mediasPagination.prev_page_url"
                             class="px-3 py-2 text-sm rounded-xl transition-all duration-200 flex items-center flex-1 justify-center"
                             :class="mediasPagination.prev_page_url
-                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-600'
-                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-gray-700'">
+                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
+                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
                             <ChevronLeft class="w-4 h-4 mr-1" />
                             Previous
                         </button>
 
                         <select :value="mediasPagination.current_page" @change="goToPage(parseInt($event.target.value))"
-                            class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-black text-gray-900 dark:text-white text-sm min-w-0"
+                            class="px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white text-sm min-w-0"
                             v-if="mediasPagination.last_page">
                             <option v-for="pageNum in mediasPagination.last_page" :key="pageNum" :value="pageNum">
                                 {{ pageNum }}
@@ -287,8 +287,8 @@ const getFileSize = (bytes: number) => {
                             :disabled="!mediasPagination.next_page_url"
                             class="px-3 py-2 text-sm rounded-xl transition-all duration-200 flex items-center flex-1 justify-center"
                             :class="mediasPagination.next_page_url
-                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-600'
-                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-gray-700'">
+                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
+                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
                             Next
                             <ChevronRight class="w-4 h-4 ml-1" />
                         </button>
@@ -312,18 +312,18 @@ const getFileSize = (bytes: number) => {
             <div v-if="modalVisible"
                 class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
                 <div
-                    class="w-full max-w-md rounded-2xl bg-white p-6 shadow-lg dark:bg-black border border-gray-200 dark:border-gray-700">
+                    class="w-full max-w-md rounded-2xl bg-white p-6 shadow-lg dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700">
                     <h2 class="text-lg font-bold mb-4 text-gray-800 dark:text-white">Upload Media</h2>
 
                     <div class="space-y-4">
                         <!-- File Name Input -->
                         <input type="text" v-model="newForm.name" placeholder="File name"
-                            class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-gray-600" />
+                            class="w-full rounded-2xl border px-3 py-2 dark:bg-neutral-800 dark:text-white border-gray-300 dark:border-neutral-700" />
 
                         <!-- Drag & Drop Upload Area -->
                         <div class="w-full rounded-2xl border-2 border-dashed px-4 py-8 text-center transition-all cursor-pointer"
                             :class="[
-                                dragOver ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-600'
+                                dragOver ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-neutral-700'
                             ]" @dragover.prevent="dragOver = true" @dragleave.prevent="dragOver = false"
                             @drop.prevent="handleDrop" @click="fileInput?.click()">
                             <input type="file" ref="fileInput" class="hidden" @change="handleFileChange" />
@@ -337,7 +337,7 @@ const getFileSize = (bytes: number) => {
 
                         <!-- Show selected file -->
                         <div v-if="newForm.file"
-                            class="mt-2 text-sm text-gray-700 dark:text-gray-300 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                            class="mt-2 text-sm text-gray-700 dark:text-gray-300 p-3 bg-gray-50 dark:bg-neutral-800 rounded-lg">
                             <div class="font-medium">{{ newForm.file.name }}</div>
                             <div class="text-xs text-gray-500">{{ getFileSize(newForm.file.size) }}</div>
                         </div>
@@ -345,7 +345,7 @@ const getFileSize = (bytes: number) => {
                         <!-- Buttons -->
                         <div class="flex flex-col sm:flex-row justify-end gap-2 pt-4">
                             <button @click="modalVisible = false"
-                                class="px-4 py-2 rounded-xl border text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 border-gray-300 dark:border-gray-600">
+                                class="px-4 py-2 rounded-xl border text-gray-700 bg-white hover:bg-gray-50 dark:bg-neutral-800 dark:text-gray-300 dark:hover:bg-gray-700 border-gray-300 dark:border-neutral-700">
                                 Cancel
                             </button>
                             <button @click="uploadFile" :disabled="uploading"

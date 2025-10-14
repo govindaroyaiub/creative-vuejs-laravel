@@ -188,13 +188,13 @@ const deleteUser = async (id: number) => {
 
                 <div class="flex items-center justify-between gap-4">
                     <input v-model="search" type="text" placeholder="Search users..."
-                        class="w-full max-w-sm rounded-2xl border px-4 py-2 dark:bg-black dark:text-white" />
+                        class="w-full max-w-sm rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
                     <Button size="sm" class="whitespace-nowrap rounded-xl" @click="addingUser = true">Add</Button>
                 </div>
 
-                <div class="overflow-x-auto rounded-2xl bg-white shadow dark:bg-black">
+                <div class="overflow-x-auto rounded-2xl bg-white shadow dark:bg-neutral-800">
                     <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
-                        <thead class="bg-gray-100 text-xs uppercase dark:bg-black dark:text-gray-300">
+                        <thead class="bg-gray-100 text-xs uppercase dark:bg-neutral-900 dark:text-gray-300">
                             <tr>
                                 <th class="px-6 py-3 text-center font-semibold">#</th>
                                 <th class="px-6 py-3 text-center font-semibold">Name</th>
@@ -203,18 +203,18 @@ const deleteUser = async (id: number) => {
                                 <th class="px-6 py-3 text-center font-semibold">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
 
                             <!-- Inline Add User Row -->
                             <tr v-if="addingUser" class="text-center">
                                 <td class="px-6 py-4">#</td>
                                 <td class="px-6 py-4 text-left font-medium text-gray-900 dark:text-white">
                                     <input v-model="newUserName" placeholder="Name"
-                                        class="w-full rounded-md border px-2 py-1 dark:bg-black dark:text-white" />
+                                        class="w-full rounded-md border px-2 py-1 dark:bg-neutral-800 dark:text-white" />
                                     <input v-model="newUserEmail" placeholder="Email"
-                                        class="mt-2 w-full rounded-md border px-2 py-1 dark:bg-black dark:text-white" />
+                                        class="mt-2 w-full rounded-md border px-2 py-1 dark:bg-neutral-800 dark:text-white" />
                                     <select v-model="newUserClientId"
-                                        class="mt-2 w-full rounded-md border px-2 py-1 text-sm dark:bg-black dark:text-white">
+                                        class="mt-2 w-full rounded-md border px-2 py-1 text-sm dark:bg-neutral-800 dark:text-white">
                                         <option disabled value="">Select client</option>
                                         <option v-for="client in clients" :key="client.id" :value="client.id">
                                             {{ client.name }}
@@ -223,7 +223,7 @@ const deleteUser = async (id: number) => {
                                 </td>
                                 <td class="px-6 py-4">
                                     <select v-model="newUserRole"
-                                        class="w-full rounded-md border px-2 py-1 dark:bg-black dark:text-white">
+                                        class="w-full rounded-md border px-2 py-1 dark:bg-neutral-800 dark:text-white">
                                         <option disabled value="">Select role</option>
                                         <option value="super_admin">Super Admin</option>
                                         <option value="admin">Admin</option>
@@ -232,7 +232,7 @@ const deleteUser = async (id: number) => {
                                     <hr class="mt-2 mb-2" />
                                     <label class="text-sm text-gray-600 dark:text-gray-300">Send Mail</label>
                                     <button @click="newUserSendMail = !newUserSendMail" type="button" :class="[
-                                        newUserSendMail ? 'bg-indigo-600' : 'bg-gray-300 dark:bg-gray-600',
+                                        newUserSendMail ? 'bg-indigo-600' : 'bg-gray-300 dark:bg-neutral-800',
                                         'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none'
                                     ]">
                                         <span :class="[
@@ -243,7 +243,7 @@ const deleteUser = async (id: number) => {
                                 </td>
                                 <td class="px-6 py-4">
                                     <div
-                                        class="max-h-36 space-y-1 overflow-y-auto rounded-md border bg-gray-50 p-2 dark:bg-gray-900">
+                                        class="max-h-36 space-y-1 overflow-y-auto rounded-md border bg-gray-50 p-2 dark:bg-neutral-800">
                                         <div v-for="route in routes" :key="route.id" class="flex items-center gap-2">
                                             <input type="checkbox" v-model="newUserPermissions" :value="route.href" />
                                             <label class="text-sm">{{ route.title }}</label>
@@ -264,7 +264,7 @@ const deleteUser = async (id: number) => {
 
                             <!-- Existing Users -->
                             <tr v-for="(user, index) in filteredUsers" :key="user.id"
-                                class="text-center hover:bg-gray-50 dark:hover:bg-black">
+                                class="text-center hover:bg-gray-50 dark:hover:bg-neutral-700">
                                 <td class="px-6 py-4">{{ index + 1 }}</td>
                                 <td class="px-6 py-4 text-left font-medium text-gray-900 dark:text-white">
                                     {{ user.name }}<br />
@@ -272,7 +272,7 @@ const deleteUser = async (id: number) => {
                                     <div class="mt-1">
                                         <select :value="user.client_id"
                                             @change="updateUserClient(user.id, Number($event.target.value))"
-                                            class="mt-1 w-full rounded border px-2 py-1 text-sm dark:bg-black dark:text-white">
+                                            class="mt-1 w-full rounded border px-2 py-1 text-sm dark:bg-neutral-800 dark:text-white">
                                             <option disabled value="">Select client</option>
                                             <option v-for="client in clients" :key="client.id" :value="client.id">
                                                 {{ client.name }}
@@ -282,7 +282,7 @@ const deleteUser = async (id: number) => {
                                 </td>
                                 <td class="px-6 py-4 capitalize">
                                     <select v-model="user.role" @change="updateUserRole(user.id, user.role)"
-                                        class="w-full rounded-2xl border text-center px-2 py-1 dark:bg-black dark:text-white"
+                                        class="w-full rounded-2xl border text-center px-2 py-1 dark:bg-neutral-800 dark:text-white"
                                         :disabled="updatingRoleUserId === user.id">
                                         <option value="super_admin">Super Admin</option>
                                         <option value="admin">Admin</option>
@@ -315,7 +315,7 @@ const deleteUser = async (id: number) => {
         <!-- Permissions Modal -->
             <div v-if="permissionsModalVisible"
                 class="fixed top-0 inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
-                <div class="w-full max-w-lg rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800">
+                <div class="w-full max-w-lg rounded-lg bg-white p-6 shadow-lg dark:bg-neutral-800">
                     <h2 class="mb-4 text-center text-xl font-bold text-gray-800 dark:text-white">Manage Permissions</h2>
 
                     <div v-if="selectedPermissions.includes('*')"
@@ -328,7 +328,7 @@ const deleteUser = async (id: number) => {
                         <Button size="sm" variant="outline" @click="clearAll">Clear All</Button>
                     </div>
 
-                    <div class="max-h-72 space-y-3 overflow-y-auto rounded-md border bg-gray-50 p-3 dark:bg-gray-900">
+                    <div class="max-h-72 space-y-3 overflow-y-auto rounded-md border bg-gray-50 p-3 dark:bg-neutral-800">
                         <div v-for="route in routes" :key="route.id"
                             class="flex items-center justify-between rounded border-b pb-2">
                             <div>

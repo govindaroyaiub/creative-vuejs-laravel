@@ -7,7 +7,7 @@
                 <div v-for="(category, catIdx) in preview.categories" :key="category.id" class="mb-4">
                     <details v-bind="category.is_active == 1 ? { open: true } : {}" class="mb-4 border rounded shadow">
                         <summary
-                            class="px-4 py-2 font-semibold text-lg bg-gray-100 dark:bg-black cursor-pointer flex items-center justify-between">
+                            class="px-4 py-2 font-semibold text-lg bg-gray-100 dark:bg-neutral-900 cursor-pointer flex items-center justify-between">
                             <!-- Left side: icon, name, type -->
                             <span class="flex items-center gap-2">
                                 <svg width="16" height="16" class="mr-1">
@@ -16,7 +16,7 @@
                                 </svg>
                                 <span>Category:</span>
                                 <input v-model="category.name"
-                                    class="border rounded px-2 py-1 font-semibold text-lg bg-white-100 dark:bg-black dark:text-white dark:border-gray-700"
+                                    class="border rounded px-2 py-1 font-semibold text-lg bg-white-100 dark:bg-neutral-900 dark:text-white dark:border-neutral-700"
                                     placeholder="Category Name" style="min-width:180px;" />
                                 <span class="text-xs text-gray-500 ml-2">({{ category.type }})</span>
                             </span>
@@ -33,7 +33,7 @@
                                 <details v-bind="feedback.is_active == 1 ? { open: true } : {}"
                                     class="mb-2 border rounded">
                                     <summary
-                                        class="px-3 py-1 font-medium bg-gray-50 dark:bg-gray-900 cursor-pointer flex items-center justify-between">
+                                        class="px-3 py-1 font-medium bg-gray-50 dark:bg-neutral-800 cursor-pointer flex items-center justify-between">
                                         <!-- Left side: icon, label, name, description -->
                                         <span class="flex items-center gap-2">
                                             <svg width="16" height="16" class="mr-1">
@@ -42,7 +42,7 @@
                                             </svg>
                                             <span>Feedback:</span>
                                             <input :value="feedback.name" @input="onFeedbackNameInput($event, feedback)"
-                                                class="border rounded px-2 py-1 font-medium dark:bg-black dark:text-white dark:border-gray-700"
+                                                class="border rounded px-2 py-1 font-medium dark:bg-neutral-900 dark:text-white dark:border-neutral-700"
                                                 placeholder="Feedback Name" style="min-width:120px;" />
                                         </span>
                                         <!-- Right side: delete buttons -->
@@ -56,16 +56,16 @@
                                     </summary>
                                     <div class="p-3">
                                         <textarea v-model="feedback.description"
-                                            class="border rounded px-2 py-1 mb-2 w-1/2 dark:bg-black dark:text-white dark:border-gray-700"
+                                            class="border rounded px-2 py-1 mb-2 w-1/2 dark:bg-neutral-900 dark:text-white dark:border-neutral-700"
                                             placeholder="Feedback Description" />
                                         <div v-for="(set, setIdx) in feedback.feedback_sets" :key="set.id" class="mb-4">
                                             <details open class="mb-2 border rounded">
                                                 <summary
-                                                    class="px-2 py-1 mb-2 font-medium bg-gray-50 dark:bg-black dark:text-white dark:border-gray-700 cursor-pointer flex items-center justify-between">
+                                                    class="px-2 py-1 mb-2 font-medium bg-gray-50 dark:bg-neutral-900 dark:text-white dark:border-neutral-700 cursor-pointer flex items-center justify-between">
                                                     <span>
                                                         <span class="px-2">Set:</span>
                                                         <input v-model="set.name"
-                                                            class="border rounded px-2 py-1 dark:bg-black dark:text-white dark:border-gray-700"
+                                                            class="border rounded px-2 py-1 dark:bg-neutral-900 dark:text-white dark:border-neutral-700"
                                                             placeholder="Set Name (Optional)"
                                                             style="min-width:100px;" />
                                                     </span>
@@ -80,11 +80,11 @@
                                                         class="mb-4">
                                                         <details open class="mb-2 border rounded">
                                                             <summary
-                                                                class="px-2 py-1 font-medium bg-gray-50 dark:bg-gray-900 cursor-pointer flex items-center justify-between">
+                                                                class="px-2 py-1 font-medium bg-gray-50 dark:bg-neutral-800 cursor-pointer flex items-center justify-between">
                                                                 <span>
                                                                     <span class="px-2">Version:</span>
                                                                     <input v-model="version.name"
-                                                                        class="border rounded px-2 py-1 dark:bg-black dark:text-white dark:border-gray-700"
+                                                                        class="border rounded px-2 py-1 dark:bg-neutral-900 dark:text-white dark:border-neutral-700"
                                                                         placeholder="Version Name (Optional)"
                                                                         style="min-width:100px;" />
                                                                 </span>
@@ -112,7 +112,7 @@
                                                                         class="space-y-2 mt-4">
                                                                         <template #item="{ element, index }">
                                                                             <div
-                                                                                class="flex items-center bg-white dark:bg-black rounded shadow px-4 py-3">
+                                                                                class="flex items-center bg-white dark:bg-neutral-900 rounded shadow px-4 py-3">
                                                                                 <span
                                                                                     class="text-xs text-gray-500 mr-2">{{
                                                                                         index + 1 }}</span>
@@ -145,7 +145,7 @@
                                                                                         v-model="element.size_id"
                                                                                         placeholder="Select Banner Size"
                                                                                         :clearable="false"
-                                                                                        class="w-40 dark:bg-white dark:text-gray-800 dark:border-gray-700" />
+                                                                                        class="w-40 dark:bg-white dark:text-gray-800 dark:border-neutral-700" />
                                                                                 </div>
                                                                                 <button v-if="isDbId(element.id)"
                                                                                     @click.stop="editBanner(element, version, index)"
@@ -171,7 +171,7 @@
                                                                         <div
                                                                             class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                                                                             <div
-                                                                                class="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-md">
+                                                                                class="bg-white dark:bg-neutral-800 rounded-lg shadow-lg p-6 w-full max-w-md">
                                                                                 <h2 class="text-lg font-bold mb-4">
                                                                                     Edit Banner</h2>
                                                                                 <div class="mb-4">
@@ -195,7 +195,7 @@
                                                                                         v-model="bannerEditSizeId"
                                                                                         placeholder="Select Banner Size"
                                                                                         :clearable="false"
-                                                                                        class="w-full dark:bg-black dark:text-white dark:border-gray-700" />
+                                                                                        class="w-full dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
                                                                                 </div>
                                                                                 <div class="flex gap-2 mt-6 w-full">
                                                                                     <button @click="closeBannerEdit"
@@ -215,7 +215,7 @@
                                                                         class="space-y-2 mt-4">
                                                                         <template #item="{ element, index }">
                                                                             <div
-                                                                                class="bg-white dark:bg-black rounded shadow px-4 py-3 mb-2">
+                                                                                class="bg-white dark:bg-neutral-900 rounded shadow px-4 py-3 mb-2">
                                                                                 <div
                                                                                     class="flex items-center gap-2 mb-2 w-full">
                                                                                     <span
@@ -306,7 +306,7 @@
                                                                                             v-model="element.size_id"
                                                                                             placeholder="Select Video Size"
                                                                                             :clearable="false"
-                                                                                            class="w-fill dark:bg-white dark:text-gray-800 dark:border-gray-700" />
+                                                                                            class="w-fill dark:bg-white dark:text-gray-800 dark:border-neutral-700" />
                                                                                     </div>
                                                                                     <div class="w-full">
                                                                                         <label
@@ -315,21 +315,21 @@
                                                                                         <input
                                                                                             v-model="element.aspect_ratio"
                                                                                             placeholder="Aspect Ratio"
-                                                                                            class="border rounded px-2 py-1 text-xs w-full dark:bg-black dark:text-white dark:border-gray-700" />
+                                                                                            class="border rounded px-2 py-1 text-xs w-full dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
                                                                                     </div>
                                                                                     <div class="w-full">
                                                                                         <label
                                                                                             class="block text-xs mb-1">Codec</label>
                                                                                         <input v-model="element.codec"
                                                                                             placeholder="Codec"
-                                                                                            class="border rounded px-2 py-1 text-xs w-full dark:bg-black dark:text-white dark:border-gray-700" />
+                                                                                            class="border rounded px-2 py-1 text-xs w-full dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
                                                                                     </div>
                                                                                     <div class="w-full">
                                                                                         <label
                                                                                             class="block text-xs mb-1">FPS</label>
                                                                                         <input v-model="element.fps"
                                                                                             placeholder="FPS"
-                                                                                            class="border rounded px-2 py-1 text-xs w-full dark:bg-black dark:text-white dark:border-gray-700" />
+                                                                                            class="border rounded px-2 py-1 text-xs w-full dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -346,7 +346,7 @@
                                                                         <div
                                                                             class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                                                                             <div
-                                                                                class="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-md">
+                                                                                class="bg-white dark:bg-neutral-800 rounded-lg shadow-lg p-6 w-full max-w-md">
                                                                                 <h2 class="text-lg font-bold mb-4">Edit
                                                                                     Video</h2>
                                                                                 <div class="mb-4">
@@ -380,7 +380,7 @@
                                                                                         v-model="videoEditSizeId"
                                                                                         placeholder="Select Video Size"
                                                                                         :clearable="false"
-                                                                                        class="w-full dark:bg-white dark:text-gray-800 dark:border-gray-700" />
+                                                                                        class="w-full dark:bg-white dark:text-gray-800 dark:border-neutral-700" />
                                                                                 </div>
                                                                                 <div class="flex gap-1 w-full">
                                                                                     <div class="mb-4">
@@ -388,7 +388,7 @@
                                                                                             class="block text-sm font-medium mb-1">Codec</label>
                                                                                         <input v-model="videoEditCodec"
                                                                                             placeholder="Codec"
-                                                                                            class="border rounded px-2 py-1 text-xs w-full dark:bg-black dark:text-white dark:border-gray-700" />
+                                                                                            class="border rounded px-2 py-1 text-xs w-full dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
                                                                                     </div>
                                                                                     <div class="mb-4">
                                                                                         <label
@@ -397,14 +397,14 @@
                                                                                         <input
                                                                                             v-model="videoEditAspectRatio"
                                                                                             placeholder="Aspect Ratio"
-                                                                                            class="border rounded px-2 py-1 text-xs w-full dark:bg-black dark:text-white dark:border-gray-700" />
+                                                                                            class="border rounded px-2 py-1 text-xs w-full dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
                                                                                     </div>
                                                                                     <div class="mb-4">
                                                                                         <label
                                                                                             class="block text-sm font-medium mb-1">FPS</label>
                                                                                         <input v-model="videoEditFps"
                                                                                             placeholder="FPS"
-                                                                                            class="border rounded px-2 py-1 text-xs w-full dark:bg-black dark:text-white dark:border-gray-700" />
+                                                                                            class="border rounded px-2 py-1 text-xs w-full dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
                                                                                     </div>
                                                                                 </div>
 
@@ -440,7 +440,7 @@
                                                                         class="space-y-2 mt-4">
                                                                         <template #item="{ element, index }">
                                                                             <div
-                                                                                class="flex items-center bg-white dark:bg-black rounded shadow px-4 py-3">
+                                                                                class="flex items-center bg-white dark:bg-neutral-900 rounded shadow px-4 py-3">
                                                                                 <span
                                                                                     class="text-xs text-gray-500 mr-2">{{
                                                                                         index + 1 }}</span>
@@ -493,7 +493,7 @@
                                                                         <div
                                                                             class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                                                                             <div
-                                                                                class="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-md">
+                                                                                class="bg-white dark:bg-neutral-800 rounded-lg shadow-lg p-6 w-full max-w-md">
                                                                                 <h2 class="text-lg font-bold mb-4">Edit
                                                                                     Social Image</h2>
                                                                                 <div class="mb-4">
@@ -533,7 +533,7 @@
                                                                         class="space-y-2 mt-4">
                                                                         <template #item="{ element, index }">
                                                                             <div
-                                                                                class="flex items-center bg-white dark:bg-black rounded shadow px-4 py-3">
+                                                                                class="flex items-center bg-white dark:bg-neutral-900 rounded shadow px-4 py-3">
                                                                                 <span
                                                                                     class="text-xs text-gray-500 mr-2">{{
                                                                                         index + 1 }}</span>
@@ -573,7 +573,7 @@
                                                                                         v-model="element.size_id"
                                                                                         placeholder="Select GIF Size"
                                                                                         :clearable="false"
-                                                                                        class="w-48 dark:bg-white dark:text-gray-800 dark:border-gray-700" />
+                                                                                        class="w-48 dark:bg-white dark:text-gray-800 dark:border-neutral-700" />
                                                                                 </div>
                                                                                 <button v-if="isDbId(element.id)"
                                                                                     @click.stop="editGif(element, version, index)"
@@ -598,7 +598,7 @@
                                                                         <div
                                                                             class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                                                                             <div
-                                                                                class="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-md">
+                                                                                class="bg-white dark:bg-neutral-800 rounded-lg shadow-lg p-6 w-full max-w-md">
                                                                                 <h2 class="text-lg font-bold mb-4">Edit
                                                                                     GIF</h2>
                                                                                 <div class="mb-4">
@@ -619,7 +619,7 @@
                                                                                         v-model="gifEditSizeId"
                                                                                         placeholder="Select GIF Size"
                                                                                         :clearable="false"
-                                                                                        class="w-full dark:bg-white dark:text-gray-800 dark:border-gray-700" />
+                                                                                        class="w-full dark:bg-white dark:text-gray-800 dark:border-neutral-700" />
                                                                                 </div>
                                                                                 <div class="flex gap-2 mt-6 w-full">
                                                                                     <button @click="closeGifEdit"
@@ -645,7 +645,7 @@
                                                         class="mt-2 flex gap-2 items-center justify-start">
                                                         <input v-model="newVersionName[set.id]"
                                                             placeholder="Version Name (Optional)"
-                                                            class="border rounded px-2 py-1 dark:bg-black dark:text-white dark:border-gray-700" />
+                                                            class="border rounded px-2 py-1 dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
                                                         <button @click="addVersion(set)"
                                                             class="bg-green-600 text-white px-3 py-1 rounded">Add</button>
                                                     </div>
@@ -661,7 +661,7 @@
                                         <div v-if="showAddSet[feedback.id]"
                                             class="mt-2 flex gap-2 items-center justify-start">
                                             <input v-model="newSetName[feedback.id]" placeholder="Set Name (Optional)"
-                                                class="border rounded px-2 py-1 dark:bg-black dark:text-white dark:border-gray-700" />
+                                                class="border rounded px-2 py-1 dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
                                             <button @click="addSet(feedback)"
                                                 class="bg-green-600 text-white px-3 py-1 rounded">Add</button>
                                         </div>
@@ -677,11 +677,11 @@
                             <div v-if="showAddFeedback[category.id]"
                                 class="mt-2 flex-col gap-2 items-start justify-start">
                                 <textarea v-model="newFeedbackDesc[category.id]" placeholder="Enter Description"
-                                    class="border rounded px-2 py-1 min-w-[200px] min-h-[60px] dark:bg-black dark:text-white dark:border-gray-700" />
+                                    class="border rounded px-2 py-1 min-w-[200px] min-h-[60px] dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
                                 <div class="flex gap-2">
                                     <input :value="newFeedbackName[category.id]"
                                         @input="onNewFeedbackNameInput($event, category)" placeholder="Feedback Name"
-                                        class="border rounded px-2 py-1 dark:bg-black dark:text-white dark:border-gray-700" />
+                                        class="border rounded px-2 py-1 dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
                                     <button @click="addFeedback(category)"
                                         class="bg-green-600 text-white px-3 py-1 rounded">Add</button>
                                 </div>
@@ -697,9 +697,9 @@
                 </div>
                 <div v-if="showAddCategory" class="mt-2 flex gap-2 items-center justify-start">
                     <input v-model="newCategoryName" placeholder="Category Name"
-                        class="border rounded px-2 py-1 dark:bg-black dark:text-white dark:border-gray-700" />
+                        class="border rounded px-2 py-1 dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
                     <select v-model="newCategoryType"
-                        class="border rounded px-2 py-1 dark:bg-black dark:text-white dark:border-gray-700">
+                        class="border rounded px-2 py-1 dark:bg-neutral-900 dark:text-white dark:border-neutral-700">
                         <option value="banner">Banner</option>
                         <option value="video">Video</option>
                         <option value="social">Social</option>
@@ -707,22 +707,22 @@
                     </select>
                     <button @click="addCategory" class="bg-green-600 text-white px-3 py-1 rounded">Add</button>
                 </div>
-                <div class="sticky-action-bar bg-white dark:bg-black">
+                <div class="sticky-action-bar bg-white dark:bg-neutral-900">
                     <a :href="route('previews-index')"
-                        class="bg-gray-400 text-white px-6 py-2 rounded-xl hover:bg-gray-500 font-semibold inline-block">
+                        class="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500 font-semibold inline-block">
                         Back
                     </a>
                     <a :href="route('previews-edit', preview.id)"
-                        class="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 font-semibold inline-block"
+                        class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 font-semibold inline-block"
                         aria-label="Edit Preview">
                         More Infos
                     </a>
                     <button type="button" @click="goToPreview"
-                        class="bg-orange-600 text-white px-6 py-2 rounded-xl hover:bg-orange-700 font-semibold">
+                        class="bg-orange-600 text-white px-6 py-2 rounded hover:bg-orange-700 font-semibold">
                         Preview
                     </button>
                     <button @click="saveAll"
-                        class="bg-green-600 text-white px-6 py-2 rounded-xl hover:bg-green-700 font-semibold">
+                        class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 font-semibold">
                         Save
                     </button>
                 </div>

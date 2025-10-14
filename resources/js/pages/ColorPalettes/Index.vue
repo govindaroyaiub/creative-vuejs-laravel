@@ -6,7 +6,7 @@
       class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-black dark:via-gray-950 dark:to-black">
       <div class="p-6 space-y-6">
         <!-- Stats Card -->
-        <div class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-6">
+        <div class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="flex items-center space-x-4">
               <div class="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl">
@@ -61,7 +61,7 @@
 
         <!-- Search Section -->
         <div
-          class="bg-white dark:bg-black rounded-2xl shadow-sm dark:border-gray-800 flex items-center space-x-4">
+          class="rounded-2xl shadow-sm dark:border-neutral-700 flex items-center space-x-4">
           <div class="relative w-full">
             <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" fill="none"
               stroke="currentColor" viewBox="0 0 24 24">
@@ -69,7 +69,7 @@
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
             <input v-model="search" type="text" placeholder="Search palettes by name..."
-              class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-700 rounded-xl bg-white dark:bg-black text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" />
+              class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" />
           </div>
           <button @click="openAddModal"
             class="w-1/5 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-sm hover:shadow-md group">
@@ -81,7 +81,7 @@
         <!-- Palettes Grid -->
         <div v-if="colorPalettes?.length > 0" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           <div v-for="(palette, index) in colorPalettes" :key="palette.id"
-            class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200 overflow-hidden group">
+            class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200 overflow-hidden group">
             <!-- Card Header -->
             <div class="p-4 pb-4">
               <div class="flex items-center justify-between mb-2">
@@ -97,7 +97,7 @@
                         <input type="checkbox" :checked="palette.status" @change="toggleStatus(palette)"
                           class="sr-only peer" />
                         <div
-                          class="w-9 h-5 bg-gray-200 dark:bg-gray-700 rounded-full peer peer-checked:bg-green-600 transition-colors">
+                          class="w-9 h-5 bg-gray-200 dark:bg-neutral-900 rounded-full peer peer-checked:bg-green-600 transition-colors">
                         </div>
                         <div
                           class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4">
@@ -120,7 +120,7 @@
                     @click="copyColor(palette[key], key)"
                     :title="`${key.charAt(0).toUpperCase() + key.slice(1)}: ${palette[key]}`">
                     <div :style="{ backgroundColor: palette[key] }"
-                      class="w-8 h-8 rounded-lg border-2 border-gray-200 dark:border-gray-700 shadow-sm group-hover/color:scale-110 transition-transform duration-200">
+                      class="w-8 h-8 rounded-lg border-2 border-gray-200 dark:border-neutral-700 shadow-sm group-hover/color:scale-110 transition-transform duration-200">
                     </div>
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center truncate">
                       {{ key.charAt(0).toUpperCase() }}
@@ -132,9 +132,9 @@
               <!-- Header Image -->
               <div v-if="palette.header_image" class="mb-2">
                 <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Header Image</p>
-                <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-3">
+                <div class="bg-gray-50 dark:bg-neutral-500 rounded-xl p-3">
                   <img :src="`/${palette.header_image}`" alt="Header"
-                    class="h-12 mx-auto rounded dark:border-gray-700" />
+                    class="h-12 mx-auto rounded dark:border-neutral-700" />
                 </div>
               </div>
 
@@ -142,7 +142,7 @@
               <div class="space-y-4">
                 <div>
                   <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Feedback Tabs</p>
-                  <div class="flex items-center justify-between space-x-4 bg-gray-50 dark:bg-gray-900 rounded-xl p-3">
+                  <div class="flex items-center justify-between space-x-4 bg-gray-50 dark:bg-neutral-500 rounded-xl p-3">
                     <div class="text-center">
                       <img :src="`/${palette.feedbackTab_inactive_image}`" alt="Inactive" class="h-8 mx-auto mb-1" />
                       <span class="text-xs text-gray-500 dark:text-gray-400">Inactive</span>
@@ -159,7 +159,7 @@
 
                 <div>
                   <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Right Side Tabs</p>
-                  <div class="flex items-center justify-between space-x-4 bg-gray-50 dark:bg-gray-900 rounded-xl p-3">
+                  <div class="flex items-center justify-between space-x-4 bg-gray-50 dark:bg-neutral-500 rounded-xl p-3">
                     <div class="text-center">
                       <img :src="`/${palette.rightSideTab_feedback_description_image}`" alt="Feedback Description"
                         class="h-8 mx-auto mb-1" />
@@ -179,7 +179,7 @@
             </div>
 
             <!-- Card Actions -->
-            <div class="px-6 py-2 bg-gray-50 dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800">
+            <div class="px-6 py-2 bg-gray-50 dark:bg-neutral-800 border-t border-gray-200 dark:border-neutral-700">
               <div class="flex justify-end space-x-2">
                 <button @click="openEditModal(palette)"
                   class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-all duration-200 group/edit"
@@ -208,9 +208,9 @@
 
         <!-- Empty State -->
         <div v-else
-          class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-12 text-center">
+          class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 p-12 text-center">
           <div
-            class="w-20 h-20 mx-auto bg-gray-100 dark:bg-gray-900 rounded-full flex items-center justify-center mb-6">
+            class="w-20 h-20 mx-auto bg-gray-100 dark:bg-neutral-500 rounded-full flex items-center justify-center mb-6">
             <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a4 4 0 004-4V5z">
@@ -231,10 +231,10 @@
     </div>
 
     <!-- Enhanced Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 ckdrop-blur-sm p-4">
       <div
-        class="bg-white dark:bg-black rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-800">
-        <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-800">
+        class="bg-white dark:bg-neutral-800 rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-neutral-700">
+        <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-neutral-700">
           <h2 class="text-xl font-bold text-gray-900 dark:text-white">
             {{ modalMode === 'edit' ? 'Edit Color Palette' : 'Create New Color Palette' }}
           </h2>
@@ -254,7 +254,7 @@
               <div>
                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Palette Name</label>
                 <input v-model="form.name" type="text" placeholder="Enter palette name..."
-                  class="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-xl bg-white dark:bg-black text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  class="w-full px-4 py-3 border border-gray-300 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   required />
               </div>
 
@@ -264,10 +264,10 @@
                   Variations</label>
                 <div class="grid grid-cols-1 gap-4">
                   <div v-for="key in colorKeys" :key="key"
-                    class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800">
+                    class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-700">
                     <div class="flex items-center space-x-3 flex-1">
                       <input type="color" v-model="form[key]"
-                        class="w-12 h-12 border-2 border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer" />
+                        class="w-12 h-12 border-2 border-gray-200 dark:border-neutral-700 rounded-lg cursor-pointer" />
                       <div>
                         <p class="font-medium text-gray-900 dark:text-white">{{ key.charAt(0).toUpperCase() +
                           key.slice(1) }}</p>
@@ -284,9 +284,9 @@
               <!-- Header Image -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Header Image</label>
-                <div class="p-4 bg-gray-50 dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800">
+                <div class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-700">
                   <img v-if="form.header_image_preview" :src="form.header_image_preview"
-                    class="h-16 mb-3 mx-auto rounded border border-gray-200 dark:border-gray-700" />
+                    class="h-16 mb-3 mx-auto rounded border border-gray-200 dark:border-neutral-700" />
                   <input type="file" @change="onFileChange('header_image', $event)" accept="image/*"
                     class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900 dark:file:text-blue-300" />
                 </div>
@@ -297,19 +297,19 @@
                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Feedback Tab
                   Images</label>
                 <div class="space-y-4">
-                  <div class="p-4 bg-gray-50 dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800">
+                  <div class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-700">
                     <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Inactive
                       State</label>
                     <img v-if="form.feedbackTab_inactive_image_preview" :src="form.feedbackTab_inactive_image_preview"
-                      class="h-12 mb-3 rounded border border-gray-200 dark:border-gray-700" />
+                      class="h-12 mb-3 rounded border border-gray-200 dark:border-neutral-700" />
                     <input type="file" @change="onFileChange('feedbackTab_inactive_image', $event)" accept="image/*"
                       class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900 dark:file:text-blue-300" />
                   </div>
 
-                  <div class="p-4 bg-gray-50 dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800">
+                  <div class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-700">
                     <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Active State</label>
                     <img v-if="form.feedbackTab_active_image_preview" :src="form.feedbackTab_active_image_preview"
-                      class="h-12 mb-3 rounded border border-gray-200 dark:border-gray-700" />
+                      class="h-12 mb-3 rounded border border-gray-200 dark:border-neutral-700" />
                     <input type="file" @change="onFileChange('feedbackTab_active_image', $event)" accept="image/*"
                       class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900 dark:file:text-blue-300" />
                   </div>
@@ -321,23 +321,23 @@
                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Right Side Tab
                   Images</label>
                 <div class="space-y-4">
-                  <div class="p-4 bg-gray-50 dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800">
+                  <div class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-700">
                     <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Feedback
                       Description</label>
                     <img v-if="form.rightSideTab_feedback_description_image_preview"
                       :src="form.rightSideTab_feedback_description_image_preview"
-                      class="h-12 mb-3 rounded border border-gray-200 dark:border-gray-700" />
+                      class="h-12 mb-3 rounded border border-gray-200 dark:border-neutral-700" />
                     <input type="file" @change="onFileChange('rightSideTab_feedback_description_image', $event)"
                       accept="image/*"
                       class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900 dark:file:text-blue-300" />
                   </div>
 
-                  <div class="p-4 bg-gray-50 dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800">
+                  <div class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-700">
                     <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Color Palette
                       Tab</label>
                     <img v-if="form.rightSideTab_color_palette_image_preview"
                       :src="form.rightSideTab_color_palette_image_preview"
-                      class="h-12 mb-3 rounded border border-gray-200 dark:border-gray-700" />
+                      class="h-12 mb-3 rounded border border-gray-200 dark:border-neutral-700" />
                     <input type="file" @change="onFileChange('rightSideTab_color_palette_image', $event)"
                       accept="image/*"
                       class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900 dark:file:text-blue-300" />
@@ -348,9 +348,9 @@
           </div>
 
           <!-- Modal Actions -->
-          <div class="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-800">
+          <div class="flex justify-end space-x-4 mt-8 pt-6 border-t border-gray-200 dark:border-neutral-700">
             <button type="button" @click="closeModal"
-              class="px-6 py-3 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors duration-200">
+              class="px-6 py-3 border border-gray-300 dark:border-neutral-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors duration-200">
               Cancel
             </button>
             <button type="submit"

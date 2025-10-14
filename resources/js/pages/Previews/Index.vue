@@ -150,7 +150,7 @@ const goToPage = (pageNumber: number) => {
             <!-- Search & Create -->
             <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
                 <input v-model="search" placeholder="Search..." aria-label="Search previews"
-                    class="w-full sm:max-w-xs rounded-2xl border px-4 py-2 dark:bg-black dark:text-white" />
+                    class="w-full sm:max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
                 <button @click="showModal = true"
                     class="rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700 group flex items-center justify-center whitespace-nowrap"
                     aria-label="Add Preview">
@@ -161,8 +161,8 @@ const goToPage = (pageNumber: number) => {
 
             <!-- Desktop Table -->
             <div class="hidden lg:block overflow-x-auto rounded-2xl shadow">
-                <table class="w-full rounded-2xl bg-white shadow dark:bg-black dark:border border table-fixed">
-                    <thead class="bg-gray-100 dark:bg-black text-xs uppercase">
+                <table class="w-full rounded-2xl bg-white shadow dark:bg-neutral-800 dark:border border table-fixed">
+                    <thead class="bg-gray-100 dark:bg-neutral-900 text-xs uppercase">
                         <tr>
                             <th class="w-16 px-4 py-3 text-center border-b">#</th>
                             <th class="w-80 px-4 py-3 text-left border-b">Name & Client</th>
@@ -173,7 +173,7 @@ const goToPage = (pageNumber: number) => {
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-black">
                         <tr v-for="(preview, index) in filteredPreviews" :key="preview.id"
-                            class="hover:bg-gray-50 dark:hover:bg-gray-800 border-b">
+                            class="hover:bg-gray-50 dark:hover:bg-neutral-700 border-b">
                             <td class="w-16 text-center px-4 py-3 font-medium border-b">
                                 {{ ((previews.current_page - 1) * previews.per_page) + index + 1 }}
                             </td>
@@ -238,7 +238,7 @@ const goToPage = (pageNumber: number) => {
             <!-- Mobile/Tablet Cards -->
             <div class="lg:hidden space-y-4">
                 <div v-for="(preview, index) in filteredPreviews" :key="preview.id"
-                    class="bg-white dark:bg-black rounded-2xl shadow border border-gray-200 dark:border-gray-700 p-4">
+                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-4">
 
                     <!-- Header: Number + Name -->
                     <div class="flex items-start justify-between mb-3">
@@ -317,14 +317,14 @@ const goToPage = (pageNumber: number) => {
 
                 <!-- No results card -->
                 <div v-if="filteredPreviews.length === 0"
-                    class="bg-white dark:bg-black rounded-2xl shadow border border-gray-200 dark:border-gray-700 p-8 text-center">
+                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-8 text-center">
                     <div class="text-gray-500 dark:text-gray-400">No previews found.</div>
                 </div>
             </div>
 
             <!-- Pagination - responsive -->
             <div v-if="previews.links && previews.links.length"
-                class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+                class="mt-6 p-4">
 
                 <!-- Mobile pagination (simplified) -->
                 <div class="lg:hidden">
@@ -339,13 +339,13 @@ const goToPage = (pageNumber: number) => {
                             class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center flex-1 justify-center"
                             :class="previews.prev_page_url
                                 ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-600'
-                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-gray-700'">
+                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
                             <ChevronLeft class="w-4 h-4 mr-1" />
                             Previous
                         </button>
 
                         <select :value="previews.current_page" @change="goToPage(parseInt($event.target.value))"
-                            class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-black text-gray-900 dark:text-white text-sm min-w-0">
+                            class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white text-sm min-w-0">
                             <option v-for="pageNum in previews.last_page" :key="pageNum" :value="pageNum">
                                 {{ pageNum }}
                             </option>
@@ -355,7 +355,7 @@ const goToPage = (pageNumber: number) => {
                             class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center flex-1 justify-center"
                             :class="previews.next_page_url
                                 ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-600'
-                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-gray-700'">
+                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
                             Next
                             <ChevronRight class="w-4 h-4 ml-1" />
                         </button>
@@ -373,7 +373,7 @@ const goToPage = (pageNumber: number) => {
                     <div class="flex items-center justify-center space-x-2 text-sm">
                         <span class="text-gray-500 dark:text-gray-400">Go to page:</span>
                         <select :value="previews.current_page" @change="goToPage(parseInt($event.target.value))"
-                            class="px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-black text-gray-900 dark:text-white text-sm">
+                            class="px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-neutral-800 text-gray-900 dark:text-white text-sm">
                             <option v-for="pageNum in previews.last_page" :key="pageNum" :value="pageNum">
                                 {{ pageNum }}
                             </option>
@@ -422,9 +422,9 @@ const goToPage = (pageNumber: number) => {
         <div v-if="showModal"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
             <div
-                class="bg-white dark:bg-black rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700">
+                class="bg-white dark:bg-neutral-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-neutral-700">
                 <!-- Modal Header -->
-                <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-neutral-700">
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white">Create New Preview</h2>
                     <button @click="closeModal"
                         class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-all duration-200">

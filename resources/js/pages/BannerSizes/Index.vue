@@ -118,7 +118,7 @@ const deleteBannerSize = async (id: number) => {
         <div class="p-6">
             <div class="mb-4 flex items-center justify-between">
                 <input v-model="search" placeholder="Search..."
-                    class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-black dark:text-white" />
+                    class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
                 <button @click="startAdding"
                     class="ml-4 rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700">
                     <CirclePlus class="mr-1 inline h-5 w-5" />
@@ -127,8 +127,8 @@ const deleteBannerSize = async (id: number) => {
             </div>
 
             <div class="overflow-x-auto rounded-2xl shadow">
-                <table class="w-full rounded bg-white dark:bg-black border">
-                    <thead class="bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300">
+                <table class="w-full rounded bg-white dark:bg-neutral-800 border">
+                    <thead class="bg-gray-100 text-gray-700 dark:bg-neutral-900 dark:text-gray-300">
                         <tr class="text-center text-sm uppercase">
                             <th class="px-4 py-2">#</th>
                             <th class="px-4 py-2">Width</th>
@@ -138,15 +138,15 @@ const deleteBannerSize = async (id: number) => {
                     </thead>
                     <tbody>
                         <!-- New Row -->
-                        <tr v-if="adding" class="border-t text-center text-sm dark:border-gray-700">
+                        <tr v-if="adding" class="border-t text-center text-sm dark:border-neutral-900">
                             <td class="px-4 py-2">#</td>
                             <td class="px-4 py-2">
                                 <input v-model="newForm.width" type="number"
-                                    class="w-20 rounded-2xl border px-2 py-1 dark:bg-black dark:text-white" />
+                                    class="w-20 rounded-2xl border px-2 py-1 dark:bg-neutral-800 dark:text-white" />
                             </td>
                             <td class="px-4 py-2">
                                 <input v-model="newForm.height" type="number"
-                                    class="w-20 rounded-2xl border px-2 py-1 dark:bg-black dark:text-white" />
+                                    class="w-20 rounded-2xl border px-2 py-1 dark:bg-neutral-800 dark:text-white" />
                             </td>
                             <td class="px-4 py-2 space-x-2">
                                 <button @click="cancelAdding"
@@ -157,19 +157,19 @@ const deleteBannerSize = async (id: number) => {
 
                         <!-- Existing Rows -->
                         <tr v-for="(size, index) in bannerSizes.data" :key="size.id"
-                            class="border-t text-center text-sm uppercase dark:border-gray-700">
+                            class="border-t text-center text-sm uppercase dark:border-neutral-900 dark:hover:bg-neutral-700">
                             <td class="px-4 py-2">{{ index + 1 }}</td>
 
                             <td class="px-4 py-2">
                                 <div v-if="editingId !== size.id">{{ size.width }}</div>
                                 <input v-else v-model="editForm.width" type="number"
-                                    class="w-20 rounded-2xl border px-2 py-1 dark:bg-black dark:text-white" />
+                                    class="w-20 rounded-2xl border px-2 py-1 dark:bg-neutral-800 dark:text-white" />
                             </td>
 
                             <td class="px-4 py-2">
                                 <div v-if="editingId !== size.id">{{ size.height }}</div>
                                 <input v-else v-model="editForm.height" type="number"
-                                    class="w-20 rounded-2xl border px-2 py-1 dark:bg-black dark:text-white" />
+                                    class="w-20 rounded-2xl border px-2 py-1 dark:bg-neutral-800 dark:text-white" />
                             </td>
 
                             <td class="space-x-2 px-4 py-2">

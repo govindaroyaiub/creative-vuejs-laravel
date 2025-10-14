@@ -138,7 +138,7 @@ const activeClients = computed(() =>
                 <!-- Stats Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div
-                        class="bg-white dark:bg-black rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
+                        class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Clients</p>
@@ -151,7 +151,7 @@ const activeClients = computed(() =>
                     </div>
 
                     <div
-                        class="bg-white dark:bg-black rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
+                        class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Active Clients</p>
@@ -164,7 +164,7 @@ const activeClients = computed(() =>
                     </div>
 
                     <div
-                        class="bg-white dark:bg-black rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
+                        class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Setup Required</p>
@@ -181,12 +181,12 @@ const activeClients = computed(() =>
 
                 <!-- Search and Filters -->
                 <div
-                    class="bg-white dark:bg-black rounded-2xl shadow-sm flex items-center space-x-4">
+                    class="rounded-2xl shadow-sm flex items-center space-x-4">
                     <div class="flex flex-col sm:flex-row gap-4 w-full">
                         <div class="relative flex-1">
                             <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                             <input v-model="search" placeholder="Search clients by name, website..."
-                                class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-black text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" />
+                                class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" />
                             <div v-if="isLoading" class="absolute right-3 top-1/2 transform -translate-y-1/2">
                                 <div
                                     class="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent">
@@ -205,7 +205,7 @@ const activeClients = computed(() =>
                 <!-- Clients Grid -->
                 <div v-if="clients?.data?.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div v-for="(client, index) in clients.data" :key="client.id"
-                        class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-700 transition-all duration-200 overflow-hidden group">
+                        class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-700 transition-all duration-200 overflow-hidden group">
                         <!-- Card Header -->
                         <div class="p-6 pb-4">
                             <div class="flex items-start justify-between">
@@ -263,7 +263,7 @@ const activeClients = computed(() =>
                                     class="flex items-center space-x-2 group/color hover:scale-105 transition-transform duration-200"
                                     :title="`Click to copy: ${client.color_palette.primary}`">
                                     <div :style="{ backgroundColor: client.color_palette.primary }"
-                                        class="w-6 h-6 rounded-lg border-2 border-white dark:border-gray-600 shadow-sm">
+                                        class="w-6 h-6 rounded-lg border-2 border-white dark:border-neutral-700 shadow-sm">
                                     </div>
                                     <span
                                         class="text-xs text-gray-500 font-mono group-hover/color:text-blue-600 transition-colors">
@@ -279,7 +279,7 @@ const activeClients = computed(() =>
 
                         <!-- Card Actions -->
                         <div
-                            class="px-6 py-4 bg-gray-50 dark:bg-black border-t border-gray-200 dark:border-gray-700">
+                            class="px-6 py-4 bg-gray-50 dark:bg-neutral-800 border-t border-gray-200 dark:border-neutral-700">
                             <div class="flex justify-end space-x-2">
                                 <Link :href="route('clients-edit', client.id)"
                                     class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-all duration-200 group/edit"
@@ -299,9 +299,9 @@ const activeClients = computed(() =>
 
                 <!-- Empty State -->
                 <div v-else
-                    class="bg-white dark:bg-black rounded-md shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
+                    class="bg-white dark:bg-neutral-800 rounded-md shadow-sm border border-gray-200 dark:border-neutral-700 p-12 text-center">
                     <div
-                        class="w-20 h-20 mx-auto bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-6">
+                        class="w-20 h-20 mx-auto bg-gray-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mb-6">
                         <Building2 class="w-10 h-10 text-gray-400" />
                     </div>
                     <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No clients found</h3>
@@ -317,7 +317,7 @@ const activeClients = computed(() =>
 
                 <!-- Pagination -->
                 <div v-if="clients?.links?.length > 3"
-                    class="bg-white dark:bg-black rounded-md shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                    class="bg-white dark:bg-neutral-800 rounded-md shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
                     <div class="flex items-center justify-between">
                         <div class="text-sm text-gray-600 dark:text-gray-400">
                             Showing {{ clients.from }} to {{ clients.to }} of {{ clients.total }} clients

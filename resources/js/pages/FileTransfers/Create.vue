@@ -90,7 +90,7 @@ const goBack = () => window.history.back();
                     <div @dragover.prevent="dragOver = true" @dragleave.prevent="dragOver = false"
                         @drop.prevent="handleFileDrop"
                         :class="['flex flex-col items-center justify-center border-2 border-dashed p-6 rounded-2xl transition-all',
-                            dragOver ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-gray-300 dark:border-gray-600']">
+                            dragOver ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-gray-300 dark:border-neutral-700']">
                         <input type="file" multiple accept=".zip" @change="handleFileChange" hidden id="fileUpload" />
                         <label for="fileUpload"
                             class="cursor-pointer text-sm text-indigo-600 dark:text-indigo-400 hover:underline">

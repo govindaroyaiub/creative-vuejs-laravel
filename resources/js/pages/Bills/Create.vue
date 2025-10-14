@@ -157,7 +157,7 @@ const formatCurrency = (amount: number) => {
                     <form @submit.prevent="handleSubmit" class="space-y-2">
                         <!-- Basic Information -->
                         <div
-                            class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-4">
+                            class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 p-4">
                             <div class="flex items-center mb-2">
                                 <FileText class="w-5 h-5 text-blue-600 mr-2" />
                                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Bill Information</h2>
@@ -169,7 +169,7 @@ const formatCurrency = (amount: number) => {
                                         Bill Name <span class="text-red-500">*</span>
                                     </label>
                                     <input v-model="form.name" type="text" placeholder="Enter bill name..."
-                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-xl bg-white dark:bg-black text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                         required />
                                 </div>
                                 <div>
@@ -180,7 +180,7 @@ const formatCurrency = (amount: number) => {
                                         <User
                                             class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                                         <input v-model="form.client" type="text" placeholder="Enter client name..."
-                                            class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-700 rounded-xl bg-white dark:bg-black text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                            class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                             required />
                                     </div>
                                 </div>
@@ -190,7 +190,7 @@ const formatCurrency = (amount: number) => {
                         <!-- Bill Statistics -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div
-                                class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-4">
+                                class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 p-4">
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Items</p>
@@ -204,7 +204,7 @@ const formatCurrency = (amount: number) => {
                             </div>
 
                             <div
-                                class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-4">
+                                class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 p-4">
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Quantity
@@ -234,8 +234,8 @@ const formatCurrency = (amount: number) => {
 
                         <!-- Bill Items -->
                         <div
-                            class="bg-white dark:bg-black rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
-                            <div class="p-4 border-b border-gray-200 dark:border-gray-800">
+                            class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 overflow-hidden">
+                            <div class="p-4 border-b border-gray-200 dark:border-neutral-700">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center">
                                         <Calculator class="w-5 h-5 text-purple-600 mr-2" />
@@ -253,7 +253,7 @@ const formatCurrency = (amount: number) => {
                             <!-- Desktop Table -->
                             <div class="hidden md:block overflow-x-auto">
                                 <table class="w-full">
-                                    <thead class="bg-gray-50 dark:bg-gray-950">
+                                    <thead class="bg-gray-50 dark:bg-neutral-900">
                                         <tr>
                                             <th
                                                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -283,19 +283,19 @@ const formatCurrency = (amount: number) => {
                                             <td class="px-6 py-4">
                                                 <input v-model="row.item" type="text"
                                                     placeholder="Enter item description..."
-                                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-black text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                                     required />
                                             </td>
                                             <td class="px-6 py-4 text-center">
                                                 <input v-model.number="row.quantity" @input="calculateAmount(index)"
                                                     type="number" min="1"
-                                                    class="w-20 px-3 py-2 text-center border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-black text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    class="w-20 px-3 py-2 text-center border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                                     required />
                                             </td>
                                             <td class="px-6 py-4 text-center">
                                                 <input v-model.number="row.unit_price" @input="calculateAmount(index)"
                                                     type="number" step="0.01" min="0" placeholder="0.00"
-                                                    class="w-24 px-3 py-2 text-center border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-black text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    class="w-24 px-3 py-2 text-center border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                                     required />
                                             </td>
                                             <td class="px-6 py-4 text-right">
@@ -320,7 +320,7 @@ const formatCurrency = (amount: number) => {
                             <!-- Mobile Cards -->
                             <div class="md:hidden p-4 space-y-4">
                                 <div v-for="(row, index) in form.sub_bills" :key="index"
-                                    class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 space-y-4">
+                                    class="border border-gray-200 dark:border-neutral-700 rounded-xl p-4 space-y-4">
                                     <div class="flex items-center justify-between">
                                         <h3 class="font-medium text-gray-900 dark:text-white">Item #{{ index + 1 }}</h3>
                                         <button type="button" @click="removeRow(index)"
@@ -337,7 +337,7 @@ const formatCurrency = (amount: number) => {
                                                 Description</label>
                                             <input v-model="row.item" type="text"
                                                 placeholder="Enter item description..."
-                                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-black text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                                 required />
                                         </div>
 
@@ -347,7 +347,7 @@ const formatCurrency = (amount: number) => {
                                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity</label>
                                                 <input v-model.number="row.quantity" @input="calculateAmount(index)"
                                                     type="number" min="1"
-                                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-black text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                                     required />
                                             </div>
                                             <div>
@@ -356,7 +356,7 @@ const formatCurrency = (amount: number) => {
                                                     Price</label>
                                                 <input v-model.number="row.unit_price" @input="calculateAmount(index)"
                                                     type="number" step="0.01" min="0" placeholder="0.00"
-                                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-black text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                                     required />
                                             </div>
                                         </div>
@@ -374,9 +374,9 @@ const formatCurrency = (amount: number) => {
 
                         <!-- Total Summary -->
                         <div
-                            class="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-950 dark:to-black rounded-2xl p-4 border border-gray-200 dark:border-gray-800">
+                            class="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-neutral-950 dark:to-neutral-950 rounded-2xl p-4 border border-gray-200 dark:border-neutral-700">
                             <div class="flex justify-between items-center">
-                                <div class="text-lg font-medium text-gray-700 dark:text-gray-300">
+                                <div class="text-lg font-medium text-gray-700 dark:text-gray-300 ">
                                     Grand Total:
                                 </div>
                                 <div class="text-3xl font-bold text-gray-900 dark:text-white">
@@ -388,7 +388,7 @@ const formatCurrency = (amount: number) => {
                         <!-- Form Actions -->
                         <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
                             <Link :href="route('bills')"
-                                class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 bg-white dark:bg-black rounded-xl hover:bg-gray-50 dark:hover:bg-gray-950 transition-all duration-200">
+                                class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-neutral-700 text-gray-700 dark:text-gray-300 bg-white dark:bg-neutral-800 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-950 transition-all duration-200">
                             Cancel
                             </Link>
                             <button type="submit" :disabled="isLoading || totalAmount <= 0"

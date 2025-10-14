@@ -69,7 +69,7 @@ const goToPage = (pageNumber: number) => {
             <!-- Search & Add -->
             <div class="mb-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
                 <input v-model="search" placeholder="Search..."
-                    class="w-full sm:max-w-xs rounded-2xl border px-4 py-2 dark:bg-black dark:text-white" />
+                    class="w-full sm:max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
                 <Link :href="route('file-transfers-add')"
                     class="rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700 flex items-center justify-center whitespace-nowrap">
                 <CirclePlus class="mr-2 h-5 w-5" />
@@ -79,8 +79,8 @@ const goToPage = (pageNumber: number) => {
 
             <!-- Desktop Table -->
             <div class="hidden lg:block rounded-2xl overflow-x-auto shadow">
-                <table class="w-full rounded bg-white dark:bg-black dark:border border">
-                    <thead class="bg-gray-100 text-gray-700 dark:bg-black dark:text-gray-300">
+                <table class="w-full rounded bg-white dark:bg-neutral-800 dark:border border">
+                    <thead class="bg-gray-100 text-gray-700 dark:bg-neutral-900 dark:text-gray-300">
                         <tr class="text-center text-sm uppercase">
                             <th class="px-4 py-2 border-b">#</th>
                             <th class="px-4 py-2 border-b">Name</th>
@@ -91,7 +91,7 @@ const goToPage = (pageNumber: number) => {
                     </thead>
                     <tbody>
                         <tr v-for="(transfer, index) in fileTransfers.data" :key="transfer.id"
-                            class="border-t text-center text-sm dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+                            class="border-t text-center text-sm dark:border-neutral-700 hover:bg-gray-50 dark:hover:bg-neutral-700">
                             <td class="px-4 py-2 border-b">{{ index + 1 }}</td>
                             <td class="px-4 py-2 border-b font-medium">{{ transfer.name }}</td>
                             <td class="px-4 py-2 border-b">{{ transfer.client }}</td>
@@ -132,7 +132,7 @@ const goToPage = (pageNumber: number) => {
             <!-- Mobile/Tablet Cards -->
             <div class="lg:hidden space-y-4">
                 <div v-for="(transfer, index) in fileTransfers.data" :key="transfer.id"
-                    class="bg-white dark:bg-black rounded-2xl shadow border border-gray-200 dark:border-gray-700 p-4">
+                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-4">
 
                     <!-- Header: Number + Name -->
                     <div class="flex items-start justify-between mb-3">
@@ -189,14 +189,14 @@ const goToPage = (pageNumber: number) => {
 
                 <!-- No results card -->
                 <div v-if="fileTransfers.data.length === 0"
-                    class="bg-white dark:bg-black rounded-2xl shadow border border-gray-200 dark:border-gray-700 p-8 text-center">
+                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-8 text-center">
                     <div class="text-gray-500 dark:text-gray-400">No file transfers found.</div>
                 </div>
             </div>
 
             <!-- Pagination - responsive -->
             <div v-if="fileTransfers.data.length && fileTransfers.links?.length"
-                class="mt-6 bg-white dark:bg-black p-4">
+                class="mt-6 p-4">
 
                 <!-- Mobile pagination (simplified) -->
                 <div class="lg:hidden">
@@ -212,14 +212,14 @@ const goToPage = (pageNumber: number) => {
                             :disabled="!fileTransfers.prev_page_url"
                             class="px-3 py-2 text-sm rounded-xl transition-all duration-200 flex items-center flex-1 justify-center"
                             :class="fileTransfers.prev_page_url
-                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-600'
-                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-gray-700'">
+                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
+                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
                             <ChevronLeft class="w-4 h-4 mr-1" />
                             Previous
                         </button>
 
                         <select :value="fileTransfers.current_page" @change="goToPage(parseInt($event.target.value))"
-                            class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-black text-gray-900 dark:text-white text-sm min-w-0">
+                            class="px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white text-sm min-w-0">
                             <option v-for="pageNum in fileTransfers.last_page" :key="pageNum" :value="pageNum">
                                 {{ pageNum }}
                             </option>
@@ -229,8 +229,8 @@ const goToPage = (pageNumber: number) => {
                             :disabled="!fileTransfers.next_page_url"
                             class="px-3 py-2 text-sm rounded-xl transition-all duration-200 flex items-center flex-1 justify-center"
                             :class="fileTransfers.next_page_url
-                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-600'
-                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-gray-700'">
+                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
+                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
                             Next
                             <ChevronRight class="w-4 h-4 ml-1" />
                         </button>

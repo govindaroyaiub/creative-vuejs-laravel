@@ -2,7 +2,7 @@
 
     <Head title="Edit Preview" />
     <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Edit Preview' }]">
-        <div class="min-h-screen dark:bg-gray-900 py-8">
+        <div class="min-h-screen py-8">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Header Section -->
                 <div class="mb-8">
@@ -29,7 +29,7 @@
                 </div>
 
                 <!-- Main Form Card -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
+                <div class="bg-white dark:bg-neutral-900 rounded-2xl overflow-hidden p-4">
                     <form @submit.prevent="submit" class="p-2 space-y-8">
                         <!-- Preview Name Section -->
                         <div class="space-y-2">
@@ -40,7 +40,7 @@
                                 </label>
                                 <input id="preview-name" v-model="form.name" type="text"
                                     placeholder="e.g. Facebook Ad Campaign - June 2024"
-                                    class="w-full rounded-xl border border-gray-300 dark:border-gray-600 px-4 py-3 text-gray-900 dark:text-white dark:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
+                                    class="w-full rounded-xl border border-gray-300 dark:border-neutral-700 px-4 py-3 text-gray-900 dark:text-white dark:bg-neutral-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                                     :class="{ 'border-red-500 focus:ring-red-500 focus:border-red-500': form.errors.name }"
                                     required />
                                 <p v-if="form.errors.name" class="mt-1 text-sm text-red-600 dark:text-red-400">
@@ -61,7 +61,7 @@
                                     </label>
                                     <div class="relative">
                                         <select id="client-select" v-model="form.client_id"
-                                            class="w-full rounded-xl border border-gray-300 dark:border-gray-600 px-4 py-3 text-gray-900 dark:text-white dark:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 appearance-none"
+                                            class="w-full rounded-xl border border-gray-300 dark:border-neutral-700 px-4 py-3 text-gray-900 dark:text-white dark:bg-neutral-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 appearance-none"
                                             :class="{ 'border-red-500 focus:ring-red-500 focus:border-red-500': form.errors.client_id }"
                                             required>
                                             <option disabled value="">Select Client</option>
@@ -91,7 +91,7 @@
                                     </label>
                                     <div class="relative">
                                         <select id="header-logo-select" v-model="form.header_logo_id"
-                                            class="w-full rounded-xl border border-gray-300 dark:border-gray-600 px-4 py-3 text-gray-900 dark:text-white dark:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 appearance-none"
+                                            class="w-full rounded-xl border border-gray-300 dark:border-neutral-700 px-4 py-3 text-gray-900 dark:text-white dark:bg-neutral-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 appearance-none"
                                             :class="{ 'border-red-500 focus:ring-red-500 focus:border-red-500': form.errors.header_logo_id }"
                                             required>
                                             <option disabled value="">Select Header Logo</option>
@@ -122,7 +122,7 @@
                                     </label>
                                     <div class="relative">
                                         <select id="color-palette-select" v-model="form.color_palette_id"
-                                            class="w-full rounded-xl border border-gray-300 dark:border-gray-600 px-4 py-3 text-gray-900 dark:text-white dark:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 appearance-none"
+                                            class="w-full rounded-xl border border-gray-300 dark:border-neutral-700 px-4 py-3 text-gray-900 dark:text-white dark:bg-neutral-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 appearance-none"
                                             :class="{ 'border-red-500 focus:ring-red-500 focus:border-red-500': form.errors.color_palette_id }"
                                             required>
                                             <option disabled value="">Select Theme</option>
@@ -158,7 +158,7 @@
 
                                 <!-- Selected Users Display -->
                                 <div v-if="selectedUsers.length > 0"
-                                    class="flex flex-wrap gap-2 mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                                    class="flex flex-wrap gap-2 mb-4 p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl">
                                     <div v-for="user in selectedUsers" :key="user.id"
                                         class="inline-flex items-center px-3 py-2 bg-indigo-100 text-indigo-800 text-sm font-medium rounded-lg dark:bg-indigo-800 dark:text-indigo-200 transition-all duration-200">
                                         <div class="flex items-center">
@@ -186,13 +186,13 @@
                                 <div class="relative">
                                     <input id="team-search" v-model="userSearch" type="text"
                                         placeholder="Search and add team members..."
-                                        class="w-full rounded-xl border border-gray-300 dark:border-gray-600 px-4 py-3 text-gray-900 dark:text-white dark:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
+                                        class="w-full rounded-xl border border-gray-300 dark:border-neutral-700 px-4 py-3 text-gray-900 dark:text-white dark:bg-neutral-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
                                         :class="{ 'border-red-500 focus:ring-red-500 focus:border-red-500': form.errors.team_ids }"
                                         autocomplete="off" />
 
                                     <!-- Search Results Dropdown -->
                                     <div v-if="userSearch.trim().length > 0 && filteredUsers.length > 0"
-                                        class="absolute z-10 w-full mt-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                                        class="absolute z-10 w-full mt-2 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-neutral-700 rounded-xl shadow-lg max-h-48 overflow-y-auto">
                                         <button v-for="user in filteredUsers" :key="user.id" type="button"
                                             class="w-full text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 focus:outline-none transition-colors duration-200 first:rounded-t-xl last:rounded-b-xl flex items-center"
                                             @click="addUser(user)">
@@ -207,7 +207,7 @@
 
                                     <!-- No Results Message -->
                                     <div v-else-if="userSearch.trim().length > 0 && filteredUsers.length === 0"
-                                        class="absolute z-10 w-full mt-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl shadow-lg px-4 py-3 text-gray-500 dark:text-gray-400 text-sm">
+                                        class="absolute z-10 w-full mt-2 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-neutral-700 rounded-xl shadow-lg px-4 py-3 text-gray-500 dark:text-gray-400 text-sm">
                                         No users found matching "{{ userSearch }}"
                                     </div>
                                 </div>
@@ -226,7 +226,7 @@
                         <div class="space-y-2">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div v-for="toggle in toggleConfigs" :key="toggle.model"
-                                    class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6 border border-gray-200 dark:border-gray-600 transition-all duration-200 hover:shadow-md">
+                                    class="bg-gray-50 dark:bg-neutral-900 rounded-xl p-6 border border-gray-200 dark:border-neutral-700 transition-all duration-200 hover:shadow-md">
                                     <div class="flex items-center justify-between">
                                         <div class="flex-1">
                                             <label :for="`toggle-${toggle.model}`"
@@ -243,7 +243,7 @@
                                             <input :id="`toggle-${toggle.model}`" type="checkbox"
                                                 v-model="form[toggle.model]" class="sr-only peer" />
                                             <div
-                                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-500 dark:peer-focus:ring-indigo-600 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600">
+                                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-500 dark:peer-focus:ring-indigo-600 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-neutral-700 peer-checked:bg-indigo-600">
                                             </div>
                                         </label>
                                     </div>
@@ -268,9 +268,9 @@
                         </div>
 
                         <!-- Action Buttons -->
-                        <div class="flex flex-col sm:flex-row gap-4 pt-8 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex flex-col sm:flex-row gap-4 pt-8 border-t border-gray-200 dark:border-neutral-700">
                             <Link :href="route('previews.update.all', preview.id)"
-                                class="w-full inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-xl text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200 shadow-sm">
+                                class="w-full inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-neutral-700 text-base font-medium rounded-xl text-gray-700 dark:text-gray-300 bg-white dark:bg-neutral-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200 shadow-sm">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M10 19l-7-7m0 0l7-7m-7 7h18" />

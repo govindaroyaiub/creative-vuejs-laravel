@@ -414,10 +414,10 @@ const formatNumber = (num: number) => {
 
                         <!-- World Clocks with Flags -->
                         <div
-                            class="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 rounded-xl p-4 flex flex-row gap-4">
+                            class="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-neutral-800 dark:to-neutral-800 rounded-xl p-4 flex flex-row gap-4">
                             <!-- Bangladesh -->
                             <div
-                                class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm">
+                                class="flex items-center justify-between bg-white dark:bg-neutral-900 rounded-lg p-3 shadow-sm">
                                 <div class="flex items-center space-x-3">
                                     <div>
                                         <div class="text-sm font-medium text-gray-900 dark:text-white">Dhaka</div>
@@ -436,7 +436,7 @@ const formatNumber = (num: number) => {
 
                             <!-- Netherlands -->
                             <div
-                                class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm">
+                                class="flex items-center justify-between bg-white dark:bg-neutral-900 rounded-lg p-3 shadow-sm">
                                 <div class="flex items-center space-x-3">
                                     <div>
                                         <div class="text-sm font-medium text-gray-900 dark:text-white">Amsterdam </div>
@@ -460,7 +460,7 @@ const formatNumber = (num: number) => {
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <!-- Users Card -->
                     <div
-                        class="group relative bg-white dark:bg-black rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 overflow-hidden">
+                        class="group relative bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 overflow-hidden">
                         <div
                             class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full -translate-y-10 translate-x-10">
                         </div>
@@ -479,7 +479,7 @@ const formatNumber = (num: number) => {
 
                     <!-- Previews Card -->
                     <div
-                        class="group relative bg-white dark:bg-black rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:border-green-300 dark:hover:border-green-600 transition-all duration-300 overflow-hidden">
+                        class="group relative bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-green-300 dark:hover:border-green-600 transition-all duration-300 overflow-hidden">
                         <div
                             class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-full -translate-y-10 translate-x-10">
                         </div>
@@ -506,7 +506,7 @@ const formatNumber = (num: number) => {
                     <!-- Content Cards Row -->
                     <div class="col-span-1 sm:col-span-2 lg:col-span-2 grid grid-cols-2 gap-4">
                         <div
-                            class="bg-white dark:bg-black rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-300">
+                            class="bg-white dark:bg-neutral-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-300">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-sm font-medium text-gray-600 dark:text-white">Banners</p>
@@ -522,7 +522,7 @@ const formatNumber = (num: number) => {
                         </div>
 
                         <div
-                            class="bg-white dark:bg-black rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-600 transition-all duration-300">
+                            class="bg-white dark:bg-neutral-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-600 transition-all duration-300">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-sm font-medium text-gray-600 dark:text-white">Videos</p>
@@ -538,7 +538,7 @@ const formatNumber = (num: number) => {
                         </div>
 
                         <div
-                            class="bg-white dark:bg-black rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:border-yellow-300 dark:hover:border-yellow-600 transition-all duration-300">
+                            class="bg-white dark:bg-neutral-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-yellow-300 dark:hover:border-yellow-600 transition-all duration-300">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-sm font-medium text-gray-600 dark:text-white">GIFs</p>
@@ -554,7 +554,7 @@ const formatNumber = (num: number) => {
                         </div>
 
                         <div
-                            class="bg-white dark:bg-black rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:border-pink-300 dark:hover:border-pink-600 transition-all duration-300">
+                            class="bg-white dark:bg-neutral-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-pink-300 dark:hover:border-pink-600 transition-all duration-300">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-sm font-medium text-gray-600 dark:text-white">Socials</p>
@@ -574,7 +574,7 @@ const formatNumber = (num: number) => {
                 <!-- Additional Stats Row -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div
-                        class="bg-white dark:bg-black rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
+                        class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-600 dark:text-white">File Transfers</p>
@@ -614,7 +614,7 @@ const formatNumber = (num: number) => {
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 ">
                     <!-- Content Trends Chart -->
                     <div
-                        class="lg:col-span-2 bg-white dark:bg-black rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
+                        class="lg:col-span-2 bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300">
                         <div style="height: 400px;">
                             <Line :data="chartData" :options="chartOptions" />
                         </div>
@@ -622,7 +622,7 @@ const formatNumber = (num: number) => {
 
                     <!-- Content Distribution Pie Chart -->
                     <div
-                        class="bg-white dark:bg-black rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
+                        class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300">
                         <div style="height: 400px;">
                             <Doughnut :data="contentDistributionData" :options="doughnutOptions" />
                         </div>
@@ -633,7 +633,7 @@ const formatNumber = (num: number) => {
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Preview Statistics -->
                     <div
-                        class="bg-white dark:bg-black rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
+                        class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300">
                         <div style="height: 350px;">
                             <Line :data="previewChartData" :options="previewChartOptions" />
                         </div>
@@ -641,7 +641,7 @@ const formatNumber = (num: number) => {
 
                     <!-- Bills Overview -->
                     <div
-                        class="bg-white dark:bg-black rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
+                        class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300">
                         <div style="height: 350px;">
                             <Bar :data="billChartData" :options="billChartOptions" />
                         </div>

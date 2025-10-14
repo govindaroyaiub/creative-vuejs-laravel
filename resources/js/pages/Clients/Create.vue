@@ -65,27 +65,27 @@ const handleSubmit = () => {
         <div>
           <label class="block text-sm font-medium">Name</label>
           <input v-model="form.name" type="text" placeholder="e.g. Acme Corp"
-            class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white" required />
+            class="w-full rounded-xl border px-3 py-2 dark:bg-black dark:text-white" required />
         </div>
 
         <!-- Website -->
         <div>
           <label class="block text-sm font-medium">Website</label>
           <input v-model="form.website" type="url" placeholder="e.g. https://example.com"
-            class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white" required />
+            class="w-full rounded-xl border px-3 py-2 dark:bg-black dark:text-white" required />
         </div>
 
         <!-- Preview URL -->
         <div>
           <label class="block text-sm font-medium">Preview URL</label>
           <input v-model="form.preview_url" type="url"
-            class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white" />
+            class="w-full rounded-xl border px-3 py-2 dark:bg-black dark:text-white" />
         </div>
 
         <!-- Brand Color (from Color Palettes) -->
         <div>
           <label class="block text-sm font-medium mb-1">Brand Color</label>
-          <select v-model="form.color_palette_id" class="w-full rounded border px-3 py-2 dark:bg-black dark:text-white"
+          <select v-model="form.color_palette_id" class="w-full rounded-xl border px-3 py-2 dark:bg-black dark:text-white"
             required>
             <option disabled value="">Select a color palette</option>
             <option v-for="palette in colorPalettes" :key="palette.id" :value="palette.id">
@@ -98,7 +98,7 @@ const handleSubmit = () => {
             <span class="text-sm text-gray-500">Preview:</span>
             <div v-if="colorPalettes.find(p => p.id == form.color_palette_id)"
               :style="{ backgroundColor: colorPalettes.find(p => p.id == form.color_palette_id)?.primary }"
-              class="h-5 w-10 rounded-lg border"></div>
+              class="h-5 w-10 rounded-xl-lg border"></div>
             <span class="text-sm text-gray-500">
               {{colorPalettes.find(p => p.id == form.color_palette_id)?.primary}}
             </span>

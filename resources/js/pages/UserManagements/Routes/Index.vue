@@ -118,13 +118,13 @@ const deleteRoute = async (id: number) => {
 
                 <div class="mb-6 flex items-center justify-between space-x-4">
                     <input v-model="search" placeholder="Search routes..."
-                        class="w-full max-w-xs rounded-2xl border px-3 py-2 text-left dark:bg-black dark:text-white" />
+                        class="w-full max-w-xs rounded-2xl border px-3 py-2 text-left dark:bg-neutral-800 dark:text-white" />
                     <Button size="sm" class="rounded-xl" @click="startAdding" v-if="!adding"> Add </Button>
                 </div>
 
-                <div class="overflow-x-auto rounded-2xl bg-white shadow dark:bg-black">
+                <div class="overflow-x-auto rounded-2xl bg-white shadow dark:bg-neutral-800">
                     <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
-                        <thead class="bg-gray-100 text-xs uppercase dark:bg-black dark:text-gray-300 text-center">
+                        <thead class="bg-gray-100 text-xs uppercase dark:bg-neutral-900 dark:text-gray-300 text-center">
                             <tr>
                                 <th class="px-6 py-3">#</th>
                                 <th class="px-6 py-3">Title</th>
@@ -138,11 +138,11 @@ const deleteRoute = async (id: number) => {
                                 <td class="px-6 py-4">#</td>
                                 <td class="px-6 py-4">
                                     <input v-model="newRoute.title" placeholder="Route Title"
-                                        class="w-full rounded border px-2 py-1 text-center dark:bg-black dark:text-white" />
+                                        class="w-full rounded border px-2 py-1 text-center dark:bg-neutral-800 dark:text-white" />
                                 </td>
                                 <td class="px-6 py-4">
                                     <input v-model="newRoute.href" placeholder="Route Href"
-                                        class="w-full rounded border px-2 py-1 text-center dark:bg-black dark:text-white" />
+                                        class="w-full rounded border px-2 py-1 text-center dark:bg-neutral-800 dark:text-white" />
                                 </td>
                                 <td class="px-6 py-4 space-x-2">
                                     <Button size="sm" @click="saveRoute">Save</Button>
@@ -157,14 +157,14 @@ const deleteRoute = async (id: number) => {
                                     <template v-if="editingId !== route.id">{{ route.title }}</template>
                                     <template v-else>
                                         <input v-model="editForm.title"
-                                            class="w-full rounded border px-2 py-1 text-center dark:bg-black dark:text-white" />
+                                            class="w-full rounded border px-2 py-1 text-center dark:bg-neutral-700 dark:text-white" />
                                     </template>
                                 </td>
                                 <td class="px-6 py-4">
                                     <template v-if="editingId !== route.id">{{ route.href }}</template>
                                     <template v-else>
                                         <input v-model="editForm.href"
-                                            class="w-full rounded border px-2 py-1 text-center dark:bg-black dark:text-white" />
+                                            class="w-full rounded border px-2 py-1 text-center dark:bg-neutral-700 dark:text-white" />
                                     </template>
                                 </td>
                                 <td class="space-x-2 px-6 py-4">
