@@ -523,10 +523,10 @@ const formatNumber = (num: number) => {
                 </div>
 
                 <!-- Charts Section -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 ">
                     <!-- Content Trends Chart -->
                     <div
-                        class="lg:col-span-2 bg-white dark:bg-black rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                        class="lg:col-span-2 bg-white dark:bg-black rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
                         <div style="height: 400px;">
                             <Line :data="chartData" :options="chartOptions" />
                         </div>
@@ -534,7 +534,7 @@ const formatNumber = (num: number) => {
 
                     <!-- Content Distribution Pie Chart -->
                     <div
-                        class="bg-white dark:bg-black rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                        class="bg-white dark:bg-black rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
                         <div style="height: 400px;">
                             <Doughnut :data="contentDistributionData" :options="doughnutOptions" />
                         </div>
@@ -545,7 +545,7 @@ const formatNumber = (num: number) => {
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Preview Statistics -->
                     <div
-                        class="bg-white dark:bg-black rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                        class="bg-white dark:bg-black rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
                         <div style="height: 350px;">
                             <Line :data="previewChartData" :options="previewChartOptions" />
                         </div>
@@ -553,7 +553,7 @@ const formatNumber = (num: number) => {
 
                     <!-- Bills Overview -->
                     <div
-                        class="bg-white dark:bg-black rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                        class="bg-white dark:bg-black rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-300">
                         <div style="height: 350px;">
                             <Bar :data="billChartData" :options="billChartOptions" />
                         </div>
