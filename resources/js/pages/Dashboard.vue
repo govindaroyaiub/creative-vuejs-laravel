@@ -16,7 +16,7 @@ import {
     ArcElement,
     BarElement,
 } from 'chart.js';
-import { computed, ref, watchEffect, onMounted } from 'vue';
+import { computed, ref, watchEffect, onMounted, onUnmounted } from 'vue';
 import { type BreadcrumbItem } from '@/types';
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement, Filler, ArcElement, BarElement);
@@ -28,10 +28,53 @@ const breadcrumbs: BreadcrumbItem[] = [
 const page = usePage();
 const isLoaded = ref(false);
 
+const currentTime = ref(new Date());
+let timeInterval: NodeJS.Timeout;
+
 onMounted(() => {
-    setTimeout(() => {
-        isLoaded.value = true;
-    }, 100);
+    timeInterval = setInterval(() => {
+        currentTime.value = new Date();
+    }, 1000);
+});
+
+onUnmounted(() => {
+    if (timeInterval) {
+        clearInterval(timeInterval);
+    }
+});
+
+// Bangladesh Time (Asia/Dhaka)
+const bangladeshTime = computed(() => {
+    const bdTime = new Date(currentTime.value.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
+    return {
+        time: bdTime.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        }),
+        date: bdTime.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+        })
+    };
+});
+
+// Netherlands Time (Europe/Amsterdam)
+const netherlandsTime = computed(() => {
+    const nlTime = new Date(currentTime.value.toLocaleString("en-US", { timeZone: "Europe/Amsterdam" }));
+    return {
+        time: nlTime.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        }),
+        date: nlTime.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+        })
+    };
 });
 
 const stats = computed(() => page.props.monthlyStats ?? {});
@@ -360,10 +403,55 @@ const formatNumber = (num: number) => {
                             Analytics and insights for {{ year }}
                         </p>
                     </div>
-                    <div class="text-right">
-                        <div class="text-sm text-gray-500 dark:text-white">Current Period</div>
-                        <div class="text-xl font-bold text-gray-900 dark:text-white">
-                            {{ new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) }}
+                    <div class="text-right space-y-3">
+                        <!-- Current Period -->
+                        <div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Current Period</div>
+                            <div class="text-xl font-bold text-gray-900 dark:text-white">
+                                {{ new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) }}
+                            </div>
+                        </div>
+
+                        <!-- World Clocks with Flags -->
+                        <div
+                            class="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 rounded-xl p-4 flex flex-row gap-4">
+                            <!-- Bangladesh -->
+                            <div
+                                class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm">
+                                <div class="flex items-center space-x-3">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">Dhaka</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Bangladesh</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-mono font-bold text-green-600 dark:text-green-400">
+                                        - {{ bangladeshTime.time }}
+                                    </div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ bangladeshTime.date }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Netherlands -->
+                            <div
+                                class="flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm">
+                                <div class="flex items-center space-x-3">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">Amsterdam </div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">Netherlands</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-mono font-bold text-blue-600 dark:text-blue-400">
+                                        - {{ netherlandsTime.time }}
+                                    </div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ netherlandsTime.date }}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -404,7 +492,7 @@ const formatNumber = (num: number) => {
                                 <div class="flex items-center mt-2">
                                     <span class="text-sm text-green-600 dark:text-green-400 font-medium">
                                         {{ calculateGrowth(currentMonthData.previews.current,
-                                        currentMonthData.previews.previous) }}%
+                                            currentMonthData.previews.previous) }}%
                                     </span>
                                     <span class="text-xs text-gray-500 ml-1">vs last month</span>
                                 </div>
@@ -510,7 +598,7 @@ const formatNumber = (num: number) => {
                                 <div class="flex items-center mt-2">
                                     <span class="text-green-200 text-sm font-medium">
                                         {{ calculateGrowth(currentMonthData.bills.current,
-                                        currentMonthData.bills.previous) }}%
+                                            currentMonthData.bills.previous) }}%
                                     </span>
                                     <span class="text-xs text-green-200 ml-1">vs last month</span>
                                 </div>
