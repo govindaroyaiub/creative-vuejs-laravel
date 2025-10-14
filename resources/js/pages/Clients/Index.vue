@@ -180,8 +180,7 @@ const activeClients = computed(() =>
                 </div>
 
                 <!-- Search and Filters -->
-                <div
-                    class="rounded-2xl shadow-sm flex items-center space-x-4">
+                <div class="rounded-2xl shadow-sm flex items-center space-x-4">
                     <div class="flex flex-col sm:flex-row gap-4 w-full">
                         <div class="relative flex-1">
                             <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -205,20 +204,20 @@ const activeClients = computed(() =>
                 <!-- Clients Grid -->
                 <div v-if="clients?.data?.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div v-for="(client, index) in clients.data" :key="client.id"
-                        class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-700 transition-all duration-200 overflow-hidden group">
+                        class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-blue-200 dark:hover:border-neutral-600 transition-all duration-200 overflow-hidden group">
                         <!-- Card Header -->
-                        <div class="p-6 pb-4">
-                            <div class="flex items-start justify-between">
+                        <div class="py-2 pb-4">
+                            <div class="flex items-start justify-evenly">
                                 <div class="flex items-center space-x-3">
                                     <div
-                                        class="w-48 h-12 bg-gradient-to-r from-white to-white rounded-md flex items-center justify-center">
+                                        class="w-48 h-12 bg-gradient-to-r from-transparent to-transparent rounded-md flex items-center justify-left">
                                         <img v-if="client.logo" :src="`/logos/${client.logo}`"
                                             :alt="client.name + ' logo'" class="w-20 object-contain rounded" />
                                         <Building2 v-else class="w-6 h-6 text-blue-600 dark:text-blue-400" />
                                     </div>
                                     <div>
                                         <h3 class="font-semibold text-gray-900 dark:text-white text-base">{{ client.name
-                                        }}</h3>
+                                            }}</h3>
                                         <div class="flex items-center mt-1">
                                             <span :class="getStatusColor(client)"
                                                 class="px-2 py-1 rounded-full text-xs font-medium">
@@ -279,7 +278,7 @@ const activeClients = computed(() =>
 
                         <!-- Card Actions -->
                         <div
-                            class="px-6 py-4 bg-gray-50 dark:bg-neutral-800 border-t border-gray-200 dark:border-neutral-700">
+                            class="px-6 py-4 bg-gray-50 dark:bg-neutral-900 border-t border-gray-200 dark:border-neutral-700">
                             <div class="flex justify-end space-x-2">
                                 <Link :href="route('clients-edit', client.id)"
                                     class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-all duration-200 group/edit"

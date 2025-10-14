@@ -50,6 +50,7 @@ const bangladeshTime = computed(() => {
         time: bdTime.toLocaleTimeString('en-US', {
             hour: '2-digit',
             minute: '2-digit',
+            second: '2-digit',
             hour12: true
         }),
         date: bdTime.toLocaleDateString('en-US', {
@@ -67,6 +68,7 @@ const netherlandsTime = computed(() => {
         time: nlTime.toLocaleTimeString('en-US', {
             hour: '2-digit',
             minute: '2-digit',
+            second: '2-digit',
             hour12: true
         }),
         date: nlTime.toLocaleDateString('en-US', {
@@ -405,22 +407,14 @@ const formatNumber = (num: number) => {
                     </div>
 
                     <div class="space-y-3">
-                        <!-- Current Period -->
-                        <div class="text-center lg:text-right">
-                            <div class="text-sm text-gray-500 dark:text-gray-400">Current Period</div>
-                            <div class="text-lg md:text-xl font-bold text-gray-900 dark:text-white">
-                                {{ new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) }}
-                            </div>
-                        </div>
-
                         <!-- World Clocks - Responsive Layout -->
                         <div
                             class="bg-gradient-to-r from-indigo-300 to-blue-300 dark:from-neutral-800 dark:to-neutral-800 rounded-xl p-3 md:p-4">
                             <!-- Mobile: Stacked Layout -->
-                            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 md:justify-around sm:justify-around">
                                 <!-- Bangladesh -->
                                 <div
-                                    class="flex items-center justify-between bg-white dark:bg-neutral-900 rounded-lg p-2 md:p-3 shadow-sm flex-1">
+                                    class="flex items-center justify-between bg-white dark:bg-neutral-900 rounded-lg p-2 md:p-3 sm:w-full lg:w-fit shadow-sm gap-4">
                                     <div class="flex items-center space-x-2 md:space-x-3 min-w-0">
                                         <div class="min-w-0 flex-1">
                                             <div
@@ -445,7 +439,7 @@ const formatNumber = (num: number) => {
 
                                 <!-- Netherlands -->
                                 <div
-                                    class="flex items-center justify-between bg-white dark:bg-neutral-900 rounded-lg p-2 md:p-3 shadow-sm flex-1">
+                                    class="flex items-center justify-between bg-white dark:bg-neutral-900 rounded-lg p-2 md:p-3 sm:w-full lg:w-fit shadow-sm gap-4">
                                     <div class="flex items-center space-x-2 md:space-x-3 min-w-0">
                                         <div class="min-w-0 flex-1">
                                             <div
@@ -476,9 +470,12 @@ const formatNumber = (num: number) => {
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <!-- Users Card -->
                     <div
-                        class="group relative bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 overflow-hidden">
+                        class="group relative bg-white dark:bg-orange-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-orange-300 dark:hover:border-orange-600 transition-all duration-300 overflow-hidden">
                         <div
-                            class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full -translate-y-10 translate-x-10">
+                            class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-orange-500/10 to-500/10 rounded-full -translate-y-10 translate-x-10">
+                        </div>
+                        <div
+                            class="absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-br from-orange-500/10 to-500/10 rounded-full translate-y-10 -translate-x-10">
                         </div>
                         <div class="flex items-center justify-between">
                             <div>
@@ -488,7 +485,7 @@ const formatNumber = (num: number) => {
                                 </p>
                             </div>
                             <div class="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl">
-                                <UsersRound class="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                                <UsersRound class="w-6 h-6 text-orange-600 dark:text-orange-400" />
                             </div>
                         </div>
                     </div>
@@ -499,19 +496,15 @@ const formatNumber = (num: number) => {
                         <div
                             class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-full -translate-y-10 translate-x-10">
                         </div>
+                        <div
+                            class="absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-full translate-y-10 -translate-x-10">
+                        </div>
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-600 dark:text-white">Total Previews</p>
                                 <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">
                                     {{ formatNumber(animatedCounts.previewCount.value) }}
                                 </p>
-                                <div class="flex items-center mt-2">
-                                    <span class="text-sm text-green-600 dark:text-green-400 font-medium">
-                                        {{ calculateGrowth(currentMonthData.previews.current,
-                                            currentMonthData.previews.previous) }}%
-                                    </span>
-                                    <span class="text-xs text-gray-500 ml-1">vs last month</span>
-                                </div>
                             </div>
                             <div class="p-3 bg-green-100 dark:bg-green-900/50 rounded-xl">
                                 <MonitorStop class="w-6 h-6 text-green-600 dark:text-green-400" />
@@ -590,7 +583,7 @@ const formatNumber = (num: number) => {
                 <!-- Additional Stats Row -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div
-                        class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300">
+                        class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-lg transition-all duration-300">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-600 dark:text-white">File Transfers</p>

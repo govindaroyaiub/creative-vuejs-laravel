@@ -81,7 +81,7 @@
         <!-- Palettes Grid -->
         <div v-if="colorPalettes?.length > 0" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
           <div v-for="(palette, index) in colorPalettes" :key="palette.id"
-            class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200 overflow-hidden group">
+            class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-blue-200 dark:hover:border-neutral-600 transition-all duration-200 overflow-hidden group">
             <!-- Card Header -->
             <div class="p-4 pb-4">
               <div class="flex items-center justify-between mb-2">
@@ -179,7 +179,7 @@
             </div>
 
             <!-- Card Actions -->
-            <div class="px-6 py-2 bg-gray-50 dark:bg-neutral-800 border-t border-gray-200 dark:border-neutral-700">
+            <div class="px-6 py-2 bg-gray-50 dark:bg-neutral-900 border-t border-gray-200 dark:border-neutral-700">
               <div class="flex justify-end space-x-2">
                 <button @click="openEditModal(palette)"
                   class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-all duration-200 group/edit"
