@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 
@@ -15,6 +15,7 @@ const page = usePage<SharedData>();
 
 <template>
     <SidebarGroup :class="`group-data-[collapsible=icon]:p-0 ${$props.class || ''}`">
+        <SidebarGroupLabel>Docs and Accessibilites</SidebarGroupLabel>
         <SidebarGroupContent>
             <SidebarMenu>
                 <SidebarMenuItem v-for="item in items" :key="item.title">

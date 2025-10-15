@@ -20,19 +20,19 @@ const mainNavItems: NavItem[] = [
     { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { title: 'Previews', href: '/previews', icon: MonitorStop },
     { title: 'Color Palettes', href: '/color-palettes', icon: Paintbrush },
+    { title: 'Clients', href: '/clients', icon: Handshake },
     { title: 'Banner Sizes', href: '/banner-sizes', icon: MonitorCog },
     { title: 'Video Sizes', href: '/video-sizes', icon: Clapperboard },
     { title: 'Bills', href: '/bills', icon: ReceiptText },
     { title: 'File Transfers', href: '/file-transfers', icon: Paperclip },
     { title: 'Media Library', 'href': '/medias', icon: ImagePlay },
     { title: 'Tetris', href: '/play/tetris', icon: Type },
-    { title: 'Documentation', href: '/lazyDoc', icon: FileCode }
 ];
 
 const footerNavItems: NavItem[] = [
-    { title: 'Clients', href: '/clients', icon: Handshake },
     { title: 'Access Manager', href: '/user-managements/designations', icon: Users },
-    { title: 'Activity Logs', 'href': '/activity-logs', icon: History }
+    { title: 'Activity Logs', 'href': '/activity-logs', icon: History },
+    { title: 'Documentation', href: '/lazyDoc', icon: FileCode }
 ];
 
 // Permission check function
