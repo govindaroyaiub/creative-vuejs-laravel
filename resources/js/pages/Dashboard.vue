@@ -15,12 +15,29 @@ import {
     Filler,
     ArcElement,
     BarElement,
+    // Add these missing ones
+    RadialLinearScale,
+    TimeScale,
+    TimeSeriesScale,
 } from 'chart.js';
 import { computed, ref, watchEffect, onMounted, onUnmounted } from 'vue';
 import { type BreadcrumbItem } from '@/types';
 
-ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement, Filler, ArcElement, BarElement);
-
+ChartJS.register(
+    Title,
+    Tooltip,
+    Legend,
+    LineElement,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    Filler,
+    ArcElement,
+    BarElement,
+    RadialLinearScale,
+    TimeScale,
+    TimeSeriesScale
+);
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
 ];
@@ -35,6 +52,10 @@ onMounted(() => {
     timeInterval = setInterval(() => {
         currentTime.value = new Date();
     }, 1000);
+
+    setTimeout(() => {
+        isLoaded.value = true;
+    }, 100);
 });
 
 onUnmounted(() => {
@@ -168,11 +189,17 @@ const chartOptions = {
     scales: {
         x: {
             grid: { display: false },
-            ticks: { font: { weight: 'bold' } }
+            ticks: {
+                font: { weight: 'bold' },
+                color: 'rgba(0, 0, 0, 0.7)' // Add text color
+            }
         },
         y: {
             beginAtZero: true,
-            grid: { color: 'rgba(0, 0, 0, 0.1)' }
+            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+            ticks: {
+                color: 'rgba(0, 0, 0, 0.7)' // Add text color
+            }
         }
     }
 };
@@ -205,13 +232,13 @@ const animateCount = (target: number, duration: number = 2000) => {
 };
 
 const animatedCounts = {
-    userCount: animateCount(page.props.userCount, 1500),
-    previewCount: animateCount(page.props.previewCount, 1800),
-    bannerCount: animateCount(page.props.bannerCount, 2000),
-    videoCount: animateCount(page.props.videoCount, 2200),
-    gifCount: animateCount(page.props.gifCount, 2400),
+    userCount: animateCount(page.props.userCount, 2000),
+    previewCount: animateCount(page.props.previewCount, 1000),
+    bannerCount: animateCount(page.props.bannerCount, 1000),
+    videoCount: animateCount(page.props.videoCount, 1000),
+    gifCount: animateCount(page.props.gifCount, 1000),
     socialCount: animateCount(page.props.socialCount, 2600),
-    fileTransferCount: animateCount(page.props.fileTransferCount, 1700),
+    fileTransferCount: animateCount(page.props.fileTransferCount, 2000),
     totalBill: animateCount(page.props.totalBill, 2800),
 };
 
@@ -625,7 +652,10 @@ const formatNumber = (num: number) => {
                     <div
                         class="lg:col-span-2 bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300">
                         <div style="height: 400px;">
-                            <Line :data="chartData" :options="chartOptions" />
+                            <Line v-if="chartData && chartData.datasets" :data="chartData" :options="chartOptions" />
+                            <div v-else class="flex items-center justify-center h-full text-gray-500">
+                                Loading chart...
+                            </div>
                         </div>
                     </div>
 
