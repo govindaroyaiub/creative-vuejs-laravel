@@ -4,7 +4,7 @@
     <div>
       <label for="preview-name" class="block mb-1 text-sm font-medium">Preview Name *</label>
       <input id="preview-name" v-model="form.name" type="text" placeholder="e.g. Facebook Ad - June"
-        class="w-full rounded-2xl border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+        class="w-full rounded-2xl border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-800 dark:text-white  transition-colors"
         required maxlength="255" :class="{ 'border-red-500': formErrors.name }" />
       <p v-if="formErrors.name" class="text-red-500 text-xs mt-1">{{ formErrors.name }}</p>
     </div>
@@ -15,7 +15,7 @@
       <div>
         <label for="client-select" class="block mb-1 text-sm font-medium">Client *</label>
         <select id="client-select" v-model="form.client_id"
-          class="w-full rounded-2xl border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+          class="w-full rounded-2xl border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-800 dark:text-white  transition-colors"
           required :class="{ 'border-red-500': formErrors.client_id }">
           <option disabled value="">Select Client</option>
           <option v-for="client in clients" :key="client.id" :value="client.id">
@@ -29,7 +29,7 @@
       <div>
         <label for="header-logo-select" class="block mb-1 text-sm font-medium">Header Logo *</label>
         <select id="header-logo-select" v-model="form.header_logo_id"
-          class="w-full rounded-2xl border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+          class="w-full rounded-2xl border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-800 dark:text-white  transition-colors"
           required :class="{ 'border-red-500': formErrors.header_logo_id }">
           <option disabled value="">Select Header Logo</option>
           <option v-for="client in clients" :key="client.id" :value="client.id">
@@ -43,7 +43,7 @@
       <div>
         <label for="theme-select" class="block mb-1 text-sm font-medium">Theme *</label>
         <select id="theme-select" v-model="form.color_palette_id"
-          class="w-full rounded-2xl border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+          class="w-full rounded-2xl border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-800 dark:text-white  transition-colors"
           required :class="{ 'border-red-500': formErrors.color_palette_id }">
           <option disabled value="">Select Theme</option>
           <option v-for="palette in colorPalettes" :key="palette.id" :value="palette.id">
@@ -75,7 +75,7 @@
 
       <div class="relative">
         <input id="user-search" v-model="userSearch" type="text" placeholder="Search and add team members..."
-          class="w-full rounded-2xl border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+          class="w-full rounded-2xl border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-800 dark:text-white  transition-colors"
           :class="{ 'border-red-500': formErrors.team_ids }" autocomplete="off" />
 
         <!-- User Search Results -->
