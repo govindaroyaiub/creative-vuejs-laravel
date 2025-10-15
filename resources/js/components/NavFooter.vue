@@ -15,7 +15,7 @@ const page = usePage<SharedData>();
 
 <template>
     <SidebarGroup :class="`group-data-[collapsible=icon]:p-0 ${$props.class || ''}`">
-        <SidebarGroupLabel>Docs and Accessibilites</SidebarGroupLabel>
+        <SidebarGroupLabel>Accessibilites & Docs</SidebarGroupLabel>
         <SidebarGroupContent>
             <SidebarMenu>
                 <SidebarMenuItem v-for="item in items" :key="item.title">

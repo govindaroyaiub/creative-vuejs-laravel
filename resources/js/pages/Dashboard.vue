@@ -631,6 +631,13 @@ const formatNumber = (num: number) => {
                                 <p class="text-3xl font-bold">
                                     ৳{{ formatNumber(animatedCounts.totalBill.value) }}
                                 </p>
+                                <div class="flex items-center mt-2">
+                                    <span class="text-green-200 text-sm font-medium">
+                                        {{ calculateGrowth(currentMonthData.bills.current,
+                                            currentMonthData.bills.previous) }}%
+                                    </span>
+                                    <span class="text-xs text-green-200 ml-1">vs last month</span>
+                                </div>
                             </div>
                             <div class="p-3 bg-white/20 rounded-xl">
                                 <PiggyBank class="w-6 h-6 text-white" />

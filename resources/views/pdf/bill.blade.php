@@ -23,7 +23,6 @@
             font-family: sans-serif;
             font-size: 14px;
             margin-bottom: 130px;
-            /* reserve space for the footer */
         }
 
         .logo {
@@ -45,17 +44,61 @@
             margin: 2px 0;
         }
 
+        .table-container {
+            margin: 20px 0;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            font-size: 11px;
         }
 
-        th,
-        td {
+        thead {
+            background: #0066cc;
+            color: white;
+            border-radius: 5px;
+        }
+
+        th {
             padding: 8px;
-            border: 1px solid #ccc;
             text-align: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        td {
+            padding: 6px 8px;
+            font-size: 11px;
+        }
+
+        td:nth-child(1),
+        td:nth-child(2),
+        td:nth-child(3),
+        td:nth-child(4) {
+            text-align: center;
+        }
+
+        /* Total Row */
+        .total-row {
+            background: #28a745 !important;
+            color: white !important;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+
+        .total-row td {
+            font-size: 12px;
+            padding: 10px 8px;
         }
 
         .total {
@@ -90,6 +133,28 @@
             border: none !important;
             padding: 2px 4px;
         }
+
+        .invoice-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0066cc;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .amount-words {
+            margin: 15px 0;
+            padding: 10px;
+            background: #fff3cd;
+            border-left: 3px solid #ffc107;
+        }
+
+        .amount-words p {
+            margin: 0;
+            font-size: 12px;
+            font-weight: bold;
+            color: #856404;
+        }
     </style>
 </head>
 
@@ -100,41 +165,42 @@
     </div>
 
     <!-- Bill Info -->
-    <h2>Bill #{{ $bill->id }}</h2>
+    <h2 class="invoice-title">Bill #{{ $bill->id }}</h2>
     <p><strong>Name:</strong> {{ $bill->name }}</p>
     <p><strong>Client:</strong> {{ $bill->client }}</p>
     <p><strong>Issue Date:</strong> {{ $issueDate }}</p>
 
     <!-- Sub-bill Table -->
-    <table>
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th>Quantity</th>
-                <th>Unit Price</th>
-                <th>Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($bill->subBills as $sub)
-            <tr>
-                <td>{{ $sub->item }}</td>
-                <td>{{ $sub->quantity }}</td>
-                <td>{{ number_format($sub->unit_price, 2) }}</td>
-                <td>{{ number_format($sub->amount, 2) }}</td>
-            </tr>
-            @endforeach
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Qty</th>
+                    <th>Unit Price (BDT)</th>
+                    <th>Amount (BDT)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($bill->subBills as $sub)
+                <tr>
+                    <td>{{ $sub->item }}</td>
+                    <td>{{ number_format($sub->quantity) }}</td>
+                    <td>{{ number_format($sub->unit_price, 2) }}</td>
+                    <td>{{ number_format($sub->amount, 2) }}</td>
+                </tr>
+                @endforeach
 
-            <!-- Total Row -->
-            <tr>
-                <td colspan="3" style="text-align: center; font-weight: bold;">Total Amount</td>
-                <td style="text-align: center; font-weight: bold;">{{ number_format($bill->total_amount, 2) }}</td>
-            </tr>
-        </tbody>
-    </table>
+                <tr class="total-row">
+                    <td colspan="3"><strong>TOTAL AMOUNT</strong></td>
+                    <td><strong>{{ number_format($bill->total_amount, 2) }}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
     <!-- Total Amount -->
-    <p class="total">In Words: {{ $amountInWords }}</p>
+    <p class="amount-words">In Words: {{ $amountInWords }}</p>
 
     <!-- Signature Section -->
     <div class="signature">
