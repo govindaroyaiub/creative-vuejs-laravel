@@ -187,4 +187,18 @@ class NewFeedbackController extends Controller
             return response($e->getMessage(), 500);
         }
     }
+
+    public function disapprove(newFeedback $newFeedback, $id)
+    {
+        try {
+            // Get the feedback to disapprove
+            $feedback = $newFeedback->findOrFail($id);
+            $feedback->is_approved = false;
+            $feedback->save();
+
+            return response('', 200);
+        } catch (\Exception $e) {
+            return response($e->getMessage(), 500);
+        }
+    }
 }
