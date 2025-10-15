@@ -486,7 +486,6 @@
                 var clickHandler = ''; // No click for active feedback
                 var tabImagePath = '/{{ $feedback_active_image }}';
                 var hoverEvents = ''; // no hover for active
-                // var feedbackApproved = `<div class="absolute w-2 h-2 bg-green-500 rounded-full top-0"></div>`;
             } else {
                 isActive = '';
                 var clickHandler = 'onclick="updateActiveFeedback(' + value.id + ')"';
@@ -496,7 +495,7 @@
             }
 
             if(value.is_approved == 1){
-                var feedbackApproved = `<div class="absolute w-2 h-2 bg-green-500 rounded-full top-0 border-2 border-white"></div>`;
+                var feedbackApproved = `<div class="w-2 h-2 bg-green-500 rounded-full border-1 border-white animate-pulse-green" style="margin-left: 5px; flex-shrink: 0;"></div>`;
             }
             else{
                 var feedbackApproved = ``;
@@ -506,11 +505,10 @@
                 <div style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
                     <div id="feedbackTab${value.id}" class="feedbackTab${isActive}" ${clickHandler} ${hoverEvents}
                         style="bottom: -1px; background-image: url('${tabImagePath}'); background-size: cover; background-position: center; background-repeat: no-repeat; position: relative; cursor: pointer; min-width: 110px; width: 100%; max-width: 110px; height: 35px;">
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 0.875rem; font-weight: 500; text-align: center; width: 100%; text-shadow: 1px 1px 2px rgba(0,0,0,0.7);">
-                            ${value.name}
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 0.875rem; font-weight: 500; text-align: center; width: 100%; text-shadow: 1px 1px 2px rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center;">
+                            <span style="text-align: center;">${value.name}</span>${feedbackApproved}
                         </div>
                     </div>
-                    ${feedbackApproved}
                 </div>
             `;
             $('#feedbackMessage').html(value.description);

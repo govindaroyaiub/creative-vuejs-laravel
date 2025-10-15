@@ -2287,3 +2287,18 @@ hr {
     flex-wrap: wrap;
     gap: 1rem;
 }
+
+@keyframes pulse-green {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(0.8);
+    }
+}
+
+.animate-pulse-green {
+    animation: pulse-green 1.5s ease-in-out infinite;
+}
