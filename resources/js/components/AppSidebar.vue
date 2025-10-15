@@ -6,7 +6,7 @@ import { useAppearance } from '@/composables/useAppearance';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutDashboard, Paperclip, Clapperboard, MonitorCog, MonitorStop, ReceiptText, Users, History, Type, FileCode, CircleDollarSign, Paintbrush, ImagePlay, ImageMinus } from 'lucide-vue-next';
+import { LayoutDashboard, Paperclip, Clapperboard, MonitorCog, MonitorStop, ReceiptText, Users, History, Type, FileCode, Handshake, Paintbrush, ImagePlay, ImageMinus } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 import { computed } from 'vue'; // ✅ important to make reactive
@@ -30,7 +30,7 @@ const mainNavItems: NavItem[] = [
 ];
 
 const footerNavItems: NavItem[] = [
-    { title: 'Clients', href: '/clients', icon: CircleDollarSign },
+    { title: 'Clients', href: '/clients', icon: Handshake },
     { title: 'Access Manager', href: '/user-managements/designations', icon: Users },
     { title: 'Activity Logs', 'href': '/activity-logs', icon: History }
 ];
