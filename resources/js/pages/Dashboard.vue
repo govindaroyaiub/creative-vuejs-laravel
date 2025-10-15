@@ -583,7 +583,7 @@ const formatNumber = (num: number) => {
                 <!-- Additional Stats Row -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div
-                        class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-lg transition-all duration-300">
+                        class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-lg transition-all duration-300">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-600 dark:text-white">File Transfers</p>
