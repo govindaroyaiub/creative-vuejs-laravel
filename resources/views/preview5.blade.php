@@ -495,7 +495,7 @@
             }
 
             if(value.is_approved == 1){
-                var feedbackApproved = `<div class="w-2 h-2 bg-green-500 rounded-full border-1 border-white animate-pulse-green" style="margin-left: 5px; flex-shrink: 0;"></div>`;
+                var feedbackApproved = `<div class="w-2 h-2 bg-green-700 rounded-full border border-white animate-pulse-green" style="margin-left: 5px; flex-shrink: 0;"></div>`;
             }
             else{
                 var feedbackApproved = ``;
