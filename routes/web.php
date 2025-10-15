@@ -64,6 +64,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::post('/previews/{id}/bulk-edit', [NewPreviewController::class, 'bulkEdit'])->name('previews.bulkEdit');
 
     Route::delete('/previews/category/delete/{id}', [NewCategoryController::class, 'destroy'])->name('previews.category.delete');
+    Route::put('/previews/feedback/approve/{id}', [NewFeedbackController::class, 'approve'])->name('previews.feedback.approve');
     Route::delete('/previews/feedback/delete/{id}', [NewFeedbackController::class, 'destroy'])->name('previews.feedback.delete');
     Route::delete('/previews/feedbackSet/delete/{id}', [NewFeedbackSetController::class, 'destroy'])->name('previews.feedback.set.delete');
     Route::delete('/previews/version/delete/{id}', [NewVersionController::class, 'destroy'])->name('previews.version.delete');

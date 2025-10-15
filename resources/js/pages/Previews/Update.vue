@@ -47,11 +47,48 @@
                                         </span>
                                         <!-- Right side: delete buttons -->
                                         <span class="flex items-center gap-2">
+                                            <!-- Detailed approval status -->
+                                            <div v-if="isDbId(feedback.id) && feedback.is_approved"
+                                                class="flex items-center bg-green-50 border border-green-200 text-green-700 px-2 py-1 rounded text-xs font-medium">
+                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd"
+                                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                                        clip-rule="evenodd" />
+                                                </svg>
+                                                Feedback Approved
+                                            </div>
+
+                                            <!-- Approve button with loading state -->
+                                            <button v-else-if="isDbId(feedback.id) && !feedback.is_approved"
+                                                @click.stop="approveFeedback(feedback, category, fbIdx)"
+                                                :disabled="feedback.isApproving"
+                                                class="bg-blue-100 text-blue-700 hover:bg-blue-200 hover:text-blue-900 px-2 py-1 rounded text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                                <span v-if="feedback.isApproving" class="flex items-center">
+                                                    <svg class="animate-spin w-3 h-3 mr-1" fill="none"
+                                                        viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10"
+                                                            stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                        </path>
+                                                    </svg>
+                                                    Approving...
+                                                </span>
+                                                <span v-else class="flex items-center">
+                                                    ✓ Approve
+                                                </span>
+                                            </button>
+
+                                            <!-- Delete Buttons -->
                                             <button v-if="!isDbId(feedback.id)"
                                                 @click.stop="removeFeedback(category, fbIdx)"
-                                                class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs">Delete</button>
+                                                class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs">
+                                                Delete
+                                            </button>
                                             <button v-else @click.stop="deleteFeedback(feedback, category, fbIdx)"
-                                                class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs">Delete</button>
+                                                class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs">
+                                                Delete
+                                            </button>
                                         </span>
                                     </summary>
                                     <div class="p-3">
@@ -876,6 +913,54 @@ function addFeedback(category: any) {
 function removeFeedback(category: any, idx: number) {
     category.feedbacks.splice(idx, 1);
 }
+
+function approveFeedback(feedback, category, fbIdx) {
+    Swal.fire({
+        title: 'Approve Feedback?',
+        text: 'This will mark this feedback as approved.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#10B981',
+        cancelButtonColor: '#6B7280',
+        confirmButtonText: 'Yes, approve it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // ✅ Set loading state
+            feedback.isApproving = true;
+
+            router.put(route('previews.feedback.approve', feedback.id), {}, {
+                onSuccess: (page) => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Approved!',
+                        text: 'Feedback has been approved.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
+                    // ✅ Update approval status and clear loading
+                    feedback.is_approved = true;
+                    feedback.isApproving = false;
+
+                    if (page.props.feedback) {
+                        Object.assign(feedback, page.props.feedback);
+                    }
+                },
+                onError: (err) => {
+                    console.error('Approval failed:', err);
+                    feedback.isApproving = false; // ✅ Clear loading on error
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Approval failed',
+                        text: 'An error occurred while approving the feedback.'
+                    });
+                }
+            });
+        }
+    });
+}
+
 // Remove Feedback (saved, just UI for now)
 function deleteFeedback(feedback, category, idx) {
     // TODO: Implement API call later

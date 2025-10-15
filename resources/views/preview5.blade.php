@@ -486,12 +486,20 @@
                 var clickHandler = ''; // No click for active feedback
                 var tabImagePath = '/{{ $feedback_active_image }}';
                 var hoverEvents = ''; // no hover for active
+                // var feedbackApproved = `<div class="absolute w-2 h-2 bg-green-500 rounded-full top-0"></div>`;
             } else {
                 isActive = '';
                 var clickHandler = 'onclick="updateActiveFeedback(' + value.id + ')"';
                 var tabImagePath = '/{{ $feedback_inactive_image }}';
                 // only attach hover handlers for inactive tabs
                 var hoverEvents = `onmouseover="changeFeedbackActiveBackground(this)" onmouseout="changeFeedbackInactiveBackground(this)"`;
+            }
+
+            if(value.is_approved == 1){
+                var feedbackApproved = `<div class="absolute w-2 h-2 bg-green-500 rounded-full top-0 border-2 border-white"></div>`;
+            }
+            else{
+                var feedbackApproved = ``;
             }
 
             row += `
@@ -502,6 +510,7 @@
                             ${value.name}
                         </div>
                     </div>
+                    ${feedbackApproved}
                 </div>
             `;
             $('#feedbackMessage').html(value.description);

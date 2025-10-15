@@ -24,6 +24,7 @@ class newFeedback extends Model
         'name',
         'description',
         'is_active',
+        'is_approved',
     ];
 
     public function getActivitylogOptions(): LogOptions

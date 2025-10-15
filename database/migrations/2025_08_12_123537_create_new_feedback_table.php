@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(false);
+            $table->boolean('is_approved')->default(false);
             $table->timestamps();
         });
     }
