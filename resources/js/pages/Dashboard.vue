@@ -507,11 +507,11 @@ const formatNumber = (num: number) => {
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-600 dark:text-white">Total Users</p>
-                                <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+                                <p class="text-3xl font-bold text-orange-600 dark:text-white mt-2">
                                     {{ formatNumber(animatedCounts.userCount.value) }}
                                 </p>
                             </div>
-                            <div class="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl">
+                            <div class="p-3 bg-orange-100 dark:bg-blue-900/50 rounded-xl">
                                 <UsersRound class="w-6 h-6 text-orange-600 dark:text-orange-400" />
                             </div>
                         </div>
@@ -529,7 +529,7 @@ const formatNumber = (num: number) => {
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-600 dark:text-white">Total Previews</p>
-                                <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+                                <p class="text-3xl font-bold text-green-600 dark:text-white mt-2">
                                     {{ formatNumber(animatedCounts.previewCount.value) }}
                                 </p>
                             </div>
