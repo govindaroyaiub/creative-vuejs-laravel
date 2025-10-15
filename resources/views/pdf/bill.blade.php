@@ -6,7 +6,8 @@
     <title>Bill #{{ $bill->id }}</title>
     <style>
         @page {
-            margin: 40px;
+            margin: 30px;
+            size: A4;
         }
 
         .footer {
@@ -66,10 +67,6 @@
             font-weight: bold;
             text-transform: uppercase;
             font-size: 10px;
-        }
-
-        tbody tr {
-            border-bottom: 1px solid #e9ecef;
         }
 
         tbody tr:nth-child(even) {
