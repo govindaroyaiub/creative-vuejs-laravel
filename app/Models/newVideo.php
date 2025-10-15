@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\newVersion;
 use App\Models\VideoSize;
+use App\Models\newPreview;
+use App\Models\newCategory;
+use App\Models\newFeedback;
+use App\Models\newFeedbackSet;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
@@ -30,13 +34,6 @@ class newVideo extends Model
         'position',
     ];
 
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logAll()
-            ->useLogName('Video');
-    }
-
     public function version()
     {
         return $this->belongsTo(newVersion::class, 'version_id');
@@ -45,5 +42,18 @@ class newVideo extends Model
     public function size()
     {
         return $this->belongsTo(VideoSize::class, 'size_id');
+    }
+
+    // Accessor to get preview name
+    public function getPreviewNameAttribute()
+    {
+        return $this->version?->feedbackset?->feedback?->category?->preview?->name;
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->useLogName('Video of: ' . $this->preview_name);
     }
 }

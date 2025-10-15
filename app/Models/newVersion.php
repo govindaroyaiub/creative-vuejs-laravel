@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\newFeedbackSet;
+use App\Models\newPreview;
+use App\Models\newCategory;
+use App\Models\newFeedback;
 use App\Models\newBanner;
 use App\Models\newVideo;
 use App\Models\newSocial;
@@ -25,13 +28,6 @@ class newVersion extends Model
         'name'
     ];
 
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logAll()
-            ->useLogName('Version');
-    }
-
     public function feedbackset()
     {
         return $this->belongsTo(newFeedbackSet::class, 'feedback_set_id');
@@ -41,16 +37,33 @@ class newVersion extends Model
     {
         return $this->hasMany(newBanner::class, 'version_id')->orderBy('position');
     }
+    
     public function videos()
     {
-        return $this->hasMany(newVideo::class,  'version_id')->orderBy('position');
+        return $this->hasMany(newVideo::class, 'version_id')->orderBy('position');
     }
+    
     public function gifs()
     {
-        return $this->hasMany(newGif::class,    'version_id')->orderBy('position');
+        return $this->hasMany(newGif::class, 'version_id')->orderBy('position');
     }
+    
     public function socials()
     {
         return $this->hasMany(newSocial::class, 'version_id')->orderBy('position');
+    }
+
+    // Accessor to get preview name
+    public function getPreviewNameAttribute()
+    {
+        return $this->feedbackset?->feedback?->category?->preview?->name;
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->useLogName('Version')
+            ->useLogName('Version of: '. $this->preview_name);
     }
 }
