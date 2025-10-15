@@ -139,6 +139,6 @@ class BillController extends Controller
             'amountInWords' => $amountInWords,
         ]);
 
-        return $pdf->download("bill-{$bill->id}.pdf");
+        return $pdf->download("bill-{$bill->id}-{$issueDate}.pdf");
     }
 }

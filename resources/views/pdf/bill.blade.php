@@ -27,11 +27,11 @@
         }
 
         .logo {
-            text-align: left;
+            text-align: center;
         }
 
         .logo img {
-            width: 200px;
+            width: 270px;
             height: auto;
             margin-bottom: 10px;
         }
@@ -96,7 +96,7 @@
 <body>
     <!-- Logo -->
     <div class="logo">
-        <img src="{{ public_path('logos/planetnine.png') }}" alt="Planet Nine">
+        <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('logos/planetnine.png'))) }}" alt="Planet Nine">
     </div>
 
     <!-- Bill Info -->
@@ -110,7 +110,7 @@
         <thead>
             <tr>
                 <th>Item</th>
-                <th>Qty</th>
+                <th>Quantity</th>
                 <th>Unit Price</th>
                 <th>Amount</th>
             </tr>
