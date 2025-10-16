@@ -37,7 +37,7 @@
             @csrf
             <input type="hidden" name="preview_id" value="{{ $preview->id }}">
             <button type="submit"
-                class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-3 py-1 rounded shadow transition cursor-pointer">
+                class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-3 py-2 rounded-xl shadow transition cursor-pointer">
                 Logout
             </button>
         </form>
