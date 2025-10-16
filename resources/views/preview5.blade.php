@@ -27,11 +27,12 @@
 </head>
 
 <body>
-    @if($authUserClientName == "Planet Nine")
+    @if(auth()->check())
     <div class="absolute top-4 right-4 flex items-center space-x-3 z-50">
-        <div id="viewerList" class="flex space-x-2"></div>
-
-        @if(auth()->check() && $preview->requires_login)
+        @if($authUserClientName == 'Planet Nine')
+            <div id="viewerList" class="flex space-x-2"></div>
+        @endif
+        @if($preview->requires_login)
         <form method="POST" action="{{ route('preview.logout') }}" id="customPreviewLogoutForm">
             @csrf
             <input type="hidden" name="preview_id" value="{{ $preview->id }}">

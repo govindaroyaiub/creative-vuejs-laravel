@@ -167,6 +167,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
 });
 
 Route::get('/previews/show/{slug}', [newPreviewController::class, 'show'])->name('previews-show');
+
 //preview axios get requests start
 
 Route::get('/preview/renderCategories/{id}', [newPreviewApiController::class, 'renderCategories']);
@@ -217,16 +218,14 @@ Route::post('/preview-login', function (Request $request) {
 Route::post('/logout-preview', function (Request $request) {
     $previewId = $request->input('preview_id');
 
+    $slug = \App\Models\newPreview::where('id', $previewId)->value('slug');
+
     Auth::logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    // ✅ Send them directly to the show route — Blade handles the rest
-    return redirect()->to("/previews/show/{$previewId}");
+    return redirect()->to("/previews/show/{$slug}");
 })->name('preview.logout');
-
-
-Route::get('/preview/{preview_id}/get/data/type', [PreviewApiController::class, 'getDataType']);
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
