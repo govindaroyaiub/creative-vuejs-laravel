@@ -66,6 +66,16 @@ class CacheManagementController extends Controller
         return response()->json($this->getSchedulerStatusData());
     }
 
+    public function getServerTime()
+    {
+        return response()->json([
+            'server_time' => now()->format('Y-m-d H:i:s'),
+            'timestamp' => now()->timestamp,
+            'timezone' => config('app.timezone'),
+            'iso' => now()->toISOString()
+        ]);
+    }
+
 
 
     private function getCacheStats()

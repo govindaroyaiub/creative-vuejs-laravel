@@ -173,6 +173,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::post('/cache-management/run-cleanup', [CacheManagementController::class, 'runCleanup'])->name('cache-management.run-cleanup');
     Route::get('/cache-management/scheduler-settings', [CacheManagementController::class, 'getSchedulerSettings'])->name('cache-management.scheduler-settings');
     Route::post('/cache-management/scheduler-settings', [CacheManagementController::class, 'updateSchedulerSettings'])->name('cache-management.update-scheduler-settings');
+    Route::get('/cache-management/server-time', [CacheManagementController::class, 'getServerTime'])->name('cache-management.server-time');
     //Cache Management Routes End
 });
 
