@@ -6,6 +6,7 @@ import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
+import './timezone-init.js'; // Initialize timezone detection
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -33,9 +34,9 @@ createInertiaApp({
     },
     progress: {
         color: '#a0abd1', // Modern blue
-        delay: 200,        // Faster response
+        delay: 200, // Faster response
         includeCSS: true,
-        showSpinner: false // Clean look without spinner
+        showSpinner: false, // Clean look without spinner
     },
 });
 

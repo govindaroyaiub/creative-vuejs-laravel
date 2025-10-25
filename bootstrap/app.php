@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\DetectTimezone;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->encryptCookies(except: ['appearance']);
 
         $middleware->web(append: [
+            DetectTimezone::class,
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
@@ -28,5 +30,22 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withSchedule(function (Illuminate\Console\Scheduling\Schedule $schedule) {
         $schedule->command('app:clean-expired-file-transfers')->daily();
+
+        // Cache Management - Daily cleanup at configurable time
+        $schedule->call(function () {
+            $settings = \Illuminate\Support\Facades\DB::table('scheduler_settings')
+                ->whereIn('key', ['cache_cleanup_enabled', 'cache_cleanup_time'])
+                ->pluck('value', 'key');
+
+            $enabled = ($settings['cache_cleanup_enabled'] ?? 'true') === 'true';
+            $time = $settings['cache_cleanup_time'] ?? '04:30';
+
+            if ($enabled) {
+                \Illuminate\Support\Facades\Artisan::call('cache:auto-cleanup', ['--type' => 'all']);
+            }
+        })
+            ->name('cache-auto-cleanup')
+            ->daily()
+            ->withoutOverlapping();
     })
     ->create();

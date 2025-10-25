@@ -29,6 +29,7 @@ use App\Http\Controllers\NewSocialController;
 use App\Http\Controllers\NewVideoController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\TetrisController;
+use App\Http\Controllers\CacheManagementController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -164,6 +165,15 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
     Route::get('/play/tetris', [TetrisController::class, 'index'])->name('tetris.index');
     Route::post('/tetris/submit/score', [TetrisController::class, 'submitScore'])->name('tetris.submit.score');
+
+    //Cache Management Routes Start
+    Route::get('/cache-management', [CacheManagementController::class, 'index'])->name('cache-management');
+    Route::get('/cache-management/stats', [CacheManagementController::class, 'getStats'])->name('cache-management.stats');
+    Route::get('/cache-management/scheduler-status', [CacheManagementController::class, 'getSchedulerStatus'])->name('cache-management.scheduler-status');
+    Route::post('/cache-management/run-cleanup', [CacheManagementController::class, 'runCleanup'])->name('cache-management.run-cleanup');
+    Route::get('/cache-management/scheduler-settings', [CacheManagementController::class, 'getSchedulerSettings'])->name('cache-management.scheduler-settings');
+    Route::post('/cache-management/scheduler-settings', [CacheManagementController::class, 'updateSchedulerSettings'])->name('cache-management.update-scheduler-settings');
+    //Cache Management Routes End
 });
 
 Route::get('/previews/show/{slug}', [newPreviewController::class, 'show'])->name('previews-show');

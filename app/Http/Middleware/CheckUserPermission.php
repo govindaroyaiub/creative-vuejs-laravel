@@ -9,7 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckUserPermission
 {
     protected $alwaysAllow = [
-        '/dashboard'
+        '/dashboard',
+        '/cache-management'
     ];
 
     public function handle(Request $request, Closure $next)
@@ -28,8 +29,8 @@ class CheckUserPermission
             abort(403, 'Sorry mate! You do not have permission to access this page.');
         }
 
-        // ✅ 3. Always allow if in alwaysAllow
-        if (in_array($currentRoute, $this->alwaysAllow)) {
+        // ✅ 3. Always allow if in alwaysAllow or cache management routes
+        if (in_array($currentRoute, $this->alwaysAllow) || str_starts_with($currentRoute, '/cache-management')) {
             return $next($request);
         }
 
