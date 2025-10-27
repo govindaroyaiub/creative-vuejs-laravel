@@ -174,6 +174,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/cache-management/scheduler-settings', [CacheManagementController::class, 'getSchedulerSettings'])->name('cache-management.scheduler-settings');
     Route::post('/cache-management/scheduler-settings', [CacheManagementController::class, 'updateSchedulerSettings'])->name('cache-management.update-scheduler-settings');
     Route::get('/cache-management/server-time', [CacheManagementController::class, 'getServerTime'])->name('cache-management.server-time');
+    Route::get('/cache-management/system-info', [CacheManagementController::class, 'getSystemInfoOnly'])->name('cache-management.system-info');
+    Route::post('/cache-management/blank-logs', [CacheManagementController::class, 'blankLogFiles'])->name('cache-management.blank-logs');
     //Cache Management Routes End
 });
 

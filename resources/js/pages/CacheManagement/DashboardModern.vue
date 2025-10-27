@@ -13,7 +13,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                     <div class="flex items-center space-x-3 sm:space-x-4">
                         <button @click="goBack"
-                            class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-all duration-200 flex-shrink-0">
+                            class="p-2 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-all duration-200 flex-shrink-0">
                             <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-600 dark:text-slate-300" fill="none"
                                 stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -103,7 +103,7 @@
                         </div>
                     </section>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+                    <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-2 gap-4 sm:gap-6">
                         <div v-for="(stat, key) in currentStats" :key="key"
                             class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 hover:shadow-lg transition-all duration-200">
                             <div class="flex items-center justify-between mb-3 sm:mb-4">
@@ -114,7 +114,7 @@
                                             class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base truncate">
                                             {{ stat.name }}</h3>
                                         <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{ stat.files
-                                        }} files</p>
+                                            }} files</p>
                                     </div>
                                 </div>
                                 <div class="text-right flex-shrink-0">
@@ -124,16 +124,17 @@
                             </div>
 
                             <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                                <div :class="`bg-gradient-to-r from-${stat.color}-400 to-${stat.color}-600`"
-                                    class="h-2 rounded-full transition-all duration-1000"
-                                    :style="{ width: `${getUsagePercentage(stat.size)}%` }">
+                                <div class="h-2 rounded-full transition-all duration-1000" :style="{
+                                    width: `${getUsagePercentage(stat.size)}%`,
+                                    background: getColorGradient(stat.color)
+                                }">
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Status Cards Row -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
                         <!-- Scheduler Status -->
                         <div
                             class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
@@ -231,6 +232,74 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Log Files -->
+                        <div class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6"
+                            :class="{ 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/10': systemInfo?.logs?.total?.needs_attention }">
+                            <div class="flex items-center justify-between mb-3 sm:mb-4">
+                                <h3 class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base flex items-center"
+                                    :class="{ 'text-red-600 dark:text-red-400': systemInfo?.logs?.total?.needs_attention }">
+                                    <span class="mr-2">📋</span>
+                                    Log Files
+                                    <span v-if="systemInfo?.logs?.total?.needs_attention" class="ml-2 text-red-500"
+                                        title="Logs exceed 20MB - needs attention">⚠️</span>
+                                </h3>
+                                <button @click="blankLogFiles" :disabled="isBlankingLogs"
+                                    class="px-3 py-1.5 bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:hover:bg-orange-900/40 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
+                                    <svg v-if="!isBlankingLogs" class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                        </path>
+                                    </svg>
+                                    <div v-else
+                                        class="w-3 h-3 mr-1 animate-spin rounded-full border-2 border-orange-600 border-t-transparent">
+                                    </div>
+                                    {{ isBlankingLogs ? 'Blanking...' : 'Blank Logs' }}
+                                </button>
+                            </div>
+
+                            <div class="space-y-3">
+                                <!-- Total Size -->
+                                <div class="flex justify-between items-center text-xs sm:text-sm p-3 rounded-lg"
+                                    :class="systemInfo?.logs?.total?.needs_attention ? 'bg-red-100 dark:bg-red-900/20' : 'bg-slate-100 dark:bg-slate-800'">
+                                    <span class="font-medium"
+                                        :class="systemInfo?.logs?.total?.needs_attention ? 'text-red-700 dark:text-red-400' : 'text-slate-700 dark:text-slate-300'">Total
+                                        Size</span>
+                                    <span class="font-bold"
+                                        :class="systemInfo?.logs?.total?.needs_attention ? 'text-red-700 dark:text-red-400' : 'text-slate-900 dark:text-white'">
+                                        {{ systemInfo?.logs?.total?.formatted_size || '0 B' }}
+                                    </span>
+                                </div>
+
+                                <!-- Laravel Application Logs -->
+                                <div class="flex justify-between text-xs sm:text-sm">
+                                    <span class="text-slate-500 dark:text-slate-400">Laravel App Logs</span>
+                                    <div class="text-right">
+                                        <span class="font-medium text-slate-900 dark:text-white font-mono">
+                                            {{ systemInfo?.logs?.laravel?.formatted_size || '0 B' }}
+                                        </span>
+                                        <div v-if="systemInfo?.logs?.laravel?.count" class="text-xs text-slate-400">
+                                            {{ systemInfo.logs.laravel.count }} file(s)
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Cache Management Logs -->
+                                <div class="flex justify-between text-xs sm:text-sm">
+                                    <span class="text-slate-500 dark:text-slate-400">Cache Mgmt Logs</span>
+                                    <div class="text-right">
+                                        <span class="font-medium text-slate-900 dark:text-white font-mono">
+                                            {{ systemInfo?.logs?.cache_management?.formatted_size || '0 B' }}
+                                        </span>
+                                        <div v-if="systemInfo?.logs?.cache_management?.count"
+                                            class="text-xs text-slate-400">
+                                            {{ systemInfo.logs.cache_management.count }} file(s)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -250,7 +319,7 @@
                                     <div class="min-w-0 flex-1">
                                         <div class="font-semibold text-slate-900 dark:text-white text-sm">{{
                                             cleanup.total_files
-                                        }} files</div>
+                                            }} files</div>
                                         <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{
                                             cleanup.human_time }}
                                         </div>
@@ -425,12 +494,14 @@ const props = defineProps({
 
 // Reactive state
 const currentStats = ref(props.stats || {})
+const systemInfo = ref(props.systemInfo || {})
 const schedulerStatus = ref(props.schedulerStatus || {})
 const isRefreshing = ref(false)
 const isRunningCleanup = ref(false)
 const schedulerEnabled = ref(true)
 const schedulerTime = ref('04:30')
 const activeTab = ref('overview')
+const isBlankingLogs = ref(false)
 
 // Live clock variables
 const currentTime = ref('')
@@ -465,6 +536,22 @@ const getUsagePercentage = (size) => {
     const stats = currentStats.value || {}
     const maxSize = Math.max(...Object.values(stats).map(s => s?.size || 0))
     return maxSize > 0 ? (size / maxSize) * 100 : 0
+}
+
+const getColorGradient = (color) => {
+    const gradients = {
+        'blue': 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+        'green': 'linear-gradient(135deg, #10b981, #047857)',
+        'yellow': 'linear-gradient(135deg, #f59e0b, #d97706)',
+        'purple': 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+        'red': 'linear-gradient(135deg, #ef4444, #dc2626)',
+        'indigo': 'linear-gradient(135deg, #6366f1, #4f46e5)',
+        'pink': 'linear-gradient(135deg, #ec4899, #db2777)',
+        'teal': 'linear-gradient(135deg, #14b8a6, #0f766e)',
+        'orange': 'linear-gradient(135deg, #f97316, #ea580c)',
+        'emerald': 'linear-gradient(135deg, #10b981, #047857)'
+    }
+    return gradients[color] || gradients['blue']
 }
 
 const getSchedulerStatusColor = () => {
@@ -539,6 +626,26 @@ const getSchedulerActivities = () => {
 
     // Sort by timestamp (newest first)
     return activities.sort((a, b) => b.sortTime - a.sortTime)
+}
+
+const refreshSystemInfo = async () => {
+    try {
+        const response = await fetch('/cache-management/system-info')
+
+        if (response.redirected || response.url.includes('/login')) {
+            window.location.href = '/login'
+            return
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`)
+        }
+
+        const data = await response.json()
+        systemInfo.value = data
+    } catch (error) {
+        console.error('Failed to refresh system info:', error)
+    }
 }
 
 const refreshStats = async (showSuccessToast = false, setLoading = true) => {
@@ -749,6 +856,66 @@ const runCleanup = async (type) => {
         })
     } finally {
         isRunningCleanup.value = false
+    }
+}
+
+const blankLogFiles = async () => {
+    isBlankingLogs.value = true
+
+    Swal.fire({
+        title: 'Blanking Log Files',
+        html: `<div class="text-lg">Clearing log file contents...</div>`,
+        icon: 'info',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+            Swal.showLoading()
+        }
+    })
+
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+
+        const response = await fetch('/cache-management/blank-logs', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            }
+        })
+
+        const data = await response.json()
+
+        if (data.success) {
+            Swal.fire({
+                title: 'Logs Blanked Successfully!',
+                html: `
+                    <div class="text-lg mb-4">✅ Log files have been blanked</div>
+                    <div class="text-md">📋 Files processed: ${data.processed_files || 0}</div>
+                    <div class="text-sm text-slate-500 mt-2">Files preserved but contents cleared</div>
+                `,
+                icon: 'success',
+                confirmButtonText: 'Great!',
+                confirmButtonColor: '#10b981'
+            })
+
+            await refreshStats()
+            await refreshSystemInfo()
+        } else {
+            throw new Error(data.message || 'Log blanking failed')
+        }
+    } catch (error) {
+        console.error('Log blanking failed:', error)
+        Swal.fire({
+            title: 'Log Blanking Failed',
+            text: error.message || 'An error occurred while blanking logs',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#ef4444'
+        })
+    } finally {
+        isBlankingLogs.value = false
     }
 }
 

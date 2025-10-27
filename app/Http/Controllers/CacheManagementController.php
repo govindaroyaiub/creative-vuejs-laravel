@@ -105,14 +105,7 @@ class CacheManagementController extends Controller
             'color' => 'green'
         ];
 
-        // Logs Stats
-        $stats['logs'] = [
-            'name' => 'Log Files',
-            'size' => $this->getFolderSize(storage_path('logs')),
-            'files' => $this->getFileCount(storage_path('logs')),
-            'icon' => '📋',
-            'color' => 'yellow'
-        ];
+        // Note: Log Files stats moved to dedicated systemInfo section
 
         // Compiled Views Stats
         $stats['compiled_views'] = [
@@ -130,15 +123,6 @@ class CacheManagementController extends Controller
             'files' => $this->getFileCount(public_path('uploads/temp')),
             'icon' => '🗃️',
             'color' => 'red'
-        ];
-
-        // Preview Images Stats
-        $stats['preview_images'] = [
-            'name' => 'Preview Images',
-            'size' => $this->getFolderSize(public_path('preview_images')),
-            'files' => $this->getFileCount(public_path('preview_images')),
-            'icon' => '🖼️',
-            'color' => 'indigo'
         ];
 
         return $stats;
@@ -182,6 +166,55 @@ class CacheManagementController extends Controller
     {
         $userTimezone = session('user_timezone', 'Asia/Dhaka');
 
+        // Get Laravel log files
+        $laravelLogSize = 0;
+        $laravelLogCount = 0;
+        $laravelLogFiles = [];
+        $laravelLogPattern = storage_path('logs/laravel*.log');
+        $laravelLogs = glob($laravelLogPattern);
+
+        foreach ($laravelLogs as $logFile) {
+            if (file_exists($logFile)) {
+                $size = filesize($logFile);
+                $laravelLogSize += $size;
+                $laravelLogCount++;
+                $laravelLogFiles[] = [
+                    'name' => basename($logFile),
+                    'size' => $size,
+                    'formatted_size' => $this->formatBytes($size),
+                    'modified' => date('Y-m-d H:i:s', filemtime($logFile))
+                ];
+            }
+        }
+
+        // Get cache management logs
+        $cacheLogSize = 0;
+        $cacheLogCount = 0;
+        $cacheLogFiles = [];
+
+        $cacheLogPaths = [
+            'cache_cleanup.log',
+            'cache_cleanup_errors.log'
+        ];
+
+        foreach ($cacheLogPaths as $logFileName) {
+            $logFile = storage_path('logs/' . $logFileName);
+            if (file_exists($logFile)) {
+                $size = filesize($logFile);
+                $cacheLogSize += $size;
+                $cacheLogCount++;
+                $cacheLogFiles[] = [
+                    'name' => $logFileName,
+                    'size' => $size,
+                    'formatted_size' => $this->formatBytes($size),
+                    'modified' => date('Y-m-d H:i:s', filemtime($logFile))
+                ];
+            }
+        }
+
+        $totalLogSize = $laravelLogSize + $cacheLogSize;
+        $needsAttention = $totalLogSize > (20 * 1024 * 1024); // 20MB threshold
+
         return [
             'php_version' => PHP_VERSION,
             'laravel_version' => app()->version(),
@@ -194,7 +227,27 @@ class CacheManagementController extends Controller
             'server_time' => now()->setTimezone($userTimezone)->format('Y-m-d H:i:s T'),
             'timezone' => $userTimezone,
             'detected_timezone' => session('user_timezone'),
-            'is_timezone_detected' => session()->has('user_timezone')
+            'is_timezone_detected' => session()->has('user_timezone'),
+            'logs' => [
+                'laravel' => [
+                    'size' => $laravelLogSize,
+                    'formatted_size' => $this->formatBytes($laravelLogSize),
+                    'count' => $laravelLogCount,
+                    'files' => $laravelLogFiles
+                ],
+                'cache_management' => [
+                    'size' => $cacheLogSize,
+                    'formatted_size' => $this->formatBytes($cacheLogSize),
+                    'count' => $cacheLogCount,
+                    'files' => $cacheLogFiles
+                ],
+                'total' => [
+                    'size' => $totalLogSize,
+                    'formatted_size' => $this->formatBytes($totalLogSize),
+                    'count' => $laravelLogCount + $cacheLogCount,
+                    'needs_attention' => $needsAttention
+                ]
+            ]
         ];
     }
 
@@ -458,5 +511,60 @@ class CacheManagementController extends Controller
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to update scheduler settings: ' . $e->getMessage()]);
         }
+    }
+
+    public function blankLogFiles()
+    {
+        try {
+            $clearedFiles = [];
+            $totalSizeBefore = 0;
+
+            // Get main Laravel log files
+            $laravelLogPattern = storage_path('logs/laravel*.log');
+            $laravelLogs = glob($laravelLogPattern);
+
+            foreach ($laravelLogs as $logFile) {
+                if (file_exists($logFile)) {
+                    $totalSizeBefore += filesize($logFile);
+                    file_put_contents($logFile, ''); // Blank the file
+                    $clearedFiles[] = basename($logFile);
+                }
+            }
+
+            // Get cache cleanup log
+            $cacheLogFile = storage_path('logs/cache_cleanup.log');
+            if (file_exists($cacheLogFile)) {
+                $totalSizeBefore += filesize($cacheLogFile);
+                file_put_contents($cacheLogFile, ''); // Blank the file
+                $clearedFiles[] = 'cache_cleanup.log';
+            }
+
+            // Get cache cleanup errors log
+            $cacheErrorLogFile = storage_path('logs/cache_cleanup_errors.log');
+            if (file_exists($cacheErrorLogFile)) {
+                $totalSizeBefore += filesize($cacheErrorLogFile);
+                file_put_contents($cacheErrorLogFile, ''); // Blank the file
+                $clearedFiles[] = 'cache_cleanup_errors.log';
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Log files have been blanked successfully',
+                'files_cleared' => $clearedFiles,
+                'count' => count($clearedFiles),
+                'size_freed' => $this->formatBytes($totalSizeBefore),
+                'timestamp' => now()->toISOString()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to blank log files: ' . $e->getMessage()
+            ], 422);
+        }
+    }
+
+    public function getSystemInfoOnly()
+    {
+        return response()->json($this->getSystemInfo());
     }
 }
