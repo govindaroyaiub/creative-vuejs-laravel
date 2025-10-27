@@ -1,7 +1,7 @@
 <template>
 
     <Head title="Laravel logs" />
-    <AppLayout :breadcrumbs="[{ title: 'Logs', href: '/logs' }]">
+    <AppLayout :breadcrumbs="[{ title: 'Cache Management', href: '/cache-management' },{ title: 'Logs', href: '/logs' }]">
         <template #header>
             <div class="flex items-center justify-between">
                 <div>
