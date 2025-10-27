@@ -523,7 +523,6 @@ const tabs = ref([
 // Quick actions configuration
 const quickActions = ref([
     { type: 'all', name: 'Clean All', description: 'Complete cleanup', icon: '🧹', gradient: 'from-emerald-500 to-emerald-600' },
-    { type: 'laravel', name: 'Laravel Cache', description: 'App & framework', icon: '🗂️', gradient: 'from-blue-500 to-blue-600' },
     { type: 'storage', name: 'Storage', description: 'Temp files', icon: '📁', gradient: 'from-amber-500 to-amber-600' },
     { type: 'logs', name: 'Logs', description: 'Old log files', icon: '📋', gradient: 'from-red-500 to-red-600' },
     { type: 'temp', name: 'Temp Files', description: 'Upload temps', icon: '🗃️', gradient: 'from-purple-500 to-purple-600' },
