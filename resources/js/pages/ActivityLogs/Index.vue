@@ -7,7 +7,7 @@
             <div class="p-6 space-y-6">
                 <!-- Search Section -->
                 <div
-                    class="rounded-2xl shadow-sm flex w-full items-center gap-2">
+                    class="rounded-2xl flex w-full items-center gap-2">
                     <div class="relative w-full">
                         <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">

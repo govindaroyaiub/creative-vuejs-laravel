@@ -68,15 +68,20 @@ class CacheManagementController extends Controller
 
     public function getServerTime()
     {
+        // Default to Bangladesh timezone for this user
+        $userTimezone = session('user_timezone', 'Asia/Dhaka');
+
+        $userTime = now()->setTimezone($userTimezone);
+        $utcTime = now('UTC');
+
         return response()->json([
-            'server_time' => now()->format('Y-m-d H:i:s'),
-            'timestamp' => now()->timestamp,
-            'timezone' => config('app.timezone'),
-            'iso' => now()->toISOString()
+            'server_time' => $userTime->format('Y-m-d H:i:s'),
+            'timestamp' => $userTime->timestamp,
+            'timezone' => $userTimezone,
+            'iso' => $userTime->toISOString(),
+            'utc_time' => $utcTime->format('Y-m-d H:i:s T')
         ]);
     }
-
-
 
     private function getCacheStats()
     {
@@ -175,8 +180,7 @@ class CacheManagementController extends Controller
 
     private function getSystemInfo()
     {
-        // Get timezone from session or fall back to config
-        $timezone = session('user_timezone', config('app.timezone'));
+        $userTimezone = session('user_timezone', 'Asia/Dhaka');
 
         return [
             'php_version' => PHP_VERSION,
@@ -187,8 +191,8 @@ class CacheManagementController extends Controller
                 'free' => $this->formatBytes(disk_free_space(storage_path())),
                 'used_percentage' => round((1 - disk_free_space(storage_path()) / disk_total_space(storage_path())) * 100, 2)
             ],
-            'server_time' => now()->setTimezone($timezone)->format('Y-m-d H:i:s T'),
-            'timezone' => $timezone,
+            'server_time' => now()->setTimezone($userTimezone)->format('Y-m-d H:i:s T'),
+            'timezone' => $userTimezone,
             'detected_timezone' => session('user_timezone'),
             'is_timezone_detected' => session()->has('user_timezone')
         ];
@@ -229,10 +233,13 @@ class CacheManagementController extends Controller
         $cleanupTime = SchedulerSetting::getCacheCleanupTime();
         $isEnabled = SchedulerSetting::isCacheCleanupEnabled();
 
+        // Use scheduler timezone consistently
+        $schedulerTimezone = config('app.timezone');
+
         $schedulerInfo = [
             'is_configured' => $isEnabled,
             'schedule_time' => $cleanupTime,
-            'timezone' => config('app.timezone'),
+            'timezone' => $schedulerTimezone, // Show actual scheduler timezone
             'next_run' => null,
             'last_auto_run' => null,
             'last_error' => null,
@@ -243,10 +250,18 @@ class CacheManagementController extends Controller
         ];
 
         if ($isEnabled) {
-            // Calculate next run time using configured time
-            $now = Carbon::now();
+            // Simple and reliable timezone calculation
+            // Assume user is in Bangladesh timezone if not configured otherwise
+            $userTimezone = session('user_timezone', 'Asia/Dhaka'); // Default to Bangladesh
+
             $timeParts = explode(':', $cleanupTime);
-            $nextRun = Carbon::today()->setTime((int)$timeParts[0], (int)$timeParts[1]);
+            $targetHour = (int)$timeParts[0];
+            $targetMinute = (int)$timeParts[1];
+
+            // Calculate next run in user timezone (what they expect)
+            $now = now()->setTimezone($userTimezone);
+            $nextRun = $now->copy()->startOfDay()->setTime($targetHour, $targetMinute);
+
             if ($nextRun->isPast()) {
                 $nextRun->addDay();
             }
@@ -254,7 +269,9 @@ class CacheManagementController extends Controller
             $schedulerInfo['next_run'] = [
                 'datetime' => $nextRun->format('Y-m-d H:i:s'),
                 'human' => $nextRun->diffForHumans(),
-                'formatted' => $nextRun->format('M j, Y \a\t g:i A')
+                'formatted' => $nextRun->format('M j, Y \a\t g:i A T'),
+                'timezone' => $userTimezone,
+                'utc_time' => $nextRun->setTimezone('UTC')->format('M j, Y \a\t g:i A T')
             ];
         }
 
@@ -437,7 +454,6 @@ class CacheManagementController extends Controller
             SchedulerSetting::setValue('cache_cleanup_enabled', $request->enabled ? 'true' : 'false');
             SchedulerSetting::setValue('cache_cleanup_time', $request->time);
 
-            // For Inertia, we can return a redirect back with success message
             return back()->with('success', 'Scheduler settings updated successfully');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to update scheduler settings: ' . $e->getMessage()]);

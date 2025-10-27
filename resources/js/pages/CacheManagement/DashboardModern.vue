@@ -38,12 +38,12 @@
                                 {{ currentTime || 'Loading...' }}
                             </p>
                             <p class="text-xs text-emerald-500 mt-0.5 sm:mt-1 hidden sm:block">
-                                🌍 {{ detectedTimezone }}
+                                🌍 {{ currentTimezone }}
                             </p>
                         </div>
 
                         <!-- Refresh Button -->
-                        <button @click="refreshStats(true)" :disabled="isRefreshing"
+                        <button @click="refreshAllData()" :disabled="isRefreshing"
                             class="px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white rounded-lg sm:rounded-xl transition-all duration-200 flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
                             <svg :class="{ 'animate-spin': isRefreshing }" class="w-3 h-3 sm:w-4 sm:h-4" fill="none"
                                 stroke="currentColor" viewBox="0 0 24 24">
@@ -114,7 +114,7 @@
                                             class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base truncate">
                                             {{ stat.name }}</h3>
                                         <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{ stat.files
-                                            }} files</p>
+                                        }} files</p>
                                     </div>
                                 </div>
                                 <div class="text-right flex-shrink-0">
@@ -250,7 +250,7 @@
                                     <div class="min-w-0 flex-1">
                                         <div class="font-semibold text-slate-900 dark:text-white text-sm">{{
                                             cleanup.total_files
-                                            }} files</div>
+                                        }} files</div>
                                         <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{
                                             cleanup.human_time }}
                                         </div>
@@ -434,7 +434,7 @@ const activeTab = ref('overview')
 
 // Live clock variables
 const currentTime = ref('')
-const detectedTimezone = ref('')
+const currentTimezone = ref('')
 const clockInterval = ref(null)
 
 // Tab configuration
@@ -541,8 +541,8 @@ const getSchedulerActivities = () => {
     return activities.sort((a, b) => b.sortTime - a.sortTime)
 }
 
-const refreshStats = async (showSuccessToast = false) => {
-    isRefreshing.value = true
+const refreshStats = async (showSuccessToast = false, setLoading = true) => {
+    if (setLoading) isRefreshing.value = true
     try {
         const response = await fetch('/cache-management/stats')
 
@@ -571,11 +571,63 @@ const refreshStats = async (showSuccessToast = false) => {
         }
     } catch (error) {
         console.error('Failed to refresh stats:', error)
+        if (showSuccessToast) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: 'Failed to refresh stats',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            })
+        }
+    } finally {
+        if (setLoading) isRefreshing.value = false
+    }
+}
+
+const refreshSchedulerStatus = async () => {
+    try {
+        const response = await fetch('/cache-management/scheduler-status')
+        if (response.ok) {
+            const data = await response.json()
+            schedulerStatus.value = data
+
+            // Update scheduler settings form with fresh data
+            schedulerEnabled.value = data.is_configured || false
+            schedulerTime.value = data.schedule_time || '04:30'
+        }
+    } catch (error) {
+        console.error('Failed to refresh scheduler status:', error)
+    }
+}
+
+const refreshAllData = async () => {
+    isRefreshing.value = true
+    try {
+        // Refresh both stats and scheduler status
+        await Promise.all([
+            refreshStats(false, false), // Don't set loading individually
+            refreshSchedulerStatus()
+        ])
+
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'All data refreshed successfully',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+        })
+    } catch (error) {
+        console.error('Failed to refresh data:', error)
         Swal.fire({
             toast: true,
             position: 'top-end',
             icon: 'error',
-            title: 'Failed to refresh stats',
+            title: 'Failed to refresh data',
             showConfirmButton: false,
             timer: 3000,
             timerProgressBar: true
@@ -601,7 +653,7 @@ const updateServerTime = async () => {
             const data = await response.json()
 
             // Set timezone from server
-            detectedTimezone.value = data.timezone
+            currentTimezone.value = data.timezone
 
             // Create Date object from server timestamp and format it
             const serverTime = new Date(data.timestamp * 1000)
@@ -624,7 +676,7 @@ const updateServerTime = async () => {
 
 const updateTime = () => {
     // Fallback function for browser time
-    detectedTimezone.value = Intl.DateTimeFormat().resolvedOptions().timeZone
+    currentTimezone.value = Intl.DateTimeFormat().resolvedOptions().timeZone
     const now = new Date()
     currentTime.value = now.toLocaleTimeString('en-US', {
         hour12: true,
@@ -711,7 +763,10 @@ const updateSchedulerSettings = async () => {
         form.post('/cache-management/scheduler-settings', {
             preserveState: true,
             preserveScroll: true,
-            onSuccess: () => {
+            onSuccess: async () => {
+                // Refresh scheduler status to get updated data
+                await refreshSchedulerStatus()
+
                 Swal.fire({
                     toast: true,
                     position: 'top-end',
@@ -775,7 +830,8 @@ onMounted(() => {
 
     setInterval(() => {
         if (!isRunningCleanup.value && !isRefreshing.value) {
-            refreshStats()
+            refreshStats(false, false) // Auto refresh without loading state or toast
+            refreshSchedulerStatus() // Also refresh scheduler status automatically
         }
     }, 30000)
 })

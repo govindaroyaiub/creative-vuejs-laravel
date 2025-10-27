@@ -29,8 +29,6 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withSchedule(function (Illuminate\Console\Scheduling\Schedule $schedule) {
-        $schedule->command('app:clean-expired-file-transfers')->daily();
-
         // Cache Management - Daily cleanup at configurable time
         $schedule->call(function () {
             $settings = \Illuminate\Support\Facades\DB::table('scheduler_settings')
