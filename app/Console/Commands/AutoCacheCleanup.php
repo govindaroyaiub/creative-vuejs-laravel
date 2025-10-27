@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class AutoCacheCleanup extends Command
@@ -21,8 +22,7 @@ class AutoCacheCleanup extends Command
         'compiled_views' => ['size' => 0, 'files' => 0],
         'route_cache' => ['size' => 0, 'files' => 0],
         'config_cache' => ['size' => 0, 'files' => 0],
-        'temp_uploads' => ['size' => 0, 'files' => 0],
-        'old_previews' => ['size' => 0, 'files' => 0]
+        'temp_uploads' => ['size' => 0, 'files' => 0]
     ];
 
     public function handle()
@@ -81,7 +81,6 @@ class AutoCacheCleanup extends Command
         $this->cleanCompiledViews();
         $this->cleanRouteCache();
         $this->cleanConfigCache();
-        $this->cleanOldPreviews();
     }
 
     private function cleanLaravelCache()
@@ -185,7 +184,6 @@ class AutoCacheCleanup extends Command
 
         $uploadPaths = [
             public_path('uploads/temp'),
-            public_path('preview_images/temp'),
             storage_path('app/public/temp')
         ];
 
@@ -207,6 +205,20 @@ class AutoCacheCleanup extends Command
         }
 
         $this->info("✅ Temporary upload files cleaned");
+    }
+
+    private function getFolderSize($path)
+    {
+        $size = 0;
+
+        if (File::exists($path) && is_dir($path)) {
+            $files = File::allFiles($path);
+            foreach ($files as $file) {
+                $size += $file->getSize();
+            }
+        }
+
+        return $size;
     }
 
     private function cleanCompiledViews()
@@ -255,43 +267,6 @@ class AutoCacheCleanup extends Command
         } catch (\Exception $e) {
             $this->warn("⚠️  Config cache warning: " . $e->getMessage());
         }
-    }
-
-    private function cleanOldPreviews()
-    {
-        $this->line("🖼️  Cleaning old preview images...");
-
-        $previewPath = public_path('preview_images');
-
-        if (File::exists($previewPath)) {
-            $files = File::allFiles($previewPath);
-
-            foreach ($files as $file) {
-                if (Carbon::parse($file->getCTime())->lt(now()->subDays(30))) {
-                    $size = $file->getSize();
-                    File::delete($file->getPathname());
-
-                    $this->cleanupStats['old_previews']['size'] += $size;
-                    $this->cleanupStats['old_previews']['files']++;
-                }
-            }
-        }
-
-        $this->info("✅ Old preview images cleaned (>30 days)");
-    }
-
-    private function getFolderSize($path)
-    {
-        $size = 0;
-
-        if (File::exists($path) && is_dir($path)) {
-            $files = File::allFiles($path);
-            foreach ($files as $file) {
-                $size += $file->getSize();
-            }
-        }
-
-        return $size;
     }
 
     private function formatBytes($size)
@@ -368,6 +343,6 @@ class AutoCacheCleanup extends Command
         File::append($errorLogFile, $errorEntry);
 
         // Also log to Laravel log for admin visibility
-        \Log::error('Cache cleanup scheduler failed', $errorData);
+        Log::error('Cache cleanup scheduler failed', $errorData);
     }
 }
