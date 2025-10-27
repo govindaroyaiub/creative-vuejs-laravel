@@ -62,9 +62,9 @@
                     @if($preview->show_planetnine_logo)
                     <img src="{{ asset('logos/' . $header_logo['logo']) }}" id="planetnineLogo" alt="planetnineLogo">
                     @endif
-                    <h1 style="font-size: 1rem;"><span class="font-semibold">Name: </span> <span class="capitalize">{{ $preview['name'] }}</span></h1>
-                    <h1 style="font-size: 1rem;"><span class="font-semibold">Client: </span> <span class="capitalize">{{ $client['name'] }}</span></h1>
-                    <h1 style="font-size: 1rem;">
+                    <h1><span class="font-semibold">Name: </span> <span class="capitalize">{{ $preview['name'] }}</span></h1>
+                    <h1><span class="font-semibold">Client: </span> <span class="capitalize">{{ $client['name'] }}</span></h1>
+                    <h1>
                         <span class="font-semibold">Date: </span> <span>{{ \Carbon\Carbon::parse($preview['created_at'])->format('F j, Y') }}</span>
                     </h1>
                 </div>
@@ -88,7 +88,7 @@
                     <div class="py-2 flex items-end justify-center sidebar-top-desktop">
                         @if($preview['show_sidebar_logo'] == 1)
                         <img src="{{ asset('logos/' . $client['logo']) }}"
-                            alt="clientLogo" style="min-width:50px; width: 100%; max-width: 160px; margin: 0 auto;">
+                            alt="clientLogo" style="min-width:50px; width: 100%; max-width: 120px; margin: 0 auto;">
                         @endif
                     </div>
                     <div style="flex: 1;" class="feedbackTabs-parent">
@@ -796,7 +796,9 @@
                 console.log(error);
             })
             .finally(function() {
-                document.getElementById('loaderArea').style.display = 'none';
+                setTimeout(function() {
+                    document.getElementById('loaderArea').style.display = 'none';
+                }, 1000);
             });
     }
 
@@ -972,7 +974,9 @@
                 console.log(error);
             })
             .finally(function() {
-                document.getElementById('loaderArea').style.display = 'none';
+                setTimeout(function() {
+                    document.getElementById('loaderArea').style.display = 'none';
+                }, 1000);
             })
     }
 
@@ -1022,7 +1026,7 @@
             .finally(function() {
                 setTimeout(function() {
                     document.getElementById('loaderArea').style.display = 'none';
-                }, 200); // Optional: delay for smoother UX
+                }, 1000);
             });
     }
 
@@ -1419,7 +1423,9 @@
                 console.log(error);
             })
             .finally(function() {
-                document.getElementById('loaderArea').style.display = 'none';
+                setTimeout(function() {
+                    document.getElementById('loaderArea').style.display = 'none';
+                }, 1000);
             });
     }
 
