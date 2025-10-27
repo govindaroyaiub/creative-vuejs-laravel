@@ -178,6 +178,13 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::post('/cache-management/blank-logs', [CacheManagementController::class, 'blankLogFiles'])->name('cache-management.blank-logs');
     Route::post('/cache-management/run-artisan-clear', [CacheManagementController::class, 'runArtisanClear'])->name('cache-management.run-artisan-clear');
     //Cache Management Routes End
+
+    //Log Viewer Routes Start
+    Route::get('/logs', [App\Http\Controllers\LogViewerController::class, 'index'])->name('logs.index');
+    Route::get('/logs/data', [App\Http\Controllers\LogViewerController::class, 'getLogData'])->name('logs.data');
+    Route::get('/logs/download', [App\Http\Controllers\LogViewerController::class, 'downloadLog'])->name('logs.download');
+    Route::post('/logs/clear', [App\Http\Controllers\LogViewerController::class, 'clearLog'])->name('logs.clear');
+    //Log Viewer Routes End
 });
 
 Route::get('/previews/show/{slug}', [newPreviewController::class, 'show'])->name('previews-show');

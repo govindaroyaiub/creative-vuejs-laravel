@@ -3,482 +3,486 @@
     <Head title="Cache Management" />
 
     <!-- Modern Minimal Background -->
-    <div
-        class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
-
-        <!-- Clean Header -->
-        <header
-            class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/50 sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-                    <div class="flex items-center space-x-3 sm:space-x-4">
-                        <button @click="goBack"
-                            class="p-2 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-all duration-200 flex-shrink-0">
-                            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-600 dark:text-slate-300" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                            </svg>
-                        </button>
-
-                        <div class="min-w-0 flex-1">
-                            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white truncate">Cache
-                                Management</h1>
-                            <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm hidden sm:block">System
-                                cleanup and monitoring</p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-between sm:justify-end space-x-2 sm:space-x-3">
-                        <!-- Live Server Time Card -->
-                        <div
-                            class="bg-slate-100 dark:bg-slate-800 rounded-lg sm:rounded-xl px-3 sm:px-6 py-1.5 sm:py-2 text-right flex-shrink-0">
-                            <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Server Time</p>
-                            <p class="text-xs sm:text-sm font-mono font-semibold text-slate-900 dark:text-white">
-                                {{ currentTime || 'Loading...' }}
-                            </p>
-                            <p class="text-xs text-emerald-500 mt-0.5 sm:mt-1 hidden sm:block">
-                                🌍 {{ currentTimezone }}
-                            </p>
+    <AppLayout :breadcrumbs="[{ title: 'Cache Management', href: '/cache-management' }]">
+        <div
+            class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
+            <!-- Clean Header -->
+            <header
+                class="backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/50 sticky top-0 z-50">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                        <div class="flex items-center space-x-3 sm:space-x-4">
+                            <div class="min-w-0 flex-1">
+                                <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white truncate">Cache
+                                    Management</h1>
+                                <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm hidden sm:block">System
+                                    cleanup and monitoring</p>
+                            </div>
                         </div>
 
-                        <!-- Refresh Button -->
-                        <button @click="refreshAllData()" :disabled="isRefreshing"
-                            class="px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white rounded-lg sm:rounded-xl transition-all duration-200 flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
-                            <svg :class="{ 'animate-spin': isRefreshing }" class="w-3 h-3 sm:w-4 sm:h-4" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-                                </path>
-                            </svg>
-                            <span class="text-xs sm:text-sm">{{ isRefreshing ? 'Refreshing...' : 'Refresh' }}</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </header>
+                        <div class="flex items-center justify-between sm:justify-end space-x-2 sm:space-x-3">
+                            <!-- Live Server Time Card -->
+                            <div
+                                class="bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl px-3 sm:px-6 py-1.5 sm:py-2 text-right flex-shrink-0">
+                                <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Server Time</p>
+                                <p class="text-xs sm:text-sm font-mono font-semibold text-slate-900 dark:text-white">
+                                    {{ currentTime || 'Loading...' }}
+                                </p>
+                                <p class="text-xs text-emerald-500 mt-0.5 sm:mt-1 hidden sm:block">
+                                    🌍 {{ currentTimezone }}
+                                </p>
+                            </div>
 
-        <!-- Main Content -->
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-
-            <!-- Tab Navigation -->
-            <div class="mb-6 sm:mb-8">
-                <nav class="flex overflow-x-auto scrollbar-hide bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-                    <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="[
-                        'px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-sm whitespace-nowrap transition-all duration-200 flex-shrink-0',
-                        activeTab === tab.id
-                            ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm'
-                            : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-                    ]">
-                        <span class="mr-2">{{ tab.icon }}</span>
-                        {{ tab.name }}
-                    </button>
-                </nav>
-            </div>
-
-            <!-- Tab Content -->
-            <div class="space-y-6 sm:space-y-8">
-
-                <!-- Overview Tab -->
-                <div v-show="activeTab === 'overview'" class="space-y-4 sm:space-y-6">
-
-                    <!-- Quick Actions -->
-                    <section
-                        class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
-                        <h2
-                            class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 flex items-center">
-                            <span class="text-lg sm:text-xl mr-2 sm:mr-3">⚡</span>
-                            Quick Actions
-                        </h2>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
-                            <button v-for="action in quickActions" :key="action.type"
-                                @click="action.type === 'artisan' ? runArtisanClear() : runCleanup(action.type)"
-                                :disabled="isRunningCleanup"
-                                class="group relative p-3 sm:p-4 bg-gradient-to-br rounded-lg sm:rounded-xl transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:opacity-50 min-h-[80px] sm:min-h-[100px] flex flex-col justify-center"
-                                :class="action.gradient">
-                                <div class="text-lg sm:text-2xl mb-1 sm:mb-2">{{ action.icon }}</div>
-                                <div class="text-xs sm:text-sm font-semibold text-white">{{ action.name }}</div>
-                                <div class="text-xs text-white/80 mt-0.5 sm:mt-1">{{ action.description }}</div>
+                            <!-- Refresh Button -->
+                            <button @click="refreshAllData()" :disabled="isRefreshing"
+                                class="px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white rounded-lg sm:rounded-xl transition-all duration-200 flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+                                <svg :class="{ 'animate-spin': isRefreshing }" class="w-3 h-3 sm:w-4 sm:h-4" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                    </path>
+                                </svg>
+                                <span class="text-xs sm:text-sm">{{ isRefreshing ? 'Refreshing...' : 'Refresh' }}</span>
                             </button>
                         </div>
-                    </section>
-
-                    <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-2 gap-4 sm:gap-6">
-                        <div v-for="(stat, key) in currentStats" :key="key"
-                            class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 hover:shadow-lg transition-all duration-200">
-                            <div class="flex items-center justify-between mb-3 sm:mb-4">
-                                <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-                                    <div class="text-xl sm:text-2xl flex-shrink-0">{{ stat.icon }}</div>
-                                    <div class="min-w-0 flex-1">
-                                        <h3
-                                            class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base truncate">
-                                            {{ stat.name }}</h3>
-                                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{ stat.files
-                                        }} files</p>
-                                    </div>
-                                </div>
-                                <div class="text-right flex-shrink-0">
-                                    <div class="text-sm sm:text-lg font-bold text-slate-900 dark:text-white">{{
-                                        formatBytes(stat.size) }}</div>
-                                </div>
-                            </div>
-
-                            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                                <div class="h-2 rounded-full transition-all duration-1000" :style="{
-                                    width: `${getUsagePercentage(stat.size)}%`,
-                                    background: getColorGradient(stat.color)
-                                }">
-                                </div>
-                            </div>
-                        </div>
                     </div>
+                </div>
+            </header>
 
-                    <!-- Status Cards Row -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
-                        <!-- Scheduler Status -->
-                         <!-- System Info -->
-                        <div
+            <!-- Main Content -->
+            <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+                <!-- Tab Navigation -->
+                <div class="mb-6 sm:mb-8">
+                    <nav class="flex overflow-x-auto scrollbar-hide bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                        <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="[
+                            'px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-sm whitespace-nowrap transition-all duration-200 flex-shrink-0',
+                            activeTab === tab.id
+                                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm'
+                                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                        ]">
+                            <span class="mr-2">{{ tab.icon }}</span>
+                            {{ tab.name }}
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="space-y-6 sm:space-y-8">
+
+                    <!-- Overview Tab -->
+                    <div v-show="activeTab === 'overview'" class="space-y-4 sm:space-y-6">
+
+                        <!-- Quick Actions -->
+                        <section
                             class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
-                            <h3 class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
-                                System Info</h3>
-                            <div class="space-y-2 sm:space-y-3">
-                                <div class="flex justify-between text-xs sm:text-sm">
-                                    <span class="text-slate-500 dark:text-slate-400">PHP</span>
-                                    <span class="font-medium text-slate-900 dark:text-white font-mono text-right">
-                                        {{ systemInfo?.php_version || 'Loading...' }}
-                                    </span>
-                                </div>
+                            <h2
+                                class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 flex items-center">
+                                <span class="text-lg sm:text-xl mr-2 sm:mr-3">⚡</span>
+                                Quick Actions
+                            </h2>
 
-                                <div class="flex justify-between text-xs sm:text-sm">
-                                    <span class="text-slate-500 dark:text-slate-400">Laravel</span>
-                                    <span class="font-medium text-slate-900 dark:text-white font-mono text-right">
-                                        {{ systemInfo?.laravel_version || 'Loading...' }}
-                                    </span>
-                                </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
+                                <button v-for="action in quickActions" :key="action.type"
+                                    @click="handleQuickAction(action.type)" :disabled="isRunningCleanup"
+                                    class="group relative p-3 sm:p-4 bg-gradient-to-br rounded-lg sm:rounded-xl transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:opacity-50 min-h-[80px] sm:min-h-[100px] flex flex-col justify-center"
+                                    :class="action.gradient">
+                                    <div class="text-lg sm:text-2xl mb-1 sm:mb-2">{{ action.icon }}</div>
+                                    <div class="text-xs sm:text-sm font-semibold text-white">{{ action.name }}</div>
+                                    <div class="text-xs text-white/80 mt-0.5 sm:mt-1">{{ action.description }}</div>
+                                </button>
+                            </div>
+                        </section>
 
-                                <div class="flex justify-between text-xs sm:text-sm">
-                                    <span class="text-slate-500 dark:text-slate-400">Timezone</span>
-                                    <div class="text-right">
-                                        <span class="font-medium text-slate-900 dark:text-white font-mono text-xs">
-                                            {{ systemInfo?.timezone || 'Loading...' }}
-                                        </span>
-                                        <div v-if="systemInfo?.is_timezone_detected" class="text-xs text-emerald-500">
-                                            🌍 Auto-detected
+                        <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-2 gap-4 sm:gap-6">
+                            <div v-for="(stat, key) in currentStats" :key="key"
+                                class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 hover:shadow-lg transition-all duration-200">
+                                <div class="flex items-center justify-between mb-3 sm:mb-4">
+                                    <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                                        <div class="text-xl sm:text-2xl flex-shrink-0">{{ stat.icon }}</div>
+                                        <div class="min-w-0 flex-1">
+                                            <h3
+                                                class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base truncate">
+                                                {{ stat.name }}</h3>
+                                            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{
+                                                stat.files
+                                                }} files</p>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div
-                            class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
-                            <div class="flex items-center justify-between mb-3 sm:mb-4">
-                                <h3 class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base">Auto
-                                    Scheduler</h3>
-                                <div class="flex items-center space-x-2">
-                                    <div :class="getSchedulerStatusColor()" class="w-2 h-2 rounded-full"></div>
-                                    <span :class="getSchedulerStatusTextColor()" class="text-xs font-medium">
-                                        {{ getSchedulerStatusText() }}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="space-y-2 sm:space-y-3">
-                                <div class="flex justify-between text-xs sm:text-sm">
-                                    <span class="text-slate-500 dark:text-slate-400">Next Run</span>
-                                    <span class="font-medium text-slate-900 dark:text-white text-right">
-                                        {{ schedulerStatus?.next_run?.human || 'Calculating...' }}
-                                    </span>
-                                </div>
-
-                                <div class="flex justify-between text-xs sm:text-sm">
-                                    <span class="text-slate-500 dark:text-slate-400">Schedule</span>
-                                    <span class="font-medium text-slate-900 dark:text-white font-mono text-right">
-                                        {{ schedulerStatus?.schedule_time || '04:30' }} daily
-                                    </span>
-                                </div>
-
-                                <div class="flex justify-between text-xs sm:text-sm">
-                                    <span class="text-slate-500 dark:text-slate-400">Success Rate</span>
-                                    <span class="font-medium text-emerald-600 dark:text-emerald-400">
-                                        {{ schedulerStatus?.success_rate || 100 }}%
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Disk Usage -->
-                        <div
-                            class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
-                            <h3 class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
-                                Disk Usage</h3>
-                            <div class="space-y-3 sm:space-y-4">
-                                <div class="text-center">
-                                    <div class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-                                        {{ systemInfo?.disk_usage?.used_percentage || 0 }}%
+                                    <div class="text-right flex-shrink-0">
+                                        <div class="text-sm sm:text-lg font-bold text-slate-900 dark:text-white">{{
+                                            formatBytes(stat.size) }}</div>
                                     </div>
-                                    <div class="text-xs text-slate-500 dark:text-slate-400">Used</div>
                                 </div>
 
                                 <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-1000"
-                                        :style="{ width: `${systemInfo?.disk_usage?.used_percentage || 0}%` }">
+                                    <div class="h-2 rounded-full transition-all duration-1000" :style="{
+                                        width: `${getUsagePercentage(stat.size)}%`,
+                                        background: getColorGradient(stat.color)
+                                    }">
                                     </div>
-                                </div>
-
-                                <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400">
-                                    <span>Free: {{ systemInfo?.disk_usage?.free || 'N/A' }}</span>
-                                    <span>Total: {{ systemInfo?.disk_usage?.total || 'N/A' }}</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Log Files -->
-                        <div class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6"
-                            :class="{ 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/10': systemInfo?.logs?.total?.needs_attention }">
-                            <div class="flex items-center justify-between mb-3 sm:mb-4">
-                                <h3 class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base flex items-center"
-                                    :class="{ 'text-red-600 dark:text-red-400': systemInfo?.logs?.total?.needs_attention }">
-                                    <span class="mr-2">📋</span>
-                                    Log Files
-                                    <span v-if="systemInfo?.logs?.total?.needs_attention" class="ml-2 text-red-500"
-                                        title="Logs exceed 20MB - needs attention">⚠️</span>
-                                </h3>
-                                <button @click="blankLogFiles" :disabled="isBlankingLogs"
-                                    class="px-3 py-1.5 bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:hover:bg-orange-900/40 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
-                                    <svg v-if="!isBlankingLogs" class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                        </path>
-                                    </svg>
-                                    <div v-else
-                                        class="w-3 h-3 mr-1 animate-spin rounded-full border-2 border-orange-600 border-t-transparent">
-                                    </div>
-                                    {{ isBlankingLogs ? 'Blanking...' : 'Blank Logs' }}
-                                </button>
-                            </div>
-
-                            <div class="space-y-3">
-                                <!-- Total Size -->
-                                <div class="flex justify-between items-center text-xs sm:text-sm p-3 rounded-lg"
-                                    :class="systemInfo?.logs?.total?.needs_attention ? 'bg-red-100 dark:bg-red-900/20' : 'bg-slate-100 dark:bg-slate-800'">
-                                    <span class="font-medium"
-                                        :class="systemInfo?.logs?.total?.needs_attention ? 'text-red-700 dark:text-red-400' : 'text-slate-700 dark:text-slate-300'">Total
-                                        Size</span>
-                                    <span class="font-bold"
-                                        :class="systemInfo?.logs?.total?.needs_attention ? 'text-red-700 dark:text-red-400' : 'text-slate-900 dark:text-white'">
-                                        {{ systemInfo?.logs?.total?.formatted_size || '0 B' }}
-                                    </span>
-                                </div>
-
-                                <!-- Laravel Application Logs -->
-                                <div class="flex justify-between text-xs sm:text-sm">
-                                    <span class="text-slate-500 dark:text-slate-400">Laravel App Logs</span>
-                                    <div class="text-right">
-                                        <span class="font-medium text-slate-900 dark:text-white font-mono">
-                                            {{ systemInfo?.logs?.laravel?.formatted_size || '0 B' }}
+                        <!-- Status Cards Row -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
+                            <!-- Scheduler Status -->
+                            <!-- System Info -->
+                            <div
+                                class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                                <h3
+                                    class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
+                                    System Info</h3>
+                                <div class="space-y-2 sm:space-y-3">
+                                    <div class="flex justify-between text-xs sm:text-sm">
+                                        <span class="text-slate-500 dark:text-slate-400">PHP</span>
+                                        <span class="font-medium text-slate-900 dark:text-white font-mono text-right">
+                                            {{ systemInfo?.php_version || 'Loading...' }}
                                         </span>
-                                        <div v-if="systemInfo?.logs?.laravel?.count" class="text-xs text-slate-400">
-                                            {{ systemInfo.logs.laravel.count }} file(s)
-                                        </div>
                                     </div>
-                                </div>
 
-                                <!-- Cache Management Logs -->
-                                <div class="flex justify-between text-xs sm:text-sm">
-                                    <span class="text-slate-500 dark:text-slate-400">Cache Mgmt Logs</span>
-                                    <div class="text-right">
-                                        <span class="font-medium text-slate-900 dark:text-white font-mono">
-                                            {{ systemInfo?.logs?.cache_management?.formatted_size || '0 B' }}
+                                    <div class="flex justify-between text-xs sm:text-sm">
+                                        <span class="text-slate-500 dark:text-slate-400">Laravel</span>
+                                        <span class="font-medium text-slate-900 dark:text-white font-mono text-right">
+                                            {{ systemInfo?.laravel_version || 'Loading...' }}
                                         </span>
-                                        <div v-if="systemInfo?.logs?.cache_management?.count"
-                                            class="text-xs text-slate-400">
-                                            {{ systemInfo.logs.cache_management.count }} file(s)
-                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Activity Tab -->
-                <div v-show="activeTab === 'activity'" class="space-y-4 sm:space-y-6">
-                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-                        <!-- Recent Activity -->
-                        <div
-                            class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
-                            <h3 class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
-                                Recent Cleanups</h3>
-
-                            <div v-if="recentCleanups && recentCleanups.length"
-                                class="space-y-2 sm:space-y-3 max-h-80 overflow-y-auto">
-                                <div v-for="(cleanup, index) in recentCleanups" :key="index"
-                                    class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg space-y-2 sm:space-y-0">
-                                    <div class="min-w-0 flex-1">
-                                        <div class="font-semibold text-slate-900 dark:text-white text-sm">{{
-                                            cleanup.total_files
-                                        }} files</div>
-                                        <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{
-                                            cleanup.human_time }}
-                                        </div>
-                                    </div>
-                                    <div class="flex justify-between sm:text-right">
-                                        <div class="font-semibold text-emerald-600 dark:text-emerald-400 text-sm">{{
-                                            cleanup.total_size }}</div>
-                                        <div
-                                            class="text-xs text-slate-500 dark:text-slate-400 font-mono sm:ml-2 sm:mt-1">
-                                            {{
-                                                cleanup.timestamp }}</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div v-else class="text-center py-6 sm:py-8">
-                                <div class="text-3xl sm:text-4xl mb-2 sm:mb-3">🧹</div>
-                                <p class="text-slate-500 dark:text-slate-400 text-sm">No cleanup activity yet</p>
-                            </div>
-                        </div>
-
-                        <!-- Combined Scheduler Activity Timeline -->
-                        <div v-if="hasSchedulerActivity"
-                            class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
-                            <h3
-                                class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 flex items-center text-sm sm:text-base">
-                                <span class="text-blue-500 mr-2">📅</span>
-                                Scheduler Activity Timeline
-                            </h3>
-
-                            <div class="space-y-2 sm:space-y-3 max-h-80 overflow-y-auto">
-                                <div v-for="(activity, index) in getSchedulerActivities()" :key="`activity-${index}`"
-                                    :class="[
-                                        'flex flex-col sm:flex-row sm:justify-between sm:items-start p-3 sm:p-4 rounded-lg border space-y-2 sm:space-y-0',
-                                        activity.type === 'success'
-                                            ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
-                                            : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                                    ]">
-                                    <div class="flex items-start space-x-2 sm:space-x-3 flex-1 min-w-0">
-                                        <div :class="[
-                                            'text-base sm:text-lg mt-0.5 flex-shrink-0',
-                                            activity.type === 'success' ? 'text-emerald-500' : 'text-red-500'
-                                        ]">
-                                            {{ activity.type === 'success' ? '✅' : '❌' }}
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <div v-if="activity.type === 'success'"
-                                                class="font-semibold text-emerald-700 dark:text-emerald-300 text-sm">
-                                                Cleaned {{ activity.files_cleaned }} files
-                                            </div>
-                                            <div v-else class="font-medium text-sm text-red-700 dark:text-red-300">
-                                                {{ activity.message }}
-                                            </div>
-                                            <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                                                {{ activity.human }}
-                                            </div>
-                                            <div class="text-xs text-slate-400 dark:text-slate-500 font-mono mt-0.5">
-                                                {{ activity.formatted }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="flex justify-between sm:block sm:ml-3 sm:text-right">
-                                        <div v-if="activity.type === 'success'"
-                                            class="text-emerald-600 dark:text-emerald-400 font-semibold text-sm">
-                                            {{ activity.space_freed }}
-                                        </div>
-                                        <div v-else
-                                            class="text-red-500 dark:text-red-400 text-xs font-medium bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded">
-                                            Error
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Show message when no scheduler activity -->
-                        <div v-else
-                            class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
-                            <h3
-                                class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 flex items-center text-sm sm:text-base">
-                                <span class="text-blue-500 mr-2">📅</span>
-                                Scheduler Activity Timeline
-                            </h3>
-                            <div class="text-center py-6 sm:py-8">
-                                <div class="text-3xl sm:text-4xl mb-2 sm:mb-3">⏰</div>
-                                <p class="text-slate-500 dark:text-slate-400 text-sm">No scheduler activity yet</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Settings Tab -->
-                <div v-show="activeTab === 'settings'" class="space-y-4 sm:space-y-6">
-                    <div class="max-w-full lg:max-w-2xl">
-                        <div
-                            class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
-                            <h3 class="font-semibold text-slate-900 dark:text-white mb-4 sm:mb-6 text-sm sm:text-base">
-                                Scheduler Settings</h3>
-
-                            <div class="space-y-4 sm:space-y-6">
-                                <!-- Enable/Disable Toggle -->
-                                <div
-                                    class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-slate-50 dark:bg-slate-800 rounded-lg sm:rounded-xl space-y-3 sm:space-y-0">
-                                    <div class="flex-1">
-                                        <div class="font-medium text-slate-900 dark:text-white text-sm sm:text-base">
-                                            Automatic Cleanup</div>
-                                        <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Enable
-                                            daily automated
-                                            cache cleanup</div>
-                                    </div>
-                                    <label
-                                        class="relative inline-flex items-center cursor-pointer self-start sm:self-center">
-                                        <input type="checkbox" v-model="schedulerEnabled" class="sr-only"
-                                            @change="updateSchedulerSettings">
-                                        <div :class="schedulerEnabled ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-600'"
-                                            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors">
-                                            <span :class="schedulerEnabled ? 'translate-x-6' : 'translate-x-1'"
-                                                class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform">
+                                    <div class="flex justify-between text-xs sm:text-sm">
+                                        <span class="text-slate-500 dark:text-slate-400">Timezone</span>
+                                        <div class="text-right">
+                                            <span class="font-medium text-slate-900 dark:text-white font-mono text-xs">
+                                                {{ systemInfo?.timezone || 'Loading...' }}
                                             </span>
+                                            <div v-if="systemInfo?.is_timezone_detected"
+                                                class="text-xs text-emerald-500">
+                                                🌍 Auto-detected
+                                            </div>
                                         </div>
-                                    </label>
-                                </div>
-
-                                <!-- Time Setting -->
-                                <div class="p-3 sm:p-4 bg-slate-50 dark:bg-slate-800 rounded-lg sm:rounded-xl">
-                                    <label class="block">
-                                        <div
-                                            class="font-medium text-slate-900 dark:text-white mb-2 text-sm sm:text-base">
-                                            Cleanup Time</div>
-                                        <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-3">Daily
-                                            execution
-                                            time (24-hour format)</div>
-                                        <input type="time" v-model="schedulerTime" @change="updateSchedulerSettings"
-                                            :disabled="!schedulerEnabled"
-                                            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg sm:rounded-xl text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 text-sm sm:text-base">
-                                    </label>
-                                </div>
-
-                                <!-- Current Status -->
-                                <div class="p-3 sm:p-4 bg-slate-50 dark:bg-slate-800 rounded-lg sm:rounded-xl">
-                                    <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-2">Current
-                                        Schedule</div>
-                                    <div class="font-bold text-lg sm:text-xl text-slate-900 dark:text-white font-mono">
-                                        {{ schedulerEnabled ? `${schedulerTime} daily` : 'Disabled' }}
                                     </div>
-                                    <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">{{
-                                        schedulerStatus?.timezone || 'UTC' }}</div>
+                                </div>
+                            </div>
+
+                            <div
+                                class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                                <div class="flex items-center justify-between mb-3 sm:mb-4">
+                                    <h3 class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base">Auto
+                                        Scheduler</h3>
+                                    <div class="flex items-center space-x-2">
+                                        <div :class="getSchedulerStatusColor()" class="w-2 h-2 rounded-full"></div>
+                                        <span :class="getSchedulerStatusTextColor()" class="text-xs font-medium">
+                                            {{ getSchedulerStatusText() }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2 sm:space-y-3">
+                                    <div class="flex justify-between text-xs sm:text-sm">
+                                        <span class="text-slate-500 dark:text-slate-400">Next Run</span>
+                                        <span class="font-medium text-slate-900 dark:text-white text-right">
+                                            {{ schedulerStatus?.next_run?.human || 'Calculating...' }}
+                                        </span>
+                                    </div>
+
+                                    <div class="flex justify-between text-xs sm:text-sm">
+                                        <span class="text-slate-500 dark:text-slate-400">Schedule</span>
+                                        <span class="font-medium text-slate-900 dark:text-white font-mono text-right">
+                                            {{ schedulerStatus?.schedule_time || '04:30' }} daily
+                                        </span>
+                                    </div>
+
+                                    <div class="flex justify-between text-xs sm:text-sm">
+                                        <span class="text-slate-500 dark:text-slate-400">Success Rate</span>
+                                        <span class="font-medium text-emerald-600 dark:text-emerald-400">
+                                            {{ schedulerStatus?.success_rate || 100 }}%
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Disk Usage -->
+                            <div
+                                class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                                <h3
+                                    class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
+                                    Disk Usage</h3>
+                                <div class="space-y-3 sm:space-y-4">
+                                    <div class="text-center">
+                                        <div class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+                                            {{ systemInfo?.disk_usage?.used_percentage || 0 }}%
+                                        </div>
+                                        <div class="text-xs text-slate-500 dark:text-slate-400">Used</div>
+                                    </div>
+
+                                    <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-1000"
+                                            :style="{ width: `${systemInfo?.disk_usage?.used_percentage || 0}%` }">
+                                        </div>
+                                    </div>
+
+                                    <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400">
+                                        <span>Free: {{ systemInfo?.disk_usage?.free || 'N/A' }}</span>
+                                        <span>Total: {{ systemInfo?.disk_usage?.total || 'N/A' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Log Files -->
+                            <div class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6"
+                                :class="{ 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/10': systemInfo?.logs?.total?.needs_attention }">
+                                <div class="flex items-center justify-between mb-3 sm:mb-4">
+                                    <h3 class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base flex items-center"
+                                        :class="{ 'text-red-600 dark:text-red-400': systemInfo?.logs?.total?.needs_attention }">
+                                        <span class="mr-2">📋</span>
+                                        Log Files
+                                        <span v-if="systemInfo?.logs?.total?.needs_attention" class="ml-2 text-red-500"
+                                            title="Logs exceed 20MB - needs attention">⚠️</span>
+                                    </h3>
+                                    <button @click="blankLogFiles" :disabled="isBlankingLogs"
+                                        class="px-3 py-1.5 bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:hover:bg-orange-900/40 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
+                                        <svg v-if="!isBlankingLogs" class="w-3 h-3 mr-1" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                            </path>
+                                        </svg>
+                                        <div v-else
+                                            class="w-3 h-3 mr-1 animate-spin rounded-full border-2 border-orange-600 border-t-transparent">
+                                        </div>
+                                        {{ isBlankingLogs ? 'Blanking...' : 'Blank Logs' }}
+                                    </button>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <!-- Total Size -->
+                                    <div class="flex justify-between items-center text-xs sm:text-sm p-3 rounded-lg"
+                                        :class="systemInfo?.logs?.total?.needs_attention ? 'bg-red-100 dark:bg-red-900/20' : 'bg-slate-100 dark:bg-slate-800'">
+                                        <span class="font-medium"
+                                            :class="systemInfo?.logs?.total?.needs_attention ? 'text-red-700 dark:text-red-400' : 'text-slate-700 dark:text-slate-300'">Total
+                                            Size</span>
+                                        <span class="font-bold"
+                                            :class="systemInfo?.logs?.total?.needs_attention ? 'text-red-700 dark:text-red-400' : 'text-slate-900 dark:text-white'">
+                                            {{ systemInfo?.logs?.total?.formatted_size || '0 B' }}
+                                        </span>
+                                    </div>
+
+                                    <!-- Laravel Application Logs -->
+                                    <div class="flex justify-between text-xs sm:text-sm">
+                                        <span class="text-slate-500 dark:text-slate-400">Laravel App Logs</span>
+                                        <div class="text-right">
+                                            <span class="font-medium text-slate-900 dark:text-white font-mono">
+                                                {{ systemInfo?.logs?.laravel?.formatted_size || '0 B' }}
+                                            </span>
+                                            <div v-if="systemInfo?.logs?.laravel?.count" class="text-xs text-slate-400">
+                                                {{ systemInfo.logs.laravel.count }} file(s)
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Cache Management Logs -->
+                                    <div class="flex justify-between text-xs sm:text-sm">
+                                        <span class="text-slate-500 dark:text-slate-400">Cache Mgmt Logs</span>
+                                        <div class="text-right">
+                                            <span class="font-medium text-slate-900 dark:text-white font-mono">
+                                                {{ systemInfo?.logs?.cache_management?.formatted_size || '0 B' }}
+                                            </span>
+                                            <div v-if="systemInfo?.logs?.cache_management?.count"
+                                                class="text-xs text-slate-400">
+                                                {{ systemInfo.logs.cache_management.count }} file(s)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activity Tab -->
+                    <div v-show="activeTab === 'activity'" class="space-y-4 sm:space-y-6">
+                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+                            <!-- Recent Activity -->
+                            <div
+                                class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                                <h3
+                                    class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
+                                    Recent Cleanups</h3>
+
+                                <div v-if="recentCleanups && recentCleanups.length"
+                                    class="space-y-2 sm:space-y-3 max-h-80 overflow-y-auto">
+                                    <div v-for="(cleanup, index) in recentCleanups" :key="index"
+                                        class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg space-y-2 sm:space-y-0">
+                                        <div class="min-w-0 flex-1">
+                                            <div class="font-semibold text-slate-900 dark:text-white text-sm">{{
+                                                cleanup.total_files
+                                                }} files</div>
+                                            <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{
+                                                cleanup.human_time }}
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-between sm:text-right">
+                                            <div class="font-semibold text-emerald-600 dark:text-emerald-400 text-sm">{{
+                                                cleanup.total_size }}</div>
+                                            <div
+                                                class="text-xs text-slate-500 dark:text-slate-400 font-mono sm:ml-2 sm:mt-1">
+                                                {{
+                                                    cleanup.timestamp }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div v-else class="text-center py-6 sm:py-8">
+                                    <div class="text-3xl sm:text-4xl mb-2 sm:mb-3">🧹</div>
+                                    <p class="text-slate-500 dark:text-slate-400 text-sm">No cleanup activity yet</p>
+                                </div>
+                            </div>
+
+                            <!-- Combined Scheduler Activity Timeline -->
+                            <div v-if="hasSchedulerActivity"
+                                class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                                <h3
+                                    class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 flex items-center text-sm sm:text-base">
+                                    <span class="text-blue-500 mr-2">📅</span>
+                                    Scheduler Activity Timeline
+                                </h3>
+
+                                <div class="space-y-2 sm:space-y-3 max-h-80 overflow-y-auto">
+                                    <div v-for="(activity, index) in getSchedulerActivities()"
+                                        :key="`activity-${index}`" :class="[
+                                            'flex flex-col sm:flex-row sm:justify-between sm:items-start p-3 sm:p-4 rounded-lg border space-y-2 sm:space-y-0',
+                                            activity.type === 'success'
+                                                ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
+                                                : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                                        ]">
+                                        <div class="flex items-start space-x-2 sm:space-x-3 flex-1 min-w-0">
+                                            <div :class="[
+                                                'text-base sm:text-lg mt-0.5 flex-shrink-0',
+                                                activity.type === 'success' ? 'text-emerald-500' : 'text-red-500'
+                                            ]">
+                                                {{ activity.type === 'success' ? '✅' : '❌' }}
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div v-if="activity.type === 'success'"
+                                                    class="font-semibold text-emerald-700 dark:text-emerald-300 text-sm">
+                                                    Cleaned {{ activity.files_cleaned }} files
+                                                </div>
+                                                <div v-else class="font-medium text-sm text-red-700 dark:text-red-300">
+                                                    {{ activity.message }}
+                                                </div>
+                                                <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                                    {{ activity.human }}
+                                                </div>
+                                                <div
+                                                    class="text-xs text-slate-400 dark:text-slate-500 font-mono mt-0.5">
+                                                    {{ activity.formatted }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-between sm:block sm:ml-3 sm:text-right">
+                                            <div v-if="activity.type === 'success'"
+                                                class="text-emerald-600 dark:text-emerald-400 font-semibold text-sm">
+                                                {{ activity.space_freed }}
+                                            </div>
+                                            <div v-else
+                                                class="text-red-500 dark:text-red-400 text-xs font-medium bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded">
+                                                Error
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Show message when no scheduler activity -->
+                            <div v-else
+                                class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                                <h3
+                                    class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 flex items-center text-sm sm:text-base">
+                                    <span class="text-blue-500 mr-2">📅</span>
+                                    Scheduler Activity Timeline
+                                </h3>
+                                <div class="text-center py-6 sm:py-8">
+                                    <div class="text-3xl sm:text-4xl mb-2 sm:mb-3">⏰</div>
+                                    <p class="text-slate-500 dark:text-slate-400 text-sm">No scheduler activity yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Tab -->
+                    <div v-show="activeTab === 'settings'" class="space-y-4 sm:space-y-6">
+                        <div class="max-w-full lg:max-w-2xl">
+                            <div
+                                class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                                <h3
+                                    class="font-semibold text-slate-900 dark:text-white mb-4 sm:mb-6 text-sm sm:text-base">
+                                    Scheduler Settings</h3>
+
+                                <div class="space-y-4 sm:space-y-6">
+                                    <!-- Enable/Disable Toggle -->
+                                    <div
+                                        class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-slate-50 dark:bg-slate-800 rounded-lg sm:rounded-xl space-y-3 sm:space-y-0">
+                                        <div class="flex-1">
+                                            <div
+                                                class="font-medium text-slate-900 dark:text-white text-sm sm:text-base">
+                                                Automatic Cleanup</div>
+                                            <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                                Enable
+                                                daily automated
+                                                cache cleanup</div>
+                                        </div>
+                                        <label
+                                            class="relative inline-flex items-center cursor-pointer self-start sm:self-center">
+                                            <input type="checkbox" v-model="schedulerEnabled" class="sr-only"
+                                                @change="updateSchedulerSettings">
+                                            <div :class="schedulerEnabled ? 'bg-blue-600' : 'bg-slate-300 dark:bg-slate-600'"
+                                                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors">
+                                                <span :class="schedulerEnabled ? 'translate-x-6' : 'translate-x-1'"
+                                                    class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform">
+                                                </span>
+                                            </div>
+                                        </label>
+                                    </div>
+
+                                    <!-- Time Setting -->
+                                    <div class="p-3 sm:p-4 bg-slate-50 dark:bg-slate-800 rounded-lg sm:rounded-xl">
+                                        <label class="block">
+                                            <div
+                                                class="font-medium text-slate-900 dark:text-white mb-2 text-sm sm:text-base">
+                                                Cleanup Time</div>
+                                            <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-3">
+                                                Daily
+                                                execution
+                                                time (24-hour format)</div>
+                                            <input type="time" v-model="schedulerTime" @change="updateSchedulerSettings"
+                                                :disabled="!schedulerEnabled"
+                                                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg sm:rounded-xl text-slate-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 text-sm sm:text-base">
+                                        </label>
+                                    </div>
+
+                                    <!-- Current Status -->
+                                    <div class="p-3 sm:p-4 bg-slate-50 dark:bg-slate-800 rounded-lg sm:rounded-xl">
+                                        <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-2">Current
+                                            Schedule</div>
+                                        <div
+                                            class="font-bold text-lg sm:text-xl text-slate-900 dark:text-white font-mono">
+                                            {{ schedulerEnabled ? `${schedulerTime} daily` : 'Disabled' }}
+                                        </div>
+                                        <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">{{
+                                            schedulerStatus?.timezone || 'UTC' }}</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </main>
-    </div>
+            </main>
+        </div>
+    </AppLayout>
+
 </template>
 
 <script setup lang="ts">
+import AppLayout from '@/layouts/AppLayout.vue';
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { router, Head, useForm } from '@inertiajs/vue3'
 import Swal from 'sweetalert2'
@@ -523,7 +527,8 @@ const quickActions = ref([
     { type: 'storage', name: 'Storage', description: 'Temp files', icon: '📁', gradient: 'from-amber-500 to-amber-600' },
     { type: 'logs', name: 'Logs', description: 'Old log files', icon: '📋', gradient: 'from-red-500 to-red-600' },
     { type: 'temp', name: 'Temp Files', description: 'Upload temps', icon: '🗃️', gradient: 'from-purple-500 to-purple-600' },
-    { type: 'artisan', name: 'Artisan Clear', description: 'Clear & cache configs', icon: '⚡', gradient: 'from-indigo-500 to-indigo-600' }
+    { type: 'artisan', name: 'Artisan Clear', description: 'Clear & cache configs', icon: '⚡', gradient: 'from-indigo-500 to-indigo-600' },
+    { type: 'view-logs', name: 'View Logs', description: 'Browse log files', icon: '👀', gradient: 'from-teal-500 to-teal-600' }
 ])
 
 // Methods
@@ -800,6 +805,26 @@ const stopLiveClock = () => {
         clearInterval(clockInterval.value)
         clockInterval.value = null
     }
+}
+
+// Quick action handler
+const handleQuickAction = (actionType) => {
+    switch (actionType) {
+        case 'artisan':
+            runArtisanClear()
+            break
+        case 'view-logs':
+            navigateToLogs()
+            break
+        default:
+            runCleanup(actionType)
+            break
+    }
+}
+
+// Navigate to log viewer
+const navigateToLogs = () => {
+    router.get(route('logs.index'))
 }
 
 const runArtisanClear = async () => {
