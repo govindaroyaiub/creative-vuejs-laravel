@@ -91,8 +91,9 @@
                             Quick Actions
                         </h2>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
-                            <button v-for="action in quickActions" :key="action.type" @click="runCleanup(action.type)"
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
+                            <button v-for="action in quickActions" :key="action.type"
+                                @click="action.type === 'artisan' ? runArtisanClear() : runCleanup(action.type)"
                                 :disabled="isRunningCleanup"
                                 class="group relative p-3 sm:p-4 bg-gradient-to-br rounded-lg sm:rounded-xl transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:opacity-50 min-h-[80px] sm:min-h-[100px] flex flex-col justify-center"
                                 :class="action.gradient">
@@ -114,7 +115,7 @@
                                             class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base truncate">
                                             {{ stat.name }}</h3>
                                         <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{ stat.files
-                                            }} files</p>
+                                        }} files</p>
                                     </div>
                                 </div>
                                 <div class="text-right flex-shrink-0">
@@ -319,7 +320,7 @@
                                     <div class="min-w-0 flex-1">
                                         <div class="font-semibold text-slate-900 dark:text-white text-sm">{{
                                             cleanup.total_files
-                                            }} files</div>
+                                        }} files</div>
                                         <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{
                                             cleanup.human_time }}
                                         </div>
@@ -521,7 +522,8 @@ const quickActions = ref([
     { type: 'laravel', name: 'Laravel Cache', description: 'App & framework', icon: '🗂️', gradient: 'from-blue-500 to-blue-600' },
     { type: 'storage', name: 'Storage', description: 'Temp files', icon: '📁', gradient: 'from-amber-500 to-amber-600' },
     { type: 'logs', name: 'Logs', description: 'Old log files', icon: '📋', gradient: 'from-red-500 to-red-600' },
-    { type: 'temp', name: 'Temp Files', description: 'Upload temps', icon: '🗃️', gradient: 'from-purple-500 to-purple-600' }
+    { type: 'temp', name: 'Temp Files', description: 'Upload temps', icon: '🗃️', gradient: 'from-purple-500 to-purple-600' },
+    { type: 'artisan', name: 'Artisan Clear', description: 'Clear & cache configs', icon: '⚡', gradient: 'from-indigo-500 to-indigo-600' }
 ])
 
 // Methods
@@ -797,6 +799,70 @@ const stopLiveClock = () => {
     if (clockInterval.value) {
         clearInterval(clockInterval.value)
         clockInterval.value = null
+    }
+}
+
+const runArtisanClear = async () => {
+    isRunningCleanup.value = true
+
+    Swal.fire({
+        title: 'Running Artisan Commands',
+        html: `<div class="text-lg">Clearing and rebuilding Laravel cache...</div>`,
+        icon: 'info',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+            Swal.showLoading()
+        }
+    })
+
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+
+        const response = await fetch('/cache-management/run-artisan-clear', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            }
+        })
+
+        const data = await response.json()
+
+        if (data.success) {
+            Swal.fire({
+                title: 'Artisan Commands Completed!',
+                html: `
+                    <div class="text-lg mb-4">✅ Laravel caches cleared and rebuilt</div>
+                    <div class="text-sm text-slate-600">
+                        <div>• Cache cleared</div>
+                        <div>• Config cleared</div>
+                        <div>• Route cleared</div>
+                        <div>• View cleared</div>
+                        <div>• Config cached</div>
+                    </div>
+                `,
+                icon: 'success',
+                confirmButtonText: 'Great!',
+                confirmButtonColor: '#10b981'
+            })
+
+            await refreshStats()
+        } else {
+            throw new Error(data.message || 'Artisan commands failed')
+        }
+    } catch (error) {
+        console.error('Artisan commands failed:', error)
+        Swal.fire({
+            title: 'Artisan Commands Failed',
+            text: error.message || 'An error occurred while running artisan commands',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#ef4444'
+        })
+    } finally {
+        isRunningCleanup.value = false
     }
 }
 

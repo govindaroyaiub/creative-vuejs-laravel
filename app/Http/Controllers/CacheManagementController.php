@@ -567,4 +567,57 @@ class CacheManagementController extends Controller
     {
         return response()->json($this->getSystemInfo());
     }
+
+    public function runArtisanClear(Request $request)
+    {
+        try {
+            $commands = [
+                'cache:clear',
+                'config:clear',
+                'route:clear',
+                'view:clear',
+                'config:cache'
+            ];
+
+            $results = [];
+            $allSuccessful = true;
+
+            foreach ($commands as $command) {
+                try {
+                    $exitCode = Artisan::call($command);
+                    $output = Artisan::output();
+
+                    $results[$command] = [
+                        'success' => $exitCode === 0,
+                        'output' => trim($output),
+                        'exit_code' => $exitCode
+                    ];
+
+                    if ($exitCode !== 0) {
+                        $allSuccessful = false;
+                    }
+                } catch (\Exception $e) {
+                    $results[$command] = [
+                        'success' => false,
+                        'output' => $e->getMessage(),
+                        'exit_code' => 1
+                    ];
+                    $allSuccessful = false;
+                }
+            }
+
+            return response()->json([
+                'success' => $allSuccessful,
+                'message' => $allSuccessful ? 'All artisan commands executed successfully' : 'Some commands failed',
+                'commands_run' => count($commands),
+                'results' => $results,
+                'timestamp' => now()->toISOString()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to run artisan commands: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

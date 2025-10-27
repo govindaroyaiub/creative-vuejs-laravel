@@ -176,6 +176,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/cache-management/server-time', [CacheManagementController::class, 'getServerTime'])->name('cache-management.server-time');
     Route::get('/cache-management/system-info', [CacheManagementController::class, 'getSystemInfoOnly'])->name('cache-management.system-info');
     Route::post('/cache-management/blank-logs', [CacheManagementController::class, 'blankLogFiles'])->name('cache-management.blank-logs');
+    Route::post('/cache-management/run-artisan-clear', [CacheManagementController::class, 'runArtisanClear'])->name('cache-management.run-artisan-clear');
     //Cache Management Routes End
 });
 
