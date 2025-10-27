@@ -137,6 +137,40 @@
                     <!-- Status Cards Row -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
                         <!-- Scheduler Status -->
+                         <!-- System Info -->
+                        <div
+                            class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                            <h3 class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
+                                System Info</h3>
+                            <div class="space-y-2 sm:space-y-3">
+                                <div class="flex justify-between text-xs sm:text-sm">
+                                    <span class="text-slate-500 dark:text-slate-400">PHP</span>
+                                    <span class="font-medium text-slate-900 dark:text-white font-mono text-right">
+                                        {{ systemInfo?.php_version || 'Loading...' }}
+                                    </span>
+                                </div>
+
+                                <div class="flex justify-between text-xs sm:text-sm">
+                                    <span class="text-slate-500 dark:text-slate-400">Laravel</span>
+                                    <span class="font-medium text-slate-900 dark:text-white font-mono text-right">
+                                        {{ systemInfo?.laravel_version || 'Loading...' }}
+                                    </span>
+                                </div>
+
+                                <div class="flex justify-between text-xs sm:text-sm">
+                                    <span class="text-slate-500 dark:text-slate-400">Timezone</span>
+                                    <div class="text-right">
+                                        <span class="font-medium text-slate-900 dark:text-white font-mono text-xs">
+                                            {{ systemInfo?.timezone || 'Loading...' }}
+                                        </span>
+                                        <div v-if="systemInfo?.is_timezone_detected" class="text-xs text-emerald-500">
+                                            🌍 Auto-detected
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div
                             class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
                             <div class="flex items-center justify-between mb-3 sm:mb-4">
@@ -170,40 +204,6 @@
                                     <span class="font-medium text-emerald-600 dark:text-emerald-400">
                                         {{ schedulerStatus?.success_rate || 100 }}%
                                     </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- System Info -->
-                        <div
-                            class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
-                            <h3 class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
-                                System Info</h3>
-                            <div class="space-y-2 sm:space-y-3">
-                                <div class="flex justify-between text-xs sm:text-sm">
-                                    <span class="text-slate-500 dark:text-slate-400">PHP</span>
-                                    <span class="font-medium text-slate-900 dark:text-white font-mono text-right">
-                                        {{ systemInfo?.php_version || 'Loading...' }}
-                                    </span>
-                                </div>
-
-                                <div class="flex justify-between text-xs sm:text-sm">
-                                    <span class="text-slate-500 dark:text-slate-400">Laravel</span>
-                                    <span class="font-medium text-slate-900 dark:text-white font-mono text-right">
-                                        {{ systemInfo?.laravel_version || 'Loading...' }}
-                                    </span>
-                                </div>
-
-                                <div class="flex justify-between text-xs sm:text-sm">
-                                    <span class="text-slate-500 dark:text-slate-400">Timezone</span>
-                                    <div class="text-right">
-                                        <span class="font-medium text-slate-900 dark:text-white font-mono text-xs">
-                                            {{ systemInfo?.timezone || 'Loading...' }}
-                                        </span>
-                                        <div v-if="systemInfo?.is_timezone_detected" class="text-xs text-emerald-500">
-                                            🌍 Auto-detected
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>

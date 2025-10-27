@@ -27,8 +27,6 @@ export class TimezoneDetector {
 
             // Store in localStorage for persistence
             localStorage.setItem('user_timezone', this.timezone);
-
-            console.log('Detected timezone:', this.timezone);
         } catch (error) {
             console.warn('Failed to detect timezone:', error);
             // Fallback to UTC
