@@ -305,6 +305,7 @@ hr {
     width: auto;
     height: auto;
     right: -2px;
+    cursor: pointer;
 }
 
 #feedbackClick{
@@ -333,7 +334,7 @@ hr {
 #feedbackClick {
     position: fixed;
     top: 25rem;
-    right: 1.5rem;
+    right: 2rem;
     z-index: 1000;
 }
 
@@ -357,28 +358,28 @@ hr {
 }
 
 #feedbackDescription {
+    display: none;
     position: fixed;
     top: 25.5rem;
-    right: -320px;
+    right: 2rem;
     /* Start hidden off-screen */
     width: 302px;
     background: white;
     border: 1px solid var(--tertiary-color);
     border-radius: 10px 0 0 10px;
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
-    transition: right 0.3s ease-in-out;
+    transition: block 0.3s ease-in-out;
     z-index: 1000;
-    display: block;
 }
 
 #feedbackDescription.show {
-    right: 1.5rem;
+    display: block;
 }
 
 /* Color Palette */
 #colorPaletteSelection {
-    position: absolute;
-    top: 12rem;
+    position: fixed;
+    top: 5rem;
     right: -320px;
     /* Start hidden off-screen */
     width: 8rem;
