@@ -1,138 +1,145 @@
 <template>
-  <div>
+  <div id="app">
 
-    <head>
-      <title>Creative - {{ preview.name }}</title>
-      <link rel="shortcut icon" href="https://www.planetnine.com/logo/new_favicon.png">
-    </head>
+    <Head :title="`Creative - ${preview.name}`" />
 
-    <!-- Top-right viewer / logout -->
-    <div v-if="authUserClientName === 'Planet Nine'" class="absolute top-4 right-4 flex items-center space-x-3 z-50">
-      <div id="viewerList" class="flex space-x-2"></div>
+    <!-- Viewer List for Planet Nine users -->
+    <div v-if="auth.user" class="absolute top-4 right-4 flex items-center space-x-3 z-50">
+      <div v-if="authUserClientName === 'Planet Nine'" id="viewerList" class="flex space-x-2">
+        <span v-for="viewer in viewers" :key="viewer"
+          class="bg-blue-100 text-blue-900 font-semibold rounded-full px-3 py-1 text-sm shadow-sm" :title="viewer">
+          {{ viewer.trim().charAt(0).toUpperCase() }}
+        </span>
+      </div>
 
-      <form v-if="authUserClientName === 'Planet Nine' && preview.requires_login" :action="logoutUrl" method="POST"
-        id="customPreviewLogoutForm">
-        <input type="hidden" name="preview_id" :value="preview.id" />
-        <input v-if="csrfToken" type="hidden" name="_token" :value="csrfToken" />
+      <!-- Logout Button -->
+      <form v-if="preview.requires_login" @submit.prevent="logout" class="inline">
         <button type="submit"
-          class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-3 py-1 rounded shadow transition cursor-pointer">
+          class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-3 py-2 rounded-xl shadow transition cursor-pointer">
           Logout
         </button>
       </form>
     </div>
 
-    <div id="loaderArea">
+    <!-- Loader -->
+    <div v-show="isLoading" id="loaderArea">
       <span class="loader"></span>
     </div>
 
+    <!-- Settings Link for Planet Nine -->
     <a v-if="authUserClientName === 'Planet Nine'" :href="`/previews/update/${preview.id}`" id="bulk-customization"
-      class="text-white font-medium cursor-pointer" style="z-index: 1000;">
+      class="text-white font-medium cursor-pointer">
       <i class="fa-solid fa-gear"></i>
     </a>
 
     <main class="main">
+      <!-- Header Section -->
       <section id="top" class="mb-4">
         <div class="px-4 py-4 flex justify-center content text-center relative">
-          <div id="topDetails" class="mt-4"
-            :style="{ backgroundImage: `url('/${header_image}')`, backgroundRepeat: 'no-repeat', backgroundPosition: 'center center' }">
-            <img v-if="preview.show_planetnine_logo" :src="`/logos/${header_logo.logo}`" id="planetnineLogo"
+          <div id="topDetails" class="mt-4" :style="{ backgroundImage: `url('/${headerImage}')` }">
+            <img v-if="preview.show_planetnine_logo" :src="`/logos/${headerLogo.logo}`" id="planetnineLogo"
               alt="planetnineLogo">
-            <h1 style="font-size: 1rem;"><span class="font-semibold">Name: </span> <span class="capitalize">{{
-                preview.name }}</span></h1>
-            <h1 class="mt-1" style="font-size: 1rem;"><span class="font-semibold">Client: </span> <span
-                class="capitalize">{{ client.name }}</span></h1>
-            <h1 style="font-size: 1rem;">
-              <span class="font-semibold">Date: </span> <span>{{ formatDate(preview.created_at) }}</span>
+            <h1>
+              <span class="font-semibold">Name: </span>
+              <span class="capitalize">{{ preview.name }}</span>
+            </h1>
+            <h1>
+              <span class="font-semibold">Client: </span>
+              <span class="capitalize">{{ client.name }}</span>
+            </h1>
+            <h1>
+              <span class="font-semibold">Date: </span>
+              <span>{{ formatDate(preview.created_at) }}</span>
             </h1>
           </div>
         </div>
       </section>
 
-      <!-- computed colorsData is injected into data-colors attribute (string) -->
-      <div id="mobilecolorPaletteClick" onclick="showColorPaletteOptions2()">
-        <img :src="`/${rightTab_color_palette_image}`" alt="palette icon">
+      <!-- Mobile Color Palette -->
+      <div id="mobilecolorPaletteClick" @click="showColorPaletteOptions2">
+        <img :src="`/${rightTabColorPaletteImage}`" alt="palette icon">
       </div>
+      <div id="mobilecolorPaletteSelection" ref="mobileColorPalette"></div>
 
-      <div id="mobilecolorPaletteSelection" :data-colors="colorsDataJson">
-      </div>
-
+      <!-- Main Content Section -->
       <section id="middle" class="mb-4">
         <div id="showcase-section" class="mx-auto custom-container mt-2">
+
+          <!-- Top Row with Logo and Feedback Tabs -->
           <div class="flex row justify-around items-end" style="min-height: 50px;">
             <div class="py-2 flex items-end justify-center sidebar-top-desktop">
-              <img v-if="preview.show_sidebar_logo == 1" :src="`/logos/${client.logo}`" alt="clientLogo"
-                style="min-width:50px; width: 100%; max-width: 160px; margin: 0 auto;">
+              <img v-if="preview.show_sidebar_logo" :src="`/logos/${client.logo}`" alt="clientLogo"
+                style="min-width:50px; width: 100%; max-width: 120px; margin: 0 auto;">
             </div>
             <div style="flex: 1;" class="feedbackTabs-parent">
-              <div class="feedbacks relative flex justify-center flex-row"></div>
+              <div class="feedbacks relative flex justify-center flex-row" v-html="feedbackTabsHtml"></div>
             </div>
           </div>
 
+          <!-- Main Showcase Area -->
           <div id="showcase">
             <div id="bannershowCustom">
+
+              <!-- Mobile Menu -->
               <nav role="navigation" class="mobileShowcase">
                 <div id="mobileMenuToggle">
-                  <button id="openMobileMenu" aria-label="Open menu">
+                  <button id="openMobileMenu" @click="openMobileMenu" aria-label="Open menu">
                     <i class="fa-solid fa-bars"></i>
                   </button>
                 </div>
-
-                <div id="mobileMenu" class="mobile-menu-panel">
-                  <button id="closeMobileMenu" aria-label="Close menu">&times;</button>
-
-                  <div v-if="preview.show_sidebar_logo == 1" class="w-full">
+                <div id="mobileMenu" :class="{ open: isMobileMenuOpen }" class="mobile-menu-panel">
+                  <button id="closeMobileMenu" @click="closeMobileMenu" aria-label="Close menu">&times;</button>
+                  <div v-if="preview.show_sidebar_logo" class="w-full">
                     <div class="mb-2 mt-2 px-2 py-2 mx-auto flex justify-center">
                       <img :src="`/logos/${client.logo}`" alt="clientLogo" style="width: 180px;">
                     </div>
                   </div>
-
                   <div class="sidebar-image mx-auto mb-4">
                     <span>Creative Showcase</span>
                   </div>
-                  <ul id="mobileCategoryList"></ul>
+                  <ul id="mobileCategoryList" v-html="mobileCategoryListHtml"></ul>
                 </div>
               </nav>
 
+              <!-- Desktop Sidebar -->
               <div class="navbar tabDesktopShowcase" id="navbar">
-                <div v-if="preview.show_sidebar_logo == 1" class="w-full client-logo-div sidebar-top-tab-mobile">
+                <div v-if="preview.show_sidebar_logo" class="w-full client-logo-div sidebar-top-tab-mobile">
                   <div id="clientLogoSection" class="mb-2 mt-2 px-2 py-2 mx-auto">
                     <img :src="`/logos/${client.logo}`" alt="clientLogo" style="width: 150px;">
                   </div>
                 </div>
-
                 <div class="sidebar-image-div w-full py-2">
                   <div class="sidebar-image mx-auto">
                     <span>Creative Showcase</span>
                   </div>
                 </div>
-
-                <div id="creative-list2"></div>
+                <div id="creative-list2" v-html="categoryListHtml"></div>
               </div>
 
+              <!-- Right Column with Content -->
               <div class="right-column">
                 <div
                   class="justify-center items-center mt-1 py-2 px-2 relative top-0 left-0 right-0 currentTotalFeedbacks">
-                  <span id="feedbackCounter"></span>
+                  <span id="feedbackCounter" v-html="feedbackCounterHtml"></span>
                 </div>
 
-                <div class="feedbackSetsContainer"></div>
+                <div class="feedbackSetsContainer" v-html="feedbackSetsHtml"></div>
 
+                <!-- Feedback Area -->
                 <div id="feedbackArea">
-                  <div id="feedbackCLick" onclick="showFeedbackDescription()">
-                    <img :src="`/${rightTab_feedback_description_image}`" alt="feedback icon">
+                  <div id="feedbackCLick" @click="showFeedbackDescription">
+                    <img :src="`/${rightTabFeedbackDescriptionImage}`" alt="feedback icon">
                   </div>
 
-                  <div id="colorPaletteClick" onclick="showColorPaletteOptions()">
-                    <img :src="`/${rightTab_color_palette_image}`" alt="palette icon">
+                  <div id="colorPaletteClick" @click="showColorPaletteOptions">
+                    <img :src="`/${rightTabColorPaletteImage}`" alt="palette icon">
                   </div>
 
-                  <div id="colorPaletteSelection" :data-colors="colorsDataJson">
-                  </div>
+                  <div id="colorPaletteSelection" ref="colorPalette"></div>
 
-                  <div id="feedbackDescription">
+                  <div id="feedbackDescription" :class="{ show: showFeedbackPanel }">
                     <div id="feedbackDescriptionUpperpart">
-                      <div class="cursor-pointer" style="float: right; padding: 5px;"
-                        onclick="event.stopPropagation(); hideFeedbackDescription();">
+                      <div class="cursor-pointer" style="float: right; padding: 5px;" @click="hideFeedbackDescription">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                           stroke="currentColor" class="w-6 h-6">
                           <path stroke-linecap="round" stroke-linejoin="round"
@@ -141,933 +148,840 @@
                       </div>
                     </div>
                     <div id="feedbackDescriptionLowerPart">
-                      <label id="feedbackMessage"></label>
+                      <label id="feedbackMessage">{{ currentFeedbackMessage }}</label>
                     </div>
                   </div>
-
-                </div> <!-- feedbackArea -->
-              </div> <!-- right-column -->
-            </div> <!-- bannershowCustom -->
-          </div> <!-- showcase -->
-        </div> <!-- showcase-section -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
     </main>
 
+    <!-- Footer -->
     <footer v-if="preview.show_footer" class="footer py-8">
       <div class="container mx-auto px-4 text-center text-base text-gray-600">
         &copy; All Rights Reserved.
         <a href="https://www.planetnine.com" class="underline hover:text-black" target="_blank">
           Planet Nine
-        </a> - {{ new Date().getFullYear() }}
+        </a> - {{ currentYear }}
       </div>
     </footer>
+
+    <!-- Social Image Modal -->
+    <div id="socialImageModal" v-show="socialModalVisible" @click="closeSocialModal"
+      style="position:fixed; z-index:9999; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center;">
+      <span id="closeSocialModal" @click="closeSocialModal"
+        style="position:fixed; top:30px; right:40px; font-size:2.5rem; color:red; cursor:pointer; z-index:10001;">&times;</span>
+      <img id="socialModalImg" :src="socialModalSrc" :alt="socialModalAlt" :style="socialModalImageStyle" @click.stop
+        @mousedown="startDrag"
+        style="max-width:80vw; max-height:80vh; transition:transform 0.2s; cursor:zoom-in; display:block; margin:auto; padding:40px; background:rgba(0,0,0,0.1); border-radius:12px;">
+
+      <!-- Zoom Controls -->
+      <div id="zoomControls"
+        style="position: fixed; top: 20px; left: 20px; z-index: 10002; display: flex; flex-direction: column; gap: 10px;">
+        <button @click="zoomIn"
+          style="background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;">+</button>
+        <button @click="zoomOut"
+          style="background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;">−</button>
+        <button @click="resetZoom"
+          style="background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 20px; padding: 8px 12px; font-size: 12px; cursor: pointer;">Reset</button>
+      </div>
+
+      <div id="zoomInfo"
+        style="position: fixed; bottom: 20px; left: 20px; z-index: 10002; background: rgba(0,0,0,0.7); color: white; padding: 8px 12px; border-radius: 15px; font-size: 12px;">
+        Zoom: <span>{{ Math.round(modalZoomScale * 100) }}%</span>
+      </div>
+    </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { onMounted, onBeforeUnmount, computed } from 'vue'
+<script setup>
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { Head } from '@inertiajs/vue3'
 import axios from 'axios'
 
-// Props (unchanged)
+// Props from Inertia
 const props = defineProps({
-  preview: { type: Object, required: true },
-  client: { type: Object, required: true },
-  header_image: { type: String, default: '' },
-  header_logo: { type: Object, default: () => ({}) },
-  rightTab_color_palette_image: { type: String, default: '' },
-  rightTab_feedback_description_image: { type: String, default: '' },
-  feedback_active_image: { type: String, default: '' },
-  feedback_inactive_image: { type: String, default: '' },
-  authUserClientName: { type: String, default: '' },
-  all_colors: { type: Array, default: () => [] },
-  logoutUrl: { type: String, default: '/logout' },
-  preview_id: { type: [String, Number], required: true },
-  csrfToken: { type: String, default: '' }
+  preview: Object,
+  client: Object,
+  headerImage: String,
+  headerLogo: Object,
+  rightTabColorPaletteImage: String,
+  rightTabFeedbackDescriptionImage: String,
+  feedbackActiveImage: String,
+  feedbackInactiveImage: String,
+  authUserClientName: String,
+  previewId: String,
+  allColors: Array,
+  primary: String,
+  secondary: String,
+  tertiary: String,
+  quaternary: String,
+  quinary: String,
+  senary: String,
+  septenary: String,
+  auth: Object
 })
 
-// keep references (unchanged names)
-const preview = props.preview
-const client = props.client
-const header_image = props.header_image
-const header_logo = props.header_logo
-const rightTab_color_palette_image = props.rightTab_color_palette_image
-const rightTab_feedback_description_image = props.rightTab_feedback_description_image
-const feedbackActiveImage = props.feedback_active_image
-const feedbackInactiveImage = props.feedback_inactive_image
-const authUserClientName = props.authUserClientName
-const preview_id = props.preview_id
+// Reactive state
+const isLoading = ref(false)
+const isMobileMenuOpen = ref(false)
+const showFeedbackPanel = ref(false)
+const viewers = ref([])
+const categories = ref([])
+const feedbacks = ref([])
+const currentCategoryIndex = ref(0)
+const currentFeedbackIndex = ref(0)
+const currentFeedbackMessage = ref('')
+const feedbackTabsHtml = ref('')
+const categoryListHtml = ref('')
+const mobileCategoryListHtml = ref('')
+const feedbackCounterHtml = ref('')
+const feedbackSetsHtml = ref('')
 
-const colorsDataJson = computed(() => {
-  const map = props.all_colors.map(color => ({ id: color.id, hex: color.primary, border: color.tertiary }))
-  return JSON.stringify(map)
-})
+// Social Modal state
+const socialModalVisible = ref(false)
+const socialModalSrc = ref('')
+const socialModalAlt = ref('')
+const modalZoomScale = ref(1)
+const modalCurrentX = ref(0)
+const modalCurrentY = ref(0)
+const isDragging = ref(false)
 
-function formatDate(dateString) {
-  return new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-}
+// Computed
+const currentYear = computed(() => new Date().getFullYear())
 
-/* ---------- Begin: migrated functions (jQuery removed) ---------- */
+const socialModalImageStyle = computed(() => ({
+  transform: `translate(calc(-50% + ${modalCurrentX.value}px), calc(-50% + ${modalCurrentY.value}px)) scale(${modalZoomScale.value})`,
+  transition: isDragging.value ? 'none' : 'transform 0.3s ease',
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transformOrigin: 'center center',
+  userSelect: 'none',
+  pointerEvents: 'auto'
+}))
 
-let categories = []
-let currentCategoryIndex = 0
-let feedbacks = []
-let currentFeedbackIndex = 0
-
+// Guest name for tracking
 let guestName = localStorage.getItem('guest_name')
 if (!guestName) {
   guestName = 'Guest-' + Math.floor(Math.random() * 10000)
   localStorage.setItem('guest_name', guestName)
 }
 
-let viewersInterval = null
-let trackerInterval = null
-
-function el(id) { return document.getElementById(id) }
-function setHTMLById(id, html) { const e = el(id); if (e) e.innerHTML = html }
-function setHTML(selector, html) {
-  const node = document.querySelector(selector)
-  if (node) node.innerHTML = html
+// Methods
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
 }
 
-async function fetchViewers() {
-  try {
-    const response = await axios.get('/get-viewers/' + preview.id)
-    const viewers = response.data || []
-    const html = viewers.map(name => {
-      const initial = (name || '').trim().charAt(0).toUpperCase()
-      return `<span class="bg-blue-100 text-blue-900 font-semibold rounded-full px-3 py-1 text-sm shadow-sm" title="${name}">${initial}</span>`
-    }).join('')
-    const v = el('viewerList')
-    if (v) v.innerHTML = html
-  } catch (e) { /* ignore */ }
-}
-
-// Mobile menu
-function openMobileMenu() {
-  const mobileMenu = el('mobileMenu')
-  const mobileMenuToggle = el('mobileMenuToggle')
-  if (mobileMenu) mobileMenu.classList.add('open')
-  if (mobileMenuToggle) mobileMenuToggle.classList.add('hidden')
+const openMobileMenu = () => {
+  isMobileMenuOpen.value = true
   document.body.style.overflow = 'hidden'
-  document.addEventListener('click', handleOutsideClick)
 }
-function closeMobileMenu() {
-  const mobileMenu = el('mobileMenu')
-  const mobileMenuToggle = el('mobileMenuToggle')
-  if (mobileMenu) mobileMenu.classList.remove('open')
-  if (mobileMenuToggle) mobileMenuToggle.classList.remove('hidden')
+
+const closeMobileMenu = () => {
+  isMobileMenuOpen.value = false
   document.body.style.overflow = ''
-  document.removeEventListener('click', handleOutsideClick)
 }
 
-function showFeedbackDescription() {
-  const feedbackPanel = el('feedbackDescription')
-  const paletteDiv = el('colorPaletteSelection')
-  if (paletteDiv) paletteDiv.classList.remove('visible')
-  if (feedbackPanel) feedbackPanel.classList.add('show')
-
-  setTimeout(() => {
-    function closeThisFeedback(e) {
-      const feedbackClick = el('feedbackCLick')
-      if (!feedbackPanel.contains(e.target) && (!feedbackClick || !feedbackClick.contains(e.target))) {
-        hideFeedbackDescription()
-        document.removeEventListener('click', closeThisFeedback, true)
-      }
-    }
-    document.addEventListener('click', closeThisFeedback, true)
-  }, 100)
+const showFeedbackDescription = () => {
+  // Close color palette if open
+  const paletteDiv = document.getElementById('colorPaletteSelection')
+  if (paletteDiv) {
+    paletteDiv.classList.remove('visible')
+  }
+  showFeedbackPanel.value = true
 }
 
-function hideFeedbackDescription() {
-  const feedbackPanel = el('feedbackDescription')
-  if (feedbackPanel) feedbackPanel.classList.remove('show')
+const hideFeedbackDescription = () => {
+  showFeedbackPanel.value = false
 }
 
-function showColorPaletteOptions() {
-  const preview_id_local = preview_id
-  const paletteDiv = el('colorPaletteSelection')
+const showColorPaletteOptions = () => {
+  const paletteDiv = document.getElementById('colorPaletteSelection')
   if (!paletteDiv) return
+
   if (paletteDiv.innerHTML.trim() === '') {
-    const colors = JSON.parse(paletteDiv.dataset.colors || '[]')
-    paletteDiv.classList.add('color-grid')
-    colors.forEach(({ id, hex, border }) => {
-      const colorBox = document.createElement('div')
-      colorBox.className = 'color-box'
-      colorBox.style.backgroundColor = hex
-      colorBox.style.borderColor = border
-      colorBox.title = hex
-      colorBox.addEventListener('click', () => {
-        axios.get('/preview/' + preview_id_local + '/change/theme/' + id)
-          .then(response => {
-            if (response.data.success) location.reload()
-            else alert('Something went wrong changing theme')
-          }).catch(err => console.error(err))
-      })
-      paletteDiv.appendChild(colorBox)
-    })
+    setupColorPalette(paletteDiv, false)
   }
   paletteDiv.classList.add('visible')
-  document.addEventListener('click', handleOutsideClick)
 }
 
-function showColorPaletteOptions2() {
-  const preview_id_local = preview_id
-  const paletteDiv2 = el('mobilecolorPaletteSelection')
-  if (!paletteDiv2) return
-  if (paletteDiv2.innerHTML.trim() === '') {
-    const colors = JSON.parse(paletteDiv2.dataset.colors || '[]')
-    paletteDiv2.classList.add('color-grid')
-    colors.forEach(({ id, hex, border }) => {
-      const colorBox = document.createElement('div')
-      colorBox.className = 'mobile-color-box'
-      colorBox.style.backgroundColor = hex
-      colorBox.style.borderColor = border
-      colorBox.title = hex
-      colorBox.addEventListener('click', () => {
-        axios.get('/preview/' + preview_id_local + '/change/theme/' + id)
-          .then(response => {
-            if (response.data.success) location.reload()
-            else alert('Something went wrong changing theme')
-          }).catch(err => console.error(err))
-      })
-      paletteDiv2.appendChild(colorBox)
+const showColorPaletteOptions2 = () => {
+  const paletteDiv = document.getElementById('mobilecolorPaletteSelection')
+  if (!paletteDiv) return
+
+  if (paletteDiv.innerHTML.trim() === '') {
+    setupColorPalette(paletteDiv, true)
+  }
+  paletteDiv.classList.add('visible')
+}
+
+const setupColorPalette = (paletteDiv, isMobile) => {
+  paletteDiv.classList.add('color-grid')
+
+  props.allColors.forEach(color => {
+    const colorBox = document.createElement('div')
+    colorBox.className = isMobile ? 'mobile-color-box' : 'color-box'
+    colorBox.style.backgroundColor = color.primary
+    colorBox.style.borderColor = color.tertiary
+    colorBox.title = color.primary
+
+    colorBox.addEventListener('click', () => {
+      changeTheme(color.id)
     })
-  }
-  paletteDiv2.classList.add('visible')
-  document.addEventListener('click', handleOutsideClick)
+
+    paletteDiv.appendChild(colorBox)
+  })
 }
 
-function handleOutsideClick(event) {
-  const paletteDiv = el('colorPaletteSelection')
-  const paletteToggle = el('colorPaletteClick')
-  if (paletteDiv && paletteDiv.classList.contains('visible')) {
-    if (!paletteDiv.contains(event.target) && !(paletteToggle && paletteToggle.contains(event.target))) {
-      paletteDiv.classList.remove('visible')
-      document.removeEventListener('click', handleOutsideClick)
-      return
-    }
-  }
-
-  const paletteDiv2 = el('mobilecolorPaletteSelection')
-  const paletteToggle2 = el('mobilecolorPaletteClick')
-  if (paletteDiv2 && paletteDiv2.classList.contains('visible')) {
-    if (!paletteDiv2.contains(event.target) && !(paletteToggle2 && paletteToggle2.contains(event.target))) {
-      paletteDiv2.classList.remove('visible')
-      document.removeEventListener('click', handleOutsideClick)
-      return
-    }
-  }
-
-  const mobileMenu = el('mobileMenu')
-  const mobileMenuToggle = el('mobileMenuToggle')
-  if (mobileMenu && mobileMenu.classList.contains('open')) {
-    if (!mobileMenu.contains(event.target) && !(mobileMenuToggle && mobileMenuToggle.contains(event.target))) {
-      mobileMenu.classList.remove('open')
-      if (mobileMenuToggle) mobileMenuToggle.classList.remove('hidden')
-      document.body.style.overflow = ''
-      document.removeEventListener('click', handleOutsideClick)
-      return
-    }
-  }
-}
-
-async function renderCategories() {
+const changeTheme = async (colorId) => {
   try {
-    const response = await axios.get('/preview/renderCategories/' + preview_id)
-    categories = response.data.categories || []
-    currentCategoryIndex = categories.findIndex(c => c.id == response.data.activeCategory.id)
-    if (currentCategoryIndex === -1) currentCategoryIndex = 0
+    const response = await axios.get(`/preview/${props.previewId}/change/theme/${colorId}`)
+    if (response.data.success) {
+      location.reload()
+    } else {
+      alert("Something went wrong changing theme")
+    }
+  } catch (error) {
+    console.error('Error changing theme:', error)
+  }
+}
 
-    let row = ''
-    let row2 = ''
-    (response.data.categories || []).forEach(value => {
-      const activeFlag = value.is_active == 1
-      const activeClass = activeFlag ? 'category-active' : ''
-      const spanActive = activeFlag ? 'span-active' : ''
-      const clickHandler = activeFlag ? '' : `onclick="return updateActiveCategory(${value.id})"`
-      const date = new Date(value.created_at)
-      const formatted2 = `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getFullYear()}`
-      const fragment = `<div class="category-row ${activeClass}" ${clickHandler} id="category${value.id}"><span class="${spanActive}" style="font-size: 0.85rem;">${value.name}</span><hr><span class="category-row-date" style="font-size: 0.7rem;">${formatted2}</span></div>`
-      row2 += fragment
-      row += fragment
+const logout = () => {
+  const form = document.createElement('form')
+  form.method = 'POST'
+  form.action = '/preview/logout'
+
+  const csrfInput = document.createElement('input')
+  csrfInput.type = 'hidden'
+  csrfInput.name = '_token'
+  csrfInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+
+  const previewInput = document.createElement('input')
+  previewInput.type = 'hidden'
+  previewInput.name = 'preview_id'
+  previewInput.value = props.preview.id
+
+  form.appendChild(csrfInput)
+  form.appendChild(previewInput)
+  document.body.appendChild(form)
+  form.submit()
+}
+
+// API calls
+const fetchViewers = async () => {
+  try {
+    const response = await axios.get(`/get-viewers/${props.preview.id}`)
+    viewers.value = response.data
+  } catch (error) {
+    console.error('Error fetching viewers:', error)
+  }
+}
+
+const trackViewer = async () => {
+  try {
+    await axios.post('/track-viewer', {
+      page_id: props.preview.id,
+      guest_name: guestName
+    })
+  } catch (error) {
+    console.error('Error tracking viewer:', error)
+  }
+}
+
+const renderCategories = async () => {
+  try {
+    isLoading.value = true
+    const response = await axios.get(`/preview/renderCategories/${props.previewId}`)
+
+    categories.value = response.data.categories || []
+    currentCategoryIndex.value = categories.value.findIndex(c => c.id == response.data.activeCategory.id)
+    if (currentCategoryIndex.value === -1) currentCategoryIndex.value = 0
+
+    // Build category HTML
+    let categoryHtml = ''
+    let mobileCategoryHtml = ''
+
+    categories.value.forEach(category => {
+      const isActive = category.is_active == 1
+      const activeClass = isActive ? 'category-active' : ''
+      const spanClass = isActive ? 'span-active' : ''
+      const clickHandler = isActive ? '' : `onclick="updateActiveCategory(${category.id})"`
+
+      const date = new Date(category.created_at)
+      const formattedDate = `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getFullYear()}`
+
+      const categoryHtml_item = `
+        <div class="category-row ${activeClass}" ${clickHandler} id="category${category.id}">
+          <span class="${spanClass}" style="font-size: 0.85rem;">${category.name}</span>
+          <hr>
+          <span class="category-row-date" style="font-size: 0.7rem;">${formattedDate}</span>
+        </div>
+      `
+
+      categoryHtml += categoryHtml_item
+      mobileCategoryHtml += categoryHtml_item
     })
 
-    renderFeedbacks(response)
-    setHTMLById('creative-list2', row2)
-    setHTMLById('mobileCategoryList', row)
-    const menuEl = document.getElementById('menu')
-    if (menuEl) menuEl.innerHTML = row
-  } catch (e) { /* ignore */ }
+    categoryListHtml.value = categoryHtml
+    mobileCategoryListHtml.value = mobileCategoryHtml
+
+    await renderFeedbacks(response)
+  } catch (error) {
+    console.error('Error rendering categories:', error)
+  } finally {
+    isLoading.value = false
+  }
 }
 
-function updateActiveCategory(category_id) {
-  axios.get('/preview/updateActiveCategory/' + category_id)
-    .then(() => renderCategories())
-    .catch(err => console.log(err))
-}
+const renderFeedbacks = async (response) => {
+  feedbacks.value = response.data.feedbacks || []
+  currentFeedbackIndex.value = feedbacks.value.findIndex(f => f.is_active == 1)
+  if (currentFeedbackIndex.value === -1) currentFeedbackIndex.value = 0
 
-function updateActiveFeedback(feedback_id) {
-  axios.get('/preview/updateActiveFeedback/' + feedback_id)
-    .then(response => renderFeedbacks(response))
-    .catch(err => console.log(err))
-}
+  let feedbackHtml = '<div class="feedbackTabsContainer">'
 
-function renderFeedbacks(response) {
-  feedbacks = response.data.feedbacks || []
-  currentFeedbackIndex = feedbacks.findIndex(f => f.is_active == 1)
-  if (currentFeedbackIndex === -1) currentFeedbackIndex = 0
+  feedbacks.value.forEach(feedback => {
+    const isActive = feedback.is_active == 1
+    const activeClass = isActive ? ' feedbackTabActive' : ''
+    const clickHandler = isActive ? '' : `onclick="updateActiveFeedback(${feedback.id})"`
+    const tabImagePath = isActive ? `/${props.feedbackActiveImage}` : `/${props.feedbackInactiveImage}`
+    const hoverEvents = isActive ? '' : 'onmouseover="changeFeedbackActiveBackground(this)" onmouseout="changeFeedbackInactiveBackground(this)"'
+    const approvedIndicator = feedback.is_approved == 1 ?
+      '<div class="w-2 h-2 bg-green-700 rounded-full border border-white animate-pulse-green" style="margin-left: 5px; flex-shrink: 0;"></div>' : ''
 
-  let row = `<div class="feedbackTabsContainer">`
-  feedbacks.forEach(value => {
-    const activeFlag = value.is_active == 1
-    const isActive = activeFlag ? ' feedbackTabActive' : ''
-    const clickHandler = activeFlag ? '' : `onclick="updateActiveFeedback(${value.id})"`
-    const tabImagePath = activeFlag ? ('/' + feedbackActiveImage) : ('/' + feedbackInactiveImage)
-    const hoverEvents = activeFlag ? '' : `onmouseover="changeFeedbackActiveBackground(this)" onmouseout="changeFeedbackInactiveBackground(this)"`
-    row += `
+    feedbackHtml += `
       <div style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
-        <div id="feedbackTab${value.id}" class="feedbackTab${isActive}" ${clickHandler} ${hoverEvents}
+        <div id="feedbackTab${feedback.id}" class="feedbackTab${activeClass}" ${clickHandler} ${hoverEvents}
           style="bottom: -1px; background-image: url('${tabImagePath}'); background-size: cover; background-position: center; background-repeat: no-repeat; position: relative; cursor: pointer; min-width: 110px; width: 100%; max-width: 110px; height: 35px;">
-          <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 0.875rem; font-weight: 500; text-align: center; width: 100%; text-shadow: 1px 1px 2px rgba(0,0,0,0.7);">
-            ${value.name}
+          <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 0.875rem; font-weight: 500; text-align: center; width: 100%; text-shadow: 1px 1px 2px rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center;">
+            <span style="text-align: center;">${feedback.name}</span>${approvedIndicator}
           </div>
         </div>
       </div>
     `
-    const msgEl = el('feedbackMessage')
-    if (msgEl) msgEl.innerHTML = value.description || ''
+
+    if (isActive) {
+      currentFeedbackMessage.value = feedback.description
+    }
   })
-  row += '</div>'
-  const feedbacksContainer = document.querySelector('.feedbacks')
-  if (feedbacksContainer) feedbacksContainer.innerHTML = row
+
+  feedbackHtml += '</div>'
+  feedbackTabsHtml.value = feedbackHtml
 
   updateFeedbackNav()
-  renderFeedbackSets(response)
-  setTimeout(enableFeedbackTabsDragScroll, 10)
-  scrollActiveFeedbackTabIntoView()
+  await renderFeedbackSets(response)
 }
 
-function changeFeedbackActiveBackground(element) {
-  if (!element.classList.contains('feedbackTabActive')) {
-    element.style.backgroundImage = `url('/${feedbackActiveImage}')`
-  }
-}
-
-function changeFeedbackInactiveBackground(element) {
-  if (!element.classList.contains('feedbackTabActive')) {
-    element.style.backgroundImage = `url('/${feedbackInactiveImage}')`
-  }
-}
-
-function updateFeedbackNav() {
-  const total = feedbacks.length
+const updateFeedbackNav = () => {
+  const total = feedbacks.value.length
   if (total === 0) {
-    const fc = el('feedbackCounter')
-    if (fc) fc.textContent = 'No Feedbacks'
+    feedbackCounterHtml.value = 'No Feedbacks'
     return
   }
 
-  const current = currentFeedbackIndex + 1
-  const isFirst = currentFeedbackIndex === 0
-  const isLast = currentFeedbackIndex === total - 1
+  const current = currentFeedbackIndex.value + 1
+  const isFirst = currentFeedbackIndex.value === 0
+  const isLast = currentFeedbackIndex.value === total - 1
 
   const btn = (id, symbol, disabled = false) =>
     `<button id="${id}" ${disabled ? 'disabled' : ''} style="margin:0 0.5rem"><span class="font-bold">${symbol}</span></button>`
 
-  const spanFn = (text, selected = false) =>
+  const span = (text, selected = false) =>
     `<span${selected ? ' class="font-bold selectedFeedback"' : ''}>${selected ? `Feedback ${text}` : text}</span>`
 
-  let row = ''
+  let navigationHtml = ''
+
   if (total === 2) {
-    if (isFirst) row = spanFn(current, true) + btn('feedbackRight', '>', true) + spanFn(current + 1)
-    else row = spanFn(current - 1) + btn('feedbackLeft', '<') + spanFn(current, true)
+    if (isFirst) {
+      navigationHtml = span(current, true) + btn('feedbackRight', '>', true) + span(current + 1)
+    } else {
+      navigationHtml = span(current - 1) + btn('feedbackLeft', '<') + span(current, true)
+    }
   } else if (total === 3) {
-    if (isFirst) row = spanFn(current, true) + btn('feedbackRight', '>', true) + spanFn(current + 1) + btn('feedbackFarRight', '>>') + spanFn(total)
-    else if (currentFeedbackIndex === 1) row = spanFn(1) + btn('feedbackLeft', '<<', true) + spanFn(current, true) + btn('feedbackFarRight', '>>') + spanFn(total)
-    else row = spanFn(1) + btn('feedbackFarLeft', '<<') + spanFn(current - 1) + btn('feedbackLeft', '<', true) + spanFn(current, true)
+    if (isFirst) {
+      navigationHtml = span(current, true) + btn('feedbackRight', '>', true) + span(current + 1) + btn('feedbackFarRight', '>>') + span(total)
+    } else if (currentFeedbackIndex.value === 1) {
+      navigationHtml = span(1) + btn('feedbackLeft', '<<', true) + span(current, true) + btn('feedbackFarRight', '>>') + span(total)
+    } else {
+      navigationHtml = span(1) + btn('feedbackFarLeft', '<<') + span(current - 1) + btn('feedbackLeft', '<', true) + span(current, true)
+    }
   } else if (total > 3) {
-    if (isFirst) row = spanFn(current, true) + btn('feedbackRight', '>', true) + spanFn(current + 1) + btn('feedbackFarRight', '>>') + spanFn(total)
-    else if (isLast) row = spanFn(1) + btn('feedbackFarLeft', '<<') + spanFn(current - 1) + btn('feedbackLeft', '<', true) + spanFn(current, true)
-    else if (current === 2) row = spanFn(1) + btn('feedbackLeft', '<', true) + spanFn(current, true) + btn('feedbackRight', '>', true) + spanFn(current + 1) + btn('feedbackFarRight', '>>') + spanFn(total)
-    else if (current === total - 1) row = spanFn(1) + btn('feedbackFarLeft', '<<') + spanFn(current - 1) + btn('feedbackLeft', '<', true) + spanFn(current, true) + btn('feedbackRight', '>', true) + spanFn(total)
-    else row = spanFn(1) + btn('feedbackFarLeft', '<<') + spanFn(current - 1) + btn('feedbackLeft', '<', true) + spanFn(current, true) + btn('feedbackRight', '>', true) + spanFn(current + 1) + btn('feedbackFarRight', '>>') + spanFn(total)
+    if (isFirst) {
+      navigationHtml = span(current, true) + btn('feedbackRight', '>', true) + span(current + 1) + btn('feedbackFarRight', '>>') + span(total)
+    } else if (isLast) {
+      navigationHtml = span(1) + btn('feedbackFarLeft', '<<') + span(current - 1) + btn('feedbackLeft', '<', true) + span(current, true)
+    } else if (current === 2) {
+      navigationHtml = span(1) + btn('feedbackLeft', '<', true) + span(current, true) + btn('feedbackRight', '>', true) + span(current + 1) + btn('feedbackFarRight', '>>') + span(total)
+    } else if (current === total - 1) {
+      navigationHtml = span(1) + btn('feedbackFarLeft', '<<') + span(current - 1) + btn('feedbackLeft', '<', true) + span(current, true) + btn('feedbackRight', '>', true) + span(total)
+    } else {
+      navigationHtml = span(1) + btn('feedbackFarLeft', '<<') + span(current - 1) + btn('feedbackLeft', '<', true) + span(current, true) + btn('feedbackRight', '>', true) + span(current + 1) + btn('feedbackFarRight', '>>') + span(total)
+    }
   }
 
-  setHTMLById('feedbackCounter', row)
-  const setDisabled = (id, disabled) => {
-    const b = el(id)
-    if (b) { b.disabled = !!disabled; b.style.opacity = disabled ? 0.5 : 1 }
-  }
-  setDisabled('feedbackLeft', isFirst)
-  setDisabled('feedbackRight', isLast)
+  feedbackCounterHtml.value = navigationHtml
 }
 
-// delegated click handlers (replacing jQuery document.on)
-function handleDelegatedClicks(e) {
-  const t = e.target
-  if (t.closest('#feedbackFarLeft')) {
-    if (currentFeedbackIndex > 0) {
-      currentFeedbackIndex = 0
-      updateActiveFeedback(feedbacks[0].id)
-      updateFeedbackNav()
-      setTimeout(scrollActiveFeedbackTabIntoView, 10)
-    }
-  } else if (t.closest('#feedbackLeft')) {
-    if (currentFeedbackIndex > 0) {
-      currentFeedbackIndex--
-      updateActiveFeedback(feedbacks[currentFeedbackIndex].id)
-      updateFeedbackNav()
-      setTimeout(scrollActiveFeedbackTabIntoView, 10)
-    }
-  } else if (t.closest('#feedbackRight')) {
-    if (currentFeedbackIndex < feedbacks.length - 1) {
-      currentFeedbackIndex++
-      updateActiveFeedback(feedbacks[currentFeedbackIndex].id)
-      updateFeedbackNav()
-      setTimeout(scrollActiveFeedbackTabIntoView, 10)
-    }
-  } else if (t.closest('#feedbackFarRight')) {
-    if (currentFeedbackIndex < feedbacks.length - 1) {
-      currentFeedbackIndex = feedbacks.length - 1
-      updateActiveFeedback(feedbacks[currentFeedbackIndex].id)
-      updateFeedbackNav()
-      setTimeout(scrollActiveFeedbackTabIntoView, 10)
-    }
-  }
-}
-document.addEventListener('click', handleDelegatedClicks)
+const renderFeedbackSets = async (response) => {
+  const feedbackSets = response.data.feedbackSets
+  let setsHtml = ''
 
-function scrollActiveFeedbackTabIntoView() {
-  const container = document.querySelector('.feedbackTabsContainer')
-  if (!container) return
-  const activeTab = container.querySelector('.feedbackTabActive')
-  if (activeTab) {
-    const containerRect = container.getBoundingClientRect()
-    const tabRect = activeTab.getBoundingClientRect()
-    const offset = tabRect.left - containerRect.left - (containerRect.width / 2) + (tabRect.width / 2)
-    container.scrollBy({ left: offset, behavior: 'smooth' })
-  }
-}
-
-function enableFeedbackTabsDragScroll() {
-  const container = document.querySelector('.feedbackTabsContainer')
-  if (!container) return
-
-  container.style.justifyContent = container.scrollWidth > container.clientWidth ? 'flex-start' : 'center'
-  if (container.scrollWidth <= container.clientWidth) return
-
-  let isDown = false, startX, scrollLeft
-  container.addEventListener('mousedown', (e) => {
-    isDown = true
-    container.classList.add('dragging')
-    startX = e.pageX - container.offsetLeft
-    scrollLeft = container.scrollLeft
-    e.preventDefault()
+  feedbackSets.forEach(feedbackSet => {
+    if (feedbackSet.name) {
+      setsHtml += `
+        <div class="feedbackSet" id="feedbackSet${feedbackSet.id}" style="display: flex; align-items: center; justify-content: space-between;">
+          <div class="feedbackSetName" style="flex: 1; text-align: center;">
+            ${feedbackSet.name}
+          </div>
+        </div>
+      `
+    }
+    setsHtml += `<div class="versions" id="versions${feedbackSet.id}"></div>`
   })
-  container.addEventListener('mouseleave', () => { isDown = false; container.classList.remove('dragging') })
-  container.addEventListener('mouseup', () => { isDown = false; container.classList.remove('dragging') })
-  container.addEventListener('mousemove', (e) => {
-    if (!isDown) return
-    const x = e.pageX - container.offsetLeft
-    const walk = (x - startX)
-    container.scrollLeft = scrollLeft - walk
-  })
+
+  feedbackSetsHtml.value = setsHtml
+
+  // Render versions for each feedbackSet
+  for (const set of feedbackSets) {
+    await renderVersions(set.id, response)
+  }
 }
 
-function renderFeedbackSets(response) {
-  const feedbackSets = response.data.feedbackSets || []
-  let row = ''
-  feedbackSets.forEach(value => {
-    if (value.name) {
-      row += `<div class="feedbackSet" id="feedbackSet${value.id}" style="display: flex; align-items: center; justify-content: space-between;"><div class="feedbackSetName" style="flex: 1; text-align: center;">${value.name}</div></div>`
-    }
-    row += `<div class="versions" id="versions${value.id}"></div>`
-  })
-  const container = document.querySelector('.feedbackSetsContainer')
-  if (container) container.innerHTML = row
-  feedbackSets.forEach(set => renderVersions(set.id, response))
-}
-
-async function renderVersions(feedbackSet_id, res) {
+const renderVersions = async (feedbackSetId, res) => {
   try {
-    const response = await axios.get('/preview/renderVersions/' + feedbackSet_id)
-    const versions = response.data.versions || []
+    const response = await axios.get(`/preview/renderVersions/${feedbackSetId}`)
+    const versions = response.data.versions
     let versionRows = ''
+
     versions.forEach(version => {
-      versionRows += `<div>${version.name ? `<div class="version-title" style="font-weight: bold;">${version.name}</div>` : ''}<div class="banners-list" id="bannersList${version.id}"></div></div>`
-      const type = res.data.activeCategory?.type
-      if (type === 'banner') renderBanners(version.id)
-      if (type === 'video') renderVideo(version.id)
-      if (type === 'social') renderSocial(version.id)
-      if (type === 'gif') renderGif(version.id)
+      versionRows += `
+        <div>
+          ${version.name ? `<div class="version-title" style="font-weight: bold;">${version.name}</div>` : ''}
+          <div class="banners-list" id="bannersList${version.id}"></div>
+        </div>
+      `
+
+      // Render content based on category type
+      if (res.data.activeCategory.type === 'banner') {
+        renderBanners(version.id)
+      } else if (res.data.activeCategory.type === 'video') {
+        renderVideo(version.id)
+      } else if (res.data.activeCategory.type === 'social') {
+        renderSocial(version.id)
+      } else if (res.data.activeCategory.type === 'gif') {
+        renderGif(version.id)
+      }
     })
-    const vEl = el('versions' + feedbackSet_id)
-    if (vEl) vEl.innerHTML = versionRows
-  } catch (e) { /* ignore */ }
+
+    // Update the versions container
+    nextTick(() => {
+      const versionsContainer = document.getElementById(`versions${feedbackSetId}`)
+      if (versionsContainer) {
+        versionsContainer.innerHTML = versionRows
+      }
+    })
+  } catch (error) {
+    console.error('Error rendering versions:', error)
+  }
 }
 
-async function renderBanners(version_id_local) {
-  const la = el('loaderArea')
-  if (la) la.style.display = 'flex'
+const renderBanners = async (versionId) => {
   try {
-    const response = await axios.get('/preview/renderBanners/' + version_id_local)
-    const banners = response.data.banners || []
+    const response = await axios.get(`/preview/renderBanners/${versionId}`)
+    const banners = response.data.banners
     let bannersHtml = ''
+
     banners.forEach((banner, index) => {
       const bannerPath = '/' + banner.path + '/index.html'
-      const bannerReloadID = banner.id
       const loadPriority = index < 3 ? 'immediate' : 'lazy'
+
       bannersHtml += `<div class="banner-creatives banner-area-${banner.size.width}-${banner.size.height}" style="display: inline-block; width: ${banner.size.width}px; margin-right: 0.5rem; margin-left: 0.5rem; margin-bottom: 2rem;">`
-      bannersHtml += `<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;"><small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">${banner.size.width}x${banner.size.height}</small><small style="float: right; font-size: 0.85rem; font-weight: bold;" id="bannerSize">${banner.file_size}</small></div>`
+      bannersHtml += `<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">`
+      bannersHtml += `<small style="float: left; font-size: 0.85rem; font-weight: bold;">${banner.size.width}x${banner.size.height}</small>`
+      bannersHtml += `<small style="float: right; font-size: 0.85rem; font-weight: bold;">${banner.file_size}</small>`
+      bannersHtml += `</div>`
+
       if (loadPriority === 'immediate') {
         bannersHtml += `<iframe class="iframe-banners" src="${bannerPath}" width="${banner.size.width}" height="${banner.size.height}" frameBorder="0" scrolling="no" id="rel${banner.id}" loading="eager"></iframe>`
       } else {
-        bannersHtml += `<div class="banner-placeholder" data-banner-path="${bannerPath}" data-banner-id="${banner.id}" data-width="${banner.size.width}" data-height="${banner.size.height}" style="width: ${banner.size.width}px; height: ${banner.size.height}px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; border: 1px solid #dee2e6; cursor: pointer; position: relative;"><div style="text-align: center; color: #6c757d;"><div style="font-size: 14px; margin-bottom: 5px;">Click to Load</div><div style="font-size: 12px;">Banner Preview</div></div><div class="loading-spinner" style="display: none; border: 2px solid #f3f4f6; border-top: 2px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; position: absolute;"></div></div>`
+        bannersHtml += `<div class="banner-placeholder" data-banner-path="${bannerPath}" data-banner-id="${banner.id}" data-width="${banner.size.width}" data-height="${banner.size.height}" style="width: ${banner.size.width}px; height: ${banner.size.height}px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; border: 1px solid #dee2e6; cursor: pointer; position: relative;">`
+        bannersHtml += `<div style="text-align: center; color: #6c757d;"><div style="font-size: 14px; margin-bottom: 5px;">Click to Load</div><div style="font-size: 12px;">Banner Preview</div></div>`
+        bannersHtml += `<div class="loading-spinner" style="display: none; border: 2px solid #f3f4f6; border-top: 2px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; position: absolute;"></div>`
+        bannersHtml += `</div>`
       }
-      bannersHtml += `<ul style="display: flex; flex-direction: row;" class="previewIcons"><li><i id="relBt${banner.id}" onClick="reloadBanner(${bannerReloadID})" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:1rem;"></i></li>`
-      if (authUserClientName === 'Planet Nine') bannersHtml += `<li class="banner-options"><a href="/previews/banner/download/${banner.id}"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:1rem;"></i></a></li>`
-      bannersHtml += `</ul></div>`
+
+      bannersHtml += `<ul style="display: flex; flex-direction: row;" class="previewIcons">`
+      bannersHtml += `<li><i id="relBt${banner.id}" onClick="reloadBanner(${banner.id})" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:1rem;"></i></li>`
+      if (props.authUserClientName === "Planet Nine") {
+        bannersHtml += `<li class="banner-options"><a href="/previews/banner/download/${banner.id}"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:1rem;"></i></a></li>`
+      }
+      bannersHtml += `</ul>`
+      bannersHtml += `</div>`
     })
-    const target = el('bannersList' + version_id_local)
-    if (target) target.innerHTML = bannersHtml
-    initializeBannerLazyLoading()
-  } catch (err) {
-    console.log(err)
-  } finally {
-    const la2 = el('loaderArea'); if (la2) la2.style.display = 'none'
+
+    nextTick(() => {
+      const bannersListContainer = document.getElementById(`bannersList${versionId}`)
+      if (bannersListContainer) {
+        bannersListContainer.innerHTML = bannersHtml
+        initializeBannerLazyLoading()
+      }
+    })
+  } catch (error) {
+    console.error('Error rendering banners:', error)
   }
 }
 
-function loadBanner(bannerId) {
-  const placeholder = document.querySelector(`.banner-placeholder[data-banner-id="${bannerId}"]`)
-  if (!placeholder) return
-  if (placeholder.nextElementSibling && placeholder.nextElementSibling.tagName === 'IFRAME') return
+const renderVideo = async (versionId) => {
+  try {
+    const response = await axios.get(`/preview/renderVideos/${versionId}`)
+    let videoHtml = ''
 
-  const bannerPath = placeholder.dataset.bannerPath
-  const width = placeholder.dataset.width
-  const height = placeholder.dataset.height
+    response.data.videos.forEach(video => {
+      const uniqueId = 'videoBlock_' + video.id
+      videoHtml += `
+        <div id="${uniqueId}" class="mx-auto mb-8" style="max-width: 100%;">
+          <div style="background:transparent; display:flex; justify-content:center;" class="mt-2 mb-2 rounded-lg">
+            <video 
+              src="/${video.path}" 
+              controls 
+              muted
+              class="block mx-auto rounded-2xl video-preview"
+              style="max-width:70vw; max-height:50vh; min-width: 340px; width:auto; height:auto; background:#000;"
+              controlsList="nodownload noremoteplayback"
+              disablePictureInPicture
+            ></video>
+          </div>
+          <div class="bg-gray-50 text-gray-800 text-sm rounded-2xl p-3 mt-2 w-full video-media-info" style="margin:0 auto;">
+            ${props.authUserClientName === "Planet Nine" ? `
+              <div class="flex gap-4 mb-2 justify-center">
+                <a href="/${video.path}" download title="Download"><i class="fa-solid fa-download" style="display: flex; margin-left: 0.5rem; font-size:20px;"></i></a>
+              </div>
+            ` : ''}
+            <div class="font-semibold text-base mb-1 underline text-center">Media Info</div>
+            <div><strong>Resolution:</strong> ${video.size.width} x ${video.size.height}</div>
+            <div><strong>Aspect Ratio:</strong> ${video.aspect_ratio || '-'}</div>
+            <div><strong>Codec:</strong> ${video.codec || '-'}</div>
+            <div><strong>FPS:</strong> ${video.fps || '-'}</div>
+            <div><strong>File Size:</strong> ${video.file_size || '-'}</div>
+          </div>
+        </div>
+      `
+    })
 
-  const spinner = placeholder.querySelector('.loading-spinner')
-  const firstDiv = placeholder.querySelector('div')
-  if (spinner) spinner.style.display = 'block'
-  if (firstDiv) firstDiv.style.display = 'none'
-
-  const iframe = document.createElement('iframe')
-  iframe.className = 'iframe-banners'
-  iframe.src = bannerPath
-  iframe.width = width
-  iframe.height = height
-  iframe.frameBorder = '0'
-  iframe.scrolling = 'no'
-  iframe.id = 'rel' + bannerId
-  iframe.loading = 'lazy'
-  iframe.addEventListener('load', () => { placeholder.style.display = 'none' })
-  iframe.addEventListener('error', () => {
-    if (spinner) spinner.style.display = 'none'
-    if (firstDiv) { firstDiv.style.display = ''; firstDiv.innerHTML = '<div style="color: #dc3545; font-size: 12px;">Failed to load</div>' }
-  })
-  placeholder.insertAdjacentElement('afterend', iframe)
+    nextTick(() => {
+      const container = document.getElementById(`bannersList${versionId}`)
+      if (container) {
+        container.innerHTML = videoHtml
+        container.style.flexDirection = 'column'
+      }
+    })
+  } catch (error) {
+    console.error('Error rendering videos:', error)
+  }
 }
 
-function initializeBannerLazyLoading() {
-  const placeholders = Array.from(document.querySelectorAll('.banner-placeholder'))
-  placeholders.forEach(ph => {
-    ph.onclick = () => { const id = ph.dataset.bannerId; loadBanner(id) }
+const renderSocial = async (versionId) => {
+  try {
+    const response = await axios.get(`/preview/renderSocials/${versionId}`)
+    let socialHtml = ''
+
+    response.data.socials.forEach(social => {
+      socialHtml += `
+        <div style="display: inline-block; margin: 10px; max-width: 1000px;">
+          <img src="/${social.path}" 
+            alt="${social.name}"
+            class="social-preview-img rounded-2xl"
+            style="width: 100%; max-width: 1200px; height: auto; object-fit: contain; box-shadow: 0 2px 8px #0001; cursor: pointer; margin-top: 0;"
+            onclick="openSocialImageModal('/${social.path}', '${social.name}')"
+          >
+          <ul style="display: flex; flex-direction: row; justify-content: left; margin-top: 10px;" class="previewIcons">
+            ${props.authUserClientName === "Planet Nine" ? `
+              <li>
+                <a href="/${social.path}" download="${social.name}.jpg">
+                  <i class="fa-solid fa-download" style="display: flex; margin-left: 0.5rem; font-size:20px;"></i>
+                </a>
+              </li>
+            ` : ''}
+          </ul>
+        </div>
+      `
+    })
+
+    nextTick(() => {
+      const container = document.getElementById(`bannersList${versionId}`)
+      if (container) {
+        container.innerHTML = socialHtml
+      }
+    })
+  } catch (error) {
+    console.error('Error rendering social content:', error)
+  }
+}
+
+const renderGif = async (versionId) => {
+  try {
+    const response = await axios.get(`/preview/renderGifs/${versionId}`)
+    let gifsHtml = ''
+
+    response.data.gifs.forEach(gif => {
+      const gifPath = '/' + gif.path
+      gifsHtml += `<div class="banner-creatives banner-area-${gif.size.width}-${gif.size.height}" style="display: inline-block; width: ${gif.size.width}px; margin-right: 0.5rem; margin-left: 0.5rem; margin-bottom: 1rem;">`
+      gifsHtml += `<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">`
+      gifsHtml += `<small style="float: left; font-size: 0.85rem; font-weight: bold;">${gif.size.width}x${gif.size.height}</small>`
+      gifsHtml += `<small style="float: right; font-size: 0.85rem; font-weight: bold;">${gif.file_size}</small>`
+      gifsHtml += `</div>`
+      gifsHtml += `<iframe class="iframe-banners" style="margin-top: 2px;" src="${gifPath}" width="${gif.size.width}" height="${gif.size.height}" frameBorder="0" scrolling="no" id="rel${gif.id}"></iframe>`
+      gifsHtml += `<ul style="display: flex; flex-direction: row;" class="previewIcons">`
+      gifsHtml += `<li><i id="relBt${gif.id}" onClick="reloadBanner(${gif.id})" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>`
+      if (props.authUserClientName === "Planet Nine") {
+        gifsHtml += `<li class="banner-options"><a href="/${gif.path}" download="${gif.name}"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>`
+      }
+      gifsHtml += `</ul>`
+      gifsHtml += `</div>`
+    })
+
+    nextTick(() => {
+      const container = document.getElementById(`bannersList${versionId}`)
+      if (container) {
+        container.innerHTML = gifsHtml
+      }
+    })
+  } catch (error) {
+    console.error('Error rendering gifs:', error)
+  }
+}
+
+const initializeBannerLazyLoading = () => {
+  // Add click handlers for manual loading
+  document.querySelectorAll('.banner-placeholder').forEach(placeholder => {
+    placeholder.addEventListener('click', function () {
+      const bannerId = this.dataset.bannerId
+      loadBanner(bannerId)
+    })
   })
 
+  // Initialize Intersection Observer for auto-loading
   if ('IntersectionObserver' in window) {
     const bannerObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           const placeholder = entry.target
           const bannerId = placeholder.dataset.bannerId
-          setTimeout(() => { loadBanner(bannerId); bannerObserver.unobserve(entry.target) }, 100)
+
+          setTimeout(() => {
+            loadBanner(bannerId)
+            bannerObserver.unobserve(entry.target)
+          }, 100)
         }
       })
-    }, { root: null, rootMargin: '100px', threshold: 0.1 })
-    placeholders.forEach(p => bannerObserver.observe(p))
-  } else {
-    setTimeout(() => { placeholders.forEach(p => loadBanner(p.dataset.bannerId)) }, 2000)
+    }, {
+      root: null,
+      rootMargin: '100px',
+      threshold: 0.1
+    })
+
+    document.querySelectorAll('.banner-placeholder').forEach(placeholder => {
+      bannerObserver.observe(placeholder)
+    })
   }
 }
 
-const spinnerCSS = `
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-`
-if (!document.querySelector('#banner-lazy-loading-styles')) {
-  const style = document.createElement('style')
-  style.id = 'banner-lazy-loading-styles'
-  style.textContent = spinnerCSS
-  document.head.appendChild(style)
-}
+const loadBanner = (bannerId) => {
+  const placeholder = document.querySelector(`.banner-placeholder[data-banner-id="${bannerId}"]`)
+  if (!placeholder || placeholder.nextElementSibling?.tagName === 'IFRAME') return
 
-function reloadBanner(bannerReloadID) {
-  const iframe = el('rel' + bannerReloadID)
-  if (iframe) iframe.src = iframe.src
-}
+  const bannerPath = placeholder.dataset.bannerPath
+  const width = placeholder.dataset.width
+  const height = placeholder.dataset.height
 
-async function renderVideo(version_id_local) {
-  const la = el('loaderArea'); if (la) la.style.display = 'flex'
-  try {
-    const response = await axios.get('/preview/renderVideos/' + version_id_local)
-    let row = ''
-    (response.data.videos || []).forEach(value => {
-      const uniqueId = 'videoBlock_' + value.id
-      row += `<div id="${uniqueId}" class="mx-auto mb-8" style="max-width: 100%;"><div style="background:transparent; display:flex; justify-content:center;" class="mt-2 mb-2 rounded-lg"><video src="/${value.path}" controls muted class="block mx-auto rounded-2xl video-preview" style="max-width:70vw; max-height:50vh; min-width: 340px; width:auto; height:auto; background:#000;" controlsList="nodownload noremoteplayback" disablePictureInPicture onloadedmetadata="matchVideoMetaWidth(this)"></video></div><div class="bg-gray-50 text-gray-800 text-sm rounded-2xl p-3 mt-2 w-full video-media-info" style="margin:0 auto;">${authUserClientName === 'Planet Nine' ? `<div class="flex gap-4 mb-2 justify-center"><a href="/${value.path}" download title="Download"><i class="fa-solid fa-download" style="display: flex; margin-left: 0.5rem; font-size:20px;"></i></a></div>` : ''}<div class="font-semibold text-base mb-1 underline text-center flex justify-center align-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info-icon lucide-info"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div><div class="font-semibold text-base mb-1 underline text-center">Media Info</div><div><strong>Resolution:</strong> ${value.size.width} x ${value.size.height}</div><div><strong>Aspect Ratio:</strong> ${value.aspect_ratio ?? '-'}</div><div><strong>Codec:</strong> ${value.codec ?? '-'}</div><div><strong>FPS:</strong> ${value.fps ?? '-'}</div><div><strong>File Size:</strong> ${value.file_size ?? '-'}</div><div class="mt-2 w-full flex flex-col items-center justify-center">${value.companion_banner_path ? `<img src="/${value.companion_banner_path}" alt="Companion Banner" class="rounded border mx-auto" style="max-width:970px;max-height:auto;" />${authUserClientName === 'Planet Nine' ? `<a href="/${value.companion_banner_path}" download title="Download Companion Banner" class="mt-2 flex items-center gap-1 text-blue-600 hover:text-blue-800"><i class="fa-solid fa-download" style="font-size:18px;"></i><span class="text-xs">Download Companion Banner</span></a>` : ''}` : ''}</div></div></div>`
-    })
-    const target = el('bannersList' + version_id_local)
-    if (target) target.innerHTML = row
-  } catch (err) { console.log(err) }
-  finally { const la2 = el('loaderArea'); if (la2) la2.style.display = 'none' }
-}
+  // Show loading spinner
+  const spinner = placeholder.querySelector('.loading-spinner')
+  const content = placeholder.querySelector('div:first-child')
+  if (spinner) spinner.style.display = 'block'
+  if (content) content.style.display = 'none'
 
-function matchVideoMetaWidth(videoEl) {
-  setTimeout(() => {
-    const width = videoEl.clientWidth
-    const container = videoEl.closest('.mb-8')
-    if (container) {
-      const nameBar = container.querySelector('.video-name-bar')
-      const mediaInfo = container.querySelector('.video-media-info')
-      if (nameBar) nameBar.style.width = width + 'px'
-      if (mediaInfo) mediaInfo.style.width = width + 'px'
+  // Create iframe
+  const iframe = document.createElement('iframe')
+  iframe.className = 'iframe-banners'
+  iframe.src = bannerPath
+  iframe.width = width
+  iframe.height = height
+  iframe.frameBorder = 0
+  iframe.scrolling = 'no'
+  iframe.id = 'rel' + bannerId
+  iframe.loading = 'lazy'
+
+  iframe.onload = () => {
+    placeholder.style.display = 'none'
+  }
+
+  iframe.onerror = () => {
+    if (spinner) spinner.style.display = 'none'
+    if (content) {
+      content.style.display = 'block'
+      content.innerHTML = '<div style="color: #dc3545; font-size: 12px;">Failed to load</div>'
     }
-  }, 50)
-}
-
-async function renderSocial(version_id_local) {
-  const la = el('loaderArea'); if (la) la.style.display = 'flex'
-  try {
-    const response = await axios.get('/preview/renderSocials/' + version_id_local)
-    let row = ''
-    (response.data.socials || []).forEach(value => {
-      row += `<div style="display: inline-block; margin: 10px; max-width: 1000px;"><img src="/${value.path}" alt="${value.name}" class="social-preview-img rounded-2xl" style="width: 100%; max-width: 700px; height: auto; object-fit: contain; box-shadow: 0 2px 8px #0001; cursor: pointer; margin-top: 0;" onclick="openSocialImageModal('/${value.path}', '${value.name}')"><ul style="display: flex; flex-direction: row; justify-content: left; margin-top: 10px;" class="previewIcons">${authUserClientName === 'Planet Nine' ? `<li><a href="/${value.path}" download="${value.name}.jpg"><i class="fa-solid fa-download" style="display: flex; margin-left: 0.5rem; font-size:20px;"></i></a></li>` : ''}</ul></div>`
-    })
-    const target = el('bannersList' + version_id_local)
-    if (target) target.innerHTML = row
-  } catch (err) { console.log(err) }
-  finally { setTimeout(() => { const la2 = el('loaderArea'); if (la2) la2.style.display = 'none' }, 200) }
-}
-
-// Social modal helpers (vanilla)
-function ensureSocialModalExists() {
-  if (!el('socialImageModal')) {
-    document.body.insertAdjacentHTML('beforeend', `
-      <div id="socialImageModal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); align-items:center; justify-content:center;">
-        <span id="closeSocialModal" style="position:fixed; top:30px; right:40px; font-size:2.5rem; color:red; cursor:pointer; z-index:10001;">&times;</span>
-        <img id="socialModalImg" src="" alt="" style="max-width:80vw; max-height:80vh; transition:transform 0.2s; cursor:zoom-in; display:block; margin:auto; padding:40px; background:rgba(0,0,0,0.1); border-radius:12px;">
-      </div>
-    `)
   }
-  const modal = el('socialImageModal'); if (modal) modal.style.overflow = 'hidden'
+
+  placeholder.parentNode.insertBefore(iframe, placeholder.nextSibling)
 }
 
-let isDragging = false, startX, startY, initialX, initialY
-let currentX = 0, currentY = 0, dragMoved = false, currentScale = 1, isZoomed = false
-
-function resetModalState() {
-  currentScale = 1; currentX = 0; currentY = 0; isZoomed = false; isDragging = false; dragMoved = false
-}
-
-function applyTransform() {
-  const img = el('socialModalImg')
-  if (!img) return
-  img.style.transform = `translate(calc(-50% + ${currentX}px), calc(-50% + ${currentY}px)) scale(${currentScale})`
-  img.style.transition = isDragging ? 'none' : 'transform 0.3s ease'
-}
-
-window.openSocialImageModal = function (src, label) {
+// Social Modal Functions
+const openSocialImageModal = (src, label) => {
   resetModalState()
-  ensureSocialModalExists()
-  const img = el('socialModalImg')
-  if (!img) return
-  img.src = src
-  img.style.maxWidth = '90vw'
-  img.style.maxHeight = '90vh'
-  img.style.cursor = 'zoom-in'
-  img.style.position = 'absolute'
-  img.style.top = '50%'
-  img.style.left = '50%'
-  img.style.transform = 'translate(-50%, -50%) scale(1)'
-  img.style.transition = 'transform 0.3s ease'
-  img.style.userSelect = 'none'
-  img.style.pointerEvents = 'auto'
-  img.style.transformOrigin = 'center center'
-
-  const modal = el('socialImageModal')
-  if (modal) modal.style.display = 'flex'
+  socialModalSrc.value = src
+  socialModalAlt.value = label
+  socialModalVisible.value = true
   document.body.style.overflow = 'hidden'
+}
 
-  if (!el('zoomControls')) {
-    const modalEl = el('socialImageModal')
-    if (modalEl) modalEl.insertAdjacentHTML('beforeend', `
-      <div id="zoomControls" style="position: fixed; top: 20px; left: 20px; z-index: 10002; display: flex; flex-direction: column; gap: 10px;">
-        <button id="zoomIn" style="background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;">+</button>
-        <button id="zoomOut" style="background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;">−</button>
-        <button id="zoomReset" style="background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 20px; padding: 8px 12px; font-size: 12px; cursor: pointer;">Reset</button>
-      </div>
-      <div id="zoomInfo" style="position: fixed; bottom: 20px; left: 20px; z-index: 10002; background: rgba(0,0,0,0.7); color: white; padding: 8px 12px; border-radius: 15px; font-size: 12px;">
-        Zoom: <span id="zoomLevel">100%</span>
-      </div>
-      <div id="modalInstructions" style="position: fixed; bottom: 20px; right: 20px; z-index: 10002; background: rgba(0,0,0,0.7); color: white; padding: 8px 12px; border-radius: 15px; font-size: 11px; max-width: 200px;">
-        <div>• Click to zoom in/out</div><div>• Drag to pan when zoomed</div><div>• Mouse wheel to zoom</div><div>• Double-click to reset</div>
-      </div>
-    `)
+const closeSocialModal = () => {
+  socialModalVisible.value = false
+  document.body.style.overflow = ''
+  resetModalState()
+}
+
+const resetModalState = () => {
+  modalZoomScale.value = 1
+  modalCurrentX.value = 0
+  modalCurrentY.value = 0
+  isDragging.value = false
+}
+
+const zoomIn = () => {
+  const newScale = Math.min(modalZoomScale.value * 1.5, 5)
+  modalZoomScale.value = newScale
+}
+
+const zoomOut = () => {
+  const newScale = Math.max(modalZoomScale.value / 1.5, 0.5)
+  modalZoomScale.value = newScale
+
+  if (modalZoomScale.value <= 1) {
+    modalCurrentX.value = 0
+    modalCurrentY.value = 0
+    modalZoomScale.value = 1
   }
-  updateZoomInfo()
 }
 
-function updateZoomInfo() {
-  const zl = el('zoomLevel'); if (zl) zl.textContent = Math.round(currentScale * 100) + '%'
-  const img = el('socialModalImg')
-  if (!img) return
-  img.style.cursor = currentScale > 1 ? 'grab' : 'zoom-in'
-  isZoomed = currentScale > 1
+const resetZoom = () => {
+  modalZoomScale.value = 1
+  modalCurrentX.value = 0
+  modalCurrentY.value = 0
 }
 
-function zoomIn(centerX = null, centerY = null) {
-  const newScale = Math.min(currentScale * 1.5, 5)
-  if (centerX !== null && centerY !== null) {
-    const rect = el('socialImageModal').getBoundingClientRect()
-    const modalCenterX = rect.width / 2
-    const modalCenterY = rect.height / 2
-    const deltaX = (centerX - modalCenterX) * (newScale / currentScale - 1)
-    const deltaY = (centerY - modalCenterY) * (newScale / currentScale - 1)
-    currentX -= deltaX; currentY -= deltaY
-  }
-  currentScale = newScale; applyTransform(); updateZoomInfo()
-}
-function zoomOut() {
-  const newScale = Math.max(currentScale / 1.5, 0.5)
-  currentScale = newScale
-  if (currentScale <= 1) { currentX = 0; currentY = 0; currentScale = 1 }
-  applyTransform(); updateZoomInfo()
-}
-function resetZoom() {
-  currentScale = 1; currentX = 0; currentY = 0
-  const img = el('socialModalImg')
-  if (img) img.style.transform = 'translate(-50%, -50%) scale(1)'
-  updateZoomInfo()
-}
+const startDrag = (e) => {
+  if (modalZoomScale.value > 1) {
+    isDragging.value = true
+    const startX = e.clientX
+    const startY = e.clientY
+    const initialX = modalCurrentX.value
+    const initialY = modalCurrentY.value
 
-// Global mouse/touch/wheel handlers using delegation
-document.addEventListener('mousedown', (e) => {
-  const target = e.target
-  if (target && target.id === 'socialModalImg') {
-    if (isZoomed) {
-      isDragging = true; dragMoved = false
-      target.style.cursor = 'grabbing'
-      startX = e.clientX; startY = e.clientY
-      initialX = currentX; initialY = currentY
-      e.preventDefault()
+    const handleMouseMove = (moveEvent) => {
+      if (isDragging.value) {
+        const deltaX = moveEvent.clientX - startX
+        const deltaY = moveEvent.clientY - startY
+        modalCurrentX.value = initialX + deltaX
+        modalCurrentY.value = initialY + deltaY
+      }
     }
-  }
-})
 
-document.addEventListener('mousemove', (e) => {
-  if (isDragging && isZoomed) {
-    const deltaX = e.clientX - startX
-    const deltaY = e.clientY - startY
-    if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) dragMoved = true
-    currentX = initialX + deltaX; currentY = initialY + deltaY
-    applyTransform()
-  }
-})
-
-document.addEventListener('mouseup', () => {
-  if (isDragging) {
-    isDragging = false
-    const img = el('socialModalImg'); if (img) img.style.cursor = isZoomed ? 'grab' : 'zoom-in'
-  }
-})
-
-document.addEventListener('click', (e) => {
-  if (e.target && e.target.id === 'socialModalImg') {
-    if (dragMoved) { dragMoved = false; return }
-    const rect = e.target.getBoundingClientRect()
-    const clickX = e.clientX - rect.left
-    const clickY = e.clientY - rect.top
-    if (currentScale < 2) zoomIn(e.clientX - el('socialImageModal').offsetLeft, e.clientY - el('socialImageModal').offsetTop)
-    else resetZoom()
-  }
-})
-
-document.addEventListener('dblclick', (e) => {
-  if (e.target && e.target.id === 'socialModalImg') { e.preventDefault(); resetZoom() }
-})
-
-document.addEventListener('wheel', (e) => {
-  const modal = el('socialImageModal')
-  if (!modal || modal.style.display === 'none') return
-  if (!e.target.closest('#socialImageModal')) return
-  e.preventDefault()
-  const rect = modal.getBoundingClientRect()
-  const mouseX = e.clientX - rect.left
-  const mouseY = e.clientY - rect.top
-  if (e.deltaY < 0) zoomIn(mouseX, mouseY)
-  else zoomOut()
-}, { passive: false })
-
-document.addEventListener('click', (e) => {
-  const t = e.target
-  if (t && t.id === 'zoomIn') { e.stopPropagation(); zoomIn() }
-  if (t && t.id === 'zoomOut') { e.stopPropagation(); zoomOut() }
-  if (t && t.id === 'zoomReset') { e.stopPropagation(); resetZoom() }
-})
-
-document.addEventListener('keydown', (e) => {
-  const modal = el('socialImageModal')
-  if (!modal || modal.style.display === 'none') return
-  switch (e.key) {
-    case 'Escape': { const close = el('closeSocialModal'); if (close) close.click(); break }
-    case '+': case '=': zoomIn(); break
-    case '-': zoomOut(); break
-    case '0': resetZoom(); break
-    case 'ArrowLeft': if (isZoomed) { currentX += 50; applyTransform() }; break
-    case 'ArrowRight': if (isZoomed) { currentX -= 50; applyTransform() }; break
-    case 'ArrowUp': if (isZoomed) { currentY += 50; applyTransform() }; break
-    case 'ArrowDown': if (isZoomed) { currentY -= 50; applyTransform() }; break
-  }
-})
-
-document.addEventListener('click', (e) => {
-  if (e.target && e.target.id === 'closeSocialModal') {
-    const modal = el('socialImageModal')
-    if (modal) modal.style.display = 'none'
-    document.body.style.overflow = ''
-    resetModalState()
-  }
-})
-
-document.addEventListener('click', (e) => {
-  if (e.target && e.target.id === 'socialImageModal') {
-    if (e.target === el('socialImageModal')) {
-      el('socialImageModal').style.display = 'none'
-      document.body.style.overflow = ''
-      resetModalState()
+    const handleMouseUp = () => {
+      isDragging.value = false
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
     }
+
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
   }
-})
+}
 
-document.addEventListener('contextmenu', (e) => {
-  if (e.target && e.target.id === 'socialModalImg') e.preventDefault()
-})
-
-let touchStartX = 0, touchStartY = 0, touchStartDistance = 0, touchStartScale = 1
-
-document.addEventListener('touchstart', (e) => {
-  if (!e.target.closest('#socialModalImg')) return
-  const touches = e.touches || e.originalEvent?.touches
-  if (!touches) return
-  if (touches.length === 1) {
-    touchStartX = touches[0].clientX; touchStartY = touches[0].clientY
-    initialX = currentX; initialY = currentY
-  } else if (touches.length === 2) {
-    const dx = touches[0].clientX - touches[1].clientX
-    const dy = touches[0].clientY - touches[1].clientY
-    touchStartDistance = Math.sqrt(dx * dx + dy * dy); touchStartScale = currentScale
-  }
-  e.preventDefault()
-}, { passive: false })
-
-document.addEventListener('touchmove', (e) => {
-  if (!e.target.closest('#socialModalImg')) return
-  const touches = e.touches || e.originalEvent?.touches
-  if (!touches) return
-  if (touches.length === 1 && isZoomed) {
-    const deltaX = touches[0].clientX - touchStartX
-    const deltaY = touches[0].clientY - touchStartY
-    currentX = initialX + deltaX; currentY = initialY + deltaY; applyTransform()
-  } else if (touches.length === 2) {
-    const dx = touches[0].clientX - touches[1].clientX
-    const dy = touches[0].clientY - touches[1].clientY
-    const distance = Math.sqrt(dx * dx + dy * dy)
-    const scale = touchStartScale * (distance / touchStartDistance)
-    currentScale = Math.max(0.5, Math.min(5, scale)); applyTransform(); updateZoomInfo()
-  }
-  e.preventDefault()
-}, { passive: false })
-
-async function renderGif(version_id_local) {
-  const la = el('loaderArea'); if (la) la.style.display = 'flex'
+// Global functions for onclick handlers
+window.updateActiveCategory = async (categoryId) => {
   try {
-    const response = await axios.get('/preview/renderGifs/' + version_id_local)
-    const gifs = response.data.gifs || []
-    let gifsHtml = ''
-    gifs.forEach(gif => {
-      const gifPath = '/' + gif.path
-      const gifReloadID = gif.id
-      gifsHtml += `<div class="banner-creatives banner-area-${gif.size.width}" style="display: inline-block; width: ${gif.size.width}px; margin-right: 0.5rem; margin-left: 0.5rem; margin-bottomn: 1rem;"><div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;"><small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">${gif.size.width}x${gif.size.height}</small><small style="float: right; font-size: 0.85rem; font-weight: bold;" id="bannerSize">${gif.file_size}</small></div><img class="iframe-banners" style="margin-top: 2px;" src="${gifPath}" width="${gif.size.width}" height="${gif.size.height}" id="rel${gif.id}"></img><ul style="display: flex; flex-direction: row;" class="previewIcons"><li><i id="relBt${gif.id}" onClick="reloadBanner(${gifReloadID})" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i></li>${authUserClientName === 'Planet Nine' ? `<li class="banner-options"><a href="/${gif.path}" download="${gif.name}"><i class="fa-solid fa-download" style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a></li>` : ''}</ul></div>`
-    })
-    const target = el('bannersList' + version_id_local)
-    if (target) target.innerHTML = gifsHtml
-  } catch (err) { console.log(err) }
-  finally { const la2 = el('loaderArea'); if (la2) la2.style.display = 'none' }
+    await axios.get(`/preview/updateActiveCategory/${categoryId}`)
+    await renderCategories()
+  } catch (error) {
+    console.error('Error updating category:', error)
+  }
 }
 
-/* ---------- End migrated functions ---------- */
+window.updateActiveFeedback = async (feedbackId) => {
+  try {
+    const response = await axios.get(`/preview/updateActiveFeedback/${feedbackId}`)
+    await renderFeedbacks(response)
+  } catch (error) {
+    console.error('Error updating feedback:', error)
+  }
+}
 
-// Expose functions used inline (keep same names)
-Object.assign(window, {
-  showColorPaletteOptions,
-  showColorPaletteOptions2,
-  handleOutsideClick,
-  showFeedbackDescription,
-  hideFeedbackDescription,
-  renderCategories,
-  updateActiveCategory,
-  updateActiveFeedback,
-  renderFeedbacks,
-  changeFeedbackActiveBackground,
-  changeFeedbackInactiveBackground,
-  updateFeedbackNav,
-  renderFeedbackSets,
-  renderVersions,
-  renderBanners,
-  renderVideo,
-  renderSocial,
-  renderGif,
-  loadBanner,
-  initializeBannerLazyLoading,
-  reloadBanner,
-  openSocialImageModal: window.openSocialImageModal,
-  openMobileMenu,
-  closeMobileMenu,
-})
+window.reloadBanner = (bannerReloadID) => {
+  const iframe = document.getElementById("rel" + bannerReloadID)
+  if (iframe) {
+    iframe.src = iframe.src
+  }
+}
 
-// lifecycle
-onMounted(() => {
-  const openBtn = el('openMobileMenu')
-  if (openBtn) openBtn.addEventListener('click', openMobileMenu)
-  const closeBtn = el('closeMobileMenu')
-  if (closeBtn) closeBtn.addEventListener('click', closeMobileMenu)
+window.openSocialImageModal = openSocialImageModal
 
-  viewersInterval = setInterval(fetchViewers, 10000)
+window.changeFeedbackActiveBackground = (element) => {
+  if (!element.classList.contains('feedbackTabActive')) {
+    element.style.backgroundImage = `url('/${props.feedbackActiveImage}')`
+  }
+}
+
+window.changeFeedbackInactiveBackground = (element) => {
+  if (!element.classList.contains('feedbackTabActive')) {
+    element.style.backgroundImage = `url('/${props.feedbackInactiveImage}')`
+  }
+}
+
+// Lifecycle
+onMounted(async () => {
+  // Set CSS variables for colors
+  document.documentElement.style.setProperty('--primary-color', props.primary || '#000')
+  document.documentElement.style.setProperty('--secondary-color', props.secondary || '#fff')
+  document.documentElement.style.setProperty('--tertiary-color', props.tertiary || '#ccc')
+  document.documentElement.style.setProperty('--quaternary-color', props.quaternary || '#f5f5f5')
+  document.documentElement.style.setProperty('--quinary-color', props.quinary || '#eeeeee')
+  document.documentElement.style.setProperty('--senary-color', props.senary || '#dddddd')
+  document.documentElement.style.setProperty('--septenary-color', props.septenary || '#cccccc')
+
+  // Start tracking and fetching
+  setInterval(trackViewer, 8000)
+  setInterval(fetchViewers, 10000)
+
   fetchViewers()
-  trackerInterval = setInterval(() => {
-    axios.post('/track-viewer', { page_id: preview.id, guest_name: guestName }).catch(()=>{})
-  }, 8000)
-
-  renderCategories()
-  ensureSocialModalExists()
+  await renderCategories()
 })
 
-onBeforeUnmount(() => {
-  if (viewersInterval) clearInterval(viewersInterval)
-  if (trackerInterval) clearInterval(trackerInterval)
-  document.removeEventListener('click', handleDelegatedClicks)
-  // other global listeners intentionally remain (behavior preserved)
+onUnmounted(() => {
+  document.body.style.overflow = ''
 })
 </script>
 
 <style>
-/* ------------------------------
-   Original preview5.css contents
-   (kept intact; DO NOT scope)
-   ------------------------------ */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+  --primary-color: v-bind(props.primary || '#000');
+  --secondary-color: v-bind(props.secondary || '#fff');
+  --tertiary-color: v-bind(props.tertiary || '#ccc');
+  --quaternary-color: v-bind(props.quaternary || '#f5f5f5');
+  --quinary-color: v-bind(props.quinary || '#eeeeee');
+  --senary-color: v-bind(props.senary || '#dddddd');
+  --septenary-color: v-bind(props.allColors[0]?.septenary || '#cccccc');
+}
 
 *,
 *:before,
@@ -1100,7 +1014,7 @@ body {
 
 ::-webkit-scrollbar-track {
   box-shadow: inset 0 0 5px var(--primary-color);
-  border-radius: 10px
+  /* border-radius: 10px */
 }
 
 ::-webkit-scrollbar-thumb {
@@ -1171,10 +1085,14 @@ hr {
   color: black;
   background-size: contain;
   width: 100%;
-  min-height: 170px;
+  min-height: 200px;
   position: relative;
   overflow: hidden;
-  box-sizing: border-box
+  box-sizing: border-box;
+}
+
+#topDetails h1 {
+  font-size: 1rem;
 }
 
 /* Loader */
@@ -1200,8 +1118,10 @@ hr {
   display: inline-block;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
-  border-bottom-color: #1b283b;
-  border-right-color: #f15a29
+  border-bottom-color: #4c4f6e;
+  border-right-color: #f15a29;
+  border-top-color: #8cd1cf;
+  border-left-color: #f5f5f5;
 }
 
 @keyframes rotation {
@@ -1581,7 +1501,7 @@ hr {
 /* Mobile Menu */
 #mobileMenuToggle {
   position: fixed;
-  top: 19rem;
+  top: 21rem;
   left: 2.5px;
   z-index: 10001;
   background: var(--tertiary-color);
@@ -1935,7 +1855,7 @@ hr {
   overflow: hidden;
   cursor: pointer;
   background-color: white;
-  color: var(--quaternary-color);
+  color: black;
   border-radius: 40px;
   border-bottom: 4px solid black;
   transition: all .25s;
@@ -1947,9 +1867,9 @@ hr {
 
 .category-row:hover,
 .category-active {
-  background-color: var(--tertiary-color);
-  color: white;
-  border-bottom: 4px solid var(--tertiary-color)
+  background-color: var(--senary-color);
+  color: var(--quaternary-color);
+  border-bottom: 4px solid var(--senary-color)
 }
 
 .category-active {
@@ -1983,7 +1903,7 @@ hr {
 .feedbackSet {
   width: calc(100% - 5rem);
   border-radius: 1rem;
-  background-color: var(--primary-color);
+  background-color: var(--quinary-color);
   padding: .5rem;
   color: white
 }
@@ -2028,7 +1948,12 @@ hr {
   #planetnineLogo {
     margin: 0 auto;
     text-align: center;
-    padding-top: 0
+    padding-top: 0;
+    max-width: 170px;
+  }
+
+  #topDetails h1 {
+    font-size: 0.85rem;
   }
 }
 
@@ -2462,6 +2387,7 @@ hr {
     position: fixed;
     font-size: 1rem;
     top: 19rem;
+    right: -1px;
     width: auto;
     height: auto;
   }
@@ -2866,6 +2792,7 @@ hr {
     position: fixed;
     font-size: 1rem;
     top: 19rem;
+    right: -1px;
     width: auto;
     height: auto;
   }
@@ -3005,7 +2932,9 @@ hr {
   .feedbacks {
     width: 97%
   }
+}
 
+@media(min-width: 800px) and (max-width: 1199px) {
   .banner-area-1272-328 {
     width: 800px !important;
     height: auto;
@@ -3175,8 +3104,175 @@ hr {
   }
 }
 
-/* rest of media queries preserved as in original CSS... */
-/* For brevity the rest of CSS media rules are included above in the file originally; keep them intact in your actual code. */
+@media(min-width: 1200px) and (max-width: 1600px) {
+  .banner-area-1272-328 {
+    width: 800px !important;
+    height: auto;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-right: 0 !important;
+    overflow: hidden
+  }
+
+  .banner-area-1272-328 iframe {
+    transform: scale(calc(800 / 1272));
+    transform-origin: center left;
+    width: 1272px;
+    height: 328px;
+    border: none;
+    display: block;
+    margin-top: -60px !important;
+    margin-bottom: -60px !important;
+  }
+
+  .banner-area-1115-300 {
+    width: 800px !important;
+    height: auto;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-right: 0 !important;
+    overflow: hidden
+  }
+
+  .banner-area-1115-300 iframe {
+    transform: scale(calc(800 / 1115));
+    transform-origin: center left;
+    width: 1115px;
+    height: 300px;
+    border: none;
+    display: block;
+    margin-top: -40px !important;
+    margin-bottom: -40px !important;
+  }
+
+  .banner-area-1080-1080 {
+    width: 800px !important;
+    height: auto;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-right: 0 !important;
+    overflow: hidden
+  }
+
+  .banner-area-1080-1080 iframe {
+    transform: scale(calc(800 / 1080));
+    transform-origin: center left;
+    width: 1080px;
+    height: 1080px;
+    border: none;
+    display: block;
+    margin-top: -140px !important;
+    margin-bottom: -140px !important;
+  }
+
+  .banner-area-1024-768 {
+    width: 800px !important;
+    height: auto;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-right: 0 !important;
+    overflow: hidden
+  }
+
+  .banner-area-1024-768 iframe {
+    transform: scale(calc(800 / 1024));
+    transform-origin: center left;
+    width: 1024px;
+    height: 768px;
+    border: none;
+    display: block;
+    margin-top: -85px !important;
+    margin-bottom: -85px !important;
+  }
+
+  .banner-area-970-500 {
+    width: 800px !important;
+    height: auto;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-right: 0 !important;
+    overflow: hidden
+  }
+
+  .banner-area-970-500 iframe {
+    transform: scale(calc(800 / 970));
+    transform-origin: center left;
+    width: 970px;
+    height: 500px;
+    border: none;
+    display: block;
+    margin-top: -40px !important;
+    margin-bottom: -40px !important;
+  }
+
+  .banner-area-970-250 {
+    width: 800px !important;
+    height: auto;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-right: 0 !important;
+    overflow: hidden
+  }
+
+  .banner-area-970-250 iframe {
+    transform: scale(calc(800 / 970));
+    transform-origin: center left;
+    width: 970px;
+    height: 250px;
+    border: none;
+    display: block;
+    margin-top: -20px !important;
+    margin-bottom: -20px !important;
+  }
+
+  .banner-area-970-90 {
+    width: 800px !important;
+    height: auto;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-right: 0 !important;
+    overflow: hidden
+  }
+
+  .banner-area-970-90 iframe {
+    transform: scale(calc(800 / 970));
+    transform-origin: center left;
+    width: 970px;
+    height: 90px;
+    border: none;
+    display: block;
+    margin-top: -7px !important;
+    margin-bottom: -7px !important;
+  }
+
+  .banner-area-960-300 {
+    width: 800px !important;
+    height: auto;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-right: 0 !important;
+    overflow: hidden
+  }
+
+  .banner-area-960-300 iframe {
+    transform: scale(calc(800 / 960));
+    transform-origin: center left;
+    width: 960px;
+    height: 300px;
+    border: none;
+    display: block;
+    margin-top: -25px !important;
+    margin-bottom: -25px !important;
+  }
+}
 
 .banners-list {
   display: flex;
@@ -3184,5 +3280,23 @@ hr {
   justify-content: center;
   flex-wrap: wrap;
   gap: 1rem;
+}
+
+@keyframes pulse-green {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+}
+
+.animate-pulse-green {
+  animation: pulse-green 1.5s ease-in-out infinite;
 }
 </style>

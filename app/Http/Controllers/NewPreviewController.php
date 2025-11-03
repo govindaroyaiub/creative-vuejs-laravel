@@ -169,6 +169,15 @@ class NewPreviewController extends Controller
 
         // return Inertia::render('Previews/Show', [
         //     'preview' => $preview,
+        //     'client' => $client,
+        //     'headerImage' => $header_image,
+        //     'headerLogo' => $header_logo,
+        //     'rightTabColorPaletteImage' => $rightTab_color_palette_image,
+        //     'rightTabFeedbackDescriptionImage' => $rightTab_feedback_description_image,
+        //     'feedbackActiveImage' => $feedback_active_image,
+        //     'feedbackInactiveImage' => $feedback_inactive_image,
+        //     'authUserClientName' => $authUserClientName,
+        //     'previewId' => $preview_id,
         //     'primary' => $primary,
         //     'secondary' => $secondary,
         //     'tertiary' => $tertiary,
@@ -176,16 +185,10 @@ class NewPreviewController extends Controller
         //     'quinary' => $quinary,
         //     'senary' => $senary,
         //     'septenary' => $septenary,
-        //     'client' => $client,
-        //     'header_logo' => $header_logo,
-        //     'authUserClientName' => $authUserClientName,
-        //     'feedback_active_image' => $feedback_active_image,
-        //     'feedback_inactive_image' => $feedback_inactive_image,
-        //     'rightTab_feedback_description_image' => $rightTab_feedback_description_image,
-        //     'rightTab_color_palette_image' => $rightTab_color_palette_image,
-        //     'header_image' => $header_image,
-        //     'preview_id' => $preview_id,
-        //     'all_colors' => $all_colors,
+        //     'allColors' => $all_colors,
+        //     'auth' => [
+        //         'user' => Auth::user()
+        //     ]
         // ]);
     }
 
