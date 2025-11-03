@@ -49,12 +49,6 @@
         <span class="loader"></span>
     </div>
 
-    @if($authUserClientName == "Planet Nine")
-    <a href="/previews/update/{{ $preview->id }}" id="bulk-customization" class="text-white font-medium cursor-pointer" style="z-index: 1000;">
-        <i class="fa-solid fa-gear"></i>
-    </a>
-    @endif
-
     <main class="main">
         <section id="top" class="mb-4">
             <div class="px-4 py-4 flex justify-center content text-center relative">

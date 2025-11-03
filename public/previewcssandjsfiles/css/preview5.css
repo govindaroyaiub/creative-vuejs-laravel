@@ -21,10 +21,11 @@ body {
 }
 
 .main {
+    flex: 1 0 auto;
     position: relative;
     top: 0;
-    left: 0;
     right: 0;
+    left: 0;
     margin: 0 auto;
 }
 
@@ -308,7 +309,7 @@ hr {
     cursor: pointer;
 }
 
-#feedbackClick{
+#feedbackClick {
     cursor: pointer;
     width: auto;
     height: auto;
@@ -334,7 +335,7 @@ hr {
 #feedbackClick {
     position: fixed;
     top: 25rem;
-    right: 2rem;
+    right: 1.5rem;
     z-index: 1000;
 }
 
@@ -358,18 +359,18 @@ hr {
 }
 
 #feedbackDescription {
-    display: none;
     position: fixed;
     top: 25.5rem;
-    right: 2rem;
+    right: 1.5rem;
     /* Start hidden off-screen */
     width: 302px;
     background: white;
     border: 1px solid var(--tertiary-color);
     border-radius: 10px 0 0 10px;
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
-    transition: block 0.3s ease-in-out;
+    transition: right 0.3s ease-in-out;
     z-index: 1000;
+    display: none;
 }
 
 #feedbackDescription.show {
@@ -1415,7 +1416,7 @@ hr {
     #feedbackClick {
         position: fixed;
         font-size: 1rem;
-        top: 19rem;
+        top: 20rem;
         right: -1px;
         width: auto;
         height: auto;
