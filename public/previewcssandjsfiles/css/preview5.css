@@ -108,7 +108,7 @@ hr {
     box-sizing: border-box;
 }
 
-#topDetails h1{
+#topDetails h1 {
     font-size: 1rem;
 }
 
@@ -279,13 +279,13 @@ hr {
 .feedbackTabs-parent {
     flex: 1 1 0;
     min-width: 0;
-    width: 97%
+    width: 100%
 }
 
 /* Side Elements */
 #feedbackArea {
     position: absolute;
-    top: 4rem;
+    top: 0;
     right: 0;
     z-index: 99
 }
@@ -296,13 +296,20 @@ hr {
     color: var(--septenary-color)
 }
 
-#feedbackCLick,
 #colorPaletteClick {
     position: relative;
     right: 0;
     cursor: pointer;
     width: 100%;
     height: 100%;
+}
+
+#feedbackClick{
+    position: relative;
+    right: 0;
+    cursor: pointer;
+    width: auto;
+    height: auto;
 }
 
 #bulk-customization {
@@ -322,17 +329,20 @@ hr {
     transform: rotate(-90deg)
 }
 
-#feedbackCLick {
-    top: 2rem
+#feedbackClick {
+    position: fixed;
+    top: 30rem;
+    right: 2rem;
+    z-index: 1000;
 }
 
-#feedbackCLick img {
+#feedbackClick img {
     width: 30px;
     height: auto;
 }
 
 #colorPaletteClick {
-    top: 5rem
+    top: 2rem;
 }
 
 #colorPaletteClick img {
@@ -968,8 +978,8 @@ hr {
         padding-top: 0;
         max-width: 170px;
     }
-    
-    #topDetails h1{
+
+    #topDetails h1 {
         font-size: 0.85rem;
     }
 }
@@ -1400,16 +1410,17 @@ hr {
         display: none
     }
 
-    #feedbackCLick {
+    #feedbackClick {
         position: fixed;
         font-size: 1rem;
         top: 19rem;
         right: -1px;
         width: auto;
         height: auto;
+        z-index: 1000;
     }
 
-    #feedbackCLick img {
+    #feedbackClick img {
         width: 20px;
         height: auto;
     }
@@ -1805,13 +1816,14 @@ hr {
         display: none
     }
 
-    #feedbackCLick {
+    #feedbackClick {
         position: fixed;
         font-size: 1rem;
         top: 19rem;
         right: -1px;
         width: auto;
         height: auto;
+        z-index: 1000;
     }
 
     #feedbackDescription {
@@ -1915,7 +1927,7 @@ hr {
     }
 
     .feedbacks {
-        width: 97%
+        width: 100%
     }
 }
 
@@ -1947,7 +1959,7 @@ hr {
     }
 
     .feedbacks {
-        width: 97%
+        width: 100%
     }
 }
 
@@ -2300,10 +2312,13 @@ hr {
 }
 
 @keyframes pulse-green {
-    0%, 100% {
+
+    0%,
+    100% {
         opacity: 1;
         transform: scale(1);
     }
+
     50% {
         opacity: 0.5;
         transform: scale(0.8);

@@ -14,13 +14,13 @@
     <script src="{{ asset('previewcssandjsfiles/js/fontawesome.all.min.js') }}" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         :root {
-            --primary-color: {{$primary}};
-            --secondary-color: {{$secondary}};
-            --tertiary-color: {{$tertiary}};
-            --quaternary-color: {{$quaternary}};
-            --quinary-color: {{$quinary}};
-            --senary-color: {{$senary}};
-            --septenary-color: {{$septenary}};
+            --primary-color: {{ $primary }} ;
+            --secondary-color: {{ $secondary }} ;
+            --tertiary-color: {{ $tertiary }} ;
+            --quaternary-color: {{ $quaternary }} ;
+            --quinary-color: {{ $quinary }} ; 
+            --senary-color: {{ $senary }} ; 
+            --septenary-color: {{ $septenary }} ;
         }
     </style>
     <link href="{{ asset('previewcssandjsfiles/css/preview5.css') }}" rel="stylesheet">
@@ -30,7 +30,7 @@
     @if(auth()->check())
     <div class="absolute top-4 right-4 flex items-center space-x-3 z-50">
         @if($authUserClientName == 'Planet Nine')
-            <div id="viewerList" class="flex space-x-2"></div>
+        <div id="viewerList" class="flex space-x-2"></div>
         @endif
         @if($preview->requires_login)
         <form method="POST" action="{{ route('preview.logout') }}" id="customPreviewLogoutForm">
@@ -144,12 +144,12 @@
                             <div class="feedbackSetsContainer"></div>
 
                             <div id="feedbackArea">
-                                <div id="feedbackCLick" onclick="showFeedbackDescription()">
-                                    <img src="/{{ $rightTab_feedback_description_image }}" alt="feedback icon">
-                                </div>
-
                                 <div id="colorPaletteClick" onclick="showColorPaletteOptions()">
                                     <img src="/{{ $rightTab_color_palette_image }}" alt="palette icon">
+                                </div>
+
+                                <div id="feedbackClick" onclick="showFeedbackDescription()">
+                                    <img src="/{{ $rightTab_feedback_description_image }}" alt="feedback icon">
                                 </div>
 
                                 <div id="colorPaletteSelection" data-colors='@json($colorsData)'>
@@ -264,7 +264,7 @@
         }, 100);
 
         function closeThisFeedback(e) {
-            const feedbackClick = document.getElementById('feedbackCLick');
+            const feedbackClick = document.getElementById('feedbackClick');
             if (!feedbackPanel.contains(e.target) && !feedbackClick.contains(e.target)) {
                 hideFeedbackDescription();
                 document.removeEventListener('click', closeThisFeedback, true);
@@ -495,10 +495,9 @@
                 var hoverEvents = `onmouseover="changeFeedbackActiveBackground(this)" onmouseout="changeFeedbackInactiveBackground(this)"`;
             }
 
-            if(value.is_approved == 1){
+            if (value.is_approved == 1) {
                 var feedbackApproved = `<div class="w-2 h-2 bg-green-700 rounded-full border border-white animate-pulse-green" style="margin-left: 5px; flex-shrink: 0;"></div>`;
-            }
-            else{
+            } else {
                 var feedbackApproved = ``;
             }
 
@@ -653,8 +652,10 @@
         // Set justify-content based on overflow
         if (container.scrollWidth > container.clientWidth) {
             container.style.justifyContent = 'flex-start';
+            document.querySelector('.right-column').style.borderTopRightRadius = '0px';
         } else {
             container.style.justifyContent = 'center';
+            document.querySelector('.right-column').style.borderTopRightRadius = '15px';
         }
 
         // Only enable drag if overflow exists
@@ -752,18 +753,18 @@
             .then(function(response) {
                 const banners = response.data.banners;
                 let bannersHtml = '';
-                
+
                 banners.forEach(function(banner, index) {
                     var bannerPath = '/' + banner.path + '/index.html';
                     var bannerReloadID = banner.id;
                     var loadPriority = index < 3 ? 'immediate' : 'lazy';
-                    
+
                     bannersHtml += '<div class="banner-creatives banner-area-' + banner.size.width + '-' + banner.size.height + '" style="display: inline-block; width: ' + banner.size.width + 'px; margin-right: 0.5rem; margin-left: 0.5rem; margin-bottom: 2rem;">';
                     bannersHtml += '<div style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">';
                     bannersHtml += '<small style="float: left; font-size: 0.85rem; font-weight: bold;" id="bannerRes">' + banner.size.width + 'x' + banner.size.height + '</small>';
                     bannersHtml += '<small style="float: right; font-size: 0.85rem; font-weight: bold;" id="bannerSize">' + banner.file_size + '</small>';
                     bannersHtml += '</div>';
-                    
+
                     // Add placeholder or iframe based on priority
                     if (loadPriority === 'immediate') {
                         // Load immediately for first 3 banners
@@ -775,7 +776,7 @@
                         bannersHtml += '<div class="loading-spinner" style="display: none; border: 2px solid #f3f4f6; border-top: 2px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; position: absolute;"></div>';
                         bannersHtml += '</div>';
                     }
-                    
+
                     bannersHtml += '<ul style="display: flex; flex-direction: row;" class="previewIcons">';
                     bannersHtml += '<li><i id="relBt' + banner.id + '" onClick="reloadBanner(' + bannerReloadID + ')" class="fa-solid fa-repeat" style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:1rem;"></i></li>';
                     bannersHtml += '@if($authUserClientName == "Planet Nine")';
@@ -784,13 +785,13 @@
                     bannersHtml += '</ul>';
                     bannersHtml += '</div>';
                 });
-                
+
                 // Render banners in the correct version container
                 $('#bannersList' + version_id).html(bannersHtml);
-                
+
                 // Initialize lazy loading and intersection observer
                 initializeBannerLazyLoading();
-                
+
             })
             .catch(function(error) {
                 console.log(error);
