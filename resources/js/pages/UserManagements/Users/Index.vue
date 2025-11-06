@@ -175,9 +175,6 @@ const deleteUser = async (id: number) => {
 };
 
 const resetPassword = async (userId: number) => {
-    console.log('Reset password called for user ID:', userId);
-    console.log('Route name:', 'user-managements-users-update-password');
-
     const result = await Swal.fire({
         title: 'Reset Password?',
         text: 'This will reset the user\'s password and send them a notification.',
@@ -190,20 +187,14 @@ const resetPassword = async (userId: number) => {
 
     if (result.isConfirmed) {
         resettingPasswordUserId.value = userId;
-        console.log('Confirmed reset, attempting to call API...');
 
         try {
             const apiUrl = route('user-managements-users-update-password', userId);
-            console.log('Generated URL:', apiUrl);
 
             const response = await axios.post(apiUrl);
-            console.log('API Response:', response);
 
             Swal.fire('Success!', 'Password has been reset successfully.', 'success');
         } catch (error: any) {
-            console.error('Password reset error:', error);
-            console.error('Error response:', error.response?.data);
-            console.error('Error status:', error.response?.status);
             Swal.fire('Error!', 'Failed to reset password.', 'error');
         } finally {
             resettingPasswordUserId.value = null;
