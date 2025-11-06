@@ -7,11 +7,9 @@ namespace Tests\Feature\FileTransfer;
 use App\Models\User;
 use App\Models\FileTransfer;
 use App\Models\Client;
-use App\Services\VirusScanService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Mockery;
 
 uses(RefreshDatabase::class);
 
@@ -19,10 +17,6 @@ beforeEach(function () {
     $this->user = User::factory()->create();
     $this->client = Client::factory()->create();
     Storage::fake('local');
-
-    // Mock virus scanning service
-    $this->virusScanner = Mockery::mock(VirusScanService::class);
-    $this->app->instance(VirusScanService::class, $this->virusScanner);
 });
 
 describe('FileTransferController Security', function () {
@@ -33,57 +27,11 @@ describe('FileTransferController Security', function () {
         $this->get(route('file-transfer.index'))
             ->assertRedirect(route('login'));
     });
-
-    it('scans uploaded files for viruses', function () {
-        $file = UploadedFile::fake()->create('document.pdf', 1024);
-
-        $this->virusScanner
-            ->shouldReceive('scanFile')
-            ->once()
-            ->with(Mockery::type('string'))
-            ->andReturn(['clean' => true, 'message' => 'File is clean']);
-
-        $this->actingAs($this->user)
-            ->post(route('file-transfer.upload'), [
-                'file' => $file,
-                'client_id' => $this->client->id,
-                'description' => 'Test file upload'
-            ])
-            ->assertRedirect()
-            ->assertSessionHas('success');
-    });
-
-    it('quarantines infected files', function () {
-        $file = UploadedFile::fake()->create('infected.exe', 1024);
-
-        $this->virusScanner
-            ->shouldReceive('scanFile')
-            ->once()
-            ->andReturn(['clean' => false, 'message' => 'VIRUS DETECTED: Malware.Generic']);
-
-        $this->actingAs($this->user)
-            ->post(route('file-transfer.upload'), [
-                'file' => $file,
-                'client_id' => $this->client->id,
-                'description' => 'Test file upload'
-            ])
-            ->assertRedirect()
-            ->assertSessionHas('error', 'File upload failed: VIRUS DETECTED: Malware.Generic');
-
-        $this->assertDatabaseMissing('file_transfers', [
-            'original_name' => 'infected.exe'
-        ]);
-    });
 });
 
 describe('FileTransferController Upload', function () {
     it('uploads file with valid data', function () {
         $file = UploadedFile::fake()->create('document.pdf', 1024, 'application/pdf');
-
-        $this->virusScanner
-            ->shouldReceive('scanFile')
-            ->once()
-            ->andReturn(['clean' => true, 'message' => 'File is clean']);
 
         $data = [
             'file' => $file,
@@ -131,11 +79,6 @@ describe('FileTransferController Upload', function () {
 
     it('generates unique download tokens', function () {
         $file = UploadedFile::fake()->create('document.pdf', 1024);
-
-        $this->virusScanner
-            ->shouldReceive('scanFile')
-            ->once()
-            ->andReturn(['clean' => true, 'message' => 'File is clean']);
 
         $this->actingAs($this->user)
             ->post(route('file-transfer.upload'), [

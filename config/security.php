@@ -78,31 +78,7 @@ return [
             'audio/wav'
         ],
 
-        'quarantine_suspicious_files' => true,
-        'scan_for_malware' => true, // ClamAV virus scanning enabled
-        'delete_quarantined_after_days' => 7,
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Virus Scanning Settings
-    |--------------------------------------------------------------------------
-    |
-    | Configure ClamAV virus scanning for file uploads
-    |
-    */
-
-    'virus_scanning' => [
-        'enabled' => env('VIRUS_SCANNING_ENABLED', false),
-        'clamscan_path' => env('CLAMSCAN_PATH', 'clamscan'),
-        'freshclam_path' => env('FRESHCLAM_PATH', 'freshclam'),
-        'database_path' => env('CLAMAV_DATABASE_PATH', null),
-        'quarantine_path' => env('QUARANTINE_PATH', storage_path('quarantine')),
-        'timeout' => 30, // seconds
-        'fail_secure' => true, // Reject files if scanning fails
-        'scan_archives' => true,
-        'max_scan_size' => 52428800, // 50MB
-        'update_definitions_daily' => true,
+        'quarantine_suspicious_files' => false,
     ],
 
     /*

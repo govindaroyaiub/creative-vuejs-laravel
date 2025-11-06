@@ -93,11 +93,6 @@ class SecurityAudit extends Command
             $issues[] = "Application key is not set";
         }
 
-        // Check virus scanning configuration
-        if (!config('security.virus_scanning.enabled')) {
-            $issues[] = "Virus scanning is disabled - consider enabling for production";
-        }
-
         // Check rate limiting configuration
         $rateLimitConfig = config('security.rate_limiting');
         if (!$rateLimitConfig || $rateLimitConfig['login_attempts'] > 10) {

@@ -48,9 +48,9 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     //File Transfer Routes Start
     Route::get('/file-transfers', [FileTransferController::class, 'index'])->name('file-transfers');
     Route::get('/file-transfers-add', [FileTransferController::class, 'create'])->name('file-transfers-add');
-    Route::post('/file-transfers-add', [FileTransferController::class, 'store'])->middleware('secure.upload')->name('file-transfers-add-post');
+    Route::post('/file-transfers-add', [FileTransferController::class, 'store'])->name('file-transfers-add-post');
     Route::get('/file-transfers-edit/{id}', [FileTransferController::class, 'edit'])->name('file-transfers-edit');
-    Route::post('/file-transfers-edit/{id}', [FileTransferController::class, 'update'])->middleware('secure.upload')->name('file-transfers-update');
+    Route::post('/file-transfers-edit/{id}', [FileTransferController::class, 'update'])->name('file-transfers-update');
     Route::delete('/file-transfers-delete/{id}', [FileTransferController::class, 'destroy'])->name('file-transfers-delete');
     //File Transfer Routes End
 

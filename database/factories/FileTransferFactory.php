@@ -48,15 +48,6 @@ class FileTransferFactory extends Factory
             'max_downloads' => $this->faker->optional(60)->numberBetween(1, 10), // 60% have download limit
             'download_count' => 0,
             'last_downloaded_at' => null,
-            'virus_scan_status' => $this->faker->randomElement(['pending', 'clean', 'infected', 'error']),
-            'virus_scan_result' => function (array $attributes) {
-                return match ($attributes['virus_scan_status']) {
-                    'clean' => 'File is clean',
-                    'infected' => 'VIRUS DETECTED: ' . $this->faker->randomElement(['Trojan.Generic', 'Malware.Test', 'Virus.Example']),
-                    'error' => 'Scan failed: ' . $this->faker->sentence(),
-                    default => null
-                };
-            },
             'created_at' => $this->faker->dateTimeBetween('-6 months', 'now'),
             'updated_at' => function (array $attributes) {
                 return $this->faker->dateTimeBetween($attributes['created_at'], 'now');
@@ -107,28 +98,6 @@ class FileTransferFactory extends Factory
             'max_downloads' => $maxDownloads,
             'download_count' => $maxDownloads,
             'last_downloaded_at' => $this->faker->dateTimeBetween('-1 week', 'now'),
-        ]);
-    }
-
-    /**
-     * Create a clean scanned file transfer.
-     */
-    public function cleanScanned(): static
-    {
-        return $this->state(fn(array $attributes) => [
-            'virus_scan_status' => 'clean',
-            'virus_scan_result' => 'File is clean',
-        ]);
-    }
-
-    /**
-     * Create an infected file transfer.
-     */
-    public function infected(): static
-    {
-        return $this->state(fn(array $attributes) => [
-            'virus_scan_status' => 'infected',
-            'virus_scan_result' => 'VIRUS DETECTED: Trojan.Generic',
         ]);
     }
 

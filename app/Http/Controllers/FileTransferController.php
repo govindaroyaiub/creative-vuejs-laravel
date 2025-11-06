@@ -138,57 +138,34 @@ class FileTransferController extends Controller
      */
     public function store(Request $request)
     {
-        // Enhanced validation with stricter rules
+        // Simple validation
         $request->validate([
-            'name' => 'required|string|max:255|regex:/^[a-zA-Z0-9\s\-_.]+$/', // Alphanumeric with safe chars only
-            'client' => 'required|string|max:255|regex:/^[a-zA-Z0-9\s\-_.]+$/',
-            'file' => 'required|array|min:1|max:5', // Limit to 5 files max
-            'file.*' => [
-                'file',
-                'mimes:zip,rar,7z,tar,gz', // Only archive formats
-                'max:20480', // 20MB max per file
-                function ($attribute, $value, $fail) {
-                    // Additional custom validation
-                    if (!$this->validateArchiveFile($value)) {
-                        $fail('The file contains invalid or suspicious content.');
-                    }
-                },
-            ],
+            'name' => 'required|string|max:255',
+            'client' => 'required|string|max:255',
+            'file' => 'required|array|min:1',
+            'file.*' => 'required|file|max:20480', // 20MB max per file
         ]);
 
         // Prepare the file path array
         $filePaths = [];
-        $totalSize = 0;
 
         // Check if 'file' input is provided and is an array
         if ($request->hasFile('file')) {
             foreach ($request->file('file') as $file) {
-                $totalSize += $file->getSize();
+                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $extension = $file->getClientOriginalExtension();
+                $fileSize = $file->getSize(); // Get size before moving
 
-                // Check total upload size (max 50MB combined)
-                if ($totalSize > 52428800) {
-                    return response()->json([
-                        'message' => 'Total file size exceeds the 50MB limit.',
-                    ], 422);
-                }
-
-                $originalName = $this->sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
-                $extension = strtolower($file->getClientOriginalExtension());
-
-                // Generate a cryptographically secure unique name
-                $uniqueId = bin2hex(random_bytes(16));
+                // Generate a unique name
+                $uniqueId = uniqid();
                 $timestamp = time();
                 $newFileName = $originalName . '_' . $timestamp . '_' . $uniqueId . '.' . $extension;
 
                 $destinationPath = public_path('Transfer Files');
 
-                // Ensure directory exists with secure permissions
+                // Ensure directory exists
                 if (!file_exists($destinationPath)) {
                     mkdir($destinationPath, 0755, true);
-
-                    // Create .htaccess for additional security
-                    $htaccessContent = "# Deny access to PHP files\n<Files \"*.php\">\nOrder Allow,Deny\nDeny from all\n</Files>\n\n# Disable script execution\nAddHandler cgi-script .php .phtml .php3 .php4 .php5 .phar\nOptions -ExecCGI";
-                    file_put_contents($destinationPath . '/.htaccess', $htaccessContent);
                 }
 
                 try {
@@ -199,7 +176,7 @@ class FileTransferController extends Controller
                         'user_id' => Auth::id(),
                         'filename' => $newFileName,
                         'original_name' => $file->getClientOriginalName(),
-                        'size' => $file->getSize()
+                        'size' => $fileSize
                     ]);
                 } catch (\Exception $e) {
                     Log::error('File upload failed', [
@@ -208,9 +185,9 @@ class FileTransferController extends Controller
                         'error' => $e->getMessage()
                     ]);
 
-                    return response()->json([
-                        'message' => 'File upload failed. Please try again.',
-                    ], 500);
+                    return Redirect::back()->withErrors([
+                        'file' => 'File upload failed. Please try again.'
+                    ]);
                 }
             }
         }
@@ -246,28 +223,19 @@ class FileTransferController extends Controller
                 'error' => $e->getMessage()
             ]);
 
-            return response()->json([
-                'message' => 'Failed to create file transfer record.',
-            ], 500);
+            return Redirect::back()->withErrors([
+                'file' => 'Failed to create file transfer record.'
+            ]);
         }
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|max:255|regex:/^[a-zA-Z0-9\s\-_.]+$/',
-            'client' => 'required|string|max:255|regex:/^[a-zA-Z0-9\s\-_.]+$/',
-            'file' => 'nullable|array|max:5',
-            'file.*' => [
-                'file',
-                'mimes:zip,rar,7z,tar,gz',
-                'max:20480',
-                function ($attribute, $value, $fail) {
-                    if (!$this->validateArchiveFile($value)) {
-                        $fail('The file contains invalid or suspicious content.');
-                    }
-                },
-            ],
+            'name' => 'required|string|max:255',
+            'client' => 'required|string|max:255',
+            'file' => 'nullable|array',
+            'file.*' => 'file|max:20480',
         ]);
 
         $fileTransfer = FileTransfer::findOrFail($id);
@@ -282,23 +250,14 @@ class FileTransferController extends Controller
                 }
             }
 
-            // Upload new files with enhanced security
+            // Upload new files
             $filePaths = [];
-            $totalSize = 0;
 
             foreach ($request->file('file') as $file) {
-                $totalSize += $file->getSize();
+                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $extension = $file->getClientOriginalExtension();
 
-                if ($totalSize > 52428800) { // 50MB total limit
-                    return response()->json([
-                        'message' => 'Total file size exceeds the 50MB limit.',
-                    ], 422);
-                }
-
-                $originalName = $this->sanitizeFilename(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
-                $extension = strtolower($file->getClientOriginalExtension());
-
-                $uniqueId = bin2hex(random_bytes(16));
+                $uniqueId = uniqid();
                 $timestamp = time();
                 $uniqueName = $originalName . '_' . $timestamp . '_' . $uniqueId . '.' . $extension;
 
@@ -321,9 +280,9 @@ class FileTransferController extends Controller
                         'error' => $e->getMessage()
                     ]);
 
-                    return response()->json([
-                        'message' => 'File upload failed. Please try again.',
-                    ], 500);
+                    return Redirect::back()->withErrors([
+                        'file' => 'File upload failed. Please try again.'
+                    ]);
                 }
             }
 
@@ -340,12 +299,7 @@ class FileTransferController extends Controller
             'transfer_id' => $id
         ]);
 
-        return response()->json([
-            'message' => 'File transfer updated successfully!',
-            'file_paths' => array_map(function ($path) {
-                return str_replace('Transfer Files/', '', $path);
-            }, explode(',', $fileTransfer->file_path)),
-        ]);
+        return Redirect::route('file-transfers')->with('success', 'File transfer updated successfully!');
     }
 
     public function destroy($id)
@@ -373,76 +327,5 @@ class FileTransferController extends Controller
             // After deleting the files, delete the database record
             $fileTransfer->delete();
         }
-    }
-
-    /**
-     * Validate archive file for suspicious content
-     */
-    private function validateArchiveFile($file): bool
-    {
-        try {
-            // Check file size (already handled in validation, but double-check)
-            if ($file->getSize() > 20971520) { // 20MB
-                return false;
-            }
-
-            // Read first few bytes to check for archive signatures
-            $handle = fopen($file->getRealPath(), 'rb');
-            if (!$handle) {
-                return false;
-            }
-
-            $bytes = fread($handle, 32);
-            fclose($handle);
-
-            $hex = strtoupper(bin2hex($bytes));
-
-            // Check for valid archive signatures
-            $validSignatures = [
-                '504B0304', // ZIP
-                '504B0506', // ZIP (empty)
-                '504B0708', // ZIP (spanned)
-                '526172211A07', // RAR
-                '377ABCAF271C', // 7Z
-                '1F8B08', // GZIP
-                '425A68', // BZIP2
-            ];
-
-            foreach ($validSignatures as $signature) {
-                if (strpos($hex, $signature) === 0) {
-                    return true;
-                }
-            }
-
-            return false;
-        } catch (\Exception $e) {
-            Log::error('Archive validation error: ' . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Sanitize filename to prevent directory traversal and other attacks
-     */
-    private function sanitizeFilename(string $filename): string
-    {
-        // Remove any path separators and dangerous characters
-        $filename = basename($filename);
-        $filename = preg_replace('/[^a-zA-Z0-9\-_.]/', '_', $filename);
-
-        // Remove multiple consecutive underscores/dots
-        $filename = preg_replace('/[_.]{2,}/', '_', $filename);
-
-        // Ensure filename is not too long
-        if (strlen($filename) > 100) {
-            $filename = substr($filename, 0, 100);
-        }
-
-        // Ensure filename is not empty or just dots/underscores
-        if (empty(trim($filename, '._'))) {
-            $filename = 'file_' . time();
-        }
-
-        return $filename;
     }
 }
