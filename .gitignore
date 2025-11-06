@@ -47,6 +47,10 @@ yarn-error.log
 /config/secrets.php
 /storage/logs/*.log
 /storage/debugbar/
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/app/public/*
 .DS_Store
 Thumbs.db
 
