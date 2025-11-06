@@ -32,7 +32,7 @@
                         'px-6 py-3 rounded-lg font-medium transition-all duration-200 mr-2 mb-2',
                         activeTab === 'qa'
                             ? 'bg-blue-600 text-white shadow-lg'
-                            : 'text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-neutral-700'
+                            : 'text-gray-600 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-neutral-700'
                     ]">
                         📚 Q&A Documentation
                     </button>
@@ -40,7 +40,7 @@
                         'px-6 py-3 rounded-lg font-medium transition-all duration-200 mb-2',
                         activeTab === 'api'
                             ? 'bg-green-600 text-white shadow-lg'
-                            : 'text-gray-600 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-neutral-700'
+                            : 'text-gray-600 dark:text-gray-300 hover:bg-green-100 dark:hover:bg-neutral-700'
                     ]">
                         🚀 API Documentation
                     </button>
