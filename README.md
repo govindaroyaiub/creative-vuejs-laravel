@@ -55,9 +55,9 @@ A comprehensive creative project management platform built with Laravel + Vue.js
 
 **Current State**: Galactic-themed 3D interface using Three.js
 
-- Secure file sharing with expiration dates
+- Secure file sharing system
 - Immersive space environment with animated elements
-- Time-based access control for security
+- Access-controlled file transfers
 
 ### 5. **Billing & Invoicing** 💰
 

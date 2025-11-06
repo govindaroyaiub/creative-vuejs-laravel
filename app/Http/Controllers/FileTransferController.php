@@ -223,7 +223,6 @@ class FileTransferController extends Controller
             $fileTransfer->client = $request->input('client');
             $fileTransfer->user_id = Auth::id();
             $fileTransfer->file_path = implode(',', $filePaths);
-            $fileTransfer->expires_at = now()->addDays(30);
             $fileTransfer->save();
 
             Log::info('File transfer created', [

@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use App\Models\SchedulerSetting;
 use Carbon\Carbon;
 use Inertia\Inertia;
 
@@ -25,8 +24,7 @@ class CacheManagementController extends Controller
             'stats' => $stats,
             'recentCleanups' => $recentCleanups,
             'systemInfo' => $systemInfo,
-            'lastCleanup' => $this->getLastCleanupTime(),
-            'schedulerStatus' => $this->getSchedulerStatusData()
+            'lastCleanup' => $this->getLastCleanupTime()
         ]);
     }
 
@@ -49,31 +47,20 @@ class CacheManagementController extends Controller
 
             Log::info('Starting cache cleanup', ['type' => $type]);
 
-            // Run the cleanup command and capture output
-            $exitCode = Artisan::call('cache:auto-cleanup', ['--type' => $type]);
-            $output = Artisan::output();
+            // Directly implement cleanup logic instead of calling missing artisan command
+            $result = $this->performCleanup($type);
 
-            Log::info('Artisan command completed', [
-                'exit_code' => $exitCode,
-                'output_length' => strlen($output)
+            // Log the cleanup activity to cache_cleanup.log for the Activity tab
+            $this->logCleanup($result);
+
+            Log::info('Cache cleanup completed', ['result' => $result]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cache cleanup completed successfully',
+                'summary' => $result,
+                'timestamp' => now()->toISOString()
             ]);
-
-            // Parse the cleanup log to get the summary stats
-            $summary = $this->getLastCleanupSummary();
-
-            if ($exitCode === 0) {
-                Log::info('Cache cleanup successful', ['summary' => $summary]);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Cache cleanup completed successfully',
-                    'summary' => $summary,
-                    'output' => trim($output),
-                    'timestamp' => now()->toISOString()
-                ]);
-            } else {
-                throw new \Exception('Cleanup command failed with exit code: ' . $exitCode);
-            }
         } catch (\Exception $e) {
             Log::error('Cache cleanup failed', [
                 'error' => $e->getMessage(),
@@ -88,11 +75,233 @@ class CacheManagementController extends Controller
                 'message' => 'Cache cleanup failed: ' . $e->getMessage(),
                 'debug' => [
                     'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                    'trace' => $e->getTraceAsString()
+                    'line' => $e->getLine()
                 ]
             ], 500);
         }
+    }
+
+    private function performCleanup($type)
+    {
+        $totalFiles = 0;
+        $totalSize = 0;
+        $results = [];
+
+        switch ($type) {
+            case 'all':
+                $results[] = $this->cleanLaravelCache();
+                $results[] = $this->cleanStorageCache();
+                $results[] = $this->cleanLogsCache();
+                $results[] = $this->cleanTempFiles();
+                break;
+            case 'laravel':
+                $results[] = $this->cleanLaravelCache();
+                break;
+            case 'storage':
+                $results[] = $this->cleanStorageCache();
+                break;
+            case 'logs':
+                $results[] = $this->cleanLogsCache();
+                break;
+            case 'temp':
+                $results[] = $this->cleanTempFiles();
+                break;
+        }
+
+        // Sum up results
+        foreach ($results as $result) {
+            $totalFiles += $result['files'];
+            $totalSize += $result['size'];
+        }
+
+        return [
+            'total_files' => $totalFiles,
+            'total_size' => $totalSize,
+            'total_size_formatted' => $this->formatBytes($totalSize),
+            'details' => $results
+        ];
+    }
+
+    private function cleanLaravelCache()
+    {
+        $files = 0;
+        $size = 0;
+
+        try {
+            // Clear Laravel caches
+            Artisan::call('cache:clear');
+            Artisan::call('config:clear');
+            Artisan::call('route:clear');
+            Artisan::call('view:clear');
+
+            // Count framework cache files that were cleared
+            $cachePaths = [
+                storage_path('framework/cache/data'),
+                storage_path('framework/views'),
+                base_path('bootstrap/cache')
+            ];
+
+            foreach ($cachePaths as $path) {
+                if (is_dir($path)) {
+                    $iterator = new \RecursiveIteratorIterator(
+                        new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS)
+                    );
+                    foreach ($iterator as $file) {
+                        if ($file->isFile()) {
+                            $files++;
+                            $size += $file->getSize();
+                        }
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning('Laravel cache cleanup had issues: ' . $e->getMessage());
+        }
+
+        return [
+            'type' => 'Laravel Cache',
+            'files' => $files,
+            'size' => $size,
+            'formatted_size' => $this->formatBytes($size)
+        ];
+    }
+
+    private function cleanStorageCache()
+    {
+        $files = 0;
+        $size = 0;
+
+        try {
+            $storagePaths = [
+                storage_path('app/cache'),
+                storage_path('app/temp'),
+                public_path('uploads/temp')
+            ];
+
+            foreach ($storagePaths as $path) {
+                if (is_dir($path)) {
+                    $result = $this->cleanDirectory($path);
+                    $files += $result['files'];
+                    $size += $result['size'];
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning('Storage cache cleanup had issues: ' . $e->getMessage());
+        }
+
+        return [
+            'type' => 'Storage Cache',
+            'files' => $files,
+            'size' => $size,
+            'formatted_size' => $this->formatBytes($size)
+        ];
+    }
+
+    private function cleanLogsCache()
+    {
+        $files = 0;
+        $size = 0;
+
+        try {
+            $logPath = storage_path('logs');
+            if (is_dir($logPath)) {
+                // Only remove old log files, not recent ones
+                $cutoffDate = now()->subDays(7);
+                $iterator = new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($logPath, \RecursiveDirectoryIterator::SKIP_DOTS)
+                );
+
+                foreach ($iterator as $file) {
+                    if ($file->isFile() && $file->getMTime() < $cutoffDate->timestamp) {
+                        $size += $file->getSize();
+                        $files++;
+                        unlink($file->getRealPath());
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning('Logs cache cleanup had issues: ' . $e->getMessage());
+        }
+
+        return [
+            'type' => 'Old Log Files',
+            'files' => $files,
+            'size' => $size,
+            'formatted_size' => $this->formatBytes($size)
+        ];
+    }
+
+    private function cleanTempFiles()
+    {
+        $files = 0;
+        $size = 0;
+
+        try {
+            $tempPaths = [
+                storage_path('app/tmp'),
+                storage_path('app/uploads/temp'),
+                public_path('temp'),
+                sys_get_temp_dir() . '/laravel-*'
+            ];
+
+            foreach ($tempPaths as $path) {
+                if (strpos($path, '*') !== false) {
+                    // Handle glob patterns
+                    $matchedPaths = glob($path);
+                    foreach ($matchedPaths as $matchedPath) {
+                        if (is_dir($matchedPath)) {
+                            $result = $this->cleanDirectory($matchedPath);
+                            $files += $result['files'];
+                            $size += $result['size'];
+                        }
+                    }
+                } elseif (is_dir($path)) {
+                    $result = $this->cleanDirectory($path);
+                    $files += $result['files'];
+                    $size += $result['size'];
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning('Temp files cleanup had issues: ' . $e->getMessage());
+        }
+
+        return [
+            'type' => 'Temporary Files',
+            'files' => $files,
+            'size' => $size,
+            'formatted_size' => $this->formatBytes($size)
+        ];
+    }
+
+    private function cleanDirectory($path)
+    {
+        $files = 0;
+        $size = 0;
+
+        if (!is_dir($path)) {
+            return ['files' => 0, 'size' => 0];
+        }
+
+        try {
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::CHILD_FIRST
+            );
+
+            foreach ($iterator as $file) {
+                if ($file->isFile()) {
+                    $size += $file->getSize();
+                    $files++;
+                    unlink($file->getRealPath());
+                } elseif ($file->isDir()) {
+                    rmdir($file->getRealPath());
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning("Failed to clean directory {$path}: " . $e->getMessage());
+        }
+
+        return ['files' => $files, 'size' => $size];
     }
 
     private function getLastCleanupSummary()
@@ -131,11 +340,6 @@ class CacheManagementController extends Controller
     public function getStats()
     {
         return response()->json($this->getCacheStats());
-    }
-
-    public function getSchedulerStatus()
-    {
-        return response()->json($this->getSchedulerStatusData());
     }
 
     public function getServerTime()
@@ -232,6 +436,28 @@ class CacheManagementController extends Controller
         }
 
         return array_reverse($cleanups); // Most recent first
+    }
+
+    /**
+     * API endpoint to get recent cleanups for the Activity tab
+     */
+    public function getRecentCleanupsApi()
+    {
+        try {
+            $cleanups = $this->getRecentCleanups();
+
+            return response()->json([
+                'success' => true,
+                'data' => $cleanups,
+                'count' => count($cleanups)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch recent cleanups: ' . $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
     }
 
     private function getSystemInfo()
@@ -351,150 +577,6 @@ class CacheManagementController extends Controller
         return null;
     }
 
-    private function getSchedulerStatusData()
-    {
-        $logFile = storage_path('logs/cache_cleanup.log');
-        $errorLogFile = storage_path('logs/cache_cleanup_errors.log');
-        $cleanupTime = SchedulerSetting::getCacheCleanupTime();
-        $isEnabled = SchedulerSetting::isCacheCleanupEnabled();
-        $schedulerTimezone = SchedulerSetting::getTimezone();
-
-        $schedulerInfo = [
-            'is_configured' => $isEnabled,
-            'schedule_time' => $cleanupTime,
-            'timezone' => $schedulerTimezone,
-            'next_run' => null,
-            'last_auto_run' => null,
-            'last_error' => null,
-            'status' => $isEnabled ? 'active' : 'disabled',
-            'total_scheduled_runs' => 0,
-            'success_rate' => 100,
-            'recent_errors' => []
-        ];
-
-        if ($isEnabled) {
-            $timeParts = explode(':', $cleanupTime);
-            $targetHour = (int)$timeParts[0];
-            $targetMinute = (int)$timeParts[1];
-
-            // Calculate next run in configured timezone
-            $now = now()->setTimezone($schedulerTimezone);
-            $nextRun = $now->copy()->startOfDay()->setTime($targetHour, $targetMinute);
-
-            if ($nextRun->isPast()) {
-                $nextRun->addDay();
-            }
-
-            $schedulerInfo['next_run'] = [
-                'datetime' => $nextRun->format('Y-m-d H:i:s'),
-                'human' => $nextRun->diffForHumans(),
-                'formatted' => $nextRun->format('M j, Y \a\t g:i A T'),
-                'timezone' => $schedulerTimezone,
-                'utc_time' => $nextRun->setTimezone('UTC')->format('M j, Y \a\t g:i A T')
-            ];
-        }
-
-        // Check for recent errors
-        if (File::exists($errorLogFile) && File::size($errorLogFile) > 0) {
-            try {
-                $errorLines = file($errorLogFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-                $recentErrors = [];
-
-                foreach (array_reverse($errorLines) as $line) {
-                    $errorData = json_decode($line, true);
-                    if ($errorData && isset($errorData['timestamp'])) {
-                        $errorTime = Carbon::parse($errorData['timestamp']);
-
-                        // Only show errors from last 7 days
-                        if ($errorTime->diffInDays() <= 7) {
-                            $recentErrors[] = [
-                                'timestamp' => $errorData['timestamp'],
-                                'human' => $errorTime->diffForHumans(),
-                                'formatted' => $errorTime->format('M j, Y \a\t g:i A'),
-                                'message' => $errorData['message'] ?? 'Unknown error',
-                                'type' => $errorData['type'] ?? 'general'
-                            ];
-                        }
-                    }
-                }
-
-                $schedulerInfo['recent_errors'] = array_slice($recentErrors, 0, 5);
-
-                // If there are recent errors, set status to attention_needed
-                if (!empty($recentErrors)) {
-                    $lastError = $recentErrors[0];
-                    $schedulerInfo['last_error'] = $lastError;
-
-                    // If last error was recent (within 24 hours), mark as needing attention
-                    $lastErrorTime = Carbon::parse($lastError['timestamp']);
-                    if ($lastErrorTime->diffInHours() <= 24 && $isEnabled) {
-                        $schedulerInfo['status'] = 'attention_needed';
-                    }
-                }
-            } catch (\Exception $e) {
-                Log::warning('Error reading scheduler error log: ' . $e->getMessage());
-            }
-        }
-
-        // Analyze recent auto cleanups from log
-        if (File::exists($logFile) && File::size($logFile) > 0) {
-            try {
-                $lines = file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-                $autoCleanups = [];
-                $totalRuns = 0;
-
-                foreach ($lines as $line) {
-                    $data = json_decode($line, true);
-                    if ($data && isset($data['timestamp'])) {
-                        $timestamp = Carbon::parse($data['timestamp']);
-                        $totalRuns++;
-
-                        // Check if this was likely an automated run (around configured time)
-                        $timeParts = explode(':', $cleanupTime);
-                        $targetHour = (int)$timeParts[0];
-                        $targetMinute = (int)$timeParts[1];
-
-                        if (
-                            $timestamp->hour == $targetHour &&
-                            $timestamp->minute >= $targetMinute - 5 &&
-                            $timestamp->minute <= $targetMinute + 5
-                        ) {
-                            $autoCleanups[] = [
-                                'timestamp' => $data['timestamp'],
-                                'human' => $timestamp->diffForHumans(),
-                                'formatted' => $timestamp->format('M j, Y \a\t g:i A'),
-                                'files_cleaned' => $data['total_files'] ?? 0,
-                                'space_freed' => $this->formatBytes($data['total_size'] ?? 0),
-                                'was_successful' => true
-                            ];
-                        }
-                    }
-                }
-
-                $schedulerInfo['total_scheduled_runs'] = count($autoCleanups);
-                $schedulerInfo['recent_auto_runs'] = array_slice(array_reverse($autoCleanups), 0, 5);
-
-                if (!empty($autoCleanups)) {
-                    $lastAutoCleanup = end($autoCleanups);
-                    $schedulerInfo['last_auto_run'] = $lastAutoCleanup;
-
-                    // Check if last auto run was recent (within 25 hours)
-                    $lastRunTime = Carbon::parse($lastAutoCleanup['timestamp']);
-                    if ($lastRunTime->diffInHours() <= 25 && $isEnabled) {
-                        $schedulerInfo['status'] = 'running_successfully';
-                    } else if ($isEnabled) {
-                        $schedulerInfo['status'] = 'attention_needed';
-                    }
-                }
-            } catch (\Exception $e) {
-                Log::warning('Error analyzing scheduler status: ' . $e->getMessage());
-                $schedulerInfo['status'] = 'error';
-            }
-        }
-
-        return $schedulerInfo;
-    }
-
     private function getCurrentScheduleSettings()
     {
         if (Storage::exists('cache_schedule.json')) {
@@ -551,37 +633,6 @@ class CacheManagementController extends Controller
         }
 
         return round($size, 2) . ' ' . $units[$i];
-    }
-
-    public function getSchedulerSettings()
-    {
-        return response()->json([
-            'enabled' => SchedulerSetting::isCacheCleanupEnabled(),
-            'time' => SchedulerSetting::getCacheCleanupTime(),
-            'timezone' => SchedulerSetting::getTimezone()
-        ]);
-    }
-
-    public function updateSchedulerSettings(Request $request)
-    {
-        $request->validate([
-            'enabled' => 'required|boolean',
-            'time' => 'required|string|date_format:H:i',
-            'timezone' => 'sometimes|string|timezone'
-        ]);
-
-        try {
-            SchedulerSetting::setValue('cache_cleanup_enabled', $request->enabled ? 'true' : 'false');
-            SchedulerSetting::setValue('cache_cleanup_time', $request->time);
-
-            if ($request->has('timezone')) {
-                SchedulerSetting::setTimezone($request->timezone);
-            }
-
-            return back()->with('success', 'Scheduler settings updated successfully');
-        } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to update scheduler settings: ' . $e->getMessage()]);
-        }
     }
 
     public function blankLogFiles()
@@ -689,6 +740,33 @@ class CacheManagementController extends Controller
                 'success' => false,
                 'message' => 'Failed to run artisan commands: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Log cleanup activity to cache_cleanup.log for the Activity tab
+     */
+    private function logCleanup($result)
+    {
+        try {
+            $logFile = storage_path('logs/cache_cleanup.log');
+
+            // Create the log entry
+            $logEntry = [
+                'timestamp' => now()->toISOString(),
+                'total_files' => $result['total_files'] ?? 0,
+                'total_size' => $result['total_size'] ?? 0,
+                'total_size_formatted' => $result['total_size_formatted'] ?? '0 B',
+                'details' => $result['details'] ?? [],
+                'user_id' => Auth::id(),
+                'ip' => request()->ip()
+            ];
+
+            // Append to log file
+            File::append($logFile, json_encode($logEntry) . "\n");
+        } catch (\Exception $e) {
+            // If logging fails, just log to Laravel log instead
+            Log::warning('Failed to log cleanup activity: ' . $e->getMessage());
         }
     }
 }

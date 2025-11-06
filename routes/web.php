@@ -168,12 +168,10 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     //Cache Management Routes Start
     Route::get('/cache-management', [CacheManagementController::class, 'index'])->name('cache-management');
     Route::get('/cache-management/stats', [CacheManagementController::class, 'getStats'])->name('cache-management.stats');
-    Route::get('/cache-management/scheduler-status', [CacheManagementController::class, 'getSchedulerStatus'])->name('cache-management.scheduler-status');
-    Route::post('/cache-management/run-cleanup', [CacheManagementController::class, 'runCleanup'])->name('cache-management.run-cleanup');
-    Route::get('/cache-management/scheduler-settings', [CacheManagementController::class, 'getSchedulerSettings'])->name('cache-management.scheduler-settings');
-    Route::post('/cache-management/scheduler-settings', [CacheManagementController::class, 'updateSchedulerSettings'])->name('cache-management.update-scheduler-settings');
     Route::get('/cache-management/server-time', [CacheManagementController::class, 'getServerTime'])->name('cache-management.server-time');
     Route::get('/cache-management/system-info', [CacheManagementController::class, 'getSystemInfoOnly'])->name('cache-management.system-info');
+    Route::get('/cache-management/recent-cleanups', [CacheManagementController::class, 'getRecentCleanupsApi'])->name('cache-management.recent-cleanups');
+    Route::post('/cache-management/run-cleanup', [CacheManagementController::class, 'runCleanup'])->name('cache-management.run-cleanup');
     Route::post('/cache-management/blank-logs', [CacheManagementController::class, 'blankLogFiles'])->name('cache-management.blank-logs');
     Route::post('/cache-management/run-artisan-clear', [CacheManagementController::class, 'runArtisanClear'])->name('cache-management.run-artisan-clear');
     //Cache Management Routes End

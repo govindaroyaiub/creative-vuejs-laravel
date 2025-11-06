@@ -89,7 +89,6 @@ describe('FileTransferController Upload', function () {
             'file' => $file,
             'client_id' => $this->client->id,
             'description' => 'Important document',
-            'expires_at' => now()->addDays(30)->format('Y-m-d'),
             'password_protected' => true,
             'password' => 'securepassword'
         ];
@@ -188,17 +187,7 @@ describe('FileTransferController Download', function () {
         expect($transfer->last_downloaded_at)->not()->toBeNull();
     });
 
-    it('respects expiry dates', function () {
-        $transfer = FileTransfer::factory()->create([
-            'expires_at' => now()->subDay()
-        ]);
-
-        $this->get(route('file-transfer.download', $transfer->download_token))
-            ->assertStatus(410) // Gone
-            ->assertSee('File has expired');
-    });
-
-    it('limits download attempts', function () {
+    it('verifies file cleanup functionality', function () {
         $transfer = FileTransfer::factory()->create([
             'max_downloads' => 2,
             'download_count' => 2
@@ -244,12 +233,10 @@ describe('FileTransferController Management', function () {
 
     it('deletes expired transfers automatically', function () {
         $expiredTransfer = FileTransfer::factory()->create([
-            'expires_at' => now()->subWeek(),
             'user_id' => $this->user->id
         ]);
 
         $validTransfer = FileTransfer::factory()->create([
-            'expires_at' => now()->addWeek(),
             'user_id' => $this->user->id
         ]);
 

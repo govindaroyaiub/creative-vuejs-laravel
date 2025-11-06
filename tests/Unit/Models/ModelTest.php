@@ -239,19 +239,6 @@ describe('FileTransfer Model', function () {
         expect($transfer->download_url)->toContain($transfer->download_token);
     });
 
-    it('determines if file is expired', function () {
-        $expiredTransfer = FileTransfer::factory()->create([
-            'expires_at' => now()->subDay()
-        ]);
-
-        $validTransfer = FileTransfer::factory()->create([
-            'expires_at' => now()->addDay()
-        ]);
-
-        expect($expiredTransfer->is_expired)->toBeTrue();
-        expect($validTransfer->is_expired)->toBeFalse();
-    });
-
     it('tracks download attempts correctly', function () {
         $transfer = FileTransfer::factory()->create([
             'download_count' => 0,
