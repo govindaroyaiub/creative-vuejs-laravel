@@ -170,7 +170,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, reactive } from 'vue';
+import { computed, ref, reactive, watch } from 'vue';
 
 // TypeScript interfaces
 interface FormData {
@@ -220,6 +220,9 @@ const emit = defineEmits<{
 const userSearch = ref('');
 const isSubmitting = ref(false);
 
+// Form alias for template usage
+const form = computed(() => props.form);
+
 // Form validation errors
 const formErrors = reactive({
   name: '',
@@ -268,7 +271,24 @@ const filteredUsers = computed(() => {
     .slice(0, 5); // Limit results for performance
 });
 
-const isFormValid = computed(() => {
+const selectedClient = computed(() => {
+  return props.clients.find(client => client.id == props.form.client_id);
+});
+
+const isPlanetNineSelected = computed(() => {
+  return selectedClient.value?.name === 'Planet Nine';
+});
+
+// Automatically control show_sidebar_logo based on client selection
+watch(isPlanetNineSelected, (newValue) => {
+  if (newValue) {
+    // Turn OFF when Planet Nine is selected
+    props.form.show_sidebar_logo = false;
+  } else {
+    // Turn ON when any other client is selected
+    props.form.show_sidebar_logo = true;
+  }
+}, { immediate: true }); const isFormValid = computed(() => {
   const isValid = (
     props.form.name.trim() !== '' &&
     props.form.client_id !== '' &&
