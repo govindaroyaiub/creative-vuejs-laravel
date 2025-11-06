@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use App\Models\SchedulerSetting;
 use Carbon\Carbon;
 use Inertia\Inertia;
@@ -31,6 +32,14 @@ class CacheManagementController extends Controller
 
     public function runCleanup(Request $request)
     {
+        // Add extensive logging for debugging
+        Log::info('Cache cleanup request received', [
+            'type' => $request->input('type'),
+            'user_id' => Auth::id(),
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
         $request->validate([
             'type' => 'required|string|in:all,laravel,storage,logs,temp'
         ]);
@@ -38,22 +47,85 @@ class CacheManagementController extends Controller
         try {
             $type = $request->input('type', 'all');
 
-            // Run the cleanup command
-            Artisan::call('cache:auto-cleanup', ['--type' => $type]);
+            Log::info('Starting cache cleanup', ['type' => $type]);
+
+            // Run the cleanup command and capture output
+            $exitCode = Artisan::call('cache:auto-cleanup', ['--type' => $type]);
             $output = Artisan::output();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Cache cleanup completed successfully',
-                'output' => $output,
-                'timestamp' => now()->toISOString()
+            Log::info('Artisan command completed', [
+                'exit_code' => $exitCode,
+                'output_length' => strlen($output)
             ]);
+
+            // Parse the cleanup log to get the summary stats
+            $summary = $this->getLastCleanupSummary();
+
+            if ($exitCode === 0) {
+                Log::info('Cache cleanup successful', ['summary' => $summary]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Cache cleanup completed successfully',
+                    'summary' => $summary,
+                    'output' => trim($output),
+                    'timestamp' => now()->toISOString()
+                ]);
+            } else {
+                throw new \Exception('Cleanup command failed with exit code: ' . $exitCode);
+            }
         } catch (\Exception $e) {
+            Log::error('Cache cleanup failed', [
+                'error' => $e->getMessage(),
+                'type' => $request->input('type', 'all'),
+                'user_id' => Auth::id(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Cache cleanup failed: ' . $e->getMessage()
+                'message' => 'Cache cleanup failed: ' . $e->getMessage(),
+                'debug' => [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString()
+                ]
             ], 500);
         }
+    }
+
+    private function getLastCleanupSummary()
+    {
+        $logFile = storage_path('logs/cache_cleanup.log');
+
+        if (File::exists($logFile) && File::size($logFile) > 0) {
+            try {
+                $lines = file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                if (!empty($lines)) {
+                    $lastLine = end($lines);
+                    $data = json_decode($lastLine, true);
+
+                    if ($data && isset($data['total_files'], $data['total_size'])) {
+                        return [
+                            'total_files' => $data['total_files'],
+                            'total_size' => $data['total_size'],
+                            'total_size_formatted' => $this->formatBytes($data['total_size']),
+                            'timestamp' => $data['timestamp'] ?? now()->toISOString()
+                        ];
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::warning('Error reading cleanup summary: ' . $e->getMessage());
+            }
+        }
+
+        return [
+            'total_files' => 0,
+            'total_size' => 0,
+            'total_size_formatted' => '0 B',
+            'timestamp' => now()->toISOString()
+        ];
     }
 
     public function getStats()
@@ -285,14 +357,12 @@ class CacheManagementController extends Controller
         $errorLogFile = storage_path('logs/cache_cleanup_errors.log');
         $cleanupTime = SchedulerSetting::getCacheCleanupTime();
         $isEnabled = SchedulerSetting::isCacheCleanupEnabled();
-
-        // Use scheduler timezone consistently
-        $schedulerTimezone = config('app.timezone');
+        $schedulerTimezone = SchedulerSetting::getTimezone();
 
         $schedulerInfo = [
             'is_configured' => $isEnabled,
             'schedule_time' => $cleanupTime,
-            'timezone' => $schedulerTimezone, // Show actual scheduler timezone
+            'timezone' => $schedulerTimezone,
             'next_run' => null,
             'last_auto_run' => null,
             'last_error' => null,
@@ -303,16 +373,12 @@ class CacheManagementController extends Controller
         ];
 
         if ($isEnabled) {
-            // Simple and reliable timezone calculation
-            // Assume user is in Bangladesh timezone if not configured otherwise
-            $userTimezone = session('user_timezone', 'Asia/Dhaka'); // Default to Bangladesh
-
             $timeParts = explode(':', $cleanupTime);
             $targetHour = (int)$timeParts[0];
             $targetMinute = (int)$timeParts[1];
 
-            // Calculate next run in user timezone (what they expect)
-            $now = now()->setTimezone($userTimezone);
+            // Calculate next run in configured timezone
+            $now = now()->setTimezone($schedulerTimezone);
             $nextRun = $now->copy()->startOfDay()->setTime($targetHour, $targetMinute);
 
             if ($nextRun->isPast()) {
@@ -323,7 +389,7 @@ class CacheManagementController extends Controller
                 'datetime' => $nextRun->format('Y-m-d H:i:s'),
                 'human' => $nextRun->diffForHumans(),
                 'formatted' => $nextRun->format('M j, Y \a\t g:i A T'),
-                'timezone' => $userTimezone,
+                'timezone' => $schedulerTimezone,
                 'utc_time' => $nextRun->setTimezone('UTC')->format('M j, Y \a\t g:i A T')
             ];
         }
@@ -492,7 +558,7 @@ class CacheManagementController extends Controller
         return response()->json([
             'enabled' => SchedulerSetting::isCacheCleanupEnabled(),
             'time' => SchedulerSetting::getCacheCleanupTime(),
-            'timezone' => config('app.timezone')
+            'timezone' => SchedulerSetting::getTimezone()
         ]);
     }
 
@@ -500,12 +566,17 @@ class CacheManagementController extends Controller
     {
         $request->validate([
             'enabled' => 'required|boolean',
-            'time' => 'required|string|date_format:H:i'
+            'time' => 'required|string|date_format:H:i',
+            'timezone' => 'sometimes|string|timezone'
         ]);
 
         try {
             SchedulerSetting::setValue('cache_cleanup_enabled', $request->enabled ? 'true' : 'false');
             SchedulerSetting::setValue('cache_cleanup_time', $request->time);
+
+            if ($request->has('timezone')) {
+                SchedulerSetting::setTimezone($request->timezone);
+            }
 
             return back()->with('success', 'Scheduler settings updated successfully');
         } catch (\Exception $e) {

@@ -12,9 +12,9 @@ import { LoaderCircle } from 'lucide-vue-next';
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Users', href: '/user-managements/users' }];
 
 const page = usePage();
-const users = ref(page.props.users ?? []);
-const routes = ref(page.props.routes ?? []);
-const clients = ref(page.props.clients ?? []);
+const users = ref<any[]>((page.props.users as any[]) ?? []);
+const routes = ref<any[]>((page.props.routes as any[]) ?? []);
+const clients = ref<any[]>((page.props.clients as any[]) ?? []);
 
 const search = ref('');
 const addingUser = ref(false);
@@ -173,6 +173,43 @@ const deleteUser = async (id: number) => {
         });
     }
 };
+
+const resetPassword = async (userId: number) => {
+    console.log('Reset password called for user ID:', userId);
+    console.log('Route name:', 'user-managements-users-update-password');
+
+    const result = await Swal.fire({
+        title: 'Reset Password?',
+        text: 'This will reset the user\'s password and send them a notification.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, reset it!',
+    });
+
+    if (result.isConfirmed) {
+        resettingPasswordUserId.value = userId;
+        console.log('Confirmed reset, attempting to call API...');
+
+        try {
+            const apiUrl = route('user-managements-users-update-password', userId);
+            console.log('Generated URL:', apiUrl);
+
+            const response = await axios.post(apiUrl);
+            console.log('API Response:', response);
+
+            Swal.fire('Success!', 'Password has been reset successfully.', 'success');
+        } catch (error: any) {
+            console.error('Password reset error:', error);
+            console.error('Error response:', error.response?.data);
+            console.error('Error status:', error.response?.status);
+            Swal.fire('Error!', 'Failed to reset password.', 'error');
+        } finally {
+            resettingPasswordUserId.value = null;
+        }
+    }
+};
 </script>
 
 <template>
@@ -271,7 +308,7 @@ const deleteUser = async (id: number) => {
                                     <small>{{ user.email }}</small><br />
                                     <div class="mt-1">
                                         <select :value="user.client_id"
-                                            @change="updateUserClient(user.id, Number($event.target.value))"
+                                            @change="updateUserClient(user.id, Number(($event.target as HTMLSelectElement)?.value))"
                                             class="mt-1 w-full rounded border px-2 py-1 text-sm dark:bg-neutral-800 dark:text-white">
                                             <option disabled value="">Select client</option>
                                             <option v-for="client in clients" :key="client.id" :value="client.id">
@@ -290,15 +327,19 @@ const deleteUser = async (id: number) => {
                                     </select>
                                     <hr class="mt-2" />
                                     <small class="text-gray-500 dark:text-gray-300">{{ user.designation_name ?? '-'
-                                    }}</small>
+                                        }}</small>
                                 </td>
                                 <td class="px-6 py-4">
                                     <Button size="sm" variant="secondary"
                                         @click="openPermissionsModal(user)">Permissions</Button>
                                 </td>
                                 <td class="space-x-2 px-6 py-4">
-                                    <Button size="sm" variant="outline" @click="resetPassword(user.id)">Reset
-                                        Password</Button>
+                                    <Button size="sm" variant="outline" @click="resetPassword(user.id)"
+                                        :disabled="resettingPasswordUserId === user.id">
+                                        <LoaderCircle v-if="resettingPasswordUserId === user.id"
+                                            class="h-4 w-4 animate-spin mr-1" />
+                                        <span>Reset Password</span>
+                                    </Button>
                                     <Button size="sm" variant="destructive" @click="deleteUser(user.id)">Delete</Button>
                                 </td>
                             </tr>
@@ -310,47 +351,47 @@ const deleteUser = async (id: number) => {
                     </table>
                 </div>
             </div>
-            
+
         </SettingsLayout>
         <!-- Permissions Modal -->
-            <div v-if="permissionsModalVisible"
-                class="fixed top-0 inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
-                <div class="w-full max-w-lg rounded-lg bg-white p-6 shadow-lg dark:bg-neutral-800">
-                    <h2 class="mb-4 text-center text-xl font-bold text-gray-800 dark:text-white">Manage Permissions</h2>
+        <div v-if="permissionsModalVisible"
+            class="fixed top-0 inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
+            <div class="w-full max-w-lg rounded-lg bg-white p-6 shadow-lg dark:bg-neutral-800">
+                <h2 class="mb-4 text-center text-xl font-bold text-gray-800 dark:text-white">Manage Permissions</h2>
 
-                    <div v-if="selectedPermissions.includes('*')"
-                        class="mb-4 rounded bg-green-100 p-2 text-center text-sm text-green-600">
-                        All routes are enabled (Wildcard '*')
-                    </div>
+                <div v-if="selectedPermissions.includes('*')"
+                    class="mb-4 rounded bg-green-100 p-2 text-center text-sm text-green-600">
+                    All routes are enabled (Wildcard '*')
+                </div>
 
-                    <div class="mb-4 flex justify-center space-x-4">
-                        <Button size="sm" variant="secondary" @click="selectAll">Select All</Button>
-                        <Button size="sm" variant="outline" @click="clearAll">Clear All</Button>
-                    </div>
+                <div class="mb-4 flex justify-center space-x-4">
+                    <Button size="sm" variant="secondary" @click="selectAll">Select All</Button>
+                    <Button size="sm" variant="outline" @click="clearAll">Clear All</Button>
+                </div>
 
-                    <div class="max-h-72 space-y-3 overflow-y-auto rounded-md border bg-gray-50 p-3 dark:bg-neutral-800">
-                        <div v-for="route in routes" :key="route.id"
-                            class="flex items-center justify-between rounded border-b pb-2">
-                            <div>
-                                <span class="text-sm text-gray-700 dark:text-gray-300">{{ route.title }}</span>
-                                <div class="text-xs text-gray-400">{{ route.href }}</div>
-                            </div>
-                            <input type="checkbox"
-                                :checked="selectedPermissions.includes('*') || selectedPermissions.includes(route.href)"
-                                @change="togglePermission(route.href)"
-                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
+                <div class="max-h-72 space-y-3 overflow-y-auto rounded-md border bg-gray-50 p-3 dark:bg-neutral-800">
+                    <div v-for="route in routes" :key="route.id"
+                        class="flex items-center justify-between rounded border-b pb-2">
+                        <div>
+                            <span class="text-sm text-gray-700 dark:text-gray-300">{{ route.title }}</span>
+                            <div class="text-xs text-gray-400">{{ route.href }}</div>
                         </div>
-                    </div>
-
-                    <div class="mt-6 flex justify-end space-x-2">
-                        <Button size="sm" @click="savePermissions" :disabled="savingPermissions">
-                            <span v-if="savingPermissions">Saving...</span>
-                            <span v-else>Save</span>
-                        </Button>
-                        <Button size="sm" variant="outline" @click="permissionsModalVisible = false"
-                            :disabled="savingPermissions">Cancel</Button>
+                        <input type="checkbox"
+                            :checked="selectedPermissions.includes('*') || selectedPermissions.includes(route.href)"
+                            @change="togglePermission(route.href)"
+                            class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
                     </div>
                 </div>
+
+                <div class="mt-6 flex justify-end space-x-2">
+                    <Button size="sm" @click="savePermissions" :disabled="savingPermissions">
+                        <span v-if="savingPermissions">Saving...</span>
+                        <span v-else>Save</span>
+                    </Button>
+                    <Button size="sm" variant="outline" @click="permissionsModalVisible = false"
+                        :disabled="savingPermissions">Cancel</Button>
+                </div>
             </div>
+        </div>
     </AppLayout>
 </template>

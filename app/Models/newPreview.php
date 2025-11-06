@@ -117,7 +117,7 @@ class newPreview extends Model
      */
     public function client(): BelongsTo
     {
-        return $this->belongsTo(Client::class)->select(['id', 'name', 'email']);
+        return $this->belongsTo(Client::class)->select(['id', 'name']);
     }
 
     /**
@@ -157,7 +157,7 @@ class newPreview extends Model
      */
     public static function getOptimizedPreview(int $id): ?self
     {
-        return static::with(['client:id,name,email', 'uploader:id,name,email', 'colorPalette:id,name,colors'])
+        return static::with(['client:id,name', 'uploader:id,name,email', 'colorPalette:id,name,colors'])
             ->find($id);
     }
 

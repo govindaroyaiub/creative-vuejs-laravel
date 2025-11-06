@@ -31,4 +31,14 @@ class SchedulerSetting extends Model
     {
         return static::getValue('cache_cleanup_enabled', 'true') === 'true';
     }
+
+    public static function getTimezone()
+    {
+        return static::getValue('timezone', 'Asia/Dhaka');
+    }
+
+    public static function setTimezone($timezone)
+    {
+        return static::setValue('timezone', $timezone, 'Application timezone for scheduler');
+    }
 }

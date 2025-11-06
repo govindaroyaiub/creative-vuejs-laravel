@@ -7,8 +7,7 @@
         <div
             class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
             <!-- Clean Header -->
-            <header
-                class="backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/50 sticky top-0 z-50">
+            <header class="backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/50 sticky top-0 z-50">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                         <div class="flex items-center space-x-3 sm:space-x-4">
@@ -459,6 +458,60 @@
                                         </label>
                                     </div>
 
+                                    <!-- Timezone Setting -->
+                                    <div class="p-3 sm:p-4 bg-slate-50 dark:bg-slate-800 rounded-lg sm:rounded-xl">
+                                        <label class="block">
+                                            <div
+                                                class="font-medium text-slate-900 dark:text-white mb-2 text-sm sm:text-base">
+                                                Timezone</div>
+                                            <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-3">
+                                                Select the timezone for scheduler execution</div>
+
+                                            <!-- Timezone Dropdown -->
+                                            <div class="relative timezone-dropdown">
+                                                <button type="button"
+                                                    @click="showTimezoneDropdown = !showTimezoneDropdown"
+                                                    :disabled="!schedulerEnabled"
+                                                    class="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg sm:rounded-xl text-slate-900 dark:text-white text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 text-sm sm:text-base flex items-center justify-between">
+                                                    <span class="truncate">
+                                                        {{ currentTimezoneInfo.country }} ({{ currentTimezoneInfo.offset
+                                                        }})
+                                                    </span>
+                                                    <svg class="ml-2 h-4 w-4 transition-transform"
+                                                        :class="showTimezoneDropdown ? 'rotate-180' : ''" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                    </svg>
+                                                </button>
+
+                                                <!-- Dropdown -->
+                                                <div v-show="showTimezoneDropdown"
+                                                    class="absolute z-50 w-full mt-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg shadow-lg max-h-60 overflow-hidden">
+                                                    <!-- Search input -->
+                                                    <div class="p-2 border-b border-slate-200 dark:border-slate-600">
+                                                        <input type="text" v-model="timezoneSearch"
+                                                            placeholder="Search countries or timezones..."
+                                                            class="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                    </div>
+
+                                                    <!-- Timezone options -->
+                                                    <div class="max-h-48 overflow-y-auto">
+                                                        <button type="button" v-for="timezone in filteredTimezones"
+                                                            :key="timezone.timezone" @click="selectTimezone(timezone)"
+                                                            class="w-full px-3 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-900 dark:text-white text-sm flex items-center justify-between"
+                                                            :class="schedulerTimezone === timezone.timezone ? 'bg-blue-100 dark:bg-blue-900' : ''">
+                                                            <span class="truncate">{{ timezone.country }}</span>
+                                                            <span
+                                                                class="text-xs text-slate-500 dark:text-slate-400 ml-2">{{
+                                                                timezone.offset }}</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    </div>
+
                                     <!-- Current Status -->
                                     <div class="p-3 sm:p-4 bg-slate-50 dark:bg-slate-800 rounded-lg sm:rounded-xl">
                                         <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-2">Current
@@ -467,8 +520,9 @@
                                             class="font-bold text-lg sm:text-xl text-slate-900 dark:text-white font-mono">
                                             {{ schedulerEnabled ? `${schedulerTime} daily` : 'Disabled' }}
                                         </div>
-                                        <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">{{
-                                            schedulerStatus?.timezone || 'UTC' }}</div>
+                                        <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                            {{ currentTimezoneInfo?.country }} ({{ currentTimezoneInfo?.timezone }})
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -487,6 +541,7 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { router, Head, useForm } from '@inertiajs/vue3'
 import Swal from 'sweetalert2'
 import timezoneDetector from '@/utils/timezone.js'
+import { timezones, getDefaultTimezone } from '@/utils/timezones.js'
 
 // Props
 const props = defineProps({
@@ -505,8 +560,11 @@ const isRefreshing = ref(false)
 const isRunningCleanup = ref(false)
 const schedulerEnabled = ref(true)
 const schedulerTime = ref('04:30')
+const schedulerTimezone = ref('Asia/Dhaka')
 const activeTab = ref('overview')
 const isBlankingLogs = ref(false)
+const timezoneSearch = ref('')
+const showTimezoneDropdown = ref(false)
 
 // Live clock variables
 const currentTime = ref('')
@@ -600,6 +658,24 @@ const getSchedulerStatusText = () => {
 const hasSchedulerActivity = computed(() => {
     return (schedulerStatus.value?.recent_auto_runs && schedulerStatus.value.recent_auto_runs.length > 0) ||
         (schedulerStatus.value?.recent_errors && schedulerStatus.value.recent_errors.length > 0)
+})
+
+// Computed property for filtered timezones based on search
+const filteredTimezones = computed(() => {
+    if (!timezoneSearch.value) {
+        return timezones;
+    }
+    const search = timezoneSearch.value.toLowerCase();
+    return timezones.filter(tz =>
+        tz.country.toLowerCase().includes(search) ||
+        tz.timezone.toLowerCase().includes(search) ||
+        tz.offset.includes(search)
+    );
+})
+
+// Get current timezone display info
+const currentTimezoneInfo = computed(() => {
+    return timezones.find(tz => tz.timezone === schedulerTimezone.value) || getDefaultTimezone();
 })
 
 // Combine and sort scheduler activities (successes and errors) by timestamp
@@ -893,6 +969,8 @@ const runArtisanClear = async () => {
 const runCleanup = async (type) => {
     isRunningCleanup.value = true
 
+    console.log('Starting cleanup with type:', type)
+
     Swal.fire({
         title: 'Running Cache Cleanup',
         html: `<div class="text-lg">Cleaning ${type} cache...</div>`,
@@ -907,17 +985,54 @@ const runCleanup = async (type) => {
 
     try {
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+        console.log('CSRF token:', csrfToken)
+
+        const requestData = { type }
+        console.log('Request data:', requestData)
 
         const response = await fetch('/cache-management/run-cleanup', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             },
-            body: JSON.stringify({ type })
+            body: JSON.stringify(requestData)
         })
 
-        const data = await response.json()
+        console.log('Response status:', response.status)
+        console.log('Response headers:', response.headers)
+        console.log('Response URL:', response.url)
+
+        // Check if we were redirected (usually means authentication failed)
+        if (response.redirected || response.url.includes('/login')) {
+            console.error('Authentication failed - redirected to login')
+            window.location.href = '/login'
+            return
+        }
+
+        // Check if response is not ok
+        if (!response.ok) {
+            console.error('HTTP error:', response.status, response.statusText)
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        }
+
+        // Get response text first to debug
+        const responseText = await response.text()
+        console.log('Raw response:', responseText)
+
+        // Try to parse as JSON
+        let data
+        try {
+            data = JSON.parse(responseText)
+        } catch (jsonError) {
+            console.error('JSON parse error:', jsonError)
+            console.error('Response was not valid JSON:', responseText.substring(0, 500))
+            throw new Error('Server returned invalid JSON. Check console for details.')
+        }
+
+        console.log('Parsed response data:', data)
 
         if (data.success) {
             Swal.fire({
@@ -1014,7 +1129,8 @@ const updateSchedulerSettings = async () => {
         // Use Inertia's form handling for proper CSRF token management
         const form = useForm({
             enabled: schedulerEnabled.value,
-            time: schedulerTime.value
+            time: schedulerTime.value,
+            timezone: schedulerTimezone.value
         })
 
         form.post('/cache-management/scheduler-settings', {
@@ -1063,6 +1179,21 @@ const updateSchedulerSettings = async () => {
     }
 }
 
+// Function to select timezone from dropdown
+const selectTimezone = (timezone) => {
+    schedulerTimezone.value = timezone.timezone;
+    showTimezoneDropdown.value = false;
+    timezoneSearch.value = '';
+    updateSchedulerSettings();
+}
+
+// Close dropdown when clicking outside
+const closeTimezoneDropdown = (event) => {
+    if (!event.target.closest('.timezone-dropdown')) {
+        showTimezoneDropdown.value = false;
+    }
+}
+
 const goBack = () => {
     router.visit('/')
 }
@@ -1071,6 +1202,7 @@ const initializeSchedulerSettings = () => {
     if (schedulerStatus.value) {
         schedulerEnabled.value = schedulerStatus.value.is_configured || false
         schedulerTime.value = schedulerStatus.value.schedule_time || '04:30'
+        schedulerTimezone.value = schedulerStatus.value.timezone || 'Asia/Dhaka'
     }
 }
 
@@ -1085,6 +1217,9 @@ onMounted(() => {
     // Start live clock
     startLiveClock()
 
+    // Add click outside listener for timezone dropdown
+    document.addEventListener('click', closeTimezoneDropdown)
+
     setInterval(() => {
         if (!isRunningCleanup.value && !isRefreshing.value) {
             refreshStats(false, false) // Auto refresh without loading state or toast
@@ -1096,6 +1231,7 @@ onMounted(() => {
 // Cleanup on unmount
 onUnmounted(() => {
     stopLiveClock()
+    document.removeEventListener('click', closeTimezoneDropdown)
 })
 </script>
 

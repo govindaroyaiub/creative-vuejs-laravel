@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
+use App\Models\SchedulerSetting;
 use Carbon\Carbon;
 
 class AutoCacheCleanup extends Command
@@ -29,9 +30,10 @@ class AutoCacheCleanup extends Command
     {
         $type = $this->option('type');
         $startTime = microtime(true);
+        $timezone = SchedulerSetting::getTimezone();
 
         $this->info("🚀 Starting automated cache cleanup - Type: {$type}");
-        $this->info("⏰ Started at: " . now()->format('Y-m-d H:i:s'));
+        $this->info("⏰ Started at: " . now()->setTimezone($timezone)->format('Y-m-d H:i:s T'));
 
         try {
             switch ($type) {

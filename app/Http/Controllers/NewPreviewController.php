@@ -185,8 +185,8 @@ class NewPreviewController extends Controller
 
         // Continue with preview rendering
         $color_palettes = ColorPalette::find($preview->color_palette_id);
-        $client = Client::find($preview->client_id);
-        $header_logo = Client::find($preview->header_logo_id);
+        $client = Client::select(['id', 'name', 'logo'])->find($preview->client_id);
+        $header_logo = Client::select(['id', 'name', 'logo'])->find($preview->header_logo_id);
         $all_colors = ColorPalette::where('status', 1)->select('id', 'primary', 'tertiary')->get();
 
         $primary = $color_palettes->primary;
@@ -203,7 +203,7 @@ class NewPreviewController extends Controller
         $header_image = $color_palettes->header_image;
 
         $authUserClientName = Auth::check()
-            ? (Client::find(Auth::user()->client_id)?->name ?? 'Unknown')
+            ? (Client::select(['id', 'name'])->find(Auth::user()->client_id)?->name ?? 'Unknown')
             : 'guest';
 
         return view('preview5', compact(
