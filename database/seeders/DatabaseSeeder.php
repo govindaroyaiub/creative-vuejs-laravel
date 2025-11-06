@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\Designation;
 use App\Models\Route;
 use App\Models\Client;
-use App\Models\Preview;
 use App\Models\ColorPalette;
 use App\Models\BannerSize;
 use App\Models\VideoSize;

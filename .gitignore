@@ -29,3 +29,72 @@ yarn-error.log
 /.vscode
 /.zed
 .qodo
+
+# Security: Debug and test files
+/public/phpinfo.php
+/public/info.php
+/public/test.php
+/public/debug.php
+/public/dump.php
+*.debug.php
+*.test.php
+/debug/
+/test/
+/.debug/
+/.test/
+
+# Security: Sensitive files
+/config/secrets.php
+/storage/logs/*.log
+/storage/debugbar/
+.DS_Store
+Thumbs.db
+
+# Security: Editor and OS files
+*.swp
+*.swo
+*~
+.vscode/settings.json
+.idea/workspace.xml
+
+# Cleanup: Temporary and backup files
+*.tmp
+*.temp
+*.bak
+*.old
+*.orig
+*~
+.#*
+#*#
+
+# Cleanup: System and cache files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.directory
+.Spotlight-V100
+.Trashes
+._*
+
+# Cleanup: Node.js and build artifacts
+dist/
+build/
+.cache/
+.parcel-cache/
+.nuxt/
+.next/
+.svelte-kit/
+
+# Cleanup: Package manager files
+package-lock.json.backup
+yarn.lock.backup
+composer.lock.backup
+
+# Cleanup: IDE and editor temp files
+.vscode/.ropeproject
+.vscode/settings.json.backup
+*.sublime-workspace
+*.sublime-project
+.atom/
+.brackets.json

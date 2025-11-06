@@ -15,7 +15,6 @@ use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\ColorPaletteController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MediaController;
-use App\Http\Controllers\PreviewApiController;
 use App\Http\Controllers\PreviewTrackerController;
 use App\Http\Controllers\NewPreviewController;
 use App\Http\Controllers\NewCategoryController;
@@ -49,9 +48,9 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     //File Transfer Routes Start
     Route::get('/file-transfers', [FileTransferController::class, 'index'])->name('file-transfers');
     Route::get('/file-transfers-add', [FileTransferController::class, 'create'])->name('file-transfers-add');
-    Route::post('/file-transfers-add', [FileTransferController::class, 'store'])->name('file-transfers-add-post');
+    Route::post('/file-transfers-add', [FileTransferController::class, 'store'])->middleware('secure.upload')->name('file-transfers-add-post');
     Route::get('/file-transfers-edit/{id}', [FileTransferController::class, 'edit'])->name('file-transfers-edit');
-    Route::post('/file-transfers-edit/{id}', [FileTransferController::class, 'update'])->name('file-transfers-update');
+    Route::post('/file-transfers-edit/{id}', [FileTransferController::class, 'update'])->middleware('secure.upload')->name('file-transfers-update');
     Route::delete('/file-transfers-delete/{id}', [FileTransferController::class, 'destroy'])->name('file-transfers-delete');
     //File Transfer Routes End
 
@@ -234,7 +233,7 @@ Route::post('/preview-login', function (Request $request) {
     return response()->json([
         'message' => 'Invalid credentials.',
     ], 422);
-})->name('preview-login');
+})->middleware('throttle:5,1')->name('preview-login');
 
 Route::post('/logout-preview', function (Request $request) {
     $previewId = $request->input('preview_id');

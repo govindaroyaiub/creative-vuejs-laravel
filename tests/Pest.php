@@ -15,6 +15,9 @@ pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature');
 
+pest()->extend(Tests\TestCase::class)
+    ->in('Unit');
+
 /*
 |--------------------------------------------------------------------------
 | Expectations
@@ -30,6 +33,19 @@ expect()->extend('toBeOne', function () {
     return $this->toBe(1);
 });
 
+expect()->extend('toHaveValidationError', function (string $field) {
+    return $this->toHaveKey("errors.{$field}");
+});
+
+expect()->extend('toBeSuccessfulResponse', function () {
+    return $this->toHaveStatus(200);
+});
+
+expect()->extend('toBeValidJson', function () {
+    json_decode($this->value);
+    return $this->and(json_last_error())->toBe(JSON_ERROR_NONE);
+});
+
 /*
 |--------------------------------------------------------------------------
 | Functions
@@ -41,7 +57,38 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * Create an authenticated user for testing
+ */
+function createAuthenticatedUser(array $attributes = []): \App\Models\User
 {
-    // ..
+    $user = \App\Models\User::factory()->create($attributes);
+    test()->actingAs($user);
+    return $user;
+}
+
+/**
+ * Create a test file upload
+ */
+function createTestFile(string $name = 'test.txt', string $content = 'test content'): \Illuminate\Http\Testing\File
+{
+    return \Illuminate\Http\Testing\File::fake()->createWithContent($name, $content);
+}
+
+/**
+ * Assert database has record with attributes
+ */
+function assertDatabaseHasRecord(string $table, array $attributes): void
+{
+    test()->assertDatabaseHas($table, $attributes);
+}
+
+/**
+ * Mock external API calls
+ */
+function mockExternalApi(string $url, array $response = [], int $status = 200): void
+{
+    \Illuminate\Support\Facades\Http::fake([
+        $url => \Illuminate\Support\Facades\Http::response($response, $status)
+    ]);
 }

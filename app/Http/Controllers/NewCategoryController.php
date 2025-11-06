@@ -82,7 +82,7 @@ class NewCategoryController extends Controller
                     File::deleteDirectory($fullPath);
                 }
             }
-            
+
             foreach ($category->feedbacks as $feedback) {
                 foreach ($feedback->feedbackSets as $set) {
                     foreach ($set->versions as $version) {
@@ -99,7 +99,6 @@ class NewCategoryController extends Controller
                             }
                         }
                         if ($category->type === 'video') {
-                            //TODO
                             foreach ($version->videos as $video) {
                                 // Delete video file
                                 if ($folder && $video->path) {
@@ -119,7 +118,6 @@ class NewCategoryController extends Controller
                             }
                         }
                         if ($category->type === 'gif') {
-                            //TODO
                             foreach ($version->gifs as $gif) {
                                 // Delete gif image file
                                 if ($gif->path) {
@@ -132,7 +130,6 @@ class NewCategoryController extends Controller
                             }
                         }
                         if ($category->type === 'social') {
-                            //TODO
                             foreach ($version->socials as $social) {
                                 // Delete social image file
                                 if ($folder && $social->path) {

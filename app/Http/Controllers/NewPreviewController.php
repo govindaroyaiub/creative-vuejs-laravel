@@ -31,7 +31,39 @@ use Illuminate\Validation\Rule;
 class NewPreviewController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of previews
+     * 
+     * Get a paginated list of all previews with search functionality.
+     * 
+     * @group Preview Management
+     * 
+     * @queryParam search string Filter previews by name, client, uploader, or date. Example: "Project Alpha"
+     * @queryParam page integer Page number for pagination. Example: 1
+     * 
+     * @response 200 {
+     *   "data": [
+     *     {
+     *       "id": 1,
+     *       "name": "Project Alpha Campaign",
+     *       "slug": "project-alpha-campaign-abc123",
+     *       "client": {
+     *         "id": 1,
+     *         "name": "Planet Nine"
+     *       },
+     *       "uploader": {
+     *         "id": 1,
+     *         "name": "John Doe"
+     *       },
+     *       "created_at": "2025-11-06T10:30:00Z",
+     *       "categories_count": 3,
+     *       "total_feedbacks": 12
+     *     }
+     *   ],
+     *   "links": { ... },
+     *   "meta": { ... }
+     * }
+     * 
+     * @authenticated
      */
     public function index(Request $request)
     {
@@ -69,7 +101,35 @@ class NewPreviewController extends Controller
     public function create() {}
 
     /**
-     * Store a newly created resource in storage.
+     * Create a new preview project
+     * 
+     * Store a newly created preview with all its configuration settings.
+     * 
+     * @group Preview Management
+     * 
+     * @bodyParam name string required The name of the preview project. Example: "Summer Campaign 2025"
+     * @bodyParam client_id integer required The ID of the client. Example: 1
+     * @bodyParam header_logo_id integer required The ID of the header logo client. Example: 1
+     * @bodyParam color_palette_id integer required The ID of the color palette to use. Example: 3
+     * @bodyParam requires_login boolean Whether the preview requires login to view. Example: true
+     * @bodyParam show_planetnine_logo boolean Whether to show Planet Nine logo. Example: false
+     * @bodyParam show_sidebar_logo boolean Whether to show sidebar logo. Example: true
+     * @bodyParam show_footer boolean Whether to show footer. Example: true
+     * @bodyParam team_ids array required Array of team member user IDs. Example: [1, 2, 3]
+     * 
+     * @response 302 {
+     *   "message": "Redirect to preview update page"
+     * }
+     * 
+     * @response 422 {
+     *   "message": "The given data was invalid.",
+     *   "errors": {
+     *     "name": ["The name field is required."],
+     *     "client_id": ["The selected client id is invalid."]
+     *   }
+     * }
+     * 
+     * @authenticated
      */
     public function store(Request $request)
     {
@@ -627,9 +687,8 @@ class NewPreviewController extends Controller
                                 }
                             }
 
-                            // VIDEOS (placeholder)
+                            // VIDEOS
                             if ($catData['type'] === 'video') {
-                                // TODO: Video asset logic will go here
                                 if ($catData['type'] === 'video') {
                                     $existingVideos = $version->videos ? $version->videos->keyBy('id') : collect();
                                     $currentVideoIds = [];
