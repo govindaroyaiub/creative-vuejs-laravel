@@ -29,7 +29,7 @@
                 <div
                     class="flex flex-wrap justify-center mb-8 bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-2">
                     <button @click="activeTab = 'qa'" :class="[
-                        'px-6 py-3 rounded-lg font-medium transition-all duration-200 mr-2 mb-2',
+                        'px-6 py-3 rounded-lg font-medium transition-all duration-200 mr-2',
                         activeTab === 'qa'
                             ? 'bg-blue-600 text-white shadow-lg'
                             : 'text-gray-600 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-neutral-700'
@@ -37,7 +37,7 @@
                         📚 Q&A Documentation
                     </button>
                     <button @click="activeTab = 'api'" :class="[
-                        'px-6 py-3 rounded-lg font-medium transition-all duration-200 mb-2',
+                        'px-6 py-3 rounded-lg font-medium transition-all duration-200',
                         activeTab === 'api'
                             ? 'bg-green-600 text-white shadow-lg'
                             : 'text-gray-600 dark:text-gray-300 hover:bg-green-100 dark:hover:bg-neutral-700'
