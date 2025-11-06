@@ -270,7 +270,7 @@
                                 Recent Cleanups</h3>
 
                             <div v-if="recentCleanups && recentCleanups.length"
-                                class="space-y-2 sm:space-y-3 max-h-80 overflow-y-auto">
+                                class="space-y-2 sm:space-y-3 overflow-y-auto">
                                 <div v-for="(cleanup, index) in recentCleanups" :key="index"
                                     class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg space-y-2 sm:space-y-0">
                                     <div class="min-w-0 flex-1">
