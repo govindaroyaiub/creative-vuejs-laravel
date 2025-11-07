@@ -1,6 +1,6 @@
 <template>
 
-    <Head title="Q/A Documentation" />
+    <Head title="Documentations" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
             class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-black dark:via-black dark:to-black">
@@ -27,9 +27,9 @@
 
                 <!-- Navigation Tabs -->
                 <div
-                    class="flex flex-wrap justify-center mb-8 bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-2">
+                    class="flex mb-8 bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-2">
                     <button @click="activeTab = 'qa'" :class="[
-                        'px-6 py-3 rounded-lg font-medium transition-all duration-200 mr-2',
+                        'flex-1 px-6 py-3 rounded-lg font-medium transition-all duration-200 mr-1',
                         activeTab === 'qa'
                             ? 'bg-blue-600 text-white shadow-lg'
                             : 'text-gray-600 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-neutral-700'
@@ -37,7 +37,7 @@
                         📚 Q&A Documentation
                     </button>
                     <button @click="activeTab = 'api'" :class="[
-                        'px-6 py-3 rounded-lg font-medium transition-all duration-200',
+                        'flex-1 px-6 py-3 rounded-lg font-medium transition-all duration-200 ml-1',
                         activeTab === 'api'
                             ? 'bg-green-600 text-white shadow-lg'
                             : 'text-gray-600 dark:text-gray-300 hover:bg-green-100 dark:hover:bg-neutral-700'
@@ -58,6 +58,27 @@
                         class="block w-full pl-10 pr-4 py-4 text-lg border-2 border-gray-200 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md" />
                     <div v-if="search" class="absolute inset-y-0 right-0 pr-3 flex items-center">
                         <button @click="search = ''" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- API Search Section -->
+                <div class="relative mb-4" v-show="activeTab === 'api'">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <input v-model="apiSearch" type="text" placeholder="Search API endpoints, methods, categories..."
+                        class="block w-full pl-10 pr-4 py-4 text-lg border-2 border-gray-200 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md" />
+                    <div v-if="apiSearch" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <button @click="apiSearch = ''"
+                            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M6 18L18 6M6 6l12 12"></path>
@@ -191,8 +212,26 @@
                         </div>
                     </div>
 
+                    <!-- Search Results Counter -->
+                    <div v-if="apiSearch" class="mb-6 text-center">
+                        <div
+                            class="inline-flex items-center px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-lg">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span class="font-medium">
+                                Found {{ Object.values(filteredApiEndpoints).flat().length }}
+                                {{ Object.values(filteredApiEndpoints).flat().length === 1 ? 'endpoint' : 'endpoints' }}
+                                in {{ Object.keys(filteredApiEndpoints).length }}
+                                {{ Object.keys(filteredApiEndpoints).length === 1 ? 'category' : 'categories' }}
+                                for "{{ apiSearch }}"
+                            </span>
+                        </div>
+                    </div>
+
                     <!-- Endpoint Categories -->
-                    <div v-for="(endpoints, category) in apiEndpoints" :key="category"
+                    <div v-for="(endpoints, category) in filteredApiEndpoints" :key="category"
                         class="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-8">
                         <div class="flex items-center mb-6">
                             <span
@@ -267,6 +306,32 @@
                                         class="text-xs bg-slate-900 text-slate-300 p-3 rounded overflow-x-auto"><code>{{ (endpoint as any).example }}</code></pre>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- No Results Message for API Search -->
+                    <div v-if="apiSearch && Object.keys(filteredApiEndpoints).length === 0"
+                        class="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-8 text-center">
+                        <div class="flex flex-col items-center">
+                            <div
+                                class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.485 0-4.735.974-6.369 2.567" />
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No API endpoints found
+                            </h3>
+                            <p class="text-gray-600 dark:text-gray-400 max-w-md">
+                                No endpoints match your search for "<strong>{{ apiSearch }}</strong>".
+                                Try searching for different terms like method types (GET, POST), endpoint paths, or
+                                categories.
+                            </p>
+                            <button @click="apiSearch = ''"
+                                class="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                Clear Search
+                            </button>
                         </div>
                     </div>
 
@@ -388,9 +453,10 @@ import AppLayout from '@/layouts/AppLayout.vue'
 import { Head } from '@inertiajs/vue3'
 import type { BreadcrumbItem } from '@/types'
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Q/A Documentation', href: '/lazyDoc' }];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Documentations', href: '/documentations' }];
 
 const search = ref('')
+const apiSearch = ref('')
 const openIdx = ref<number | null>(null)
 const activeTab = ref('qa')
 const baseUrl = window.location.origin
@@ -1636,6 +1702,40 @@ const filteredQA = computed(() => {
     return qaList.value.filter(
         qa => qa.question.toLowerCase().includes(s) || qa.answer.toLowerCase().includes(s) || qa.additionalInfo?.toLowerCase().includes(s)
     )
+})
+
+const filteredApiEndpoints = computed(() => {
+    if (!apiSearch.value) return apiEndpoints.value
+
+    const s = apiSearch.value.toLowerCase()
+    const filtered: typeof apiEndpoints.value = {}
+
+    // Search through each category and its endpoints
+    Object.entries(apiEndpoints.value).forEach(([category, endpoints]) => {
+        const filteredEndpoints = endpoints.filter(endpoint => {
+            return (
+                // Search in category name
+                category.toLowerCase().includes(s) ||
+                // Search in method
+                endpoint.method.toLowerCase().includes(s) ||
+                // Search in path
+                endpoint.path.toLowerCase().includes(s) ||
+                // Search in description
+                endpoint.description.toLowerCase().includes(s) ||
+                // Search in permission if exists
+                ((endpoint as any).permission && (endpoint as any).permission.toLowerCase().includes(s)) ||
+                // Search in parameters if exists
+                ((endpoint as any).parameters && (endpoint as any).parameters.toLowerCase().includes(s))
+            )
+        })
+
+        // Only include category if it has matching endpoints
+        if (filteredEndpoints.length > 0) {
+            filtered[category] = filteredEndpoints
+        }
+    })
+
+    return filtered
 })
 
 function toggle(idx: number) {

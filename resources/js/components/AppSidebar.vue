@@ -33,7 +33,7 @@ const footerNavItems: NavItem[] = [
     { title: 'Access Manager', href: '/user-managements/designations', icon: Users },
     { title: 'Activity Logs', 'href': '/activity-logs', icon: History },
     { title: 'Cache Management', href: '/cache-management', icon: HardDriveIcon },
-    { title: 'Documentation', href: '/lazyDoc', icon: FileCode }
+    { title: 'Documentations', href: '/documentations', icon: FileCode }
 ];
 
 // Permission check function

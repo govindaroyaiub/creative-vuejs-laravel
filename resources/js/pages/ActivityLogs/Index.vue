@@ -6,8 +6,7 @@
             class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-black dark:via-gray-950 dark:to-black">
             <div class="p-6 space-y-6">
                 <!-- Search Section -->
-                <div
-                    class="rounded-2xl flex w-full items-center gap-2">
+                <div class="rounded-2xl flex w-full items-center gap-2">
                     <div class="relative w-full">
                         <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,25 +188,72 @@
                     </p>
                 </div>
 
-                <!-- Pagination -->
+                <!-- Pagination - Responsive -->
                 <div v-if="logs?.data?.length > 0"
                     class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-6">
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-                        <div class="text-sm text-gray-600 dark:text-gray-400">
+
+                    <!-- Mobile/Tablet pagination (simplified) -->
+                    <div class="lg:hidden">
+                        <!-- Results Info -->
+                        <div class="text-sm text-gray-600 dark:text-gray-400 text-center mb-3">
                             Showing {{ logs.from }} to {{ logs.to }} of {{ logs.total }} entries
                         </div>
-                        <div class="flex items-center space-x-1">
-                            <button :disabled="!logs.prev_page_url" @click="changePage(logs.current_page - 1)"
-                                class="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200" :class="logs.prev_page_url
-                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 hover:text-gray-900 dark:hover:text-white'
-                                    : 'text-gray-400 cursor-not-allowed'">
-                                <svg class="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                        <!-- Simple prev/next navigation -->
+                        <div class="flex items-center justify-between gap-4">
+                            <button @click="changePage(logs.current_page - 1)" :disabled="!logs.prev_page_url"
+                                class="px-4 py-2 text-sm rounded-xl transition-all duration-200 flex items-center gap-2"
+                                :class="logs.prev_page_url
+                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
+                                    : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 19l-7-7 7-7"></path>
                                 </svg>
                                 Previous
                             </button>
 
+                            <span class="text-sm text-gray-600 dark:text-gray-400">
+                                Page {{ logs.current_page }} of {{ logs.last_page }}
+                            </span>
+
+                            <button @click="changePage(logs.current_page + 1)" :disabled="!logs.next_page_url"
+                                class="px-4 py-2 text-sm rounded-xl transition-all duration-200 flex items-center gap-2"
+                                :class="logs.next_page_url
+                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
+                                    : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
+                                Next
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Desktop pagination (full features) -->
+                    <div class="hidden lg:flex items-center justify-between">
+                        <!-- Results Info -->
+                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                            Showing {{ logs.from }} to {{ logs.to }} of {{ logs.total }} entries
+                        </div>
+
+                        <!-- Pagination Controls -->
+                        <div class="flex items-center space-x-2">
+                            <!-- Previous Button -->
+                            <button @click="changePage(logs.current_page - 1)" :disabled="!logs.prev_page_url"
+                                class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center"
+                                :class="logs.prev_page_url
+                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
+                                    : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 19l-7-7 7-7"></path>
+                                </svg>
+                                Previous
+                            </button>
+
+                            <!-- Current Page Info -->
                             <div class="flex items-center space-x-1">
                                 <span class="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg">
                                     {{ logs.current_page }}
@@ -218,12 +264,14 @@
                                 </span>
                             </div>
 
-                            <button :disabled="!logs.next_page_url" @click="changePage(logs.current_page + 1)"
-                                class="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200" :class="logs.next_page_url
-                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 hover:text-gray-900 dark:hover:text-white'
-                                    : 'text-gray-400 cursor-not-allowed'">
+                            <!-- Next Button -->
+                            <button @click="changePage(logs.current_page + 1)" :disabled="!logs.next_page_url"
+                                class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center"
+                                :class="logs.next_page_url
+                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
+                                    : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
                                 Next
-                                <svg class="w-4 h-4 ml-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 5l7 7-7 7"></path>
                                 </svg>

@@ -56,15 +56,7 @@ const changePage = (url: string) => {
     }
 };
 
-const goToPage = (pageNumber: number) => {
-    router.get(route('bills'), {
-        page: pageNumber,
-        search: search.value
-    }, {
-        preserveScroll: true,
-        preserveState: true,
-    });
-};
+
 
 onMounted(() => {
     if (flash.value?.success) {
@@ -92,8 +84,8 @@ onMounted(() => {
                 <input v-model="search" placeholder="Search..."
                     class="w-full sm:max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
                 <Link :href="route('bills-create')"
-                    class="rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700 flex items-center justify-center whitespace-nowrap">
-                <CirclePlus class="mr-2 h-5 w-5" />
+                    class="rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700 flex items-center justify-center whitespace-nowrap group">
+                <CirclePlus class="mr-2 h-5 w-5 group-hover:rotate-90 transition-transform duration-200" />
                 Add Bill
                 </Link>
             </div>
@@ -213,56 +205,83 @@ onMounted(() => {
                 </div>
             </div>
 
-            <!-- Pagination - responsive -->
-            <div v-if="bills.data.length && bills.links?.length"
-                class="mt-6 p-4">
+            <!-- Pagination - Responsive -->
+            <div v-if="bills.data.length && bills.links?.length" class="mt-6 p-4">
 
-                <!-- Mobile pagination (simplified) -->
+                <!-- Mobile/Tablet pagination (simplified) -->
                 <div class="lg:hidden">
                     <!-- Results Info -->
                     <div class="text-sm text-gray-600 dark:text-gray-400 text-center mb-3">
                         Showing {{ bills.from }} to {{ bills.to }} of {{ bills.total }} bills
                     </div>
 
-                    <!-- Simple prev/next + page selector -->
-                    <div class="flex items-center justify-between gap-2">
+                    <!-- Simple prev/next navigation -->
+                    <div class="flex items-center justify-between gap-4">
                         <button @click="changePage(bills.prev_page_url)" :disabled="!bills.prev_page_url"
-                            class="px-3 py-2 text-sm rounded-xl transition-all duration-200 flex items-center flex-1 justify-center"
+                            class="px-4 py-2 text-sm rounded-xl transition-all duration-200 flex items-center gap-2"
                             :class="bills.prev_page_url
+                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
+                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
+                            <ChevronLeft class="w-4 h-4" />
+                            Previous
+                        </button>
+
+                        <span class="text-sm text-gray-600 dark:text-gray-400">
+                            Page {{ bills.current_page }} of {{ bills.last_page }}
+                        </span>
+
+                        <button @click="changePage(bills.next_page_url)" :disabled="!bills.next_page_url"
+                            class="px-4 py-2 text-sm rounded-xl transition-all duration-200 flex items-center gap-2"
+                            :class="bills.next_page_url
+                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
+                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
+                            Next
+                            <ChevronRight class="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Desktop pagination (full features) -->
+                <div class="hidden lg:flex items-center justify-between">
+                    <!-- Results Info -->
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        Showing {{ bills.from }} to {{ bills.to }} of {{ bills.total }} bills
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="flex items-center space-x-2">
+                        <!-- Previous Button -->
+                        <button @click="changePage(bills.prev_page_url)" :disabled="!bills.prev_page_url"
+                            class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center" :class="bills.prev_page_url
                                 ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
                                 : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
                             <ChevronLeft class="w-4 h-4 mr-1" />
                             Previous
                         </button>
 
-                        <select :value="bills.current_page" @change="goToPage(parseInt($event.target.value))"
-                            class="px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white text-sm min-w-0">
-                            <option v-for="pageNum in bills.last_page" :key="pageNum" :value="pageNum">
-                                {{ pageNum }}
-                            </option>
-                        </select>
+                        <!-- Page Numbers -->
+                        <div class="flex items-center space-x-1">
+                            <template v-for="link in bills.links.slice(1, -1)" :key="link.label">
+                                <button v-if="link.url" @click="changePage(link.url)"
+                                    class="px-3 py-2 text-sm rounded-lg transition-all duration-200"
+                                    :class="link.active
+                                        ? 'bg-blue-600 text-white'
+                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'"
+                                    v-html="link.label" />
+                                <span v-else class="px-3 py-2 text-sm text-gray-400 cursor-not-allowed"
+                                    v-html="link.label" />
+                            </template>
+                        </div>
 
+                        <!-- Next Button -->
                         <button @click="changePage(bills.next_page_url)" :disabled="!bills.next_page_url"
-                            class="px-3 py-2 text-sm rounded-xl transition-all duration-200 flex items-center flex-1 justify-center"
-                            :class="bills.next_page_url
+                            class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center" :class="bills.next_page_url
                                 ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
                                 : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
                             Next
                             <ChevronRight class="w-4 h-4 ml-1" />
                         </button>
                     </div>
-                </div>
-
-                <!-- Desktop pagination (full features) -->
-                <div class="hidden lg:flex justify-center space-x-2">
-                    <template v-for="link in bills.links" :key="link.label">
-                        <component :is="link.url ? 'a' : 'span'" v-html="link.label" :href="link.url"
-                            class="rounded-xl border px-4 py-2 text-sm transition-all duration-200" :class="{
-                                'bg-indigo-600 text-white': link.active,
-                                'cursor-not-allowed text-gray-400': !link.url,
-                                'hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300': link.url && !link.active,
-                            }" />
-                    </template>
                 </div>
             </div>
         </div>

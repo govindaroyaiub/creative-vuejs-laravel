@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { CirclePlus, Pencil, Share2, Trash2, Eye, ChevronLeft, ChevronRight, X, Download } from 'lucide-vue-next';
+import { CirclePlus, Pencil, Trash2, Eye, ChevronLeft, ChevronRight, X, Download } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, watch } from 'vue';
 
@@ -15,7 +15,6 @@ const fileTransfers = computed(() => page.props.fileTransfers ?? { data: [], lin
 // Modal state
 const showModal = ref(false);
 const showEditModal = ref(false);
-const currentEditTransfer = ref<any>(null);
 const form = ref({
     name: '',
     client: '',
@@ -178,8 +177,6 @@ const handleSubmit = () => {
 
 // Edit Modal functions
 const openEditModal = (transfer: any) => {
-    currentEditTransfer.value = transfer;
-
     // Now file_paths should always be an array from the backend
     const filePaths = transfer.file_paths || [];
 
@@ -196,7 +193,6 @@ const openEditModal = (transfer: any) => {
 
 const closeEditModal = () => {
     showEditModal.value = false;
-    currentEditTransfer.value = null;
     editForm.value = {
         id: '',
         name: '',
@@ -270,16 +266,6 @@ const handleEditSubmit = () => {
         }
     });
 };
-
-const goToPage = (pageNumber: number) => {
-    router.get(route('file-transfers'), {
-        page: pageNumber,
-        search: search.value
-    }, {
-        preserveScroll: true,
-        preserveState: true,
-    });
-};
 </script>
 
 <template>
@@ -292,8 +278,8 @@ const goToPage = (pageNumber: number) => {
                 <input v-model="search" placeholder="Search..."
                     class="w-full sm:max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
                 <button @click="openModal"
-                    class="rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700 flex items-center justify-center whitespace-nowrap">
-                    <CirclePlus class="mr-2 h-5 w-5" />
+                    class="rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700 flex items-center justify-center whitespace-nowrap group">
+                    <CirclePlus class="mr-2 h-5 w-5 group-hover:rotate-90 transition-transform duration-200" />
                     Add Transfer
                 </button>
             </div>
@@ -415,10 +401,10 @@ const goToPage = (pageNumber: number) => {
                 </div>
             </div>
 
-            <!-- Pagination - responsive -->
+            <!-- Pagination - Responsive -->
             <div v-if="fileTransfers.data.length && fileTransfers.links?.length" class="mt-6 p-4">
 
-                <!-- Mobile pagination (simplified) -->
+                <!-- Mobile/Tablet pagination (simplified) -->
                 <div class="lg:hidden">
                     <!-- Results Info -->
                     <div class="text-sm text-gray-600 dark:text-gray-400 text-center mb-3">
@@ -426,47 +412,78 @@ const goToPage = (pageNumber: number) => {
                         transfers
                     </div>
 
-                    <!-- Simple prev/next + page selector -->
-                    <div class="flex items-center justify-between gap-2">
+                    <!-- Simple prev/next navigation -->
+                    <div class="flex items-center justify-between gap-4">
                         <button @click="changePage(fileTransfers.prev_page_url)"
                             :disabled="!fileTransfers.prev_page_url"
-                            class="px-3 py-2 text-sm rounded-xl transition-all duration-200 flex items-center flex-1 justify-center"
+                            class="px-4 py-2 text-sm rounded-xl transition-all duration-200 flex items-center gap-2"
                             :class="fileTransfers.prev_page_url
+                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
+                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
+                            <ChevronLeft class="w-4 h-4" />
+                            Previous
+                        </button>
+
+                        <span class="text-sm text-gray-600 dark:text-gray-400">
+                            Page {{ fileTransfers.current_page }} of {{ fileTransfers.last_page }}
+                        </span>
+
+                        <button @click="changePage(fileTransfers.next_page_url)"
+                            :disabled="!fileTransfers.next_page_url"
+                            class="px-4 py-2 text-sm rounded-xl transition-all duration-200 flex items-center gap-2"
+                            :class="fileTransfers.next_page_url
+                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
+                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
+                            Next
+                            <ChevronRight class="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Desktop pagination (full features) -->
+                <div class="hidden lg:flex items-center justify-between">
+                    <!-- Results Info -->
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        Showing {{ fileTransfers.from }} to {{ fileTransfers.to }} of {{ fileTransfers.total }}
+                        transfers
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="flex items-center space-x-2">
+                        <!-- Previous Button -->
+                        <button @click="changePage(fileTransfers.prev_page_url)"
+                            :disabled="!fileTransfers.prev_page_url"
+                            class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center" :class="fileTransfers.prev_page_url
                                 ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
                                 : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
                             <ChevronLeft class="w-4 h-4 mr-1" />
                             Previous
                         </button>
 
-                        <select :value="fileTransfers.current_page" @change="goToPage(parseInt($event.target.value))"
-                            class="px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white text-sm min-w-0">
-                            <option v-for="pageNum in fileTransfers.last_page" :key="pageNum" :value="pageNum">
-                                {{ pageNum }}
-                            </option>
-                        </select>
+                        <!-- Page Numbers -->
+                        <div class="flex items-center space-x-1">
+                            <template v-for="link in fileTransfers.links.slice(1, -1)" :key="link.label">
+                                <button v-if="link.url" @click="changePage(link.url)"
+                                    class="px-3 py-2 text-sm rounded-lg transition-all duration-200"
+                                    :class="link.active
+                                        ? 'bg-blue-600 text-white'
+                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'"
+                                    v-html="link.label" />
+                                <span v-else class="px-3 py-2 text-sm text-gray-400 cursor-not-allowed"
+                                    v-html="link.label" />
+                            </template>
+                        </div>
 
+                        <!-- Next Button -->
                         <button @click="changePage(fileTransfers.next_page_url)"
                             :disabled="!fileTransfers.next_page_url"
-                            class="px-3 py-2 text-sm rounded-xl transition-all duration-200 flex items-center flex-1 justify-center"
-                            :class="fileTransfers.next_page_url
+                            class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center" :class="fileTransfers.next_page_url
                                 ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
                                 : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
                             Next
                             <ChevronRight class="w-4 h-4 ml-1" />
                         </button>
                     </div>
-                </div>
-
-                <!-- Desktop pagination (full features) -->
-                <div class="hidden lg:flex justify-center space-x-2">
-                    <template v-for="link in fileTransfers.links" :key="link.label">
-                        <component :is="link.url ? 'a' : 'span'" v-html="link.label" :href="link.url"
-                            class="rounded-xl border px-4 py-2 text-sm transition-all duration-200" :class="{
-                                'bg-indigo-600 text-white': link.active,
-                                'cursor-not-allowed text-gray-400': !link.url,
-                                'hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300': link.url && !link.active,
-                            }" />
-                    </template>
                 </div>
             </div>
         </div>
@@ -614,7 +631,7 @@ const goToPage = (pageNumber: number) => {
                                         </div>
                                         <span class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{
                                             file
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                     <a :href="`/Transfer Files/${file}`" download
                                         class="flex items-center space-x-1 px-3 py-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors">

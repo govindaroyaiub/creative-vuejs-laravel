@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { CirclePlus, Pencil, Trash2, LoaderCircle } from 'lucide-vue-next';
+import { CirclePlus, Pencil, Trash2, LoaderCircle, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, watch } from 'vue';
 import { type BreadcrumbItem } from '@/types';
@@ -19,6 +19,16 @@ watch(search, (value) => {
         replace: true,
     });
 });
+
+// Pagination function
+const changePage = (url: string) => {
+    if (url) {
+        router.get(url, { search: search.value }, {
+            preserveScroll: true,
+            preserveState: true,
+        });
+    }
+};
 
 const adding = ref(false);
 const editingId = ref<number | null>(null);
@@ -131,8 +141,8 @@ const saveNewSize = async () => {
                 <input v-model="search" placeholder="Search..."
                     class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
                 <button @click="adding = true" v-if="!adding && editingId === null"
-                    class="ml-4 rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700">
-                    <CirclePlus class="mr-1 inline h-5 w-5" /> Add Size
+                    class="ml-4 rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700 group">
+                    <CirclePlus class="mr-1 inline h-5 w-5 group-hover:rotate-90 transition-transform duration-200" /> Add Size
                 </button>
             </div>
 
@@ -223,17 +233,84 @@ const saveNewSize = async () => {
                 </table>
             </div>
 
-            <!-- Pagination -->
-            <div class="mt-6 flex justify-center space-x-2"
-                v-if="videoSizes.data.length > 0 && videoSizes.links.length">
-                <template v-for="link in videoSizes.links" :key="link.label">
-                    <component :is="link.url ? 'a' : 'span'" v-html="link.label" :href="link.url"
-                        class="rounded-xl border px-4 py-2 text-sm" :class="{
-                            'bg-indigo-600 text-white': link.active,
-                            'cursor-not-allowed text-gray-400': !link.url,
-                            'hover:bg-gray-200 dark:hover:bg-black': link.url && !link.active,
-                        }" />
-                </template>
+            <!-- Pagination - Responsive -->
+            <div v-if="videoSizes.data.length > 0 && videoSizes.links.length" class="mt-6 p-4">
+
+                <!-- Mobile/Tablet pagination (simplified) -->
+                <div class="lg:hidden">
+                    <!-- Results Info -->
+                    <div class="text-sm text-gray-600 dark:text-gray-400 text-center mb-3">
+                        Showing {{ videoSizes.from }} to {{ videoSizes.to }} of {{ videoSizes.total }} video sizes
+                    </div>
+
+                    <!-- Simple prev/next navigation -->
+                    <div class="flex items-center justify-between gap-4">
+                        <button @click="changePage(videoSizes.prev_page_url)" :disabled="!videoSizes.prev_page_url"
+                            class="px-4 py-2 text-sm rounded-xl transition-all duration-200 flex items-center gap-2"
+                            :class="videoSizes.prev_page_url
+                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
+                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
+                            <ChevronLeft class="w-4 h-4" />
+                            Previous
+                        </button>
+
+                        <span class="text-sm text-gray-600 dark:text-gray-400">
+                            Page {{ videoSizes.current_page }} of {{ videoSizes.last_page }}
+                        </span>
+
+                        <button @click="changePage(videoSizes.next_page_url)" :disabled="!videoSizes.next_page_url"
+                            class="px-4 py-2 text-sm rounded-xl transition-all duration-200 flex items-center gap-2"
+                            :class="videoSizes.next_page_url
+                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
+                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
+                            Next
+                            <ChevronRight class="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Desktop pagination (full features) -->
+                <div class="hidden lg:flex items-center justify-between">
+                    <!-- Results Info -->
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        Showing {{ videoSizes.from }} to {{ videoSizes.to }} of {{ videoSizes.total }} video sizes
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="flex items-center space-x-2">
+                        <!-- Previous Button -->
+                        <button @click="changePage(videoSizes.prev_page_url)" :disabled="!videoSizes.prev_page_url"
+                            class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center" :class="videoSizes.prev_page_url
+                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
+                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
+                            <ChevronLeft class="w-4 h-4 mr-1" />
+                            Previous
+                        </button>
+
+                        <!-- Page Numbers -->
+                        <div class="flex items-center space-x-1">
+                            <template v-for="link in videoSizes.links.slice(1, -1)" :key="link.label">
+                                <button v-if="link.url" @click="changePage(link.url)"
+                                    class="px-3 py-2 text-sm rounded-lg transition-all duration-200"
+                                    :class="link.active
+                                        ? 'bg-blue-600 text-white'
+                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'"
+                                    v-html="link.label" />
+                                <span v-else class="px-3 py-2 text-sm text-gray-400 cursor-not-allowed"
+                                    v-html="link.label" />
+                            </template>
+                        </div>
+
+                        <!-- Next Button -->
+                        <button @click="changePage(videoSizes.next_page_url)" :disabled="!videoSizes.next_page_url"
+                            class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center" :class="videoSizes.next_page_url
+                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
+                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
+                            Next
+                            <ChevronRight class="w-4 h-4 ml-1" />
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </AppLayout>
