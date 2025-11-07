@@ -74,6 +74,20 @@ class FileTransferController extends Controller
 
         $fileTransfers = $query->latest()->paginate(10)->withQueryString();
 
+        // Process file_paths for each transfer
+        $fileTransfers->getCollection()->transform(function ($transfer) {
+            // Split file_path into array and remove 'Transfer Files/' prefix
+            if ($transfer->file_path) {
+                $filePaths = array_map(function ($file) {
+                    return str_replace('Transfer Files/', '', trim($file));
+                }, explode(',', $transfer->file_path));
+                $transfer->file_paths = $filePaths;
+            } else {
+                $transfer->file_paths = [];
+            }
+            return $transfer;
+        });
+
         return Inertia::render('FileTransfers/Index', [
             'fileTransfers' => $fileTransfers,
             'search' => $search,

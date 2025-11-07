@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router, usePage, Link } from '@inertiajs/vue3';
-import { CirclePlus, Pencil, Share2, Trash2, Eye, ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { Head, router, usePage } from '@inertiajs/vue3';
+import { CirclePlus, Pencil, Share2, Trash2, Eye, ChevronLeft, ChevronRight, X, Download } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, watch } from 'vue';
 
@@ -11,6 +11,29 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'File Transfers', href: '/file-t
 const page = usePage();
 const search = ref(page.props.search ?? '');
 const fileTransfers = computed(() => page.props.fileTransfers ?? { data: [], links: [] });
+
+// Modal state
+const showModal = ref(false);
+const showEditModal = ref(false);
+const currentEditTransfer = ref<any>(null);
+const form = ref({
+    name: '',
+    client: '',
+    files: [] as File[],
+});
+const editForm = ref({
+    id: '',
+    name: '',
+    client: '',
+    files: [] as File[],
+    file_paths: [] as string[],
+});
+const fileSize = ref('0.00');
+const editFileSize = ref('0.00');
+const dragOver = ref(false);
+const editDragOver = ref(false);
+const fileInput = ref<HTMLInputElement>();
+const editFileInput = ref<HTMLInputElement>();
 
 watch(search, (value) => {
     router.get(route('file-transfers'), { search: value }, {
@@ -34,8 +57,26 @@ const deleteFileTransfer = async (id: number) => {
     if (result.isConfirmed) {
         router.delete(route('file-transfers-delete', id), {
             preserveScroll: true,
-            onSuccess: () => Swal.fire('Deleted!', 'File transfer deleted successfully.', 'success'),
-            onError: () => Swal.fire('Error!', 'Failed to delete file transfer.', 'error'),
+            onSuccess: () => Swal.fire({
+                title: 'Deleted!',
+                text: 'File transfer deleted successfully.',
+                icon: 'success',
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true
+            }),
+            onError: () => Swal.fire({
+                title: 'Error!',
+                text: 'Failed to delete file transfer.',
+                icon: 'error',
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true,
+                toast: true
+            }),
         });
     }
 };
@@ -48,6 +89,186 @@ const changePage = (url: string) => {
             preserveState: true,
         });
     }
+};
+
+// Modal functions
+const openModal = () => {
+    form.value = {
+        name: '',
+        client: '',
+        files: [],
+    };
+    fileSize.value = '0.00';
+    showModal.value = true;
+};
+
+const closeModal = () => {
+    showModal.value = false;
+    form.value = {
+        name: '',
+        client: '',
+        files: [],
+    };
+    fileSize.value = '0.00';
+};
+
+const handleFileDrop = (event: DragEvent) => {
+    dragOver.value = false;
+    if (!event.dataTransfer?.files) return;
+
+    const droppedFiles = Array.from(event.dataTransfer.files).filter((file) =>
+        file.name.toLowerCase().endsWith('.zip')
+    );
+    form.value.files = droppedFiles;
+
+    const totalBytes = droppedFiles.reduce((acc, file) => acc + file.size, 0);
+    fileSize.value = (totalBytes / (1024 * 1024)).toFixed(2);
+};
+
+const handleFileChange = (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    if (!input.files) return;
+
+    const selected = Array.from(input.files).filter((file) =>
+        file.name.toLowerCase().endsWith('.zip')
+    );
+    form.value.files = selected;
+
+    const totalBytes = selected.reduce((acc, file) => acc + file.size, 0);
+    fileSize.value = (totalBytes / (1024 * 1024)).toFixed(2);
+};
+
+const handleSubmit = () => {
+    const payload = new FormData();
+    payload.append('name', form.value.name);
+    payload.append('client', form.value.client);
+    form.value.files.forEach((file) => {
+        payload.append('file[]', file);
+    });
+
+    router.post('/file-transfers-add', payload, {
+        forceFormData: true,
+        onSuccess: () => {
+            closeModal();
+            Swal.fire({
+                title: 'Success!',
+                text: 'File transfer created successfully.',
+                icon: 'success',
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true
+            });
+        },
+        onError: () => {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Failed to create file transfer.',
+                icon: 'error',
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true,
+                toast: true
+            });
+        }
+    });
+};
+
+// Edit Modal functions
+const openEditModal = (transfer: any) => {
+    currentEditTransfer.value = transfer;
+
+    // Now file_paths should always be an array from the backend
+    const filePaths = transfer.file_paths || [];
+
+    editForm.value = {
+        id: transfer.id,
+        name: transfer.name,
+        client: transfer.client,
+        files: [],
+        file_paths: filePaths,
+    };
+    editFileSize.value = '0.00';
+    showEditModal.value = true;
+};
+
+const closeEditModal = () => {
+    showEditModal.value = false;
+    currentEditTransfer.value = null;
+    editForm.value = {
+        id: '',
+        name: '',
+        client: '',
+        files: [],
+        file_paths: [],
+    };
+    editFileSize.value = '0.00';
+};
+
+const handleEditFileDrop = (event: DragEvent) => {
+    editDragOver.value = false;
+    if (!event.dataTransfer?.files) return;
+
+    const droppedFiles = Array.from(event.dataTransfer.files).filter((file) =>
+        file.name.toLowerCase().endsWith('.zip')
+    );
+    editForm.value.files = droppedFiles;
+
+    const totalBytes = droppedFiles.reduce((acc, file) => acc + file.size, 0);
+    editFileSize.value = (totalBytes / (1024 * 1024)).toFixed(2);
+};
+
+const handleEditFileChange = (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    if (!input.files) return;
+
+    const selected = Array.from(input.files).filter((file) =>
+        file.name.toLowerCase().endsWith('.zip')
+    );
+    editForm.value.files = selected;
+
+    const totalBytes = selected.reduce((acc, file) => acc + file.size, 0);
+    editFileSize.value = (totalBytes / (1024 * 1024)).toFixed(2);
+};
+
+const handleEditSubmit = () => {
+    const payload = new FormData();
+    payload.append('name', editForm.value.name);
+    payload.append('client', editForm.value.client);
+    editForm.value.files.forEach((file) => {
+        payload.append('file[]', file);
+    });
+
+    router.post(`/file-transfers-edit/${editForm.value.id}`, payload, {
+        forceFormData: true,
+        onSuccess: () => {
+            closeEditModal();
+            Swal.fire({
+                title: 'Success!',
+                text: 'File transfer updated successfully.',
+                icon: 'success',
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                toast: true
+            });
+        },
+        onError: () => {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Failed to update file transfer.',
+                icon: 'error',
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true,
+                toast: true
+            });
+        }
+    });
 };
 
 const goToPage = (pageNumber: number) => {
@@ -70,11 +291,11 @@ const goToPage = (pageNumber: number) => {
             <div class="mb-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
                 <input v-model="search" placeholder="Search..."
                     class="w-full sm:max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
-                <Link :href="route('file-transfers-add')"
+                <button @click="openModal"
                     class="rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700 flex items-center justify-center whitespace-nowrap">
-                <CirclePlus class="mr-2 h-5 w-5" />
-                Add Transfer
-                </Link>
+                    <CirclePlus class="mr-2 h-5 w-5" />
+                    Add Transfer
+                </button>
             </div>
 
             <!-- Desktop Table -->
@@ -110,10 +331,10 @@ const goToPage = (pageNumber: number) => {
                                     class="text-green-600 hover:text-green-800 p-1" aria-label="View Transfer">
                                     <Eye class="inline h-5 w-5" />
                                 </a>
-                                <Link :href="route('file-transfers-edit', transfer.id)"
-                                    class="text-blue-600 hover:text-blue-800 p-1" aria-label="Edit Transfer">
-                                <Pencil class="inline h-5 w-5" />
-                                </Link>
+                                <button @click="openEditModal(transfer)" class="text-blue-600 hover:text-blue-800 p-1"
+                                    aria-label="Edit Transfer">
+                                    <Pencil class="inline h-5 w-5" />
+                                </button>
                                 <button @click="deleteFileTransfer(transfer.id)"
                                     class="text-red-600 hover:text-red-800 p-1" aria-label="Delete Transfer">
                                     <Trash2 class="inline h-5 w-5" />
@@ -152,11 +373,11 @@ const goToPage = (pageNumber: number) => {
                                 aria-label="View Transfer">
                                 <Eye class="h-5 w-5" />
                             </a>
-                            <Link :href="route('file-transfers-edit', transfer.id)"
+                            <button @click="openEditModal(transfer)"
                                 class="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
                                 aria-label="Edit Transfer">
-                            <Pencil class="h-5 w-5" />
-                            </Link>
+                                <Pencil class="h-5 w-5" />
+                            </button>
                             <button @click="deleteFileTransfer(transfer.id)"
                                 class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
                                 aria-label="Delete Transfer">
@@ -195,8 +416,7 @@ const goToPage = (pageNumber: number) => {
             </div>
 
             <!-- Pagination - responsive -->
-            <div v-if="fileTransfers.data.length && fileTransfers.links?.length"
-                class="mt-6 p-4">
+            <div v-if="fileTransfers.data.length && fileTransfers.links?.length" class="mt-6 p-4">
 
                 <!-- Mobile pagination (simplified) -->
                 <div class="lg:hidden">
@@ -247,6 +467,229 @@ const goToPage = (pageNumber: number) => {
                                 'hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300': link.url && !link.active,
                             }" />
                     </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Transfer Modal -->
+        <div v-if="showModal"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4"
+            @click.self="closeModal">
+            <div
+                class="bg-white dark:bg-neutral-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-neutral-700">
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-neutral-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Add File Transfer</h2>
+                    <button @click="closeModal"
+                        class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-all duration-200">
+                        <X class="w-5 h-5" />
+                    </button>
+                </div>
+
+                <!-- Modal Content -->
+                <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+                    <form @submit.prevent="handleSubmit" class="space-y-6">
+                        <!-- Name -->
+                        <div>
+                            <label for="name"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Name</label>
+                            <input id="name" v-model="form.name" required type="text"
+                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700" />
+                        </div>
+
+                        <!-- Client -->
+                        <div>
+                            <label for="client"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Client</label>
+                            <input id="client" v-model="form.client" required type="text"
+                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700" />
+                        </div>
+
+                        <!-- Drag & Drop Upload -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Upload ZIP
+                                Files</label>
+
+                            <div @dragover.prevent="dragOver = true" @dragleave.prevent="dragOver = false"
+                                @drop.prevent="handleFileDrop"
+                                :class="['flex flex-col items-center justify-center border-2 border-dashed p-6 rounded-2xl transition-all cursor-pointer',
+                                    dragOver ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-gray-300 dark:border-neutral-700']"
+                                @click="fileInput?.click()">
+                                <input type="file" multiple accept=".zip" @change="handleFileChange" hidden
+                                    ref="fileInput" />
+                                <div class="text-center">
+                                    <p
+                                        class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer">
+                                        Click to upload or drag ZIP files here
+                                    </p>
+                                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Only .zip files are allowed
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- File list -->
+                            <div v-if="form.files.length"
+                                class="mt-3 text-sm text-gray-600 dark:text-gray-300 space-y-1">
+                                <div v-for="(file, idx) in form.files" :key="idx"
+                                    class="flex justify-between items-center p-2 bg-gray-50 dark:bg-neutral-700 rounded-lg">
+                                    <span>{{ file.name }}</span>
+                                    <span class="text-xs text-gray-500">{{ (file.size / 1024 / 1024).toFixed(2) }}
+                                        MB</span>
+                                </div>
+                                <div class="font-medium">Total size: {{ fileSize }} MB</div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="flex space-x-4 pt-4">
+                            <button type="button" @click="closeModal"
+                                class="flex-1 rounded-xl bg-gray-600 px-6 py-3 text-white shadow hover:bg-gray-700 transition-colors">
+                                Cancel
+                            </button>
+                            <button type="submit" :disabled="!form.name || !form.client || !form.files.length"
+                                class="flex-1 rounded-xl bg-green-600 px-6 py-3 text-white shadow hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                Save
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Transfer Modal -->
+        <div v-if="showEditModal"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4"
+            @click.self="closeEditModal">
+            <div
+                class="bg-white dark:bg-neutral-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-neutral-700">
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-neutral-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Edit File Transfer</h2>
+                    <button @click="closeEditModal"
+                        class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-all duration-200">
+                        <X class="w-5 h-5" />
+                    </button>
+                </div>
+
+                <!-- Modal Content -->
+                <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+                    <form @submit.prevent="handleEditSubmit" class="space-y-6">
+                        <!-- Name -->
+                        <div>
+                            <label for="editName"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Name</label>
+                            <input id="editName" v-model="editForm.name" required type="text"
+                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700" />
+                        </div>
+
+                        <!-- Client -->
+                        <div>
+                            <label for="editClient"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Client</label>
+                            <input id="editClient" v-model="editForm.client" required type="text"
+                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700" />
+                        </div>
+
+                        <!-- Existing Files -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                                Existing Files
+                                <span v-if="editForm.file_paths && editForm.file_paths.length > 0"
+                                    class="text-xs font-normal text-gray-500">({{ editForm.file_paths.length }}
+                                    files)</span>
+                            </label>
+
+                            <div v-if="editForm.file_paths && editForm.file_paths.length > 0"
+                                class="border border-gray-300 dark:border-neutral-700 rounded-2xl p-4 bg-gray-50 dark:bg-neutral-900 space-y-2">
+                                <div v-for="(file, index) in editForm.file_paths" :key="index"
+                                    class="flex items-center justify-between p-3 bg-white dark:bg-neutral-800 rounded-lg border border-gray-100 dark:border-neutral-600">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                                            <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10">
+                                                </path>
+                                            </svg>
+                                        </div>
+                                        <span class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{
+                                            file
+                                            }}</span>
+                                    </div>
+                                    <a :href="`/Transfer Files/${file}`" download
+                                        class="flex items-center space-x-1 px-3 py-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors">
+                                        <Download class="h-4 w-4" />
+                                        <span class="text-xs">Download</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div v-else
+                                class="border border-gray-300 dark:border-neutral-700 rounded-2xl p-6 bg-gray-50 dark:bg-neutral-900 text-center">
+                                <div
+                                    class="p-3 bg-gray-100 dark:bg-neutral-800 rounded-full w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                                        </path>
+                                    </svg>
+                                </div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">No existing files found</p>
+                                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Upload new files below to add
+                                    them to
+                                    this transfer</p>
+                            </div>
+                        </div>
+
+                        <!-- Upload New ZIP Files -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Upload New
+                                ZIP
+                                Files</label>
+
+                            <div @dragover.prevent="editDragOver = true" @dragleave.prevent="editDragOver = false"
+                                @drop.prevent="handleEditFileDrop"
+                                :class="['flex flex-col items-center justify-center border-2 border-dashed p-6 rounded-2xl transition-all cursor-pointer',
+                                    editDragOver ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-gray-300 dark:border-neutral-700']"
+                                @click="editFileInput?.click()">
+                                <input type="file" multiple accept=".zip" @change="handleEditFileChange" hidden
+                                    ref="editFileInput" />
+                                <div class="text-center">
+                                    <p
+                                        class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer">
+                                        Click to upload or drag ZIP files here
+                                    </p>
+                                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Only .zip files are allowed
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- New File list -->
+                            <div v-if="editForm.files.length"
+                                class="mt-3 text-sm text-gray-600 dark:text-gray-300 space-y-1">
+                                <div v-for="(file, idx) in editForm.files" :key="idx"
+                                    class="flex justify-between items-center p-2 bg-gray-50 dark:bg-neutral-700 rounded-lg">
+                                    <span>{{ file.name }}</span>
+                                    <span class="text-xs text-gray-500">{{ (file.size / 1024 / 1024).toFixed(2) }}
+                                        MB</span>
+                                </div>
+                                <div class="font-medium">Total new files size: {{ editFileSize }} MB</div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="flex space-x-4 pt-4">
+                            <button type="button" @click="closeEditModal"
+                                class="flex-1 rounded-xl bg-gray-600 px-6 py-3 text-white shadow hover:bg-gray-700 transition-colors">
+                                Cancel
+                            </button>
+                            <button type="submit" :disabled="!editForm.name || !editForm.client"
+                                class="flex-1 rounded-xl bg-blue-600 px-6 py-3 text-white shadow hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                Update Transfer
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

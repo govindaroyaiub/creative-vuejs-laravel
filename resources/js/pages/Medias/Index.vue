@@ -251,8 +251,7 @@ const getFileSize = (bytes: number) => {
             </div>
 
             <!-- Pagination - responsive -->
-            <div v-if="medias.length && links.length"
-                class="mt-6 p-4">
+            <div v-if="medias.length && links.length" class="mt-6 p-4">
 
                 <!-- Mobile pagination (simplified) -->
                 <div class="lg:hidden">
@@ -310,7 +309,8 @@ const getFileSize = (bytes: number) => {
 
             <!-- Upload Modal -->
             <div v-if="modalVisible"
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+                @click.self="modalVisible = false">
                 <div
                     class="w-full max-w-md rounded-2xl bg-white p-6 shadow-lg dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700">
                     <h2 class="text-lg font-bold mb-4 text-gray-800 dark:text-white">Upload Media</h2>

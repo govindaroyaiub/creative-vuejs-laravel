@@ -6,7 +6,8 @@
       class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-black dark:via-gray-950 dark:to-black">
       <div class="p-6 space-y-6">
         <!-- Stats Card -->
-        <div class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
+        <div
+          class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="flex items-center space-x-4">
               <div class="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl">
@@ -60,8 +61,7 @@
         </div>
 
         <!-- Search Section -->
-        <div
-          class="rounded-2xl dark:border-neutral-700 flex items-center space-x-4">
+        <div class="rounded-2xl dark:border-neutral-700 flex items-center space-x-4">
           <div class="relative w-full">
             <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" fill="none"
               stroke="currentColor" viewBox="0 0 24 24">
@@ -142,7 +142,8 @@
               <div class="space-y-4">
                 <div>
                   <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Feedback Tabs</p>
-                  <div class="flex items-center justify-between space-x-4 bg-gray-50 dark:bg-neutral-500 rounded-xl p-3">
+                  <div
+                    class="flex items-center justify-between space-x-4 bg-gray-50 dark:bg-neutral-500 rounded-xl p-3">
                     <div class="text-center">
                       <img :src="`/${palette.feedbackTab_inactive_image}`" alt="Inactive" class="h-8 mx-auto mb-1" />
                       <span class="text-xs text-gray-500 dark:text-gray-400">Inactive</span>
@@ -159,7 +160,8 @@
 
                 <div>
                   <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Right Side Tabs</p>
-                  <div class="flex items-center justify-between space-x-4 bg-gray-50 dark:bg-neutral-500 rounded-xl p-3">
+                  <div
+                    class="flex items-center justify-between space-x-4 bg-gray-50 dark:bg-neutral-500 rounded-xl p-3">
                     <div class="text-center">
                       <img :src="`/${palette.rightSideTab_feedback_description_image}`" alt="Feedback Description"
                         class="h-8 mx-auto mb-1" />
@@ -231,7 +233,8 @@
     </div>
 
     <!-- Enhanced Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 ckdrop-blur-sm p-4">
+    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 ckdrop-blur-sm p-4"
+      @click.self="closeModal">
       <div
         class="bg-white dark:bg-neutral-800 rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-neutral-700">
         <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-neutral-700">
@@ -284,7 +287,8 @@
               <!-- Header Image -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Header Image</label>
-                <div class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-700">
+                <div
+                  class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-700">
                   <img v-if="form.header_image_preview" :src="form.header_image_preview"
                     class="h-16 mb-3 mx-auto rounded border border-gray-200 dark:border-neutral-700" />
                   <input type="file" @change="onFileChange('header_image', $event)" accept="image/*"
@@ -297,7 +301,8 @@
                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Feedback Tab
                   Images</label>
                 <div class="space-y-4">
-                  <div class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-700">
+                  <div
+                    class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-700">
                     <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Inactive
                       State</label>
                     <img v-if="form.feedbackTab_inactive_image_preview" :src="form.feedbackTab_inactive_image_preview"
@@ -306,7 +311,8 @@
                       class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900 dark:file:text-blue-300" />
                   </div>
 
-                  <div class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-700">
+                  <div
+                    class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-700">
                     <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Active State</label>
                     <img v-if="form.feedbackTab_active_image_preview" :src="form.feedbackTab_active_image_preview"
                       class="h-12 mb-3 rounded border border-gray-200 dark:border-neutral-700" />
@@ -321,7 +327,8 @@
                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Right Side Tab
                   Images</label>
                 <div class="space-y-4">
-                  <div class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-700">
+                  <div
+                    class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-700">
                     <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Feedback
                       Description</label>
                     <img v-if="form.rightSideTab_feedback_description_image_preview"
@@ -332,7 +339,8 @@
                       class="w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900 dark:file:text-blue-300" />
                   </div>
 
-                  <div class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-700">
+                  <div
+                    class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-700">
                     <label class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Color Palette
                       Tab</label>
                     <img v-if="form.rightSideTab_color_palette_image_preview"

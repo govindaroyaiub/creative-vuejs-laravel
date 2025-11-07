@@ -179,7 +179,7 @@ const goToPage = (pageNumber: number) => {
                             </td>
                             <td class="w-80 px-4 py-3 text-left border-b">
                                 <div class="font-semibold capitalize break-words" :title="preview.name">{{ preview.name
-                                    }}</div>
+                                }}</div>
                                 <div class="text-xs text-gray-500 flex gap-2 items-center">
                                     <div class="h-5 w-5 rounded-full border flex-shrink-0"
                                         :style="{ backgroundColor: preview.color_palette?.primary ?? 'red' }"
@@ -323,8 +323,7 @@ const goToPage = (pageNumber: number) => {
             </div>
 
             <!-- Pagination - responsive -->
-            <div v-if="previews.links && previews.links.length"
-                class="mt-6 p-4">
+            <div v-if="previews.links && previews.links.length" class="mt-6 p-4">
 
                 <!-- Mobile pagination (simplified) -->
                 <div class="lg:hidden">
@@ -420,7 +419,8 @@ const goToPage = (pageNumber: number) => {
 
         <!-- Modal -->
         <div v-if="showModal"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4">
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4"
+            @click.self="closeModal">
             <div
                 class="bg-white dark:bg-neutral-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-neutral-700">
                 <!-- Modal Header -->
