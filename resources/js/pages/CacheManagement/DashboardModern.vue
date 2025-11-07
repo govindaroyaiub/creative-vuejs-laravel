@@ -7,299 +7,314 @@
         <div
             class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
             <!-- Clean Header -->
-            <header class="backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/50 sticky top-0 z-50">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-                        <div class="flex items-center space-x-3 sm:space-x-4">
-                            <div class="min-w-0 flex-1">
-                                <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white truncate">Cache
-                                    Management</h1>
-                                <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm hidden sm:block">System
-                                    cleanup and monitoring</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-between sm:justify-end space-x-2 sm:space-x-3">
-                            <!-- Live Server Time Card -->
-                            <div
-                                class="bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl px-3 sm:px-6 py-1.5 sm:py-2 text-right flex-shrink-0">
-                                <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Server Time</p>
-                                <p class="text-xs sm:text-sm font-mono font-semibold text-slate-900 dark:text-white">
-                                    {{ currentTime || 'Loading...' }}
-                                </p>
-                                <p class="text-xs text-emerald-500 mt-0.5 sm:mt-1 hidden sm:block">
-                                    🌍 {{ currentTimezone }}
-                                </p>
+            <div class="container mx-auto px-4 max-w-5xl">
+                <header
+                    class="backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/50 sticky top-0 z-50">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                            <div class="flex items-center space-x-3 sm:space-x-4">
+                                <div class="min-w-0 flex-1">
+                                    <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white truncate">
+                                        Cache
+                                        Management</h1>
+                                    <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm hidden sm:block">
+                                        System
+                                        cleanup and monitoring</p>
+                                </div>
                             </div>
 
-                            <!-- Refresh Button -->
-                            <button @click="refreshAllData()" :disabled="isRefreshing"
-                                class="px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white rounded-lg sm:rounded-xl transition-all duration-200 flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
-                                <svg :class="{ 'animate-spin': isRefreshing }" class="w-3 h-3 sm:w-4 sm:h-4" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-                                    </path>
-                                </svg>
-                                <span class="text-xs sm:text-sm">{{ isRefreshing ? 'Refreshing...' : 'Refresh' }}</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </header>
+                            <div class="flex items-center justify-between sm:justify-end space-x-2 sm:space-x-3">
+                                <!-- Live Server Time Card -->
+                                <div
+                                    class="bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl px-3 sm:px-6 py-1.5 sm:py-2 text-right flex-shrink-0">
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Server Time
+                                    </p>
+                                    <p
+                                        class="text-xs sm:text-sm font-mono font-semibold text-slate-900 dark:text-white">
+                                        {{ currentTime || 'Loading...' }}
+                                    </p>
+                                    <p class="text-xs text-emerald-500 mt-0.5 sm:mt-1 hidden sm:block">
+                                        🌍 {{ currentTimezone }}
+                                    </p>
+                                </div>
 
-            <!-- Main Content -->
-            <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-
-                <!-- Tab Navigation -->
-                <div class="mb-6 sm:mb-8">
-                    <nav class="flex overflow-x-auto scrollbar-hide bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-                        <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="[
-                            'px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-sm whitespace-nowrap transition-all duration-200 flex-shrink-0',
-                            activeTab === tab.id
-                                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm'
-                                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-                        ]">
-                            <span class="mr-2">{{ tab.icon }}</span>
-                            {{ tab.name }}
-                        </button>
-                    </nav>
-                </div>
-
-                <!-- Tab Content -->
-                <div class="space-y-6 sm:space-y-8">
-
-                    <!-- Overview Tab -->
-                    <div v-show="activeTab === 'overview'" class="space-y-4 sm:space-y-6">
-
-                        <!-- Quick Actions -->
-                        <section
-                            class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
-                            <h2
-                                class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 flex items-center">
-                                <span class="text-lg sm:text-xl mr-2 sm:mr-3">⚡</span>
-                                Quick Actions
-                            </h2>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
-                                <button v-for="action in quickActions" :key="action.type"
-                                    @click="handleQuickAction(action.type)" :disabled="isRunningCleanup"
-                                    class="group relative p-3 sm:p-4 bg-gradient-to-br rounded-lg sm:rounded-xl transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:opacity-50 min-h-[80px] sm:min-h-[100px] flex flex-col justify-center"
-                                    :class="action.gradient">
-                                    <div class="text-lg sm:text-2xl mb-1 sm:mb-2">{{ action.icon }}</div>
-                                    <div class="text-xs sm:text-sm font-semibold text-white">{{ action.name }}</div>
-                                    <div class="text-xs text-white/80 mt-0.5 sm:mt-1">{{ action.description }}</div>
+                                <!-- Refresh Button -->
+                                <button @click="refreshAllData()" :disabled="isRefreshing"
+                                    class="px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white rounded-lg sm:rounded-xl transition-all duration-200 flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+                                    <svg :class="{ 'animate-spin': isRefreshing }" class="w-3 h-3 sm:w-4 sm:h-4"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                        </path>
+                                    </svg>
+                                    <span class="text-xs sm:text-sm">{{ isRefreshing ? 'Refreshing...' : 'Refresh'
+                                        }}</span>
                                 </button>
                             </div>
-                        </section>
-
-                        <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-2 gap-4 sm:gap-6">
-                            <div v-for="(stat, key) in currentStats" :key="key"
-                                class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 hover:shadow-lg transition-all duration-200">
-                                <div class="flex items-center justify-between mb-3 sm:mb-4">
-                                    <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-                                        <div class="text-xl sm:text-2xl flex-shrink-0">{{ stat.icon }}</div>
-                                        <div class="min-w-0 flex-1">
-                                            <h3
-                                                class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base truncate">
-                                                {{ stat.name }}</h3>
-                                            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{
-                                                stat.files
-                                                }} files</p>
-                                        </div>
-                                    </div>
-                                    <div class="text-right flex-shrink-0">
-                                        <div class="text-sm sm:text-lg font-bold text-slate-900 dark:text-white">{{
-                                            formatBytes(stat.size) }}</div>
-                                    </div>
-                                </div>
-
-                                <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                                    <div class="h-2 rounded-full transition-all duration-1000" :style="{
-                                        width: `${getUsagePercentage(stat.size)}%`,
-                                        background: getColorGradient(stat.color)
-                                    }">
-                                    </div>
-                                </div>
-                            </div>
                         </div>
+                    </div>
+                </header>
 
-                        <!-- Status Cards Row -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
-                            <!-- System Info & Disk Usage -->
-                            <div
+                <!-- Main Content -->
+                <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+                    <!-- Tab Navigation -->
+                    <div class="mb-6 sm:mb-8">
+                        <nav class="flex overflow-x-auto scrollbar-hide bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                            <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="[
+                                'px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-sm whitespace-nowrap transition-all duration-200 flex-shrink-0',
+                                activeTab === tab.id
+                                    ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm'
+                                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                            ]">
+                                <span class="mr-2">{{ tab.icon }}</span>
+                                {{ tab.name }}
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- Tab Content -->
+                    <div class="space-y-6 sm:space-y-8">
+
+                        <!-- Overview Tab -->
+                        <div v-show="activeTab === 'overview'" class="space-y-4 sm:space-y-6">
+
+                            <!-- Quick Actions -->
+                            <section
                                 class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
-                                <h3
-                                    class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
-                                    System Overview</h3>
+                                <h2
+                                    class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 flex items-center">
+                                    <span class="text-lg sm:text-xl mr-2 sm:mr-3">⚡</span>
+                                    Quick Actions
+                                </h2>
 
-                                <!-- System Info Section -->
-                                <div class="space-y-2 sm:space-y-3 mb-4">
-                                    <div class="flex justify-between text-xs sm:text-sm">
-                                        <span class="text-slate-500 dark:text-slate-400">PHP</span>
-                                        <span class="font-medium text-slate-900 dark:text-white font-mono text-right">
-                                            {{ systemInfo?.php_version || 'Loading...' }}
-                                        </span>
-                                    </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
+                                    <button v-for="action in quickActions" :key="action.type"
+                                        @click="handleQuickAction(action.type)" :disabled="isRunningCleanup"
+                                        class="group relative p-3 sm:p-4 bg-gradient-to-br rounded-lg sm:rounded-xl transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:opacity-50 min-h-[80px] sm:min-h-[100px] flex flex-col justify-center"
+                                        :class="action.gradient">
+                                        <div class="text-lg sm:text-2xl mb-1 sm:mb-2">{{ action.icon }}</div>
+                                        <div class="text-xs sm:text-sm font-semibold text-white">{{ action.name }}</div>
+                                        <div class="text-xs text-white/80 mt-0.5 sm:mt-1">{{ action.description }}</div>
+                                    </button>
+                                </div>
+                            </section>
 
-                                    <div class="flex justify-between text-xs sm:text-sm">
-                                        <span class="text-slate-500 dark:text-slate-400">Laravel</span>
-                                        <span class="font-medium text-slate-900 dark:text-white font-mono text-right">
-                                            {{ systemInfo?.laravel_version || 'Loading...' }}
-                                        </span>
-                                    </div>
-
-                                    <div class="flex justify-between text-xs sm:text-sm">
-                                        <span class="text-slate-500 dark:text-slate-400">Timezone</span>
-                                        <div class="text-right">
-                                            <span class="font-medium text-slate-900 dark:text-white font-mono text-xs">
-                                                {{ systemInfo?.timezone || 'Loading...' }}
-                                            </span>
-                                            <div v-if="systemInfo?.is_timezone_detected"
-                                                class="text-xs text-emerald-500">
-                                                🌍 Auto-detected
+                            <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-2 gap-4 sm:gap-6">
+                                <div v-for="(stat, key) in currentStats" :key="key"
+                                    class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 hover:shadow-lg transition-all duration-200">
+                                    <div class="flex items-center justify-between mb-3 sm:mb-4">
+                                        <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                                            <div class="text-xl sm:text-2xl flex-shrink-0">{{ stat.icon }}</div>
+                                            <div class="min-w-0 flex-1">
+                                                <h3
+                                                    class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base truncate">
+                                                    {{ stat.name }}</h3>
+                                                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{
+                                                    stat.files
+                                                    }} files</p>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-
-                                <!-- Divider -->
-                                <div class="border-t border-slate-200 dark:border-slate-700 my-4"></div>
-
-                                <!-- Disk Usage Section -->
-                                <div class="space-y-3">
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">Disk
-                                            Usage</span>
-                                        <div class="text-right">
-                                            <div class="text-lg font-bold text-slate-900 dark:text-white">
-                                                {{ systemInfo?.disk_usage?.used_percentage || 0 }}%
-                                            </div>
+                                        <div class="text-right flex-shrink-0">
+                                            <div class="text-sm sm:text-lg font-bold text-slate-900 dark:text-white">{{
+                                                formatBytes(stat.size) }}</div>
                                         </div>
                                     </div>
 
                                     <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-1000"
-                                            :style="{ width: `${systemInfo?.disk_usage?.used_percentage || 0}%` }">
+                                        <div class="h-2 rounded-full transition-all duration-1000" :style="{
+                                            width: `${getUsagePercentage(stat.size)}%`,
+                                            background: getColorGradient(stat.color)
+                                        }">
                                         </div>
-                                    </div>
-
-                                    <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400">
-                                        <span>Free: {{ systemInfo?.disk_usage?.free || 'N/A' }}</span>
-                                        <span>Total: {{ systemInfo?.disk_usage?.total || 'N/A' }}</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Log Files -->
-                            <div class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6"
-                                :class="{ 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/10': systemInfo?.logs?.total?.needs_attention }">
-                                <div class="flex items-center justify-between mb-3 sm:mb-4">
-                                    <h3 class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base flex items-center"
-                                        :class="{ 'text-red-600 dark:text-red-400': systemInfo?.logs?.total?.needs_attention }">
-                                        <span class="mr-2">📋</span>
-                                        Log Files
-                                        <span v-if="systemInfo?.logs?.total?.needs_attention" class="ml-2 text-red-500"
-                                            title="Logs exceed 20MB - needs attention">⚠️</span>
-                                    </h3>
-                                    <button @click="blankLogFiles" :disabled="isBlankingLogs"
-                                        class="px-3 py-1.5 bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:hover:bg-orange-900/40 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
-                                        <svg v-if="!isBlankingLogs" class="w-3 h-3 mr-1" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                            </path>
-                                        </svg>
-                                        <div v-else
-                                            class="w-3 h-3 mr-1 animate-spin rounded-full border-2 border-orange-600 border-t-transparent">
-                                        </div>
-                                        {{ isBlankingLogs ? 'Blanking...' : 'Blank Logs' }}
-                                    </button>
-                                </div>
+                            <!-- Status Cards Row -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
+                                <!-- System Info & Disk Usage -->
+                                <div
+                                    class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                                    <h3
+                                        class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
+                                        System Overview</h3>
 
-                                <div class="space-y-3">
-                                    <!-- Total Size -->
-                                    <div class="flex justify-between items-center text-xs sm:text-sm p-3 rounded-lg"
-                                        :class="systemInfo?.logs?.total?.needs_attention ? 'bg-red-100 dark:bg-red-900/20' : 'bg-slate-100 dark:bg-slate-800'">
-                                        <span class="font-medium"
-                                            :class="systemInfo?.logs?.total?.needs_attention ? 'text-red-700 dark:text-red-400' : 'text-slate-700 dark:text-slate-300'">Total
-                                            Size</span>
-                                        <span class="font-bold"
-                                            :class="systemInfo?.logs?.total?.needs_attention ? 'text-red-700 dark:text-red-400' : 'text-slate-900 dark:text-white'">
-                                            {{ systemInfo?.logs?.total?.formatted_size || '0 B' }}
-                                        </span>
-                                    </div>
-
-                                    <!-- Laravel Application Logs -->
-                                    <div class="flex justify-between text-xs sm:text-sm">
-                                        <span class="text-slate-500 dark:text-slate-400">Laravel App Logs</span>
-                                        <div class="text-right">
-                                            <span class="font-medium text-slate-900 dark:text-white font-mono">
-                                                {{ systemInfo?.logs?.laravel?.formatted_size || '0 B' }}
+                                    <!-- System Info Section -->
+                                    <div class="space-y-2 sm:space-y-3 mb-4">
+                                        <div class="flex justify-between text-xs sm:text-sm">
+                                            <span class="text-slate-500 dark:text-slate-400">PHP</span>
+                                            <span
+                                                class="font-medium text-slate-900 dark:text-white font-mono text-right">
+                                                {{ systemInfo?.php_version || 'Loading...' }}
                                             </span>
-                                            <div v-if="systemInfo?.logs?.laravel?.count" class="text-xs text-slate-400">
-                                                {{ systemInfo.logs.laravel.count }} file(s)
+                                        </div>
+
+                                        <div class="flex justify-between text-xs sm:text-sm">
+                                            <span class="text-slate-500 dark:text-slate-400">Laravel</span>
+                                            <span
+                                                class="font-medium text-slate-900 dark:text-white font-mono text-right">
+                                                {{ systemInfo?.laravel_version || 'Loading...' }}
+                                            </span>
+                                        </div>
+
+                                        <div class="flex justify-between text-xs sm:text-sm">
+                                            <span class="text-slate-500 dark:text-slate-400">Timezone</span>
+                                            <div class="text-right">
+                                                <span
+                                                    class="font-medium text-slate-900 dark:text-white font-mono text-xs">
+                                                    {{ systemInfo?.timezone || 'Loading...' }}
+                                                </span>
+                                                <div v-if="systemInfo?.is_timezone_detected"
+                                                    class="text-xs text-emerald-500">
+                                                    🌍 Auto-detected
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Cache Management Logs -->
-                                    <div class="flex justify-between text-xs sm:text-sm">
-                                        <span class="text-slate-500 dark:text-slate-400">Cache Mgmt Logs</span>
-                                        <div class="text-right">
-                                            <span class="font-medium text-slate-900 dark:text-white font-mono">
-                                                {{ systemInfo?.logs?.cache_management?.formatted_size || '0 B' }}
+                                    <!-- Divider -->
+                                    <div class="border-t border-slate-200 dark:border-slate-700 my-4"></div>
+
+                                    <!-- Disk Usage Section -->
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">Disk
+                                                Usage</span>
+                                            <div class="text-right">
+                                                <div class="text-lg font-bold text-slate-900 dark:text-white">
+                                                    {{ systemInfo?.disk_usage?.used_percentage || 0 }}%
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                                            <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-1000"
+                                                :style="{ width: `${systemInfo?.disk_usage?.used_percentage || 0}%` }">
+                                            </div>
+                                        </div>
+
+                                        <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400">
+                                            <span>Free: {{ systemInfo?.disk_usage?.free || 'N/A' }}</span>
+                                            <span>Total: {{ systemInfo?.disk_usage?.total || 'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Log Files -->
+                                <div class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6"
+                                    :class="{ 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/10': systemInfo?.logs?.total?.needs_attention }">
+                                    <div class="flex items-center justify-between mb-3 sm:mb-4">
+                                        <h3 class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base flex items-center"
+                                            :class="{ 'text-red-600 dark:text-red-400': systemInfo?.logs?.total?.needs_attention }">
+                                            <span class="mr-2">📋</span>
+                                            Log Files
+                                            <span v-if="systemInfo?.logs?.total?.needs_attention"
+                                                class="ml-2 text-red-500"
+                                                title="Logs exceed 20MB - needs attention">⚠️</span>
+                                        </h3>
+                                        <button @click="blankLogFiles" :disabled="isBlankingLogs"
+                                            class="px-3 py-1.5 bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:hover:bg-orange-900/40 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
+                                            <svg v-if="!isBlankingLogs" class="w-3 h-3 mr-1" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                </path>
+                                            </svg>
+                                            <div v-else
+                                                class="w-3 h-3 mr-1 animate-spin rounded-full border-2 border-orange-600 border-t-transparent">
+                                            </div>
+                                            {{ isBlankingLogs ? 'Blanking...' : 'Blank Logs' }}
+                                        </button>
+                                    </div>
+
+                                    <div class="space-y-3">
+                                        <!-- Total Size -->
+                                        <div class="flex justify-between items-center text-xs sm:text-sm p-3 rounded-lg"
+                                            :class="systemInfo?.logs?.total?.needs_attention ? 'bg-red-100 dark:bg-red-900/20' : 'bg-slate-100 dark:bg-slate-800'">
+                                            <span class="font-medium"
+                                                :class="systemInfo?.logs?.total?.needs_attention ? 'text-red-700 dark:text-red-400' : 'text-slate-700 dark:text-slate-300'">Total
+                                                Size</span>
+                                            <span class="font-bold"
+                                                :class="systemInfo?.logs?.total?.needs_attention ? 'text-red-700 dark:text-red-400' : 'text-slate-900 dark:text-white'">
+                                                {{ systemInfo?.logs?.total?.formatted_size || '0 B' }}
                                             </span>
-                                            <div v-if="systemInfo?.logs?.cache_management?.count"
-                                                class="text-xs text-slate-400">
-                                                {{ systemInfo.logs.cache_management.count }} file(s)
+                                        </div>
+
+                                        <!-- Laravel Application Logs -->
+                                        <div class="flex justify-between text-xs sm:text-sm">
+                                            <span class="text-slate-500 dark:text-slate-400">Laravel App Logs</span>
+                                            <div class="text-right">
+                                                <span class="font-medium text-slate-900 dark:text-white font-mono">
+                                                    {{ systemInfo?.logs?.laravel?.formatted_size || '0 B' }}
+                                                </span>
+                                                <div v-if="systemInfo?.logs?.laravel?.count"
+                                                    class="text-xs text-slate-400">
+                                                    {{ systemInfo.logs.laravel.count }} file(s)
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Cache Management Logs -->
+                                        <div class="flex justify-between text-xs sm:text-sm">
+                                            <span class="text-slate-500 dark:text-slate-400">Cache Mgmt Logs</span>
+                                            <div class="text-right">
+                                                <span class="font-medium text-slate-900 dark:text-white font-mono">
+                                                    {{ systemInfo?.logs?.cache_management?.formatted_size || '0 B' }}
+                                                </span>
+                                                <div v-if="systemInfo?.logs?.cache_management?.count"
+                                                    class="text-xs text-slate-400">
+                                                    {{ systemInfo.logs.cache_management.count }} file(s)
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Activity Tab -->
-                    <div v-show="activeTab === 'activity'" class="space-y-4 sm:space-y-6">
-                        <!-- Recent Activity -->
-                        <div
-                            class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
-                            <h3 class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
-                                Recent Cleanups</h3>
+                        <!-- Activity Tab -->
+                        <div v-show="activeTab === 'activity'" class="space-y-4 sm:space-y-6">
+                            <!-- Recent Activity -->
+                            <div
+                                class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                                <h3
+                                    class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
+                                    Recent Cleanups</h3>
 
-                            <div v-if="recentCleanups && recentCleanups.length"
-                                class="space-y-2 sm:space-y-3 overflow-y-auto">
-                                <div v-for="(cleanup, index) in recentCleanups" :key="index"
-                                    class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg space-y-2 sm:space-y-0">
-                                    <div class="min-w-0 flex-1">
-                                        <div class="font-semibold text-slate-900 dark:text-white text-sm">{{
-                                            cleanup.total_files
-                                        }} files</div>
-                                        <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{
-                                            cleanup.human_time }}
+                                <div v-if="recentCleanups && recentCleanups.length"
+                                    class="space-y-2 sm:space-y-3 overflow-y-auto">
+                                    <div v-for="(cleanup, index) in recentCleanups" :key="index"
+                                        class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg space-y-2 sm:space-y-0">
+                                        <div class="min-w-0 flex-1">
+                                            <div class="font-semibold text-slate-900 dark:text-white text-sm">{{
+                                                cleanup.total_files
+                                                }} files</div>
+                                            <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{
+                                                cleanup.human_time }}
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-between sm:text-right">
+                                            <div class="font-semibold text-emerald-600 dark:text-emerald-400 text-sm">{{
+                                                cleanup.total_size }}</div>
+                                            <div
+                                                class="text-xs text-slate-500 dark:text-slate-400 font-mono sm:ml-2 sm:mt-1">
+                                                {{
+                                                    cleanup.timestamp }}</div>
                                         </div>
                                     </div>
-                                    <div class="flex justify-between sm:text-right">
-                                        <div class="font-semibold text-emerald-600 dark:text-emerald-400 text-sm">{{
-                                            cleanup.total_size }}</div>
-                                        <div
-                                            class="text-xs text-slate-500 dark:text-slate-400 font-mono sm:ml-2 sm:mt-1">
-                                            {{
-                                                cleanup.timestamp }}</div>
-                                    </div>
                                 </div>
-                            </div>
 
-                            <div v-else class="text-center py-6 sm:py-8">
-                                <div class="text-3xl sm:text-4xl mb-2 sm:mb-3">🧹</div>
-                                <p class="text-slate-500 dark:text-slate-400 text-sm">No cleanup activity yet</p>
+                                <div v-else class="text-center py-6 sm:py-8">
+                                    <div class="text-3xl sm:text-4xl mb-2 sm:mb-3">🧹</div>
+                                    <p class="text-slate-500 dark:text-slate-400 text-sm">No cleanup activity yet</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </main>
+                </main>
+            </div>
         </div>
     </AppLayout>
 
@@ -382,7 +397,7 @@ const getColorGradient = (color) => {
 
 const refreshSystemInfo = async () => {
     try {
-        const response = await fetch('/cache-management/system-info')
+        const response = await fetch('/api/cache-management/system-info')
 
         if (response.redirected || response.url.includes('/login')) {
             window.location.href = '/login'
@@ -402,7 +417,7 @@ const refreshSystemInfo = async () => {
 
 const refreshRecentCleanups = async () => {
     try {
-        const response = await fetch('/cache-management/recent-cleanups')
+        const response = await fetch('/api/cache-management/recent-cleanups')
 
         if (response.redirected || response.url.includes('/login')) {
             window.location.href = '/login'
@@ -425,7 +440,7 @@ const refreshRecentCleanups = async () => {
 const refreshStats = async (showSuccessToast = false, setLoading = true) => {
     if (setLoading) isRefreshing.value = true
     try {
-        const response = await fetch('/cache-management/stats')
+        const response = await fetch('/api/cache-management/stats')
 
         if (response.redirected || response.url.includes('/login')) {
             window.location.href = '/login'
@@ -513,7 +528,7 @@ const startLiveClock = () => {
 
 const updateServerTime = async () => {
     try {
-        const response = await fetch('/cache-management/server-time')
+        const response = await fetch('/api/cache-management/server-time')
         if (response.ok) {
             const data = await response.json()
 

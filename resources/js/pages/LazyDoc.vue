@@ -100,7 +100,7 @@
                                         <div
                                             class="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 rounded-lg flex items-center justify-center group-hover:from-blue-200 group-hover:to-indigo-200 dark:group-hover:from-blue-800 dark:group-hover:to-indigo-800 transition-colors">
                                             <span class="text-blue-600 dark:text-blue-400 font-bold text-lg">{{ idx + 1
-                                            }}</span>
+                                                }}</span>
                                         </div>
                                         <div>
                                             <h3
@@ -239,7 +239,7 @@
                                 {{ getCategoryIcon(category) }}
                             </span>
                             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatCategoryName(category)
-                            }}</h2>
+                                }}</h2>
                         </div>
 
                         <div class="space-y-4">
@@ -1235,7 +1235,7 @@ const apiEndpoints = ref({
         },
         {
             method: 'GET',
-            path: '/cache-management/stats',
+            path: '/api/cache-management/stats',
             description: 'Get cache statistics',
             authenticated: true,
             permission: '/cache-management',
