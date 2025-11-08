@@ -22,7 +22,7 @@ class BannerSizeController extends Controller
         $bannerSizes = $query
             ->orderBy('width', 'asc')
             ->orderBy('height', 'asc')
-            ->paginate(10)
+            ->paginate(15)
             ->withQueryString();
 
         return Inertia::render('BannerSizes/Index', [

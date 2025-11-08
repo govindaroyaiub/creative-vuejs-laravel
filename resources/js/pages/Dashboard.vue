@@ -345,15 +345,14 @@ const previewChartData = computed(() => ({
         {
             label: 'Monthly Previews',
             data: labels.map((_, i) => monthlyPreviewStats.value[i + 1] || 0),
-            borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59,130,246,0.1)',
-            borderWidth: 3,
-            tension: 0.4,
-            fill: true,
-            pointBackgroundColor: '#3b82f6',
-            pointBorderColor: '#ffffff',
-            pointBorderWidth: 2,
-            pointRadius: 6,
+            backgroundColor: 'rgba(34, 197, 94, 0.8)',
+            borderColor: '#22c55e',
+            borderWidth: 2,
+            borderRadius: 6,
+            borderSkipped: false,
+            hoverBackgroundColor: 'rgba(34, 197, 94, 0.9)',
+            hoverBorderColor: '#16a34a',
+            hoverBorderWidth: 3,
         },
     ],
 }));
@@ -362,26 +361,52 @@ const previewChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     animation: {
-        duration: 2000,
-        easing: 'easeOutCubic',
+        duration: 2500,
+        easing: 'easeOutElastic',
     },
     plugins: {
-        legend: { display: false },
+        legend: {
+            display: false
+        },
         title: {
             display: true,
             text: `Monthly Previews Statistics (${year})`,
             font: { size: 16, weight: 'bold' },
             padding: 20,
+        },
+        tooltip: {
+            backgroundColor: 'rgba(34, 197, 94, 0.9)',
+            titleColor: 'white',
+            bodyColor: 'white',
+            borderColor: '#22c55e',
+            borderWidth: 2,
+            cornerRadius: 8,
+            callbacks: {
+                title: (context) => `${context[0].label} ${year}`,
+                label: (context) => `Previews: ${context.parsed.y}`,
+            }
         }
     },
     scales: {
         x: {
-            grid: { display: false },
-            ticks: { font: { weight: 'bold' } }
+            grid: {
+                display: false
+            },
+            ticks: {
+                font: { weight: 'bold' },
+                color: 'rgba(0, 0, 0, 0.7)'
+            }
         },
         y: {
             beginAtZero: true,
-            grid: { color: 'rgba(0, 0, 0, 0.1)' }
+            grid: {
+                color: 'rgba(34, 197, 94, 0.1)',
+                lineWidth: 1
+            },
+            ticks: {
+                color: 'rgba(0, 0, 0, 0.7)',
+                callback: (value) => `${value} previews`
+            }
         }
     }
 };
@@ -674,7 +699,7 @@ const formatNumber = (num: number) => {
                     <div
                         class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300">
                         <div style="height: 350px;">
-                            <Line :data="previewChartData" :options="previewChartOptions" />
+                            <Bar :data="previewChartData" :options="previewChartOptions" />
                         </div>
                     </div>
 

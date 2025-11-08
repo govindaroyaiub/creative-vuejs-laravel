@@ -329,22 +329,22 @@ const totalClients = computed(() => clients.value?.total || 0);
                     <div v-for="(client, index) in clients.data" :key="client.id"
                         class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-blue-200 dark:hover:border-neutral-600 transition-all duration-200 overflow-hidden group">
                         <!-- Card Header -->
-                        <div class="py-2 pb-4 px-6">
+                        <div class="py-2 px-6">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center justify-start">
                                     <img v-if="client.logo" :src="`/logos/${client.logo}`" :alt="client.name + ' logo'"
-                                        class="w-20 h-12 object-contain rounded" />
+                                        class="h-20 w-40 aspect-auto object-contain rounded-xl bg-neutral-300 p-2 dark:bg-neutral-700 border" />
                                     <Building2 v-else class="w-6 h-6 text-blue-600 dark:text-blue-400" />
                                 </div>
                                 <div class="flex items-center justify-end">
-                                    <h3 class="font-semibold text-gray-900 dark:text-white text-base">{{ client.name
-                                        }}</h3>
+                                    <h1 class="font-semibold text-gray-900 dark:text-white text-xl">{{ client.name
+                                    }}</h1>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Card Content -->
-                        <div class="px-6 pb-4 pt-2 space-y-4">
+                        <div class="px-6 pb-2 space-y-4">
                             <!-- Website -->
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-600 dark:text-gray-400">Website:</span>
@@ -453,12 +453,13 @@ const totalClients = computed(() => clients.value?.total || 0);
 
         <!-- Create Client Modal -->
         <div v-if="showCreateModal"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
             @click.self="closeCreateModal">
             <div
-                class="bg-white dark:bg-neutral-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-neutral-700">
+                class="bg-white dark:bg-neutral-800 rounded-2xl w-full max-w-2xl max-h-[90vh] shadow-2xl border border-gray-200 dark:border-neutral-700 flex flex-col">
                 <!-- Modal Header -->
-                <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-neutral-700">
+                <div
+                    class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-neutral-700 flex-shrink-0">
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white">Add New Client</h2>
                     <button @click="closeCreateModal"
                         class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-all duration-200">
@@ -467,7 +468,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                 </div>
 
                 <!-- Modal Content -->
-                <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+                <div class="p-6 overflow-y-auto flex-1 min-h-0">
                     <form @submit.prevent="handleCreateSubmit" class="space-y-6">
                         <!-- Name -->
                         <div>
@@ -550,13 +551,13 @@ const totalClients = computed(() => clients.value?.total || 0);
         </div>
 
         <!-- Edit Client Modal -->
-        <div v-if="showEditModal"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4"
+        <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
             @click.self="closeEditModal">
             <div
-                class="bg-white dark:bg-neutral-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-neutral-700">
+                class="bg-white dark:bg-neutral-800 rounded-2xl w-full max-w-2xl max-h-[90vh] shadow-2xl border border-gray-200 dark:border-neutral-700 flex flex-col">
                 <!-- Modal Header -->
-                <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-neutral-700">
+                <div
+                    class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-neutral-700 flex-shrink-0">
                     <h2 class="text-xl font-bold text-gray-900 dark:text-white">Edit Client</h2>
                     <button @click="closeEditModal"
                         class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-all duration-200">
@@ -565,7 +566,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                 </div>
 
                 <!-- Modal Content -->
-                <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+                <div class="p-6 overflow-y-auto flex-1 min-h-0">
                     <form @submit.prevent="handleEditSubmit" class="space-y-6">
                         <!-- Name -->
                         <div>

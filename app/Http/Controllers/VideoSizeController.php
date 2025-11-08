@@ -22,7 +22,7 @@ class VideoSizeController extends Controller
                 ->orWhere('height', 'like', "%{$search}%");
         }
 
-        $videoSizes = $query->paginate(10)->withQueryString();
+        $videoSizes = $query->paginate(15)->withQueryString();
 
         return Inertia::render('VideoSizes/Index', [
             'videoSizes' => $videoSizes,
