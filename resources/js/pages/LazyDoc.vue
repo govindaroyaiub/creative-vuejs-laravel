@@ -4,45 +4,49 @@
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
             class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-black dark:via-black dark:to-black">
-            <div class="container mx-auto px-4 py-8 max-w-5xl">
+            <div class="container mx-auto px-4 py-6 sm:py-8 max-w-5xl">
                 <!-- Header Section -->
-                <div class="text-center mb-6">
+                <div class="text-center mb-6 px-4">
                     <div
-                        class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full mb-4">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full mb-4">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
                             </path>
                         </svg>
                     </div>
-                    <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-1">
-                        Creative Planet Nine
+                    <h1
+                        class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-1 leading-tight">
+                        <span class="block sm:inline">Creative Planet Nine</span>
                         <span
-                            class="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Documentation</span>
+                            class="block sm:inline bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Documentation</span>
                     </h1>
-                    <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+                    <p class="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
                         Everything you need to know about our preview system, from basics to advanced features.
                     </p>
                 </div>
 
                 <!-- Navigation Tabs -->
                 <div
-                    class="flex mb-8 bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-2">
+                    class="flex flex-col sm:flex-row mb-8 bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-2 gap-2 sm:gap-0">
                     <button @click="activeTab = 'qa'" :class="[
-                        'flex-1 px-6 py-3 rounded-lg font-medium transition-all duration-200 mr-1',
+                        'flex-1 px-4 sm:px-6 py-3 rounded-lg font-medium transition-all duration-200 text-sm sm:text-base sm:mr-1',
                         activeTab === 'qa'
                             ? 'bg-blue-600 text-white shadow-lg'
                             : 'text-gray-600 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-neutral-700'
                     ]">
-                        📚 Q&A Documentation
+                        <span class="hidden sm:inline">📚 Q&A Documentation</span>
+                        <span class="sm:hidden">📚 Q&A</span>
                     </button>
                     <button @click="activeTab = 'api'" :class="[
-                        'flex-1 px-6 py-3 rounded-lg font-medium transition-all duration-200 ml-1',
+                        'flex-1 px-4 sm:px-6 py-3 rounded-lg font-medium transition-all duration-200 text-sm sm:text-base sm:ml-1',
                         activeTab === 'api'
                             ? 'bg-green-600 text-white shadow-lg'
                             : 'text-gray-600 dark:text-gray-300 hover:bg-green-100 dark:hover:bg-neutral-700'
                     ]">
-                        🚀 API Documentation
+                        <span class="hidden sm:inline">🚀 API Documentation</span>
+                        <span class="sm:hidden">🚀 API</span>
                     </button>
                 </div>
 
@@ -94,28 +98,31 @@
                         <div v-for="(qa, idx) in filteredQA" :key="idx" :id="'qa-' + idx"
                             class="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-700">
                             <button @click="toggle(idx)"
-                                class="w-full text-left px-6 py-5 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:ring-inset group">
-                                <div class="flex justify-between items-center">
-                                    <div class="flex items-start space-x-4">
+                                class="w-full text-left px-4 sm:px-6 py-4 sm:py-5 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:ring-inset group">
+                                <div class="flex justify-between items-start gap-4">
+                                    <div class="flex items-start space-x-3 sm:space-x-4 flex-1">
                                         <div
-                                            class="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 rounded-lg flex items-center justify-center group-hover:from-blue-200 group-hover:to-indigo-200 dark:group-hover:from-blue-800 dark:group-hover:to-indigo-800 transition-colors">
-                                            <span class="text-blue-600 dark:text-blue-400 font-bold text-lg">{{ idx + 1
+                                            class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 rounded-lg flex items-center justify-center group-hover:from-blue-200 group-hover:to-indigo-200 dark:group-hover:from-blue-800 dark:group-hover:to-indigo-800 transition-colors">
+                                            <span
+                                                class="text-blue-600 dark:text-blue-400 font-bold text-sm sm:text-lg">{{
+                                                    idx + 1
                                                 }}</span>
                                         </div>
-                                        <div>
+                                        <div class="flex-1 min-w-0">
                                             <h3
-                                                class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                                class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight">
                                                 {{ qa.question }}
                                             </h3>
-                                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Click to {{ openIdx
-                                                ===
-                                                idx ? 'collapse' : 'expand' }} answer</p>
+                                            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Click to
+                                                {{ openIdx
+                                                    ===
+                                                    idx ? 'collapse' : 'expand' }} answer</p>
                                         </div>
                                     </div>
                                     <div class="flex-shrink-0">
                                         <div
-                                            class="w-8 h-8 bg-gray-100 dark:bg-neutral-800 rounded-full flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900 transition-colors">
-                                            <svg :class="['w-4 h-4 text-gray-600 dark:text-gray-400 transition-transform duration-200', openIdx === idx ? 'rotate-180' : '']"
+                                            class="w-6 h-6 sm:w-8 sm:h-8 bg-gray-100 dark:bg-neutral-800 rounded-full flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900 transition-colors">
+                                            <svg :class="['w-3 h-3 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400 transition-transform duration-200', openIdx === idx ? 'rotate-180' : '']"
                                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M19 9l-7 7-7-7"></path>
@@ -127,12 +134,13 @@
 
                             <transition name="slide-fade">
                                 <div v-if="openIdx === idx" class="border-t border-gray-200 dark:border-neutral-700">
-                                    <div class="px-6 py-6 bg-gray-50 dark:bg-neutral-900/50">
-                                        <div class="prose prose-gray dark:prose-invert max-w-none">
+                                    <div class="px-4 sm:px-6 py-4 sm:py-6 bg-gray-50 dark:bg-neutral-900/50">
+                                        <div
+                                            class="prose prose-gray dark:prose-invert max-w-none prose-sm sm:prose-base">
                                             <div v-html="qa.answer"
                                                 class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4"></div>
                                             <div v-if="qa.additionalInfo"
-                                                class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border-l-4 shadow border-blue-400">
+                                                class="mt-4 sm:mt-6 p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border-l-4 shadow border-blue-400">
                                                 <h4
                                                     class="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2 flex items-center">
                                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
@@ -192,7 +200,7 @@
                             Comprehensive documentation for all Creative Planet Nine endpoints. This covers every route
                             in the application including authentication, permissions, and expected parameters.
                         </p>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                                 <h4 class="font-semibold text-blue-900 dark:text-blue-200 mb-2">Base URL</h4>
                                 <code class="text-sm text-blue-700 dark:text-blue-300 break-all">{{ baseUrl }}</code>
@@ -239,32 +247,32 @@
                                 {{ getCategoryIcon(category) }}
                             </span>
                             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatCategoryName(category)
-                                }}</h2>
+                            }}</h2>
                         </div>
 
                         <div class="space-y-4">
                             <div v-for="endpoint in endpoints" :key="endpoint.path"
-                                class="border border-gray-200 dark:border-neutral-600 rounded-lg p-4 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors">
-                                <div class="flex items-center justify-between mb-3">
-                                    <div class="flex items-center">
+                                class="border border-gray-200 dark:border-neutral-600 rounded-lg p-3 sm:p-4 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors">
+                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
+                                    <div class="flex flex-col sm:flex-row sm:items-center gap-2">
                                         <span :class="getMethodBadgeClass(endpoint.method)"
-                                            class="px-3 py-1 rounded text-xs font-bold mr-3">
+                                            class="px-3 py-1 rounded text-xs font-bold w-fit">
                                             {{ endpoint.method }}
                                         </span>
                                         <code
-                                            class="text-sm font-mono text-gray-700 dark:text-gray-300">{{ endpoint.path }}</code>
+                                            class="text-sm font-mono text-gray-700 dark:text-gray-300 break-all">{{ endpoint.path }}</code>
                                     </div>
-                                    <div class="flex items-center space-x-2">
+                                    <div class="flex flex-wrap items-center gap-2 text-xs">
                                         <span v-if="endpoint.authenticated"
-                                            class="px-2 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200 rounded text-xs">
+                                            class="px-2 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200 rounded whitespace-nowrap">
                                             🔒 Auth Required
                                         </span>
                                         <span v-if="(endpoint as any).permission"
-                                            class="px-2 py-1 bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-200 rounded text-xs">
+                                            class="px-2 py-1 bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-200 rounded whitespace-nowrap">
                                             📋 {{ (endpoint as any).permission }}
                                         </span>
                                         <span v-if="(endpoint as any).middleware"
-                                            class="px-2 py-1 bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200 rounded text-xs">
+                                            class="px-2 py-1 bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200 rounded whitespace-nowrap">
                                             🛡️ {{ (endpoint as any).middleware }}
                                         </span>
                                     </div>
@@ -303,7 +311,7 @@
                                     <h5 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Example
                                         Response:</h5>
                                     <pre
-                                        class="text-xs bg-slate-900 text-slate-300 p-3 rounded overflow-x-auto"><code>{{ (endpoint as any).example }}</code></pre>
+                                        class="text-xs bg-slate-900 text-slate-300 p-3 rounded overflow-x-auto whitespace-pre-wrap break-words"><code>{{ (endpoint as any).example }}</code></pre>
                                 </div>
                             </div>
                         </div>
@@ -375,7 +383,7 @@ const response = await axios.get('/dashboard');</code></pre>
                                     Each user has specific route permissions. Routes are protected by the
                                     CheckUserPermission middleware.
                                 </p>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div class="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
                                         <h4 class="font-semibold text-green-900 dark:text-green-200 mb-2">Admin Access
                                         </h4>
@@ -420,7 +428,7 @@ const response = await axios.get('/dashboard');</code></pre>
                                 class="w-8 h-8 bg-yellow-600 text-white rounded-lg flex items-center justify-center text-lg font-bold mr-3">⚠️</span>
                             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">HTTP Response Codes</h2>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div v-for="code in responseCodes" :key="code.code"
                                 class="flex items-center p-4 rounded-lg border border-gray-200 dark:border-neutral-600">
                                 <span :class="code.badgeClass" class="px-3 py-1 rounded font-bold text-sm mr-4">
@@ -1778,9 +1786,30 @@ function toggle(idx: number) {
     border-radius: 0.25rem;
     font-size: 0.875rem;
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 :deep(.dark code) {
     background-color: rgba(75, 85, 99, 0.5);
+}
+
+/* Mobile responsive fixes */
+@media (max-width: 640px) {
+    :deep(pre) {
+        font-size: 0.75rem;
+        line-height: 1.25;
+    }
+
+    :deep(code) {
+        font-size: 0.75rem;
+    }
+
+    /* Ensure horizontal scrolling works on mobile */
+    :deep(pre code) {
+        white-space: pre;
+        word-break: normal;
+        overflow-wrap: normal;
+    }
 }
 </style>
