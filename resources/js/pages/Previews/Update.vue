@@ -743,7 +743,7 @@
                 </div>
                 <div class="mt-4 flex gap-2 items-center justify-start">
                     <button @click="showAddCategory = !showAddCategory"
-                        class="bg-indigo-600 text-white px-4 py-2 rounded">
+                        class="bg-indigo-600 text-white px-4 py-2 rounded-lg">
                         + Add Category
                     </button>
                 </div>
@@ -751,30 +751,35 @@
                     <input v-model="newCategoryName" placeholder="Category Name"
                         class="border rounded px-2 py-1 dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
                     <select v-model="newCategoryType"
-                        class="border rounded px-2 py-1 dark:bg-neutral-900 dark:text-white dark:border-neutral-700">
+                        class="border rounded-lg px-2 py-1 dark:bg-neutral-900 dark:text-white dark:border-neutral-700">
                         <option value="banner">Banner</option>
                         <option value="video">Video</option>
                         <option value="social">Social</option>
                         <option value="gif">Gif</option>
                     </select>
-                    <button @click="addCategory" class="bg-green-600 text-white px-3 py-1 rounded">Add</button>
+                    <button @click="addCategory" class="bg-green-600 text-white px-3 py-1 rounded-lg">Add</button>
                 </div>
-                <div class="sticky-action-bar bg-white dark:bg-neutral-900">
+                <div
+                    class="sticky-action-bar bg-white dark:bg-neutral-900 flex items-center justify-center gap-3 p-4 border-t shadow-lg">
                     <a :href="route('previews-index')"
-                        class="bg-gray-400 text-white px-6 py-2 rounded hover:bg-gray-500 font-semibold inline-block">
+                        class="bg-gray-600 text-white px-6 py-2 rounded-xl hover:bg-gray-700 font-semibold inline-flex items-center gap-2 transition-colors">
+                        <ArrowLeft class="w-4 h-4" />
                         Back
                     </a>
                     <a :href="route('previews-edit', preview.id)"
-                        class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 font-semibold inline-block"
+                        class="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 font-semibold inline-flex items-center gap-2 transition-colors"
                         aria-label="Edit Preview">
-                        More Infos
+                        <Info class="w-4 h-4" />
+                        More Info
                     </a>
                     <button type="button" @click="goToPreview"
-                        class="bg-orange-600 text-white px-6 py-2 rounded hover:bg-orange-700 font-semibold">
+                        class="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 font-semibold inline-flex items-center gap-2 transition-colors">
+                        <Eye class="w-4 h-4" />
                         Preview
                     </button>
                     <button @click="saveAll"
-                        class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 font-semibold">
+                        class="bg-green-600 text-white px-6 py-2 rounded-xl hover:bg-green-700 font-semibold inline-flex items-center gap-2 transition-colors">
+                        <Save class="w-4 h-4" />
                         Save
                     </button>
                 </div>
@@ -788,6 +793,7 @@
 
 <script setup lang="ts">
 import { ref, computed, reactive } from 'vue';
+import { ArrowLeft, Info, Eye, Save } from 'lucide-vue-next';
 import { Head, usePage, router } from '@inertiajs/vue3';
 import draggable from 'vuedraggable';
 import AppLayout from '@/layouts/AppLayout.vue';

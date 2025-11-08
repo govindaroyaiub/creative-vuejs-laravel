@@ -1,7 +1,7 @@
 <template>
 
     <Head title="Edit Preview" />
-    <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Edit Preview' }]">
+    <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Edit Preview', 'href': '/previews-edit/' + preview.id }]">
         <div class="min-h-screen py-8">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Header Section -->

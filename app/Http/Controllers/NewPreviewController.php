@@ -155,6 +155,8 @@ class NewPreviewController extends Controller
                 'client_id' => $request->client_id,
                 'header_logo_id' => $request->header_logo_id,
                 'requires_login' => $request->requires_login,
+                'show_planetnine_logo' => $request->show_planetnine_logo,
+                'show_sidebar_logo' => $request->show_sidebar_logo,
                 'team_members' => $request->team_ids,
                 'color_palette_id' => $request->color_palette_id,
                 'uploader_id' => Auth::id(),
