@@ -3,7 +3,9 @@
     <!-- Preview Name -->
     <div>
       <label for="preview-name" class="block mb-1 text-sm font-medium">Preview Name *</label>
-      <input id="preview-name" v-model="form.name" type="text" placeholder="e.g. Facebook Ad - June"
+      <input id="preview-name" :value="form.name"
+        @input="emit('updateForm', 'name', ($event.target as HTMLInputElement).value)" type="text"
+        placeholder="e.g. Facebook Ad - June"
         class="w-full rounded-2xl border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-800 dark:text-white  transition-colors"
         required maxlength="255" :class="{ 'border-red-500': formErrors.name }" />
       <p v-if="formErrors.name" class="text-red-500 text-xs mt-1">{{ formErrors.name }}</p>
@@ -14,7 +16,8 @@
       <!-- Client Dropdown -->
       <div>
         <label for="client-select" class="block mb-1 text-sm font-medium">Client *</label>
-        <select id="client-select" v-model="form.client_id"
+        <select id="client-select" :value="form.client_id"
+          @change="emit('updateForm', 'client_id', ($event.target as HTMLSelectElement).value)"
           class="w-full rounded-2xl border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-800 dark:text-white  transition-colors"
           required :class="{ 'border-red-500': formErrors.client_id }">
           <option disabled value="">Select Client</option>
@@ -28,7 +31,8 @@
       <!-- Header Logo Dropdown (showing clients data) -->
       <div>
         <label for="header-logo-select" class="block mb-1 text-sm font-medium">Header Logo *</label>
-        <select id="header-logo-select" v-model="form.header_logo_id"
+        <select id="header-logo-select" :value="form.header_logo_id"
+          @change="emit('updateForm', 'header_logo_id', ($event.target as HTMLSelectElement).value)"
           class="w-full rounded-2xl border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-800 dark:text-white  transition-colors"
           required :class="{ 'border-red-500': formErrors.header_logo_id }">
           <option disabled value="">Select Header Logo</option>
@@ -42,7 +46,8 @@
       <!-- Color Palette Dropdown -->
       <div>
         <label for="theme-select" class="block mb-1 text-sm font-medium">Theme *</label>
-        <select id="theme-select" v-model="form.color_palette_id"
+        <select id="theme-select" :value="form.color_palette_id"
+          @change="emit('updateForm', 'color_palette_id', ($event.target as HTMLSelectElement).value)"
           class="w-full rounded-2xl border border-gray-300 dark:border-gray-600 px-3 py-2 dark:bg-gray-800 dark:text-white  transition-colors"
           required :class="{ 'border-red-500': formErrors.color_palette_id }">
           <option disabled value="">Select Theme</option>
@@ -120,7 +125,9 @@
           <!-- Toggle Switch -->
           <div class="flex justify-center mb-3">
             <label class="relative inline-flex items-center cursor-pointer">
-              <input :id="`toggle-${toggle.model}`" type="checkbox" v-model="form[toggle.model]" class="sr-only peer" />
+              <input :id="`toggle-${toggle.model}`" type="checkbox" :checked="Boolean(form[toggle.model])"
+                @change="emit('updateForm', toggle.model, ($event.target as HTMLInputElement).checked)"
+                class="sr-only peer" />
               <div
                 class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500 rounded-full peer peer-checked:bg-green-600 transition-all duration-200">
               </div>
@@ -214,6 +221,7 @@ const props = defineProps<{
 // Emit declaration
 const emit = defineEmits<{
   submit: [];
+  updateForm: [key: string, value: any];
 }>();
 
 // Reactive data
@@ -283,10 +291,10 @@ const isPlanetNineSelected = computed(() => {
 watch(isPlanetNineSelected, (newValue) => {
   if (newValue) {
     // Turn OFF when Planet Nine is selected
-    props.form.show_sidebar_logo = false;
+    emit('updateForm', 'show_sidebar_logo', false);
   } else {
     // Turn ON when any other client is selected
-    props.form.show_sidebar_logo = true;
+    emit('updateForm', 'show_sidebar_logo', true);
   }
 }, { immediate: true }); const isFormValid = computed(() => {
   const isValid = (
@@ -308,7 +316,8 @@ watch(isPlanetNineSelected, (newValue) => {
 // Methods
 const addUser = (user: User) => {
   if (!props.form.team_ids.includes(user.id)) {
-    props.form.team_ids.push(user.id);
+    const newTeamIds = [...props.form.team_ids, user.id];
+    emit('updateForm', 'team_ids', newTeamIds);
     formErrors.team_ids = '';
   }
   userSearch.value = '';
@@ -318,7 +327,8 @@ const removeUser = (id: number) => {
   // Prevent removing the authenticated user
   if (id === props.authUser.id) return;
 
-  props.form.team_ids = props.form.team_ids.filter((uid: number) => uid !== id);
+  const newTeamIds = props.form.team_ids.filter((uid: number) => uid !== id);
+  emit('updateForm', 'team_ids', newTeamIds);
 };
 
 const clearErrors = () => {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Eye, Pencil, Trash2, CirclePlus, X, Share2, Settings2, ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { Eye, Trash2, CirclePlus, X, Share2, Settings2, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, watch } from 'vue';
 import PreviewStepBasicInfo from './Partials/PreviewStepBasicInfo.vue';
@@ -85,6 +85,10 @@ const closeModal = () => {
     formData.value = getDefaultFormData();
 };
 
+const updateFormData = (key: string, value: any) => {
+    (formData.value as any)[key] = value;
+};
+
 const submitForm = () => {
     const payload = new FormData();
     payload.append('name', formData.value.name);
@@ -105,7 +109,7 @@ const submitForm = () => {
                 icon: 'success',
                 title: 'Success!',
                 text: 'Preview created successfully!',
-                timer: 3000,
+                timer: 1000,
                 showConfirmButton: false,
                 toast: true,
                 position: 'top-end',
@@ -171,7 +175,7 @@ const changePage = (url: string) => {
                             </td>
                             <td class="w-80 px-4 py-3 text-left border-b">
                                 <div class="font-semibold capitalize break-words" :title="preview.name">{{ preview.name
-                                }}</div>
+                                    }}</div>
                                 <div class="text-xs text-gray-500 flex gap-2 items-center">
                                     <div class="h-5 w-5 rounded-full border flex-shrink-0"
                                         :style="{ backgroundColor: preview.color_palette?.primary ?? 'red' }"
@@ -413,7 +417,8 @@ const changePage = (url: string) => {
                 <!-- Modal Content -->
                 <div class="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
                     <PreviewStepBasicInfo :form="formData" :users="users" :clients="clients"
-                        :colorPalettes="colorPalettes" :authUser="authUser" @submit="submitForm" @close="closeModal" />
+                        :colorPalettes="colorPalettes" :authUser="authUser" @submit="submitForm" @close="closeModal"
+                        @updateForm="updateFormData" />
                 </div>
             </div>
         </div>

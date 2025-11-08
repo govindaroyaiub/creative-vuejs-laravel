@@ -5,15 +5,23 @@ import { Eye, Trash2, Upload, Download, ChevronLeft, ChevronRight } from 'lucide
 import Swal from 'sweetalert2';
 import { ref, computed, watch } from 'vue';
 
+// Create FilePond component
+import vueFilePond from 'vue-filepond';
+
+// FilePond styles
+import 'filepond/dist/filepond.min.css';
+
+// Create FilePond component
+const FilePond = vueFilePond();
+
 const page = usePage();
 const medias = computed(() => page.props.medias?.data || []);
 const links = computed(() => page.props.medias?.links || []);
 const search = ref(page.props.search ?? '');
 const modalVisible = ref(false);
-const fileInput = ref<HTMLInputElement | null>(null);
 const uploading = ref(false);
 const newForm = ref({ name: '', file: null });
-const dragOver = ref(false);
+const filePondFiles = ref([]);
 
 watch(search, (value) => {
     router.get(route('medias'), { search: value }, {
@@ -25,12 +33,17 @@ watch(search, (value) => {
 
 const openUploadModal = () => {
     newForm.value = { name: '', file: null };
+    filePondFiles.value = [];
     modalVisible.value = true;
 };
 
-const handleFileChange = (e: Event) => {
-    const target = e.target as HTMLInputElement;
-    newForm.value.file = target.files?.[0] || null;
+const handleFilePondUpdate = (files: any[]) => {
+    filePondFiles.value = files;
+    if (files.length > 0 && files[0].file) {
+        newForm.value.file = files[0].file;
+    } else {
+        newForm.value.file = null;
+    }
 };
 
 const uploadFile = () => {
@@ -78,13 +91,6 @@ const deleteMedia = async (id: number) => {
             onError: () => Swal.fire('Error!', 'Delete failed.', 'error'),
         });
     }
-};
-
-const handleDrop = (e: DragEvent) => {
-    dragOver.value = false;
-    if (!e.dataTransfer?.files?.[0]) return;
-
-    newForm.value.file = e.dataTransfer.files[0];
 };
 
 // Pagination functions
@@ -343,26 +349,14 @@ const getFileSize = (bytes: number) => {
                         <input type="text" v-model="newForm.name" placeholder="File name"
                             class="w-full rounded-2xl border px-3 py-2 dark:bg-neutral-800 dark:text-white border-gray-300 dark:border-neutral-700" />
 
-                        <!-- Drag & Drop Upload Area -->
-                        <div class="w-full rounded-2xl border-2 border-dashed px-4 py-8 text-center transition-all cursor-pointer"
-                            :class="[
-                                dragOver ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-neutral-700'
-                            ]" @dragover.prevent="dragOver = true" @dragleave.prevent="dragOver = false"
-                            @drop.prevent="handleDrop" @click="fileInput?.click()">
-                            <input type="file" ref="fileInput" class="hidden" @change="handleFileChange" />
-                            <p class="text-sm text-gray-500 dark:text-gray-300">
-                                Drag & drop your file here, or <span
-                                    class="text-blue-600 dark:text-blue-400 underline">click to
-                                    upload</span>
-                            </p>
-                            <p class="mt-2 text-xs text-gray-400">Only one file (any type) is allowed</p>
-                        </div>
-
-                        <!-- Show selected file -->
-                        <div v-if="newForm.file"
-                            class="mt-2 text-sm text-gray-700 dark:text-gray-300 p-3 bg-gray-50 dark:bg-neutral-800 rounded-lg">
-                            <div class="font-medium">{{ newForm.file.name }}</div>
-                            <div class="text-xs text-gray-500">{{ getFileSize(newForm.file.size) }}</div>
+                        <!-- FilePond Upload -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Upload
+                                File</label>
+                            <FilePond name="file" :files="filePondFiles" @updatefiles="handleFilePondUpdate"
+                                :allowMultiple="false"
+                                :labelIdle="'Drag & Drop your file or <span class=\'filepond--label-action\'>Browse</span>'"
+                                :maxFiles="1" class="mt-1" />
                         </div>
 
                         <!-- Buttons -->

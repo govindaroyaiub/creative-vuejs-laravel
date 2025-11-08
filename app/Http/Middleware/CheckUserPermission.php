@@ -26,7 +26,8 @@ class CheckUserPermission
 
         // ✅ 2. Ensure user is authenticated
         if (!$user || !$user->permissions) {
-            abort(403, 'Sorry mate! You do not have permission to access this page.');
+            // Redirect instead of abort for better UX
+            return redirect()->route('dashboard')->with('error', 'Permission required to access this page.');
         }
 
         // ✅ 3. Always allow if in alwaysAllow or cache management routes
@@ -46,7 +47,7 @@ class CheckUserPermission
             }
         }
 
-        // ❌ Denied
-        abort(403, 'You do not have permission to access this page.');
+        // ❌ Denied - redirect instead of abort
+        return redirect()->route('dashboard')->with('error', 'You do not have permission to access this page.');
     }
 }

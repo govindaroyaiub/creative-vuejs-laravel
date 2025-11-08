@@ -374,8 +374,8 @@ class NewPreviewController extends Controller
 
         return Inertia::render('Previews/Update', [
             'preview' => $preview,
-            'bannerSizes' => BannerSize::all(),
-            'videoSizes' => VideoSize::all(),
+            'bannerSizes' => BannerSize::orderBy('width')->orderBy('height')->get(),
+            'videoSizes' => VideoSize::orderBy('width')->orderBy('height')->get(),
             // Add other needed data here
         ]);
     }

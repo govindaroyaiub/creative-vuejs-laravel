@@ -47,9 +47,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
 
     //File Transfer Routes Start
     Route::get('/file-transfers', [FileTransferController::class, 'index'])->name('file-transfers');
-    Route::get('/file-transfers-add', [FileTransferController::class, 'create'])->name('file-transfers-add');
     Route::post('/file-transfers-add', [FileTransferController::class, 'store'])->name('file-transfers-add-post');
-    Route::get('/file-transfers-edit/{id}', [FileTransferController::class, 'edit'])->name('file-transfers-edit');
     Route::post('/file-transfers-edit/{id}', [FileTransferController::class, 'update'])->name('file-transfers-update');
     Route::delete('/file-transfers-delete/{id}', [FileTransferController::class, 'destroy'])->name('file-transfers-delete');
     //File Transfer Routes End
@@ -115,9 +113,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
 
     //Client Routes Start
     Route::get('/clients', [ClientController::class, 'index'])->name('clients');
-    Route::get('/clients-create', [ClientController::class, 'create'])->name('clients-create');
     Route::post('/clients-store', [ClientController::class, 'store'])->name('clients-store');
-    Route::get('/clients-edit/{id}', [ClientController::class, 'edit'])->name('clients-edit');
     Route::post('/clients-update/{id}', [ClientController::class, 'update'])->name('clients-update');
     Route::delete('/clients-delete/{id}', [ClientController::class, 'destroy'])->name('clients-delete');
     //Client Routes End

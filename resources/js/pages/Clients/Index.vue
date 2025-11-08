@@ -1,20 +1,60 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, router, usePage, Link } from '@inertiajs/vue3';
-import { Pencil, Trash2, CirclePlus, Search, ExternalLink, Globe, Eye, Palette, Building2, Users, Filter, SortAsc, SortDesc } from 'lucide-vue-next';
+import { Head, router, usePage } from '@inertiajs/vue3';
+import { Pencil, Trash2, CirclePlus, Search, ExternalLink, Palette, Building2, Users, X, Eye } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { ref, computed, onMounted, watch } from 'vue';
 import { type BreadcrumbItem } from '@/types';
+
+// Create FilePond component
+import vueFilePond from 'vue-filepond';
+
+// FilePond plugins
+import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
+import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
+
+// FilePond styles
+import 'filepond/dist/filepond.min.css';
+import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
+
+// Create FilePond component with image preview
+const FilePond = vueFilePond(FilePondPluginFileValidateType, FilePondPluginImagePreview);
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Clients', href: '/clients' }];
 
 const page = usePage();
 const clients = computed(() => page.props.clients);
+const colorPalettes = computed(() => page.props.colorPalettes || []);
 const flash = computed(() => page.props.flash);
 const search = ref(page.props.search ?? '');
 const isLoading = ref(false);
-const sortField = ref('name');
-const sortDirection = ref('asc');
+
+// Modal states
+const showCreateModal = ref(false);
+const showEditModal = ref(false);
+
+// Form states
+const createForm = ref({
+    name: '',
+    website: '',
+    preview_url: 'https://creative.planetnine.com',
+    color_palette_id: '',
+    logo: null as File | null,
+});
+
+const editForm = ref({
+    id: null as number | null,
+    name: '',
+    website: '',
+    preview_url: '',
+    color_palette_id: null as number | null,
+    logo: null as File | null,
+});
+
+// FilePond states
+const createFilePondFiles = ref([]);
+const editFilePondFiles = ref([]);
+const logoPreview = ref<string>('');
 
 watch(search, (value) => {
     isLoading.value = true;
@@ -29,6 +69,139 @@ watch(search, (value) => {
         });
     }, 300); // Debounce search
 });
+
+// Modal handlers
+const openCreateModal = () => {
+    createForm.value = {
+        name: '',
+        website: '',
+        preview_url: 'https://creative.planetnine.com',
+        color_palette_id: '',
+        logo: null,
+    };
+    createFilePondFiles.value = [];
+    showCreateModal.value = true;
+};
+
+const closeCreateModal = () => {
+    showCreateModal.value = false;
+    createForm.value = {
+        name: '',
+        website: '',
+        preview_url: 'https://creative.planetnine.com',
+        color_palette_id: '',
+        logo: null,
+    };
+    createFilePondFiles.value = [];
+};
+
+const openEditModal = (client: any) => {
+    editForm.value = {
+        id: client.id,
+        name: client.name,
+        website: client.website,
+        preview_url: client.preview_url || '',
+        color_palette_id: client.color_palette_id,
+        logo: null,
+    };
+    editFilePondFiles.value = [];
+    logoPreview.value = client.logo ? `/logos/${client.logo}` : '';
+    showEditModal.value = true;
+};
+
+const closeEditModal = () => {
+    showEditModal.value = false;
+    editForm.value = {
+        id: null,
+        name: '',
+        website: '',
+        preview_url: '',
+        color_palette_id: null,
+        logo: null,
+    };
+    editFilePondFiles.value = [];
+    logoPreview.value = '';
+};
+
+// FilePond handlers
+const handleCreateFilePondUpdate = (files: any[]) => {
+    createFilePondFiles.value = files;
+    if (files.length > 0 && files[0].file) {
+        createForm.value.logo = files[0].file;
+    } else {
+        createForm.value.logo = null;
+    }
+};
+
+const handleEditFilePondUpdate = (files: any[]) => {
+    editFilePondFiles.value = files;
+    if (files.length > 0 && files[0].file) {
+        editForm.value.logo = files[0].file;
+        logoPreview.value = URL.createObjectURL(files[0].file);
+    } else {
+        editForm.value.logo = null;
+    }
+};
+
+// Form submissions
+const handleCreateSubmit = () => {
+    const formData = new FormData();
+    formData.append('name', createForm.value.name);
+    formData.append('website', createForm.value.website);
+    formData.append('preview_url', createForm.value.preview_url);
+    formData.append('color_palette_id', String(createForm.value.color_palette_id));
+    if (createForm.value.logo) {
+        formData.append('logo', createForm.value.logo);
+    }
+
+    router.post('/clients-store', formData, {
+        preserveScroll: true,
+        onSuccess: () => {
+            closeCreateModal();
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Client created successfully!',
+                timer: 1000,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end',
+                timerProgressBar: true,
+            });
+        },
+        onError: () => Swal.fire('Error!', 'Failed to create client.', 'error'),
+    });
+};
+
+const handleEditSubmit = () => {
+    const formData = new FormData();
+    formData.append('name', editForm.value.name);
+    formData.append('website', editForm.value.website);
+    formData.append('preview_url', editForm.value.preview_url);
+    formData.append('color_palette_id', editForm.value.color_palette_id?.toString() || '');
+    if (editForm.value.logo) {
+        formData.append('logo', editForm.value.logo);
+    }
+
+    router.post(`/clients-update/${editForm.value.id}`, formData, {
+        preserveScroll: true,
+        forceFormData: true,
+        onSuccess: () => {
+            closeEditModal();
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Client updated successfully!',
+                timer: 1000,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end',
+                timerProgressBar: true,
+            });
+        },
+        onError: () => Swal.fire('Error!', 'Failed to update client.', 'error'),
+    });
+};
 
 const deleteClient = async (id: number, name: string) => {
     const result = await Swal.fire({
@@ -90,32 +263,13 @@ const copyColor = (hex: string) => {
     });
 };
 
-const sortBy = (field: string) => {
-    if (sortField.value === field) {
-        sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
-    } else {
-        sortField.value = field;
-        sortDirection.value = 'asc';
-    }
-    // Implement sorting logic here if needed
-};
-
-const getStatusColor = (client: any) => {
-    if (client.preview_url) return 'text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400';
-    return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-400';
-};
-
-const getStatusText = (client: any) => {
-    return client.preview_url ? 'Active' : 'Setup Required';
-};
-
 onMounted(() => {
     if (flash.value?.success) {
         Swal.fire({
             title: 'Success!',
             text: flash.value.success,
             icon: 'success',
-            timer: 3000,
+            timer: 1000,
             showConfirmButton: false,
             customClass: { popup: 'rounded-md' }
         });
@@ -123,9 +277,6 @@ onMounted(() => {
 });
 
 const totalClients = computed(() => clients.value?.total || 0);
-const activeClients = computed(() =>
-    clients.value?.data?.filter((client: any) => client.preview_url).length || 0
-);
 </script>
 
 <template>
@@ -136,7 +287,7 @@ const activeClients = computed(() =>
             class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-black dark:via-black dark:to-black">
             <div class="p-6 space-y-6">
                 <!-- Stats Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
                     <div
                         class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300">
                         <div class="flex items-center justify-between">
@@ -146,34 +297,6 @@ const activeClients = computed(() =>
                             </div>
                             <div class="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-md">
                                 <Users class="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div
-                        class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Active Clients</p>
-                                <p class="text-3xl font-bold text-green-600 dark:text-green-400">{{ activeClients }}</p>
-                            </div>
-                            <div class="p-3 bg-green-100 dark:bg-green-900/50 rounded-md">
-                                <Eye class="w-6 h-6 text-green-600 dark:text-green-400" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div
-                        class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Setup Required</p>
-                                <p class="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
-                                    {{ totalClients - activeClients }}
-                                </p>
-                            </div>
-                            <div class="p-3 bg-yellow-100 dark:bg-yellow-900/50 rounded-md">
-                                <Globe class="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
                             </div>
                         </div>
                     </div>
@@ -194,11 +317,11 @@ const activeClients = computed(() =>
                         </div>
                     </div>
 
-                    <Link :href="route('clients-create')"
+                    <button @click="openCreateModal"
                         class="w-1/6 inline-flex justify-center items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-sm hover:shadow-md group">
-                    <CirclePlus class="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-200" />
-                    Add Client
-                    </Link>
+                        <CirclePlus class="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-200" />
+                        Add Client
+                    </button>
                 </div>
 
                 <!-- Clients Grid -->
@@ -206,25 +329,16 @@ const activeClients = computed(() =>
                     <div v-for="(client, index) in clients.data" :key="client.id"
                         class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-blue-200 dark:hover:border-neutral-600 transition-all duration-200 overflow-hidden group">
                         <!-- Card Header -->
-                        <div class="py-2 pb-4">
-                            <div class="flex items-start justify-evenly">
-                                <div class="flex items-center space-x-3">
-                                    <div
-                                        class="w-48 h-12 bg-gradient-to-r from-transparent to-transparent rounded-md flex items-center justify-left">
-                                        <img v-if="client.logo" :src="`/logos/${client.logo}`"
-                                            :alt="client.name + ' logo'" class="w-20 object-contain rounded" />
-                                        <Building2 v-else class="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                                    </div>
-                                    <div>
-                                        <h3 class="font-semibold text-gray-900 dark:text-white text-base">{{ client.name
-                                            }}</h3>
-                                        <div class="flex items-center mt-1">
-                                            <span :class="getStatusColor(client)"
-                                                class="px-2 py-1 rounded-full text-xs font-medium">
-                                                {{ getStatusText(client) }}
-                                            </span>
-                                        </div>
-                                    </div>
+                        <div class="py-2 pb-4 px-6">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center justify-start">
+                                    <img v-if="client.logo" :src="`/logos/${client.logo}`" :alt="client.name + ' logo'"
+                                        class="w-20 h-12 object-contain rounded" />
+                                    <Building2 v-else class="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                                </div>
+                                <div class="flex items-center justify-end">
+                                    <h3 class="font-semibold text-gray-900 dark:text-white text-base">{{ client.name
+                                        }}</h3>
                                 </div>
                             </div>
                         </div>
@@ -280,11 +394,12 @@ const activeClients = computed(() =>
                         <div
                             class="px-6 py-4 bg-gray-50 dark:bg-neutral-900 border-t border-gray-200 dark:border-neutral-700">
                             <div class="flex justify-end space-x-2">
-                                <Link :href="route('clients-edit', client.id)"
+                                <button @click="openEditModal(client)"
                                     class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-all duration-200 group/edit"
                                     title="Edit Client">
-                                <Pencil class="w-4 h-4 group-hover/edit:scale-110 transition-transform duration-200" />
-                                </Link>
+                                    <Pencil
+                                        class="w-4 h-4 group-hover/edit:scale-110 transition-transform duration-200" />
+                                </button>
                                 <button @click="deleteClient(client.id, client.name)"
                                     class="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-all duration-200 group/delete"
                                     title="Delete Client">
@@ -307,11 +422,11 @@ const activeClients = computed(() =>
                     <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
                         {{ search ? 'Try adjusting your search terms' : 'Get started by adding your first client' }}
                     </p>
-                    <Link v-if="!search" :href="route('clients-create')"
+                    <button v-if="!search" @click="openCreateModal"
                         class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200">
-                    <CirclePlus class="w-5 h-5 mr-2" />
-                    Add Your First Client
-                    </Link>
+                        <CirclePlus class="w-5 h-5 mr-2" />
+                        Add Your First Client
+                    </button>
                 </div>
 
                 <!-- Pagination -->
@@ -332,6 +447,208 @@ const activeClients = computed(() =>
                             </template>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Client Modal -->
+        <div v-if="showCreateModal"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4"
+            @click.self="closeCreateModal">
+            <div
+                class="bg-white dark:bg-neutral-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-neutral-700">
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-neutral-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Add New Client</h2>
+                    <button @click="closeCreateModal"
+                        class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-all duration-200">
+                        <X class="w-5 h-5" />
+                    </button>
+                </div>
+
+                <!-- Modal Content -->
+                <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+                    <form @submit.prevent="handleCreateSubmit" class="space-y-6">
+                        <!-- Name -->
+                        <div>
+                            <label for="create-name"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Name</label>
+                            <input id="create-name" v-model="createForm.name" required type="text"
+                                placeholder="e.g. Acme Corp"
+                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700" />
+                        </div>
+
+                        <!-- Website -->
+                        <div>
+                            <label for="create-website"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Website</label>
+                            <input id="create-website" v-model="createForm.website" required type="url"
+                                placeholder="e.g. https://example.com"
+                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700" />
+                        </div>
+
+                        <!-- Preview URL -->
+                        <div>
+                            <label for="create-preview"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Preview
+                                URL</label>
+                            <input id="create-preview" v-model="createForm.preview_url" type="url"
+                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700" />
+                        </div>
+
+                        <!-- Brand Color -->
+                        <div>
+                            <label for="create-color"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Brand
+                                Color</label>
+                            <select id="create-color" v-model="createForm.color_palette_id"
+                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700"
+                                required>
+                                <option disabled value="">Select a color palette</option>
+                                <option v-for="palette in colorPalettes" :key="palette.id" :value="palette.id">
+                                    {{ palette.name }}
+                                </option>
+                            </select>
+
+                            <!-- Color Preview -->
+                            <div v-if="createForm.color_palette_id" class="mt-2 flex items-center gap-2">
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Preview:</span>
+                                <div v-if="colorPalettes.find(p => p.id == createForm.color_palette_id)"
+                                    :style="{ backgroundColor: colorPalettes.find(p => p.id == createForm.color_palette_id)?.primary }"
+                                    class="h-5 w-10 rounded-lg border border-gray-300 dark:border-neutral-600"></div>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">
+                                    {{colorPalettes.find(p => p.id == createForm.color_palette_id)?.primary}}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Logo Upload -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Logo
+                                (Image)</label>
+                            <FilePond name="logo" :files="createFilePondFiles" @updatefiles="handleCreateFilePondUpdate"
+                                :allowMultiple="false" :acceptedFileTypes="['image/*']"
+                                :labelIdle="'Drag & Drop your logo or <span class=\'filepond--label-action\'>Browse</span>'"
+                                :maxFiles="1" :imagePreviewHeight="170" class="mt-1" />
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="flex space-x-4 pt-4">
+                            <button type="button" @click="closeCreateModal"
+                                class="flex-1 rounded-xl bg-gray-600 px-6 py-3 text-white shadow hover:bg-gray-700 transition-colors">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                :disabled="!createForm.name || !createForm.website || !createForm.color_palette_id"
+                                class="flex-1 rounded-xl bg-green-600 px-6 py-3 text-white shadow hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                Create Client
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Client Modal -->
+        <div v-if="showEditModal"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4"
+            @click.self="closeEditModal">
+            <div
+                class="bg-white dark:bg-neutral-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-neutral-700">
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-neutral-700">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Edit Client</h2>
+                    <button @click="closeEditModal"
+                        class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-all duration-200">
+                        <X class="w-5 h-5" />
+                    </button>
+                </div>
+
+                <!-- Modal Content -->
+                <div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+                    <form @submit.prevent="handleEditSubmit" class="space-y-6">
+                        <!-- Name -->
+                        <div>
+                            <label for="edit-name"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Name</label>
+                            <input id="edit-name" v-model="editForm.name" required type="text"
+                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700" />
+                        </div>
+
+                        <!-- Website -->
+                        <div>
+                            <label for="edit-website"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Website</label>
+                            <input id="edit-website" v-model="editForm.website" required type="url"
+                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700" />
+                        </div>
+
+                        <!-- Preview URL -->
+                        <div>
+                            <label for="edit-preview"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Preview
+                                URL</label>
+                            <input id="edit-preview" v-model="editForm.preview_url" type="url"
+                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700" />
+                        </div>
+
+                        <!-- Brand Color -->
+                        <div>
+                            <label for="edit-color"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Brand
+                                Color</label>
+                            <select id="edit-color" v-model="editForm.color_palette_id"
+                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700">
+                                <option :value="null">Select a palette</option>
+                                <option v-for="palette in colorPalettes" :key="palette.id" :value="palette.id">
+                                    {{ palette.name }} ({{ palette.primary }})
+                                </option>
+                            </select>
+
+                            <!-- Color Preview -->
+                            <div v-if="editForm.color_palette_id" class="mt-2 flex items-center gap-2">
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Selected:</span>
+                                <div v-if="colorPalettes.find(p => p.id == editForm.color_palette_id)"
+                                    :style="{ backgroundColor: colorPalettes.find(p => p.id == editForm.color_palette_id)?.primary }"
+                                    class="h-6 w-12 rounded-lg border border-gray-300 dark:border-neutral-600"></div>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">
+                                    {{colorPalettes.find(p => p.id == editForm.color_palette_id)?.primary}}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Current Logo Display -->
+                        <div v-if="logoPreview && !editForm.logo">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Current
+                                Logo</label>
+                            <div class="mb-4">
+                                <img :src="logoPreview" alt="Current Logo" class="h-16 mx-auto rounded-lg" />
+                            </div>
+                        </div>
+
+                        <!-- Logo Upload -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                                {{ logoPreview && !editForm.logo ? 'Upload New Logo' : 'Logo (Image)' }}
+                            </label>
+                            <FilePond name="logo" :files="editFilePondFiles" @updatefiles="handleEditFilePondUpdate"
+                                :allowMultiple="false" :acceptedFileTypes="['image/*']"
+                                :labelIdle="'Drag & Drop your logo or <span class=\'filepond--label-action\'>Browse</span>'"
+                                :maxFiles="1" :imagePreviewHeight="170" class="mt-1" />
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="flex space-x-4 pt-4">
+                            <button type="button" @click="closeEditModal"
+                                class="flex-1 rounded-xl bg-gray-600 px-6 py-3 text-white shadow hover:bg-gray-700 transition-colors">
+                                Cancel
+                            </button>
+                            <button type="submit" :disabled="!editForm.name || !editForm.website"
+                                class="flex-1 rounded-xl bg-blue-600 px-6 py-3 text-white shadow hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                Update Client
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

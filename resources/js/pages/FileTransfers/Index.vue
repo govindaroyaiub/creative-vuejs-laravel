@@ -6,6 +6,15 @@ import { CirclePlus, Pencil, Trash2, Eye, ChevronLeft, ChevronRight, X, Download
 import Swal from 'sweetalert2';
 import { computed, ref, watch } from 'vue';
 
+// Create FilePond component
+import vueFilePond from 'vue-filepond';
+
+// FilePond styles
+import 'filepond/dist/filepond.min.css';
+
+// Create FilePond component
+const FilePond = vueFilePond();
+
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'File Transfers', href: '/file-transfers' }];
 
 const page = usePage();
@@ -29,10 +38,8 @@ const editForm = ref({
 });
 const fileSize = ref('0.00');
 const editFileSize = ref('0.00');
-const dragOver = ref(false);
-const editDragOver = ref(false);
-const fileInput = ref<HTMLInputElement>();
-const editFileInput = ref<HTMLInputElement>();
+const filePondFiles = ref([]);
+const editFilePondFiles = ref([]);
 
 watch(search, (value) => {
     router.get(route('file-transfers'), { search: value }, {
@@ -62,7 +69,7 @@ const deleteFileTransfer = async (id: number) => {
                 icon: 'success',
                 position: 'top-end',
                 showConfirmButton: false,
-                timer: 3000,
+                timer: 1000,
                 timerProgressBar: true,
                 toast: true
             }),
@@ -98,6 +105,7 @@ const openModal = () => {
         files: [],
     };
     fileSize.value = '0.00';
+    filePondFiles.value = [];
     showModal.value = true;
 };
 
@@ -109,32 +117,28 @@ const closeModal = () => {
         files: [],
     };
     fileSize.value = '0.00';
+    filePondFiles.value = [];
 };
 
-const handleFileDrop = (event: DragEvent) => {
-    dragOver.value = false;
-    if (!event.dataTransfer?.files) return;
+const handleFilePondUpdate = (files: any[]) => {
+    filePondFiles.value = files;
+    if (files.length > 0) {
+        const validFiles = files
+            .map(f => f.file)
+            .filter(file => file && file.name.toLowerCase().endsWith('.zip'));
 
-    const droppedFiles = Array.from(event.dataTransfer.files).filter((file) =>
-        file.name.toLowerCase().endsWith('.zip')
-    );
-    form.value.files = droppedFiles;
+        form.value.files = validFiles;
+        const totalBytes = validFiles.reduce((acc, file) => acc + file.size, 0);
+        fileSize.value = (totalBytes / (1024 * 1024)).toFixed(2);
 
-    const totalBytes = droppedFiles.reduce((acc, file) => acc + file.size, 0);
-    fileSize.value = (totalBytes / (1024 * 1024)).toFixed(2);
-};
-
-const handleFileChange = (event: Event) => {
-    const input = event.target as HTMLInputElement;
-    if (!input.files) return;
-
-    const selected = Array.from(input.files).filter((file) =>
-        file.name.toLowerCase().endsWith('.zip')
-    );
-    form.value.files = selected;
-
-    const totalBytes = selected.reduce((acc, file) => acc + file.size, 0);
-    fileSize.value = (totalBytes / (1024 * 1024)).toFixed(2);
+        // Show warning if some files were filtered out
+        if (validFiles.length !== files.length) {
+            console.warn('Some files were filtered out. Only ZIP files are allowed.');
+        }
+    } else {
+        form.value.files = [];
+        fileSize.value = '0.00';
+    }
 };
 
 const handleSubmit = () => {
@@ -155,7 +159,7 @@ const handleSubmit = () => {
                 icon: 'success',
                 position: 'top-end',
                 showConfirmButton: false,
-                timer: 3000,
+                timer: 1000,
                 timerProgressBar: true,
                 toast: true
             });
@@ -188,6 +192,7 @@ const openEditModal = (transfer: any) => {
         file_paths: filePaths,
     };
     editFileSize.value = '0.00';
+    editFilePondFiles.value = [];
     showEditModal.value = true;
 };
 
@@ -201,32 +206,28 @@ const closeEditModal = () => {
         file_paths: [],
     };
     editFileSize.value = '0.00';
+    editFilePondFiles.value = [];
 };
 
-const handleEditFileDrop = (event: DragEvent) => {
-    editDragOver.value = false;
-    if (!event.dataTransfer?.files) return;
+const handleEditFilePondUpdate = (files: any[]) => {
+    editFilePondFiles.value = files;
+    if (files.length > 0) {
+        const validFiles = files
+            .map(f => f.file)
+            .filter(file => file && file.name.toLowerCase().endsWith('.zip'));
 
-    const droppedFiles = Array.from(event.dataTransfer.files).filter((file) =>
-        file.name.toLowerCase().endsWith('.zip')
-    );
-    editForm.value.files = droppedFiles;
+        editForm.value.files = validFiles;
+        const totalBytes = validFiles.reduce((acc, file) => acc + file.size, 0);
+        editFileSize.value = (totalBytes / (1024 * 1024)).toFixed(2);
 
-    const totalBytes = droppedFiles.reduce((acc, file) => acc + file.size, 0);
-    editFileSize.value = (totalBytes / (1024 * 1024)).toFixed(2);
-};
-
-const handleEditFileChange = (event: Event) => {
-    const input = event.target as HTMLInputElement;
-    if (!input.files) return;
-
-    const selected = Array.from(input.files).filter((file) =>
-        file.name.toLowerCase().endsWith('.zip')
-    );
-    editForm.value.files = selected;
-
-    const totalBytes = selected.reduce((acc, file) => acc + file.size, 0);
-    editFileSize.value = (totalBytes / (1024 * 1024)).toFixed(2);
+        // Show warning if some files were filtered out
+        if (validFiles.length !== files.length) {
+            console.warn('Some files were filtered out. Only ZIP files are allowed.');
+        }
+    } else {
+        editForm.value.files = [];
+        editFileSize.value = '0.00';
+    }
 };
 
 const handleEditSubmit = () => {
@@ -247,7 +248,7 @@ const handleEditSubmit = () => {
                 icon: 'success',
                 position: 'top-end',
                 showConfirmButton: false,
-                timer: 3000,
+                timer: 1000,
                 timerProgressBar: true,
                 toast: true
             });
@@ -522,27 +523,14 @@ const handleEditSubmit = () => {
                                 class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700" />
                         </div>
 
-                        <!-- Drag & Drop Upload -->
+                        <!-- FilePond Upload -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Upload ZIP
                                 Files</label>
-
-                            <div @dragover.prevent="dragOver = true" @dragleave.prevent="dragOver = false"
-                                @drop.prevent="handleFileDrop"
-                                :class="['flex flex-col items-center justify-center border-2 border-dashed p-6 rounded-2xl transition-all cursor-pointer',
-                                    dragOver ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-gray-300 dark:border-neutral-700']"
-                                @click="fileInput?.click()">
-                                <input type="file" multiple accept=".zip" @change="handleFileChange" hidden
-                                    ref="fileInput" />
-                                <div class="text-center">
-                                    <p
-                                        class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer">
-                                        Click to upload or drag ZIP files here
-                                    </p>
-                                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Only .zip files are allowed
-                                    </p>
-                                </div>
-                            </div>
+                            <FilePond name="files" :files="filePondFiles" @updatefiles="handleFilePondUpdate"
+                                :allowMultiple="true"
+                                :labelIdle="'Drag & Drop your ZIP files or <span class=\'filepond--label-action\'>Browse</span>'"
+                                :maxFiles="10" class="mt-1" />
 
                             <!-- File list -->
                             <div v-if="form.files.length"
@@ -631,7 +619,7 @@ const handleEditSubmit = () => {
                                         </div>
                                         <span class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{
                                             file
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                     <a :href="`/Transfer Files/${file}`" download
                                         class="flex items-center space-x-1 px-3 py-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors">
@@ -664,23 +652,10 @@ const handleEditSubmit = () => {
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Upload New
                                 ZIP
                                 Files</label>
-
-                            <div @dragover.prevent="editDragOver = true" @dragleave.prevent="editDragOver = false"
-                                @drop.prevent="handleEditFileDrop"
-                                :class="['flex flex-col items-center justify-center border-2 border-dashed p-6 rounded-2xl transition-all cursor-pointer',
-                                    editDragOver ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-gray-300 dark:border-neutral-700']"
-                                @click="editFileInput?.click()">
-                                <input type="file" multiple accept=".zip" @change="handleEditFileChange" hidden
-                                    ref="editFileInput" />
-                                <div class="text-center">
-                                    <p
-                                        class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer">
-                                        Click to upload or drag ZIP files here
-                                    </p>
-                                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Only .zip files are allowed
-                                    </p>
-                                </div>
-                            </div>
+                            <FilePond name="files" :files="editFilePondFiles" @updatefiles="handleEditFilePondUpdate"
+                                :allowMultiple="true"
+                                :labelIdle="'Drag & Drop your ZIP files or <span class=\'filepond--label-action\'>Browse</span>'"
+                                :maxFiles="10" class="mt-1" />
 
                             <!-- New File list -->
                             <div v-if="editForm.files.length"
@@ -703,7 +678,7 @@ const handleEditSubmit = () => {
                             </button>
                             <button type="submit" :disabled="!editForm.name || !editForm.client"
                                 class="flex-1 rounded-xl bg-blue-600 px-6 py-3 text-white shadow hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                                Update Transfer
+                                Update
                             </button>
                         </div>
                     </form>

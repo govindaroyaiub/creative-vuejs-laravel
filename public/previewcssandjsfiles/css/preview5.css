@@ -168,7 +168,7 @@ hr {
     position: relative;
     display: flex;
     overflow: hidden;
-    padding-bottom: 20px
+    padding-bottom: 0;
 }
 
 #categoryInfo {
@@ -335,7 +335,7 @@ hr {
 #feedbackClick {
     position: fixed;
     top: 25rem;
-    right: 1.5rem;
+    right: -2px;
     z-index: 1000;
 }
 
@@ -361,20 +361,19 @@ hr {
 #feedbackDescription {
     position: fixed;
     top: 25.5rem;
-    right: 1.5rem;
+    right: -320px;
     /* Start hidden off-screen */
-    width: 302px;
+    width: 320px;
     background: white;
     border: 1px solid var(--tertiary-color);
     border-radius: 10px 0 0 10px;
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
     transition: right 0.3s ease-in-out;
     z-index: 1000;
-    display: none;
 }
 
 #feedbackDescription.show {
-    display: block;
+    right: 0;
 }
 
 /* Color Palette */
@@ -817,7 +816,7 @@ hr {
 
 .right-column {
     flex: 1;
-    padding: 0 5px 20px 5px;
+    padding: 5px;
     border: 3px solid var(--tertiary-color);
     border-top-right-radius: 25px;
     border-bottom-left-radius: 25px;
@@ -864,8 +863,8 @@ hr {
 }
 
 #showcase-section {
-    padding-left: 2rem;
-    padding-right: 2rem
+    padding-left: 3rem;
+    padding-right: 3rem
 }
 
 .currentTotalFeedbacks {

@@ -405,7 +405,7 @@ const handleSubmit = async () => {
                 icon: 'success',
                 title: 'Success!',
                 text: 'Bill updated successfully!',
-                timer: 3000,
+                timer: 1000,
                 showConfirmButton: false,
                 toast: true,
                 position: 'top-end',

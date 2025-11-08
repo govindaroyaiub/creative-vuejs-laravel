@@ -22,32 +22,18 @@ class ClientController extends Controller
         }
 
         $clients = $query->latest()->paginate(10)->withQueryString();
+        $colorPalettes = ColorPalette::where('status', 1)->get(['id', 'name', 'primary']);
 
         return Inertia::render('Clients/Index', [
             'clients' => $clients,
+            'colorPalettes' => $colorPalettes,
             'search' => $search,
         ]);
     }
 
-    public function create()
-    {
-        $colorPalettes = ColorPalette::where('status', 1)->get(['id', 'name', 'primary']);
+    public function create() {}
 
-        return Inertia::render('Clients/Create', [
-            'colorPalettes' => $colorPalettes,
-        ]);
-    }
-
-    public function edit($id)
-    {
-        $client = Client::with('colorPalette')->findOrFail($id);
-        $palettes = ColorPalette::where('status', 1)->get();
-
-        return Inertia::render('Clients/Edit', [
-            'client' => $client,
-            'palettes' => $palettes,
-        ]);
-    }
+    public function edit($id) {}
 
     public function store(Request $request)
     {

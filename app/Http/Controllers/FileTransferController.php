@@ -94,31 +94,9 @@ class FileTransferController extends Controller
         ]);
     }
 
-    public function create()
-    {
-        return Inertia::render('FileTransfers/Create');
-    }
+    public function create() {}
 
-    public function edit($id)
-    {
-        $fileTransfer = FileTransfer::with('user:id,name')->findOrFail($id);
-
-        // Remove 'Transfer Files' from each file path, then split by commas
-        $filePaths = array_map(function ($file) {
-            return str_replace('Transfer Files/', '', $file);
-        }, explode(',', $fileTransfer->file_path)); // Split the file paths into an array
-
-        return Inertia::render('FileTransfers/Edit', [
-            'fileTransfer' => [
-                'id' => $fileTransfer->id,
-                'name' => $fileTransfer->name,
-                'client' => $fileTransfer->client,
-                'user' => $fileTransfer->user ? $fileTransfer->user->name : 'Unknown',
-                'created_at' => $fileTransfer->created_at->format('Y-m-d H:i'),
-                'file_paths' => $filePaths, // Send as an array
-            ]
-        ]);
-    }
+    public function edit($id) {}
 
     /**
      * Upload and create a new file transfer
