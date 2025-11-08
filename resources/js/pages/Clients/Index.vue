@@ -535,7 +535,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <!-- Submit Buttons -->
                         <div class="flex space-x-4 pt-4">
                             <button type="button" @click="closeCreateModal"
-                                class="flex-1 rounded-xl bg-gray-600 px-6 py-3 text-white shadow hover:bg-gray-700 transition-colors">
+                                class="flex-1 rounded-xl bg-red-600 px-6 py-3 text-white shadow hover:bg-red-700 transition-colors">
                                 Cancel
                             </button>
                             <button type="submit"
@@ -640,7 +640,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <!-- Submit Buttons -->
                         <div class="flex space-x-4 pt-4">
                             <button type="button" @click="closeEditModal"
-                                class="flex-1 rounded-xl bg-gray-600 px-6 py-3 text-white shadow hover:bg-gray-700 transition-colors">
+                                class="flex-1 rounded-xl bg-red-600 px-6 py-3 text-white shadow hover:bg-red-700 transition-colors">
                                 Cancel
                             </button>
                             <button type="submit" :disabled="!editForm.name || !editForm.website"
