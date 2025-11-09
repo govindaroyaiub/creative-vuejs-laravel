@@ -388,7 +388,7 @@ const formatCurrency = (amount: number) => {
                         <!-- Form Actions -->
                         <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
                             <Link :href="route('bills')"
-                                class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-neutral-700 text-gray-700 dark:text-gray-300 bg-white dark:bg-neutral-800 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-950 transition-all duration-200">
+                                class="inline-flex items-center justify-center px-6 py-3 border text-white bg-red-600 dark:bg-neutral-800 rounded-xl hover:bg-red-700 transition-all duration-200">
                             Cancel
                             </Link>
                             <button type="submit" :disabled="isLoading || totalAmount <= 0"
@@ -397,7 +397,7 @@ const formatCurrency = (amount: number) => {
                                     class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2">
                                 </div>
                                 <Save v-else class="w-4 h-4 mr-2" />
-                                {{ isLoading ? 'Creating...' : 'Create Bill' }}
+                                {{ isLoading ? 'Saving...' : 'Save' }}
                             </button>
                         </div>
                     </form>
