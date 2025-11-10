@@ -293,20 +293,20 @@ class DatabaseSeeder extends Seeder
         $routes = [
             ['title' => 'Dashboard', 'href' => '/dashboard'],
             ['title' => 'Previews', 'href' => '/previews'],
+            ['title' => 'Color Palettes', 'href' => '/color-palettes'],
+            ['title' => 'Clients', 'href' => '/clients'],
             ['title' => 'Banner Sizes', 'href' => '/banner-sizes'],
             ['title' => 'Video Sizes', 'href' => '/video-sizes'],
-            ['title' => 'Social Formats', 'href' => '/socials'],
-            ['title' => 'File Transfers', 'href' => '/file-transfers'],
             ['title' => 'Bills', 'href' => '/bills'],
-            ['title' => 'Access Manager', 'href' => '/user-managements'],
-            ['title' => 'Clients', 'href' => '/clients'],
-            ['title' => 'Registration', 'href' => '/welcome-to-planetnine/register'],
-            ['title' => 'Change Password', 'href' => '/change-password'],
-            ['title' => 'Color Palettes', 'href' => '/color-palettes'],
+            ['title' => 'File Transfers', 'href' => '/file-transfers'],
             ['title' => 'Media Library', 'href' => '/medias'],
-            ['title' => 'Activity Logs', 'href' => '/activity-logs'],
             ['title' => 'Tetris', 'href' => '/play/tetris'],
-            ['title' => 'Documentation', 'href' => '/lazyDoc'],
+            ['title' => 'Access Manager', 'href' => '/user-managements'],
+            ['title' => 'Change Password', 'href' => '/change-password'],
+            ['title' => 'Activity Logs', 'href' => '/activity-logs'],
+            ['title' => 'Cache Management', 'href' => '/cache-management'],
+            ['title' => 'Documentation', 'href' => '/documentations'],
+            ['title' => 'Registration', 'href' => '/welcome-to-planetnine/register']
         ];
 
         foreach ($routes as $route) {

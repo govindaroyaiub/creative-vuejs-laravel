@@ -23,10 +23,13 @@ class CheckUserPermission
 
         $user = auth()->user();
 
-        // ✅ 2. Ensure user is authenticated
-        if (!$user || !$user->permissions) {
-            // Redirect instead of abort for better UX
-            return redirect()->route('login')->with('error', 'Permission required to access this page.');
+        // ✅ 2. Ensure user is authenticated and has permissions
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Authentication required to access this page.');
+        }
+
+        if (!$user->permissions || empty($user->permissions)) {
+            abort(403, 'You do not have any permissions assigned to your account.');
         }
 
         // ✅ 3. Check for dashboard and home route permissions
@@ -37,7 +40,7 @@ class CheckUserPermission
                 in_array('*', $user->permissions);
 
             if (!$hasDashboardPermission) {
-                abort(404, 'You do not have permission to access the dashboard.');
+                abort(403, 'You do not have permission to access the dashboard.');
             }
         }
 
@@ -58,7 +61,7 @@ class CheckUserPermission
             }
         }
 
-        // ❌ Denied - show 404 error page with permission message
-        abort(404, 'You do not have permission to access this page.');
+        // ❌ Denied - show 403 forbidden page with permission message
+        abort(403, 'You do not have permission to access this page.');
     }
 }
