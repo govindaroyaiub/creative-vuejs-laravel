@@ -12,8 +12,6 @@
     <script src="{{ asset('previewcssandjsfiles/js/jquery.min.js') }}"></script>
     <script src="{{ asset('previewcssandjsfiles/js/axios.min.js') }}"></script>
     <script src="{{ asset('previewcssandjsfiles/js/fontawesome.all.min.js') }}"></script>
-
-    <!-- PhotoSwipe CDN -->
     <link rel="stylesheet" href="{{ asset('previewcssandjsfiles/css/photoswipe.css') }}">
     <script src="{{ asset('previewcssandjsfiles/js/photoswipe.umd.min.js') }}"></script>
     <script src="{{ asset('previewcssandjsfiles/js/photoswipe-lightbox.umd.min.js') }}"></script>
@@ -59,7 +57,7 @@
             <div class="px-4 py-4 flex justify-center content text-center relative">
                 <div id="topDetails" class="mt-4" style="background-image: url('/{{ $header_image }}'); background-repeat: no-repeat; background-position: center center;">
                     @if($preview->show_planetnine_logo)
-                    <img src="{{ asset('logos/' . $header_logo['logo']) }}" id="planetnineLogo" alt="planetnineLogo" style="min-width: 50px; width: 100%; max-width: 120px; margin: 0 auto;">
+                    <img src="{{ asset('logos/' . $header_logo['logo']) }}" id="planetnineLogo" alt="planetnineLogo" style="height: 65px; width: auto; margin: 0 auto;">
                     @endif
                     <h1><span class="font-semibold">Name: </span> <span class="capitalize">{{ $preview['name'] }}</span></h1>
                     <h1><span class="font-semibold">Client: </span> <span class="capitalize">{{ $client['name'] }}</span></h1>
@@ -78,8 +76,7 @@
             <img src="/{{ $rightTab_color_palette_image }}" alt="palette icon">
         </div>
 
-        <div id="mobilecolorPaletteSelection" data-colors='@json($colorsData)'>
-        </div>
+        <div id="mobilecolorPaletteSelection" data-colors='@json($colorsData)'></div>
 
         <section id="middle" class="mb-4">
             <div id="showcase-section" class="mx-auto custom-container mt-2">
@@ -87,7 +84,7 @@
                     <div class="py-2 flex items-end justify-center sidebar-top-desktop content-end">
                         @if($preview['show_sidebar_logo'] == 1)
                         <img src="{{ asset('logos/' . $client['logo']) }}"
-                            alt="clientLogo" style="min-width:50px; width: 100%; max-width: 180px; margin: 0 auto;">
+                            alt="clientLogo" style="height: 65px; width: auto; margin: 0 auto;">
                         @endif
                     </div>
                     <div style="flex: 1;" class="feedbackTabs-parent">
