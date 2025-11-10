@@ -9,9 +9,14 @@
     <title>Creative - {{ $preview['name'] }}</title>
     <link rel="shortcut icon" href="https://www.planetnine.com/logo/new_favicon.png">
     @vite('resources/css/app.css')
-    <script src="{{ asset('previewcssandjsfiles/js/jquery.min.js') }}" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="{{ asset('previewcssandjsfiles/js/axios.min.js') }}" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="{{ asset('previewcssandjsfiles/js/fontawesome.all.min.js') }}" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{{ asset('previewcssandjsfiles/js/jquery.min.js') }}"></script>
+    <script src="{{ asset('previewcssandjsfiles/js/axios.min.js') }}"></script>
+    <script src="{{ asset('previewcssandjsfiles/js/fontawesome.all.min.js') }}"></script>
+
+    <!-- PhotoSwipe CDN -->
+    <link rel="stylesheet" href="{{ asset('previewcssandjsfiles/css/photoswipe.css') }}">
+    <script src="{{ asset('previewcssandjsfiles/js/photoswipe.umd.min.js') }}"></script>
+    <script src="{{ asset('previewcssandjsfiles/js/photoswipe-lightbox.umd.min.js') }}"></script>
     <style>
         :root {
             --primary-color: {{ $primary }} ;
@@ -184,8 +189,7 @@
     const pageId = '{{ $preview->id }}';
     const authUserClientName = '{{ $authUserClientName }}';
     const preview_id = '{{ $preview_id }}';
-    const showSidebarLogo = '{{ $preview['
-    show_sidebar_logo '] }}';
+    const showSidebarLogo = '{{ $preview->show_sidebar_logo }}';
     const feedbackActiveImage = '{{ $feedback_active_image }}';
     const feedbackInactiveImage = '{{ $feedback_inactive_image }}';
 
@@ -1025,368 +1029,48 @@
             });
     }
 
-    // Modal HTML (add this at the end of your <body>)
-    if (!document.getElementById('socialImageModal')) {
-        $('body').append(`
-            <div id="socialImageModal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); align-items:center; justify-content:center;">
-                <span id="closeSocialModal" style="position:fixed; top:30px; right:40px; font-size:2.5rem; color:red; cursor:pointer; z-index:10001;">&times;</span>
-                <img id="socialModalImg" src="" alt="" 
-                    style="max-width:80vw; max-height:80vh; transition:transform 0.2s; cursor:zoom-in; display:block; margin:auto; padding:40px; background:rgba(0,0,0,0.1); border-radius:12px;">
-            </div>
-        `);
-    }
-
-    // Enhanced Image Modal with Better Zoom & Pan
-    $('#socialImageModal').css('overflow', 'hidden'); // Changed to hidden for better control
-
-    let isDragging = false;
-    let startX, startY, initialX, initialY;
-    let currentX = 0,
-        currentY = 0;
-    let dragMoved = false;
-    let currentScale = 1;
-    let isZoomed = false;
-
-    // Reset modal state
-    function resetModalState() {
-        currentScale = 1;
-        currentX = 0;
-        currentY = 0;
-        isZoomed = false;
-        isDragging = false;
-        dragMoved = false;
-    }
-
-    // Apply transform to image
-    function applyTransform() {
-        const img = $('#socialModalImg');
-        img.css({
-            'transform': `translate(calc(-50% + ${currentX}px), calc(-50% + ${currentY}px)) scale(${currentScale})`,
-            'transition': isDragging ? 'none' : 'transform 0.3s ease'
-        });
-    }
-
-    // Enhanced modal opening
+    // PhotoSwipe Enhanced Modal Implementation  
     window.openSocialImageModal = function(src, label) {
-        resetModalState();
-
-        const img = $('#socialModalImg');
-        img.attr('src', src)
-            .css({
-                'max-width': '90vw',
-                'max-height': '90vh',
-                'cursor': 'zoom-in',
-                'position': 'absolute',
-                'top': '50%',
-                'left': '50%',
-                'transform': 'translate(-50%, -50%) scale(1)', // Keep initial centering
-                'transition': 'transform 0.3s ease',
-                'user-select': 'none',
-                'pointer-events': 'auto',
-                'transform-origin': 'center center' // Add this for proper zoom center
+        // Create a temporary image to get actual dimensions
+        const img = new Image();
+        img.onload = function() {
+            const lightbox = new PhotoSwipeLightbox({
+                dataSource: [{
+                    src: src,
+                    alt: label,
+                    w: img.naturalWidth,
+                    h: img.naturalHeight
+                }],
+                pswpModule: PhotoSwipe,
+                showHideAnimationType: 'zoom',
+                zoomAnimationDuration: 300,
+                bgOpacity: 0.85,
+                spacing: 0.1,
+                allowPanToNext: false,
+                zoom: true,
+                close: true,
+                arrowKeys: true,
+                returnFocus: true,
+                escKey: true,
+                clickToCloseNonZoomable: true,
+                imageClickAction: 'zoom',
+                tapAction: 'zoom',
+                doubleTapAction: 'zoom',
+                indexIndicatorSep: ' of ',
+                preloaderDelay: 2000,
+                errorMsg: 'The image could not be loaded'
             });
 
-        $('#socialImageModal').fadeIn(150);
-        $('body').css('overflow', 'hidden');
+            lightbox.init();
+            lightbox.loadAndOpen(0);
+        };
 
-        // Add zoom controls (same as before)
-        if (!$('#zoomControls').length) {
-            $('#socialImageModal').append(`
-                <div id="zoomControls" style="position: fixed; top: 20px; left: 20px; z-index: 10002; display: flex; flex-direction: column; gap: 10px;">
-                    <button id="zoomIn" style="background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;">+</button>
-                    <button id="zoomOut" style="background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;">−</button>
-                    <button id="zoomReset" style="background: rgba(0,0,0,0.7); color: white; border: none; border-radius: 20px; padding: 8px 12px; font-size: 12px; cursor: pointer;">Reset</button>
-                </div>
-                <div id="zoomInfo" style="position: fixed; bottom: 20px; left: 20px; z-index: 10002; background: rgba(0,0,0,0.7); color: white; padding: 8px 12px; border-radius: 15px; font-size: 12px;">
-                    Zoom: <span id="zoomLevel">100%</span>
-                </div>
-                <div id="modalInstructions" style="position: fixed; bottom: 20px; right: 20px; z-index: 10002; background: rgba(0,0,0,0.7); color: white; padding: 8px 12px; border-radius: 15px; font-size: 11px; max-width: 200px;">
-                    <div>• Click to zoom in/out</div>
-                    <div>• Drag to pan when zoomed</div>
-                    <div>• Mouse wheel to zoom</div>
-                    <div>• Double-click to reset</div>
-                </div>
-            `);
-        }
+        img.onerror = function() {
+            console.error('Failed to load image:', src);
+        };
 
-        updateZoomInfo();
+        img.src = src;
     };
-
-    // Update zoom level display
-    function updateZoomInfo() {
-        $('#zoomLevel').text(Math.round(currentScale * 100) + '%');
-
-        const img = $('#socialModalImg');
-        if (currentScale > 1) {
-            img.css('cursor', 'grab');
-            isZoomed = true;
-        } else {
-            img.css('cursor', 'zoom-in');
-            isZoomed = false;
-        }
-    }
-
-    // Zoom functions
-    function zoomIn(centerX = null, centerY = null) {
-        const newScale = Math.min(currentScale * 1.5, 5); // Max 5x zoom
-
-        if (centerX !== null && centerY !== null) {
-            // Zoom towards specific point
-            const rect = $('#socialImageModal')[0].getBoundingClientRect();
-            const modalCenterX = rect.width / 2;
-            const modalCenterY = rect.height / 2;
-
-            const deltaX = (centerX - modalCenterX) * (newScale / currentScale - 1);
-            const deltaY = (centerY - modalCenterY) * (newScale / currentScale - 1);
-
-            currentX -= deltaX;
-            currentY -= deltaY;
-        }
-
-        currentScale = newScale;
-        applyTransform();
-        updateZoomInfo();
-    }
-
-    function zoomOut() {
-        const newScale = Math.max(currentScale / 1.5, 0.5); // Min 0.5x zoom
-        currentScale = newScale;
-
-        // Keep image centered when zooming out
-        if (currentScale <= 1) {
-            currentX = 0;
-            currentY = 0;
-            currentScale = 1;
-        }
-
-        applyTransform();
-        updateZoomInfo();
-    }
-
-    function resetZoom() {
-        currentScale = 1;
-        currentX = 0;
-        currentY = 0;
-        const img = $('#socialModalImg');
-        img.css({
-            'transform': 'translate(-50%, -50%) scale(1)',
-            'transition': 'transform 0.3s ease'
-        });
-        updateZoomInfo();
-    }
-
-    // Mouse events for dragging
-    $('#socialModalImg').on('mousedown', function(e) {
-        if (isZoomed) {
-            isDragging = true;
-            dragMoved = false;
-            $(this).css('cursor', 'grabbing');
-
-            startX = e.clientX;
-            startY = e.clientY;
-            initialX = currentX;
-            initialY = currentY;
-
-            e.preventDefault();
-        }
-    });
-
-    $(document).on('mousemove', function(e) {
-        if (isDragging && isZoomed) {
-            const deltaX = e.clientX - startX;
-            const deltaY = e.clientY - startY;
-
-            if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
-                dragMoved = true;
-            }
-
-            currentX = initialX + deltaX;
-            currentY = initialY + deltaY;
-
-            applyTransform();
-        }
-    });
-
-    $(document).on('mouseup', function() {
-        if (isDragging) {
-            isDragging = false;
-            $('#socialModalImg').css('cursor', isZoomed ? 'grab' : 'zoom-in');
-        }
-    });
-
-    // Click to zoom
-    $(document).on('click', '#socialModalImg', function(e) {
-        if (dragMoved) {
-            dragMoved = false;
-            return;
-        }
-
-        const rect = this.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const clickY = e.clientY - rect.top;
-
-        if (currentScale < 2) {
-            zoomIn(e.clientX - $('#socialImageModal').offset().left,
-                e.clientY - $('#socialImageModal').offset().top);
-        } else {
-            resetZoom();
-        }
-    });
-
-    // Double-click to reset
-    $(document).on('dblclick', '#socialModalImg', function(e) {
-        e.preventDefault();
-        resetZoom();
-    });
-
-    // Mouse wheel zoom
-    $('#socialImageModal').on('wheel', function(e) {
-        e.preventDefault();
-
-        const rect = this.getBoundingClientRect();
-        const mouseX = e.originalEvent.clientX - rect.left;
-        const mouseY = e.originalEvent.clientY - rect.top;
-
-        if (e.originalEvent.deltaY < 0) {
-            zoomIn(mouseX, mouseY);
-        } else {
-            zoomOut();
-        }
-    });
-
-    // Zoom control buttons
-    $(document).on('click', '#zoomIn', function(e) {
-        e.stopPropagation();
-        zoomIn();
-    });
-
-    $(document).on('click', '#zoomOut', function(e) {
-        e.stopPropagation();
-        zoomOut();
-    });
-
-    $(document).on('click', '#zoomReset', function(e) {
-        e.stopPropagation();
-        resetZoom();
-    });
-
-    // Keyboard controls
-    $(document).on('keydown', function(e) {
-        if ($('#socialImageModal').is(':visible')) {
-            switch (e.key) {
-                case 'Escape':
-                    $('#closeSocialModal').click();
-                    break;
-                case '+':
-                case '=':
-                    zoomIn();
-                    break;
-                case '-':
-                    zoomOut();
-                    break;
-                case '0':
-                    resetZoom();
-                    break;
-                case 'ArrowLeft':
-                    if (isZoomed) {
-                        currentX += 50;
-                        applyTransform();
-                    }
-                    break;
-                case 'ArrowRight':
-                    if (isZoomed) {
-                        currentX -= 50;
-                        applyTransform();
-                    }
-                    break;
-                case 'ArrowUp':
-                    if (isZoomed) {
-                        currentY += 50;
-                        applyTransform();
-                    }
-                    break;
-                case 'ArrowDown':
-                    if (isZoomed) {
-                        currentY -= 50;
-                        applyTransform();
-                    }
-                    break;
-            }
-        }
-    });
-
-    // Close modal events
-    $(document).on('click', '#closeSocialModal', function() {
-        $('#socialImageModal').fadeOut(150);
-        $('body').css('overflow', '');
-        resetModalState();
-    });
-
-    $(document).on('click', '#socialImageModal', function(e) {
-        if (e.target === this) {
-            $('#socialImageModal').fadeOut(150);
-            $('body').css('overflow', '');
-            resetModalState();
-        }
-    });
-
-    // Prevent context menu on image
-    $('#socialModalImg').on('contextmenu', function(e) {
-        e.preventDefault();
-    });
-
-    // Touch events for mobile support
-    let touchStartX = 0,
-        touchStartY = 0;
-    let touchStartDistance = 0;
-    let touchStartScale = 1;
-
-    $('#socialModalImg').on('touchstart', function(e) {
-        const touches = e.originalEvent.touches;
-
-        if (touches.length === 1) {
-            // Single touch - start pan
-            touchStartX = touches[0].clientX;
-            touchStartY = touches[0].clientY;
-            initialX = currentX;
-            initialY = currentY;
-        } else if (touches.length === 2) {
-            // Pinch to zoom
-            const dx = touches[0].clientX - touches[1].clientX;
-            const dy = touches[0].clientY - touches[1].clientY;
-            touchStartDistance = Math.sqrt(dx * dx + dy * dy);
-            touchStartScale = currentScale;
-        }
-
-        e.preventDefault();
-    });
-
-    $('#socialModalImg').on('touchmove', function(e) {
-        const touches = e.originalEvent.touches;
-
-        if (touches.length === 1 && isZoomed) {
-            // Pan
-            const deltaX = touches[0].clientX - touchStartX;
-            const deltaY = touches[0].clientY - touchStartY;
-
-            currentX = initialX + deltaX;
-            currentY = initialY + deltaY;
-
-            applyTransform();
-        } else if (touches.length === 2) {
-            // Pinch zoom
-            const dx = touches[0].clientX - touches[1].clientX;
-            const dy = touches[0].clientY - touches[1].clientY;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            const scale = touchStartScale * (distance / touchStartDistance);
-
-            currentScale = Math.max(0.5, Math.min(5, scale));
-            applyTransform();
-            updateZoomInfo();
-        }
-
-        e.preventDefault();
-    });
 
     function renderGif(version_id) {
         document.getElementById('loaderArea').style.display = 'flex';

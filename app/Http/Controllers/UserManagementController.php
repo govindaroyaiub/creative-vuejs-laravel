@@ -131,6 +131,11 @@ class UserManagementController extends Controller
             $permissions[] = '/welcome-to-planetnine/register';
         }
 
+        // ✅ Automatically add dashboard permission for new users (unless they're restricted)
+        if (!in_array('/', $permissions) && !in_array('/dashboard', $permissions)) {
+            $permissions[] = '/'; // Give access to dashboard/home
+        }
+
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],

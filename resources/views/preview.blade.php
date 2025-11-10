@@ -16,12 +16,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/js/all.min.js" integrity="sha512-rpLlll167T5LJHwp0waJCh3ZRf7pO6IT1+LZOhAyP6phAirwchClbTZV3iqL3BMrVxIYRbzGTpli4rfxsCK6Vw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://s0.2mdn.net/ads/studio/cached_libs/gsap_3.5.1_min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- PhotoSwipe CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@5.4.4/dist/photoswipe.css">
+    <script src="https://cdn.jsdelivr.net/npm/photoswipe@5.4.4/dist/umd/photoswipe.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/photoswipe@5.4.4/dist/umd/photoswipe-lightbox.umd.min.js"></script>
     <style>
         :root {
             --primary-color: {{ $primary }};
             --secondary-color: {{ $secondary }};
             --tertiary-color: {{ $tertiary }};
             --quaternary-color: {{ $quaternary }};
+            --quinary-color: {{ $quinary }}; 
+            --senary-color: {{ $senary }}; 
+            --septenary-color: {{ $septenary }};
         }
     </style>
     <link href="{{ asset('css/preview.css') }}" rel="stylesheet">
@@ -72,14 +80,14 @@
         <div id="viewerList" class="flex space-x-2"></div>
 
         @if(auth()->check() && $preview->requires_login)
-            <form method="POST" action="{{ route('preview.logout') }}" id="customPreviewLogoutForm">
-                @csrf
-                <input type="hidden" name="preview_id" value="{{ $preview->id }}">
-                <button type="submit"
-                    class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-3 py-1 rounded shadow transition cursor-pointer">
-                    Logout
-                </button>
-            </form>
+        <form method="POST" action="{{ route('preview.logout') }}" id="customPreviewLogoutForm">
+            @csrf
+            <input type="hidden" name="preview_id" value="{{ $preview->id }}">
+            <button type="submit"
+                class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-3 py-1 rounded shadow transition cursor-pointer">
+                Logout
+            </button>
+        </form>
         @endif
     </div>
     @endif
@@ -96,7 +104,7 @@
             <div class="px-4 py-4 flex justify-center content text-center relative">
                 <div id="topDetails" class="mt-4">
                     @if($preview->show_planetnine_logo)
-                        <img src="{{ asset('logos/' . $client['logo']) }}" id="planetnineLogo" class="py-3" alt="planetnineLogo">
+                    <img src="{{ asset('logos/' . $client['logo']) }}" id="planetnineLogo" class="py-3" alt="planetnineLogo">
                     @endif
                     <h1 style="font-size: 1rem;"><span class="font-semibold">Name: </span> <span class="capitalize">{{ $preview['name'] }}</span></h1>
                     <h1 class="mt-1" style="font-size: 1rem;"><span class="font-semibold">Client: </span> <span class="capitalize">{{ $client['name'] }}</span></h1>
@@ -112,8 +120,8 @@
                 <div class="flex row justify-around items-end" style="min-height: 50px;">
                     <div class="py-2 flex items-end justify-center sidebar-top-desktop">
                         @if($preview['show_sidebar_logo'] == 1)
-                            <img src="{{ asset('logos/' . $client['logo']) }}" 
-                                alt="clientLogo" style="max-width: 200px; margin: 0 auto;">
+                        <img src="{{ asset('logos/' . $client['logo']) }}"
+                            alt="clientLogo" style="max-width: 200px; margin: 0 auto;">
                         @endif
                     </div>
                     <div style="flex: 1;">
@@ -129,7 +137,7 @@
                                 <span></span>
                                 <span></span>
                                 <span></span>
-                                
+
                                 <ul id="menu"></ul>
                             </div>
                         </nav>
@@ -138,7 +146,7 @@
                             <div class="w-full client-logo-div sidebar-top-tab-mobile">
                                 <div id="clientLogoSection" class="mb-2 mt-2 px-2 py-2 mx-auto">
                                     <img src="{{ asset('logos/' . $client['logo']) }}"
-                                    alt="clientLogo" style="width: 150px;">
+                                        alt="clientLogo" style="width: 150px;">
                                 </div>
                             </div>
                             @endif
@@ -158,7 +166,7 @@
                                 </div>
 
                                 @php
-                                    $colorsData = $all_colors->map(fn($color) => ['id' => $color->id, 'hex' => $color->primary, 'border' => $color->tertiary]);
+                                $colorsData = $all_colors->map(fn($color) => ['id' => $color->id, 'hex' => $color->primary, 'border' => $color->tertiary]);
                                 @endphp
 
                                 <div id="colorPaletteClick" onclick="showColorPaletteOptions()">
@@ -193,67 +201,71 @@
         </section>
     </main>
     @if($preview['show_footer'])
-        <footer class="footer py-8">
-            <div class="container mx-auto px-4 text-center text-base text-gray-600">
-                &copy; All Rights Reserved. 
-                <a href="https://www.planetnine.com" class="underline hover:text-black" target="_blank">
-                    Planet Nine
-                </a> - {{ now()->year }}
-            </div>
-        </footer>
-        @endif
+    <footer class="footer py-8">
+        <div class="container mx-auto px-4 text-center text-base text-gray-600">
+            &copy; All Rights Reserved.
+            <a href="https://www.planetnine.com" class="underline hover:text-black" target="_blank">
+                Planet Nine
+            </a> - {{ now()->year }}
+        </div>
+    </footer>
+    @endif
 </body>
 
 <script>
-function showColorPaletteOptions() {
-    const preview_id = '{{ $preview_id }}';
-    const paletteDiv = document.getElementById('colorPaletteSelection');
+    function showColorPaletteOptions() {
+        const preview_id = '{{ $preview_id }}';
+        const paletteDiv = document.getElementById('colorPaletteSelection');
 
-    if (paletteDiv.innerHTML.trim() === '') {
-        // Parse JSON array of objects with {id, hex}
-        const colors = JSON.parse(paletteDiv.dataset.colors);
-        paletteDiv.classList.add('color-grid');
+        if (paletteDiv.innerHTML.trim() === '') {
+            // Parse JSON array of objects with {id, hex}
+            const colors = JSON.parse(paletteDiv.dataset.colors);
+            paletteDiv.classList.add('color-grid');
 
-        colors.forEach(({ id, hex, border }) => {
-            const colorBox = document.createElement('div');
-            colorBox.className = 'color-box';
-            colorBox.style.backgroundColor = hex;
-            colorBox.style.borderColor = border;
+            colors.forEach(({
+                id,
+                hex,
+                border
+            }) => {
+                const colorBox = document.createElement('div');
+                colorBox.className = 'color-box';
+                colorBox.style.backgroundColor = hex;
+                colorBox.style.borderColor = border;
 
-            colorBox.title = hex; // optional: show hex on hover
+                colorBox.title = hex; // optional: show hex on hover
 
-            colorBox.addEventListener('click', () => {
-                document.getElementById('loaderArea').style.display = 'flex';
-                axios.get('/preview/'+ preview_id +'/change/theme/' + id)
-                .then(response => {
-                    if (response.data.success) {
-                        location.reload();
-                    } else {
-                        alert("Something went wrong changing theme");
-                    }
-                })
-                .catch(error => {
-                    console.error('Error sending color:', error);
+                colorBox.addEventListener('click', () => {
+                    document.getElementById('loaderArea').style.display = 'flex';
+                    axios.get('/preview/' + preview_id + '/change/theme/' + id)
+                        .then(response => {
+                            if (response.data.success) {
+                                location.reload();
+                            } else {
+                                alert("Something went wrong changing theme");
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error sending color:', error);
+                        });
                 });
+
+                paletteDiv.appendChild(colorBox);
             });
+        }
 
-            paletteDiv.appendChild(colorBox);
-        });
+        paletteDiv.classList.add('visible');
+        document.addEventListener('click', handleOutsideClick);
     }
 
-    paletteDiv.classList.add('visible');
-    document.addEventListener('click', handleOutsideClick);
-}
+    function handleOutsideClick(event) {
+        const paletteDiv = document.getElementById('colorPaletteSelection');
+        const paletteToggle = document.getElementById('colorPaletteClick');
 
-function handleOutsideClick(event) {
-    const paletteDiv = document.getElementById('colorPaletteSelection');
-    const paletteToggle = document.getElementById('colorPaletteClick');
-
-    if (!paletteDiv.contains(event.target) && !paletteToggle.contains(event.target)) {
-        paletteDiv.classList.remove('visible');
-        document.removeEventListener('click', handleOutsideClick);
+        if (!paletteDiv.contains(event.target) && !paletteToggle.contains(event.target)) {
+            paletteDiv.classList.remove('visible');
+            document.removeEventListener('click', handleOutsideClick);
+        }
     }
-}
 </script>
 
 <script>
@@ -322,12 +334,15 @@ function handleOutsideClick(event) {
                 var row = '';
                 var row2 = '';
 
-                row = row + '@if($preview['show_sidebar_logo'] == 1)';
-                    row = row + '<div class="w-full" style="background-color: white; border-radius: 40px;">';
-                        row = row + '<div class="mb-2 mt-2 px-2 py-2 mx-auto">';
-                            row = row + '<img src="{{ asset('logos/' . $client['logo']) }}" alt="clientLogo" style="width: 250px;">';
-                        row = row + '</div>';
-                    row = row + '</div>';
+                row = row + '@if($preview['
+                show_sidebar_logo '] == 1)';
+                row = row + '<div class="w-full" style="background-color: white; border-radius: 40px;">';
+                row = row + '<div class="mb-2 mt-2 px-2 py-2 mx-auto">';
+                row = row + '<img src="{{ asset('
+                logos / ' . $client['
+                logo ']) }}" alt="clientLogo" style="width: 250px;">';
+                row = row + '</div>';
+                row = row + '</div>';
                 row = row + '@endif';
 
                 $.each(response.data.versions, function(key, value) {
@@ -356,8 +371,8 @@ function handleOutsideClick(event) {
                     row = row + '</a>';
                 });
 
-                
-                if(authUserClientName == "Planet Nine"){
+
+                if (authUserClientName == "Planet Nine") {
                     row2 += `
                         <div class="version-row version-add-btn" onclick="return addNewVersion(${preview_id})" style="cursor: pointer; margin-top: 8px;">
                             <span class="text-2xl text-green-500 hover:text-green-700 font-bold">+</span>
@@ -415,7 +430,7 @@ function handleOutsideClick(event) {
                     row = row + '</a>';
                 });
 
-                if(authUserClientName == 'Planet Nine'){
+                if (authUserClientName == 'Planet Nine') {
                     row2 += `
                         <div class="version-row version-add-btn" onclick="return addNewVersion(${preview_id})" style="cursor: pointer; margin-top: 8px;">
                             <span class="text-2xl text-green-500 hover:text-green-700 font-bold">+</span>
@@ -434,7 +449,7 @@ function handleOutsideClick(event) {
             })
     }
 
-    function addNewVersion(preview_id){
+    function addNewVersion(preview_id) {
         const url = '/previews/version/add/' + preview_id;
         window.location.href = url;
     }
@@ -450,19 +465,19 @@ function handleOutsideClick(event) {
                     setBannerActiveVersionSettings(activeVersion_id);
                     setBannerDisplayOfActiveSubVersion(response.data.activeSubVersion_id);
                 }
-                if(response.data.type == "social") {
+                if (response.data.type == "social") {
                     setSocialVersionSubVersions(response.data.subVersions, response.data.version_id);
                     setSocialActiveSubVersionSettings(response.data.activeSubVersion_id);
                     setSocialActiveVersionSettings(activeVersion_id);
                     setSocialDisplayOfActiveSubVersion(response.data.activeSubVersion_id);
                 }
-                if(response.data.type == "video"){
+                if (response.data.type == "video") {
                     setVideoVersionSubVersions(response.data.subVersions, response.data.version_id);
                     setVideoActiveSubVersionSettings(response.data.activeSubVersion_id);
                     setVideoActiveVersionSettings(activeVersion_id);
                     setVideoDisplayOfActiveSubVersion(response.data.activeSubVersion_id);
                 }
-                if(response.data.type == "gif"){
+                if (response.data.type == "gif") {
                     setGifVersionSubVersions(response.data.subVersions, response.data.version_id);
                     setGifActiveSubVersionSettings(response.data.activeSubVersion_id);
                     setGifActiveVersionSettings(activeVersion_id);
@@ -486,7 +501,7 @@ function handleOutsideClick(event) {
                 } else {
                     isActive = '';
                 }
-               row += `
+                row += `
                <div id="subVersionTab${value.id}" class="subVersionTab${isActive}" onclick="updateSocialActiveSubVersion(${value.id})">
                     <div class="trapezoid-container">
                         <div class="tab-text text-white text-base">${value.name}</div>
@@ -497,7 +512,7 @@ function handleOutsideClick(event) {
         } else {
             var row = '';
         }
-        if(authUserClientName == 'Planet Nine'){
+        if (authUserClientName == 'Planet Nine') {
             row += `
                 <div class="subVersionTab subVersionAddTab" onclick="addSocialNewSubVersion(${version_id})">
                     <div class="trapezoid-container">
@@ -521,7 +536,7 @@ function handleOutsideClick(event) {
                 } else {
                     isActive = '';
                 }
-               row += `
+                row += `
                 <div id="subVersionTab${value.id}" class="subVersionTab${isActive}" onclick="updateVideoActiveSubVersion(${value.id})">
                     <div class="trapezoid-container">
                         <div class="tab-text text-white text-base">${value.name}</div>
@@ -532,7 +547,7 @@ function handleOutsideClick(event) {
         } else {
             var row = '';
         }
-        if(authUserClientName == 'Planet Nine'){
+        if (authUserClientName == 'Planet Nine') {
             row += `
                 <div class="subVersionTab subVersionAddTab" onclick="addVideoNewSubVersion(${version_id})">
                     <div class="trapezoid-container">
@@ -544,17 +559,17 @@ function handleOutsideClick(event) {
         $('.subVersions').html(row);
     }
 
-    function addVideoNewSubVersion(version_id){
-        const url = '/previews/version/'+ version_id +'/video/add/subVersion';
+    function addVideoNewSubVersion(version_id) {
+        const url = '/previews/version/' + version_id + '/video/add/subVersion';
         window.location.href = url;
     }
 
-    function addSocialNewSubVersion(version_id){
-        const url = '/previews/version/'+ version_id +'/social/add/subVersion';
+    function addSocialNewSubVersion(version_id) {
+        const url = '/previews/version/' + version_id + '/social/add/subVersion';
         window.location.href = url;
     }
 
-    function updateSocialActiveSubVersion(subVersion_id){
+    function updateSocialActiveSubVersion(subVersion_id) {
         axios.get('/preview/setSocialActiveSubVersion/' + subVersion_id)
             .then(function(response) {
                 setSocialVersionSubVersions(response.data.subVersions, response.data.version_id);
@@ -578,7 +593,7 @@ function handleOutsideClick(event) {
                 } else {
                     isActive = '';
                 }
-               row += `
+                row += `
                 <div id="subVersionTab${value.id}" class="subVersionTab${isActive}" onclick="updateBannerActiveSubVersion(${value.id})">
                     <div class="trapezoid-container">
                         <div class="tab-text text-white text-base">${value.name}</div>
@@ -589,7 +604,7 @@ function handleOutsideClick(event) {
         } else {
             var row = '';
         }
-        if(authUserClientName == 'Planet Nine'){
+        if (authUserClientName == 'Planet Nine') {
             row += `
                 <div class="subVersionTab subVersionAddTab" onclick="addBannerNewSubVersion(${version_id})">
                     <div class="trapezoid-container">
@@ -613,7 +628,7 @@ function handleOutsideClick(event) {
                 } else {
                     isActive = '';
                 }
-               row += `
+                row += `
                 <div id="subVersionTab${value.id}" class="subVersionTab${isActive}" onclick="updateGifActiveSubVersion(${value.id})">
                     <div class="trapezoid-container">
                         <div class="tab-text text-white text-base">${value.name}</div>
@@ -624,7 +639,7 @@ function handleOutsideClick(event) {
         } else {
             var row = '';
         }
-        if(authUserClientName == 'Planet Nine'){
+        if (authUserClientName == 'Planet Nine') {
             row += `
                 <div class="subVersionTab subVersionAddTab" onclick="addGifNewSubVersion(${version_id})">
                     <div class="trapezoid-container">
@@ -636,7 +651,7 @@ function handleOutsideClick(event) {
         $('.subVersions').html(row);
     }
 
-    function updateGifActiveSubVersion(subVersion_id){
+    function updateGifActiveSubVersion(subVersion_id) {
         axios.get('/preview/setGifActiveSubVersion/' + subVersion_id)
             .then(function(response) {
                 setGifVersionSubVersions(response.data.subVersions, response.data.version_id);
@@ -648,13 +663,13 @@ function handleOutsideClick(event) {
             })
     }
 
-    function addGifNewSubVersion(version_id){
-        const url = '/previews/version/'+ version_id +'/gif/add/subVersion';
+    function addGifNewSubVersion(version_id) {
+        const url = '/previews/version/' + version_id + '/gif/add/subVersion';
         window.location.href = url;
     }
 
-    function addBannerNewSubVersion(version_id){
-        const url = '/previews/version/'+ version_id +'/banner/add/subVersion';
+    function addBannerNewSubVersion(version_id) {
+        const url = '/previews/version/' + version_id + '/banner/add/subVersion';
         window.location.href = url;
     }
 
@@ -695,7 +710,7 @@ function handleOutsideClick(event) {
             })
     }
 
-    function confirmSocialSubVersionDelete(activeSubVersion_id){
+    function confirmSocialSubVersionDelete(activeSubVersion_id) {
         Swal.fire({
             title: 'Delete This Sub Version?!',
             showDenyButton: true,
@@ -703,23 +718,23 @@ function handleOutsideClick(event) {
             confirmButtonText: 'Delete',
             denyButtonText: `Thinking.....`,
         }).then((result) => {
-        /* Read more about isConfirmed, isDenied below */
+            /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
-                axios.get('/previews/social/subVersion/delete/'+ activeSubVersion_id)
-                .then(function (response){
-                    console.log(response);
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'success',
-                        title: 'Sub Version Has Been Deleted!',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    location.reload();
-                })
-                .catch(function (error){
-                    console.log(error);
-                })
+                axios.get('/previews/social/subVersion/delete/' + activeSubVersion_id)
+                    .then(function(response) {
+                        console.log(response);
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Sub Version Has Been Deleted!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        location.reload();
+                    })
+                    .catch(function(error) {
+                        console.log(error);
+                    })
             } else if (result.isDenied) {
                 Swal.fire('Thanks for using your brain', '', 'info')
             }
@@ -747,7 +762,7 @@ function handleOutsideClick(event) {
             })
     }
 
-    function confirmVideoSubVersionDelete($id){
+    function confirmVideoSubVersionDelete($id) {
         Swal.fire({
             title: 'Delete This Sub Version?!',
             showDenyButton: true,
@@ -755,23 +770,23 @@ function handleOutsideClick(event) {
             confirmButtonText: 'Delete',
             denyButtonText: `Thinking.....`,
         }).then((result) => {
-        /* Read more about isConfirmed, isDenied below */
+            /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
-                axios.get('/previews/video/subVersion/delete/'+ $id)
-                .then(function (response){
-                    console.log(response);
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'success',
-                        title: 'Sub Version Has Been Deleted!',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    location.reload();
-                })
-                .catch(function (error){
-                    console.log(error);
-                })
+                axios.get('/previews/video/subVersion/delete/' + $id)
+                    .then(function(response) {
+                        console.log(response);
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Sub Version Has Been Deleted!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        location.reload();
+                    })
+                    .catch(function(error) {
+                        console.log(error);
+                    })
             } else if (result.isDenied) {
                 Swal.fire('Thanks for using your brain', '', 'info')
             }
@@ -819,7 +834,7 @@ function handleOutsideClick(event) {
             })
     }
 
-    function confirmGifSubVersionDelete(activeSubVersion_id){
+    function confirmGifSubVersionDelete(activeSubVersion_id) {
         Swal.fire({
             title: 'Delete This Sub Version?!',
             showDenyButton: true,
@@ -827,30 +842,30 @@ function handleOutsideClick(event) {
             confirmButtonText: 'Delete',
             denyButtonText: `Thinking.....`,
         }).then((result) => {
-        /* Read more about isConfirmed, isDenied below */
+            /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
-                axios.get('/previews/gif/subVersion/delete/'+ activeSubVersion_id)
-                .then(function (response){
-                    console.log(response);
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'success',
-                        title: 'Sub Version Has Been Deleted!',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    location.reload();
-                })
-                .catch(function (error){
-                    console.log(error);
-                })
+                axios.get('/previews/gif/subVersion/delete/' + activeSubVersion_id)
+                    .then(function(response) {
+                        console.log(response);
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Sub Version Has Been Deleted!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        location.reload();
+                    })
+                    .catch(function(error) {
+                        console.log(error);
+                    })
             } else if (result.isDenied) {
                 Swal.fire('Thanks for using your brain', '', 'info')
             }
         })
     }
 
-    function confirmBannerSubVersionDelete(activeSubVersion_id){
+    function confirmBannerSubVersionDelete(activeSubVersion_id) {
         Swal.fire({
             title: 'Delete This Sub Version?!',
             showDenyButton: true,
@@ -858,24 +873,24 @@ function handleOutsideClick(event) {
             confirmButtonText: 'Delete',
             denyButtonText: `Thinking.....`,
         }).then((result) => {
-        /* Read more about isConfirmed, isDenied below */
+            /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
-                axios.get('/previews/banner/subVersion/delete/'+ activeSubVersion_id)
-                .then(function (response){
-                    console.log(response);
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'success',
-                        title: 'Sub Version Has Been Deleted!',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    // checkVersionType(response.data.version_id);
-                    location.reload();
-                })
-                .catch(function (error){
-                    console.log(error);
-                })
+                axios.get('/previews/banner/subVersion/delete/' + activeSubVersion_id)
+                    .then(function(response) {
+                        console.log(response);
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Sub Version Has Been Deleted!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        // checkVersionType(response.data.version_id);
+                        location.reload();
+                    })
+                    .catch(function(error) {
+                        console.log(error);
+                    })
             } else if (result.isDenied) {
                 Swal.fire('Thanks for using your brain', '', 'info')
             }
@@ -943,7 +958,7 @@ function handleOutsideClick(event) {
         $('#versionSettings').html(rows);
     }
 
-    function confirmVersionDelete(version_id){
+    function confirmVersionDelete(version_id) {
         Swal.fire({
             title: 'Delete This Version?!',
             showDenyButton: true,
@@ -951,22 +966,22 @@ function handleOutsideClick(event) {
             confirmButtonText: 'Delete',
             denyButtonText: `Thinking.....`,
         }).then((result) => {
-        /* Read more about isConfirmed, isDenied below */
+            /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
-                axios.get('/previews/version/delete/'+ version_id)
-                .then(function (response){
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'success',
-                        title: 'Version Has Been Deleted!',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    location.reload();
-                })
-                .catch(function (error){
-                    console.log(error);
-                })
+                axios.get('/previews/version/delete/' + version_id)
+                    .then(function(response) {
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Version Has Been Deleted!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        location.reload();
+                    })
+                    .catch(function(error) {
+                        console.log(error);
+                    })
             } else if (result.isDenied) {
                 Swal.fire('Thanks for using your brain', '', 'info')
             }
@@ -1054,7 +1069,7 @@ function handleOutsideClick(event) {
         iframe.src = iframe.src;
     }
 
-    function confirmDeleteGif(id){
+    function confirmDeleteGif(id) {
         Swal.fire({
             title: 'Delete This GIF?!',
             showDenyButton: true,
@@ -1062,23 +1077,23 @@ function handleOutsideClick(event) {
             confirmButtonText: 'Delete',
             denyButtonText: `Thinking.....`,
         }).then((result) => {
-        /* Read more about isConfirmed, isDenied below */
+            /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
                 axios.delete('/previews/gif/single/delete/' + id)
-                .then(function (response){
-                    console.log(response);
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'success',
-                        title: 'GIF Has Been Deleted!',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    location.reload();
-                })
-                .catch(function (error){
-                    console.log(error);
-                })
+                    .then(function(response) {
+                        console.log(response);
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'GIF Has Been Deleted!',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                        location.reload();
+                    })
+                    .catch(function(error) {
+                        console.log(error);
+                    })
             } else if (result.isDenied) {
                 Swal.fire('Thanks for using your brain', '', 'info')
             }
@@ -1160,7 +1175,7 @@ function handleOutsideClick(event) {
             })
     }
 
-    function updateVideoActiveSubVersion(id){
+    function updateVideoActiveSubVersion(id) {
         // Logic to update the active sub-version of the video
         axios.get('/preview/setVideoActiveSubVersion/' + id)
             .then(function(response) {
@@ -1173,7 +1188,7 @@ function handleOutsideClick(event) {
             });
     }
 
-    function confirmDeleteVideo(id){
+    function confirmDeleteVideo(id) {
         Swal.fire({
             title: 'Delete This Video?',
             text: "Are you sure you want to delete this video?",
@@ -1212,60 +1227,60 @@ function handleOutsideClick(event) {
         }, 50);
     }
 
-    function confirmDeleteBanner(id){
+    function confirmDeleteBanner(id) {
         Swal.fire({
-                title: 'Delete This Banner?',
-                text: "Are you sure you want to delete this banner?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Delete',
-                cancelButtonText: 'Cancel',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    axios.delete('/previews/banner/single/delete/' + id)
-                        .then(function(response) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Banner deleted!',
-                                showConfirmButton: false,
-                                timer: 1200
-                            });
-                            // Optionally refresh the banners list
-                            setBannerDisplayOfActiveSubVersion(response.data.subVersion_id);
-                        })
-                        .catch(function(error) {
-                            Swal.fire('Error', 'Failed to delete banner.', 'error');
+            title: 'Delete This Banner?',
+            text: "Are you sure you want to delete this banner?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios.delete('/previews/banner/single/delete/' + id)
+                    .then(function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Banner deleted!',
+                            showConfirmButton: false,
+                            timer: 1200
                         });
-                }
-            });
+                        // Optionally refresh the banners list
+                        setBannerDisplayOfActiveSubVersion(response.data.subVersion_id);
+                    })
+                    .catch(function(error) {
+                        Swal.fire('Error', 'Failed to delete banner.', 'error');
+                    });
+            }
+        });
     }
 
-    function confirmDeleteSocial(id){
+    function confirmDeleteSocial(id) {
         Swal.fire({
-                title: 'Delete This Social Image?',
-                text: "Are you sure you want to delete this social image?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Delete',
-                cancelButtonText: 'Cancel',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    axios.delete('/previews/social/single/delete/' + id)
-                        .then(function(response) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Social Image deleted!',
-                                showConfirmButton: false,
-                                timer: 1200
-                            });
-                            // Optionally refresh the social images list
-                            setSocialDisplayOfActiveSubVersion(response.data.subVersion_id);
-                        })
-                        .catch(function(error) {
-                            Swal.fire('Error', 'Failed to delete social image.', 'error');
+            title: 'Delete This Social Image?',
+            text: "Are you sure you want to delete this social image?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios.delete('/previews/social/single/delete/' + id)
+                    .then(function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Social Image deleted!',
+                            showConfirmButton: false,
+                            timer: 1200
                         });
-                }
-            });
+                        // Optionally refresh the social images list
+                        setSocialDisplayOfActiveSubVersion(response.data.subVersion_id);
+                    })
+                    .catch(function(error) {
+                        Swal.fire('Error', 'Failed to delete social image.', 'error');
+                    });
+            }
+        });
     }
 
     function setSocialDisplayOfActiveSubVersion(activeSubVersion_id) {
@@ -1329,23 +1344,37 @@ function handleOutsideClick(event) {
         `);
     }
 
-    // When opening the modal
+    // PhotoSwipe Enhanced Modal Implementation
     window.openSocialImageModal = function(src, label) {
-        // Always reset zoom and styles
-        $('#socialModalImg')
-            .attr('src', src)
-            .css({
-                width: '',
-                height: '',
-                'max-width': '80vw',
-                'max-height': '80vh',
-                'cursor': 'zoom-in',
-                'transform': 'none'
-            })
-            .data('zoom', 1);
-        $('#socialModalImgLabel').text(label);
-        $('#socialImageModal').fadeIn(150);
-        $('body').css('overflow', 'hidden'); // Disable background scroll
+        const lightbox = new PhotoSwipeLightbox({
+            dataSource: [{
+                src: src,
+                alt: label,
+                w: 0, // Auto-detected
+                h: 0 // Auto-detected
+            }],
+            pswpModule: PhotoSwipe,
+            showHideAnimationType: 'zoom',
+            zoomAnimationDuration: 300,
+            bgOpacity: 0.85,
+            spacing: 0.1,
+            allowPanToNext: false,
+            zoom: true,
+            close: true,
+            arrowKeys: true,
+            returnFocus: true,
+            escKey: true,
+            clickToCloseNonZoomable: true,
+            imageClickAction: 'zoom',
+            tapAction: 'zoom',
+            doubleTapAction: 'zoom',
+            indexIndicatorSep: ' of ',
+            preloaderDelay: 2000,
+            errorMsg: 'The image could not be loaded'
+        });
+
+        lightbox.init();
+        lightbox.loadAndOpen(0);
     };
 
     // When closing the modal
