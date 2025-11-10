@@ -442,6 +442,9 @@
                 $('#creative-list2').html(row2);
                 $('#mobileCategoryList').html(row);
                 $('#menu').html(row);
+            })
+            .catch(function(error) {
+                alert('No Category is added yet. Please contact Planet Nine team.');
             });
     }
 
@@ -1105,8 +1108,11 @@
             });
     }
 
-    // Call every 10 seconds
-    setInterval(fetchViewers, 10000);
-    fetchViewers();
+    if(authUserClientName === 'Planet Nine') {
+        // Call every 10 seconds
+        setInterval(fetchViewers, 10000);
+        fetchViewers();
+    }
+    
     renderCategories();
 </script>
