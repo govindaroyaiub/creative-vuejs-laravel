@@ -339,9 +339,9 @@ const toggleConfigs = [
         description: 'Users must authenticate to view this preview'
     },
     {
-        label: 'Show Planet Nine Logo?',
+        label: 'Show Header Logo?',
         model: 'show_planetnine_logo',
-        description: 'Display company branding in the header'
+        description: 'Display Planet Nine logo in the header'
     },
     {
         label: 'Show Sidebar Logo?',

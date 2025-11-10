@@ -250,7 +250,7 @@ const toggleConfigs = [
   {
     label: 'Show Header Logo?',
     model: 'show_planetnine_logo' as keyof FormData,
-    description: 'Display company branding'
+    description: 'Display Planet Nine logo'
   },
   {
     label: 'Show Sidebar Logo?',

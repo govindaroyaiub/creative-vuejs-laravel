@@ -59,7 +59,7 @@
             <div class="px-4 py-4 flex justify-center content text-center relative">
                 <div id="topDetails" class="mt-4" style="background-image: url('/{{ $header_image }}'); background-repeat: no-repeat; background-position: center center;">
                     @if($preview->show_planetnine_logo)
-                    <img src="{{ asset('logos/' . $header_logo['logo']) }}" id="planetnineLogo" alt="planetnineLogo">
+                    <img src="{{ asset('logos/' . $header_logo['logo']) }}" id="planetnineLogo" alt="planetnineLogo" style="min-width: 50px; width: 100%; max-width: 120px; margin: 0 auto;">
                     @endif
                     <h1><span class="font-semibold">Name: </span> <span class="capitalize">{{ $preview['name'] }}</span></h1>
                     <h1><span class="font-semibold">Client: </span> <span class="capitalize">{{ $client['name'] }}</span></h1>
