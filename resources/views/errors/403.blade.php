@@ -183,10 +183,6 @@
             </a>
             @endauth
         </div>
-
-        <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e2e8f0; color: #a0aec0; font-size: 0.875rem;">
-            <p>&copy; {{ date('Y') }} Planet Nine. All rights reserved.</p>
-        </div>
     </div>
 </body>
 
