@@ -41,7 +41,6 @@ body {
 
 ::-webkit-scrollbar-thumb {
     background: var(--tertiary-color);
-    border-radius: 10px
 }
 
 section {
@@ -1363,8 +1362,7 @@ hr {
 
     #creative-list2,
     .categoryControl,
-    .feedbackAddTab,
-    #customPreviewLogoutForm {
+    .feedbackAddTab {
         display: none
     }
 
@@ -1416,7 +1414,7 @@ hr {
         position: fixed;
         font-size: 1rem;
         top: 20rem;
-        right: -1px;
+        right: -2px;
         width: auto;
         height: auto;
         z-index: 1000;
@@ -1461,7 +1459,6 @@ hr {
     .tabDesktopShowcase,
     .categoryControl,
     .feedbackAddTab,
-    #customPreviewLogoutForm,
     .sidebar-top-desktop,
     .sidebar-top-extra {
         display: none
@@ -1769,8 +1766,7 @@ hr {
 
     #creative-list2,
     .categoryControl,
-    .feedbackAddTab,
-    #customPreviewLogoutForm {
+    .feedbackAddTab{
         display: none
     }
 
@@ -1822,7 +1818,7 @@ hr {
         position: fixed;
         font-size: 1rem;
         top: 19rem;
-        right: -1px;
+        right: -2px;
         width: auto;
         height: auto;
         z-index: 1000;
