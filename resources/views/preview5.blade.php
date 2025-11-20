@@ -74,9 +74,8 @@
 
         <div id="mobilecolorPaletteClick" onclick="showColorPaletteOptions2()">
             <img src="/{{ $rightTab_color_palette_image }}" alt="palette icon">
+            <div id="mobilecolorPaletteSelection" data-colors='@json($colorsData)'></div>
         </div>
-
-        <div id="mobilecolorPaletteSelection" data-colors='@json($colorsData)'></div>
 
         <section id="middle" class="mb-4">
             <div id="showcase-section" class="mx-auto custom-container mt-2">
@@ -139,31 +138,21 @@
 
                             <div class="feedbackSetsContainer"></div>
 
-                            <div id="feedbackArea">
-                                <div id="colorPaletteClick" onclick="showColorPaletteOptions()">
-                                    <img src="/{{ $rightTab_color_palette_image }}" alt="palette icon">
+                            <div id="feedbackClick" onclick="showFeedbackDescription()">
+                                <img src="/{{ $rightTab_feedback_description_image }}" alt="feedback icon">
                                 </div>
-
-                                <div id="feedbackClick" onclick="showFeedbackDescription()">
-                                    <img src="/{{ $rightTab_feedback_description_image }}" alt="feedback icon">
-                                </div>
-
-                                <div id="colorPaletteSelection" data-colors='@json($colorsData)'>
-                                </div>
-
                                 <div id="feedbackDescription">
-                                    <div id="feedbackDescriptionUpperpart">
-                                        <div class="cursor-pointer" style="float: right; padding: 5px;" onclick="event.stopPropagation(); hideFeedbackDescription();">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
+                                        <div id="feedbackDescriptionUpperpart">
+                                            <div class="cursor-pointer" style="float: right; padding: 5px;" onclick="event.stopPropagation(); hideFeedbackDescription();">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div id="feedbackDescriptionLowerPart">
-                                        <label id="feedbackMessage"></label>
-                                    </div>
+                                        <div id="feedbackDescriptionLowerPart">
+                                            <label id="feedbackMessage"></label>
+                                        </div>
                                 </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -244,12 +233,6 @@
     function showFeedbackDescription() {
         const feedbackPanel = document.getElementById('feedbackDescription');
 
-        // Close color palette if open
-        const paletteDiv = document.getElementById('colorPaletteSelection');
-        if (paletteDiv) {
-            paletteDiv.classList.remove('visible');
-        }
-
         // Show the panel by adding the 'show' class
         feedbackPanel.classList.add('show');
 
@@ -270,49 +253,6 @@
     function hideFeedbackDescription() {
         const feedbackPanel = document.getElementById('feedbackDescription');
         feedbackPanel.classList.remove('show');
-    }
-
-    function showColorPaletteOptions() {
-        const preview_id = '{{ $preview_id }}';
-        const paletteDiv = document.getElementById('colorPaletteSelection');
-
-        if (paletteDiv.innerHTML.trim() === '') {
-            // Parse JSON array of objects with {id, hex}
-            const colors = JSON.parse(paletteDiv.dataset.colors);
-            paletteDiv.classList.add('color-grid');
-
-            colors.forEach(({
-                id,
-                hex,
-                border
-            }) => {
-                const colorBox = document.createElement('div');
-                colorBox.className = 'color-box';
-                colorBox.style.backgroundColor = hex;
-                colorBox.style.borderColor = border;
-
-                colorBox.title = hex; // optional: show hex on hover
-
-                colorBox.addEventListener('click', () => {
-                    axios.get('/preview/' + preview_id + '/change/theme/' + id)
-                        .then(response => {
-                            if (response.data.success) {
-                                location.reload();
-                            } else {
-                                alert("Something went wrong changing theme");
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error sending color:', error);
-                        });
-                });
-
-                paletteDiv.appendChild(colorBox);
-            });
-        }
-
-        paletteDiv.classList.add('visible');
-        document.addEventListener('click', handleOutsideClick);
     }
 
     function showColorPaletteOptions2() {
@@ -359,17 +299,6 @@
     }
 
     function handleOutsideClick(event) {
-        // Color palette desktop
-        const paletteDiv = document.getElementById('colorPaletteSelection');
-        const paletteToggle = document.getElementById('colorPaletteClick');
-        if (paletteDiv && paletteDiv.classList.contains('visible')) {
-            if (!paletteDiv.contains(event.target) && !paletteToggle.contains(event.target)) {
-                paletteDiv.classList.remove('visible');
-                document.removeEventListener('click', handleOutsideClick);
-                return;
-            }
-        }
-
         // Color palette mobile
         const paletteDiv2 = document.getElementById('mobilecolorPaletteSelection');
         const paletteToggle2 = document.getElementById('mobilecolorPaletteClick');

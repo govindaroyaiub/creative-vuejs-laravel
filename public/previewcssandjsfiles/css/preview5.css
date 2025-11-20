@@ -360,63 +360,40 @@ hr {
 #feedbackDescription {
     position: fixed;
     top: 25.5rem;
-    right: -320px;
+    right: 0;
+    transform: translateX(320px);
     /* Start hidden off-screen */
     width: 320px;
     background: white;
     border: 1px solid var(--tertiary-color);
     border-radius: 10px 0 0 10px;
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
-    transition: right 0.3s ease-in-out;
+    transition: transform 0.3s ease-in-out;
     z-index: 1000;
 }
 
 #feedbackDescription.show {
-    right: 0;
-}
-
-/* Color Palette */
-#colorPaletteSelection {
-    position: fixed;
-    top: 5rem;
-    right: -320px;
-    /* Start hidden off-screen */
-    width: 8rem;
-    background: white;
-    border: 1px solid var(--tertiary-color);
-    border-radius: 10px 0 0 10px;
-    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
-    transition: right 0.3s ease-in-out;
-    z-index: 1000;
-}
-
-#colorPaletteSelection.visible {
-    right: 0;
+    transform: translateX(0);
 }
 
 #mobilecolorPaletteSelection {
     position: absolute;
-    top: 10rem;
-    right: -340px;
+    top: 1rem;
+    right: 0;
     /* Start hidden */
     width: 100px;
     background: #f2f2f2;
     padding: 3px;
     border-radius: 10px 0 0 10px;
-    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
-    transition: right 0.3s ease-in-out;
+    box-shadow: -5px 0 15px rgba(15, 15, 15, 0.2);
+    transition: transform 0.3s ease-in-out;
     z-index: 1000;
-    display: none;
-}
-
-#mobilecolorPaletteSelection.visible {
+    transform: translateX(100px);
     display: grid;
-    right: 0;
 }
 
-#colorPaletteSelection.visible,
 #mobilecolorPaletteSelection.visible {
-    right: 0;
+    transform: translateX(0);
 }
 
 .color-grid {
@@ -427,7 +404,8 @@ hr {
 }
 
 #mobilecolorPaletteSelection.color-grid {
-    gap: .25rem
+    gap: .25rem;
+    display: grid;
 }
 
 .color-box {
@@ -1477,11 +1455,6 @@ hr {
         position: fixed;
         right: -320px;
         top: 19rem;
-        transition: right 0.3s ease-in-out;
-    }
-
-    #feedbackDescription.show {
-        right: 0;
     }
 
     .feedbacks {
@@ -1828,11 +1801,6 @@ hr {
         position: fixed;
         right: -320px;
         top: 20rem;
-        transition: right 0.3s ease-in-out;
-    }
-
-    #feedbackDescription.show {
-        right: 0;
     }
 
     .feedbacks {
@@ -1884,7 +1852,7 @@ hr {
 
     #mobilecolorPaletteClick,
     #mobilecolorPaletteSelection {
-        display: none
+        display: block;
     }
 
     .banner-options,
