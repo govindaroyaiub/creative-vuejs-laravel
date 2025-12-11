@@ -808,6 +808,9 @@ const FilePond = vueFilePond(FilePondPluginFileValidateType);
 
 const page = usePage();
 const preview = computed(() => page.props.preview);
+const preview_id = computed(() => page.props.preview_id);
+const preview_name = computed(() => page.props.preview_name);
+const client_name = computed(() => page.props.client_name);
 const bannerSizes = computed(() => page.props.bannerSizes);
 
 function goToPreview() {
@@ -951,12 +954,29 @@ function approveFeedback(feedback, category, fbIdx) {
 
             router.put(route('previews.feedback.approve', feedback.id), {}, {
                 onSuccess: (page) => {
+                    const paramPreviewId = preview_id.value;
+                    const paramPreviewName = preview_name.value;
+                    const paramClientName = client_name.value;
+                    const url = `/file-transfers-upload-from-preview?paramA=${encodeURIComponent(paramPreviewId)}&paramB=${encodeURIComponent(paramPreviewName)}&paramC=${encodeURIComponent(paramClientName)}`;
+
+                    let timerInterval;
                     Swal.fire({
-                        icon: 'success',
-                        title: 'Approved!',
-                        text: 'Feedback has been approved.',
-                        timer: 2000,
-                        showConfirmButton: false
+                    title: "Preparing fiiles transfer page...",
+                    html: "I will close in <b></b> milliseconds.",
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didOpen: () => {
+                        Swal.showLoading();
+                        const timer = Swal.getPopup().querySelector("b");
+                        timerInterval = setInterval(() => {
+                        timer.textContent = `${Swal.getTimerLeft()}`;
+                        }, 100);
+                    },
+                    willClose: () => {
+                        clearInterval(timerInterval);
+                    }
+                    }).then(() => {
+                        window.open(url);
                     });
 
                     // ✅ Update approval status and clear loading

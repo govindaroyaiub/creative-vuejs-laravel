@@ -374,9 +374,17 @@ class NewPreviewController extends Controller
             'categories.feedbacks.feedbackSets.versions.socials',
             'categories.feedbacks.feedbackSets.versions.gifs',
         ])->findOrFail($id);
+        
+        $preview_id = $preview->id;
+        $preview_name = $preview->name;
+        $client = Client::select(['id', 'name', 'logo'])->find($preview->client_id);
+        $client_name = $client->name;
 
         return Inertia::render('Previews/Update', [
             'preview' => $preview,
+            'preview_id' => $preview_id,
+            'preview_name' => $preview_name,
+            'client_name' => $client_name,
             'bannerSizes' => BannerSize::orderBy('width')->orderBy('height')->get(),
             'videoSizes' => VideoSize::orderBy('width')->orderBy('height')->get(),
             // Add other needed data here
