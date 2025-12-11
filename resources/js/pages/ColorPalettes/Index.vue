@@ -114,8 +114,7 @@
 
               <!-- Color Swatches -->
               <div class="mb-4 pt-2">
-                <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Color Palette</p>
-                <div class="grid grid-cols-7 gap-2">
+                <div class="grid grid-cols-7 gap-2 mb-2">
                   <div v-for="key in colorKeys" :key="key" class="group/color cursor-pointer"
                     @click="copyColor(palette[key], key)"
                     :title="`${key.charAt(0).toUpperCase() + key.slice(1)}: ${palette[key]}`">

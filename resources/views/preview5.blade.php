@@ -69,7 +69,7 @@
         </section>
 
         @php
-        $colorsData = $all_colors->map(fn($color) => ['id' => $color->id, 'hex' => $color->primary, 'border' => $color->tertiary]);
+        $colorsData = $all_colors->map(fn($color) => ['id' => $color->id, 'hex' => $color->primary, 'name' => $color->name , 'border' => $color->tertiary]);
         @endphp
 
         <div id="mobilecolorPaletteClick" onclick="showColorPaletteOptions2()">
@@ -267,14 +267,15 @@
             colors.forEach(({
                 id,
                 hex,
-                border
+                border,
+                name
             }) => {
                 const colorBox = document.createElement('div');
                 colorBox.className = 'mobile-color-box';
                 colorBox.style.backgroundColor = hex;
                 colorBox.style.borderColor = border;
 
-                colorBox.title = hex; // optional: show hex on hover
+                colorBox.title = name;
 
                 colorBox.addEventListener('click', () => {
                     axios.get('/preview/' + preview_id + '/change/theme/' + id)

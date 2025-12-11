@@ -189,8 +189,9 @@ class NewPreviewController extends Controller
         $color_palettes = ColorPalette::find($preview->color_palette_id);
         $client = Client::select(['id', 'name', 'logo'])->find($preview->client_id);
         $header_logo = Client::select(['id', 'name', 'logo'])->find($preview->header_logo_id);
-        $all_colors = ColorPalette::where('status', 1)->select('id', 'primary', 'tertiary')->get();
+        $all_colors = ColorPalette::where('status', 1)->select('id', 'name', 'primary', 'tertiary')->get();
 
+        $color_name = $color_palettes->name;
         $primary = $color_palettes->primary;
         $secondary = $color_palettes->secondary;
         $tertiary = $color_palettes->tertiary;

@@ -494,12 +494,11 @@ hr {
 }
 
 #feedbackDescriptionLowerPart {
-    background-color: #f2f2f2;
     color: black;
     padding: 5px;
     height: auto;
     width: 300px;
-    white-space: nowrap;
+    white-space: normal;
     text-overflow: ellipsis;
     border-bottom-left-radius: 10px
 }
