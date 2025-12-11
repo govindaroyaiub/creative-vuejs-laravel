@@ -140,23 +140,35 @@
 
                             <div id="feedbackClick" onclick="showFeedbackDescription()">
                                 <img src="/{{ $rightTab_feedback_description_image }}" alt="feedback icon">
+                            </div>
+                            <div id="feedbackDescription">
+                                <div id="feedbackDescriptionUpperpart">
+                                    <div class="cursor-pointer" style="float: right; padding: 5px;" onclick="event.stopPropagation(); hideFeedbackDescription();">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
                                 </div>
-                                <div id="feedbackDescription">
-                                        <div id="feedbackDescriptionUpperpart">
-                                            <div class="cursor-pointer" style="float: right; padding: 5px;" onclick="event.stopPropagation(); hideFeedbackDescription();">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                        <div id="feedbackDescriptionLowerPart">
-                                            <label id="feedbackMessage"></label>
-                                        </div>
+                                <div id="feedbackDescriptionLowerPart">
+                                    <label id="feedbackMessage"></label>
                                 </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            @if($preview['filetransfer_id'] != null)
+            <div id="fileTransferWidget" class="file-transfer-widget" aria-hidden="false">
+                <div id="fileTransferPanel" class="file-transfer-panel" role="region" aria-label="File transfer">
+                    <div class="ft-ready-text">File transfer is ready!</div>
+                    <a id="fileTransferButton" class="file-transfer-btn" href="/file-transfers-view/{{$fileTransfer->slug}}" target="_blank" rel="noopener noreferrer">
+                        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                        <span class="ft-label">File Transfer</span>
+                    </a>
+                </div>
+            </div>
+
+            @endif
         </section>
     </main>
     @if($preview['show_footer'])
@@ -185,6 +197,47 @@
     let currentFeedbackIndex = 0;
 
     // Assign a unique name to guest using localStorage
+
+    /* File transfer widget: always visible (no collapse) */
+    function initFileTransferWidget() {
+        const widget = document.getElementById('fileTransferWidget');
+        if (!widget) return;
+
+        // Prevent the widget from covering critical controls on very small screens
+        window.addEventListener('resize', () => {
+            if (window.innerWidth < 420) {
+                widget.style.right = '10px';
+                widget.style.bottom = '12px';
+            } else {
+                widget.style.right = '';
+                widget.style.bottom = '';
+            }
+        });
+
+        // Attention animations: initial burst and periodic subtle pulse on the whole panel
+        try {
+            const panel = document.getElementById('fileTransferPanel');
+            if (panel) {
+                // initial burst: single attention pulse
+                setTimeout(() => {
+                    panel.classList.add('attention');
+                    setTimeout(() => panel.classList.remove('attention'), 1000);
+                }, 300);
+
+                // gentle periodic pulse every 8s (short burst)
+                setInterval(() => {
+                    panel.classList.add('attention');
+                    setTimeout(() => panel.classList.remove('attention'), 900);
+                }, 8000);
+            }
+        } catch (e) {
+            /* ignore */ }
+    }
+
+    // Initialize widget after DOM ready
+    document.addEventListener('DOMContentLoaded', function() {
+        initFileTransferWidget();
+    });
     let guestName = localStorage.getItem('guest_name');
     if (!guestName) {
         guestName = 'Guest-' + Math.floor(Math.random() * 10000);
@@ -1038,11 +1091,11 @@
             });
     }
 
-    if(authUserClientName === 'Planet Nine') {
+    if (authUserClientName === 'Planet Nine') {
         // Call every 10 seconds
         setInterval(fetchViewers, 10000);
         fetchViewers();
     }
-    
+
     renderCategories();
 </script>

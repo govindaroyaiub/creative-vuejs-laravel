@@ -314,6 +314,153 @@ hr {
     height: auto;
 }
 
+/* File transfer floating widget */
+.file-transfer-widget {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 80;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+    will-change: transform;
+    transition: transform 0.2s ease-in-out;
+}
+
+.file-transfer-widget:hover {
+    transform: scale(1.1);
+}
+
+.file-transfer-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.98);
+    padding: 8px 10px;
+    border-radius: 12px;
+    box-shadow: 0 8px 22px rgba(16, 24, 40, 0.12);
+    min-width: 140px;
+    max-width: 220px;
+}
+
+.file-transfer-panel {
+    position: relative;
+    overflow: visible;
+}
+
+/* attention animation applied to the whole panel (short burst) */
+.file-transfer-panel.attention {
+    animation: ft-panel-pulse 0.95s cubic-bezier(.2, .9, .2, 1) 1;
+}
+
+@keyframes ft-panel-pulse {
+    0% {
+        transform: translateY(0) scale(1);
+        box-shadow: 0 8px 22px rgba(16, 24, 40, 0.12);
+    }
+
+    30% {
+        transform: translateY(-6px) scale(1.02);
+        box-shadow: 0 16px 34px rgba(16, 24, 40, 0.16);
+    }
+
+    65% {
+        transform: translateY(0) scale(0.997);
+        box-shadow: 0 10px 26px rgba(16, 24, 40, 0.13);
+    }
+
+    100% {
+        transform: translateY(0) scale(1);
+        box-shadow: 0 8px 22px rgba(16, 24, 40, 0.12);
+    }
+}
+
+.ft-ready-text {
+    font-size: 0.95rem;
+    color: #0f172a;
+    font-weight: 700;
+    margin: 0;
+    opacity: 0.95;
+    max-width: 200px;
+    line-height: 1;
+    text-align: left;
+    margin-bottom: 0.25rem;
+}
+
+.file-transfer-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--tertiary-color);
+    color: #fff;
+    padding: 8px 24px;
+    border-radius: 10px;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 0.95rem;
+    box-shadow: 0 6px 12px rgba(59, 130, 246, 0.12);
+    transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+}
+
+.file-transfer-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(59, 130, 246, 0.12);
+}
+
+/* smaller label on very small screens */
+@media (max-width: 420px) {
+    .file-transfer-panel {
+        min-width: 120px;
+        max-width: 160px;
+        padding: 6px;
+    }
+
+    .ft-ready-text {
+        font-size: 0.8rem;
+    }
+
+    .file-transfer-btn {
+        padding: 7px 10px;
+        font-size: 0.88rem;
+    }
+}
+
+.file-transfer-btn .ft-label {
+    display: inline-block;
+}
+
+.file-transfer-collapse-btn {
+    background: transparent;
+    border: none;
+    color: var(--tertiary-color);
+    font-size: 14px;
+    padding: 6px;
+    cursor: pointer;
+}
+
+.file-transfer-tab {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: var(--tertiary-color);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 18px rgba(16, 24, 40, 0.12);
+    cursor: pointer;
+}
+
+.file-transfer-widget .file-transfer-panel {
+    display: flex;
+}
+
+.file-transfer-widget .fa-solid {
+    width: 16px;
+}
+
 #bulk-customization {
     font-size: 1.5rem;
     border: 1px solid var(--tertiary-color);
@@ -1738,7 +1885,7 @@ hr {
 
     #creative-list2,
     .categoryControl,
-    .feedbackAddTab{
+    .feedbackAddTab {
         display: none
     }
 

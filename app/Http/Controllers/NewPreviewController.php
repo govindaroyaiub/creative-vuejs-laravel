@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Session;
 use App\Models\newVideo;
 use App\Models\newGif;
 use App\Models\newSocial;
+use App\Models\FileTransfer;
 use Illuminate\Validation\Rule;
 
 class NewPreviewController extends Controller
@@ -174,6 +175,7 @@ class NewPreviewController extends Controller
     public function show($slug)
     {
         $preview = newPreview::with(['client.colorPalette', 'colorPalette', 'uploader'])->where('slug', $slug)->firstOrFail();
+        $fileTransfer = FileTransfer::find($preview->filetransfer_id);
         $id = $preview_id = $preview->id;
 
         // ✅ Check if login is required
@@ -211,6 +213,7 @@ class NewPreviewController extends Controller
 
         return view('preview5', compact(
             'preview',
+            'fileTransfer',
             'primary',
             'secondary',
             'tertiary',
