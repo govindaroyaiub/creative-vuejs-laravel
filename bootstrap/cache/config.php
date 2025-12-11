@@ -1,26 +1,4 @@
 <?php return array (
-  'hashing' => 
-  array (
-    'driver' => 'bcrypt',
-    'bcrypt' => 
-    array (
-      'rounds' => '12',
-      'verify' => true,
-      'limit' => NULL,
-    ),
-    'argon' => 
-    array (
-      'memory' => 65536,
-      'threads' => 1,
-      'time' => 4,
-      'verify' => true,
-    ),
-    'rehash_on_login' => true,
-  ),
-  'concurrency' => 
-  array (
-    'default' => 'process',
-  ),
   'broadcasting' => 
   array (
     'default' => 'log',
@@ -77,13 +55,9 @@
       ),
     ),
   ),
-  'view' => 
+  'concurrency' => 
   array (
-    'paths' => 
-    array (
-      0 => '/Users/govinda/Desktop/creative-vuejs-laravel/resources/views',
-    ),
-    'compiled' => '/Users/govinda/Desktop/creative-vuejs-laravel/storage/framework/views',
+    'default' => 'process',
   ),
   'cors' => 
   array (
@@ -113,6 +87,32 @@
     'max_age' => 0,
     'supports_credentials' => false,
   ),
+  'hashing' => 
+  array (
+    'driver' => 'bcrypt',
+    'bcrypt' => 
+    array (
+      'rounds' => '12',
+      'verify' => true,
+      'limit' => NULL,
+    ),
+    'argon' => 
+    array (
+      'memory' => 65536,
+      'threads' => 1,
+      'time' => 4,
+      'verify' => true,
+    ),
+    'rehash_on_login' => true,
+  ),
+  'view' => 
+  array (
+    'paths' => 
+    array (
+      0 => 'C:\\Users\\P0\\Desktop\\creative-vuejs-laravel\\resources\\views',
+    ),
+    'compiled' => 'C:\\Users\\P0\\Desktop\\creative-vuejs-laravel\\storage\\framework\\views',
+  ),
   'activitylog' => 
   array (
     'enabled' => true,
@@ -137,7 +137,7 @@
     'fallback_locale' => 'en',
     'faker_locale' => 'en_US',
     'cipher' => 'AES-256-CBC',
-    'key' => 'base64:beMt7Y8/h6urnZHhxv+a/mRdrbV59zKNOcKSWixLiGg=',
+    'key' => 'base64:3amxl0UCcMixWn+goyR+aZRrUTOs5j3bPXmlpuQXYYA=',
     'previous_keys' => 
     array (
     ),
@@ -284,8 +284,8 @@
       'file' => 
       array (
         'driver' => 'file',
-        'path' => '/Users/govinda/Desktop/creative-vuejs-laravel/storage/framework/cache/data',
-        'lock_path' => '/Users/govinda/Desktop/creative-vuejs-laravel/storage/framework/cache/data',
+        'path' => 'C:\\Users\\P0\\Desktop\\creative-vuejs-laravel\\storage\\framework/cache/data',
+        'lock_path' => 'C:\\Users\\P0\\Desktop\\creative-vuejs-laravel\\storage\\framework/cache/data',
       ),
       'memcached' => 
       array (
@@ -349,7 +349,7 @@
       array (
         'driver' => 'sqlite',
         'url' => NULL,
-        'database' => 'new_creative',
+        'database' => 'creative',
         'prefix' => '',
         'foreign_key_constraints' => true,
         'busy_timeout' => NULL,
@@ -362,7 +362,7 @@
         'url' => NULL,
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'new_creative',
+        'database' => 'creative',
         'username' => 'root',
         'password' => '',
         'unix_socket' => '',
@@ -382,7 +382,7 @@
         'url' => NULL,
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'new_creative',
+        'database' => 'creative',
         'username' => 'root',
         'password' => '',
         'unix_socket' => '',
@@ -402,7 +402,7 @@
         'url' => NULL,
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'new_creative',
+        'database' => 'creative',
         'username' => 'root',
         'password' => '',
         'charset' => 'utf8',
@@ -417,7 +417,7 @@
         'url' => NULL,
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'new_creative',
+        'database' => 'creative',
         'username' => 'root',
         'password' => '',
         'charset' => 'utf8',
@@ -466,10 +466,10 @@
     'convert_entities' => true,
     'options' => 
     array (
-      'font_dir' => '/Users/govinda/Desktop/creative-vuejs-laravel/storage/fonts',
-      'font_cache' => '/Users/govinda/Desktop/creative-vuejs-laravel/storage/fonts',
-      'temp_dir' => '/var/folders/d1/njjq3z_9439g4g89z9705v180000gn/T',
-      'chroot' => '/Users/govinda/Desktop/creative-vuejs-laravel',
+      'font_dir' => 'C:\\Users\\P0\\Desktop\\creative-vuejs-laravel\\storage\\fonts',
+      'font_cache' => 'C:\\Users\\P0\\Desktop\\creative-vuejs-laravel\\storage\\fonts',
+      'temp_dir' => 'C:\\Users\\P0\\AppData\\Local\\Temp',
+      'chroot' => 'C:\\Users\\P0\\Desktop\\creative-vuejs-laravel',
       'allowed_protocols' => 
       array (
         'data://' => 
@@ -522,7 +522,7 @@
       'local' => 
       array (
         'driver' => 'local',
-        'root' => '/Users/govinda/Desktop/creative-vuejs-laravel/storage/app/private',
+        'root' => 'C:\\Users\\P0\\Desktop\\creative-vuejs-laravel\\storage\\app/private',
         'serve' => true,
         'throw' => false,
         'report' => false,
@@ -530,7 +530,7 @@
       'public' => 
       array (
         'driver' => 'local',
-        'root' => '/Users/govinda/Desktop/creative-vuejs-laravel/storage/app/public',
+        'root' => 'C:\\Users\\P0\\Desktop\\creative-vuejs-laravel\\storage\\app/public',
         'url' => 'http://localhost/storage',
         'visibility' => 'public',
         'throw' => false,
@@ -552,7 +552,7 @@
     ),
     'links' => 
     array (
-      '/Users/govinda/Desktop/creative-vuejs-laravel/public/storage' => '/Users/govinda/Desktop/creative-vuejs-laravel/storage/app/public',
+      'C:\\Users\\P0\\Desktop\\creative-vuejs-laravel\\public\\storage' => 'C:\\Users\\P0\\Desktop\\creative-vuejs-laravel\\storage\\app/public',
     ),
   ),
   'logging' => 
@@ -577,14 +577,14 @@
       'single' => 
       array (
         'driver' => 'single',
-        'path' => '/Users/govinda/Desktop/creative-vuejs-laravel/storage/logs/laravel.log',
+        'path' => 'C:\\Users\\P0\\Desktop\\creative-vuejs-laravel\\storage\\logs/laravel.log',
         'level' => 'debug',
         'replace_placeholders' => true,
       ),
       'daily' => 
       array (
         'driver' => 'daily',
-        'path' => '/Users/govinda/Desktop/creative-vuejs-laravel/storage/logs/laravel.log',
+        'path' => 'C:\\Users\\P0\\Desktop\\creative-vuejs-laravel\\storage\\logs/laravel.log',
         'level' => 'debug',
         'days' => 14,
         'replace_placeholders' => true,
@@ -649,7 +649,7 @@
       ),
       'emergency' => 
       array (
-        'path' => '/Users/govinda/Desktop/creative-vuejs-laravel/storage/logs/laravel.log',
+        'path' => 'C:\\Users\\P0\\Desktop\\creative-vuejs-laravel\\storage\\logs/laravel.log',
       ),
       'sentry' => 
       array (
@@ -735,7 +735,7 @@
       'theme' => 'default',
       'paths' => 
       array (
-        0 => '/Users/govinda/Desktop/creative-vuejs-laravel/resources/views/vendor/mail',
+        0 => 'C:\\Users\\P0\\Desktop\\creative-vuejs-laravel\\resources\\views/vendor/mail',
       ),
     ),
   ),
@@ -1079,7 +1079,7 @@
     'lifetime' => 120,
     'expire_on_close' => false,
     'encrypt' => false,
-    'files' => '/Users/govinda/Desktop/creative-vuejs-laravel/storage/framework/sessions',
+    'files' => 'C:\\Users\\P0\\Desktop\\creative-vuejs-laravel\\storage\\framework/sessions',
     'connection' => NULL,
     'table' => 'sessions',
     'store' => NULL,
@@ -1107,7 +1107,7 @@
     'ensure_pages_exist' => false,
     'page_paths' => 
     array (
-      0 => '/Users/govinda/Desktop/creative-vuejs-laravel/resources/js/Pages',
+      0 => 'C:\\Users\\P0\\Desktop\\creative-vuejs-laravel\\resources\\js/Pages',
     ),
     'page_extensions' => 
     array (
@@ -1123,7 +1123,7 @@
       'ensure_pages_exist' => true,
       'page_paths' => 
       array (
-        0 => '/Users/govinda/Desktop/creative-vuejs-laravel/resources/js/Pages',
+        0 => 'C:\\Users\\P0\\Desktop\\creative-vuejs-laravel\\resources\\js/Pages',
       ),
       'page_extensions' => 
       array (
