@@ -147,13 +147,6 @@ class FileTransferController extends Controller
                 try {
                     $file->move($destinationPath, $newFileName);
                     $filePaths[] = 'Transfer Files/' . $newFileName;
-
-                    Log::info('File uploaded successfully', [
-                        'user_id' => Auth::id(),
-                        'filename' => $newFileName,
-                        'original_name' => $file->getClientOriginalName(),
-                        'size' => $fileSize
-                    ]);
                 } catch (\Exception $e) {
                     Log::error('File upload failed', [
                         'user_id' => Auth::id(),
@@ -178,15 +171,10 @@ class FileTransferController extends Controller
             $fileTransfer->file_path = implode(',', $filePaths);
             $fileTransfer->save();
 
-            Log::info('File transfer created', [
-                'user_id' => Auth::id(),
-                'transfer_id' => $fileTransfer->id,
-                'file_count' => count($filePaths)
-            ]);
-
             $newPreview = newPreview::find($request->input('preview_id'));
             newPreview::where('id', $request->input('preview_id'))->update(['filetransfer_id' => $fileTransfer->id]);
-            return Redirect::route('previews.update.all', $newPreview->id);
+            
+            return Redirect::route('previews.update.all', $newPreview->id)->with('success', 'File transfer created successfully!');
         } catch (\Exception $e) {
             // Clean up uploaded files if database save fails
             foreach ($filePaths as $filePath) {
@@ -272,13 +260,6 @@ class FileTransferController extends Controller
                 try {
                     $file->move($destinationPath, $newFileName);
                     $filePaths[] = 'Transfer Files/' . $newFileName;
-
-                    Log::info('File uploaded successfully', [
-                        'user_id' => Auth::id(),
-                        'filename' => $newFileName,
-                        'original_name' => $file->getClientOriginalName(),
-                        'size' => $fileSize
-                    ]);
                 } catch (\Exception $e) {
                     Log::error('File upload failed', [
                         'user_id' => Auth::id(),
@@ -302,12 +283,6 @@ class FileTransferController extends Controller
             $fileTransfer->user_id = Auth::id();
             $fileTransfer->file_path = implode(',', $filePaths);
             $fileTransfer->save();
-
-            Log::info('File transfer created', [
-                'user_id' => Auth::id(),
-                'transfer_id' => $fileTransfer->id,
-                'file_count' => count($filePaths)
-            ]);
 
             return Redirect::route('file-transfers')->with('success', $fileTransfer->name . ' (' . $fileTransfer->client . ')' . ' uploaded successfully!');
         } catch (\Exception $e) {
@@ -367,13 +342,6 @@ class FileTransferController extends Controller
                 try {
                     $file->move($destinationPath, $uniqueName);
                     $filePaths[] = 'Transfer Files/' . $uniqueName;
-
-                    Log::info('File updated successfully', [
-                        'user_id' => Auth::id(),
-                        'transfer_id' => $id,
-                        'filename' => $uniqueName,
-                        'original_name' => $file->getClientOriginalName()
-                    ]);
                 } catch (\Exception $e) {
                     Log::error('File update failed', [
                         'user_id' => Auth::id(),
@@ -394,11 +362,6 @@ class FileTransferController extends Controller
         $fileTransfer->name = $request->input('name');
         $fileTransfer->client = $request->input('client');
         $fileTransfer->save();
-
-        Log::info('File transfer updated', [
-            'user_id' => Auth::id(),
-            'transfer_id' => $id
-        ]);
 
         return Redirect::route('file-transfers')->with('success', 'File transfer updated successfully!');
     }

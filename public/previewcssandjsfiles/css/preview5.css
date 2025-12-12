@@ -317,148 +317,179 @@ hr {
 /* File transfer floating widget */
 .file-transfer-widget {
     position: fixed;
-    right: 18px;
-    bottom: 18px;
+    right: 10px;
+    bottom: 10px;
     z-index: 80;
-    display: flex;
-    align-items: center;
-    gap: 8px;
     font-family: inherit;
     will-change: transform;
-    transition: transform 0.2s ease-in-out;
+    transition: transform 0.3s ease;
 }
 
 .file-transfer-widget:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
 
 .file-transfer-panel {
     display: flex;
     flex-direction: column;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+    border-radius: 16px;
+    box-shadow: 0 12px 32px rgba(16, 24, 40, 0.2), 0 0 0 1px rgba(16, 24, 40, 0.05);
+    overflow: hidden;
+    min-width: 280px;
+}
+
+.file-transfer-panel:hover {
+    box-shadow: 0 16px 40px rgba(16, 24, 40, 0.25);
+}
+
+/* Header with badge */
+.ft-header {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    padding: 12px 16px;
+    display: flex;
     align-items: center;
-    gap: 6px;
-    background: rgba(255, 255, 255, 0.98);
-    padding: 8px 10px;
-    border-radius: 12px;
-    box-shadow: 0 8px 22px rgba(16, 24, 40, 0.12);
-    min-width: 140px;
-    max-width: 220px;
+    justify-content: center;
 }
 
-.file-transfer-panel {
-    position: relative;
-    overflow: visible;
-}
-
-/* attention animation applied to the whole panel (short burst) */
-.file-transfer-panel.attention {
-    animation: ft-panel-pulse 0.95s cubic-bezier(.2, .9, .2, 1) 1;
-}
-
-@keyframes ft-panel-pulse {
-    0% {
-        transform: translateY(0) scale(1);
-        box-shadow: 0 8px 22px rgba(16, 24, 40, 0.12);
-    }
-
-    30% {
-        transform: translateY(-6px) scale(1.02);
-        box-shadow: 0 16px 34px rgba(16, 24, 40, 0.16);
-    }
-
-    65% {
-        transform: translateY(0) scale(0.997);
-        box-shadow: 0 10px 26px rgba(16, 24, 40, 0.13);
-    }
-
-    100% {
-        transform: translateY(0) scale(1);
-        box-shadow: 0 8px 22px rgba(16, 24, 40, 0.12);
-    }
-}
-
-.ft-ready-text {
-    font-size: 0.95rem;
-    color: #0f172a;
-    font-weight: 700;
-    margin: 0;
-    opacity: 0.95;
-    max-width: 200px;
-    line-height: 1;
-    text-align: left;
-    margin-bottom: 0.25rem;
-}
-
-.file-transfer-btn {
-    display: inline-flex;
+.ft-badge {
+    display: flex;
     align-items: center;
     gap: 8px;
-    background: var(--tertiary-color);
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(10px);
+}
+
+.ft-pulse {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+}
+
+.ft-badge-text {
+    font-weight: 700;
+}
+
+/* Main content */
+.ft-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+}
+
+.ft-icon {
+    font-size: 24px;
+    color: var(--tertiary-color);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 8px;
+}
+
+.ft-text-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ft-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.ft-subtitle {
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* Button */
+.file-transfer-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--tertiary-color) 0%, #1d4ed8 100%);
     color: #fff;
-    padding: 8px 24px;
+    padding: 12px 16px;
+    border: none;
     border-radius: 10px;
+    margin: 0 12px 12px 12px;
     font-weight: 700;
     text-decoration: none;
-    font-size: 0.95rem;
-    box-shadow: 0 6px 12px rgba(59, 130, 246, 0.12);
-    transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    transition: all 0.2s ease;
 }
 
 .file-transfer-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 22px rgba(59, 130, 246, 0.12);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
 }
 
-/* smaller label on very small screens */
+.file-transfer-btn i {
+    font-size: 0.85rem;
+    transition: transform 0.2s ease;
+}
+
+.file-transfer-btn:hover i {
+    transform: translateX(2px);
+}
+
+/* Responsive design */
 @media (max-width: 420px) {
     .file-transfer-panel {
-        min-width: 120px;
-        max-width: 160px;
-        padding: 6px;
+        min-width: 240px;
     }
 
-    .ft-ready-text {
-        font-size: 0.8rem;
+    .ft-header {
+        padding: 10px 12px;
+    }
+
+    .ft-badge {
+        padding: 5px 12px;
+        font-size: 0.75rem;
+    }
+
+    .ft-content {
+        padding: 12px 14px;
+        gap: 10px;
+    }
+
+    .ft-icon {
+        font-size: 20px;
+        width: 28px;
+        height: 28px;
+    }
+
+    .ft-title {
+        font-size: 0.9rem;
+    }
+
+    .ft-subtitle {
+        font-size: 0.75rem;
     }
 
     .file-transfer-btn {
-        padding: 7px 10px;
-        font-size: 0.88rem;
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        margin: 0 10px 10px 10px;
     }
-}
-
-.file-transfer-btn .ft-label {
-    display: inline-block;
-}
-
-.file-transfer-collapse-btn {
-    background: transparent;
-    border: none;
-    color: var(--tertiary-color);
-    font-size: 14px;
-    padding: 6px;
-    cursor: pointer;
-}
-
-.file-transfer-tab {
-    width: 44px;
-    height: 44px;
-    border-radius: 999px;
-    background: var(--tertiary-color);
-    color: #fff;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 6px 18px rgba(16, 24, 40, 0.12);
-    cursor: pointer;
-}
-
-.file-transfer-widget .file-transfer-panel {
-    display: flex;
-}
-
-.file-transfer-widget .fa-solid {
-    width: 16px;
 }
 
 #bulk-customization {

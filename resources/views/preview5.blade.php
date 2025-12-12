@@ -160,14 +160,19 @@
             @if($preview['filetransfer_id'] != null)
             <div id="fileTransferWidget" class="file-transfer-widget" aria-hidden="false">
                 <div id="fileTransferPanel" class="file-transfer-panel" role="region" aria-label="File transfer">
-                    <div class="ft-ready-text">File transfer is ready!</div>
+                    <div class="ft-content">
+                        <i class="fa-solid fa-download ft-icon"></i>
+                        <div class="ft-text-group">
+                            <div class="ft-title">Files Ready</div>
+                            <div class="ft-subtitle">Download now</div>
+                        </div>
+                    </div>
                     <a id="fileTransferButton" class="file-transfer-btn" href="/file-transfers-view/{{$fileTransfer->slug}}" target="_blank" rel="noopener noreferrer">
-                        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
-                        <span class="ft-label">File Transfer</span>
+                        <span>Get Files</span>
+                        <i class="fa-solid fa-arrow-right"></i>
                     </a>
                 </div>
             </div>
-
             @endif
         </section>
     </main>
@@ -231,7 +236,8 @@
                 }, 8000);
             }
         } catch (e) {
-            /* ignore */ }
+            /* ignore */
+        }
     }
 
     // Initialize widget after DOM ready

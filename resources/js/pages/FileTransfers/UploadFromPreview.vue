@@ -24,7 +24,7 @@ const preview_name = computed(() => page.props.preview_name);
 const client_name = computed(() => page.props.client_name);
 
 const form = ref({
-    preview_id : preview_id.value || '',
+    preview_id: preview_id.value || '',
     name: preview_name.value || '',
     client: client_name.value || '',
     files: [] as File[],
@@ -91,6 +91,12 @@ const handleSubmit = () => {
         }
     });
 };
+
+const handleCancel = () => {
+    if (window.history.length > 1) {
+        history.back();
+    }
+};
 </script>
 
 <template>
@@ -99,7 +105,8 @@ const handleSubmit = () => {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex justify-center">
             <div class="p-4 md:p-6 w-full max-w-6xl">
-                <div class="bg-white dark:bg-neutral-800 rounded-2xl w-full shadow-lg border border-gray-200 dark:border-neutral-700">
+                <div
+                    class="bg-white dark:bg-neutral-800 rounded-2xl w-full shadow-lg border border-gray-200 dark:border-neutral-700">
                     <!-- Form Content -->
                     <div class="p-6">
                         <form @submit.prevent="handleSubmit" class="space-y-6">
@@ -121,7 +128,8 @@ const handleSubmit = () => {
 
                             <!-- FilePond Upload -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Upload ZIP
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Upload
+                                    ZIP
                                     Files</label>
                                 <FilePond name="files" :files="filePondFiles" @updatefiles="handleFilePondUpdate"
                                     :allowMultiple="true"
@@ -143,7 +151,7 @@ const handleSubmit = () => {
 
                             <!-- Submit Button -->
                             <div class="flex gap-4 pt-4">
-                                <button type="button" @click="router.get('/file-transfers')"
+                                <button type="button" @click="handleCancel"
                                     class="flex-1 rounded-xl bg-red-600 px-6 py-3 text-white shadow hover:bg-red-700 transition-colors">
                                     Cancel
                                 </button>

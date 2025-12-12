@@ -198,28 +198,30 @@ class NewFeedbackController extends Controller
             $feedback->save();
 
             $preview = $feedback->preview;
-            $fileTransfer = FileTransfer::findOrFail($preview->filetransfer_id);
+            $fileTransfer = FileTransfer::find($preview->filetransfer_id);
 
-            // Check if file_path is not null or empty
-            if ($fileTransfer->file_path) {
-                // Assuming 'file_path' is a string (no need for json_decode)
-                $filePaths = is_array($fileTransfer->file_path) ? $fileTransfer->file_path : explode(',', $fileTransfer->file_path);
+            if ($fileTransfer) {
+                // Check if file_path is not null or empty
+                if ($fileTransfer->file_path) {
+                    // Assuming 'file_path' is a string (no need for json_decode)
+                    $filePaths = is_array($fileTransfer->file_path) ? $fileTransfer->file_path : explode(',', $fileTransfer->file_path);
 
-                // Make sure filePaths is an array before looping through it
-                if (is_array($filePaths)) {
-                    // Loop through each file and delete
-                    foreach ($filePaths as $filePath) {
-                        // Construct the full path, prefixing with 'public/' and using public_path()
-                        $fullPath = public_path($filePath);
+                    // Make sure filePaths is an array before looping through it
+                    if (is_array($filePaths)) {
+                        // Loop through each file and delete
+                        foreach ($filePaths as $filePath) {
+                            // Construct the full path, prefixing with 'public/' and using public_path()
+                            $fullPath = public_path($filePath);
 
-                        // Check if the file exists and delete it
-                        if (file_exists($fullPath)) {
-                            unlink($fullPath); // Delete the file
+                            // Check if the file exists and delete it
+                            if (file_exists($fullPath)) {
+                                unlink($fullPath); // Delete the file
+                            }
                         }
                     }
+                    // After deleting the files, delete the database record
+                    $fileTransfer->delete();
                 }
-                // After deleting the files, delete the database record
-                $fileTransfer->delete();
             }
 
             newPreview::where('id', $preview->id)->update(['filetransfer_id' => null]);

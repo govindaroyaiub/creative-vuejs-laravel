@@ -792,7 +792,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue';
+import { ref, computed, reactive, watch } from 'vue';
 import { ArrowLeft, Info, Eye, Save } from 'lucide-vue-next';
 import { Head, usePage, router } from '@inertiajs/vue3';
 import draggable from 'vuedraggable';
@@ -812,6 +812,27 @@ const preview_id = computed(() => page.props.preview_id);
 const preview_name = computed(() => page.props.preview_name);
 const client_name = computed(() => page.props.client_name);
 const bannerSizes = computed(() => page.props.bannerSizes);
+
+const flashMessage = computed(() => page.props.flash);
+
+watch(
+    () => page.props.flash?.success,
+    (message) => {
+        if (message) {
+            Swal.fire({
+                title: 'Success!',
+                text: message,
+                icon: 'success',
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                toast: true
+            });
+        }
+    },
+    { immediate: true }
+);
 
 function goToPreview() {
     window.open(`/previews/show/${preview.value.slug}`, '_blank');
@@ -961,22 +982,22 @@ function approveFeedback(feedback, category, fbIdx) {
 
                     let timerInterval;
                     Swal.fire({
-                    title: "Preparing fiiles transfer page...",
-                    html: "I will close in <b></b> milliseconds.",
-                    timer: 2000,
-                    timerProgressBar: true,
-                    didOpen: () => {
-                        Swal.showLoading();
-                        const timer = Swal.getPopup().querySelector("b");
-                        timerInterval = setInterval(() => {
-                        timer.textContent = `${Swal.getTimerLeft()}`;
-                        }, 100);
-                    },
-                    willClose: () => {
-                        clearInterval(timerInterval);
-                    }
+                        title: "Preparing fiiles transfer page...",
+                        html: "I will close in <b></b> milliseconds.",
+                        timer: 2000,
+                        timerProgressBar: true,
+                        didOpen: () => {
+                            Swal.showLoading();
+                            const timer = Swal.getPopup().querySelector("b");
+                            timerInterval = setInterval(() => {
+                                timer.textContent = `${Swal.getTimerLeft()}`;
+                            }, 100);
+                        },
+                        willClose: () => {
+                            clearInterval(timerInterval);
+                        }
                     }).then(() => {
-                        window.open(url);
+                        window.open(url, '_self');
                     });
 
                     // ✅ Update approval status and clear loading
@@ -1019,11 +1040,14 @@ function disapproveFeedback(feedback, category, fbIdx) {
             router.put(route('previews.feedback.disapprove', feedback.id), {}, {
                 onSuccess: (page) => {
                     Swal.fire({
-                        icon: 'success',
+                        icon: 'info',
                         title: 'Disapproved!',
                         text: 'Feedback has been disapproved.',
+                        position: 'top-end',
+                        showConfirmButton: false,
                         timer: 2000,
-                        showConfirmButton: false
+                        timerProgressBar: true,
+                        toast: true
                     });
 
                     // ✅ Update approval status and clear loading
