@@ -812,6 +812,7 @@ const preview_id = computed(() => page.props.preview_id);
 const preview_name = computed(() => page.props.preview_name);
 const client_name = computed(() => page.props.client_name);
 const bannerSizes = computed(() => page.props.bannerSizes);
+const slug = computed(() => page.props.slug);
 
 const flashMessage = computed(() => page.props.flash);
 

@@ -3,7 +3,7 @@
 /public/build
 /public/storage
 storage/*.key
-storage/*
+/storage
 .env
 .env.backup
 .env.production

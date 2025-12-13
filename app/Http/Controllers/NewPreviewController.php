@@ -379,6 +379,13 @@ class NewPreviewController extends Controller
         ])->findOrFail($id);
         
         $preview_id = $preview->id;
+        $fileTransfer = FileTransfer::find($preview->filetransfer_id);
+        if($fileTransfer){
+            $slug = $fileTransfer->slug;
+        }
+        else{
+            $slug = null;
+        }
         $preview_name = $preview->name;
         $client = Client::select(['id', 'name', 'logo'])->find($preview->client_id);
         $client_name = $client->name;
@@ -386,6 +393,7 @@ class NewPreviewController extends Controller
         return Inertia::render('Previews/Update', [
             'preview' => $preview,
             'preview_id' => $preview_id,
+            'slug' => $slug,
             'preview_name' => $preview_name,
             'client_name' => $client_name,
             'bannerSizes' => BannerSize::orderBy('width')->orderBy('height')->get(),
