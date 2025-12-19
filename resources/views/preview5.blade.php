@@ -157,23 +157,7 @@
                     </div>
                 </div>
             </div>
-            @if($preview['filetransfer_id'] != null)
-            <div id="fileTransferWidget" class="file-transfer-widget" aria-hidden="false">
-                <div id="fileTransferPanel" class="file-transfer-panel" role="region" aria-label="File transfer">
-                    <div class="ft-content">
-                        <i class="fa-solid fa-download ft-icon"></i>
-                        <div class="ft-text-group">
-                            <div class="ft-title">Files Ready</div>
-                            <div class="ft-subtitle">Download now</div>
-                        </div>
-                    </div>
-                    <a id="fileTransferButton" class="file-transfer-btn" href="/file-transfers-view/{{$fileTransfer->slug}}" target="_blank" rel="noopener noreferrer">
-                        <span>Get Files</span>
-                        <i class="fa-solid fa-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-            @endif
+            <div class="fileTransferSection"></div>
         </section>
     </main>
     @if($preview['show_footer'])
@@ -460,6 +444,11 @@
 
     function renderFeedbacks(response) {
         feedbacks = response.data.feedbacks || [];
+        if(!response.data.fileTransfer){
+            var fileTransfer = null;
+        } else {
+            var fileTransfer = response.data.fileTransfer;
+        }
         var feedbackCount = feedbacks.length;
         var isActive;
 
@@ -507,6 +496,32 @@
         renderFeedbackSets(response);
         setTimeout(enableFeedbackTabsDragScroll, 10);
         scrollActiveFeedbackTabIntoView();
+        var transfer = '';
+        if(fileTransfer){
+            transfer = `
+                <div id="fileTransferWidget" class="file-transfer-widget" aria-hidden="false">
+                <div id="fileTransferPanel" class="file-transfer-panel" role="region" aria-label="File transfer">
+                    <div class="ft-content">
+                        <i class="fa-solid fa-download ft-icon"></i>
+                        <div class="ft-text-group">
+                            <div class="ft-title">Files Ready</div>
+                            <div class="ft-subtitle">Download now</div>
+                        </div>
+                    </div>
+                    <a id="fileTransferButton" class="file-transfer-btn" href="/file-transfers-view/${fileTransfer.slug}" target="_blank" rel="noopener noreferrer">
+                        <span>Get Files</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            `;
+        }
+        else{
+            transfer = ``;
+        }
+
+        $('.fileTransferSection').html(transfer);
     }
 
     function changeFeedbackActiveBackground(element) {
