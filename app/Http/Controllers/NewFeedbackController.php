@@ -175,15 +175,80 @@ class NewFeedbackController extends Controller
         }
     }
 
-    public function approve(newFeedback $newFeedback, $id)
+    public function approve(newFeedback $newFeedback, $id, Request $request)
     {
         try {
             // Get the feedback to approve
             $feedback = $newFeedback->findOrFail($id);
-            $feedback->is_approved = true;
-            $feedback->save();
 
-            return response('', 200);
+            $filePaths = [];
+            if ($request->hasFile('files')) {
+                foreach ($request->file('files') as $file) {
+                    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $extension = $file->getClientOriginalExtension();
+                    $fileSize = $file->getSize(); // Get size before moving
+
+                    // Generate a unique name
+                    $uniqueId = uniqid();
+                    $timestamp = time();
+                    $newFileName = $originalName . '_' . $timestamp . '_' . $uniqueId . '.' . $extension;
+
+                    $destinationPath = public_path('Transfer Files');
+
+                    // Ensure directory exists
+                    if (!file_exists($destinationPath)) {
+                        mkdir($destinationPath, 0755, true);
+                    }
+
+                    try {
+                        $file->move($destinationPath, $newFileName);
+                        $filePaths[] = 'Transfer Files/' . $newFileName;
+                    } catch (\Exception $e) {
+                        Log::error('File upload failed', [
+                            'user_id' => Auth::id(),
+                            'filename' => $newFileName,
+                            'error' => $e->getMessage()
+                        ]);
+
+                        return Redirect::back()->withErrors([
+                            'file' => 'File upload failed. Please try again.'
+                        ]);
+                    }
+                }
+            }
+            try {
+                $fileTransfer = new FileTransfer();
+                $fileTransfer->slug = Str::uuid()->toString();
+                $fileTransfer->name = $request->input('transfer_name');
+                $fileTransfer->client = $request->input('client_name');
+                $fileTransfer->user_id = Auth::id();
+                $fileTransfer->file_path = implode(',', $filePaths);
+                $fileTransfer->save();
+
+                newCategory::where('id', $feedback->category_id)->update(['file_transfer_id' => $fileTransfer->id]);
+
+                $feedback->is_approved = true;
+                $feedback->save();
+
+                return response('', 200);
+            } catch (\Exception $e) {
+                // Clean up uploaded files if database save fails
+                foreach ($filePaths as $filePath) {
+                    $fullPath = public_path($filePath);
+                    if (file_exists($fullPath)) {
+                        unlink($fullPath);
+                    }
+                }
+
+                Log::error('File transfer creation failed', [
+                    'user_id' => Auth::id(),
+                    'error' => $e->getMessage()
+                ]);
+
+                return Redirect::back()->withErrors([
+                    'file' => 'Failed to create file transfer record.'
+                ]);
+            }
         } catch (\Exception $e) {
             return response($e->getMessage(), 500);
         }
@@ -194,38 +259,36 @@ class NewFeedbackController extends Controller
         try {
             // Get the feedback to disapprove
             $feedback = $newFeedback->findOrFail($id);
-            $feedback->is_approved = false;
-            $feedback->save();
+            $category = $feedback->category;
 
-            $preview = $feedback->preview;
-            $fileTransfer = FileTransfer::find($preview->filetransfer_id);
+            $fileTransferId = $category->file_transfer_id;
+            $fileTransfer = FileTransfer::findOrFail($fileTransferId);
 
-            if ($fileTransfer) {
-                // Check if file_path is not null or empty
-                if ($fileTransfer->file_path) {
-                    // Assuming 'file_path' is a string (no need for json_decode)
-                    $filePaths = is_array($fileTransfer->file_path) ? $fileTransfer->file_path : explode(',', $fileTransfer->file_path);
+            // Check if file_path is not null or empty
+            if ($fileTransfer->file_path) {
+                // Assuming 'file_path' is a string (no need for json_decode)
+                $filePaths = is_array($fileTransfer->file_path) ? $fileTransfer->file_path : explode(',', $fileTransfer->file_path);
 
-                    // Make sure filePaths is an array before looping through it
-                    if (is_array($filePaths)) {
-                        // Loop through each file and delete
-                        foreach ($filePaths as $filePath) {
-                            // Construct the full path, prefixing with 'public/' and using public_path()
-                            $fullPath = public_path($filePath);
+                // Make sure filePaths is an array before looping through it
+                if (is_array($filePaths)) {
+                    // Loop through each file and delete
+                    foreach ($filePaths as $filePath) {
+                        // Construct the full path, prefixing with 'public/' and using public_path()
+                        $fullPath = public_path($filePath);
 
-                            // Check if the file exists and delete it
-                            if (file_exists($fullPath)) {
-                                unlink($fullPath); // Delete the file
-                            }
+                        // Check if the file exists and delete it
+                        if (file_exists($fullPath)) {
+                            unlink($fullPath); // Delete the file
                         }
                     }
-                    // After deleting the files, delete the database record
-                    $fileTransfer->delete();
                 }
+                // After deleting the files, delete the database record
+                $fileTransfer->delete();
             }
-
-            newPreview::where('id', $preview->id)->update(['filetransfer_id' => null]);
-
+            
+            newCategory::where('id', $feedback->category_id)->update(['file_transfer_id' => null]);
+            $feedback->is_approved = false;
+            $feedback->save();
             return response('', 200);
         } catch (\Exception $e) {
             return response($e->getMessage(), 500);
