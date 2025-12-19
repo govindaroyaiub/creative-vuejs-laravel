@@ -24,7 +24,6 @@ return new class extends Migration
             $table->boolean('show_sidebar_logo')->default(true);
             $table->boolean('show_footer')->default(true);
             $table->foreignId('color_palette_id')->nullable()->constrained()->nullOnDelete();
-            $table->integer('filetransfer_id')->nullable();
             $table->timestamps();
         });
     }
