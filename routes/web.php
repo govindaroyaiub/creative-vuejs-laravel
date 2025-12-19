@@ -47,8 +47,6 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
 
     //File Transfer Routes Start
     Route::get('/file-transfers', [FileTransferController::class, 'index'])->name('file-transfers');
-    Route::get('/file-transfers-upload-from-preview', [FileTransferController::class, 'uploadFromPreview'])->name('file-transfers-upload-from-preview');
-    Route::post('/file-transfers-upload-from-preview', [FileTransferController::class, 'uploadFromPreviewPost'])->name('file-transfers-upload-from-preview-post');
     Route::post('/file-transfers-add', [FileTransferController::class, 'store'])->name('file-transfers-add-post');
     Route::post('/file-transfers-edit/{id}', [FileTransferController::class, 'update'])->name('file-transfers-update');
     Route::delete('/file-transfers-delete/{id}', [FileTransferController::class, 'destroy'])->name('file-transfers-delete');
@@ -65,6 +63,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
 
     Route::delete('/previews/category/delete/{id}', [NewCategoryController::class, 'destroy'])->name('previews.category.delete');
     Route::put('/previews/feedback/approve/{id}', [NewFeedbackController::class, 'approve'])->name('previews.feedback.approve');
+    // Also accept POST for approve to ensure multipart file uploads work reliably
+    Route::post('/previews/feedback/approve/{id}', [NewFeedbackController::class, 'approve']);
     Route::put('/previews/feedback/disapprove/{id}', [NewFeedbackController::class, 'disapprove'])->name('previews.feedback.disapprove');
     Route::delete('/previews/feedback/delete/{id}', [NewFeedbackController::class, 'destroy'])->name('previews.feedback.delete');
     Route::delete('/previews/feedbackSet/delete/{id}', [NewFeedbackSetController::class, 'destroy'])->name('previews.feedback.set.delete');
