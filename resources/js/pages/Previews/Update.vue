@@ -18,7 +18,7 @@
                                 <input v-model="category.name"
                                     class="border rounded px-2 py-1 font-semibold text-lg bg-white-100 dark:bg-neutral-900 dark:text-white dark:border-neutral-700"
                                     placeholder="Category Name" style="min-width:180px;" />
-                                <span class="text-xs text-gray-500 ml-2">({{ category.type }})</span>
+                                <span class="text-xs text-red-500 ml-2 uppercase">({{ category.type }})</span>
                             </span>
                             <!-- Right side: delete buttons -->
                             <span class="flex items-center gap-2">
@@ -759,6 +759,76 @@
                     </select>
                     <button @click="addCategory" class="bg-green-600 text-white px-3 py-1 rounded-lg">Add</button>
                 </div>
+                <!-- Approve modal -->
+                <div v-if="showApproveModal"
+                    class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+                    <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-xl w-full max-w-3xl overflow-hidden">
+                        <div class="flex items-center justify-between px-6 py-4 border-b dark:border-neutral-800">
+                            <div class="flex items-center gap-3">
+                                <h3 class="text-lg font-semibold">Prepare File Transfer</h3>
+                            </div>
+                            <button @click="closeApproveModal" aria-label="Close"
+                                class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 011.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="px-6 py-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">File
+                                        Transfer
+                                        Name</label>
+                                    <input v-model="approveTransferName"
+                                        class="w-full border rounded px-3 py-2 bg-white dark:bg-neutral-800 text-sm"
+                                        placeholder="E.g. Weekly Transfer - 2025-12-19" />
+                                    <p class="text-xs text-gray-500 mt-1">A short descriptive name for this transfer.
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Client
+                                        Name</label>
+                                    <input v-model="approveClientName"
+                                        class="w-full border rounded px-3 py-2 bg-white dark:bg-neutral-800 text-sm"
+                                        placeholder="Client name" />
+                                    <p class="text-xs text-gray-500 mt-1">Optional — shown on the file transfer page.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload
+                                    ZIP files</label>
+                                <div class="border border-dashed rounded p-3 bg-gray-50 dark:bg-neutral-850">
+                                    <FilePond ref="approvePond" :allowMultiple="true"
+                                        :acceptedFileTypes="['application/zip', 'application/x-zip-compressed']"
+                                        :files="approveFiles.value" @updatefiles="files => approveFiles.value = files"
+                                        name="approve_files[]" :server="null" class="my-2" />
+                                    <p class="text-xs text-gray-500 mt-2">Only .zip files are allowed. You may upload
+                                        multiple archives.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t dark:border-neutral-800">
+                            <button @click="closeApproveModal"
+                                class="px-4 py-2 rounded-xl bg-transparent border border-gray-200 dark:border-neutral-700 text-sm">Cancel</button>
+                            <button @click="submitApprove"
+                                class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm hover:bg-indigo-700">Approve
+                                &
+                                Upload</button>
+                        </div>
+                    </div>
+                </div>
+
                 <div
                     class="sticky-action-bar bg-white dark:bg-neutral-900 flex items-center justify-center gap-3 p-4 border-t shadow-lg">
                     <a :href="route('previews-index')"
@@ -792,7 +862,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, watch } from 'vue';
+import { ref, computed, reactive } from 'vue';
 import { ArrowLeft, Info, Eye, Save } from 'lucide-vue-next';
 import { Head, usePage, router } from '@inertiajs/vue3';
 import draggable from 'vuedraggable';
@@ -813,27 +883,7 @@ const preview_name = computed(() => page.props.preview_name);
 const client_name = computed(() => page.props.client_name);
 const bannerSizes = computed(() => page.props.bannerSizes);
 const slug = computed(() => page.props.slug);
-
 const flashMessage = computed(() => page.props.flash);
-
-watch(
-    () => page.props.flash?.success,
-    (message) => {
-        if (message) {
-            Swal.fire({
-                title: 'Success!',
-                text: message,
-                icon: 'success',
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: true,
-                toast: true
-            });
-        }
-    },
-    { immediate: true }
-);
 
 function goToPreview() {
     window.open(`/previews/show/${preview.value.slug}`, '_blank');
@@ -971,57 +1021,130 @@ function approveFeedback(feedback, category, fbIdx) {
         confirmButtonText: 'Yes, approve it!'
     }).then((result) => {
         if (result.isConfirmed) {
-            // ✅ Set loading state
-            feedback.isApproving = true;
-
-            router.put(route('previews.feedback.approve', feedback.id), {}, {
-                onSuccess: (page) => {
-                    const paramPreviewId = preview_id.value;
-                    const paramPreviewName = preview_name.value;
-                    const paramClientName = client_name.value;
-                    const url = `/file-transfers-upload-from-preview?paramA=${encodeURIComponent(paramPreviewId)}&paramB=${encodeURIComponent(paramPreviewName)}&paramC=${encodeURIComponent(paramClientName)}`;
-
-                    let timerInterval;
-                    Swal.fire({
-                        title: "Preparing fiiles transfer page...",
-                        html: "I will close in <b></b> milliseconds.",
-                        timer: 2000,
-                        timerProgressBar: true,
-                        didOpen: () => {
-                            Swal.showLoading();
-                            const timer = Swal.getPopup().querySelector("b");
-                            timerInterval = setInterval(() => {
-                                timer.textContent = `${Swal.getTimerLeft()}`;
-                            }, 100);
-                        },
-                        willClose: () => {
-                            clearInterval(timerInterval);
-                        }
-                    }).then(() => {
-                        window.open(url, '_self');
-                    });
-
-                    // ✅ Update approval status and clear loading
-                    feedback.is_approved = true;
-                    feedback.isApproving = false;
-
-                    if (page.props.feedback) {
-                        Object.assign(feedback, page.props.feedback);
-                    }
-                },
-                onError: (err) => {
-                    console.error('Approval failed:', err);
-                    feedback.isApproving = false; // ✅ Clear loading on error
-
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Approval failed',
-                        text: 'An error occurred while approving the feedback.'
-                    });
-                }
-            });
+            // open modal to collect transfer details and files
+            approveFeedbackObj = feedback;
+            approveTransferName.value = `${preview_name.value || ''} - File Transfer`;
+            approveClientName.value = client_name.value || '';
+            approveFiles.value = [];
+            showApproveModal.value = true;
         }
     });
+}
+
+function closeApproveModal() {
+    showApproveModal.value = false;
+    approveTransferName.value = '';
+    approveClientName.value = '';
+    approveFiles.value = [];
+    approveFeedbackObj = null;
+}
+
+async function submitApprove() {
+    if (!approveTransferName.value) {
+        Swal.fire({ icon: 'error', title: 'Missing Name', text: 'Please enter a File Transfer Name.' });
+        return;
+    }
+
+    if (!approveFeedbackObj) return;
+
+    approveFeedbackObj.isApproving = true;
+
+    const formData = new FormData();
+    formData.append('transfer_name', approveTransferName.value);
+    formData.append('client_name', approveClientName.value);
+    // also include feedback id explicitly
+    formData.append('feedback_id', approveFeedbackObj.id);
+
+    // debug log to inspect files client-side
+    console.log('approveFiles value before upload:', approveFiles.value);
+
+    // Prefer getting files from FilePond instance (safer); fall back to approveFiles ref
+    let pondFiles = [];
+    try {
+        if (approvePond && approvePond.value && typeof approvePond.value.getFiles === 'function') {
+            pondFiles = approvePond.value.getFiles();
+        }
+    } catch (e) {
+        pondFiles = [];
+    }
+
+    const sourceFiles = (pondFiles && pondFiles.length) ? pondFiles : (approveFiles.value || []);
+    sourceFiles.forEach((fileItem, idx) => {
+        let fileObj = null;
+        if (!fileItem) return;
+        if (fileItem instanceof File) {
+            fileObj = fileItem;
+        } else if (fileItem.file instanceof File) {
+            fileObj = fileItem.file;
+        } else if (fileItem.getFile && typeof fileItem.getFile === 'function') {
+            try { fileObj = fileItem.getFile(); } catch (e) { /* ignore */ }
+        } else if (fileItem.originFileObj instanceof File) {
+            fileObj = fileItem.originFileObj;
+        } else if (fileItem.file && fileItem.file.file instanceof File) {
+            fileObj = fileItem.file.file;
+        }
+
+        if (fileObj) {
+            // Append under the conventional key the controller expects
+            formData.append(`files[${idx}]`, fileObj, fileObj.name);
+        }
+    });
+
+    // Log formData entries (files will appear as File objects)
+    for (let pair of formData.entries()) {
+        console.log('formData entry:', pair[0], pair[1]);
+    }
+
+    const url = route('previews.feedback.approve', approveFeedbackObj.id);
+    try {
+        const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+        const csrf = tokenMeta ? tokenMeta.getAttribute('content') : null;
+
+        const res = await fetch(url, {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin',
+            headers: csrf ? { 'X-CSRF-TOKEN': csrf } : {}
+        });
+
+        if (!res.ok) {
+            const text = await res.text();
+            console.error('Upload failed', res.status, text);
+            approveFeedbackObj.isApproving = false;
+            Swal.fire({ icon: 'error', title: 'Approval failed', text: 'Server returned an error.' });
+            return;
+        }
+
+        const data = await res.json().catch(() => null);
+
+        // Update the feedback object first so the UI clears loading state
+        if (approveFeedbackObj) {
+            approveFeedbackObj.is_approved = true;
+            approveFeedbackObj.isApproving = false;
+            if (data && data.feedback) {
+                Object.assign(approveFeedbackObj, data.feedback);
+            }
+        }
+
+        // Show success toast and then close modal after updating state
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Approved!',
+            text: 'Feedback has been approved and files uploaded.',
+            timer: 1600,
+            timerProgressBar: true,
+            showConfirmButton: false,
+        });
+
+        // Close modal after showing success
+        closeApproveModal();
+    } catch (err) {
+        console.error('Approval failed (fetch):', err);
+        approveFeedbackObj.isApproving = false;
+        Swal.fire({ icon: 'error', title: 'Approval failed', text: 'An error occurred while approving the feedback.' });
+    }
 }
 
 function disapproveFeedback(feedback, category, fbIdx) {
@@ -1041,14 +1164,11 @@ function disapproveFeedback(feedback, category, fbIdx) {
             router.put(route('previews.feedback.disapprove', feedback.id), {}, {
                 onSuccess: (page) => {
                     Swal.fire({
-                        icon: 'info',
+                        icon: 'success',
                         title: 'Disapproved!',
                         text: 'Feedback has been disapproved.',
-                        position: 'top-end',
-                        showConfirmButton: false,
                         timer: 2000,
-                        timerProgressBar: true,
-                        toast: true
+                        showConfirmButton: false
                     });
 
                     // ✅ Update approval status and clear loading
@@ -1466,6 +1586,14 @@ const gifEditSizeId = ref(null);
 let gifEditObj = null;
 let gifEditVersion = null;
 let gifEditIndex = null;
+
+// Approve modal state
+const showApproveModal = ref(false);
+const approveTransferName = ref('');
+const approveClientName = ref('');
+let approveFiles = ref([]);
+let approveFeedbackObj = null;
+const approvePond = ref(null);
 
 function handleGifDrop(files, version) {
     version._filepondGifFiles = files;
