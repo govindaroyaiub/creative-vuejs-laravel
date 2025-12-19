@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->enum('type', ['banner', 'video', 'social', 'gif']);
             $table->boolean('is_active')->default(false);
+            $table->integer('file_transfer_id')->nullable();
             $table->timestamps();
         });
     }
