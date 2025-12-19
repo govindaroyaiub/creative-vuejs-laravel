@@ -16,6 +16,7 @@ use App\Models\newFeedbackSet;
 use App\Models\newVersion;
 use App\Models\newBanner;
 use App\Models\ColorPalette;
+use App\Models\FileTransfer;
 use App\Models\VideoSize;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -56,6 +57,10 @@ class newPreviewApiController extends Controller
         $activeFeedback = $feedbacks->where('is_active', 1)->first();
         $feedbackSets = $activeFeedback->feedbackSets;
         $versions = $feedbackSets->flatMap->versions;
+        $fileTransfer = FileTransfer::find($activeCategory->file_transfer_id);
+        if(!$fileTransfer){
+            $fileTransfer = null;
+        }
 
         return response()->json([
             'preview' => $preview,
@@ -64,7 +69,8 @@ class newPreviewApiController extends Controller
             'feedbackSets' => $feedbackSets,
             'activeCategory' => $activeCategory,
             'activeFeedback' => $activeFeedback,
-            'versions' => $versions
+            'versions' => $versions,
+            'fileTransfer' => $fileTransfer
         ]);
     }
 
@@ -91,6 +97,10 @@ class newPreviewApiController extends Controller
         $activeFeedback = $feedbacks->where('is_active', 1)->first();
         $feedbackSets = $activeFeedback->feedbackSets;
         $versions = $feedbackSets->flatMap->versions;
+        $fileTransfer = FileTransfer::find($activeCategory->file_transfer_id);
+        if(!$fileTransfer){
+            $fileTransfer = null;
+        }
 
         return response()->json([
             'preview' => $preview,
@@ -99,7 +109,8 @@ class newPreviewApiController extends Controller
             'feedbackSets' => $feedbackSets,
             'activeCategory' => $activeCategory,
             'activeFeedback' => $activeFeedback,
-            'versions' => $versions
+            'versions' => $versions,
+            'fileTransfer' => $fileTransfer
         ]);
     }
 
