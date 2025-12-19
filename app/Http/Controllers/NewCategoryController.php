@@ -14,6 +14,7 @@ use App\Models\newPreview;
 use App\Models\newBanner;
 use App\Models\BannerSize;
 use App\Models\VideoSize;
+use App\Models\FileTransfer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -64,6 +65,31 @@ class NewCategoryController extends Controller
         try {
             // Get the category to delete
             $category = $newCategory->findOrFail($id);
+
+            $fileTransfer = FileTransfer::find($category->file_transfer_id);
+            if ($fileTransfer) {
+                // Check if file_path is not null or empty
+                if ($fileTransfer->file_path) {
+                    // Assuming 'file_path' is a string (no need for json_decode)
+                    $filePaths = is_array($fileTransfer->file_path) ? $fileTransfer->file_path : explode(',', $fileTransfer->file_path);
+
+                    // Make sure filePaths is an array before looping through it
+                    if (is_array($filePaths)) {
+                        // Loop through each file and delete
+                        foreach ($filePaths as $filePath) {
+                            // Construct the full path, prefixing with 'public/' and using public_path()
+                            $fullPath = public_path($filePath);
+
+                            // Check if the file exists and delete it
+                            if (file_exists($fullPath)) {
+                                unlink($fullPath); // Delete the file
+                            }
+                        }
+                    }
+                    // After deleting the files, delete the database record
+                    $fileTransfer->delete();
+                }
+            }
 
             // Delete all related feedbacks, sets, versions, banners, and files
             // Delete category folder based on type
