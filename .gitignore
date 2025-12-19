@@ -2,6 +2,10 @@
 /node_modules/
 /public/build
 /public/storage
+/public/uploads/banners
+/public/uploads/socials
+/public/uploads/videos
+/public/uploads/gifs
 storage/*.key
 /storage
 .env
