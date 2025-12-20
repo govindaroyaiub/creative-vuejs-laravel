@@ -180,6 +180,7 @@ class NewFeedbackController extends Controller
         try {
             // Get the feedback to approve
             $feedback = $newFeedback->findOrFail($id);
+            $previewId = $feedback->category->preview->id;
             $category = $feedback->category;
 
             $totalApprovedFeedbacks = newFeedback::where('category_id', $category->id)
@@ -229,6 +230,7 @@ class NewFeedbackController extends Controller
                     $fileTransfer->slug = Str::uuid()->toString();
                     $fileTransfer->name = $request->input('transfer_name');
                     $fileTransfer->client = $request->input('client_name');
+                    $fileTransfer->preview_id = $previewId;
                     $fileTransfer->user_id = Auth::id();
                     $fileTransfer->file_path = implode(',', $filePaths);
                     $fileTransfer->save();
