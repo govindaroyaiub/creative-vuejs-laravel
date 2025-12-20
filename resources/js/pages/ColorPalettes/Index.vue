@@ -252,14 +252,6 @@
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Left Column: Basic Info & Colors -->
             <div class="space-y-6">
-              <!-- Name Input -->
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Palette Name</label>
-                <input v-model="form.name" type="text" placeholder="Enter palette name..."
-                  class="w-full px-4 py-3 border border-gray-300 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  required />
-              </div>
-
               <!-- Color Inputs -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Color
@@ -284,8 +276,16 @@
             <!-- Right Column: Images -->
             <div class="space-y-6">
               <!-- Header Image -->
+              <!-- Name Input -->
               <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Header Image</label>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Palette Name</label>
+                <input v-model="form.name" type="text" placeholder="Enter palette name..."
+                  class="w-full px-4 py-3 border border-gray-300 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  required />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Header Image
+                  (738x294)</label>
                 <div
                   class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-700">
                   <img v-if="form.header_image_preview" :src="form.header_image_preview"
@@ -298,7 +298,7 @@
               <!-- Feedback Tab Images -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Feedback Tab
-                  Images</label>
+                  Images (110x33)</label>
                 <div class="space-y-4">
                   <div
                     class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-700">
@@ -324,7 +324,7 @@
               <!-- Right Side Tab Images -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Right Side Tab
-                  Images</label>
+                  Images (41x137)</label>
                 <div class="space-y-4">
                   <div
                     class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-700">
