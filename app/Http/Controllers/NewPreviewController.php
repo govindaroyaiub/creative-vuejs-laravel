@@ -348,6 +348,31 @@ class NewPreviewController extends Controller
                     }
                     $feedback->delete();
                 }
+                $fileTransferId = $category->file_transfer_id;
+                $fileTransfer = FileTransfer::find($fileTransferId);
+                if ($fileTransfer) {
+                    // Check if file_path is not null or empty
+                    if ($fileTransfer->file_path) {
+                        // Assuming 'file_path' is a string (no need for json_decode)
+                        $filePaths = is_array($fileTransfer->file_path) ? $fileTransfer->file_path : explode(',', $fileTransfer->file_path);
+
+                        // Make sure filePaths is an array before looping through it
+                        if (is_array($filePaths)) {
+                            // Loop through each file and delete
+                            foreach ($filePaths as $filePath) {
+                                // Construct the full path, prefixing with 'public/' and using public_path()
+                                $fullPath = public_path($filePath);
+
+                                // Check if the file exists and delete it
+                                if (file_exists($fullPath)) {
+                                    unlink($fullPath); // Delete the file
+                                }
+                            }
+                        }
+                        // After deleting the files, delete the database record
+                        $fileTransfer->delete();
+                    }
+                }
                 $category->delete();
             }
             $preview->delete();
@@ -377,13 +402,12 @@ class NewPreviewController extends Controller
             'categories.feedbacks.feedbackSets.versions.socials',
             'categories.feedbacks.feedbackSets.versions.gifs',
         ])->findOrFail($id);
-        
+
         $preview_id = $preview->id;
         $fileTransfer = FileTransfer::find($preview->filetransfer_id);
-        if($fileTransfer){
+        if ($fileTransfer) {
             $slug = $fileTransfer->slug;
-        }
-        else{
+        } else {
             $slug = null;
         }
         $preview_name = $preview->name;
