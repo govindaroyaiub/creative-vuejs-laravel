@@ -785,7 +785,7 @@
                                         Transfer
                                         Name</label>
                                     <input v-model="approveTransferName"
-                                        class="w-full border rounded px-3 py-2 bg-white dark:bg-neutral-800 text-sm"
+                                        class="w-full border rounded-lg px-3 py-2 bg-white dark:bg-neutral-800 text-sm"
                                         placeholder="E.g. Weekly Transfer - 2025-12-19" />
                                     <p class="text-xs text-gray-500 mt-1">A short descriptive name for this transfer.
                                     </p>
@@ -796,7 +796,7 @@
                                         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Client
                                         Name</label>
                                     <input v-model="approveClientName"
-                                        class="w-full border rounded px-3 py-2 bg-white dark:bg-neutral-800 text-sm"
+                                        class="w-full border rounded-lg px-3 py-2 bg-white dark:bg-neutral-800 text-sm"
                                         placeholder="Client name" />
                                     <p class="text-xs text-gray-500 mt-1">Optional — shown on the file transfer page.
                                     </p>
@@ -1111,7 +1111,7 @@ async function submitApprove() {
             const text = await res.text();
             console.error('Upload failed', res.status, text);
             approveFeedbackObj.isApproving = false;
-            Swal.fire({ icon: 'error', title: 'Approval failed', text: 'Server returned an error.' });
+            Swal.fire({ icon: 'error', title: 'Approval failed', text: 'Disapprove the approved feedback first.' });
             return;
         }
 
