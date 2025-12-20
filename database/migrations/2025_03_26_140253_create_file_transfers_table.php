@@ -15,6 +15,7 @@ class CreateFileTransfersTable extends Migration
             $table->string('slug')->unique();
             $table->string('name');
             $table->string('client');
+            $table->integer('preview_id')->nullable();
             $table->integer('user_id');
             $table->text('file_path');
             $table->timestamps();
