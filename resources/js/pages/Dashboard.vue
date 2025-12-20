@@ -649,7 +649,7 @@ const formatNumber = (num: number) => {
                         </div>
                     </div>
 
-                    <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg">
+                    <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-green-100">Total Bills (BDT)</p>
