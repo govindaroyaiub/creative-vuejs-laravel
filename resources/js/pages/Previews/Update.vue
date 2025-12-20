@@ -4,6 +4,20 @@
     <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Batch Update' }]">
         <div class="max-w-8xl py-4 px-4">
             <div v-if="preview">
+                <div class="mb-6">
+                    <div class="flex items-center justify-between gap-4 bg-gray-300 dark:bg-neutral-900 rounded-xl p-3">
+                        <div class="flex-1">
+                            <div class="text-xs uppercase text-gray-500">Name</div>
+                            <h1 class="text-xl md:text-xl font-extrabold text-gray-900 dark:text-white leading-tight truncate capitalize">{{ preview.name }}</h1>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-600 dark:text-gray-400">
+                                <div class="text-xs uppercase text-gray-500">Client</div>
+                                <div class="mt-1 font-semibold text-gray-800 dark:text-gray-200">{{ preview.client?.name || client_name || 'Unknown Client' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div v-for="(category, catIdx) in preview.categories" :key="category.id" class="mb-4">
                     <details v-bind="category.is_active == 1 ? { open: true } : {}" class="mb-4 border rounded shadow">
                         <summary
