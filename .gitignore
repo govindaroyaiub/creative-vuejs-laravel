@@ -7,7 +7,6 @@
 /public/uploads/videos
 /public/uploads/gifs
 storage/*.key
-/storage
 .env
 .env.backup
 .env.production
@@ -20,3 +19,5 @@ yarn-error.log
 /.idea
 .phpactor.json
 auth.json
+laravel.log
+storage/logs/*.log
