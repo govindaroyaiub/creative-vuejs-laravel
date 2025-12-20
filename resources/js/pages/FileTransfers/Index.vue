@@ -294,6 +294,7 @@ const handleEditSubmit = () => {
                             <th class="px-4 py-2 border-b">Name</th>
                             <th class="px-4 py-2 border-b">Client</th>
                             <th class="px-4 py-2 border-b">Uploader</th>
+                            <th class="px-4 py-2 border-b">Preview</th>
                             <th class="px-4 py-2 border-b">Actions</th>
                         </tr>
                     </thead>
@@ -313,6 +314,13 @@ const handleEditSubmit = () => {
                                     }) }}
                                 </div>
                             </td>
+                            <td class="px-4 py-2 border-b">
+                                <div v-if="!transfer.preview_id">-</div>
+                                <div v-else>
+                                    <a :href="`/previews/update/${transfer.preview_id}`" target="_blank"
+                                        class="text-blue-600 hover:underline">Here</a>
+                                </div>
+                            </td>
                             <td class="space-x-2 px-4 py-2 border-b">
                                 <a :href="`/file-transfers-view/${transfer.slug}`" target="_blank"
                                     class="text-green-600 hover:text-green-800 p-1" aria-label="View Transfer">
@@ -322,8 +330,11 @@ const handleEditSubmit = () => {
                                     aria-label="Edit Transfer">
                                     <Pencil class="inline h-5 w-5" />
                                 </button>
-                                <button @click="deleteFileTransfer(transfer.id)"
-                                    class="text-red-600 hover:text-red-800 p-1" aria-label="Delete Transfer">
+                                <button @click="!transfer.preview_id && deleteFileTransfer(transfer.id)"
+                                    :disabled="!!transfer.preview_id"
+                                    :class="transfer.preview_id ? 'text-gray-400 cursor-not-allowed p-1' : 'text-red-600 hover:text-red-800 p-1'"
+                                    aria-label="Delete Transfer"
+                                    :title="transfer.preview_id ? 'Cannot delete — linked to a preview' : 'Delete Transfer'">
                                     <Trash2 class="inline h-5 w-5" />
                                 </button>
                             </td>
@@ -365,9 +376,11 @@ const handleEditSubmit = () => {
                                 aria-label="Edit Transfer">
                                 <Pencil class="h-5 w-5" />
                             </button>
-                            <button @click="deleteFileTransfer(transfer.id)"
-                                class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
-                                aria-label="Delete Transfer">
+                            <button @click="!transfer.preview_id && deleteFileTransfer(transfer.id)"
+                                :disabled="!!transfer.preview_id"
+                                :class="transfer.preview_id ? 'text-gray-400 cursor-not-allowed p-2 rounded-lg' : 'text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20'"
+                                aria-label="Delete Transfer"
+                                :title="transfer.preview_id ? 'Cannot delete — linked to a preview' : 'Delete Transfer'">
                                 <Trash2 class="h-5 w-5" />
                             </button>
                         </div>
