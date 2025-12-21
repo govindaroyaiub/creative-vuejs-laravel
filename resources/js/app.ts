@@ -8,6 +8,26 @@ import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
 // import './timezone-init.js'; // Initialize timezone detection - DISABLED
 
+// Ensure SweetAlert2 dialogs use the auto theme by default across the app
+import Swal from 'sweetalert2';
+const _swal_fire = Swal.fire.bind(Swal);
+Swal.fire = (options, ...rest) => {
+    // If running in SSR or without DOM, default to auto
+    const hasDOM = typeof document !== 'undefined' && !!document.documentElement;
+
+    // Determine page theme from document class when possible
+    const pageTheme = hasDOM && document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+
+    if (options && typeof options === 'object') {
+        // Respect explicit options.theme if provided; otherwise set based on page theme
+        if (options.theme === undefined || options.theme === null || options.theme === 'auto') {
+            options = Object.assign({ theme: pageTheme }, options);
+        }
+    }
+
+    return _swal_fire(options, ...rest);
+};
+
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
     interface ImportMetaEnv {
