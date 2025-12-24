@@ -341,7 +341,7 @@ const handleEditSubmit = () => {
                         </tr>
 
                         <tr v-if="fileTransfers.data.length === 0">
-                            <td colspan="5" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">No file
+                            <td colspan="6" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">No file
                                 transfers found.</td>
                         </tr>
                     </tbody>
@@ -632,7 +632,7 @@ const handleEditSubmit = () => {
                                         </div>
                                         <span class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{
                                             file
-                                            }}</span>
+                                        }}</span>
                                     </div>
                                     <a :href="`/Transfer Files/${file}`" download
                                         class="flex items-center space-x-1 px-3 py-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors">
