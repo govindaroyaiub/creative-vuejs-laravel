@@ -21,7 +21,7 @@ class ClientController extends Controller
                 ->orWhere('preview_url', 'like', "%{$search}%");
         }
 
-        $clients = $query->latest()->paginate(10)->withQueryString();
+        $clients = $query->latest()->paginate(15)->withQueryString();
         $colorPalettes = ColorPalette::where('status', 1)->get(['id', 'name', 'primary']);
 
         return Inertia::render('Clients/Index', [
@@ -108,8 +108,8 @@ class ClientController extends Controller
         $client = Client::findOrFail($id);
 
         // Optionally delete the logo file
-        if ($client->logo && file_exists(public_path($client->logo))) {
-            unlink(public_path($client->logo));
+        if ($client->logo && file_exists(public_path('logos/' . $client->logo))) {
+            unlink(public_path('logos/' . $client->logo));
         }
 
         $client->delete();
