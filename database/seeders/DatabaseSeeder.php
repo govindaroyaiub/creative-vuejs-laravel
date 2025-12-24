@@ -137,14 +137,14 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Deka Mart',
                 'website' => 'https://dekamart.nl',
                 'preview_url' => 'https://creative.planetnine.com',
-                'logo' => '1759917760_Deka Markt.png',
+                'logo' => '1766580885_Deka Markt.png',
                 'color_palette_id' => 6
             ],
             [
                 'name' => 'DIRK',
                 'website' => 'https://dirk.nl',
                 'preview_url' => 'https://creative.planetnine.com',
-                'logo' => '1759917780_DIRK.png',
+                'logo' => '1766580858_Dirk.png',
                 'color_palette_id' => 6
             ],
             [
