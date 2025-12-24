@@ -148,33 +148,68 @@ class DatabaseSeeder extends Seeder
                 'color_palette_id' => 6
             ],
             [
-                'name' => 'Hoogvliet',
-                'website' => 'https://hoogvliet.nl',
+                'name' => 'CMN',
+                'website' => 'https://www.creativemedianetwork.com/',
                 'preview_url' => 'https://creative.planetnine.com',
-                'logo' => '1759917802_Hoogvliet.png',
+                'logo' => '1766568256_Cmn.png',
                 'color_palette_id' => 2
             ],
             [
-                'name' => 'Talpa - Radio 10',
-                'website' => 'https://radio10.nl',
+                'name' => 'Talpa NetWork',
+                'website' => 'https://talpanetwork.com',
                 'preview_url' => 'https://creative.planetnine.com',
-                'logo' => '1759917853_Radio 10.png',
+                'logo' => '1766568268_Talpa Network.png',
                 'color_palette_id' => 5
             ],
             [
-                'name' => 'Talpa - Radio 538',
-                'website' => 'https://radio538.nl',
+                'name' => 'Ruks Meseum',
+                'website' => 'https://www.rijksmuseum.nl/nl',
                 'preview_url' => 'https://creative.planetnine.com',
-                'logo' => '1759917880_RADIO 538.png',
+                'logo' => '1766568211_Riks Museum.png',
                 'color_palette_id' => 5
             ],
             [
-                'name' => 'Talpa - Sky Radio',
-                'website' => 'https://skyradio.nl',
+                'name' => 'Paradiso Films',
+                'website' => 'https://paradisofilms.nl/',
                 'preview_url' => 'https://creative.planetnine.com',
-                'logo' => '1759917903_Talpa Sky Radio.png',
+                'logo' => '1766568220_Paradiso.png',
                 'color_palette_id' => 5
             ],
+            [
+                'name' => 'Cherry Pickers',
+                'website' => 'https://cherrypickers.nl/',
+                'preview_url' => 'https://creative.planetnine.com',
+                'logo' => '1766563344_Cherry pickers Logo.png',
+                'color_palette_id' => 5
+            ],
+            [
+                'name' => 'Stroom',
+                'website' => 'https://www.stroom.nl/',
+                'preview_url' => 'https://creative.planetnine.com',
+                'logo' => '1766568238_Stroom.png',
+                'color_palette_id' => 5
+            ],
+            [
+                'name' => 'Imagine Films',
+                'website' => 'https://imaginefilm.be/fr/',
+                'preview_url' => 'https://creative.planetnine.com',
+                'logo' => '1766568245_Imagine Films.png',
+                'color_palette_id' => 5
+            ],
+            [
+                'name' => 'Film Inc',
+                'website' => 'https://www.google.com',
+                'preview_url' => 'https://creative.planetnine.com',
+                'logo' => '1766568251_Film inc.png',
+                'color_palette_id' => 5
+            ],
+            [
+                'name' => 'De Bijenkorf',
+                'website' => 'https://www.debijenkorf.nl/',
+                'preview_url' => 'https://creative.planetnine.com',
+                'logo' => '1766568262_De bijenkorf.png',
+                'color_palette_id' => 5
+            ]
         ];
 
         foreach ($clients as $client) {
