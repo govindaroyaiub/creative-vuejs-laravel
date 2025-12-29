@@ -141,6 +141,7 @@ const deleteBannerSize = async (id: number) => {
                     <thead class="bg-gray-100 text-gray-700 dark:bg-neutral-900 dark:text-gray-300">
                         <tr class="text-center text-sm uppercase">
                             <th class="px-4 py-2">#</th>
+                            <th class="px-4 py-2">Name</th>
                             <th class="px-4 py-2">Width</th>
                             <th class="px-4 py-2">Height</th>
                             <th class="px-4 py-2">Actions</th>
@@ -150,6 +151,9 @@ const deleteBannerSize = async (id: number) => {
                         <!-- New Row -->
                         <tr v-if="adding" class="border-t text-center text-sm dark:border-neutral-900">
                             <td class="px-4 py-2">#</td>
+                            <td class="px-4 py-2">
+                                <div v-if="adding">{{ newForm.width }}x{{ newForm.height }}</div>
+                            </td>
                             <td class="px-4 py-2">
                                 <input v-model="newForm.width" type="number"
                                     class="w-20 rounded-2xl border px-2 py-1 dark:bg-neutral-800 dark:text-white" />
@@ -169,6 +173,10 @@ const deleteBannerSize = async (id: number) => {
                         <tr v-for="(size, index) in bannerSizes.data" :key="size.id"
                             class="border-t text-center text-sm uppercase dark:border-neutral-900 dark:hover:bg-neutral-700">
                             <td class="px-4 py-2">{{ index + 1 }}</td>
+                            <td class="px-4 py-2">
+                                <div v-if="editingId !== size.id">{{ size.width }}x{{ size.height }}</div>
+                                <div v-else>{{ editForm.width }}x{{ editForm.height }}</div>
+                            </td>
 
                             <td class="px-4 py-2">
                                 <div v-if="editingId !== size.id">{{ size.width }}</div>
@@ -201,7 +209,7 @@ const deleteBannerSize = async (id: number) => {
                         </tr>
 
                         <tr v-if="bannerSizes.data.length === 0 && !adding">
-                            <td colspan="4" class="px-4 py-4 text-center text-gray-500">No banner sizes found.</td>
+                            <td colspan="5" class="px-4 py-4 text-center text-gray-500">No banner sizes found.</td>
                         </tr>
                     </tbody>
                 </table>
