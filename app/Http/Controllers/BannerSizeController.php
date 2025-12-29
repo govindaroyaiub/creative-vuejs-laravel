@@ -16,7 +16,8 @@ class BannerSizeController extends Controller
 
         if ($search = $request->input('search')) {
             $query->where('width', 'like', "%{$search}%")
-                ->orWhere('height', 'like', "%{$search}%");
+                ->orWhere('height', 'like', "%{$search}%")
+                ->orWhereRaw("CONCAT(width, 'x', height) LIKE ?", ["%{$search}%"]);
         }
 
         $bannerSizes = $query
