@@ -33,6 +33,26 @@ const isLoading = ref(false);
 const showCreateModal = ref(false);
 const showEditModal = ref(false);
 
+// Image viewer modal
+const showImageModal = ref(false);
+const currentImage = ref('');
+
+const onKeydown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') closeImageModal();
+};
+
+const openImageModal = (src: string) => {
+    currentImage.value = src;
+    showImageModal.value = true;
+    document.addEventListener('keydown', onKeydown);
+};
+
+const closeImageModal = () => {
+    showImageModal.value = false;
+    currentImage.value = '';
+    document.removeEventListener('keydown', onKeydown);
+};
+
 // Form states
 const createForm = ref({
     name: '',
@@ -333,12 +353,13 @@ const totalClients = computed(() => clients.value?.total || 0);
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center justify-start">
                                     <img v-if="client.logo" :src="`/logos/${client.logo}`" :alt="client.name + ' logo'"
-                                        class="h-20 w-40 aspect-auto object-contain rounded-xl bg-neutral-300 p-2 dark:bg-neutral-700 border" />
+                                        @click="openImageModal(`/logos/${client.logo}`)"
+                                        class="h-20 w-40 aspect-auto object-contain rounded-xl bg-neutral-300 p-2 dark:bg-neutral-700 border cursor-pointer hover:scale-105 transition-transform duration-150" />
                                     <Building2 v-else class="w-6 h-6 text-blue-600 dark:text-blue-400" />
                                 </div>
                                 <div class="flex items-center justify-end">
                                     <h1 class="font-semibold text-gray-900 dark:text-white text-xl">{{ client.name
-                                    }}</h1>
+                                        }}</h1>
                                 </div>
                             </div>
                         </div>
@@ -653,6 +674,21 @@ const totalClients = computed(() => clients.value?.total || 0);
                 </div>
             </div>
         </div>
+
+        <!-- Image Viewer Modal -->
+        <div v-if="showImageModal"
+            class="fixed inset-0 flex items-center justify-center bg-white dark:bg-black bg-opacity-80 p-4" style="z-index: 999;"
+            @click.self="closeImageModal">
+            <div class="relative max-w-4xl w-full max-h-[90vh]">
+                <button @click="closeImageModal"
+                    class="absolute right-1 top-2 z-50 p-2 bg-black/40 hover:bg-black/60 rounded-full text-white">
+                    <X class="w-5 h-5" />
+                </button>
+                <img :src="currentImage" alt="Preview"
+                    class="w-full h-auto max-h-[25vh] object-contain rounded-lg mx-auto" />
+            </div>
+        </div>
+
     </AppLayout>
 </template>
 
