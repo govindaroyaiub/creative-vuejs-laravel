@@ -25,6 +25,17 @@
                     <p class="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
                         Everything you need to know about our preview system, from basics to advanced features.
                     </p>
+                    <div class="mt-4 flex justify-center">
+                        <a href="https://github.com/govindaroyaiub/creative-vuejs-laravel" target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors shadow-sm">
+                            <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M12 .5C5.648.5.5 5.648.5 12c0 5.097 3.292 9.418 7.86 10.944.575.105.784-.25.784-.555 0-.275-.01-1.007-.016-1.978-3.197.696-3.873-1.542-3.873-1.542-.522-1.33-1.276-1.684-1.276-1.684-1.043-.713.08-.699.08-.699 1.154.081 1.761 1.184 1.761 1.184 1.025 1.756 2.689 1.25 3.345.957.104-.744.401-1.25.73-1.538-2.553-.29-5.236-1.277-5.236-5.682 0-1.255.45-2.281 1.185-3.087-.119-.29-.513-1.458.112-3.04 0 0 .966-.31 3.166 1.18a11.01 11.01 0 012.882-.388c.978.004 1.964.131 2.882.388 2.197-1.49 3.162-1.18 3.162-1.18.628 1.582.234 2.75.116 3.04.737.806 1.183 1.832 1.183 3.087 0 4.415-2.688 5.388-5.251 5.674.412.355.78 1.054.78 2.126 0 1.536-.014 2.775-.014 3.152 0 .308.206.666.79.553C20.71 21.416 24 17.095 24 12c0-6.352-5.148-11.5-12-11.5z" />
+                            </svg>
+                            View on GitHub
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Navigation Tabs -->
@@ -247,7 +258,7 @@
                                 {{ getCategoryIcon(category) }}
                             </span>
                             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatCategoryName(category)
-                            }}</h2>
+                                }}</h2>
                         </div>
 
                         <div class="space-y-4">
