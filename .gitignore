@@ -22,3 +22,9 @@ auth.json
 laravel.log
 storage/logs/*.log
 public/Transfer Files/
+
+# Ignore Vite dev server marker file
+/public/hot
+
+# Ignore generated Laravel config caches
+/bootstrap/cache/*.php
