@@ -92,7 +92,7 @@
                   </div>
                   <div>
                     <h3 class="font-semibold text-gray-900 dark:text-white text-lg">{{ palette.name }}</h3>
-                    <div class="flex items-center">
+                    <div class="flex items-center mt-1">
                       <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" :checked="palette.status" @change="toggleStatus(palette)"
                           class="sr-only peer" />
@@ -115,14 +115,14 @@
               <!-- Color Swatches -->
               <div class="mb-4 pt-2">
                 <div class="grid grid-cols-7 gap-2 mb-2">
-                  <div v-for="key in colorKeys" :key="key" class="group/color cursor-pointer"
+                  <div v-for="key in colorKeys" :key="key" class="group/color cursor-pointer flex flex-col items-start"
                     @click="copyColor(palette[key], key)"
                     :title="`${key.charAt(0).toUpperCase() + key.slice(1)}: ${palette[key]}`">
                     <div :style="{ backgroundColor: palette[key] }"
-                      class="w-8 h-8 rounded-lg border-2 border-gray-200 dark:border-neutral-700 shadow-sm group-hover/color:scale-110 transition-transform duration-200">
+                      class="w-10 h-8 rounded-lg border-2 border-gray-200 dark:border-neutral-700 shadow-sm group-hover/color:scale-110 transition-transform duration-200">
                     </div>
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center truncate">
-                      {{ key.charAt(0).toUpperCase() }}
+                      {{ key.charAt(0).toUpperCase() + key.slice(1) }}
                     </p>
                   </div>
                 </div>
