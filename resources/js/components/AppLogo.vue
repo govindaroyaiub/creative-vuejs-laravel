@@ -6,7 +6,7 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
     <div class="flex aspect-square size-8 items-center justify-center rounded-md text-sidebar-primary-foreground dark:bg-white">
         <AppLogoIcon class="size-5 fill-current text-white" />
     </div>
-    <div class="ml-1 grid flex-1 text-left text-sm">
-        <span class="mb-0.5 truncate font-semibold leading-none">Creative Planet Nine</span>
+    <div class="ml-1 grid flex-1 text-left text-base creative-studio-font">
+        <span class="mb-0.5 truncate font-semibold leading-none">CREATIVE STUDIO</span>
     </div>
 </template>

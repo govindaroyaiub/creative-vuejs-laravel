@@ -18,7 +18,7 @@
                     </div>
                     <h1
                         class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-1 leading-tight">
-                        <span class="block sm:inline">Creative Planet Nine</span>
+                        <span class="block sm:inline creative-studio-font">CREATIVE STUDIO</span>
                         <span
                             class="block sm:inline bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Documentation</span>
                     </h1>
@@ -208,7 +208,7 @@
                             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Complete API Reference</h2>
                         </div>
                         <p class="text-gray-600 dark:text-gray-300 text-lg mb-6">
-                            Comprehensive documentation for all Creative Planet Nine endpoints. This covers every route
+                            Comprehensive documentation for all Creative Studio Planet Nine endpoints. This covers every route
                             in the application including authentication, permissions, and expected parameters.
                         </p>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1468,8 +1468,8 @@ const formatCategoryName = (category: string) => {
 
 const qaList = ref([
     {
-        question: 'What is Creative Planet Nine?',
-        answer: 'Creative Planet Nine is a platform designed to generate preview links for clients. It allows uploading Banners, Videos, GIFs, and Social Images (collectively called Creatives). This system is called the Preview System. To manage it, there is a hierarchy of users, models, and permissions.',
+        question: 'What is Creative Studio Planet Nine?',
+        answer: 'Creative Studio Planet Nine is a platform designed to generate preview links for clients. It allows uploading Banners, Videos, GIFs, and Social Images (collectively called Creatives). This system is called the Preview System. To manage it, there is a hierarchy of users, models, and permissions.',
         additionalInfo: `
         The system offers multiple features. Please refer to the left sidebar while reading the points:
         <ul class="list-disc list-inside space-y-3 mt-4">
@@ -1589,7 +1589,7 @@ const qaList = ref([
     },
     {
         question: 'How does the Preview System work and what are the relations?',
-        answer: 'The Preview System is the core of Creative Planet Nine. It allows creating preview links, uploading creatives, and managing feedbacks. It follows a hierarchical relationship between entities.',
+        answer: 'The Preview System is the core of Creative Studio Planet Nine. It allows creating preview links, uploading creatives, and managing feedbacks. It follows a hierarchical relationship between entities.',
         additionalInfo: `
         <h5 class="font-bold mb-2">System Hierarchy</h5>
         <ol class="list-decimal list-inside space-y-2">
