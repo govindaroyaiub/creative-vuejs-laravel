@@ -354,7 +354,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                                 <div class="flex items-center justify-start">
                                     <img v-if="client.logo" :src="`/logos/${client.logo}`" :alt="client.name + ' logo'"
                                         @click="openImageModal(`/logos/${client.logo}`)"
-                                        class="h-20 w-40 aspect-auto object-contain rounded-xl bg-neutral-300 p-2 dark:bg-neutral-700 border cursor-pointer hover:scale-105 transition-transform duration-150" />
+                                        class="h-20 w-40 aspect-auto object-contain rounded-xl bg-neutral-300 p-1 dark:bg-neutral-700 border cursor-pointer hover:scale-105 transition-transform duration-150" />
                                     <Building2 v-else class="w-6 h-6 text-blue-600 dark:text-blue-400" />
                                 </div>
                                 <div class="flex items-center justify-end">
