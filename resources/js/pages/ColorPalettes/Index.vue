@@ -114,8 +114,8 @@
 
               <!-- Color Swatches -->
               <div class="mb-4 pt-2">
-                <div class="grid grid-cols-7 gap-2 mb-2">
-                  <div v-for="key in colorKeys" :key="key" class="group/color cursor-pointer flex flex-col items-start"
+                <div class="grid grid-cols-5 gap-1 mb-2">
+                  <div v-for="key in colorKeys" :key="key" class="group/color p-2 cursor-pointer flex flex-col items-center"
                     @click="copyColor(palette[key], key)"
                     :title="`${key.charAt(0).toUpperCase() + key.slice(1)}: ${palette[key]}`">
                     <div :style="{ backgroundColor: palette[key] }"
