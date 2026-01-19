@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use App\Models\User;
 use App\Models\FileTransfer;
@@ -16,6 +17,7 @@ use App\Models\newBanner;
 use App\Models\newGif;
 use App\Models\newVideo;
 use App\Models\newSocial;
+use App\Models\Client;
 
 class DashboardController extends Controller
 {
@@ -32,19 +34,28 @@ class DashboardController extends Controller
 
         $monthlyPreviewStats = $this->getMonthlyPreviewCount(newPreview::class, $year);
 
-        return Inertia::render('Dashboard', [
-            'userCount' => User::count(),
-            'previewCount' => newPreview::whereYear('created_at', $year)->count(),
-            'bannerCount' => newBanner::whereYear('created_at', $year)->count(),
-            'videoCount' => newVideo::whereYear('created_at', $year)->count(),
-            'gifCount' => newGif::whereYear('created_at', $year)->count(),
-            'socialCount' => newSocial::whereYear('created_at', $year)->count(),
-            'fileTransferCount' => FileTransfer::whereYear('created_at', $year)->count(),
-            'totalBill' => Bill::whereYear('created_at', $year)->sum('total_amount'),
-            'monthlyStats' => $monthlyStats,
-            'monthlyBillTotals' => $this->getMonthlyBillTotals($year),
-            'monthlyPreviewStats' => $monthlyPreviewStats,
-        ]);
+        $clientIdOfLoggedInUser = Auth::user()->client_id;
+        $client = Client::find($clientIdOfLoggedInUser);
+
+        if ($client['name'] == 'Planet Nine') {
+            return Inertia::render('Dashboard', [
+                'userCount' => User::count(),
+                'previewCount' => newPreview::whereYear('created_at', $year)->count(),
+                'bannerCount' => newBanner::whereYear('created_at', $year)->count(),
+                'videoCount' => newVideo::whereYear('created_at', $year)->count(),
+                'gifCount' => newGif::whereYear('created_at', $year)->count(),
+                'socialCount' => newSocial::whereYear('created_at', $year)->count(),
+                'fileTransferCount' => FileTransfer::whereYear('created_at', $year)->count(),
+                'totalBill' => Bill::whereYear('created_at', $year)->sum('total_amount'),
+                'monthlyStats' => $monthlyStats,
+                'monthlyBillTotals' => $this->getMonthlyBillTotals($year),
+                'monthlyPreviewStats' => $monthlyPreviewStats,
+            ]);
+        } else {
+            return Inertia::render('GuestWelcome', [
+                'username' => Auth::user()->name,
+            ]);
+        }
     }
 
     private function getMonthlyCount($model, $year)
