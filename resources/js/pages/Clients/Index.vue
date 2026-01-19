@@ -323,7 +323,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                 </div>
 
                 <!-- Search and Filters -->
-                <div class="rounded-2xl flex items-censm:w-1/6ter space-x-4">
+                <div class="rounded-2xl flex items-center space-x-4">
                     <div class="flex flex-col sm:flex-row gap-4 w-full">
                         <div class="relative flex-1">
                             <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
