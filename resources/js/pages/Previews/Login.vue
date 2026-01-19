@@ -29,8 +29,8 @@ const submit = async () => {
     <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-100 to-indigo-200 px-4">
         <div class="w-full max-w-md bg-white rounded-xl shadow-xl p-8 space-y-6">
             <div class="text-center">
-                <h2 class="text-2xl font-bold text-gray-800">Sign in</h2>
-                <p class="text-sm text-gray-500">Access restricted preview content</p>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Sign in</h2>
+                <p class="text-base text-gray-500">Access restricted preview content</p>
             </div>
 
             <form @submit.prevent="submit" class="space-y-4">
