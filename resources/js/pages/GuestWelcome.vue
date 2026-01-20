@@ -11,9 +11,9 @@ const username = computed(() => page.props.value?.username ?? page.props.value?.
 
     <Head title="Welcome" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
+    <AppLayout :breadcrumbs="[{ title: 'Dashboard', href: '/dashboard' }]">
         <div
-            class="min-h-[70vh] flex items-center justify-center bg-gradient-to-b from-indigo-50 via-sky-50 to-white dark:from-slate-900 dark:via-slate-800 dark:to-black py-16">
+            class="min-h-[70vh] flex items-center justify-center bg-gradient-to-b dark:from-slate-900 dark:via-slate-800 dark:to-black py-16">
             <div
                 class="relative max-w-2xl w-full mx-4 bg-white/85 dark:bg-slate-900/80 backdrop-blur-sm border border-slate-100 dark:border-slate-700 rounded-3xl shadow-2xl p-12 text-center overflow-hidden">
 
