@@ -68,32 +68,66 @@ class NewPreviewController extends Controller
      */
     public function index(Request $request)
     {
-        $query = newPreview::with(['client', 'uploader', 'colorPalette', 'categories.feedbacks']);
+        $clientIdOfLoggedInUser = Auth::user()->client_id;
+        $client = Client::find($clientIdOfLoggedInUser);
 
-        if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhereHas('client', fn($q2) => $q2->where('name', 'like', "%{$search}%"))
-                    ->orWhereHas('uploader', fn($q3) => $q3->where('name', 'like', "%{$search}%"))
-                    ->orWhereRaw("DATE_FORMAT(created_at, '%d %M %Y') LIKE ?", ["%{$search}%"]);
+        if ($client['name'] == 'Planet Nine') {
+            $query = newPreview::with(['client', 'uploader', 'colorPalette', 'categories.feedbacks']);
+
+            if ($search = $request->input('search')) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhereHas('client', fn($q2) => $q2->where('name', 'like', "%{$search}%"))
+                        ->orWhereHas('uploader', fn($q3) => $q3->where('name', 'like', "%{$search}%"))
+                        ->orWhereRaw("DATE_FORMAT(created_at, '%d %M %Y') LIKE ?", ["%{$search}%"]);
+                });
+            }
+
+            $previews = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString()->through(function ($preview) {
+                $preview->team_users = User::whereIn('id', $preview->team_members)->get(['id', 'name']);
+                return $preview;
             });
+
+            return Inertia::render('Previews/Index', [
+                'previews' => $previews,
+                'search' => $search,
+                'clients' => Client::orderBy('name')->get(['id', 'name', 'preview_url']),
+                'users' => User::orderBy('name')->get(['id', 'name']),
+                'colorPalettes' => ColorPalette::orderBy('name')->get(['id', 'name']),
+                'bannerSizes' => BannerSize::orderBy('width')->orderBy('height')->get(['id', 'width', 'height'])->map(fn($s) => tap($s, fn($s) => $s->name = "{$s->width}x{$s->height}")),
+                'videoSizes' => VideoSize::orderBy('name')->orderBy('width')->orderBy('height')->get(['id', 'name', 'width', 'height'])->map(fn($s) => tap($s, fn($s) => $s->name = "{$s->name}")),
+                'auth' => ['user' => Auth::user()],
+            ]);
         }
+        else{
+            $query = newPreview::with(['client', 'uploader', 'colorPalette', 'categories.feedbacks'])
+                ->where('client_id', $clientIdOfLoggedInUser);
 
-        $previews = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString()->through(function ($preview) {
-            $preview->team_users = User::whereIn('id', $preview->team_members)->get(['id', 'name']);
-            return $preview;
-        });
+            if ($search = $request->input('search')) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhereHas('client', fn($q2) => $q2->where('name', 'like', "%{$search}%"))
+                        ->orWhereHas('uploader', fn($q3) => $q3->where('name', 'like', "%{$search}%"))
+                        ->orWhereRaw("DATE_FORMAT(created_at, '%d %M %Y') LIKE ?", ["%{$search}%"]);
+                });
+            }
 
-        return Inertia::render('Previews/Index', [
-            'previews' => $previews,
-            'search' => $search,
-            'clients' => Client::orderBy('name')->get(['id', 'name', 'preview_url']),
-            'users' => User::orderBy('name')->get(['id', 'name']),
-            'colorPalettes' => ColorPalette::orderBy('name')->get(['id', 'name']),
-            'bannerSizes' => BannerSize::orderBy('width')->orderBy('height')->get(['id', 'width', 'height'])->map(fn($s) => tap($s, fn($s) => $s->name = "{$s->width}x{$s->height}")),
-            'videoSizes' => VideoSize::orderBy('name')->orderBy('width')->orderBy('height')->get(['id', 'name', 'width', 'height'])->map(fn($s) => tap($s, fn($s) => $s->name = "{$s->name}")),
-            'auth' => ['user' => Auth::user()],
-        ]);
+            $previews = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString()->through(function ($preview) {
+                $preview->team_users = User::whereIn('id', $preview->team_members)->get(['id', 'name']);
+                return $preview;
+            });
+
+            return Inertia::render('Previews/GuestIndex', [
+                'previews' => $previews,
+                'search' => $search ?? null,
+                'clients' => Client::where('id', $clientIdOfLoggedInUser)->orderBy('name')->get(['id', 'name', 'preview_url']),
+                'users' => User::where('client_id', $clientIdOfLoggedInUser)->orderBy('name')->get(['id', 'name']),
+                'colorPalettes' => ColorPalette::orderBy('name')->get(['id', 'name']),
+                'bannerSizes' => BannerSize::orderBy('width')->orderBy('height')->get(['id', 'width', 'height'])->map(fn($s) => tap($s, fn($s) => $s->name = "{$s->width}x{$s->height}")),
+                'videoSizes' => VideoSize::orderBy('name')->orderBy('width')->orderBy('height')->get(['id', 'name', 'width', 'height'])->map(fn($s) => tap($s, fn($s) => $s->name = "{$s->name}")),
+                'auth' => ['user' => Auth::user()],
+            ]);
+        }
     }
 
     /**
