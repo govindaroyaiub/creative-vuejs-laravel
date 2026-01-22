@@ -193,7 +193,7 @@ const resetPassword = async (userId: number) => {
 
             const response = await axios.post(apiUrl);
 
-            Swal.fire('Success!', 'Password has been reset successfully.', 'success');
+            Swal.fire('Success!', 'Password has been reset successfully to <b>!password</b>', 'success');
         } catch (error: any) {
             Swal.fire('Error!', 'Failed to reset password.', 'error');
         } finally {
