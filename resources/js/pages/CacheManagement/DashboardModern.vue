@@ -49,7 +49,7 @@
                                         </path>
                                     </svg>
                                     <span class="text-xs sm:text-sm">{{ isRefreshing ? 'Refreshing...' : 'Refresh'
-                                        }}</span>
+                                    }}</span>
                                 </button>
                             </div>
                         </div>
@@ -113,7 +113,7 @@
                                                     {{ stat.name }}</h3>
                                                 <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{
                                                     stat.files
-                                                    }} files</p>
+                                                }} files</p>
                                             </div>
                                         </div>
                                         <div class="text-right flex-shrink-0">
@@ -290,7 +290,7 @@
                                         <div class="min-w-0 flex-1">
                                             <div class="font-semibold text-slate-900 dark:text-white text-sm">{{
                                                 cleanup.total_files
-                                                }} files</div>
+                                            }} files</div>
                                             <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{
                                                 cleanup.human_time }}
                                             </div>
@@ -399,7 +399,7 @@ const refreshSystemInfo = async () => {
     try {
         const response = await fetch('/api/cache-management/system-info')
 
-        if (response.redirected || response.url.includes('/login')) {
+        if (response.url.includes('/login') || response.status === 401 || response.status === 419) {
             window.location.href = '/login'
             return
         }
@@ -419,7 +419,7 @@ const refreshRecentCleanups = async () => {
     try {
         const response = await fetch('/api/cache-management/recent-cleanups')
 
-        if (response.redirected || response.url.includes('/login')) {
+        if (response.url.includes('/login') || response.status === 401 || response.status === 419) {
             window.location.href = '/login'
             return
         }
@@ -442,7 +442,7 @@ const refreshStats = async (showSuccessToast = false, setLoading = true) => {
     try {
         const response = await fetch('/api/cache-management/stats')
 
-        if (response.redirected || response.url.includes('/login')) {
+        if (response.url.includes('/login') || response.status === 401 || response.status === 419) {
             window.location.href = '/login'
             return
         }
@@ -696,8 +696,8 @@ const runCleanup = async (type) => {
         console.log('Response headers:', response.headers)
         console.log('Response URL:', response.url)
 
-        // Check if we were redirected (usually means authentication failed)
-        if (response.redirected || response.url.includes('/login')) {
+        // Only treat explicit login redirects or auth failures as a signal to go to login
+        if (response.url.includes('/login') || response.status === 401 || response.status === 419) {
             console.error('Authentication failed - redirected to login')
             window.location.href = '/login'
             return
