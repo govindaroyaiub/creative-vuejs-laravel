@@ -50,6 +50,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::post('/file-transfers-add', [FileTransferController::class, 'store'])->name('file-transfers-add-post');
     Route::post('/file-transfers-edit/{id}', [FileTransferController::class, 'update'])->name('file-transfers-update');
     Route::delete('/file-transfers-delete/{id}', [FileTransferController::class, 'destroy'])->name('file-transfers-delete');
+    Route::post('/file-transfers/bulk-delete', [FileTransferController::class, 'bulkDestroy'])->name('file-transfers-bulk-delete');
     //File Transfer Routes End
 
     //Preview Routes Start
@@ -156,6 +157,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/medias', [MediaController::class, 'index'])->name('medias');
     Route::post('/medias-store', [MediaController::class, 'store'])->name('medias-store');
     Route::delete('/medias-delete/{id}', [MediaController::class, 'destroy'])->name('medias-delete');
+    Route::post('/medias/bulk-delete', [MediaController::class, 'bulkDestroy'])->name('medias-bulk-delete');
     Route::get('/medias-download/{id}', [MediaController::class, 'download'])->name('medias-download');
     //Media Routes End
 
