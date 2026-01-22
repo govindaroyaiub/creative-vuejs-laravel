@@ -21,6 +21,13 @@ const page = usePage();
 const search = ref(page.props.search ?? '');
 const fileTransfers = computed(() => page.props.fileTransfers ?? { data: [], links: [] });
 
+// Bulk selection state
+const selectedIds = ref<number[]>([]);
+const selectAllChecked = ref(false);
+const showAllOnPage = ref(false);
+
+const selectedCount = computed(() => selectedIds.value.length);
+
 // Modal state
 const showModal = ref(false);
 const showEditModal = ref(false);
@@ -86,6 +93,71 @@ const deleteFileTransfer = async (id: number) => {
         });
     }
 };
+
+const toggleRowSelection = (id: number, checked: boolean) => {
+    if (checked) {
+        if (!selectedIds.value.includes(id)) selectedIds.value.push(id);
+    } else {
+        selectedIds.value = selectedIds.value.filter(i => i !== id);
+        selectAllChecked.value = false;
+    }
+}
+
+const toggleSelectAllPage = () => {
+    const deletableIds = (fileTransfers.value.data || []).filter((t: any) => !t.preview_id).map((t: any) => t.id);
+    if (selectAllChecked.value) {
+        // select all deletable on page
+        selectedIds.value = Array.from(new Set([...selectedIds.value, ...deletableIds]));
+    } else {
+        // remove deletable ids from selection
+        selectedIds.value = selectedIds.value.filter(id => !deletableIds.includes(id));
+    }
+}
+
+const toggleShowAll = () => {
+    // Request backend with per_page=all (backend expected to handle 'all' or large number)
+    showAllOnPage.value = !showAllOnPage.value;
+    const params: any = { search: search.value };
+    if (showAllOnPage.value) params.per_page = 'all';
+    router.get(route('file-transfers'), params, { preserveState: true, preserveScroll: true, replace: true });
+}
+
+const bulkDelete = async () => {
+    if (!selectedIds.value.length) return;
+
+    const result = await Swal.fire({
+        title: `Delete ${selectedIds.value.length} transfer(s)?`,
+        text: 'This action cannot be undone!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete them!'
+    });
+
+    if (!result.isConfirmed) return;
+
+    // Frontend-only: call backend route (implement backend later)
+    router.post('/file-transfers/bulk-delete', { ids: selectedIds.value }, {
+        preserveScroll: true,
+        onSuccess: () => {
+            Swal.fire({
+                title: 'Deleted!',
+                text: 'Selected file transfers deleted successfully.',
+                icon: 'success',
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: true,
+                toast: true
+            });
+            // clear selection
+            selectedIds.value = [];
+            selectAllChecked.value = false;
+        },
+        onError: () => Swal.fire({ title: 'Error!', text: 'Failed to delete selected transfers.', icon: 'error' })
+    });
+}
 
 // Pagination functions
 const changePage = (url: string) => {
@@ -276,13 +348,31 @@ const handleEditSubmit = () => {
         <div class="p-4 md:p-6">
             <!-- Search & Add -->
             <div class="mb-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-                <input v-model="search" placeholder="Search..."
-                    class="w-full sm:max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
-                <button @click="openModal"
-                    class="rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700 flex items-center justify-center whitespace-nowrap group">
-                    <CirclePlus class="mr-2 h-5 w-5 group-hover:rotate-90 transition-transform duration-200" />
-                    Add Transfer
-                </button>
+                <div class="flex items-center gap-3">
+                    <input v-model="search" placeholder="Search..."
+                        class="w-full sm:max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
+
+                    <!-- Show all toggle -->
+                    <button @click="toggleShowAll"
+                        class="ml-2 rounded-xl bg-gray-200 dark:bg-neutral-700 px-3 py-2 text-sm hover:bg-gray-300 dark:hover:bg-neutral-600 transition whitespace-nowrap">
+                        <span v-if="!showAllOnPage">Show all</span>
+                        <span v-else>Paged</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div v-if="selectedCount > 0" class="flex items-center space-x-3">
+                        <div class="text-sm">Selected: <strong>{{ selectedCount }}</strong></div>
+                        <button @click="bulkDelete"
+                            class="rounded-xl bg-red-600 px-3 py-2 text-white hover:bg-red-700">Delete Selected</button>
+                    </div>
+
+                    <button @click="openModal"
+                        class="rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700 flex items-center justify-center whitespace-nowrap group">
+                        <CirclePlus class="mr-2 h-5 w-5 group-hover:rotate-90 transition-transform duration-200" />
+                        Add Transfer
+                    </button>
+                </div>
             </div>
 
             <!-- Desktop Table -->
@@ -290,6 +380,10 @@ const handleEditSubmit = () => {
                 <table class="w-full rounded bg-white dark:bg-neutral-800 dark:border border">
                     <thead class="bg-gray-100 text-gray-700 dark:bg-neutral-900 dark:text-gray-300">
                         <tr class="text-center text-sm uppercase">
+                            <th class="px-4 py-2 border-b">
+                                <input type="checkbox" v-model="selectAllChecked" @change="toggleSelectAllPage"
+                                    aria-label="Select all on page" />
+                            </th>
                             <th class="px-4 py-2 border-b">#</th>
                             <th class="px-4 py-2 border-b">Name</th>
                             <th class="px-4 py-2 border-b">Client</th>
@@ -301,6 +395,12 @@ const handleEditSubmit = () => {
                     <tbody>
                         <tr v-for="(transfer, index) in fileTransfers.data" :key="transfer.id"
                             class="border-t text-center text-sm dark:border-neutral-700 hover:bg-gray-50 dark:hover:bg-neutral-700">
+                            <td class="px-4 py-2 border-b">
+                                <input type="checkbox" :disabled="!!transfer.preview_id"
+                                    :checked="selectedIds.includes(transfer.id)"
+                                    @change="$event && toggleRowSelection(transfer.id, $event.target.checked)"
+                                    aria-label="Select transfer" />
+                            </td>
                             <td class="px-4 py-2 border-b">{{ index + 1 }}</td>
                             <td class="px-4 py-2 border-b font-medium">{{ transfer.name }}</td>
                             <td class="px-4 py-2 border-b">{{ transfer.client }}</td>
@@ -341,7 +441,7 @@ const handleEditSubmit = () => {
                         </tr>
 
                         <tr v-if="fileTransfers.data.length === 0">
-                            <td colspan="6" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">No file
+                            <td colspan="7" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">No file
                                 transfers found.</td>
                         </tr>
                     </tbody>
@@ -366,6 +466,12 @@ const handleEditSubmit = () => {
 
                         <!-- Actions -->
                         <div class="flex gap-2 ml-3">
+                            <div class="flex items-center mr-2">
+                                <input type="checkbox" :disabled="!!transfer.preview_id"
+                                    :checked="selectedIds.includes(transfer.id)"
+                                    @change="$event && toggleRowSelection(transfer.id, $event.target.checked)"
+                                    class="mr-2" />
+                            </div>
                             <a :href="`/file-transfers-view/${transfer.slug}`" target="_blank"
                                 class="text-green-600 hover:text-green-800 p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20"
                                 aria-label="View Transfer">

@@ -22,6 +22,9 @@ const modalVisible = ref(false);
 const uploading = ref(false);
 const newForm = ref({ name: '', file: null });
 const filePondFiles = ref([]);
+const selectedIds = ref<number[]>([]);
+const selectAllChecked = ref(false);
+const showAll = ref(false);
 
 watch(search, (value) => {
     router.get(route('medias'), { search: value }, {
@@ -73,6 +76,66 @@ const uploadFile = () => {
     });
 };
 
+const toggleSelectAllPage = () => {
+    if (selectAllChecked.value) {
+        selectedIds.value = medias.value.map((m: any) => m.id);
+    } else {
+        selectedIds.value = [];
+    }
+};
+
+watch(medias, () => {
+    if (selectAllChecked.value) {
+        selectedIds.value = medias.value.map((m: any) => m.id);
+    }
+});
+
+const bulkDelete = async () => {
+    if (!selectedIds.value.length) {
+        Swal.fire('No selection', 'Please select one or more media files.', 'info');
+        return;
+    }
+
+    const result = await Swal.fire({
+        title: 'Delete selected files?',
+        text: `This will permanently delete ${selectedIds.value.length} file(s).`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete',
+    });
+
+    if (result.isConfirmed) {
+        router.post(route('medias-bulk-delete'), { ids: selectedIds.value }, {
+            preserveState: true,
+            onSuccess: () => {
+                Swal.fire('Deleted', `${selectedIds.value.length} file(s) deleted.`, 'success');
+                selectedIds.value = [];
+                selectAllChecked.value = false;
+                router.reload();
+            },
+            onError: () => {
+                Swal.fire('Error', 'Bulk delete failed.', 'error');
+            }
+        });
+    }
+};
+
+const toggleShowAll = () => {
+    showAll.value = !showAll.value;
+    if (showAll.value) {
+        router.get(route('medias'), { per_page: 'all', search: search.value }, {
+            preserveState: true,
+            replace: true,
+        });
+    } else {
+        router.get(route('medias'), { search: search.value }, {
+            preserveState: true,
+            replace: true,
+        });
+    }
+};
+
 const deleteMedia = async (id: number) => {
     const result = await Swal.fire({
         title: 'Are you sure?',
@@ -119,15 +182,33 @@ const getFileSize = (bytes: number) => {
     <Head title="Media Library" />
     <AppLayout :breadcrumbs="[{ title: 'Media Library', href: '/medias' }]">
         <div class="p-4 md:p-6">
-            <!-- Search & Upload -->
+            <!-- Search & Upload (aligned like FileTransfers) -->
             <div class="mb-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-                <input v-model="search" placeholder="Search..."
-                    class="w-full sm:max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
-                <button @click="openUploadModal"
-                    class="rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 flex items-center justify-center whitespace-nowrap group">
-                    <Upload class="mr-2 h-5 w-5 group-hover:animate-bounce transition-transform duration-200" />
-                    Upload
-                </button>
+                <div class="flex items-center gap-3">
+                    <input v-model="search" placeholder="Search..."
+                        class="w-full sm:max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
+
+                    <!-- Show all toggle -->
+                    <button @click="toggleShowAll"
+                        class="ml-2 rounded-xl bg-gray-200 dark:bg-neutral-700 px-3 py-2 text-sm hover:bg-gray-300 dark:hover:bg-neutral-600 transition whitespace-nowrap">
+                        <span v-if="!showAll">Show all</span>
+                        <span v-else>Paged</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div v-if="selectedIds.length > 0" class="flex items-center space-x-3">
+                        <div class="text-sm">Selected: <strong>{{ selectedIds.length }}</strong></div>
+                        <button @click="bulkDelete"
+                            class="rounded-xl bg-red-600 px-3 py-2 text-white hover:bg-red-700">Delete Selected</button>
+                    </div>
+
+                    <button @click="openUploadModal"
+                        class="rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 flex items-center justify-center whitespace-nowrap group">
+                        <Upload class="mr-2 h-5 w-5 group-hover:animate-bounce transition-transform duration-200" />
+                        Upload
+                    </button>
+                </div>
             </div>
 
             <!-- Desktop Table -->
@@ -135,6 +216,10 @@ const getFileSize = (bytes: number) => {
                 <table class="w-full rounded bg-white dark:bg-neutral-800 dark:border border">
                     <thead class="bg-gray-100 text-gray-700 dark:bg-neutral-900 dark:text-gray-300">
                         <tr class="bg-gray-100 dark:bg-neutral-900 uppercase text-sm">
+                            <th class="border-b px-4 py-2 text-center">
+                                <input type="checkbox" class="form-checkbox" v-model="selectAllChecked"
+                                    @change="toggleSelectAllPage" />
+                            </th>
                             <th class="border-b px-4 py-2 text-center">#</th>
                             <th class="border-b px-4 py-2 text-center">Name</th>
                             <th class="border-b px-4 py-2 text-center">Uploader</th>
@@ -143,7 +228,10 @@ const getFileSize = (bytes: number) => {
                     </thead>
                     <tbody>
                         <tr v-for="(media, index) in medias" :key="media.id"
-                            class="hover:bg-gray-50 dark:hover:bg-gray-800 border-b dark:hover:bg-neutral-700">
+                            class="hover:bg-gray-50 dark:hover:bg-gray-800 border-b">
+                            <td class="border-b px-4 py-2 text-center">
+                                <input type="checkbox" class="form-checkbox" :value="media.id" v-model="selectedIds" />
+                            </td>
                             <td class="border-b px-4 py-2 text-center">{{ index + 1 }}</td>
                             <td class="border-b px-4 py-2 text-center font-medium">{{ media.name }}</td>
                             <td class="border-b px-4 py-2 text-center">
@@ -172,7 +260,7 @@ const getFileSize = (bytes: number) => {
                             </td>
                         </tr>
                         <tr v-if="medias.length === 0">
-                            <td colspan="4" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">No media
+                            <td colspan="5" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">No media
                                 files found.</td>
                         </tr>
                     </tbody>
@@ -186,6 +274,10 @@ const getFileSize = (bytes: number) => {
 
                     <!-- Header: Number + Name -->
                     <div class="flex items-start justify-between mb-3">
+                        <div class="mr-3 flex items-start">
+                            <input type="checkbox" class="form-checkbox mt-1 mr-3" :value="media.id"
+                                v-model="selectedIds" />
+                        </div>
                         <div class="flex-1 min-w-0">
                             <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                                 #{{ index + 1 }}

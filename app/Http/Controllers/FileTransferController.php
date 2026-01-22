@@ -296,4 +296,53 @@ class FileTransferController extends Controller
             $fileTransfer->delete();
         }
     }
+
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:file_transfers,id',
+        ]);
+
+        $ids = $request->input('ids');
+
+        $deleted = [];
+        $skipped = [];
+
+        $transfers = FileTransfer::whereIn('id', $ids)->get();
+
+        foreach ($transfers as $fileTransfer) {
+            // Skip transfers that are linked to a preview
+            if (!empty($fileTransfer->preview_id)) {
+                $skipped[] = ['id' => $fileTransfer->id, 'reason' => 'linked_to_preview'];
+                continue;
+            }
+
+            // Delete files if any
+            if ($fileTransfer->file_path) {
+                $filePaths = is_array($fileTransfer->file_path) ? $fileTransfer->file_path : explode(',', $fileTransfer->file_path);
+
+                if (is_array($filePaths)) {
+                    foreach ($filePaths as $filePath) {
+                        $fullPath = public_path($filePath);
+                        if (file_exists($fullPath)) {
+                            try {
+                                unlink($fullPath);
+                            } catch (\Exception $e) {
+                                Log::warning('Failed to unlink file in bulkDestroy', ['file' => $fullPath, 'error' => $e->getMessage()]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            try {
+                $fileTransfer->delete();
+                $deleted[] = $fileTransfer->id;
+            } catch (\Exception $e) {
+                Log::error('Failed to delete FileTransfer record in bulkDestroy', ['id' => $fileTransfer->id, 'error' => $e->getMessage()]);
+                $skipped[] = ['id' => $fileTransfer->id, 'reason' => 'delete_failed'];
+            }
+        }
+    }
 }

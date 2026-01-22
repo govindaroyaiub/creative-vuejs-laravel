@@ -58,6 +58,43 @@ class MediaController extends Controller
         return redirect()->route('medias')->with('success', 'Media deleted successfully.');
     }
 
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:media,id',
+        ]);
+
+        $ids = $request->input('ids');
+
+        $deleted = [];
+        $skipped = [];
+
+        $medias = Media::whereIn('id', $ids)->get();
+
+        foreach ($medias as $media) {
+            $filePath = public_path($media->path);
+
+            if ($media->path && file_exists($filePath)) {
+                try {
+                    unlink($filePath);
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to unlink media file in bulkDestroy', ['file' => $filePath, 'error' => $e->getMessage()]);
+                    $skipped[] = ['id' => $media->id, 'reason' => 'unlink_failed'];
+                    continue;
+                }
+            }
+
+            try {
+                $media->delete();
+                $deleted[] = $media->id;
+            } catch (\Exception $e) {
+                \Log::error('Failed to delete Media record in bulkDestroy', ['id' => $media->id, 'error' => $e->getMessage()]);
+                $skipped[] = ['id' => $media->id, 'reason' => 'delete_failed'];
+            }
+        }
+    }
+
     public function download($id)
     {
         $media = Media::findOrFail($id);
