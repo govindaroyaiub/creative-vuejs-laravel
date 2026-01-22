@@ -18,7 +18,7 @@
                     </div>
                     <h1
                         class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-1 leading-tight">
-                        <span class="block sm:inline creative-studio-font">CREATIVE STUDIO</span>
+                        <span class="block sm:inline creative-studio-font mr-2">CREATIVE STUDIO</span>
                         <span
                             class="block sm:inline bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Documentation</span>
                     </h1>
@@ -1550,7 +1550,7 @@ const qaList = ref([
     },
     {
         question: 'What are File Transfers?',
-        answer: 'File Transfers allow clients to download creatives via secure links. Each transfer has a unique URL and is must be deleted after 1 year and 1 month. Files are to be stored on the <span class="font-bold">DIVANAS</span> server.',
+        answer: 'File Transfers allow clients to download creatives via secure links. Each transfer has a unique URL and is must be manually deleted after 1 year and 1 month to save space on the server. Files are to be stored on the <span class="font-bold">DIVANAS</span> server. The File Transfer link can be generated two ways. Either going to the Index page of File Transfer and create a new row or while working on a Preview, if a Feedback gets approved then on Approve click the system will ask for the zip files to upload.',
         additionalInfo: `
         Technical details:
         <ul class="list-disc list-inside space-y-2 mt-4">
@@ -1563,7 +1563,7 @@ const qaList = ref([
     },
     {
         question: 'What is Media Library?',
-        answer: 'The Media Library is a central storage for assets used in previews. Each file has a name, type (image, video, or other), and URL.',
+        answer: 'The Media Library is a central storage for assets used in previews. Each file has a name, type (image, video, or other), and URL. This segment is needed when Video banners to be developed but sometimes Google`s internal system cannot handle the video file within the banner. So, because of that we had to make another way to store videos separately and call them while needed within the banners.',
         additionalInfo: `
         Technical details:
         <ul class="list-disc list-inside space-y-2 mt-4">
@@ -1576,7 +1576,7 @@ const qaList = ref([
     },
     {
         question: 'What is Bills?',
-        answer: 'Bills module helps manage office expenses. Each Bill can contain multiple Sub Bills, and totals are auto-calculated.',
+        answer: 'Bills module helps manage office expenses. Each Bill can contain multiple Sub Bills, and totals are auto-calculated. This section will be handled by Limon Roy majority of the time.',
         additionalInfo: `
         Technical details:
         <ul class="list-disc list-inside space-y-2 mt-4">
