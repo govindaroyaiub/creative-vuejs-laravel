@@ -208,7 +208,8 @@
                             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Complete API Reference</h2>
                         </div>
                         <p class="text-gray-600 dark:text-gray-300 text-lg mb-6">
-                            Comprehensive documentation for all Creative Studio Planet Nine endpoints. This covers every route
+                            Comprehensive documentation for all Creative Studio Planet Nine endpoints. This covers every
+                            route
                             in the application including authentication, permissions, and expected parameters.
                         </p>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -258,7 +259,7 @@
                                 {{ getCategoryIcon(category) }}
                             </span>
                             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatCategoryName(category)
-                                }}</h2>
+                            }}</h2>
                         </div>
 
                         <div class="space-y-4">
@@ -1493,6 +1494,18 @@ const qaList = ref([
                 <li>File Transfers stored in: <code>public/Transfer Files</code></li>
             </ul>
         </div>
+    `
+    },
+    {
+        question: 'What is Preview Tracker?',
+        answer: 'As the name suggests Tracker, the page shows three rows of Status: In Progress, Completed, and No Feedback.',
+        additionalInfo: `
+        Technical details:
+        <ul class="list-disc list-inside space-y-2 mt-4">
+            <li><strong>In Progress:</strong> <code>In Progress means the development has started. The user has created the Preview, enetered every details that it needs. But not approved. Meaning still in Development.</code></li>
+            <li><strong>Completed:</strong> <code>During development if there is Green Signal from the client then the user will create a transfer link by uploading the necessary files. Once the transfer link is created that means the Preview is completed.</code></li>
+            <li><strong>No Feedback:</strong> <code>The user just created a Preview and is waiting for the necessary data to be filled and uploaded.</code></li>
+        </ul>
     `
     },
     {
