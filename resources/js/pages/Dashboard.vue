@@ -174,7 +174,7 @@ const chartOptions = {
         },
         title: {
             display: true,
-            text: `Monthly Content Statistics (${year})`,
+            text: `Yearly Content Statistics (${year})`,
             font: { size: 16, weight: 'bold' },
             padding: 20,
         },
