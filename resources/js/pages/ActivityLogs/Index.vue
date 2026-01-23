@@ -17,9 +17,30 @@
                             placeholder="Search by description, user, or log name..."
                             class="w-1/2 pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" />
                     </div>
+                    <div class="flex items-center gap-2">
+                        <button @click="confirmEmptyAll" v-if="logs?.total > 0"
+                            class="px-3 py-2 bg-red-600 text-sm rounded-xl text-white hover:bg-red-700 transition whitespace-nowrap">
+                            Empty Logs
+                        </button>
+                    </div>
                     <div
                         class="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-neutral-800 px-3 py-4 rounded-2xl w-1/6 text-center">
                         Total: {{ logs?.total || 0 }} entries
+                    </div>
+                </div>
+
+                <!-- Selection Controls -->
+                <div v-if="logs?.data?.length > 0" class="flex items-center justify-between mt-3">
+                    <div class="flex items-center gap-3">
+                        <label class="inline-flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300">
+                            <input type="checkbox" v-model="selectAll" @change="toggleSelectAll"
+                                class="w-4 h-4 text-blue-600 border-gray-300 rounded" />
+                            <span>Select all on page</span>
+                        </label>
+                        <button v-if="selectedIds.length" @click="confirmDeleteSelected"
+                            class="px-3 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition">
+                            Delete Selected ({{ selectedIds.length }})
+                        </button>
                     </div>
                 </div>
 
@@ -31,13 +52,17 @@
                             <!-- Header Row -->
                             <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                                 <div class="flex items-start space-x-4 flex-1">
-                                    <!-- ID Badge -->
-                                    <div class="flex-shrink-0">
-                                        <div
-                                            class="w-10 h-10 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 rounded-xl flex items-center justify-center">
-                                            <span class="text-sm font-bold text-blue-600 dark:text-blue-400">
-                                                #{{ (logs.current_page - 1) * logs.per_page + index + 1 }}
-                                            </span>
+                                    <!-- Checkbox + ID Badge -->
+                                    <div class="flex-shrink-0 flex items-center space-x-3">
+                                        <input type="checkbox" :value="log.id" v-model="selectedIds"
+                                            class="w-4 h-4 text-blue-600 border-gray-300 rounded" />
+                                        <div>
+                                            <div
+                                                class="w-10 h-10 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 rounded-xl flex items-center justify-center">
+                                                <span class="text-sm font-bold text-blue-600 dark:text-blue-400">
+                                                    #{{ (logs.current_page - 1) * logs.per_page + index + 1 }}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -288,6 +313,7 @@
 import { ref, watch } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue';
+import Swal from 'sweetalert2'
 
 const props = defineProps({
     logs: Object,
@@ -298,8 +324,22 @@ const logs = ref(props.logs)
 const search = ref(props.search || '')
 const expandedRows = ref([])
 
+// Selection state
+const selectedIds = ref([])
+const selectAll = ref(false)
+
 watch(() => props.logs, (newLogs) => {
     logs.value = newLogs
+    // reset selection when page changes
+    selectedIds.value = []
+    selectAll.value = false
+})
+
+watch(selectedIds, () => {
+    // toggle selectAll if all visible rows are selected
+    if (!logs.value || !logs.value.data) return
+    const pageIds = logs.value.data.map(l => l.id)
+    selectAll.value = pageIds.length > 0 && pageIds.every(id => selectedIds.value.includes(id))
 })
 
 function changePage(page) {
@@ -308,6 +348,86 @@ function changePage(page) {
 
 function onSearchInput() {
     router.get('/activity-logs', { search: search.value }, { preserveState: true, replace: true })
+}
+
+
+function toggleExpand(id) {
+    if (expandedRows.value.includes(id)) {
+        expandedRows.value = expandedRows.value.filter(rowId => rowId !== id)
+    } else {
+        expandedRows.value.push(id)
+    }
+}
+
+function toggleSelectAll() {
+    if (!logs.value || !logs.value.data) return
+    const pageIds = logs.value.data.map(l => l.id)
+    if (selectAll.value) {
+        // select all on page
+        selectedIds.value = Array.from(new Set([...selectedIds.value, ...pageIds]))
+    } else {
+        // remove page ids from selection
+        selectedIds.value = selectedIds.value.filter(id => !pageIds.includes(id))
+    }
+}
+
+function confirmDeleteSelected() {
+    if (!selectedIds.value.length) return
+
+    Swal.fire({
+        title: `Delete ${selectedIds.value.length} log(s)?`,
+        text: 'This action cannot be undone. Are you sure you want to proceed?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete',
+        cancelButtonText: 'Cancel',
+    }).then(result => {
+        if (result.isConfirmed) {
+            deleteSelected()
+        }
+    })
+}
+
+function deleteSelected() {
+    router.post('/activity-logs/bulk-delete', { ids: selectedIds.value }, {
+        preserveState: false,
+        onSuccess: () => {
+            Swal.fire('Deleted', 'Selected logs have been deleted.', 'success')
+            // reload the page to refresh logs
+            router.get('/activity-logs', { search: search.value }, { preserveState: true, replace: true })
+        },
+        onError: () => {
+            Swal.fire('Error', 'Could not delete selected logs.', 'error')
+        }
+    })
+}
+
+function confirmEmptyAll() {
+    Swal.fire({
+        title: 'Delete ALL logs?',
+        text: 'This will permanently delete all activity logs. This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete all',
+        cancelButtonText: 'Cancel',
+    }).then(result => {
+        if (result.isConfirmed) {
+            emptyAll()
+        }
+    })
+}
+
+function emptyAll() {
+    router.post('/activity-logs/empty', {}, {
+        preserveState: false,
+        onSuccess: () => {
+            Swal.fire('Deleted', 'All activity logs have been deleted.', 'success')
+            router.get('/activity-logs', { search: search.value }, { preserveState: true, replace: true })
+        },
+        onError: () => {
+            Swal.fire('Error', 'Could not delete logs.', 'error')
+        }
+    })
 }
 
 function formatDate(dateStr) {
@@ -332,14 +452,6 @@ function formatDate(dateStr) {
             hour: '2-digit',
             minute: '2-digit'
         })
-    }
-}
-
-function toggleExpand(id) {
-    if (expandedRows.value.includes(id)) {
-        expandedRows.value = expandedRows.value.filter(rowId => rowId !== id)
-    } else {
-        expandedRows.value.push(id)
     }
 }
 </script>
