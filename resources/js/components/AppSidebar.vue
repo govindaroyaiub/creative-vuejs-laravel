@@ -6,7 +6,7 @@ import { useAppearance } from '@/composables/useAppearance';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutDashboard, Paperclip, Clapperboard, MonitorCog, MonitorStop, ReceiptText, Users, History, Type, FileCode, Handshake, Paintbrush, ImagePlay, HardDriveIcon } from 'lucide-vue-next';
+import { ChartNoAxesCombined, Link2, Clapperboard, MonitorCog, Megaphone, ReceiptText, MonitorCheck, Users, History, Type, FileCode, Handshake, Paintbrush, ImagePlay, HardDriveIcon } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 import { computed } from 'vue'; // ✅ important to make reactive
@@ -17,14 +17,15 @@ const page = usePage<SharedData>();
 const user = computed(() => page.props.auth.user);
 
 const mainNavItems: NavItem[] = [
-    { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { title: 'Previews', href: '/previews', icon: MonitorStop },
+    { title: 'Dashboard', href: '/dashboard', icon: ChartNoAxesCombined },
+    { title: 'Preview Tracker', href: '/preview-tracker', icon: MonitorCheck },
+    { title: 'Previews', href: '/previews', icon: Megaphone },
     { title: 'Color Palettes', href: '/color-palettes', icon: Paintbrush },
     { title: 'Clients', href: '/clients', icon: Handshake },
     { title: 'Banner Sizes', href: '/banner-sizes', icon: MonitorCog },
     { title: 'Video Sizes', href: '/video-sizes', icon: Clapperboard },
     { title: 'Bills', href: '/bills', icon: ReceiptText },
-    { title: 'File Transfers', href: '/file-transfers', icon: Paperclip },
+    { title: 'File Transfers', href: '/file-transfers', icon: Link2 },
     { title: 'Media Library', 'href': '/medias', icon: ImagePlay },
     { title: 'Tetris', href: '/play/tetris', icon: Type },
 ];
