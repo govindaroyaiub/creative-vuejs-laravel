@@ -327,6 +327,7 @@ class DatabaseSeeder extends Seeder
 
         $routes = [
             ['title' => 'Dashboard', 'href' => '/dashboard'],
+            ['title' => 'Preview Tracker', 'href' => '/preview-tracker'],
             ['title' => 'Previews', 'href' => '/previews'],
             ['title' => 'Color Palettes', 'href' => '/color-palettes'],
             ['title' => 'Clients', 'href' => '/clients'],
