@@ -44,6 +44,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     })->name('documentations');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/preview-tracker', [PreviewTrackerController::class, 'index'])->name('preview-tracker');
 
     //File Transfer Routes Start
     Route::get('/file-transfers', [FileTransferController::class, 'index'])->name('file-transfers');
@@ -162,6 +163,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     //Media Routes End
 
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+    Route::post('/activity-logs/bulk-delete', [ActivityLogController::class, 'bulkDestroy'])->name('activity-logs.bulk-delete');
+    Route::post('/activity-logs/empty', [ActivityLogController::class, 'empty'])->name('activity-logs.empty');
     Route::get('/play/tetris', [TetrisController::class, 'index'])->name('tetris.index');
     Route::post('/tetris/submit/score', [TetrisController::class, 'submitScore'])->name('tetris.submit.score');
 
