@@ -1,11 +1,11 @@
 <template>
 
     <Head title="Batch Update" />
-    <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Batch Update' }]">
+    <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Batch Update', href: '/previews/batch-update' }]">
         <div class="max-w-8xl py-4 px-4">
             <div v-if="preview">
                 <div class="mb-6">
-                    <div class="flex items-center justify-between gap-4 bg-gray-300 dark:bg-neutral-900 rounded-xl p-3">
+                    <div class="flex items-center justify-between gap-4 bg-gray-100 dark:bg-neutral-900 rounded-xl p-3">
                         <div class="flex-1">
                             <div class="text-xs uppercase text-gray-500">Name</div>
                             <h1 class="text-xl md:text-xl font-extrabold text-gray-900 dark:text-white leading-tight truncate capitalize">{{ preview.name }}</h1>
@@ -19,7 +19,7 @@
                     </div>
                 </div>
                 <div v-for="(category, catIdx) in preview.categories" :key="category.id" class="mb-4">
-                    <details v-bind="category.is_active == 1 ? { open: true } : {}" class="mb-4 border rounded shadow">
+                    <details v-bind="category.is_active == 1 ? { open: true } : {}" class="mb-4 border rounded-lg shadow">
                         <summary
                             class="px-4 py-2 font-semibold text-lg bg-gray-100 dark:bg-neutral-900 cursor-pointer flex items-center justify-between">
                             <!-- Left side: icon, name, type -->
@@ -30,7 +30,7 @@
                                 </svg>
                                 <span>Category:</span>
                                 <input v-model="category.name"
-                                    class="border rounded px-2 py-1 font-semibold text-lg bg-white-100 dark:bg-neutral-900 dark:text-white dark:border-neutral-700"
+                                    class="border rounded-lg px-2 py-1 font-semibold text-lg bg-white-100 dark:bg-neutral-900 dark:text-white dark:border-neutral-700"
                                     placeholder="Category Name" style="min-width:180px;" />
                                 <span class="text-xs text-red-500 ml-2 uppercase">({{ category.type }})</span>
                             </span>
@@ -122,7 +122,7 @@
                                     </summary>
                                     <div class="p-3">
                                         <textarea v-model="feedback.description"
-                                            class="border rounded px-2 py-1 mb-2 w-1/2 dark:bg-neutral-900 dark:text-white dark:border-neutral-700"
+                                            class="border rounded px-2 py-1 mb-2 w-1/2 h-36 dark:bg-neutral-900 dark:text-white dark:border-neutral-700"
                                             placeholder="Feedback Description" />
                                         <div v-for="(set, setIdx) in feedback.feedback_sets" :key="set.id" class="mb-4">
                                             <details open class="mb-2 border rounded">
@@ -734,16 +734,10 @@
                                     </div>
                                 </details>
                             </div>
-                            <div class="mt-4 flex gap-2 items-center justify-start">
-                                <button @click="showAddFeedback[category.id] = !showAddFeedback[category.id]"
-                                    class="bg-indigo-500 text-white px-3 py-1 rounded text-sm">
-                                    + Add Feedback
-                                </button>
-                            </div>
                             <div v-if="showAddFeedback[category.id]"
                                 class="mt-2 flex-col gap-2 items-start justify-start">
                                 <textarea v-model="newFeedbackDesc[category.id]" placeholder="Enter Description"
-                                    class="border rounded px-2 py-1 min-w-[200px] min-h-[60px] dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
+                                    class="border rounded px-2 py-1 w-1/2 h-36 dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
                                 <div class="flex gap-2">
                                     <input :value="newFeedbackName[category.id]"
                                         @input="onNewFeedbackNameInput($event, category)" placeholder="Feedback Name"
@@ -751,6 +745,12 @@
                                     <button @click="addFeedback(category)"
                                         class="bg-green-600 text-white px-3 py-1 rounded">Add</button>
                                 </div>
+                            </div>
+                            <div class="mt-2 flex gap-2 items-center justify-start">
+                                <button @click="showAddFeedback[category.id] = !showAddFeedback[category.id]"
+                                    class="bg-indigo-500 text-white px-3 py-1 rounded text-sm">
+                                    + Add Feedback
+                                </button>
                             </div>
                         </div>
                     </details>

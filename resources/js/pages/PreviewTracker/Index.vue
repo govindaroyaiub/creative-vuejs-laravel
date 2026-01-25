@@ -114,8 +114,8 @@ function truncate(text: string | null, length = 140) {
                                     class="mt-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
                                     {{
                                         p.latest_feedback_description
-                                            ? (p.latest_feedback_description.length > 400
-                                                ? p.latest_feedback_description.slice(0, 400) + '...'
+                                            ? (p.latest_feedback_description.length > 150
+                                                ? p.latest_feedback_description.slice(0, 150) + '...'
                                                 : p.latest_feedback_description)
                                             : 'No recent feedback summary'
                                     }}
@@ -134,7 +134,7 @@ function truncate(text: string | null, length = 140) {
                     <div class="flex items-center justify-between mb-1">
                         <h3 class="text-lg font-semibold">Completed</h3>
                         <div class="text-sm text-gray-500">Showing {{ Math.min(groups.completed.length, completedLimit)
-                            }} of {{ groups.completed.length }}</div>
+                        }} of {{ groups.completed.length }}</div>
                     </div>
                     <div
                         class="h-0.5 w-full bg-gradient-to-r from-green-400 via-green-300 to-green-200 rounded-full mb-4">
@@ -164,8 +164,8 @@ function truncate(text: string | null, length = 140) {
                                     class="mt-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
                                     {{
                                         p.latest_feedback_description
-                                            ? (p.latest_feedback_description.length > 400
-                                                ? p.latest_feedback_description.slice(0, 400) + '...'
+                                            ? (p.latest_feedback_description.length > 150
+                                                ? p.latest_feedback_description.slice(0, 150) + '...'
                                                 : p.latest_feedback_description)
                                             : 'No recent feedback summary'
                                     }}
@@ -212,10 +212,10 @@ function truncate(text: string | null, length = 140) {
                                 class="mt-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
                                 {{
                                     p.latest_feedback_description
-                                        ? (p.latest_feedback_description.length > 400
-                                            ? p.latest_feedback_description.slice(0, 400) + '...'
+                                        ? (p.latest_feedback_description.length > 150
+                                            ? p.latest_feedback_description.slice(0, 150) + '...'
                                             : p.latest_feedback_description)
-                                : 'No recent feedback summary'
+                                        : 'No recent feedback summary'
                                 }}
                             </div>
                         </div>
