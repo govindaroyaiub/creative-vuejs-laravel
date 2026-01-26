@@ -4,184 +4,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Access Forbidden - Planet Nine</title>
+    <title>403 — Zut alors! Forbidden</title>
     <link rel="shortcut icon" href="https://www.planetnine.com/logo/new_favicon.png">
     @vite('resources/css/app.css')
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background: linear-gradient(120deg, #081229 0%, #071a2b 60%);
+            color: #dbeafe;
             margin: 0;
-            padding: 0;
+            padding: 40px 16px;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .error-container {
-            background: white;
-            border-radius: 20px;
-            padding: 3rem 2rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            max-width: 500px;
-            width: 90%;
-            margin: 1rem;
-            animation: fadeInUp 0.6s ease-out;
+        .card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+            border-radius: 14px;
+            padding: 22px;
+            max-width: 820px;
+            width: 100%;
+            box-shadow: 0 12px 40px rgba(2, 6, 23, 0.6);
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .row {
+            display: flex;
+            gap: 18px;
+            align-items: center
         }
 
-        .error-code {
-            font-size: 8rem;
-            font-weight: 900;
-            color: #fc466b;
+        .badge {
+            font-size: 56px;
+            font-weight: 800;
+            color: #fca5a5;
+        }
+
+        .headline {
+            font-size: 18px;
+            font-weight: 800;
             margin: 0;
-            line-height: 1;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            color: #f8fafc
         }
 
-        .error-title {
-            font-size: 2rem;
-            font-weight: 600;
-            color: #2d3748;
-            margin: 1rem 0 0.5rem;
+        .lead {
+            margin: 6px 0 0;
+            color: #9fb0c8
         }
 
-        .error-message {
-            font-size: 1.1rem;
-            color: #718096;
-            margin: 0 0 2rem;
-            line-height: 1.6;
+        .joke {
+            margin-top: 12px;
+            color: #97b3ce;
+            font-size: 14px
         }
 
-        .permission-message {
-            background: #fed7d7;
-            border: 1px solid #feb2b2;
-            color: #c53030;
-            padding: 1rem;
-            border-radius: 10px;
-            margin: 1.5rem 0;
-            font-weight: 500;
+        .astro {
+            width: 84px;
+            height: 84px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+        }
+
+        .astro .emoji {
+            font-size: 40px
         }
 
         .actions {
+            margin-top: 16px;
             display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
+            gap: 10px;
+            flex-wrap: wrap
         }
 
         .btn {
-            padding: 0.75rem 1.5rem;
+            padding: 10px 14px;
             border-radius: 10px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            cursor: pointer;
+            font-weight: 700;
             border: none;
-            font-size: 1rem;
+            cursor: pointer
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: #cfe8ff;
+            border: 1px solid rgba(255, 255, 255, 0.04)
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #fc466b, #3f5efb);
-            color: white;
+            background: linear-gradient(90deg, #fab2c8, #7dd3fc);
+            color: #041026
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(252, 70, 107, 0.3);
+        .small {
+            margin-top: 10px;
+            color: #9fb0c8;
+            font-size: 13px
         }
 
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #4a5568;
-        }
-
-        .btn-secondary:hover {
-            background: #cbd5e0;
-            transform: translateY(-2px);
-        }
-
-        .icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-
-        .planet-nine-logo {
-            max-width: 120px;
-            margin-bottom: 1rem;
-        }
-
-        @media (max-width: 640px) {
-            .error-code {
-                font-size: 6rem;
-            }
-
-            .error-title {
-                font-size: 1.5rem;
-            }
-
-            .error-container {
-                padding: 2rem 1.5rem;
-            }
-
-            .actions {
+        @media (max-width:720px) {
+            .row {
                 flex-direction: column;
+                align-items: flex-start
             }
 
-            .btn {
-                width: 100%;
+            .badge {
+                font-size: 40px
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="error-container">
-        <div class="icon">🚫</div>
+    <div class="card">
+        <div class="row">
+            <div class="astro" aria-hidden>
+                <div class="emoji">🛑</div>
+            </div>
 
-        <h1 class="error-code">403</h1>
+            <div style="flex:1">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="badge">403</div>
+                    <div>
+                        <p class="headline">Hold up — you shall not pass (this resource).</p>
+                        <p class="lead">Our bouncer checked your credentials. They waved politely and said “nope”.</p>
+                    </div>
+                </div>
 
-        <h2 class="error-title">Access Forbidden</h2>
+                <div class="joke">Possible reasons: you typed the wrong URL, you brought the wrong badge, or the server is being dramatic.</div>
 
-        <p class="error-message">
-            You don't have the necessary permissions to access this resource.
-        </p>
+                @if(isset($exception) && $exception->getMessage())
+                <div class="small" style="margin-top:10px;background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;color:#ffdede">{{ $exception->getMessage() }}</div>
+                @endif
 
-        @if(isset($exception) && $exception->getMessage())
-        <div class="permission-message">
-            {{ $exception->getMessage() }}
-        </div>
-        @endif
+                <div class="actions">
+                    <button onclick="history.back()" class="btn btn-ghost">← Go back</button>
+                </div>
 
-        <div class="actions">
-            <button onclick="history.back()" class="btn btn-secondary">
-                ← Go Back
-            </button>
-
-            @auth
-            @if(in_array('/', auth()->user()->permissions ?? []) || in_array('/dashboard', auth()->user()->permissions ?? []) || in_array('*', auth()->user()->permissions ?? []))
-            <a href="{{ route('dashboard') }}" class="btn btn-primary">
-                🏠 Dashboard
-            </a>
-            @endif
-            @else
-            <a href="{{ route('login') }}" class="btn btn-primary">
-                🔑 Login
-            </a>
-            @endauth
+                <div class="small">Pro tip: If you think this is a bug, send a carrier pigeon to support (or just email).</div>
+            </div>
         </div>
     </div>
 </body>

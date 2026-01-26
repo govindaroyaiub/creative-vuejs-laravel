@@ -4,180 +4,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Access Denied - Planet Nine</title>
+    <title>404 — Page Lost in Space</title>
     <link rel="shortcut icon" href="https://www.planetnine.com/logo/new_favicon.png">
     @vite('resources/css/app.css')
     <style>
+        :root {
+            --bg1: #0f172a;
+            --bg2: #0b1220;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background: radial-gradient(1200px 600px at 10% 10%, rgba(102, 126, 234, 0.12), transparent), linear-gradient(135deg, #0f172a 0%, #0b1220 100%);
             margin: 0;
-            padding: 0;
+            padding: 40px 20px;
+            color: #e6eef8;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .error-container {
-            background: white;
-            border-radius: 20px;
-            padding: 3rem 2rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            max-width: 500px;
-            width: 90%;
-            margin: 1rem;
-            animation: fadeInUp 0.6s ease-out;
+        .error-card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.02));
+            border-radius: 16px;
+            padding: 28px;
+            max-width: 820px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(2, 6, 23, 0.6);
+            color: #cbd5e1;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .hero {
+            display: flex;
+            gap: 20px;
+            align-items: center;
         }
 
-        .error-code {
-            font-size: 8rem;
-            font-weight: 900;
-            color: #667eea;
-            margin: 0;
+        .code {
+            font-size: 72px;
             line-height: 1;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            font-weight: 800;
+            color: #a3bffa;
+            text-shadow: 0 6px 30px rgba(99, 102, 241, 0.08);
         }
 
-        .error-title {
-            font-size: 2rem;
-            font-weight: 600;
-            color: #2d3748;
-            margin: 1rem 0 0.5rem;
+        .copy {
+            font-weight: 700;
+            color: #e6eef8;
+            font-size: 20px;
         }
 
-        .error-message {
-            font-size: 1.1rem;
-            color: #718096;
-            margin: 0 0 2rem;
-            line-height: 1.6;
+        .title {
+            font-size: 20px;
+            margin: 0 0 6px;
+            color: #f8fafc;
         }
 
-        .permission-message {
-            background: #fed7d7;
-            border: 1px solid #feb2b2;
-            color: #c53030;
-            padding: 1rem;
-            border-radius: 10px;
-            margin: 1.5rem 0;
-            font-weight: 500;
+        .subtitle {
+            margin: 0 0 12px;
+            color: #94a3b8;
+        }
+
+        .gags {
+            margin-top: 12px;
+            color: #9fb0c8;
+            font-size: 14px
         }
 
         .actions {
+            margin-top: 18px;
             display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
+            gap: 12px;
+            flex-wrap: wrap
         }
 
         .btn {
-            padding: 0.75rem 1.5rem;
+            padding: 10px 16px;
             border-radius: 10px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
+            font-weight: 700;
             cursor: pointer;
-            border: none;
-            font-size: 1rem;
+            border: none
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
+            background: linear-gradient(90deg, #7c3aed, #2dd4bf);
+            color: #071029
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: #cfe8ff
         }
 
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #4a5568;
+        .small-help {
+            margin-top: 14px;
+            color: #9fb0c8;
+            font-size: 13px
         }
 
-        .btn-secondary:hover {
-            background: #cbd5e0;
-            transform: translateY(-2px);
+        .fun-emoji {
+            font-size: 44px;
         }
 
-        .icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
+        .astro {
+            width: 96px;
+            height: 96px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
         }
 
-        .planet-nine-logo {
-            max-width: 120px;
-            margin-bottom: 1rem;
-        }
-
-        @media (max-width: 640px) {
-            .error-code {
-                font-size: 6rem;
-            }
-
-            .error-title {
-                font-size: 1.5rem;
-            }
-
-            .error-container {
-                padding: 2rem 1.5rem;
-            }
-
-            .actions {
+        @media (max-width:700px) {
+            .hero {
                 flex-direction: column;
+                align-items: flex-start
             }
 
-            .btn {
-                width: 100%;
+            .code {
+                font-size: 48px
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="error-container">
-        <div class="icon">🔒</div>
+    <div class="error-card">
+        <div class="hero">
+            <div class="astro" aria-hidden>
+                <div class="fun-emoji">👾</div>
+            </div>
 
-        <h1 class="error-code">404</h1>
+            <div style="flex:1">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="code">404</div>
+                    <div>
+                        <div class="title">Whoops — this page went on an adventure.</div>
+                        <p class="subtitle">We searched behind the nebula, under the space couch, and even asked a polite alien.</p>
+                    </div>
+                </div>
 
-        <h2 class="error-title">Access Denied</h2>
+                <div class="gags">
+                    - Maybe it took a wrong hyperjump.<br>
+                    - Maybe it got distracted by shiny CSS.<br>
+                    - Or maybe the server hid it as a surprise. You're welcome.
+                </div>
 
-        <p class="error-message">
-            You don't have permission to access this resource.
-        </p>
+                @if(isset($exception) && $exception->getMessage())
+                <div class="small-help" style="margin-top:10px;background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;color:#ffdede">{{ $exception->getMessage() }}</div>
+                @endif
 
-        @if(isset($exception) && $exception->getMessage())
-        <div class="permission-message">
-            {{ $exception->getMessage() }}
-        </div>
-        @endif
+                <div class="actions">
+                    <button onclick="history.back()" class="btn btn-ghost">← Take me back</button>
+                </div>
 
-        <div class="actions">
-            <button onclick="history.back()" class="btn btn-secondary">
-                ← Go Back
-            </button>
-
-            @auth
-            @if(in_array('/', auth()->user()->permissions ?? []) || in_array('/dashboard', auth()->user()->permissions ?? []) || in_array('*', auth()->user()->permissions ?? []))
-            <a href="{{ route('dashboard') }}" class="btn btn-primary">
-                🏠 Dashboard
-            </a>
-            @endif
-            @endauth
+                <div class="small-help">Tip: try searching or check the URL — you might get lucky.</div>
+            </div>
         </div>
     </div>
 </body>
