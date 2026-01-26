@@ -44,7 +44,6 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     })->name('documentations');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/preview-tracker', [PreviewTrackerController::class, 'index'])->name('preview-tracker');
 
     //File Transfer Routes Start
     Route::get('/file-transfers', [FileTransferController::class, 'index'])->name('file-transfers');

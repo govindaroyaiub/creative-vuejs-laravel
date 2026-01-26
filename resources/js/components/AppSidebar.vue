@@ -18,7 +18,6 @@ const user = computed(() => page.props.auth.user);
 
 const mainNavItems: NavItem[] = [
     { title: 'Dashboard', href: '/dashboard', icon: ChartNoAxesCombined },
-    { title: 'Preview Tracker', href: '/preview-tracker', icon: MonitorCheck },
     { title: 'Previews', href: '/previews', icon: Megaphone },
     { title: 'Color Palettes', href: '/color-palettes', icon: Paintbrush },
     { title: 'Clients', href: '/clients', icon: Handshake },
