@@ -1,7 +1,8 @@
 <template>
 
     <Head title="Edit Preview" />
-    <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Edit Preview', 'href': '/previews-edit/' + preview.id }]">
+    <AppLayout
+        :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Edit Preview', 'href': '/previews-edit/' + preview.id }]">
         <div class="min-h-screen py-8">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Header Section -->
@@ -29,7 +30,7 @@
                 </div>
 
                 <!-- Main Form Card -->
-                <div class="bg-white dark:bg-neutral-900 rounded-2xl overflow-hidden p-4">
+                <div class="bg-white dark:bg-neutral-900 rounded-2xl overflow-hidden">
                     <form @submit.prevent="submit" class="p-2 space-y-8">
                         <!-- Preview Name Section -->
                         <div class="space-y-2">
@@ -268,14 +269,15 @@
                         </div>
 
                         <!-- Action Buttons -->
-                        <div class="flex flex-col sm:flex-row gap-4 pt-8 border-t border-gray-200 dark:border-neutral-700">
+                        <div
+                            class="flex flex-col sm:flex-row gap-4 pt-8 border-t border-gray-200 dark:border-neutral-700">
                             <Link :href="route('previews.update.all', preview.id)"
                                 class="w-full inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-neutral-700 text-base font-medium rounded-xl text-gray-700 dark:text-gray-300 bg-white dark:bg-neutral-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200 shadow-sm">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                            </svg>
-                            Back to Preview
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                </svg>
+                                Back to Preview
                             </Link>
 
                             <button type="submit" :disabled="form.processing"
@@ -294,6 +296,23 @@
                                 </svg>
                                 {{ form.processing ? 'Updating...' : 'Update Preview' }}
                             </button>
+
+                            <button type="button" @click="confirmDelete" :disabled="deleting"
+                                class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow">
+                                <svg v-if="deleting" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none"
+                                    viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                                <svg v-else class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                {{ deleting ? 'Deleting...' : 'Delete Preview' }}
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -303,7 +322,7 @@
 </template>
 
 <script setup lang="ts">
-import { Head, useForm, usePage, Link } from '@inertiajs/vue3';
+import { Head, useForm, usePage, Link, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import Swal from 'sweetalert2';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -406,6 +425,39 @@ const submit = () => {
                 confirmButtonColor: '#dc2626',
             });
         },
+    });
+};
+
+// Delete preview
+import { ref as vueRef } from 'vue';
+const deleting = vueRef(false);
+
+const confirmDelete = async () => {
+    const result = await Swal.fire({
+        title: 'Delete preview?',
+        text: 'This will permanently delete the preview. This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it',
+    });
+
+    if (!result.isConfirmed) return;
+
+    deleting.value = true;
+
+    router.delete(route('previews-delete', preview.value.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            Swal.fire({ icon: 'success', title: 'Deleted', text: 'Preview deleted.', timer: 900, showConfirmButton: false, toast: true, position: 'top-end' });
+            // Navigate back to previews index
+            router.get(route('previews-index'));
+        },
+        onError: () => {
+            deleting.value = false;
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to delete preview.' });
+        }
     });
 };
 
