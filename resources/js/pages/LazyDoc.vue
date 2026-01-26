@@ -1497,18 +1497,6 @@ const qaList = ref([
     `
     },
     {
-        question: 'What is Preview Tracker?',
-        answer: 'As the name suggests Tracker, the page shows three rows of Status: In Progress, Completed, and No Feedback.',
-        additionalInfo: `
-        Technical details:
-        <ul class="list-disc list-inside space-y-2 mt-4">
-            <li><strong>In Progress:</strong> <code>In Progress means the development has started. The user has created the Preview, enetered every details that it needs. But not approved. Meaning still in Development.</code></li>
-            <li><strong>Completed:</strong> <code>During development if there is Green Signal from the client then the user will create a transfer link by uploading the necessary files. Once the transfer link is created that means the Preview is completed.</code></li>
-            <li><strong>No Feedback:</strong> <code>The user just created a Preview and is waiting for the necessary data to be filled and uploaded.</code></li>
-        </ul>
-    `
-    },
-    {
         question: 'What is a Client?',
         answer: 'Clients are the organizations for whom creatives are developed/designed. Each client has its own logo, brand colors, URL, and optionally a dedicated preview URL (e.g., creative.cmn.com or creative.merkle.com).',
         additionalInfo: `
