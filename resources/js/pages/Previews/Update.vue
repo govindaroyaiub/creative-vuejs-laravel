@@ -1,25 +1,38 @@
 <template>
 
     <Head title="Batch Update" />
-    <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Batch Update', href: '/previews/batch-update' }]">
+    <AppLayout
+        :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Batch Update', href: '/previews/batch-update' }]">
         <div class="max-w-8xl py-4 px-4">
             <div v-if="preview">
                 <div class="mb-6">
                     <div class="flex items-center justify-between gap-4 bg-gray-100 dark:bg-neutral-900 rounded-xl p-3">
                         <div class="flex-1">
-                            <div class="text-xs uppercase text-gray-500">Name</div>
-                            <h1 class="text-xl md:text-xl font-extrabold text-gray-900 dark:text-white leading-tight truncate capitalize">{{ preview.name }}</h1>
+                            <div class="text-xs uppercase text-gray-500 px-2">Name</div>
+                            <h1
+                                class="text-xl md:text-xl font-extrabold text-gray-900 dark:text-white leading-tight truncate capitalize px-2">
+                                {{ preview.name }}</h1>
+                            <div class="mt-1 flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+                                <div class="font-mono bg-gray-50 dark:bg-neutral-800 rounded px-2 py-1 select-all">{{
+                                    copyText }}</div>
+                                <button @click.prevent="copyToClipboard" aria-label="Copy preview identifier"
+                                    class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-200">
+                                    <Copy class="w-4 h-4" />
+                                </button>
+                            </div>
                         </div>
                         <div class="text-right">
                             <div class="text-sm text-gray-600 dark:text-gray-400">
-                                <div class="text-xs uppercase text-gray-500">Client</div>
-                                <div class="mt-1 font-semibold text-gray-800 dark:text-gray-200">{{ preview.client?.name || client_name || 'Unknown Client' }}</div>
+                                <div class="text-xs uppercase text-gray-500 px-2">Client</div>
+                                <div class="mt-1 font-semibold text-gray-800 dark:text-gray-200 px-2">{{
+                                    preview.client?.name || client_name || 'Unknown Client' }}</div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div v-for="(category, catIdx) in preview.categories" :key="category.id" class="mb-4">
-                    <details v-bind="category.is_active == 1 ? { open: true } : {}" class="mb-4 border rounded-lg shadow">
+                    <details v-bind="category.is_active == 1 ? { open: true } : {}"
+                        class="mb-4 border rounded-lg shadow">
                         <summary
                             class="px-4 py-2 font-semibold text-lg bg-gray-100 dark:bg-neutral-900 cursor-pointer flex items-center justify-between">
                             <!-- Left side: icon, name, type -->
@@ -86,6 +99,14 @@
                                                     Feedback Approved
                                                 </span>
                                             </button>
+
+                                            <!-- File Transfer link when feedback is approved and category has a transfer -->
+                                            <a v-if="isDbId(feedback.id) && feedback.is_approved && category.file_transfer_slug"
+                                                :href="`/file-transfers-view/${category.file_transfer_slug}`"
+                                                target="_blank"
+                                                class="ml-2 text-blue-600 hover:underline px-2 py-1 rounded text-xs">
+                                                Transfer
+                                            </a>
 
                                             <!-- Approve button with loading state -->
                                             <button v-else-if="isDbId(feedback.id) && !feedback.is_approved"
@@ -877,7 +898,7 @@
 
 <script setup lang="ts">
 import { ref, computed, reactive } from 'vue';
-import { ArrowLeft, Info, Eye, Save } from 'lucide-vue-next';
+import { ArrowLeft, Info, Eye, Save, Copy } from 'lucide-vue-next';
 import { Head, usePage, router } from '@inertiajs/vue3';
 import draggable from 'vuedraggable';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -918,6 +939,32 @@ const newSetName = reactive({});
 
 const showAddVersion = reactive({});
 const newVersionName = reactive({});
+
+// Copyable identifier (replace spaces with underscores)
+const copyText = computed(() => {
+    const name = (preview.value?.name ?? '') + '_';
+    return name.replace(/ /g, '_');
+});
+
+const copyToClipboard = async () => {
+    try {
+        await navigator.clipboard.writeText(copyText.value);
+        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Copied to clipboard', showConfirmButton: false, timer: 1000 });
+    } catch (e) {
+        // Fallback: attempt execCommand
+        const el = document.createElement('textarea');
+        el.value = copyText.value;
+        document.body.appendChild(el);
+        el.select();
+        try {
+            document.execCommand('copy');
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Copied to clipboard', showConfirmButton: false, timer: 1000 });
+        } catch (err) {
+            Swal.fire({ icon: 'error', title: 'Copy failed' });
+        }
+        document.body.removeChild(el);
+    }
+};
 
 const showBannerEdit = ref(false);
 const bannerEditFile = ref([]);
