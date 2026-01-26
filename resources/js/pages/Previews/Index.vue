@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 dayjs.extend(relativeTime)
 import Swal from 'sweetalert2';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, nextTick } from 'vue';
 import PreviewStepBasicInfo from './Partials/PreviewStepBasicInfo.vue';
 
 const loading = ref(false);
@@ -56,8 +56,25 @@ const filteredPreviews = computed(() => {
 function onSearchInput() {
     if (debounceTimer.value) clearTimeout(debounceTimer.value)
     debounceTimer.value = window.setTimeout(() => {
-        router.get(route('previews-index'), { search: search.value, page: 1 }, { preserveState: true, replace: true })
+        // keep current tab's data in sync with search
+        if (activeTab.value === 'table') {
+            loading.value = true
+            router.get(route('previews-index'), { search: search.value, page: 1 }, { preserveState: true, replace: true, onFinish: () => { loading.value = false } })
+        } else {
+            loading.value = true
+            router.get(route('previews-grid'), { search: search.value }, { preserveState: true, replace: true, onFinish: () => { loading.value = false } })
+        }
     }, 350)
+}
+
+function switchTab(tab: 'grid' | 'table') {
+    activeTab.value = tab
+    loading.value = true
+    if (tab === 'table') {
+        router.get(route('previews-index'), { search: search.value, page: 1 }, { preserveState: true, replace: true, onFinish: () => { loading.value = false } })
+    } else {
+        router.get(route('previews-grid'), { search: search.value }, { preserveState: true, replace: true, onFinish: () => { loading.value = false } })
+    }
 }
 
 function formatDateRelative(dateStr: string) {
@@ -138,17 +155,102 @@ const submitForm = () => {
 // Pagination functions
 const changePage = (url: string) => {
     if (url) {
+        loading.value = true
         router.get(url, { search: search.value }, {
             preserveScroll: true,
             preserveState: true,
+            onFinish: () => { loading.value = false }
         });
     }
 };
 
 // Grouping for Grid view (using filtered results)
-const inProgressLimit = ref(6)
-const completedLimit = ref(6)
-const noFeedbackLimit = ref(6)
+const inProgressDefault = 9
+const completedDefault = 6
+const noFeedbackDefault = 3
+
+const inProgressLimit = ref(inProgressDefault)
+const completedLimit = ref(completedDefault)
+const noFeedbackLimit = ref(noFeedbackDefault)
+
+// container refs for height animation when collapsing
+const inProgressContainer = ref(null)
+const completedContainer = ref(null)
+const noFeedbackContainer = ref(null)
+
+// Collapse a group to its target count. `group` is one of: 'inProgress' | 'completed' | 'noFeedback'
+async function collapseTo(group: 'inProgress' | 'completed' | 'noFeedback', containerRef: any, target: number) {
+    // map group name to the corresponding ref
+    let limitRef: any
+    if (group === 'inProgress') limitRef = inProgressLimit
+    else if (group === 'completed') limitRef = completedLimit
+    else limitRef = noFeedbackLimit
+
+    const el: HTMLElement | null = containerRef?.value || null
+    if (!el) {
+        limitRef.value = target
+        return
+    }
+
+    // Find the grid element inside the container
+    const grid = el.querySelector('.grid') as HTMLElement | null
+    if (!grid) {
+        limitRef.value = target
+        return
+    }
+
+    const children = Array.from(grid.children) as HTMLElement[]
+    if (target >= children.length) {
+        // nothing to collapse
+        limitRef.value = target
+        return
+    }
+
+    // measure start height (total container)
+    const startHeight = el.scrollHeight
+    // Lock start height so DOM updates don't cause a visual jump
+    el.style.height = `${startHeight}px`
+    el.style.overflow = 'hidden'
+
+    // Update the limit immediately so items are removed from DOM
+    limitRef.value = target
+    await nextTick()
+
+    const endHeight = el.scrollHeight
+
+    if (Math.abs(startHeight - endHeight) < 1) {
+        // nothing visually to do; clear styles and return
+        el.style.height = ''
+        el.style.overflow = ''
+        return
+    }
+
+    el.style.transition = 'height 320ms ease'
+    // force reflow
+    void el.offsetHeight
+    requestAnimationFrame(() => {
+        el.style.height = `${endHeight}px`
+    })
+
+    const cleanup = () => {
+        el.style.transition = ''
+        el.style.height = ''
+        el.style.overflow = ''
+        el.removeEventListener('transitionend', cleanup)
+    }
+
+    el.addEventListener('transitionend', cleanup)
+}
+
+function expandGroup(group: string) {
+    if (group === 'inProgress') {
+        inProgressLimit.value = (groups.value.inProgress || []).length
+    } else if (group === 'completed') {
+        completedLimit.value = (groups.value.completed || []).length
+    } else if (group === 'noFeedback') {
+        noFeedbackLimit.value = (groups.value.noFeedback || []).length
+    }
+}
 
 const groups = computed(() => {
     const inProgress: any[] = []
@@ -205,9 +307,6 @@ const groups = computed(() => {
     }
     return { inProgress, completed, noFeedback }
 })
-
-
-
 </script>
 
 <template>
@@ -222,13 +321,13 @@ const groups = computed(() => {
                         class="w-1/2 rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
                 </div>
                 <div class="flex items-center space-x-2">
-                    <button @click="activeTab = 'grid'" :aria-pressed="activeTab === 'grid'"
+                    <button @click="switchTab('grid')" :aria-pressed="activeTab === 'grid'"
                         :class="activeTab === 'grid' ? 'bg-gray-100 dark:bg-neutral-900 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'"
                         class="px-3 py-2 rounded-xl flex items-center gap-2">
                         <LayoutGrid class="w-5 h-5" />
                         <span class="hidden sm:inline">Grid</span>
                     </button>
-                    <button @click="activeTab = 'table'" :aria-pressed="activeTab === 'table'"
+                    <button @click="switchTab('table')" :aria-pressed="activeTab === 'table'"
                         :class="activeTab === 'table' ? 'bg-gray-100 dark:bg-neutral-900 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'"
                         class="px-3 py-2 rounded-xl flex items-center gap-2">
                         <List class="w-5 h-5" />
@@ -270,7 +369,7 @@ const groups = computed(() => {
                                         <td class="w-80 px-4 py-3 text-left border-b">
                                             <div class="font-semibold capitalize break-words" :title="preview.name">{{
                                                 preview.name
-                                                }}</div>
+                                            }}</div>
                                             <div class="text-xs text-gray-500 flex gap-2 items-center">
                                                 <div class="h-5 w-5 rounded-full border flex-shrink-0"
                                                     :style="{ backgroundColor: preview.color_palette?.primary ?? 'red' }"
@@ -421,41 +520,52 @@ const groups = computed(() => {
                                 <div
                                     class="h-0.5 w-full bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-200 rounded-full mb-4">
                                 </div>
-                                <div v-if="groups.inProgress.length"
-                                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    <div v-for="p in groups.inProgress.slice(0, inProgressLimit)" :key="p.id"
-                                        class="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-3 hover:shadow-md transition">
-                                        <div class="flex items-start justify-between">
-                                            <div>
-                                                <a :href="`/previews/update/${p.id}`"
-                                                    class="text-lg font-semibold text-blue-600 dark:text-blue-300 hover:underline">{{
-                                                        p.name }}</a>
-                                                <div class="text-sm text-gray-500 dark:text-gray-400">Created by: {{
-                                                    p.uploader?.name || 'System' }}</div>
+                                <div ref="inProgressContainer">
+                                    <div v-if="groups.inProgress.length"
+                                        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <div v-for="p in groups.inProgress.slice(0, inProgressLimit)" :key="p.id"
+                                            class="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-3 hover:shadow-md transition">
+                                            <div class="flex items-start justify-between">
+                                                <div>
+                                                    <a :href="`/previews/update/${p.id}`"
+                                                        class="text-lg font-semibold text-blue-600 dark:text-blue-300 hover:underline">{{
+                                                            p.name }}</a>
+                                                    <div class="text-sm text-gray-500 dark:text-gray-400">Created by: {{
+                                                        p.uploader?.name || 'System' }}</div>
+                                                </div>
+                                                <div class="text-right">
+                                                    <div class="text-xs text-gray-500">{{
+                                                        formatDateRelative(p.created_at)
+                                                        }}</div>
+                                                    <div class="mt-2"><span
+                                                            class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">In
+                                                            Progress</span></div>
+                                                </div>
                                             </div>
-                                            <div class="text-right">
-                                                <div class="text-xs text-gray-500">{{ formatDateRelative(p.created_at)
-                                                    }}</div>
-                                                <div class="mt-2"><span
-                                                        class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">In
-                                                        Progress</span></div>
+                                            <div class="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                                                <div class="text-xs text-gray-500">Latest Summary:</div>
+                                                <div
+                                                    class="mt-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
+                                                    {{ p.latest_feedback_description ?
+                                                        (p.latest_feedback_description.length
+                                                            > 150 ?
+                                                            p.latest_feedback_description.slice(0, 150) + '...' :
+                                                            p.latest_feedback_description) : 'No recent feedback summary' }}
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="mt-3 text-sm text-gray-600 dark:text-gray-300">
-                                            <div class="text-xs text-gray-500">Latest Summary:</div>
-                                            <div
-                                                class="mt-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
-                                                {{ p.latest_feedback_description ? (p.latest_feedback_description.length
-                                                    > 150 ?
-                                                    p.latest_feedback_description.slice(0, 150) + '...' :
-                                                    p.latest_feedback_description) : 'No recent feedback summary' }}</div>
                                         </div>
                                     </div>
+                                    <div v-else class="text-sm text-gray-500">No previews in progress.</div>
                                 </div>
-                                <div v-else class="text-sm text-gray-500">No previews in progress.</div>
-                                <div v-if="groups.inProgress.length > inProgressLimit" class="mt-3 text-center"><button
-                                        @click="inProgressLimit += 10" class="px-4 py-2 rounded-xl border">Show
+                                <div class="mt-3 text-center">
+                                    <button v-if="groups.inProgress.length > inProgressLimit"
+                                        @click="expandGroup('inProgress')"
+                                        class="px-4 py-2 rounded-xl mr-2 bg-black text-white border-white dark:bg-white dark:text-black dark:border-black">Show
                                         more</button>
+                                    <button v-if="inProgressLimit > inProgressDefault"
+                                        @click="collapseTo('inProgress', inProgressContainer, inProgressDefault)"
+                                        class="px-4 py-2 rounded-xl border bg-red-600 text-white">Show
+                                        less</button>
                                 </div>
                             </section>
 
@@ -469,41 +579,52 @@ const groups = computed(() => {
                                 <div
                                     class="h-0.5 w-full bg-gradient-to-r from-green-400 via-green-300 to-green-200 rounded-full mb-4">
                                 </div>
-                                <div v-if="groups.completed.length"
-                                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    <div v-for="p in groups.completed.slice(0, completedLimit)" :key="p.id"
-                                        class="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-4 hover:shadow-md transition">
-                                        <div class="flex items-start justify-between">
-                                            <div>
-                                                <a :href="`/previews/update/${p.id}`"
-                                                    class="text-lg font-semibold text-blue-600 dark:text-blue-300 hover:underline">{{
-                                                        p.name }}</a>
-                                                <div class="text-sm text-gray-500 dark:text-gray-400">Created by: {{
-                                                    p.uploader?.name || 'System' }}</div>
+                                <div ref="completedContainer">
+                                    <div v-if="groups.completed.length"
+                                        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <div v-for="p in groups.completed.slice(0, completedLimit)" :key="p.id"
+                                            class="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-4 hover:shadow-md transition">
+                                            <div class="flex items-start justify-between">
+                                                <div>
+                                                    <a :href="`/previews/update/${p.id}`"
+                                                        class="text-lg font-semibold text-blue-600 dark:text-blue-300 hover:underline">{{
+                                                            p.name }}</a>
+                                                    <div class="text-sm text-gray-500 dark:text-gray-400">Created by: {{
+                                                        p.uploader?.name || 'System' }}</div>
+                                                </div>
+                                                <div class="text-right">
+                                                    <div class="text-xs text-gray-500">{{
+                                                        formatDateRelative(p.created_at)
+                                                        }}</div>
+                                                    <div class="mt-2"><span
+                                                            class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="text-right">
-                                                <div class="text-xs text-gray-500">{{ formatDateRelative(p.created_at)
-                                                    }}</div>
-                                                <div class="mt-2"><span
-                                                        class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                                            <div class="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                                                <div class="text-xs text-gray-500">Latest Summary:</div>
+                                                <div
+                                                    class="mt-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
+                                                    {{ p.latest_feedback_description ?
+                                                        (p.latest_feedback_description.length
+                                                            > 150 ?
+                                                            p.latest_feedback_description.slice(0, 150) + '...' :
+                                                            p.latest_feedback_description) : 'No recent feedback summary' }}
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="mt-3 text-sm text-gray-600 dark:text-gray-300">
-                                            <div class="text-xs text-gray-500">Latest Summary:</div>
-                                            <div
-                                                class="mt-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
-                                                {{ p.latest_feedback_description ? (p.latest_feedback_description.length
-                                                    > 150 ?
-                                                    p.latest_feedback_description.slice(0, 150) + '...' :
-                                                    p.latest_feedback_description) : 'No recent feedback summary' }}</div>
-                                        </div>
                                     </div>
+                                    <div v-else class="text-sm text-gray-500">No completed previews.</div>
                                 </div>
-                                <div v-else class="text-sm text-gray-500">No completed previews.</div>
-                                <div v-if="groups.completed.length > completedLimit" class="mt-3 text-center"><button
-                                        @click="completedLimit += 10" class="px-4 py-2 rounded-xl border">Show
+                                <div class="mt-3 text-center">
+                                    <button v-if="groups.completed.length > completedLimit"
+                                        @click="expandGroup('completed')"
+                                        class="px-4 py-2 rounded-xl mr-2 bg-black text-white border-white dark:bg-white dark:text-black dark:border-black">Show
                                         more</button>
+                                    <button v-if="completedLimit > completedDefault"
+                                        @click="collapseTo('completed', completedContainer, completedDefault)"
+                                        class="px-4 py-2 rounded-xl border bg-red-600 text-white">Show
+                                        less</button>
                                 </div>
                             </section>
 
@@ -517,39 +638,49 @@ const groups = computed(() => {
                                 <div
                                     class="h-0.5 w-full bg-gradient-to-r from-gray-400 via-gray-300 to-gray-200 rounded-full mb-4">
                                 </div>
-                                <div v-if="groups.noFeedback.length"
-                                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    <div v-for="p in groups.noFeedback.slice(0, noFeedbackLimit)" :key="p.id"
-                                        class="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-4 hover:shadow-md transition">
-                                        <div class="flex items-start justify-between">
-                                            <div>
-                                                <a :href="`/previews/update/${p.id}`"
-                                                    class="text-lg font-semibold text-blue-600 dark:text-blue-300 hover:underline">{{
-                                                        p.name }}</a>
-                                                <div class="text-sm text-gray-500 dark:text-gray-400">Created by: {{
-                                                    p.uploader?.name || 'System' }}</div>
+                                <div ref="noFeedbackContainer">
+                                    <div v-if="groups.noFeedback.length"
+                                        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <div v-for="p in groups.noFeedback.slice(0, noFeedbackLimit)" :key="p.id"
+                                            class="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-4 hover:shadow-md transition">
+                                            <div class="flex items-start justify-between">
+                                                <div>
+                                                    <a :href="`/previews/update/${p.id}`"
+                                                        class="text-lg font-semibold text-blue-600 dark:text-blue-300 hover:underline">{{
+                                                            p.name }}</a>
+                                                    <div class="text-sm text-gray-500 dark:text-gray-400">Created by: {{
+                                                        p.uploader?.name || 'System' }}</div>
+                                                </div>
+                                                <div class="text-right">
+                                                    <div class="text-xs text-gray-500">{{
+                                                        formatDateRelative(p.created_at)
+                                                        }}</div>
+                                                    <div class="mt-2"><span
+                                                            class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">No
+                                                            Feedback</span></div>
+                                                </div>
                                             </div>
-                                            <div class="text-right">
-                                                <div class="text-xs text-gray-500">{{ formatDateRelative(p.created_at)
-                                                    }}</div>
-                                                <div class="mt-2"><span
-                                                        class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">No
-                                                        Feedback</span></div>
-                                            </div>
+                                            <div
+                                                class="mt-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
+                                                {{ p.latest_feedback_description ? (p.latest_feedback_description.length
+                                                    >
+                                                    150 ?
+                                                    p.latest_feedback_description.slice(0, 150) + '...' :
+                                                    p.latest_feedback_description)
+                                                    : 'No recent feedback summary' }}</div>
                                         </div>
-                                        <div
-                                            class="mt-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
-                                            {{ p.latest_feedback_description ? (p.latest_feedback_description.length >
-                                                150 ?
-                                                p.latest_feedback_description.slice(0, 150) + '...' :
-                                                p.latest_feedback_description)
-                                                : 'No recent feedback summary' }}</div>
                                     </div>
+                                    <div v-else class="text-sm text-gray-500">No previews without feedback.</div>
                                 </div>
-                                <div v-else class="text-sm text-gray-500">No previews without feedback.</div>
-                                <div v-if="groups.noFeedback.length > noFeedbackLimit" class="mt-3 text-center"><button
-                                        @click="noFeedbackLimit += 10" class="px-4 py-2 rounded-xl border">Show
+                                <div class="mt-3 text-center">
+                                    <button v-if="groups.noFeedback.length > noFeedbackLimit"
+                                        @click="expandGroup('noFeedback')"
+                                        class="px-4 py-2 rounded-xl mr-2 bg-black text-white border-white dark:bg-white dark:text-black dark:border-black">Show
                                         more</button>
+                                    <button v-if="noFeedbackLimit > noFeedbackDefault"
+                                        @click="collapseTo('noFeedback', noFeedbackContainer, noFeedbackDefault)"
+                                        class="px-4 py-2 rounded-xl border bg-red-600 text-white">Show
+                                        less</button>
                                 </div>
                             </section>
                         </div>
@@ -561,8 +692,9 @@ const groups = computed(() => {
                 </div>
             </Transition>
 
-            <!-- Pagination - Responsive -->
-            <div v-if="filteredPreviews.length && previews.links && previews.links.length" class="mt-6 p-4">
+            <!-- Pagination - Responsive (hidden in Grid view) -->
+            <div v-if="activeTab === 'table' && filteredPreviews.length && previews.links && previews.links.length"
+                class="mt-6 p-4">
 
                 <!-- Mobile/Tablet pagination (simplified) -->
                 <div class="lg:hidden">
@@ -622,7 +754,8 @@ const groups = computed(() => {
                                     class="px-3 py-2 text-sm rounded-lg transition-all duration-200"
                                     :class="link.active
                                         ? 'bg-blue-600 text-white'
-                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'" v-html="link.label" />
+                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'"
+                                    v-html="link.label" />
                                 <span v-else class="px-3 py-2 text-sm text-gray-400 cursor-not-allowed"
                                     v-html="link.label" />
                             </template>
