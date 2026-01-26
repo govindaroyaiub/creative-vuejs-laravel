@@ -68,10 +68,8 @@ function truncate(text: string | null, length = 140) {
         <div class="p-6">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center">
-                    <input v-model="search" @input="onSearchInput" type="text" placeholder="Search previews..."
-                        class="px-3 py-2 rounded-2xl border w-72 dark:bg-neutral-800 bg-white" />
-
-
+                    <input v-model="search" @input="onSearchInput" type="text" placeholder="Search..."
+                        class="px-4 py-2 rounded-2xl border w-72 dark:bg-neutral-800 bg-white" />
                 </div>
                 <div class="text-sm dark:text-white text-gray-800">Total: {{ previews?.total || 0 }}</div>
             </div>
