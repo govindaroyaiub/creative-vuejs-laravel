@@ -55,6 +55,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
 
     //Preview Routes Start
     Route::get('/previews', [NewPreviewController::class, 'index'])->name('previews-index');
+    // Dedicated grid endpoint (returns unpaginated / grouped data for grid view)
+    Route::get('/previews/grid', [NewPreviewController::class, 'grid'])->name('previews-grid');
     Route::post('/previews-store', [NewPreviewController::class, 'store'])->name('previews-store');
     Route::get('/previews-edit/{newPreview}', [NewPreviewController::class, 'edit'])->name('previews-edit');
     Route::put('/previews-edit/{newPreview}', [NewPreviewController::class, 'update'])->name('previews-update');
