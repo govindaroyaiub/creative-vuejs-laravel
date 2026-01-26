@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Eye, Trash2, CirclePlus, X, Share2, Settings2, ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { Eye, Trash2, CirclePlus, X, Share2, Settings2, ChevronLeft, ChevronRight, LayoutGrid, List } from 'lucide-vue-next';
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+dayjs.extend(relativeTime)
 import Swal from 'sweetalert2';
 import { computed, ref, watch } from 'vue';
 import PreviewStepBasicInfo from './Partials/PreviewStepBasicInfo.vue';
@@ -9,7 +12,9 @@ import PreviewStepBasicInfo from './Partials/PreviewStepBasicInfo.vue';
 const loading = ref(false);
 const page = usePage();
 const search = ref('');
+const debounceTimer = ref<number | null>(null)
 const showModal = ref(false);
+const activeTab = ref<'grid' | 'table'>('grid')
 
 const previews = computed(() => page.props.previews ?? { data: [], links: [] });
 const clients = computed(() => page.props.clients ?? []);
@@ -33,26 +38,32 @@ function getDefaultFormData() {
 
 const formData = ref(getDefaultFormData());
 
+// Server-provided previews are the source of truth; also apply client-side
+// filtering so the table updates immediately while server search remains available.
 const filteredPreviews = computed(() => {
+    const list = previews.value.data || [];
     if (search.value) {
         const q = search.value.toLowerCase();
-        return previews.value.data.filter(
-            (p: any) =>
-                p.name.toLowerCase().includes(q) ||
-                p.client?.name?.toLowerCase().includes(q) ||
-                p.uploader?.name?.toLowerCase().includes(q)
+        return list.filter((p: any) =>
+            (p.name || '').toLowerCase().includes(q) ||
+            (p.client?.name || '').toLowerCase().includes(q) ||
+            (p.uploader?.name || '').toLowerCase().includes(q)
         );
     }
-    return previews.value.data;
+    return list;
 });
 
-watch(search, (val) => {
-    router.get(route('previews-index'), { search: val }, {
-        preserveScroll: true,
-        preserveState: true,
-        replace: true,
-    });
-});
+function onSearchInput() {
+    if (debounceTimer.value) clearTimeout(debounceTimer.value)
+    debounceTimer.value = window.setTimeout(() => {
+        router.get(route('previews-index'), { search: search.value, page: 1 }, { preserveState: true, replace: true })
+    }, 350)
+}
+
+function formatDateRelative(dateStr: string) {
+    if (!dateStr) return ''
+    return dayjs(dateStr).fromNow()
+}
 
 const deletePreview = async (id: number) => {
     const result = await Swal.fire({
@@ -134,6 +145,67 @@ const changePage = (url: string) => {
     }
 };
 
+// Grouping for Grid view (using filtered results)
+const inProgressLimit = ref(6)
+const completedLimit = ref(6)
+const noFeedbackLimit = ref(6)
+
+const groups = computed(() => {
+    const inProgress: any[] = []
+    const completed: any[] = []
+    const noFeedback: any[] = []
+
+    // Use the same source as filteredPreviews so grouping matches search results
+    const sourceList = previews.value.data || []
+    const q = (search.value || '').toLowerCase()
+    const list = q
+        ? sourceList.filter((p: any) =>
+            (p.name || '').toLowerCase().includes(q) ||
+            (p.client?.name || '').toLowerCase().includes(q) ||
+            (p.uploader?.name || '').toLowerCase().includes(q)
+        )
+        : sourceList
+
+    for (const p of list) {
+        // Derive totals from relationships if backend didn't provide them
+        let total = 0
+        let approved = 0
+        let latestFeedback: any = null
+
+        if (Array.isArray(p.categories)) {
+            for (const c of p.categories) {
+                if (Array.isArray(c.feedbacks)) {
+                    total += c.feedbacks.length
+                    for (const f of c.feedbacks) {
+                        if (f.is_approved) approved += 1
+                        if (!latestFeedback || new Date(f.updated_at) > new Date(latestFeedback.updated_at)) {
+                            latestFeedback = f
+                        }
+                    }
+                }
+            }
+        }
+
+        // Fallback to server-provided fields if present
+        total = Number(p.total_feedbacks ?? total ?? 0)
+        approved = Number(p.approved_feedbacks ?? approved ?? 0)
+
+        // Attach latest summary to preview for card rendering
+        if (!p.latest_feedback_description) {
+            p.latest_feedback_description = latestFeedback ? latestFeedback.description : null
+        }
+
+        if (total === 0) {
+            noFeedback.push(p)
+        } else if (approved >= total) {
+            completed.push(p)
+        } else {
+            inProgress.push(p)
+        }
+    }
+    return { inProgress, completed, noFeedback }
+})
+
 
 
 </script>
@@ -143,180 +215,351 @@ const changePage = (url: string) => {
     <Head title="Previews" />
     <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }]">
         <div class="p-4 md:p-6 space-y-4">
-            <!-- Search & Create -->
-            <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-                <input v-model="search" placeholder="Search..." aria-label="Search previews"
-                    class="w-full sm:max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
-                <button @click="showModal = true"
-                    class="rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700 group flex items-center justify-center whitespace-nowrap"
-                    aria-label="Add Preview">
-                    <CirclePlus class="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-200" />
-                    Add Preview
-                </button>
+            <!-- Tabs / Search (Add button placed next to tabs) -->
+            <div class="flex items-center justify-between gap-4">
+                <div class="flex-1">
+                    <input v-model="search" @input="onSearchInput" placeholder="Search..." aria-label="Search previews"
+                        class="w-1/2 rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button @click="activeTab = 'grid'" :aria-pressed="activeTab === 'grid'"
+                        :class="activeTab === 'grid' ? 'bg-gray-100 dark:bg-neutral-900 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'"
+                        class="px-3 py-2 rounded-xl flex items-center gap-2">
+                        <LayoutGrid class="w-5 h-5" />
+                        <span class="hidden sm:inline">Grid</span>
+                    </button>
+                    <button @click="activeTab = 'table'" :aria-pressed="activeTab === 'table'"
+                        :class="activeTab === 'table' ? 'bg-gray-100 dark:bg-neutral-900 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'"
+                        class="px-3 py-2 rounded-xl flex items-center gap-2">
+                        <List class="w-5 h-5" />
+                        <span class="hidden sm:inline">Table</span>
+                    </button>
+
+                    <button @click="showModal = true"
+                        class="ml-3 rounded-xl bg-green-600 px-3 py-2 text-white hover:bg-green-700 group flex items-center justify-center whitespace-nowrap"
+                        aria-label="Add Preview">
+                        <CirclePlus class="w-4 h-4 mr-2 group-hover:rotate-90 transition-transform duration-200" />
+                        <span class="hidden sm:inline">Add Preview</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- Desktop Table -->
-            <div class="hidden lg:block overflow-x-auto rounded-2xl shadow">
-                <table class="w-full rounded-2xl bg-white shadow dark:bg-neutral-800 dark:border border table-fixed">
-                    <thead class="bg-gray-100 dark:bg-neutral-900 text-xs uppercase">
-                        <tr>
-                            <th class="w-16 px-4 py-3 text-center border-b">#</th>
-                            <th class="w-80 px-4 py-3 text-left border-b">Name & Client</th>
-                            <th class="w-48 px-4 py-3 text-center border-b">Team</th>
-                            <th class="w-36 px-4 py-3 text-center border-b">Uploader</th>
-                            <th class="w-32 px-4 py-3 text-center border-b">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200 dark:divide-black">
-                        <tr v-for="(preview, index) in filteredPreviews" :key="preview.id"
-                            class="hover:bg-gray-50 dark:hover:bg-neutral-700 border-b">
-                            <td class="w-16 text-center px-4 py-3 font-medium border-b">
-                                {{ ((previews.current_page - 1) * previews.per_page) + index + 1 }}
-                            </td>
-                            <td class="w-80 px-4 py-3 text-left border-b">
-                                <div class="font-semibold capitalize break-words" :title="preview.name">{{ preview.name
-                                    }}</div>
-                                <div class="text-xs text-gray-500 flex gap-2 items-center">
-                                    <div class="h-5 w-5 rounded-full border flex-shrink-0"
-                                        :style="{ backgroundColor: preview.color_palette?.primary ?? 'red' }"
-                                        title="Primary Color"></div>
-                                    <span class="break-words">{{ preview.client?.name ?? '-' }}</span> -
-                                    <div class="text-xs text-gray-400 break-words">{{ getTypes(preview) || '-' }}</div>
-                                </div>
-                            </td>
-                            <td class="w-48 px-4 py-3 text-center border-b">
-                                <div class="flex justify-center flex-wrap gap-1">
-                                    <span v-for="u in preview.team_users" :key="u.id"
-                                        class="inline-block rounded-2xl bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700 dark:bg-indigo-800 dark:text-white truncate">
-                                        {{ u.name }}
-                                    </span>
-                                </div>
-                            </td>
-                            <td class="w-36 px-4 py-3 text-center border-b">
-                                <div class="text-sm truncate" :title="preview.uploader?.name">{{ preview.uploader?.name
-                                    ?? '-' }}</div>
-                                <div class="text-xs text-gray-400">{{ new
-                                    Date(preview.created_at).toLocaleDateString('en-GB', {
-                                        day: '2-digit', month: 'short', year: 'numeric'
-                                    }) }}</div>
-                            </td>
-                            <td class="w-32 text-center px-4 py-3 border-b">
-                                <div class="flex justify-center space-x-1">
-                                    <a :href="route('previews-show', preview.slug)"
-                                        class="text-green-600 hover:text-green-800 p-1" target="_blank" rel="noopener"
-                                        aria-label="View Preview">
-                                        <Eye class="h-4 w-4" />
-                                    </a>
-                                    <a :href="`${preview.client?.preview_url}/previews/show/${preview.slug}`"
-                                        class="text-yellow-600 hover:text-yellow-800 p-1" target="_blank" rel="noopener"
-                                        aria-label="Share Preview">
-                                        <Share2 class="h-4 w-4" />
-                                    </a>
-                                    <Link :href="route('previews.update.all', preview.id)"
-                                        class="text-indigo-600 hover:text-indigo-800 p-1" aria-label="Edit Preview">
-                                    <Settings2 class="h-4 w-4" />
-                                    </Link>
-                                    <button @click="deletePreview(preview.id)"
-                                        class="text-red-600 hover:text-red-800 p-1" aria-label="Delete Preview">
-                                        <Trash2 class="h-4 w-4" />
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr v-if="filteredPreviews.length === 0">
-                            <td colspan="5" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">No previews
-                                found.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <!-- Conditional Views -->
+            <Transition name="fade-slide" mode="out-in">
+                <div :key="activeTab">
+                    <div v-if="activeTab === 'table'">
+                        <!-- Desktop Table -->
+                        <div class="hidden lg:block overflow-x-auto rounded-2xl shadow">
+                            <table
+                                class="w-full rounded-2xl bg-white shadow dark:bg-neutral-800 dark:border border table-fixed">
+                                <thead class="bg-gray-100 dark:bg-neutral-900 text-xs uppercase">
+                                    <tr>
+                                        <th class="w-16 px-4 py-3 text-center border-b">#</th>
+                                        <th class="w-80 px-4 py-3 text-left border-b">Name & Client</th>
+                                        <th class="w-48 px-4 py-3 text-center border-b">Team</th>
+                                        <th class="w-36 px-4 py-3 text-center border-b">Uploader</th>
+                                        <th class="w-32 px-4 py-3 text-center border-b">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 dark:divide-black">
+                                    <tr v-for="(preview, index) in filteredPreviews" :key="preview.id"
+                                        class="hover:bg-gray-50 dark:hover:bg-neutral-700 border-b">
+                                        <td class="w-16 text-center px-4 py-3 font-medium border-b">
+                                            {{ ((previews.current_page - 1) * previews.per_page) + index + 1 }}
+                                        </td>
+                                        <td class="w-80 px-4 py-3 text-left border-b">
+                                            <div class="font-semibold capitalize break-words" :title="preview.name">{{
+                                                preview.name
+                                                }}</div>
+                                            <div class="text-xs text-gray-500 flex gap-2 items-center">
+                                                <div class="h-5 w-5 rounded-full border flex-shrink-0"
+                                                    :style="{ backgroundColor: preview.color_palette?.primary ?? 'red' }"
+                                                    title="Primary Color"></div>
+                                                <span class="break-words">{{ preview.client?.name ?? '-' }}</span> -
+                                                <div class="text-xs text-gray-400 break-words">{{ getTypes(preview) ||
+                                                    '-' }}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="w-48 px-4 py-3 text-center border-b">
+                                            <div class="flex justify-center flex-wrap gap-1">
+                                                <span v-for="u in preview.team_users" :key="u.id"
+                                                    class="inline-block rounded-2xl bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700 dark:bg-indigo-800 dark:text-white truncate">
+                                                    {{ u.name }}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="w-36 px-4 py-3 text-center border-b">
+                                            <div class="text-sm truncate" :title="preview.uploader?.name">{{
+                                                preview.uploader?.name
+                                                ?? '-' }}</div>
+                                            <div class="text-xs text-gray-400">{{ new
+                                                Date(preview.created_at).toLocaleDateString('en-GB', {
+                                                    day: '2-digit', month: 'short', year: 'numeric'
+                                                }) }}</div>
+                                        </td>
+                                        <td class="w-32 text-center px-4 py-3 border-b">
+                                            <div class="flex justify-center space-x-1">
+                                                <a :href="route('previews-show', preview.slug)"
+                                                    class="text-green-600 hover:text-green-800 p-1" target="_blank"
+                                                    rel="noopener" aria-label="View Preview">
+                                                    <Eye class="h-4 w-4" />
+                                                </a>
+                                                <a :href="`${preview.client?.preview_url}/previews/show/${preview.slug}`"
+                                                    class="text-yellow-600 hover:text-yellow-800 p-1" target="_blank"
+                                                    rel="noopener" aria-label="Share Preview">
+                                                    <Share2 class="h-4 w-4" />
+                                                </a>
+                                                <Link :href="route('previews.update.all', preview.id)"
+                                                    class="text-indigo-600 hover:text-indigo-800 p-1"
+                                                    aria-label="Edit Preview">
+                                                    <Settings2 class="h-4 w-4" />
+                                                </Link>
+                                                <button @click="deletePreview(preview.id)"
+                                                    class="text-red-600 hover:text-red-800 p-1"
+                                                    aria-label="Delete Preview">
+                                                    <Trash2 class="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="filteredPreviews.length === 0">
+                                        <td colspan="5" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
+                                            No
+                                            previews
+                                            found.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
 
-            <!-- Mobile/Tablet Cards -->
-            <div class="lg:hidden space-y-4">
-                <div v-for="(preview, index) in filteredPreviews" :key="preview.id"
-                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-4">
+                        <!-- Mobile/Tablet Cards (table view simplified) -->
+                        <div class="lg:hidden space-y-4">
+                            <div v-for="(preview, index) in filteredPreviews" :key="preview.id"
+                                class="bg-white dark:bg-neutral-800 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-4">
 
-                    <!-- Header: Number + Name -->
-                    <div class="flex items-start justify-between mb-3">
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                    #{{ ((previews.current_page - 1) * previews.per_page) + index + 1 }}
-                                </span>
-                                <div class="h-4 w-4 rounded-full border flex-shrink-0"
-                                    :style="{ backgroundColor: preview.color_palette?.primary ?? '#ccc' }"
-                                    title="Primary Color"></div>
+                                <div class="flex items-start justify-between mb-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                                #{{ ((previews.current_page - 1) * previews.per_page) + index + 1 }}
+                                            </span>
+                                            <div class="h-4 w-4 rounded-full border flex-shrink-0"
+                                                :style="{ backgroundColor: preview.color_palette?.primary ?? '#ccc' }"
+                                                title="Primary Color"></div>
+                                        </div>
+                                        <h3
+                                            class="font-semibold text-lg capitalize break-words text-gray-900 dark:text-white">
+                                            {{ preview.name }}
+                                        </h3>
+                                    </div>
+
+                                    <div class="flex gap-2 ml-3">
+                                        <a :href="route('previews-show', preview.slug)"
+                                            class="text-green-600 hover:text-green-800 p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20"
+                                            target="_blank" rel="noopener" aria-label="View Preview">
+                                            <Eye class="h-5 w-5" />
+                                        </a>
+                                        <a :href="`${preview.client?.preview_url}/previews/show/${preview.slug}`"
+                                            class="text-yellow-600 hover:text-yellow-800 p-2 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20"
+                                            target="_blank" rel="noopener" aria-label="Share Preview">
+                                            <Share2 class="h-5 w-5" />
+                                        </a>
+                                        <Link :href="route('previews.update.all', preview.id)"
+                                            class="text-indigo-600 hover:text-indigo-800 p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                                            aria-label="Edit Preview">
+                                            <Settings2 class="h-5 w-5" />
+                                        </Link>
+                                        <button @click="deletePreview(preview.id)"
+                                            class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
+                                            aria-label="Delete Preview">
+                                            <Trash2 class="h-5 w-5" />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                                        <span class="font-medium">Client:</span> {{ preview.client?.name ?? 'No client'
+                                        }}
+                                    </div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400" v-if="getTypes(preview)">
+                                        <span class="font-medium">Types:</span> {{ getTypes(preview) }}
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
+                                    <div>
+                                        <span class="font-medium">Uploader:</span> {{ preview.uploader?.name ??
+                                            'Unknown' }}
+                                    </div>
+                                    <div>
+                                        {{ new Date(preview.created_at).toLocaleDateString('en-GB', {
+                                            day: '2-digit', month: 'short', year: 'numeric'
+                                        }) }}
+                                    </div>
+                                </div>
                             </div>
-                            <h3 class="font-semibold text-lg capitalize break-words text-gray-900 dark:text-white">
-                                {{ preview.name }}
-                            </h3>
-                        </div>
 
-                        <!-- Actions -->
-                        <div class="flex gap-2 ml-3">
-                            <a :href="route('previews-show', preview.slug)"
-                                class="text-green-600 hover:text-green-800 p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20"
-                                target="_blank" rel="noopener" aria-label="View Preview">
-                                <Eye class="h-5 w-5" />
-                            </a>
-                            <a :href="`${preview.client?.preview_url}/previews/show/${preview.slug}`"
-                                class="text-yellow-600 hover:text-yellow-800 p-2 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20"
-                                target="_blank" rel="noopener" aria-label="Share Preview">
-                                <Share2 class="h-5 w-5" />
-                            </a>
-                            <Link :href="route('previews.update.all', preview.id)"
-                                class="text-indigo-600 hover:text-indigo-800 p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
-                                aria-label="Edit Preview">
-                            <Settings2 class="h-5 w-5" />
-                            </Link>
-                            <button @click="deletePreview(preview.id)"
-                                class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
-                                aria-label="Delete Preview">
-                                <Trash2 class="h-5 w-5" />
-                            </button>
+                            <div v-if="filteredPreviews.length === 0"
+                                class="bg-white dark:bg-neutral-800 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-8 text-center">
+                                <div class="text-gray-500 dark:text-gray-400">No previews found.</div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Client & Types -->
-                    <div class="mb-3">
-                        <div class="text-sm text-gray-600 dark:text-gray-400">
-                            <span class="font-medium">Client:</span> {{ preview.client?.name ?? 'No client' }}
-                        </div>
-                        <div class="text-sm text-gray-600 dark:text-gray-400" v-if="getTypes(preview)">
-                            <span class="font-medium">Types:</span> {{ getTypes(preview) }}
-                        </div>
-                    </div>
+                    <div v-else>
+                        <!-- Grid (notion-like grouped view) -->
+                        <div v-if="filteredPreviews.length" class="space-y-8">
+                            <!-- In Progress -->
+                            <section>
+                                <div class="flex items-center justify-between mb-1">
+                                    <h3 class="text-lg font-semibold">In Progress</h3>
+                                    <div class="text-sm text-gray-500">Showing {{ Math.min(groups.inProgress.length,
+                                        inProgressLimit) }} of {{ groups.inProgress.length }}</div>
+                                </div>
+                                <div
+                                    class="h-0.5 w-full bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-200 rounded-full mb-4">
+                                </div>
+                                <div v-if="groups.inProgress.length"
+                                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <div v-for="p in groups.inProgress.slice(0, inProgressLimit)" :key="p.id"
+                                        class="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-3 hover:shadow-md transition">
+                                        <div class="flex items-start justify-between">
+                                            <div>
+                                                <a :href="`/previews/update/${p.id}`"
+                                                    class="text-lg font-semibold text-blue-600 dark:text-blue-300 hover:underline">{{
+                                                        p.name }}</a>
+                                                <div class="text-sm text-gray-500 dark:text-gray-400">Created by: {{
+                                                    p.uploader?.name || 'System' }}</div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="text-xs text-gray-500">{{ formatDateRelative(p.created_at)
+                                                    }}</div>
+                                                <div class="mt-2"><span
+                                                        class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">In
+                                                        Progress</span></div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                                            <div class="text-xs text-gray-500">Latest Summary:</div>
+                                            <div
+                                                class="mt-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
+                                                {{ p.latest_feedback_description ? (p.latest_feedback_description.length
+                                                    > 150 ?
+                                                    p.latest_feedback_description.slice(0, 150) + '...' :
+                                                    p.latest_feedback_description) : 'No recent feedback summary' }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div v-else class="text-sm text-gray-500">No previews in progress.</div>
+                                <div v-if="groups.inProgress.length > inProgressLimit" class="mt-3 text-center"><button
+                                        @click="inProgressLimit += 10" class="px-4 py-2 rounded-xl border">Show
+                                        more</button>
+                                </div>
+                            </section>
 
-                    <!-- Team -->
-                    <div class="mb-3" v-if="preview.team_users?.length">
-                        <div class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Team:</div>
-                        <div class="flex flex-wrap gap-2">
-                            <span v-for="u in preview.team_users" :key="u.id"
-                                class="inline-block rounded-xl bg-indigo-100 px-3 py-1 text-sm text-indigo-700 dark:bg-indigo-800 dark:text-white">
-                                {{ u.name }}
-                            </span>
-                        </div>
-                    </div>
+                            <!-- Completed -->
+                            <section>
+                                <div class="flex items-center justify-between mb-1">
+                                    <h3 class="text-lg font-semibold">Completed</h3>
+                                    <div class="text-sm text-gray-500">Showing {{ Math.min(groups.completed.length,
+                                        completedLimit) }} of {{ groups.completed.length }}</div>
+                                </div>
+                                <div
+                                    class="h-0.5 w-full bg-gradient-to-r from-green-400 via-green-300 to-green-200 rounded-full mb-4">
+                                </div>
+                                <div v-if="groups.completed.length"
+                                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <div v-for="p in groups.completed.slice(0, completedLimit)" :key="p.id"
+                                        class="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-4 hover:shadow-md transition">
+                                        <div class="flex items-start justify-between">
+                                            <div>
+                                                <a :href="`/previews/update/${p.id}`"
+                                                    class="text-lg font-semibold text-blue-600 dark:text-blue-300 hover:underline">{{
+                                                        p.name }}</a>
+                                                <div class="text-sm text-gray-500 dark:text-gray-400">Created by: {{
+                                                    p.uploader?.name || 'System' }}</div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="text-xs text-gray-500">{{ formatDateRelative(p.created_at)
+                                                    }}</div>
+                                                <div class="mt-2"><span
+                                                        class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                                            <div class="text-xs text-gray-500">Latest Summary:</div>
+                                            <div
+                                                class="mt-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
+                                                {{ p.latest_feedback_description ? (p.latest_feedback_description.length
+                                                    > 150 ?
+                                                    p.latest_feedback_description.slice(0, 150) + '...' :
+                                                    p.latest_feedback_description) : 'No recent feedback summary' }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div v-else class="text-sm text-gray-500">No completed previews.</div>
+                                <div v-if="groups.completed.length > completedLimit" class="mt-3 text-center"><button
+                                        @click="completedLimit += 10" class="px-4 py-2 rounded-xl border">Show
+                                        more</button>
+                                </div>
+                            </section>
 
-                    <!-- Uploader & Date -->
-                    <div class="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
-                        <div>
-                            <span class="font-medium">Uploader:</span> {{ preview.uploader?.name ?? 'Unknown' }}
+                            <!-- No Feedback -->
+                            <section>
+                                <div class="flex items-center justify-between mb-1">
+                                    <h3 class="text-lg font-semibold">No Feedback</h3>
+                                    <div class="text-sm text-gray-500">Showing {{ Math.min(groups.noFeedback.length,
+                                        noFeedbackLimit) }} of {{ groups.noFeedback.length }}</div>
+                                </div>
+                                <div
+                                    class="h-0.5 w-full bg-gradient-to-r from-gray-400 via-gray-300 to-gray-200 rounded-full mb-4">
+                                </div>
+                                <div v-if="groups.noFeedback.length"
+                                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <div v-for="p in groups.noFeedback.slice(0, noFeedbackLimit)" :key="p.id"
+                                        class="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-4 hover:shadow-md transition">
+                                        <div class="flex items-start justify-between">
+                                            <div>
+                                                <a :href="`/previews/update/${p.id}`"
+                                                    class="text-lg font-semibold text-blue-600 dark:text-blue-300 hover:underline">{{
+                                                        p.name }}</a>
+                                                <div class="text-sm text-gray-500 dark:text-gray-400">Created by: {{
+                                                    p.uploader?.name || 'System' }}</div>
+                                            </div>
+                                            <div class="text-right">
+                                                <div class="text-xs text-gray-500">{{ formatDateRelative(p.created_at)
+                                                    }}</div>
+                                                <div class="mt-2"><span
+                                                        class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">No
+                                                        Feedback</span></div>
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="mt-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
+                                            {{ p.latest_feedback_description ? (p.latest_feedback_description.length >
+                                                150 ?
+                                                p.latest_feedback_description.slice(0, 150) + '...' :
+                                                p.latest_feedback_description)
+                                                : 'No recent feedback summary' }}</div>
+                                    </div>
+                                </div>
+                                <div v-else class="text-sm text-gray-500">No previews without feedback.</div>
+                                <div v-if="groups.noFeedback.length > noFeedbackLimit" class="mt-3 text-center"><button
+                                        @click="noFeedbackLimit += 10" class="px-4 py-2 rounded-xl border">Show
+                                        more</button>
+                                </div>
+                            </section>
                         </div>
-                        <div>
-                            {{ new Date(preview.created_at).toLocaleDateString('en-GB', {
-                                day: '2-digit', month: 'short', year: 'numeric'
-                            }) }}
+
+                        <div v-else class="bg-white dark:bg-neutral-800 rounded-xl p-8 text-center">
+                            <div class="text-gray-600 dark:text-gray-400">No previews found.</div>
                         </div>
                     </div>
                 </div>
-
-                <!-- No results card -->
-                <div v-if="filteredPreviews.length === 0"
-                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-8 text-center">
-                    <div class="text-gray-500 dark:text-gray-400">No previews found.</div>
-                </div>
-            </div>
+            </Transition>
 
             <!-- Pagination - Responsive -->
             <div v-if="filteredPreviews.length && previews.links && previews.links.length" class="mt-6 p-4">
@@ -379,8 +622,7 @@ const changePage = (url: string) => {
                                     class="px-3 py-2 text-sm rounded-lg transition-all duration-200"
                                     :class="link.active
                                         ? 'bg-blue-600 text-white'
-                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'"
-                                    v-html="link.label" />
+                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'" v-html="link.label" />
                                 <span v-else class="px-3 py-2 text-sm text-gray-400 cursor-not-allowed"
                                     v-html="link.label" />
                             </template>
@@ -424,3 +666,31 @@ const changePage = (url: string) => {
         </div>
     </AppLayout>
 </template>
+
+<style scoped>
+/* Smooth fade + slight vertical slide when switching tabs */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+    transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.fade-slide-enter-from {
+    opacity: 0;
+    transform: translateY(8px);
+}
+
+.fade-slide-enter-to {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.fade-slide-leave-from {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.fade-slide-leave-to {
+    opacity: 0;
+    transform: translateY(-8px);
+}
+</style>
