@@ -98,8 +98,7 @@ class NewPreviewController extends Controller
                 'videoSizes' => VideoSize::orderBy('name')->orderBy('width')->orderBy('height')->get(['id', 'name', 'width', 'height'])->map(fn($s) => tap($s, fn($s) => $s->name = "{$s->name}")),
                 'auth' => ['user' => Auth::user()],
             ]);
-        }
-        else{
+        } else {
             $query = newPreview::with(['client', 'uploader', 'colorPalette', 'categories.feedbacks'])
                 ->where('client_id', $clientIdOfLoggedInUser);
 
@@ -128,6 +127,64 @@ class NewPreviewController extends Controller
                 'auth' => ['user' => Auth::user()],
             ]);
         }
+    }
+
+    /**
+     * Grid endpoint: return unpaginated or capped previews suitable for grid view.
+     * This returns the same Inertia page but with a `previews` prop shaped for the grid.
+     */
+    public function grid(Request $request)
+    {
+        $clientIdOfLoggedInUser = Auth::user()->client_id;
+        $client = Client::find($clientIdOfLoggedInUser);
+
+        $query = newPreview::with(['client', 'uploader', 'colorPalette', 'categories.feedbacks']);
+        if ($client['name'] != 'Planet Nine') {
+            $query->where('client_id', $clientIdOfLoggedInUser);
+        }
+
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhereHas('client', fn($q2) => $q2->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('uploader', fn($q3) => $q3->where('name', 'like', "%{$search}%"))
+                    ->orWhereRaw("DATE_FORMAT(created_at, '%d %M %Y') LIKE ?", ["%{$search}%"]);
+            });
+        }
+
+        // Get all previews (or a reasonable cap if needed)
+        $all = $query->orderBy('created_at', 'desc')->get();
+
+        // Attach team_users similar to paginate->through
+        $all = $all->map(function ($preview) {
+            $preview->team_users = User::whereIn('id', $preview->team_members)->get(['id', 'name']);
+            return $preview;
+        });
+
+        $data = $all->values()->all();
+
+        // Shape a lightweight previews object so front-end can use `previews.data`.
+        $previewsProp = [
+            'data' => $data,
+            'links' => [],
+            'total' => count($data),
+            'current_page' => 1,
+            'last_page' => 1,
+            'per_page' => count($data),
+            'from' => $data ? 1 : null,
+            'to' => count($data),
+        ];
+
+        return Inertia::render('Previews/Index', [
+            'previews' => $previewsProp,
+            'search' => $search ?? null,
+            'clients' => Client::orderBy('name')->get(['id', 'name', 'preview_url']),
+            'users' => User::orderBy('name')->get(['id', 'name']),
+            'colorPalettes' => ColorPalette::orderBy('name')->get(['id', 'name']),
+            'bannerSizes' => BannerSize::orderBy('width')->orderBy('height')->get(['id', 'width', 'height'])->map(fn($s) => tap($s, fn($s) => $s->name = "{$s->width}x{$s->height}")),
+            'videoSizes' => VideoSize::orderBy('name')->orderBy('width')->orderBy('height')->get(['id', 'name', 'width', 'height'])->map(fn($s) => tap($s, fn($s) => $s->name = "{$s->name}")),
+            'auth' => ['user' => Auth::user()],
+        ]);
     }
 
     /**
