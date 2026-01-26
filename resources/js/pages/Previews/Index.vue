@@ -56,25 +56,17 @@ const filteredPreviews = computed(() => {
 function onSearchInput() {
     if (debounceTimer.value) clearTimeout(debounceTimer.value)
     debounceTimer.value = window.setTimeout(() => {
-        // keep current tab's data in sync with search
-        if (activeTab.value === 'table') {
-            loading.value = true
-            router.get(route('previews-index'), { search: search.value, page: 1 }, { preserveState: true, replace: true, onFinish: () => { loading.value = false } })
-        } else {
-            loading.value = true
-            router.get(route('previews-grid'), { search: search.value }, { preserveState: true, replace: true, onFinish: () => { loading.value = false } })
-        }
+        // Use the same route for both grid and table views so search behaves consistently
+        loading.value = true
+        router.get(route('previews-index'), { search: search.value, page: 1 }, { preserveState: true, replace: true, onFinish: () => { loading.value = false } })
     }, 350)
 }
 
 function switchTab(tab: 'grid' | 'table') {
     activeTab.value = tab
     loading.value = true
-    if (tab === 'table') {
-        router.get(route('previews-index'), { search: search.value, page: 1 }, { preserveState: true, replace: true, onFinish: () => { loading.value = false } })
-    } else {
-        router.get(route('previews-grid'), { search: search.value }, { preserveState: true, replace: true, onFinish: () => { loading.value = false } })
-    }
+    // Always request the main previews index; reset to page 1 when switching views
+    router.get(route('previews-index'), { search: search.value, page: 1 }, { preserveState: true, replace: true, onFinish: () => { loading.value = false } })
 }
 
 function formatDateRelative(dateStr: string) {
@@ -165,9 +157,10 @@ const changePage = (url: string) => {
 };
 
 // Grouping for Grid view (using filtered results)
-const inProgressDefault = 9
+// Show a maximum of 6 blocks per group for grid layout
+const inProgressDefault = 6
 const completedDefault = 6
-const noFeedbackDefault = 3
+const noFeedbackDefault = 6
 
 const inProgressLimit = ref(inProgressDefault)
 const completedLimit = ref(completedDefault)
@@ -513,7 +506,7 @@ const groups = computed(() => {
                             <!-- In Progress -->
                             <section>
                                 <div class="flex items-center justify-between mb-1">
-                                    <h3 class="text-lg font-semibold">In Progress</h3>
+                                    <h3 class="text-lg font-semibold whitespace-nowrap">In Progress</h3>
                                     <div class="text-sm text-gray-500">Showing {{ Math.min(groups.inProgress.length,
                                         inProgressLimit) }} of {{ groups.inProgress.length }}</div>
                                 </div>
@@ -538,7 +531,7 @@ const groups = computed(() => {
                                                         formatDateRelative(p.created_at)
                                                         }}</div>
                                                     <div class="mt-2"><span
-                                                            class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">In
+                                                            class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 whitespace-nowrap">In
                                                             Progress</span></div>
                                                 </div>
                                             </div>
@@ -557,22 +550,13 @@ const groups = computed(() => {
                                     </div>
                                     <div v-else class="text-sm text-gray-500">No previews in progress.</div>
                                 </div>
-                                <div class="mt-3 text-center">
-                                    <button v-if="groups.inProgress.length > inProgressLimit"
-                                        @click="expandGroup('inProgress')"
-                                        class="px-4 py-2 rounded-xl mr-2 bg-black text-white border-white dark:bg-white dark:text-black dark:border-black">Show
-                                        more</button>
-                                    <button v-if="inProgressLimit > inProgressDefault"
-                                        @click="collapseTo('inProgress', inProgressContainer, inProgressDefault)"
-                                        class="px-4 py-2 rounded-xl border bg-red-600 text-white">Show
-                                        less</button>
-                                </div>
+                                <div class="mt-3"></div>
                             </section>
 
                             <!-- Completed -->
                             <section>
                                 <div class="flex items-center justify-between mb-1">
-                                    <h3 class="text-lg font-semibold">Completed</h3>
+                                    <h3 class="text-lg font-semibold whitespace-nowrap">Completed</h3>
                                     <div class="text-sm text-gray-500">Showing {{ Math.min(groups.completed.length,
                                         completedLimit) }} of {{ groups.completed.length }}</div>
                                 </div>
@@ -597,7 +581,7 @@ const groups = computed(() => {
                                                         formatDateRelative(p.created_at)
                                                         }}</div>
                                                     <div class="mt-2"><span
-                                                            class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                                                            class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 whitespace-nowrap">Completed</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -616,22 +600,13 @@ const groups = computed(() => {
                                     </div>
                                     <div v-else class="text-sm text-gray-500">No completed previews.</div>
                                 </div>
-                                <div class="mt-3 text-center">
-                                    <button v-if="groups.completed.length > completedLimit"
-                                        @click="expandGroup('completed')"
-                                        class="px-4 py-2 rounded-xl mr-2 bg-black text-white border-white dark:bg-white dark:text-black dark:border-black">Show
-                                        more</button>
-                                    <button v-if="completedLimit > completedDefault"
-                                        @click="collapseTo('completed', completedContainer, completedDefault)"
-                                        class="px-4 py-2 rounded-xl border bg-red-600 text-white">Show
-                                        less</button>
-                                </div>
+                                <div class="mt-3"></div>
                             </section>
 
                             <!-- No Feedback -->
                             <section>
                                 <div class="flex items-center justify-between mb-1">
-                                    <h3 class="text-lg font-semibold">No Feedback</h3>
+                                    <h3 class="text-lg font-semibold whitespace-nowrap">No Feedback</h3>
                                     <div class="text-sm text-gray-500">Showing {{ Math.min(groups.noFeedback.length,
                                         noFeedbackLimit) }} of {{ groups.noFeedback.length }}</div>
                                 </div>
@@ -672,16 +647,7 @@ const groups = computed(() => {
                                     </div>
                                     <div v-else class="text-sm text-gray-500">No previews without feedback.</div>
                                 </div>
-                                <div class="mt-3 text-center">
-                                    <button v-if="groups.noFeedback.length > noFeedbackLimit"
-                                        @click="expandGroup('noFeedback')"
-                                        class="px-4 py-2 rounded-xl mr-2 bg-black text-white border-white dark:bg-white dark:text-black dark:border-black">Show
-                                        more</button>
-                                    <button v-if="noFeedbackLimit > noFeedbackDefault"
-                                        @click="collapseTo('noFeedback', noFeedbackContainer, noFeedbackDefault)"
-                                        class="px-4 py-2 rounded-xl border bg-red-600 text-white">Show
-                                        less</button>
-                                </div>
+                                <div class="mt-3"></div>
                             </section>
                         </div>
 
@@ -692,9 +658,8 @@ const groups = computed(() => {
                 </div>
             </Transition>
 
-            <!-- Pagination - Responsive (hidden in Grid view) -->
-            <div v-if="activeTab === 'table' && filteredPreviews.length && previews.links && previews.links.length"
-                class="mt-6 p-4">
+            <!-- Pagination (shown for both table and grid views) -->
+            <div v-if="filteredPreviews.length && previews.links && previews.links.length" class="mt-6 p-4">
 
                 <!-- Mobile/Tablet pagination (simplified) -->
                 <div class="lg:hidden">
