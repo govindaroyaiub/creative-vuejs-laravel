@@ -28,6 +28,7 @@ use App\Http\Controllers\NewSocialController;
 use App\Http\Controllers\NewVideoController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\TetrisController;
+use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\CacheManagementController;
 
 Route::get('/', function () {
@@ -166,6 +167,12 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::post('/activity-logs/empty', [ActivityLogController::class, 'empty'])->name('activity-logs.empty');
     Route::get('/play/tetris', [TetrisController::class, 'index'])->name('tetris.index');
     Route::post('/tetris/submit/score', [TetrisController::class, 'submitScore'])->name('tetris.submit.score');
+
+    Route::get('/templates', [TemplateController::class, 'index'])->name('templates.index');
+    Route::post('/templates-store', [TemplateController::class, 'store'])->name('templates.store');
+    Route::post('/templates-update/{template}', [TemplateController::class, 'update'])->name('templates.update');
+    Route::delete('/templates-delete/{template}', [TemplateController::class, 'destroy'])->name('templates.delete');
+    Route::get('/templates-download/{template}', [TemplateController::class, 'download'])->name('templates.download');
 
     //Cache Management Routes Start
     Route::get('/cache-management', [CacheManagementController::class, 'index'])->name('cache-management');
