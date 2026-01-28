@@ -1589,6 +1589,19 @@ const qaList = ref([
     `
     },
     {
+        question: 'What is Templates?',
+        answer: 'As the name suggests, Templates are pre-defined design structures for previews. They help maintain consistency across different previews and speed up the creation process. This section needs to be updated or added if any new template is required within the Preview System or if the template is unknown and not in the knowledge base. DV360, CM360, Hoogvliet, Studio, Weborama or anything else that is used frequently can be added as a Template within the system.',
+        additionalInfo: `
+        Technical details:
+        <ul class="list-disc list-inside space-y-2 mt-4">
+            <li>📄 <strong>Models:</strong> <code>Template.php</code></li>
+            <li>🗃️ <strong>Migrations:</strong> <code>2026_01_28_120000_create_templates_table.php</code>
+            <li>🎛️ <strong>Controller:</strong> <code>TemplateController.php</code></li>
+            <li>🖼️ <strong>Vue Files:</strong> <code>Pages/Templates</code></li>
+        </ul>
+    `
+    },
+    {
         question: 'How does the Preview System work and what are the relations?',
         answer: 'The Preview System is the core of Creative Studio Planet Nine. It allows creating preview links, uploading creatives, and managing feedbacks. It follows a hierarchical relationship between entities.',
         additionalInfo: `
