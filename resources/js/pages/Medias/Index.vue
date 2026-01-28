@@ -184,9 +184,9 @@ const getFileSize = (bytes: number) => {
         <div class="p-4 md:p-6">
             <!-- Search & Upload (aligned like FileTransfers) -->
             <div class="mb-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-                <div class="flex items-center gap-3">
+                <div class="flex-1 items-center gap-3">
                     <input v-model="search" placeholder="Search..."
-                        class="w-full sm:max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
+                        class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
 
                     <!-- Show all toggle -->
                     <button @click="toggleShowAll"

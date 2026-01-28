@@ -311,7 +311,7 @@ const groups = computed(() => {
             <div class="flex items-center justify-between gap-4">
                 <div class="flex-1">
                     <input v-model="search" @input="onSearchInput" placeholder="Search..." aria-label="Search previews"
-                        class="w-1/2 rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
+                        class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
                 </div>
                 <div class="flex items-center space-x-2">
                     <button @click="switchTab('grid')" :aria-pressed="activeTab === 'grid'"

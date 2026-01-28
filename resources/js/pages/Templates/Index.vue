@@ -147,7 +147,7 @@ function gotoLink(link: any) {
                 <div class="flex-1">
                     <input v-model="search" @input="onSearchInput" placeholder="Search templates..."
                         aria-label="Search templates"
-                        class="w-1/4 rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
+                        class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
                 </div>
                 <div class="flex items-center">
                     <button @click="openAdd"
@@ -358,14 +358,14 @@ function gotoLink(link: any) {
 
             <!-- Modal -->
             <div v-if="showModal"
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4" style="margin-top: 0!important;"
                 @click.self="closeModal">
                 <div
-                    class="bg-white dark:bg-neutral-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-neutral-700">
+                    class="mx-4 bg-white dark:bg-neutral-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-neutral-700">
                     <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-neutral-700">
                         <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ isEditing ? 'Edit Template' :
                             'Add Template'
-                        }}</h2>
+                            }}</h2>
                         <button @click="closeModal" class="p-2 text-gray-400 hover:text-gray-600 rounded-lg"><svg
                                 xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
@@ -403,7 +403,7 @@ function gotoLink(link: any) {
                                         class="flex items-center justify-between p-2 bg-gray-50 dark:bg-neutral-700 rounded-lg">
                                         <span>{{ form.file.name }}</span>
                                         <span class="text-xs text-gray-500">{{ (form.file.size / 1024 / 1024).toFixed(2)
-                                            }}
+                                        }}
                                             MB</span>
                                     </div>
                                 </div>
