@@ -6,7 +6,7 @@ import { useAppearance } from '@/composables/useAppearance';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { ChartNoAxesCombined, Link2, Clapperboard, MonitorCog, Megaphone, ReceiptText, MonitorCheck, Users, History, Type, FileCode, Handshake, Paintbrush, ImagePlay, HardDriveIcon } from 'lucide-vue-next';
+import { ChartNoAxesCombined, Link2, Clapperboard, MonitorCog, Megaphone, ReceiptText, LayoutTemplate, Users, History, Type, FileCode, Handshake, Paintbrush, ImagePlay, HardDriveIcon } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 import { computed } from 'vue'; // ✅ important to make reactive
@@ -27,6 +27,7 @@ const mainNavItems: NavItem[] = [
     { title: 'File Transfers', href: '/file-transfers', icon: Link2 },
     { title: 'Media Library', 'href': '/medias', icon: ImagePlay },
     { title: 'Tetris', href: '/play/tetris', icon: Type },
+    { title: 'Templates', href: '/templates', icon: LayoutTemplate },
 ];
 
 const footerNavItems: NavItem[] = [
