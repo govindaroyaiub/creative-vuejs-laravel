@@ -42,8 +42,6 @@ class ActivityLogController extends Controller
 
         $ids = $data['ids'];
         $deleted = Activity::whereIn('id', $ids)->delete();
-
-        return response()->json(['deleted' => $deleted]);
     }
 
     /**
