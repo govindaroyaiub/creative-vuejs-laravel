@@ -336,6 +336,7 @@ class DatabaseSeeder extends Seeder
             ['title' => 'File Transfers', 'href' => '/file-transfers'],
             ['title' => 'Media Library', 'href' => '/medias'],
             ['title' => 'Tetris', 'href' => '/play/tetris'],
+            ['title' => 'Templates', 'href' => '/templates'],
             ['title' => 'Access Manager', 'href' => '/user-managements'],
             ['title' => 'Change Password', 'href' => '/change-password'],
             ['title' => 'Activity Logs', 'href' => '/activity-logs'],
