@@ -71,6 +71,10 @@ class NewPreviewController extends Controller
         $clientIdOfLoggedInUser = Auth::user()->client_id;
         $client = Client::find($clientIdOfLoggedInUser);
 
+        // Grid view needs more data for grouping with See More/Less, table needs traditional pagination
+        $view = $request->input('view', 'grid');
+        $perPage = $view === 'grid' ? 100 : 10;
+
         if ($client['name'] == 'Planet Nine') {
             $query = newPreview::with(['client', 'uploader', 'colorPalette', 'categories.feedbacks']);
 
@@ -83,7 +87,28 @@ class NewPreviewController extends Controller
                 });
             }
 
-            $previews = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString()->through(function ($preview) {
+            // Apply date range filters
+            if ($fromDate = $request->input('from_date')) {
+                $query->whereDate('created_at', '>=', $fromDate);
+            }
+            if ($toDate = $request->input('to_date')) {
+                $query->whereDate('created_at', '<=', $toDate);
+            }
+
+            // Apply uploader filter
+            if ($uploaderId = $request->input('uploader_id')) {
+                $query->where('uploader_id', $uploaderId);
+            }
+
+            // Apply keywords filter
+            if ($keywords = $request->input('keywords')) {
+                $query->where(function ($q) use ($keywords) {
+                    $q->where('name', 'like', "%{$keywords}%")
+                        ->orWhereHas('client', fn($q2) => $q2->where('name', 'like', "%{$keywords}%"));
+                });
+            }
+
+            $previews = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString()->through(function ($preview) {
                 $preview->team_users = User::whereIn('id', $preview->team_members)->get(['id', 'name']);
                 return $preview;
             });
@@ -111,7 +136,28 @@ class NewPreviewController extends Controller
                 });
             }
 
-            $previews = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString()->through(function ($preview) {
+            // Apply date range filters
+            if ($fromDate = $request->input('from_date')) {
+                $query->whereDate('created_at', '>=', $fromDate);
+            }
+            if ($toDate = $request->input('to_date')) {
+                $query->whereDate('created_at', '<=', $toDate);
+            }
+
+            // Apply uploader filter
+            if ($uploaderId = $request->input('uploader_id')) {
+                $query->where('uploader_id', $uploaderId);
+            }
+
+            // Apply keywords filter
+            if ($keywords = $request->input('keywords')) {
+                $query->where(function ($q) use ($keywords) {
+                    $q->where('name', 'like', "%{$keywords}%")
+                        ->orWhereHas('client', fn($q2) => $q2->where('name', 'like', "%{$keywords}%"));
+                });
+            }
+
+            $previews = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString()->through(function ($preview) {
                 $preview->team_users = User::whereIn('id', $preview->team_members)->get(['id', 'name']);
                 return $preview;
             });
