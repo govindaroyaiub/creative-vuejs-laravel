@@ -1,13 +1,28 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Eye, Trash2, CirclePlus, X, Share2, Settings2, ChevronLeft, ChevronRight, LayoutGrid, List } from 'lucide-vue-next';
+import { Eye, Trash2, CirclePlus, X, Share2, Settings2, ChevronLeft, ChevronRight, LayoutGrid, List, ListFilter } from 'lucide-vue-next';
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 dayjs.extend(relativeTime)
 import Swal from 'sweetalert2';
-import { computed, ref, watch, nextTick } from 'vue';
+import { computed, ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import PreviewStepBasicInfo from './Partials/PreviewStepBasicInfo.vue';
+
+// Click-away directive
+const vClickAway = {
+    mounted(el: any, binding: any) {
+        el.clickAwayEvent = (event: Event) => {
+            if (!(el === event.target || el.contains(event.target))) {
+                binding.value(event);
+            }
+        };
+        document.addEventListener('click', el.clickAwayEvent);
+    },
+    unmounted(el: any) {
+        document.removeEventListener('click', el.clickAwayEvent);
+    }
+};
 
 const loading = ref(false);
 const page = usePage();
@@ -15,6 +30,13 @@ const search = ref('');
 const debounceTimer = ref<number | null>(null)
 const showModal = ref(false);
 const activeTab = ref<'grid' | 'table'>('grid')
+const showFilters = ref(false);
+const filters = ref({
+    fromDate: '',
+    toDate: '',
+    uploaderId: '',
+    keywords: ''
+});
 
 const previews = computed(() => page.props.previews ?? { data: [], links: [] });
 const clients = computed(() => page.props.clients ?? []);
@@ -41,32 +63,101 @@ const formData = ref(getDefaultFormData());
 // Server-provided previews are the source of truth; also apply client-side
 // filtering so the table updates immediately while server search remains available.
 const filteredPreviews = computed(() => {
-    const list = previews.value.data || [];
+    let list = previews.value.data || [];
+
+    // Apply search filter
     if (search.value) {
         const q = search.value.toLowerCase();
-        return list.filter((p: any) =>
+        list = list.filter((p: any) =>
             (p.name || '').toLowerCase().includes(q) ||
             (p.client?.name || '').toLowerCase().includes(q) ||
             (p.uploader?.name || '').toLowerCase().includes(q)
         );
     }
+
+    // Apply date range filter
+    if (filters.value.fromDate) {
+        list = list.filter((p: any) => {
+            const createdDate = dayjs(p.created_at).format('YYYY-MM-DD');
+            return createdDate >= filters.value.fromDate;
+        });
+    }
+    if (filters.value.toDate) {
+        list = list.filter((p: any) => {
+            const createdDate = dayjs(p.created_at).format('YYYY-MM-DD');
+            return createdDate <= filters.value.toDate;
+        });
+    }
+
+    // Apply uploader filter
+    if (filters.value.uploaderId) {
+        list = list.filter((p: any) => p.uploader_id == filters.value.uploaderId);
+    }
+
+    // Apply keywords filter
+    if (filters.value.keywords) {
+        const keywords = filters.value.keywords.toLowerCase();
+        list = list.filter((p: any) =>
+            (p.name || '').toLowerCase().includes(keywords) ||
+            (p.client?.name || '').toLowerCase().includes(keywords)
+        );
+    }
+
     return list;
 });
+
+function applyFilters() {
+    loading.value = true
+    router.get(route('previews-index'), {
+        search: search.value,
+        view: activeTab.value,
+        page: 1,
+        from_date: filters.value.fromDate,
+        to_date: filters.value.toDate,
+        uploader_id: filters.value.uploaderId,
+        keywords: filters.value.keywords
+    }, { preserveState: true, replace: true, onFinish: () => { loading.value = false; showFilters.value = false } })
+}
+
+function clearFilters() {
+    // Reset filter fields in the UI but do not auto-apply.
+    // This keeps the dropdown open so the user can adjust or click Apply.
+    filters.value.fromDate = ''
+    filters.value.toDate = ''
+    filters.value.uploaderId = ''
+    filters.value.keywords = ''
+}
 
 function onSearchInput() {
     if (debounceTimer.value) clearTimeout(debounceTimer.value)
     debounceTimer.value = window.setTimeout(() => {
-        // Use the same route for both grid and table views so search behaves consistently
+        // Send current view so backend paginates appropriately
         loading.value = true
-        router.get(route('previews-index'), { search: search.value, page: 1 }, { preserveState: true, replace: true, onFinish: () => { loading.value = false } })
+        router.get(route('previews-index'), {
+            search: search.value,
+            view: activeTab.value,
+            page: 1,
+            from_date: filters.value.fromDate,
+            to_date: filters.value.toDate,
+            uploader_id: filters.value.uploaderId,
+            keywords: filters.value.keywords
+        }, { preserveState: true, replace: true, onFinish: () => { loading.value = false } })
     }, 350)
 }
 
 function switchTab(tab: 'grid' | 'table') {
     activeTab.value = tab
     loading.value = true
-    // Always request the main previews index; reset to page 1 when switching views
-    router.get(route('previews-index'), { search: search.value, page: 1 }, { preserveState: true, replace: true, onFinish: () => { loading.value = false } })
+    // Send view parameter so backend knows how to paginate
+    router.get(route('previews-index'), {
+        search: search.value,
+        view: tab,
+        page: 1,
+        from_date: filters.value.fromDate,
+        to_date: filters.value.toDate,
+        uploader_id: filters.value.uploaderId,
+        keywords: filters.value.keywords
+    }, { preserveState: true, replace: true, onFinish: () => { loading.value = false } })
 }
 
 function formatDateRelative(dateStr: string) {
@@ -144,11 +235,18 @@ const submitForm = () => {
     });
 };
 
-// Pagination functions
+// Pagination functions (only used in table view)
 const changePage = (url: string) => {
     if (url) {
         loading.value = true
-        router.get(url, { search: search.value }, {
+        router.get(url, {
+            search: search.value,
+            view: activeTab.value,
+            from_date: filters.value.fromDate,
+            to_date: filters.value.toDate,
+            uploader_id: filters.value.uploaderId,
+            keywords: filters.value.keywords
+        }, {
             preserveScroll: true,
             preserveState: true,
             onFinish: () => { loading.value = false }
@@ -237,11 +335,14 @@ async function collapseTo(group: 'inProgress' | 'completed' | 'noFeedback', cont
 
 function expandGroup(group: string) {
     if (group === 'inProgress') {
-        inProgressLimit.value = (groups.value.inProgress || []).length
+        const remaining = groups.value.inProgress.length - inProgressLimit.value
+        inProgressLimit.value = Math.min(inProgressLimit.value + 6, groups.value.inProgress.length)
     } else if (group === 'completed') {
-        completedLimit.value = (groups.value.completed || []).length
+        const remaining = groups.value.completed.length - completedLimit.value
+        completedLimit.value = Math.min(completedLimit.value + 6, groups.value.completed.length)
     } else if (group === 'noFeedback') {
-        noFeedbackLimit.value = (groups.value.noFeedback || []).length
+        const remaining = groups.value.noFeedback.length - noFeedbackLimit.value
+        noFeedbackLimit.value = Math.min(noFeedbackLimit.value + 6, groups.value.noFeedback.length)
     }
 }
 
@@ -309,9 +410,74 @@ const groups = computed(() => {
         <div class="p-4 md:p-6 space-y-4">
             <!-- Tabs / Search (Add button placed next to tabs) -->
             <div class="flex items-center justify-between gap-4">
-                <div class="flex-1">
+                <div class="flex-1 flex items-center gap-2">
                     <input v-model="search" @input="onSearchInput" placeholder="Search..." aria-label="Search previews"
                         class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
+
+                    <!-- Filter Button -->
+                    <div class="relative">
+                        <button @click.stop="showFilters = !showFilters"
+                            :class="(filters.fromDate || filters.toDate || filters.uploaderId || filters.keywords) ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700' : 'bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-neutral-600'"
+                            class="px-2 py-2 rounded-xl border flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-neutral-700 transition relative">
+                            <ListFilter class="w-5 h-5" />
+                            <span v-if="filters.fromDate || filters.toDate || filters.uploaderId || filters.keywords"
+                                class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-blue-600 rounded-full border-2 border-white dark:border-neutral-800"></span>
+                        </button>
+
+                        <!-- Filter Dropdown -->
+                        <Transition name="fade-slide">
+                            <div v-if="showFilters" v-click-away="() => showFilters = false" @click.stop
+                                class="absolute left-0 mt-2 w-80 bg-white dark:bg-neutral-800 rounded-xl shadow-lg border border-gray-200 dark:border-neutral-700 p-4 z-50">
+                                <div class="space-y-4">
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">From</label>
+                                            <input v-model="filters.fromDate" type="date"
+                                                class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 px-2 py-2 text-sm dark:bg-neutral-700 dark:text-white" />
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">To</label>
+                                            <input v-model="filters.toDate" type="date"
+                                                class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 px-2 py-2 text-sm dark:bg-neutral-700 dark:text-white" />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label
+                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Uploaded
+                                            By</label>
+                                        <select v-model="filters.uploaderId"
+                                            class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 px-3 py-2 dark:bg-neutral-700 dark:text-white">
+                                            <option value="">All Users</option>
+                                            <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name
+                                            }}</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label
+                                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Keywords</label>
+                                        <input v-model="filters.keywords" type="text" placeholder="Enter keywords..."
+                                            class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 px-3 py-2 dark:bg-neutral-700 dark:text-white" />
+                                    </div>
+
+                                    <div class="flex gap-2 pt-2">
+                                        <button @click="applyFilters"
+                                            class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                                            Apply Filters
+                                        </button>
+                                        <button @click="clearFilters"
+                                            class="px-4 py-2 bg-gray-200 dark:bg-neutral-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-neutral-600 transition">
+                                            Clear
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </Transition>
+                    </div>
                 </div>
                 <div class="flex items-center space-x-2">
                     <button @click="switchTab('grid')" :aria-pressed="activeTab === 'grid'"
@@ -362,7 +528,7 @@ const groups = computed(() => {
                                         <td class="w-80 px-4 py-3 text-left border-b">
                                             <div class="font-semibold capitalize break-words" :title="preview.name">{{
                                                 preview.name
-                                            }}</div>
+                                                }}</div>
                                             <div class="text-xs text-gray-500 flex gap-2 items-center">
                                                 <div class="h-5 w-5 rounded-full border flex-shrink-0"
                                                     :style="{ backgroundColor: preview.color_palette?.primary ?? 'red' }"
@@ -529,7 +695,7 @@ const groups = computed(() => {
                                                 <div class="text-right">
                                                     <div class="text-xs text-gray-500">{{
                                                         formatDateRelative(p.created_at)
-                                                        }}</div>
+                                                    }}</div>
                                                     <div class="mt-2"><span
                                                             class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 whitespace-nowrap">In
                                                             Progress</span></div>
@@ -550,7 +716,18 @@ const groups = computed(() => {
                                     </div>
                                     <div v-else class="text-sm text-gray-500">No previews in progress.</div>
                                 </div>
-                                <div class="mt-3"></div>
+                                <div v-if="groups.inProgress.length > inProgressDefault" class="mt-4 text-center">
+                                    <button v-if="inProgressLimit < groups.inProgress.length"
+                                        @click="expandGroup('inProgress')"
+                                        class="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-neutral-700 rounded-lg transition">
+                                        See More ({{ Math.min(6, groups.inProgress.length - inProgressLimit) }} more)
+                                    </button>
+                                    <button v-else-if="inProgressLimit > inProgressDefault"
+                                        @click="collapseTo('inProgress', inProgressContainer, inProgressDefault)"
+                                        class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-neutral-700 rounded-lg transition">
+                                        See Less
+                                    </button>
+                                </div>
                             </section>
 
                             <!-- Completed -->
@@ -579,7 +756,7 @@ const groups = computed(() => {
                                                 <div class="text-right">
                                                     <div class="text-xs text-gray-500">{{
                                                         formatDateRelative(p.created_at)
-                                                        }}</div>
+                                                    }}</div>
                                                     <div class="mt-2"><span
                                                             class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 whitespace-nowrap">Completed</span>
                                                     </div>
@@ -600,7 +777,18 @@ const groups = computed(() => {
                                     </div>
                                     <div v-else class="text-sm text-gray-500">No completed previews.</div>
                                 </div>
-                                <div class="mt-3"></div>
+                                <div v-if="groups.completed.length > completedDefault" class="mt-4 text-center">
+                                    <button v-if="completedLimit < groups.completed.length"
+                                        @click="expandGroup('completed')"
+                                        class="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-neutral-700 rounded-lg transition">
+                                        See More ({{ Math.min(6, groups.completed.length - completedLimit) }} more)
+                                    </button>
+                                    <button v-else-if="completedLimit > completedDefault"
+                                        @click="collapseTo('completed', completedContainer, completedDefault)"
+                                        class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-neutral-700 rounded-lg transition">
+                                        See Less
+                                    </button>
+                                </div>
                             </section>
 
                             <!-- No Feedback -->
@@ -629,7 +817,7 @@ const groups = computed(() => {
                                                 <div class="text-right">
                                                     <div class="text-xs text-gray-500">{{
                                                         formatDateRelative(p.created_at)
-                                                        }}</div>
+                                                    }}</div>
                                                     <div class="mt-2"><span
                                                             class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">No
                                                             Feedback</span></div>
@@ -647,7 +835,18 @@ const groups = computed(() => {
                                     </div>
                                     <div v-else class="text-sm text-gray-500">No previews without feedback.</div>
                                 </div>
-                                <div class="mt-3"></div>
+                                <div v-if="groups.noFeedback.length > noFeedbackDefault" class="mt-4 text-center">
+                                    <button v-if="noFeedbackLimit < groups.noFeedback.length"
+                                        @click="expandGroup('noFeedback')"
+                                        class="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-neutral-700 rounded-lg transition">
+                                        See More ({{ Math.min(6, groups.noFeedback.length - noFeedbackLimit) }} more)
+                                    </button>
+                                    <button v-else-if="noFeedbackLimit > noFeedbackDefault"
+                                        @click="collapseTo('noFeedback', noFeedbackContainer, noFeedbackDefault)"
+                                        class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-neutral-700 rounded-lg transition">
+                                        See Less
+                                    </button>
+                                </div>
                             </section>
                         </div>
 
@@ -658,8 +857,9 @@ const groups = computed(() => {
                 </div>
             </Transition>
 
-            <!-- Pagination (shown for both table and grid views) -->
-            <div v-if="filteredPreviews.length && previews.links && previews.links.length" class="mt-6 p-4">
+            <!-- Pagination (shown for table view only) -->
+            <div v-if="activeTab === 'table' && filteredPreviews.length && previews.links && previews.links.length"
+                class="mt-6 p-4">
 
                 <!-- Mobile/Tablet pagination (simplified) -->
                 <div class="lg:hidden">
