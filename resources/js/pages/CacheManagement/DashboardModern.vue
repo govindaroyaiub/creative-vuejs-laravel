@@ -113,7 +113,7 @@
                                                     {{ stat.name }}</h3>
                                                 <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{
                                                     stat.files
-                                                }} files</p>
+                                                    }} files</p>
                                             </div>
                                         </div>
                                         <div class="text-right flex-shrink-0">
@@ -274,7 +274,7 @@
                             </div>
                         </div>
 
-                        <!-- Activity Tab -->
+                        <!-- Cleanup Logs Tab -->
                         <div v-show="activeTab === 'activity'" class="space-y-4 sm:space-y-6">
                             <!-- Recent Activity -->
                             <div
@@ -290,7 +290,7 @@
                                         <div class="min-w-0 flex-1">
                                             <div class="font-semibold text-slate-900 dark:text-white text-sm">{{
                                                 cleanup.total_files
-                                            }} files</div>
+                                                }} files</div>
                                             <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{
                                                 cleanup.human_time }}
                                             </div>
@@ -312,6 +312,139 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Activity Logs Tab -->
+                        <div v-show="activeTab === 'activity_logs'" class="space-y-4 sm:space-y-6">
+                            <div
+                                class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-6">
+                                <div class="rounded-2xl flex w-full items-center gap-2 mb-4">
+                                    <div class="relative w-full">
+                                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                        <input v-model="activitySearch" @input="onActivitySearchInput" type="text"
+                                            placeholder="Search"
+                                            class="w-1/2 pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" />
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button @click="confirmEmptyAll" v-if="logs?.total > 0"
+                                            class="px-3 py-2 bg-red-600 text-sm rounded-xl text-white hover:bg-red-700 transition whitespace-nowrap">Empty
+                                            Logs</button>
+                                    </div>
+                                    <div
+                                        class="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-neutral-800 px-3 py-4 rounded-2xl whitespace-nowrap text-center">
+                                        Total: {{ logs?.total || 0 }} entries</div>
+                                </div>
+
+                                <div v-if="logs?.data?.length > 0" class="flex items-center justify-between mt-3 mb-4">
+                                    <div class="flex items-center gap-3">
+                                        <label
+                                            class="inline-flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300">
+                                            <input type="checkbox" v-model="selectAll" @change="toggleSelectAll"
+                                                class="w-4 h-4 text-blue-600 border-gray-300 rounded" />
+                                            <span>Select all on page</span>
+                                        </label>
+                                        <button v-if="selectedIds.length" @click="confirmDeleteSelected"
+                                            class="px-3 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition">Delete
+                                            Selected ({{ selectedIds.length }})</button>
+                                    </div>
+                                </div>
+
+                                <div v-if="logs?.data?.length > 0" class="space-y-4">
+                                    <div v-for="(log, index) in logs.data" :key="log.id"
+                                        class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md transition-all duration-200 overflow-hidden">
+                                        <div class="p-4">
+                                            <div
+                                                class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                                                <div class="flex items-start space-x-4 flex-1">
+                                                    <div class="flex-shrink-0 flex items-center space-x-3">
+                                                        <input type="checkbox" :value="log.id" v-model="selectedIds"
+                                                            class="w-4 h-4 text-blue-600 border-gray-300 rounded" />
+                                                        <div
+                                                            class="px-2 py-1 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 rounded-lg">
+                                                            <span
+                                                                class="text-xs font-semibold text-blue-600 dark:text-blue-400">#{{
+                                                                log.id }}</span>
+                                                        </div>
+                                                        <div class="font-semibold text-gray-900 dark:text-white">{{
+                                                            log.description }}</div>
+                                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{
+                                                            log.log_name }} • {{ log.causer?.name || 'System' }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="flex-shrink-0">
+                                                    <button @click="toggleExpand(log.id)"
+                                                        class="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm">Details</button>
+                                                </div>
+                                            </div>
+
+                                            <div v-if="expandedRows.includes(log.id)"
+                                                class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 animate-fadeIn">
+                                                <div v-if="log.properties && log.properties.attributes"
+                                                    class="space-y-3">
+                                                    <div class="text-sm text-gray-700 dark:text-gray-300">Updated:
+                                                        {{
+                                                            formatDate(log.created_at) }}</div>
+                                                    <pre
+                                                        class="bg-gray-50 dark:bg-neutral-900 p-3 rounded text-xs overflow-auto">{{ JSON.stringify(log.properties.attributes, null, 2) }}</pre>
+                                                </div>
+                                                <div v-else-if="log.properties && Object.keys(log.properties).length"
+                                                    class="space-y-3">
+                                                    <pre
+                                                        class="bg-gray-50 dark:bg-neutral-900 p-3 rounded text-xs overflow-auto">{{ JSON.stringify(log.properties, null, 2) }}</pre>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div v-else
+                                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-12 text-center">
+                                    <div
+                                        class="w-20 h-20 mx-auto bg-gray-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mb-6">
+                                        <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No activity
+                                        logs found</h3>
+                                    <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">{{
+                                        activitySearch
+                                            ? 'Try adjusting your search terms' : 'No activities have been logged yet'
+                                    }}
+                                    </p>
+                                </div>
+
+                                <!-- Pagination (simple) -->
+                                <div v-if="logs?.data?.length > 0" class="mt-4">
+                                    <div class="flex items-center justify-between">
+                                        <div class="text-sm text-gray-600 dark:text-gray-400">Showing {{ logs.from
+                                        }} to
+                                            {{ logs.to }} of {{ logs.total }} entries</div>
+                                        <div class="flex items-center space-x-2">
+                                            <button @click="changePage(logs.current_page - 1)"
+                                                :disabled="!logs.prev_page_url"
+                                                class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center"
+                                                :class="logs.prev_page_url ? 'bg-white dark:bg-neutral-800' : 'text-gray-400 cursor-not-allowed'">Previous</button>
+                                            <div
+                                                class="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg">
+                                                Page {{ logs.current_page }} of {{ logs.last_page }}</div>
+                                            <button @click="changePage(logs.current_page + 1)"
+                                                :disabled="!logs.next_page_url"
+                                                class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center"
+                                                :class="logs.next_page_url ? 'bg-white dark:bg-neutral-800' : 'text-gray-400 cursor-not-allowed'">Next</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </main>
             </div>
@@ -322,7 +455,7 @@
 
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { router, Head } from '@inertiajs/vue3'
 import Swal from 'sweetalert2'
 import timezoneDetector from '@/utils/timezone.js'
@@ -352,7 +485,8 @@ const clockInterval = ref(null)
 // Tab configuration
 const tabs = ref([
     { id: 'overview', name: 'Overview', icon: '📊' },
-    { id: 'activity', name: 'Activity', icon: '🕐' }
+    { id: 'activity', name: 'Cleanup Logs', icon: '🕐' },
+    { id: 'activity_logs', name: 'Activity Log', icon: '📋' }
 ])
 
 // Quick actions configuration
@@ -818,6 +952,169 @@ const blankLogFiles = async () => {
         isBlankingLogs.value = false
     }
 }
+
+// Activity Logs tab state & methods (adapted from ActivityLogs/Index.vue)
+const logs = ref({ data: [] })
+const activitySearch = ref('')
+const expandedRows = ref([])
+const selectedIds = ref([])
+const selectAll = ref(false)
+
+const loadActivityLogs = async (page = 1) => {
+    try {
+        const url = `/activity-logs?page=${page}&search=${encodeURIComponent(activitySearch.value)}`
+        const response = await fetch(url, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+
+        if (!response.ok) {
+            logs.value = { data: [] }
+            return
+        }
+
+        const payload = await response.json()
+
+        // Inertia responses may nest props in several shapes. Try common locations:
+        // - payload.props.logs
+        // - payload.page.props.logs
+        // - payload.logs (plain JSON)
+        // - payload.data (paginated JSON)
+        let logsData = null
+
+        if (payload?.props?.logs) logsData = payload.props.logs
+        else if (payload?.page?.props?.logs) logsData = payload.page.props.logs
+        else if (payload?.logs) logsData = payload.logs
+        else if (payload?.data) logsData = payload
+        else logsData = payload
+
+        // Ensure we always have a paginated shape (fallback to empty page)
+        logs.value = logsData ?? { data: [] }
+    } catch (e) {
+        console.error('Failed to load activity logs:', e)
+        logs.value = { data: [] }
+    }
+}
+
+function changePage(page) {
+    if (!page || page < 1) return
+    loadActivityLogs(page)
+}
+
+function onActivitySearchInput() {
+    loadActivityLogs(1)
+}
+
+function toggleExpand(id) {
+    if (expandedRows.value.includes(id)) {
+        expandedRows.value = expandedRows.value.filter(rowId => rowId !== id)
+    } else {
+        expandedRows.value.push(id)
+    }
+}
+
+function toggleSelectAll() {
+    if (!logs.value || !logs.value.data) return
+    const pageIds = logs.value.data.map(l => l.id)
+    if (selectAll.value) {
+        selectedIds.value = Array.from(new Set([...selectedIds.value, ...pageIds]))
+    } else {
+        selectedIds.value = selectedIds.value.filter(id => !pageIds.includes(id))
+    }
+}
+
+function confirmDeleteSelected() {
+    if (!selectedIds.value.length) return
+
+    Swal.fire({
+        title: `Delete ${selectedIds.value.length} log(s)?`,
+        text: 'This action cannot be undone. Are you sure you want to proceed?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete',
+        cancelButtonText: 'Cancel',
+    }).then(result => {
+        if (result.isConfirmed) {
+            deleteSelected()
+        }
+    })
+}
+
+function deleteSelected() {
+    router.post('/activity-logs/bulk-delete', { ids: selectedIds.value }, {
+        preserveState: false,
+        onSuccess: () => {
+            Swal.fire('Deleted', 'Selected logs have been deleted.', 'success')
+            loadActivityLogs(1)
+            selectedIds.value = []
+            selectAll.value = false
+        },
+        onError: () => {
+            Swal.fire('Error', 'Could not delete selected logs.', 'error')
+        }
+    })
+}
+
+function confirmEmptyAll() {
+    Swal.fire({
+        title: 'Delete ALL logs?',
+        text: 'This will permanently delete all activity logs. This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete all',
+        cancelButtonText: 'Cancel',
+    }).then(result => {
+        if (result.isConfirmed) {
+            emptyAll()
+        }
+    })
+}
+
+function emptyAll() {
+    router.post('/activity-logs/empty', {}, {
+        preserveState: false,
+        onSuccess: () => {
+            Swal.fire('Deleted', 'All activity logs have been deleted.', 'success')
+            loadActivityLogs(1)
+        },
+        onError: () => {
+            Swal.fire('Error', 'Could not delete logs.', 'error')
+        }
+    })
+}
+
+function formatDate(dateStr) {
+    const date = new Date(dateStr)
+    const now = new Date()
+    const diffInHours = (now - date) / (1000 * 60 * 60)
+
+    if (diffInHours < 1) {
+        const minutes = Math.floor(diffInHours * 60)
+        return `${minutes} min${minutes !== 1 ? 's' : ''} ago`
+    } else if (diffInHours < 24) {
+        const hours = Math.floor(diffInHours)
+        return `${hours} hour${hours !== 1 ? 's' : ''} ago`
+    } else if (diffInHours < 24 * 7) {
+        const days = Math.floor(diffInHours / 24)
+        return `${days} day${days !== 1 ? 's' : ''} ago`
+    } else {
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        })
+    }
+}
+
+// Load activity logs when tab becomes active
+watch(activeTab, (val) => {
+    if (val === 'activity_logs') {
+        loadActivityLogs(1)
+    }
+})
 
 // Auto-refresh stats every 30 seconds
 onMounted(() => {
