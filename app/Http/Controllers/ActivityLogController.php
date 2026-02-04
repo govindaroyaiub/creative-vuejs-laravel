@@ -27,6 +27,11 @@ class ActivityLogController extends Controller
 
         $logs = $query->orderBy('id', 'desc')->paginate($perPage);
 
+        // If request wants JSON (from dashboard fetch), return JSON
+        if ($request->wantsJson() || $request->header('Accept') === 'application/json') {
+            return response()->json($logs);
+        }
+
         return Inertia::render('ActivityLogs/Index', [
             'logs' => $logs,
             'search' => $request->search,
