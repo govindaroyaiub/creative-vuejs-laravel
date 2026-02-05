@@ -6,7 +6,7 @@
     <AppLayout :breadcrumbs="[{ title: 'Cache Management', href: '/cache-management' }]">
         <div class="min-h-screen bg-white dark:bg-neutral-900 animate-fadeIn">
             <!-- Clean Header -->
-            <div class="container mx-auto px-4 max-w-5xl">
+            <div class="container mx-auto px-4 max-w-8xl">
                 <header
                     class="backdrop-blur-xl border-b border-slate-200/50 dark:border-neutral-700/50 sticky top-0 z-50">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
@@ -48,7 +48,7 @@
                                         </path>
                                     </svg>
                                     <span class="text-xs sm:text-sm">{{ isRefreshing ? 'Refreshing...' : 'Refresh'
-                                    }}</span>
+                                        }}</span>
                                 </button>
                             </div>
                         </div>
@@ -102,7 +102,7 @@
                                     Quick Actions
                                 </h2>
 
-                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
+                                <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 gap-4 sm:gap-6">
                                     <button v-for="action in quickActions" :key="action.type"
                                         @click="handleQuickAction(action.type)" :disabled="isRunningCleanup"
                                         class="group relative p-3 sm:p-4 rounded-lg sm:rounded-xl transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:opacity-50 min-h-[80px] sm:min-h-[100px] flex flex-col justify-center"
@@ -126,7 +126,7 @@
                                                     {{ stat.name }}</h3>
                                                 <p class="text-xs sm:text-sm text-slate-500 dark:text-gray-400">{{
                                                     stat.files
-                                                    }} files</p>
+                                                }} files</p>
                                             </div>
                                         </div>
                                         <div class="text-right flex-shrink-0">
@@ -303,7 +303,7 @@
                                         <div class="min-w-0 flex-1">
                                             <div class="font-semibold text-slate-900 dark:text-white text-sm">{{
                                                 cleanup.total_files
-                                                }} files</div>
+                                            }} files</div>
                                             <div class="text-xs sm:text-sm text-slate-500 dark:text-gray-400">{{
                                                 cleanup.human_time }}
                                             </div>
@@ -439,7 +439,7 @@
                                 <div v-if="logs?.data?.length > 0" class="mt-4">
                                     <div class="flex items-center justify-between">
                                         <div class="text-sm text-gray-600 dark:text-gray-400">Showing {{ logs.from
-                                        }} to
+                                            }} to
                                             {{ logs.to }} of {{ logs.total }} entries</div>
                                         <div class="flex items-center space-x-2">
                                             <button @click="changePage(logs.current_page - 1)"
@@ -676,27 +676,45 @@ const startLiveClock = () => {
 const updateServerTime = async () => {
     try {
         const response = await fetch('/api/cache-management/server-time')
-        if (response.ok) {
-            const data = await response.json()
-
-            // Set timezone from server
-            currentTimezone.value = data.timezone
-
-            // Create Date object from server timestamp and format it
-            const serverTime = new Date(data.timestamp * 1000)
-            currentTime.value = serverTime.toLocaleTimeString('en-US', {
-                hour12: true,
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            })
-        } else {
-            // Fallback to browser time if server request fails
+        if (response.url.includes('/login') || response.status === 401 || response.status === 419) {
+            // If redirected to login or unauthorized, use browser time
             updateTime()
+            return
         }
+
+        if (!response.ok) {
+            updateTime()
+            return
+        }
+
+        // Ensure we have JSON before attempting to parse (avoid HTML error pages)
+        const contentType = response.headers.get('content-type') || ''
+        if (!contentType.includes('application/json')) {
+            updateTime()
+            return
+        }
+
+        const data = await response.json()
+
+        // Set timezone from server if present
+        if (data?.timezone) {
+            currentTimezone.value = data.timezone
+        }
+
+        // Create Date object from server timestamp and format it
+        const ts = data?.timestamp || (Date.now() / 1000)
+        const serverTime = new Date(ts * 1000)
+        currentTime.value = serverTime.toLocaleTimeString('en-US', {
+            hour12: true,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        })
     } catch (error) {
-        console.warn('Failed to fetch server time, using browser time:', error)
-        // Fallback to browser time
+        // Avoid noisy JSON parse errors flooding the console when server returns HTML
+        if (!(error instanceof SyntaxError)) {
+            console.warn('Failed to fetch server time, using browser time:', error)
+        }
         updateTime()
     }
 }
