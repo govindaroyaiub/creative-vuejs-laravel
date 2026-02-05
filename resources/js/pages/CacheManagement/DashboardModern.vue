@@ -4,12 +4,11 @@
 
     <!-- Modern Minimal Background -->
     <AppLayout :breadcrumbs="[{ title: 'Cache Management', href: '/cache-management' }]">
-        <div
-            class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
+        <div class="min-h-screen bg-white dark:bg-neutral-900 animate-fadeIn">
             <!-- Clean Header -->
             <div class="container mx-auto px-4 max-w-5xl">
                 <header
-                    class="backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/50 sticky top-0 z-50">
+                    class="backdrop-blur-xl border-b border-slate-200/50 dark:border-neutral-700/50 sticky top-0 z-50">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
                         <div
                             class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
@@ -18,7 +17,7 @@
                                     <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white truncate">
                                         Cache
                                         Management</h1>
-                                    <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm hidden sm:block">
+                                    <p class="text-slate-500 dark:text-gray-400 text-xs sm:text-sm hidden sm:block">
                                         System
                                         cleanup and monitoring</p>
                                 </div>
@@ -27,8 +26,8 @@
                             <div class="flex items-center justify-between sm:justify-end space-x-2 sm:space-x-3">
                                 <!-- Live Server Time Card -->
                                 <div
-                                    class="bg-white dark:bg-slate-800 rounded-lg sm:rounded-xl px-3 sm:px-6 py-1.5 sm:py-2 text-right flex-shrink-0">
-                                    <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Server Time
+                                    class="bg-white dark:bg-neutral-800 rounded-lg sm:rounded-xl px-3 sm:px-6 py-1.5 sm:py-2 text-right flex-shrink-0">
+                                    <p class="text-xs text-slate-500 dark:text-gray-400 hidden sm:block">Server Time
                                     </p>
                                     <p
                                         class="text-xs sm:text-sm font-mono font-semibold text-slate-900 dark:text-white">
@@ -41,7 +40,7 @@
 
                                 <!-- Refresh Button -->
                                 <button @click="refreshAllData()" :disabled="isRefreshing"
-                                    class="px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white rounded-lg sm:rounded-xl transition-all duration-200 flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+                                    class="px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg sm:rounded-xl transition-all duration-200 flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
                                     <svg :class="{ 'animate-spin': isRefreshing }" class="w-3 h-3 sm:w-4 sm:h-4"
                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -61,17 +60,31 @@
 
                     <!-- Tab Navigation -->
                     <div class="mb-6 sm:mb-8">
-                        <nav class="flex overflow-x-auto scrollbar-hide bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-                            <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="[
-                                'px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium text-sm whitespace-nowrap transition-all duration-200 flex-shrink-0',
-                                activeTab === tab.id
-                                    ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm'
-                                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-                            ]">
-                                <span class="mr-2">{{ tab.icon }}</span>
-                                {{ tab.name }}
-                            </button>
-                        </nav>
+                        <div
+                            class="bg-white dark:bg-neutral-800/50 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200/60 dark:border-neutral-700/50 p-1.5 sm:p-2">
+                            <nav class="flex gap-1 sm:gap-2">
+                                <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="[
+                                    'relative flex-1 px-4 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 group overflow-hidden',
+                                    activeTab === tab.id
+                                        ? 'bg-blue-600 dark:bg-blue-700 text-white shadow-lg scale-105'
+                                        : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-700/50'
+                                ]">
+                                    <!-- Icon and Text -->
+                                    <div class="relative flex items-center justify-center space-x-2 sm:space-x-3">
+                                        <span :class="[
+                                            'text-lg sm:text-xl transition-transform duration-300',
+                                            activeTab === tab.id ? 'scale-110' : 'group-hover:scale-110'
+                                        ]">{{ tab.icon }}</span>
+                                        <span class="font-medium">{{ tab.name }}</span>
+                                    </div>
+
+                                    <!-- Active Indicator -->
+                                    <div v-if="activeTab === tab.id"
+                                        class="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-white/40 rounded-t-full">
+                                    </div>
+                                </button>
+                            </nav>
+                        </div>
                     </div>
 
                     <!-- Tab Content -->
@@ -82,7 +95,7 @@
 
                             <!-- Quick Actions -->
                             <section
-                                class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                                class="bg-white dark:bg-neutral-800 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-neutral-700 p-4 sm:p-6">
                                 <h2
                                     class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 flex items-center">
                                     <span class="text-lg sm:text-xl mr-2 sm:mr-3">⚡</span>
@@ -92,7 +105,7 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
                                     <button v-for="action in quickActions" :key="action.type"
                                         @click="handleQuickAction(action.type)" :disabled="isRunningCleanup"
-                                        class="group relative p-3 sm:p-4 bg-gradient-to-br rounded-lg sm:rounded-xl transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:opacity-50 min-h-[80px] sm:min-h-[100px] flex flex-col justify-center"
+                                        class="group relative p-3 sm:p-4 rounded-lg sm:rounded-xl transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:opacity-50 min-h-[80px] sm:min-h-[100px] flex flex-col justify-center"
                                         :class="action.gradient">
                                         <div class="text-lg sm:text-2xl mb-1 sm:mb-2">{{ action.icon }}</div>
                                         <div class="text-xs sm:text-sm font-semibold text-white">{{ action.name }}</div>
@@ -103,7 +116,7 @@
 
                             <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-2 gap-4 sm:gap-6">
                                 <div v-for="(stat, key) in currentStats" :key="key"
-                                    class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 hover:shadow-lg transition-all duration-200">
+                                    class="bg-white dark:bg-neutral-800 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-neutral-700 p-4 sm:p-6 hover:shadow-lg transition-all duration-200">
                                     <div class="flex items-center justify-between mb-3 sm:mb-4">
                                         <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
                                             <div class="text-xl sm:text-2xl flex-shrink-0">{{ stat.icon }}</div>
@@ -111,7 +124,7 @@
                                                 <h3
                                                     class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base truncate">
                                                     {{ stat.name }}</h3>
-                                                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{
+                                                <p class="text-xs sm:text-sm text-slate-500 dark:text-gray-400">{{
                                                     stat.files
                                                     }} files</p>
                                             </div>
@@ -122,7 +135,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                                    <div class="w-full bg-slate-200 dark:bg-neutral-700 rounded-full h-2">
                                         <div class="h-2 rounded-full transition-all duration-1000" :style="{
                                             width: `${getUsagePercentage(stat.size)}%`,
                                             background: getColorGradient(stat.color)
@@ -136,7 +149,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
                                 <!-- System Info & Disk Usage -->
                                 <div
-                                    class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                                    class="bg-white dark:bg-neutral-800 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-neutral-700 p-4 sm:p-6">
                                     <h3
                                         class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
                                         System Overview</h3>
@@ -144,7 +157,7 @@
                                     <!-- System Info Section -->
                                     <div class="space-y-2 sm:space-y-3 mb-4">
                                         <div class="flex justify-between text-xs sm:text-sm">
-                                            <span class="text-slate-500 dark:text-slate-400">PHP</span>
+                                            <span class="text-slate-500 dark:text-gray-400">PHP</span>
                                             <span
                                                 class="font-medium text-slate-900 dark:text-white font-mono text-right">
                                                 {{ systemInfo?.php_version || 'Loading...' }}
@@ -152,7 +165,7 @@
                                         </div>
 
                                         <div class="flex justify-between text-xs sm:text-sm">
-                                            <span class="text-slate-500 dark:text-slate-400">Laravel</span>
+                                            <span class="text-slate-500 dark:text-gray-400">Laravel</span>
                                             <span
                                                 class="font-medium text-slate-900 dark:text-white font-mono text-right">
                                                 {{ systemInfo?.laravel_version || 'Loading...' }}
@@ -160,7 +173,7 @@
                                         </div>
 
                                         <div class="flex justify-between text-xs sm:text-sm">
-                                            <span class="text-slate-500 dark:text-slate-400">Timezone</span>
+                                            <span class="text-slate-500 dark:text-gray-400">Timezone</span>
                                             <div class="text-right">
                                                 <span
                                                     class="font-medium text-slate-900 dark:text-white font-mono text-xs">
@@ -175,12 +188,12 @@
                                     </div>
 
                                     <!-- Divider -->
-                                    <div class="border-t border-slate-200 dark:border-slate-700 my-4"></div>
+                                    <div class="border-t border-slate-200 dark:border-neutral-700 my-4"></div>
 
                                     <!-- Disk Usage Section -->
                                     <div class="space-y-3">
                                         <div class="flex justify-between items-center">
-                                            <span class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">Disk
+                                            <span class="text-slate-500 dark:text-gray-400 text-xs sm:text-sm">Disk
                                                 Usage</span>
                                             <div class="text-right">
                                                 <div class="text-lg font-bold text-slate-900 dark:text-white">
@@ -189,13 +202,13 @@
                                             </div>
                                         </div>
 
-                                        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                                            <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-1000"
+                                        <div class="w-full bg-slate-200 dark:bg-neutral-700 rounded-full h-2">
+                                            <div class="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-1000"
                                                 :style="{ width: `${systemInfo?.disk_usage?.used_percentage || 0}%` }">
                                             </div>
                                         </div>
 
-                                        <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400">
+                                        <div class="flex justify-between text-xs text-slate-500 dark:text-gray-400">
                                             <span>Free: {{ systemInfo?.disk_usage?.free || 'N/A' }}</span>
                                             <span>Total: {{ systemInfo?.disk_usage?.total || 'N/A' }}</span>
                                         </div>
@@ -203,7 +216,7 @@
                                 </div>
 
                                 <!-- Log Files -->
-                                <div class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6"
+                                <div class="bg-white dark:bg-neutral-800 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-neutral-700 p-4 sm:p-6"
                                     :class="{ 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/10': systemInfo?.logs?.total?.needs_attention }">
                                     <div class="flex items-center justify-between mb-3 sm:mb-4">
                                         <h3 class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base flex items-center"
@@ -232,9 +245,9 @@
                                     <div class="space-y-3">
                                         <!-- Total Size -->
                                         <div class="flex justify-between items-center text-xs sm:text-sm p-3 rounded-lg"
-                                            :class="systemInfo?.logs?.total?.needs_attention ? 'bg-red-100 dark:bg-red-900/20' : 'bg-slate-100 dark:bg-slate-800'">
+                                            :class="systemInfo?.logs?.total?.needs_attention ? 'bg-red-100 dark:bg-red-900/20' : 'bg-slate-100 dark:bg-neutral-800'">
                                             <span class="font-medium"
-                                                :class="systemInfo?.logs?.total?.needs_attention ? 'text-red-700 dark:text-red-400' : 'text-slate-700 dark:text-slate-300'">Total
+                                                :class="systemInfo?.logs?.total?.needs_attention ? 'text-red-700 dark:text-red-400' : 'text-slate-700 dark:text-gray-300'">Total
                                                 Size</span>
                                             <span class="font-bold"
                                                 :class="systemInfo?.logs?.total?.needs_attention ? 'text-red-700 dark:text-red-400' : 'text-slate-900 dark:text-white'">
@@ -244,13 +257,13 @@
 
                                         <!-- Laravel Application Logs -->
                                         <div class="flex justify-between text-xs sm:text-sm">
-                                            <span class="text-slate-500 dark:text-slate-400">Laravel App Logs</span>
+                                            <span class="text-slate-500 dark:text-gray-400">Laravel App Logs</span>
                                             <div class="text-right">
                                                 <span class="font-medium text-slate-900 dark:text-white font-mono">
                                                     {{ systemInfo?.logs?.laravel?.formatted_size || '0 B' }}
                                                 </span>
                                                 <div v-if="systemInfo?.logs?.laravel?.count"
-                                                    class="text-xs text-slate-400">
+                                                    class="text-xs text-gray-400">
                                                     {{ systemInfo.logs.laravel.count }} file(s)
                                                 </div>
                                             </div>
@@ -258,13 +271,13 @@
 
                                         <!-- Cache Management Logs -->
                                         <div class="flex justify-between text-xs sm:text-sm">
-                                            <span class="text-slate-500 dark:text-slate-400">Cache Mgmt Logs</span>
+                                            <span class="text-slate-500 dark:text-gray-400">Cache Mgmt Logs</span>
                                             <div class="text-right">
                                                 <span class="font-medium text-slate-900 dark:text-white font-mono">
                                                     {{ systemInfo?.logs?.cache_management?.formatted_size || '0 B' }}
                                                 </span>
                                                 <div v-if="systemInfo?.logs?.cache_management?.count"
-                                                    class="text-xs text-slate-400">
+                                                    class="text-xs text-gray-400">
                                                     {{ systemInfo.logs.cache_management.count }} file(s)
                                                 </div>
                                             </div>
@@ -278,7 +291,7 @@
                         <div v-show="activeTab === 'activity'" class="space-y-4 sm:space-y-6">
                             <!-- Recent Activity -->
                             <div
-                                class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
+                                class="bg-white dark:bg-neutral-800 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-neutral-700 p-4 sm:p-6">
                                 <h3
                                     class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
                                     Recent Cleanups</h3>
@@ -286,12 +299,12 @@
                                 <div v-if="recentCleanups && recentCleanups.length"
                                     class="space-y-2 sm:space-y-3 overflow-y-auto">
                                     <div v-for="(cleanup, index) in recentCleanups" :key="index"
-                                        class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg space-y-2 sm:space-y-0">
+                                        class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-slate-50 dark:bg-neutral-700 rounded-lg space-y-2 sm:space-y-0">
                                         <div class="min-w-0 flex-1">
                                             <div class="font-semibold text-slate-900 dark:text-white text-sm">{{
                                                 cleanup.total_files
                                                 }} files</div>
-                                            <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{{
+                                            <div class="text-xs sm:text-sm text-slate-500 dark:text-gray-400">{{
                                                 cleanup.human_time }}
                                             </div>
                                         </div>
@@ -299,7 +312,7 @@
                                             <div class="font-semibold text-emerald-600 dark:text-emerald-400 text-sm">{{
                                                 cleanup.total_size }}</div>
                                             <div
-                                                class="text-xs text-slate-500 dark:text-slate-400 font-mono sm:ml-2 sm:mt-1">
+                                                class="text-xs text-slate-500 dark:text-gray-400 font-mono sm:ml-2 sm:mt-1">
                                                 {{
                                                     cleanup.timestamp }}</div>
                                         </div>
@@ -308,7 +321,7 @@
 
                                 <div v-else class="text-center py-6 sm:py-8">
                                     <div class="text-3xl sm:text-4xl mb-2 sm:mb-3">🧹</div>
-                                    <p class="text-slate-500 dark:text-slate-400 text-sm">No cleanup activity yet</p>
+                                    <p class="text-slate-500 dark:text-gray-400 text-sm">No cleanup activity yet</p>
                                 </div>
                             </div>
                         </div>
@@ -316,7 +329,7 @@
                         <!-- Activity Logs Tab -->
                         <div v-show="activeTab === 'activity_logs'" class="space-y-4 sm:space-y-6">
                             <div
-                                class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-6">
+                                class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-slate-200 dark:border-neutral-700 p-6">
                                 <div class="rounded-2xl flex w-full items-center gap-2 mb-4">
                                     <div class="relative w-full">
                                         <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
@@ -326,7 +339,7 @@
                                         </svg>
                                         <input v-model="activitySearch" @input="onActivitySearchInput" type="text"
                                             placeholder="Search"
-                                            class="w-1/2 pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" />
+                                            class="w-1/2 pl-10 pr-4 py-3 border border-slate-300 dark:border-neutral-600 rounded-xl bg-white dark:bg-neutral-700 text-slate-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" />
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <button @click="confirmEmptyAll" v-if="logs?.total > 0"
@@ -334,16 +347,16 @@
                                             Logs</button>
                                     </div>
                                     <div
-                                        class="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-neutral-800 px-3 py-4 rounded-2xl whitespace-nowrap text-center">
+                                        class="text-sm text-slate-500 dark:text-gray-400 bg-slate-100 dark:bg-neutral-700 px-3 py-4 rounded-2xl whitespace-nowrap text-center">
                                         Total: {{ logs?.total || 0 }} entries</div>
                                 </div>
 
                                 <div v-if="logs?.data?.length > 0" class="flex items-center justify-between mt-3 mb-4">
                                     <div class="flex items-center gap-3">
                                         <label
-                                            class="inline-flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300">
+                                            class="inline-flex items-center space-x-2 text-sm text-slate-700 dark:text-gray-300">
                                             <input type="checkbox" v-model="selectAll" @change="toggleSelectAll"
-                                                class="w-4 h-4 text-blue-600 border-gray-300 rounded" />
+                                                class="w-4 h-4 text-blue-600 border-slate-300 rounded" />
                                             <span>Select all on page</span>
                                         </label>
                                         <button v-if="selectedIds.length" @click="confirmDeleteSelected"
@@ -354,7 +367,7 @@
 
                                 <div v-if="logs?.data?.length > 0" class="space-y-4">
                                     <div v-for="(log, index) in logs.data" :key="log.id"
-                                        class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md transition-all duration-200 overflow-hidden">
+                                        class="bg-white dark:bg-neutral-700 rounded-2xl shadow-sm border border-slate-200 dark:border-neutral-600 hover:shadow-md transition-all duration-200 overflow-hidden">
                                         <div class="p-4">
                                             <div
                                                 class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
@@ -366,11 +379,11 @@
                                                             class="px-2 py-1 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 rounded-lg">
                                                             <span
                                                                 class="text-xs font-semibold text-blue-600 dark:text-blue-400">#{{
-                                                                log.id }}</span>
+                                                                    log.id }}</span>
                                                         </div>
-                                                        <div class="font-semibold text-gray-900 dark:text-white">{{
+                                                        <div class="font-semibold text-slate-900 dark:text-white">{{
                                                             log.description }}</div>
-                                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{
+                                                        <div class="text-xs text-slate-500 dark:text-gray-400">{{
                                                             log.log_name }} • {{ log.causer?.name || 'System' }}
                                                         </div>
                                                     </div>
@@ -383,19 +396,19 @@
                                             </div>
 
                                             <div v-if="expandedRows.includes(log.id)"
-                                                class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 animate-fadeIn">
+                                                class="mt-4 pt-4 border-t border-slate-200 dark:border-neutral-600 animate-fadeIn">
                                                 <div v-if="log.properties && log.properties.attributes"
                                                     class="space-y-3">
-                                                    <div class="text-sm text-gray-700 dark:text-gray-300">Updated:
+                                                    <div class="text-sm text-slate-700 dark:text-gray-300">Updated:
                                                         {{
                                                             formatDate(log.created_at) }}</div>
                                                     <pre
-                                                        class="bg-gray-50 dark:bg-neutral-900 p-3 rounded text-xs overflow-auto">{{ JSON.stringify(log.properties.attributes, null, 2) }}</pre>
+                                                        class="bg-slate-50 dark:bg-neutral-900 p-3 rounded text-xs overflow-auto">{{ JSON.stringify(log.properties.attributes, null, 2) }}</pre>
                                                 </div>
                                                 <div v-else-if="log.properties && Object.keys(log.properties).length"
                                                     class="space-y-3">
                                                     <pre
-                                                        class="bg-gray-50 dark:bg-neutral-900 p-3 rounded text-xs overflow-auto">{{ JSON.stringify(log.properties, null, 2) }}</pre>
+                                                        class="bg-slate-50 dark:bg-neutral-900 p-3 rounded text-xs overflow-auto">{{ JSON.stringify(log.properties, null, 2) }}</pre>
                                                 </div>
                                             </div>
                                         </div>
@@ -403,9 +416,9 @@
                                 </div>
 
                                 <div v-else
-                                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 p-12 text-center">
+                                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-slate-200 dark:border-neutral-700 p-12 text-center">
                                     <div
-                                        class="w-20 h-20 mx-auto bg-gray-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mb-6">
+                                        class="w-20 h-20 mx-auto bg-slate-100 dark:bg-neutral-700 rounded-full flex items-center justify-center mb-6">
                                         <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -413,9 +426,9 @@
                                             </path>
                                         </svg>
                                     </div>
-                                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No activity
+                                    <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-2">No activity
                                         logs found</h3>
-                                    <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">{{
+                                    <p class="text-slate-600 dark:text-gray-400 mb-6 max-w-md mx-auto">{{
                                         activitySearch
                                             ? 'Try adjusting your search terms' : 'No activities have been logged yet'
                                     }}
@@ -491,12 +504,12 @@ const tabs = ref([
 
 // Quick actions configuration
 const quickActions = ref([
-    { type: 'all', name: 'Clean All', description: 'Complete cleanup', icon: '🧹', gradient: 'from-emerald-500 to-emerald-600' },
-    { type: 'storage', name: 'Storage', description: 'Temp files', icon: '📁', gradient: 'from-amber-500 to-amber-600' },
-    { type: 'logs', name: 'Logs', description: 'Old log files', icon: '📋', gradient: 'from-red-500 to-red-600' },
-    { type: 'temp', name: 'Temp Files', description: 'Upload temps', icon: '🗃️', gradient: 'from-purple-500 to-purple-600' },
-    { type: 'artisan', name: 'Artisan Clear', description: 'Clear & cache configs', icon: '⚡', gradient: 'from-indigo-500 to-indigo-600' },
-    { type: 'view-logs', name: 'View Logs', description: 'Browse log files', icon: '👀', gradient: 'from-teal-500 to-teal-600' }
+    { type: 'all', name: 'Clean All', description: 'Complete cleanup', icon: '🧹', gradient: 'bg-emerald-600 dark:bg-emerald-700' },
+    { type: 'storage', name: 'Storage', description: 'Temp files', icon: '📁', gradient: 'bg-amber-600 dark:bg-amber-700' },
+    { type: 'logs', name: 'Logs', description: 'Old log files', icon: '📋', gradient: 'bg-red-600 dark:bg-red-700' },
+    { type: 'temp', name: 'Temp Files', description: 'Upload temps', icon: '🗃️', gradient: 'bg-purple-600 dark:bg-purple-700' },
+    { type: 'artisan', name: 'Artisan Clear', description: 'Clear & cache configs', icon: '⚡', gradient: 'bg-indigo-600 dark:bg-indigo-700' },
+    { type: 'view-logs', name: 'View Logs', description: 'Browse log files', icon: '👀', gradient: 'bg-teal-600 dark:bg-teal-700' }
 ])
 
 // Methods
@@ -514,19 +527,19 @@ const getUsagePercentage = (size) => {
 }
 
 const getColorGradient = (color) => {
-    const gradients = {
-        'blue': 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-        'green': 'linear-gradient(135deg, #10b981, #047857)',
-        'yellow': 'linear-gradient(135deg, #f59e0b, #d97706)',
-        'purple': 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-        'red': 'linear-gradient(135deg, #ef4444, #dc2626)',
-        'indigo': 'linear-gradient(135deg, #6366f1, #4f46e5)',
-        'pink': 'linear-gradient(135deg, #ec4899, #db2777)',
-        'teal': 'linear-gradient(135deg, #14b8a6, #0f766e)',
-        'orange': 'linear-gradient(135deg, #f97316, #ea580c)',
-        'emerald': 'linear-gradient(135deg, #10b981, #047857)'
+    const colors = {
+        'blue': '#3b82f6',
+        'green': '#10b981',
+        'yellow': '#f59e0b',
+        'purple': '#8b5cf6',
+        'red': '#ef4444',
+        'indigo': '#6366f1',
+        'pink': '#ec4899',
+        'teal': '#14b8a6',
+        'orange': '#f97316',
+        'emerald': '#10b981'
     }
-    return gradients[color] || gradients['blue']
+    return colors[color] || colors['blue']
 }
 
 const refreshSystemInfo = async () => {
@@ -1198,5 +1211,20 @@ onUnmounted(() => {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* Shimmer animation for active tab */
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%) skewX(-12deg);
+    }
+
+    100% {
+        transform: translateX(200%) skewX(-12deg);
+    }
+}
+
+.animate-shimmer {
+    animation: shimmer 3s infinite;
 }
 </style>
