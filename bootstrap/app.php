@@ -28,6 +28,14 @@ return Application::configure(basePath: dirname(__DIR__))
             // SecurityHeaders::class, // Temporarily disabled
         ]);
 
+        // Enable session for API routes (needed for notification system)
+        $middleware->api(prepend: [
+            \Illuminate\Cookie\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        ]);
+
         // Register middleware aliases
         $middleware->alias([
             'enhanced.throttle' => EnhancedRateLimit::class,

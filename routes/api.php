@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CacheManagementController;
+use App\Http\Controllers\NotificationController;
 
 // Timezone detection route
 Route::post('/set-timezone', function (Illuminate\Http\Request $request) {
@@ -29,4 +30,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/cache-management/server-time', [CacheManagementController::class, 'getServerTime']);
     Route::get('/cache-management/system-info', [CacheManagementController::class, 'getSystemInfoOnly']);
     Route::get('/cache-management/recent-cleanups', [CacheManagementController::class, 'getRecentCleanupsApi']);
+
+    // Notification API Routes
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'index']);
+        Route::get('/unread-count', [NotificationController::class, 'unreadCount']);
+        Route::post('/{id}/mark-as-read', [NotificationController::class, 'markAsRead']);
+        Route::post('/{id}/mark-as-unread', [NotificationController::class, 'markAsUnread']);
+        Route::post('/mark-all-as-read', [NotificationController::class, 'markAllAsRead']);
+        Route::delete('/{id}', [NotificationController::class, 'destroy']);
+        Route::delete('/all/read', [NotificationController::class, 'deleteAllRead']);
+        Route::delete('/all', [NotificationController::class, 'deleteAll']);
+    });
 });

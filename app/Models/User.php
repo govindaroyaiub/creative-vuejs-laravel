@@ -46,6 +46,11 @@ class User extends Authenticatable
         return $this->belongsTo(Client::class);
     }
 
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
     // ✅ NEW: Helper to check if user can access a route
     public function canAccess($route)
     {

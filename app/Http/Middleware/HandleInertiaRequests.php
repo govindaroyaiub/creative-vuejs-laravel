@@ -29,6 +29,18 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
+     * Check if user has notification permission
+     */
+    private function hasNotificationPermission($user): bool
+    {
+        if (!$user || !is_array($user->permissions)) {
+            return false;
+        }
+
+        return in_array('*', $user->permissions) || in_array('/notifications', $user->permissions);
+    }
+
+    /**
      * Define the props that are shared by default.
      *
      * @see https://inertiajs.com/shared-data
@@ -46,6 +58,14 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'notifications' => $request->user() && $this->hasNotificationPermission($request->user()) ? [
+                'unread_count' => $request->user()->notifications()->unread()->count(),
+                'recent' => $request->user()->notifications()
+                    ->with(['preview:id,name,slug', 'actor:id,name'])
+                    ->latest()
+                    ->limit(5)
+                    ->get(),
+            ] : null,
             'ziggy' => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),

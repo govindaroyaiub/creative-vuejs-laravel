@@ -342,6 +342,7 @@ class DatabaseSeeder extends Seeder
             ['title' => 'Activity Logs', 'href' => '/activity-logs'],
             ['title' => 'Cache Management', 'href' => '/cache-management'],
             ['title' => 'Documentation', 'href' => '/documentations'],
+            ['title' => 'Notifications', 'href' => '/notifications'],
             ['title' => 'Registration', 'href' => '/welcome-to-planetnine/register']
         ];
 
