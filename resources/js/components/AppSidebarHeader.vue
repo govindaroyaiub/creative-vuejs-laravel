@@ -1,12 +1,26 @@
 <script setup lang="ts">
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import NotificationCenter from '@/components/NotificationCenter.vue';
+import UserMenuContent from '@/components/UserMenuContent.vue';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import type { BreadcrumbItemType } from '@/types';
+import { useInitials } from '@/composables/useInitials';
+import type { BreadcrumbItemType, SharedData, User } from '@/types';
+import { usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 defineProps<{
     breadcrumbs?: BreadcrumbItemType[];
 }>();
+
+const page = usePage<SharedData>();
+const user = page.props.auth.user as User;
+const { getInitials } = useInitials();
+
+const showAvatar = computed(() => user.avatar && user.avatar !== '');
+const firstName = computed(() => user.name.split(' ')[0]);
 </script>
 
 <template>
@@ -19,9 +33,28 @@ defineProps<{
             </template>
         </div>
 
-        <!-- Notification Center -->
-        <div class="flex items-center">
+        <!-- Notification Center & User -->
+        <div class="flex items-center gap-2">
             <NotificationCenter />
+
+            <!-- User Dropdown -->
+            <DropdownMenu>
+                <DropdownMenuTrigger as-child>
+                    <Button variant="ghost" size="icon"
+                        class="h-9 w-9 rounded-full data-[state=open]:ring-2 data-[state=open]:ring-primary/20"
+                        :title="user.name">
+                        <Avatar class="h-8 w-8">
+                            <AvatarImage v-if="showAvatar" :src="user.avatar" :alt="user.name" />
+                            <AvatarFallback class="text-xs font-semibold text-primary">
+                                {{ getInitials(user.name) }}
+                            </AvatarFallback>
+                        </Avatar>
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent class="w-56 rounded-lg" align="end" :side-offset="8">
+                    <UserMenuContent :user="user" />
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
     </header>
 </template>
