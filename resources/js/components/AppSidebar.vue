@@ -2,7 +2,6 @@
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
-import { useAppearance } from '@/composables/useAppearance';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
@@ -44,8 +43,6 @@ function hasPermission(href: string) {
     // ✅ Allow if any parent path matches
     return user.value.permissions.some(permission => href.startsWith(permission));
 }
-
-const { appearance, updateAppearance } = useAppearance();
 </script>
 
 <template>
@@ -55,7 +52,7 @@ const { appearance, updateAppearance } = useAppearance();
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
                         <Link :href="route('dashboard')">
-                        <AppLogo />
+                            <AppLogo />
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
