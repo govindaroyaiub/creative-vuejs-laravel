@@ -150,7 +150,7 @@ const filteredNotifications = computed(() => {
                 class="flex items-center justify-between px-4 py-3 border-b bg-gradient-to-r from-background to-accent/20">
                 <div class="flex items-center gap-2">
                     <Bell class="h-4 w-4 text-muted-foreground" />
-                    <h3 class="text-sm font-semibold">Activity</h3>
+                    <h3 class="text-sm font-semibold">Preview Activity</h3>
                 </div>
                 <div class="flex items-center gap-1">
                     <Button variant="ghost" size="sm" :class="[
@@ -170,12 +170,13 @@ const filteredNotifications = computed(() => {
 
             <!-- Notifications List -->
             <ScrollArea class="h-[50vh] sm:h-[400px]">
-                <div v-if="isLoading && notifications.length === 0" class="flex items-center justify-center py-16">
+                <div v-if="isLoading && notifications.length === 0"
+                    class="flex items-center justify-center h-[50vh] sm:h-[400px]">
                     <Loader2 class="h-6 w-6 animate-spin text-muted-foreground" />
                 </div>
 
                 <div v-else-if="filteredNotifications.length === 0"
-                    class="flex flex-col items-center justify-center py-16 px-4 text-center">
+                    class="flex flex-col items-center justify-center h-[50vh] sm:h-[400px] px-4 text-center">
                     <div class="h-16 w-16 rounded-full bg-accent/50 flex items-center justify-center mb-3">
                         <Inbox class="h-8 w-8 text-muted-foreground/50" />
                     </div>
@@ -210,13 +211,13 @@ const filteredNotifications = computed(() => {
                                     <div v-if="!notification.is_read"
                                         class="absolute -left-1 top-3 h-2 w-2 rounded-full bg-blue-600 ring-2 ring-background" />
 
-                                    <div class="flex gap-2.5 p-3 cursor-pointer"
+                                    <div class="flex gap-3 p-3 cursor-pointer"
                                         @click="handleNotificationClick(notification)"
                                         @click.middle="handleNotificationClick(notification, true)"
                                         @auxclick.prevent="(e: MouseEvent) => e.button === 1 && handleNotificationClick(notification, true)">
 
                                         <!-- Icon -->
-                                        <div class="flex-shrink-0 mt-0.5">
+                                        <div class="flex-shrink-0 flex items-center justify-center">
                                             <div class="h-8 w-8 rounded-lg flex items-center justify-center"
                                                 :class="getNotificationStyle(notification.type).bgColor">
                                                 <component :is="getNotificationStyle(notification.type).icon"
@@ -258,7 +259,8 @@ const filteredNotifications = computed(() => {
                                         </div>
 
                                         <!-- Delete Button -->
-                                        <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div
+                                            class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                             <Button variant="ghost" size="icon"
                                                 class="h-6 w-6 text-muted-foreground hover:text-destructive"
                                                 @click.stop="deleteNotification(notification.id)" title="Delete">
