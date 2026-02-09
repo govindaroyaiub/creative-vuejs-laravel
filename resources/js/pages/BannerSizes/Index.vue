@@ -125,18 +125,19 @@ const deleteBannerSize = async (id: number) => {
 
     <Head title="Banner Sizes" />
     <AppLayout :breadcrumbs="[{ title: 'Banner Sizes', href: '/banner-sizes' }]">
-        <div class="p-6">
-            <div class="mb-4 flex items-center justify-between">
+        <div class="p-4 sm:p-6">
+            <div class="mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-0 sm:justify-between">
                 <input v-model="search" placeholder="Search..."
-                    class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
+                    class="w-full sm:max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
                 <button @click="startAdding"
-                    class="ml-4 rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700 group">
+                    class="rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700 group whitespace-nowrap">
                     <CirclePlus class="mr-1 inline h-5 w-5 group-hover:rotate-90 transition-transform duration-200" />
                     Add Size
                 </button>
             </div>
 
-            <div class="overflow-x-auto rounded-2xl shadow">
+            <!-- Desktop Table -->
+            <div class="hidden md:block overflow-x-auto rounded-2xl shadow">
                 <table class="w-full rounded bg-white dark:bg-neutral-800 border">
                     <thead class="bg-gray-100 text-gray-700 dark:bg-neutral-900 dark:text-gray-300">
                         <tr class="text-center text-sm uppercase">
@@ -213,6 +214,122 @@ const deleteBannerSize = async (id: number) => {
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Mobile Cards -->
+            <div class="md:hidden space-y-3">
+                <!-- Add New Card -->
+                <div v-if="adding"
+                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-semibold text-sm">New Banner Size</h3>
+                        <button @click="cancelAdding"
+                            class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                            <X class="h-5 w-5" />
+                        </button>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs text-gray-600 dark:text-gray-400 mb-1 block">Name</label>
+                            <div class="text-sm font-medium">{{ newForm.width }}x{{ newForm.height }}</div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs text-gray-600 dark:text-gray-400 mb-1 block">Width</label>
+                                <input v-model="newForm.width" type="number"
+                                    class="w-full rounded-xl border px-3 py-2 text-sm dark:bg-neutral-800 dark:text-white" />
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-600 dark:text-gray-400 mb-1 block">Height</label>
+                                <input v-model="newForm.height" type="number"
+                                    class="w-full rounded-xl border px-3 py-2 text-sm dark:bg-neutral-800 dark:text-white" />
+                            </div>
+                        </div>
+                        <div class="flex gap-2 pt-2">
+                            <button @click="cancelAdding"
+                                class="flex-1 px-4 py-2 text-sm rounded-xl border border-gray-300 dark:border-neutral-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-700">
+                                Cancel
+                            </button>
+                            <button @click="saveNew"
+                                class="flex-1 px-4 py-2 text-sm rounded-xl bg-green-600 text-white hover:bg-green-700">
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Existing Size Cards -->
+                <div v-for="(size, index) in bannerSizes.data" :key="size.id"
+                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 p-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-semibold text-gray-500 dark:text-gray-400">#{{ index + 1 }}</span>
+                        </div>
+                        <div v-if="editingId !== size.id" class="flex gap-2">
+                            <button @click="startEditing(size)" class="text-blue-600 hover:text-blue-800 p-1">
+                                <Pencil class="h-4 w-4" />
+                            </button>
+                            <button @click="deleteBannerSize(size.id)" class="text-red-600 hover:text-red-800 p-1">
+                                <Trash2 class="h-4 w-4" />
+                            </button>
+                        </div>
+                    </div>
+
+                    <template v-if="editingId === size.id">
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-xs text-gray-600 dark:text-gray-400 mb-1 block">Name</label>
+                                <div class="text-sm font-medium">{{ editForm.width }}x{{ editForm.height }}</div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-xs text-gray-600 dark:text-gray-400 mb-1 block">Width</label>
+                                    <input v-model="editForm.width" type="number"
+                                        class="w-full rounded-xl border px-3 py-2 text-sm dark:bg-neutral-800 dark:text-white" />
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-600 dark:text-gray-400 mb-1 block">Height</label>
+                                    <input v-model="editForm.height" type="number"
+                                        class="w-full rounded-xl border px-3 py-2 text-sm dark:bg-neutral-800 dark:text-white" />
+                                </div>
+                            </div>
+                            <div class="flex gap-2 pt-2">
+                                <button @click="cancelEditing"
+                                    class="flex-1 px-4 py-2 text-sm rounded-xl border border-gray-300 dark:border-neutral-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-700">
+                                    Cancel
+                                </button>
+                                <button @click="saveEdit(size.id)"
+                                    class="flex-1 px-4 py-2 text-sm rounded-xl bg-blue-600 text-white hover:bg-blue-700">
+                                    Update
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template v-else>
+                        <div class="space-y-2">
+                            <div>
+                                <div class="text-xs text-gray-600 dark:text-gray-400">Name</div>
+                                <div class="text-sm font-semibold uppercase">{{ size.width }}x{{ size.height }}</div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 pt-2">
+                                <div>
+                                    <div class="text-xs text-gray-600 dark:text-gray-400">Width</div>
+                                    <div class="text-sm font-medium">{{ size.width }}</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-gray-600 dark:text-gray-400">Height</div>
+                                    <div class="text-sm font-medium">{{ size.height }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div v-if="bannerSizes.data.length === 0 && !adding"
+                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 p-8 text-center">
+                    <p class="text-gray-500">No banner sizes found.</p>
+                </div>
             </div>
 
             <!-- Pagination - Responsive -->
