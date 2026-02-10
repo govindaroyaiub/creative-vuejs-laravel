@@ -153,6 +153,34 @@ class NewFeedbackController extends Controller
             $wasActive = $feedback->is_active == 1;
             $categoryId = $feedback->category_id;
 
+            // If feedback is approved, delete associated FileTransfer and files
+            if ($feedback->is_approved && $category->file_transfer_id) {
+                $fileTransfer = FileTransfer::find($category->file_transfer_id);
+                if ($fileTransfer && $fileTransfer->file_path) {
+                    // Get file paths
+                    $filePaths = is_array($fileTransfer->file_path)
+                        ? $fileTransfer->file_path
+                        : explode(',', $fileTransfer->file_path);
+
+                    // Delete each file
+                    if (is_array($filePaths)) {
+                        foreach ($filePaths as $filePath) {
+                            $fullPath = public_path($filePath);
+                            if (file_exists($fullPath)) {
+                                @unlink($fullPath);
+                            }
+                        }
+                    }
+
+                    // Delete the FileTransfer record
+                    $fileTransfer->delete();
+                }
+
+                // Clear the file_transfer_id from category
+                $category->file_transfer_id = null;
+                $category->save();
+            }
+
             // Delete the feedback itself
             $feedback->delete();
 
