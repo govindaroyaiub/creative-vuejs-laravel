@@ -113,7 +113,38 @@ A comprehensive creative project management platform built with Laravel + Vue.js
 - **Dashboard Analytics**: Visual charts and statistics
 - **Dark Mode**: Consistent bg-black theming throughout
 - **Responsive Design**: Mobile-optimized interfaces
-- **Real-time Updates**: Activity tracking and notifications
+- **Activity Tracking**: Comprehensive activity logging and notifications
+
+### 11. **Notification Center** 🔔
+
+**Comprehensive Notification Management**:
+
+- **Smart Notification Batching**: Consolidates multiple notifications during preview creation into a single professional notification
+- **Activity Tracking**: Updates fetched on dropdown open or page refresh
+- **User Mentions**: Shows who performed each action (created, approved, disapproved)
+- **Visual Differentiation**: Color-coded notifications by type with custom icons
+- **Auto-read on View**: Facebook-style automatic marking as read when bell is clicked
+- **Permission-based**: Only users with notification permissions receive updates
+
+**Notification Types**:
+
+- **Preview Created**: Indigo - Consolidated notification showing all created components
+- **Category Created**: Blue - New category additions
+- **Feedback Created**: Green - New feedback submissions
+- **Feedback Approved**: Emerald with CheckCircle - Feedback approval actions
+- **Feedback Disapproved**: Red with XCircle - Feedback rejection actions
+- **Feedback Set Created**: Purple - New feedback set additions
+- **Version Created**: Amber - New version additions
+- **Asset Created**: Pink - New asset uploads (banners, videos, GIFs, socials)
+
+**Key Features**:
+
+- **Batching Logic**: During initial preview setup, all notifications are combined into one
+- **Individual Updates**: Subsequent additions send separate notifications for granular tracking
+- **Actor Attribution**: Every notification shows who performed the action
+- **Date Grouping**: Notifications organized by Today, Yesterday, Earlier
+- **Interactive UI**: Click to navigate, delete, filter by read/unread status
+- **Modern Design**: Card-based with hover effects and smooth animations
 
 ## 🗂️ Data Architecture
 
@@ -140,6 +171,7 @@ Clients
 
 - **Dashboard**: Analytics and overview
 - **Previews**: Project management hub
+- **Notifications**: Activity center with smart batching
 - **Color Palettes**: Brand theming
 - **Banner Sizes**: Creative dimensions
 - **Video Sizes**: Video format management
@@ -211,6 +243,29 @@ Clients
 // Frontend: LazyDoc.vue - Vue 3 Composition API with TypeScript - Tabbed interface (Q&A + API Documentation) - Real-time endpoint information from
 actual routes - Authentication-protected access via /lazyDoc - Modern UI with search and filtering capabilities - Comprehensive security and usage
 information
+```
+
+### **Notification System**
+
+```php
+// Backend: NotificationService.php
+- Smart batching for preview creation (consolidates 4+ notifications into 1)
+- Permission-based notification delivery
+- Actor tracking for all actions
+- Support for 8+ notification types with custom styling
+```
+
+```vue
+// Frontend: NotificationCenter.vue - Notification dropdown with unread count badge - Auto-mark as read on view (Facebook-style) - Date-based grouping
+(Today, Yesterday, Earlier) - Color-coded by type with custom icons (CheckCircle, XCircle, etc.) - Click to navigate, filter, and delete functionality
+- Lazy-loaded on dropdown open for performance
+```
+
+```php
+// Observers: CategoryObserver, FeedbackObserver, etc.
+- Automatic notification triggers on model creation
+- Batch-aware to prevent notification spam
+- Integrated with FileTransfer approval workflow
 ```
 
 ### **Route Configuration**
@@ -356,8 +411,7 @@ QUEUE_CONNECTION=redis
 ## �📈 Key Highlights
 
 - **Scalable Architecture**: Built for growing creative teams
-- **Modern UI/UX**: Card-based layouts with consistent theming
-- **Security First**: Role-based permissions and secure file transfers
+- **Modern UI/UX**: Card-based layouts with consistent theming- **Notification System**: Smart batching with permission-based delivery- **Security First**: Role-based permissions and secure file transfers
 - **Performance Optimized**: Database indexes, Redis caching, and efficient queries
 - **Mobile Ready**: Responsive design across all devices
 - **Extensible**: AI-ready with modern integration patterns
@@ -365,6 +419,16 @@ QUEUE_CONNECTION=redis
 - **Production Ready**: Optimized for performance, security, and maintainability
 
 ## 🎨 Recent Enhancements
+
+### **February 2026 - Notification System Implementation**
+
+- **Notification Center**: Complete notification system with smart batching and permission-based delivery
+- **Smart Batching**: Consolidates multiple notifications during preview creation into single professional update
+- **Actor Attribution**: Shows who performed each action (created, approved, disapproved)
+- **Visual Differentiation**: 8 notification types with custom icons and color coding
+- **Feedback Workflow**: Approval/disapproval notifications with distinct visual styling
+- **Modern UI**: Auto-read on view, date grouping, filtering, and interactive navigation
+- **FileTransfer Integration**: Proper cleanup when deleting approved feedback
 
 ### **November 2025 - System Optimization & Documentation**
 
