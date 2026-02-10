@@ -565,6 +565,14 @@ class NewPreviewController extends Controller
             'categories.feedbacks.feedbackSets.versions.gifs',
         ])->findOrFail($id);
 
+        // Check if this is the first bulk edit (preview has no categories yet)
+        // If so, enable notification batching to consolidate all notifications into one
+        $isFirstBulkEdit = $preview->categories->isEmpty();
+
+        if ($isFirstBulkEdit) {
+            \App\Services\NotificationService::beginBatch($preview->id, Auth::id());
+        }
+
         DB::transaction(function () use ($validated, $preview) {
             $submittedCategoryIds = [];
             $submittedFeedbackIds = [];
@@ -1025,6 +1033,11 @@ class NewPreviewController extends Controller
                 }
             }
         });
+
+        // If we were batching notifications, send the consolidated notification now
+        if ($isFirstBulkEdit) {
+            \App\Services\NotificationService::endBatch();
+        }
 
         return redirect()->route('previews.update.all', $preview->id)
             ->with('success', 'Bulk update successful.');

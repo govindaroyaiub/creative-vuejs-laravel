@@ -8,6 +8,119 @@ use App\Models\User;
 class NotificationService
 {
     /**
+     * Batching state for consolidating multiple notifications
+     */
+    protected static $batchingEnabled = false;
+    protected static $batchedItems = [];
+    protected static $batchPreviewId = null;
+    protected static $batchActorId = null;
+
+    /**
+     * Enable notification batching for bulk operations
+     */
+    public static function beginBatch($previewId, $actorId = null)
+    {
+        self::$batchingEnabled = true;
+        self::$batchedItems = [];
+        self::$batchPreviewId = $previewId;
+        self::$batchActorId = $actorId;
+    }
+
+    /**
+     * Disable batching and send consolidated notification
+     */
+    public static function endBatch()
+    {
+        if (self::$batchingEnabled && !empty(self::$batchedItems)) {
+            self::sendConsolidatedNotification();
+        }
+
+        self::$batchingEnabled = false;
+        self::$batchedItems = [];
+        self::$batchPreviewId = null;
+        self::$batchActorId = null;
+    }
+
+    /**
+     * Add item to batch
+     */
+    protected static function addToBatch($type, $data)
+    {
+        self::$batchedItems[] = [
+            'type' => $type,
+            'data' => $data,
+        ];
+    }
+
+    /**
+     * Send a consolidated notification for preview creation with all components
+     */
+    protected static function sendConsolidatedNotification()
+    {
+        $preview = \App\Models\newPreview::find(self::$batchPreviewId);
+        if (!$preview) {
+            return;
+        }
+
+        $categories = [];
+        $feedbacks = [];
+        $feedbackSets = [];
+        $versions = [];
+
+        foreach (self::$batchedItems as $item) {
+            switch ($item['type']) {
+                case 'category':
+                    $categories[] = $item['data']['category_name'];
+                    break;
+                case 'feedback':
+                    $feedbacks[] = $item['data']['feedback_name'];
+                    break;
+                case 'feedback_set':
+                    $feedbackSets[] = $item['data']['feedback_set_name'];
+                    break;
+                case 'version':
+                    $versions[] = $item['data']['version_name'];
+                    break;
+            }
+        }
+
+        // Build a consolidated message
+        $message = "New preview '{$preview->name}' was created with ";
+        $parts = [];
+
+        if (!empty($categories)) {
+            $parts[] = count($categories) . " " . (count($categories) === 1 ? "category" : "categories");
+        }
+        if (!empty($feedbacks)) {
+            $parts[] = count($feedbacks) . " " . (count($feedbacks) === 1 ? "feedback" : "feedbacks");
+        }
+        if (!empty($feedbackSets)) {
+            $parts[] = count($feedbackSets) . " feedback " . (count($feedbackSets) === 1 ? "set" : "sets");
+        }
+        if (!empty($versions)) {
+            $parts[] = count($versions) . " " . (count($versions) === 1 ? "version" : "versions");
+        }
+
+        $message .= implode(', ', $parts);
+
+        self::notifyPreviewUsers(
+            $preview->id,
+            'preview_created',
+            'New Preview Created',
+            $message,
+            "/previews/show/{$preview->slug}",
+            [
+                'preview_name' => $preview->name,
+                'categories' => $categories,
+                'feedbacks' => $feedbacks,
+                'feedback_sets' => $feedbackSets,
+                'versions' => $versions,
+            ],
+            self::$batchActorId
+        );
+    }
+
+    /**
      * Create notification for users with access to the preview
      * Only notify users with notification permission
      */
@@ -51,6 +164,16 @@ class NotificationService
     {
         $preview = $category->preview;
 
+        // If batching is enabled, add to batch instead of notifying
+        if (self::$batchingEnabled) {
+            self::addToBatch('category', [
+                'category_id' => $category->id,
+                'category_name' => $category->name,
+                'preview_name' => $preview->name,
+            ]);
+            return;
+        }
+
         self::notifyPreviewUsers(
             $preview->id,
             'category_created',
@@ -73,6 +196,17 @@ class NotificationService
     {
         $category = $feedback->category;
         $preview = $category->preview;
+
+        // If batching is enabled, add to batch instead of notifying
+        if (self::$batchingEnabled) {
+            self::addToBatch('feedback', [
+                'feedback_id' => $feedback->id,
+                'feedback_name' => $feedback->name,
+                'category_name' => $category->name,
+                'preview_name' => $preview->name,
+            ]);
+            return;
+        }
 
         self::notifyPreviewUsers(
             $preview->id,
@@ -99,6 +233,17 @@ class NotificationService
         $category = $feedback->category;
         $preview = $category->preview;
 
+        // If batching is enabled, add to batch instead of notifying
+        if (self::$batchingEnabled) {
+            self::addToBatch('feedback_set', [
+                'feedback_set_id' => $feedbackSet->id,
+                'feedback_set_name' => $feedbackSet->name,
+                'feedback_name' => $feedback->name,
+                'preview_name' => $preview->name,
+            ]);
+            return;
+        }
+
         self::notifyPreviewUsers(
             $preview->id,
             'feedback_set_created',
@@ -124,6 +269,16 @@ class NotificationService
         $feedback = $feedbackSet->feedback;
         $category = $feedback->category;
         $preview = $category->preview;
+
+        // If batching is enabled, add to batch instead of notifying
+        if (self::$batchingEnabled) {
+            self::addToBatch('version', [
+                'version_id' => $version->id,
+                'version_name' => $version->name,
+                'preview_name' => $preview->name,
+            ]);
+            return;
+        }
 
         self::notifyPreviewUsers(
             $preview->id,
@@ -164,6 +319,54 @@ class NotificationService
                 'asset_type' => $assetType,
                 'asset_name' => $assetName,
                 'version_name' => $version->name,
+                'preview_name' => $preview->name,
+            ],
+            $actorId
+        );
+    }
+
+    /**
+     * Create notification for feedback approval
+     */
+    public static function notifyFeedbackApproved($feedback, $actorId = null)
+    {
+        $category = $feedback->category;
+        $preview = $category->preview;
+
+        self::notifyPreviewUsers(
+            $preview->id,
+            'feedback_approved',
+            'Feedback Approved',
+            "Feedback '{$feedback->name}' was approved in '{$category->name}' for preview '{$preview->name}'",
+            "/previews/show/{$preview->slug}",
+            [
+                'feedback_id' => $feedback->id,
+                'feedback_name' => $feedback->name,
+                'category_name' => $category->name,
+                'preview_name' => $preview->name,
+            ],
+            $actorId
+        );
+    }
+
+    /**
+     * Create notification for feedback disapproval
+     */
+    public static function notifyFeedbackDisapproved($feedback, $actorId = null)
+    {
+        $category = $feedback->category;
+        $preview = $category->preview;
+
+        self::notifyPreviewUsers(
+            $preview->id,
+            'feedback_disapproved',
+            'Feedback Disapproved',
+            "Feedback '{$feedback->name}' was disapproved in '{$category->name}' for preview '{$preview->name}'",
+            "/previews/show/{$preview->slug}",
+            [
+                'feedback_id' => $feedback->id,
+                'feedback_name' => $feedback->name,
+                'category_name' => $category->name,
                 'preview_name' => $preview->name,
             ],
             $actorId

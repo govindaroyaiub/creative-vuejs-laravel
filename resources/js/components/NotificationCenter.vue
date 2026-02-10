@@ -9,7 +9,7 @@ import {
     DropdownMenuContent,
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Bell, Trash2, Loader2, Inbox, Sparkles, Folder, MessageSquare, Package, Image } from 'lucide-vue-next';
+import { Bell, Trash2, Loader2, Inbox, Sparkles, Folder, MessageSquare, Package, Image, CheckCircle, XCircle } from 'lucide-vue-next';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 const page = usePage<SharedData>();
@@ -76,10 +76,16 @@ const handleFilterChange = (filterType: 'all' | 'unread' | 'read') => {
 // Get notification icon/color based on type
 const getNotificationStyle = (type: string) => {
     switch (type) {
+        case 'preview_created':
+            return { icon: Sparkles, color: 'text-indigo-600', bgColor: 'bg-indigo-50', borderColor: 'border-l-indigo-500', label: 'Preview' };
         case 'category_created':
             return { icon: Folder, color: 'text-blue-600', bgColor: 'bg-blue-50', borderColor: 'border-l-blue-500', label: 'Category' };
         case 'feedback_created':
             return { icon: MessageSquare, color: 'text-green-600', bgColor: 'bg-green-50', borderColor: 'border-l-green-500', label: 'Feedback' };
+        case 'feedback_approved':
+            return { icon: CheckCircle, color: 'text-emerald-600', bgColor: 'bg-emerald-50', borderColor: 'border-l-emerald-500', label: 'Approved' };
+        case 'feedback_disapproved':
+            return { icon: XCircle, color: 'text-red-600', bgColor: 'bg-red-50', borderColor: 'border-l-red-500', label: 'Disapproved' };
         case 'feedback_set_created':
             return { icon: Package, color: 'text-purple-600', bgColor: 'bg-purple-50', borderColor: 'border-l-purple-500', label: 'Set' };
         case 'version_created':
@@ -254,6 +260,10 @@ const filteredNotifications = computed(() => {
                                                 </span>
                                                 <span class="text-[10px] text-muted-foreground/50 flex-shrink-0">
                                                     • {{ getRelativeTime(notification.created_at) }}
+                                                </span>
+                                                <span v-if="notification.actor"
+                                                    class="text-[10px] text-muted-foreground/60 font-medium flex-shrink-0">
+                                                    • by {{ notification.actor.name }}
                                                 </span>
                                             </div>
                                         </div>

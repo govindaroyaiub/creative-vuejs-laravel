@@ -240,6 +240,9 @@ class NewFeedbackController extends Controller
                     $feedback->is_approved = true;
                     $feedback->save();
 
+                    // Notify users about feedback approval
+                    \App\Services\NotificationService::notifyFeedbackApproved($feedback, Auth::id());
+
                     return response('', 200);
                 } catch (\Exception $e) {
                     // Clean up uploaded files if database save fails
@@ -300,6 +303,10 @@ class NewFeedbackController extends Controller
             newCategory::where('id', $feedback->category_id)->update(['file_transfer_id' => null]);
             $feedback->is_approved = false;
             $feedback->save();
+
+            // Notify users about feedback disapproval
+            \App\Services\NotificationService::notifyFeedbackDisapproved($feedback, Auth::id());
+
             return response('', 200);
         } catch (\Exception $e) {
             return response($e->getMessage(), 500);
