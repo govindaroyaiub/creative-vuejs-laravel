@@ -14,6 +14,7 @@ A comprehensive creative project management platform built with Laravel + Vue.js
 
 **Key Packages:**
 
+- **Real-time Communication**: Laravel Reverb for WebSocket notifications (self-hosted, free)
 - **File Management**: TinyPNG optimization, FFMPEG video processing
 - **File Processing**: TinyPNG compression, FFmpeg for videos
 - **Activity Tracking**: Spatie Laravel Activity Log
@@ -117,10 +118,11 @@ A comprehensive creative project management platform built with Laravel + Vue.js
 
 ### 11. **Notification Center** 🔔
 
-**Comprehensive Notification Management**:
+**Comprehensive Real-time Notification Management**:
 
+- **Real-time WebSocket Delivery**: Instant notification updates via Laravel Reverb (no page refresh required)
 - **Smart Notification Batching**: Consolidates multiple notifications during preview creation into a single professional notification
-- **Activity Tracking**: Updates fetched on dropdown open or page refresh
+- **Live Updates**: Notifications appear instantly as actions happen across the platform
 - **User Mentions**: Shows who performed each action (created, approved, disapproved)
 - **Visual Differentiation**: Color-coded notifications by type with custom icons
 - **Auto-read on View**: Facebook-style automatic marking as read when bell is clicked
@@ -171,7 +173,7 @@ Clients
 
 - **Dashboard**: Analytics and overview
 - **Previews**: Project management hub
-- **Notifications**: Activity center with smart batching
+- **Notifications**: Real-time activity center with smart batching via WebSocket
 - **Color Palettes**: Brand theming
 - **Banner Sizes**: Creative dimensions
 - **Video Sizes**: Video format management
@@ -248,17 +250,19 @@ information
 ### **Notification System**
 
 ```php
-// Backend: NotificationService.php
+// Backend: NotificationService.php + Laravel Reverb
+- Real-time WebSocket broadcasting via Laravel Reverb (self-hosted, free)
 - Smart batching for preview creation (consolidates 4+ notifications into 1)
 - Permission-based notification delivery
 - Actor tracking for all actions
 - Support for 8+ notification types with custom styling
+- Broadcasts NotificationCreated event to private user channels
 ```
 
 ```vue
-// Frontend: NotificationCenter.vue - Notification dropdown with unread count badge - Auto-mark as read on view (Facebook-style) - Date-based grouping
-(Today, Yesterday, Earlier) - Color-coded by type with custom icons (CheckCircle, XCircle, etc.) - Click to navigate, filter, and delete functionality
-- Lazy-loaded on dropdown open for performance
+// Frontend: NotificationCenter.vue + Laravel Echo - Real-time WebSocket listener for instant notification delivery - Notification dropdown with
+unread count badge - Auto-mark as read on view (Facebook-style) - Date-based grouping (Today, Yesterday, Earlier) - Color-coded by type with custom
+icons (CheckCircle, XCircle, etc.) - Click to navigate, filter, and delete functionality - Live unread count updates via WebSocket events
 ```
 
 ```php
@@ -367,14 +371,31 @@ REDIS_HOST=127.0.0.1
 REDIS_PASSWORD=null
 REDIS_PORT=6379
 
+# Configure Laravel Reverb for real-time notifications
+BROADCAST_CONNECTION=reverb
+REVERB_APP_ID=your-app-id
+REVERB_APP_KEY=your-app-key
+REVERB_APP_SECRET=your-app-secret
+REVERB_HOST=localhost
+REVERB_PORT=8080
+REVERB_SCHEME=http
+
+VITE_REVERB_APP_KEY="${REVERB_APP_KEY}"
+VITE_REVERB_HOST="${REVERB_HOST}"
+VITE_REVERB_PORT="${REVERB_PORT}"
+VITE_REVERB_SCHEME="${REVERB_SCHEME}"
+
 # Run database migrations
 php artisan migrate
 
 # Build assets
 npm run build
 
-# Start development server
+# Start development server (in terminal 1)
 composer run dev
+
+# Start Reverb WebSocket server (in terminal 2)
+php artisan reverb:start
 ```
 
 ## � Performance Monitoring
@@ -411,7 +432,9 @@ QUEUE_CONNECTION=redis
 ## �📈 Key Highlights
 
 - **Scalable Architecture**: Built for growing creative teams
-- **Modern UI/UX**: Card-based layouts with consistent theming- **Notification System**: Smart batching with permission-based delivery- **Security First**: Role-based permissions and secure file transfers
+- **Modern UI/UX**: Card-based layouts with consistent theming
+- **Real-time Notifications**: WebSocket-powered notifications with smart batching via Laravel Reverb
+- **Security First**: Role-based permissions and secure file transfers
 - **Performance Optimized**: Database indexes, Redis caching, and efficient queries
 - **Mobile Ready**: Responsive design across all devices
 - **Extensible**: AI-ready with modern integration patterns
@@ -420,15 +443,18 @@ QUEUE_CONNECTION=redis
 
 ## 🎨 Recent Enhancements
 
-### **February 2026 - Notification System Implementation**
+### **February 2026 - Real-time Notification System**
 
-- **Notification Center**: Complete notification system with smart batching and permission-based delivery
+- **WebSocket Integration**: Real-time notifications via Laravel Reverb (self-hosted, free)
+- **Instant Updates**: Notifications appear immediately without page refresh
 - **Smart Batching**: Consolidates multiple notifications during preview creation into single professional update
+- **Laravel Echo**: Frontend WebSocket client for live notification delivery
 - **Actor Attribution**: Shows who performed each action (created, approved, disapproved)
 - **Visual Differentiation**: 8 notification types with custom icons and color coding
 - **Feedback Workflow**: Approval/disapproval notifications with distinct visual styling
 - **Modern UI**: Auto-read on view, date grouping, filtering, and interactive navigation
 - **FileTransfer Integration**: Proper cleanup when deleting approved feedback
+- **Private Channels**: User-specific WebSocket channels for secure notification delivery
 
 ### **November 2025 - System Optimization & Documentation**
 

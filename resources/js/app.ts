@@ -6,6 +6,7 @@ import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
+import './echo'; // Initialize Laravel Echo for real-time WebSocket notifications
 // import './timezone-init.js'; // Initialize timezone detection - DISABLED
 
 // Ensure SweetAlert2 dialogs use the auto theme by default across the app

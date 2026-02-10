@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useNotifications } from '@/composables/useNotifications';
 import { usePage } from '@inertiajs/vue3';
 import type { SharedData } from '@/types';
@@ -29,6 +29,7 @@ const {
     handleNotificationClick,
     getRelativeTime,
     loadMore,
+    addNotification,
 } = useNotifications();
 
 const isOpen = ref(false);
@@ -49,6 +50,26 @@ onMounted(() => {
         unreadCount.value = page.props.notifications.unread_count;
     } else {
         fetchUnreadCount();
+    }
+
+    // Listen for real-time notifications via Laravel Echo
+    const userId = page.props.auth.user?.id;
+    if (userId) {
+        window.Echo.private(`user.${userId}`)
+            .listen('.notification.created', (data: any) => {
+                // Add notification to the list
+                addNotification(data);
+                // Increment unread count
+                unreadCount.value++;
+            });
+    }
+});
+
+// Cleanup WebSocket listener on component unmount
+onUnmounted(() => {
+    const userId = page.props.auth.user?.id;
+    if (userId) {
+        window.Echo.leave(`user.${userId}`);
     }
 });
 

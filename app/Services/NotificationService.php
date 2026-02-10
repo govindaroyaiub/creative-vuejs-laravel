@@ -143,7 +143,7 @@ class NotificationService
                 continue;
             }
 
-            Notification::create([
+            $notification = Notification::create([
                 'user_id' => $user->id,
                 'type' => $type,
                 'title' => $title,
@@ -154,6 +154,9 @@ class NotificationService
                 'actor_id' => $actorId,
                 'is_read' => false,
             ]);
+
+            // Broadcast the notification in real-time
+            broadcast(new \App\Events\NotificationCreated($notification))->toOthers();
         }
     }
 

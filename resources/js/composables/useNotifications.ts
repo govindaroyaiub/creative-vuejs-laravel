@@ -293,6 +293,14 @@ export function useNotifications() {
         }
     };
 
+    /**
+     * Add a new notification (for real-time updates)
+     */
+    const addNotification = (notification: Notification) => {
+        // Add to the beginning of the list
+        notifications.value.unshift(notification);
+    };
+
     const hasMore = computed(() => currentPage.value < lastPage.value);
     const unreadNotifications = computed(() => notifications.value.filter((n) => !n.is_read));
     const readNotifications = computed(() => notifications.value.filter((n) => n.is_read));
@@ -316,5 +324,6 @@ export function useNotifications() {
         handleNotificationClick,
         getRelativeTime,
         loadMore,
+        addNotification,
     };
 }
