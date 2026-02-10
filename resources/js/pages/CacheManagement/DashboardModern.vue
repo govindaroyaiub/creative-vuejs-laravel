@@ -4,7 +4,8 @@
 
     <!-- Modern Minimal Background -->
     <AppLayout :breadcrumbs="[{ title: 'Cache Management', href: '/cache-management' }]">
-        <div class="min-h-screen bg-white dark:bg-neutral-900 animate-fadeIn">
+        <div
+            class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-black dark:via-black dark:to-black animate-fadeIn">
             <!-- Clean Header -->
             <div class="container mx-auto px-4 max-w-8xl">
                 <header
@@ -48,7 +49,7 @@
                                         </path>
                                     </svg>
                                     <span class="text-xs sm:text-sm">{{ isRefreshing ? 'Refreshing...' : 'Refresh'
-                                        }}</span>
+                                    }}</span>
                                 </button>
                             </div>
                         </div>
@@ -126,7 +127,7 @@
                                                     {{ stat.name }}</h3>
                                                 <p class="text-xs sm:text-sm text-slate-500 dark:text-gray-400">{{
                                                     stat.files
-                                                }} files</p>
+                                                    }} files</p>
                                             </div>
                                         </div>
                                         <div class="text-right flex-shrink-0">
@@ -303,7 +304,7 @@
                                         <div class="min-w-0 flex-1">
                                             <div class="font-semibold text-slate-900 dark:text-white text-sm">{{
                                                 cleanup.total_files
-                                            }} files</div>
+                                                }} files</div>
                                             <div class="text-xs sm:text-sm text-slate-500 dark:text-gray-400">{{
                                                 cleanup.human_time }}
                                             </div>
@@ -439,7 +440,7 @@
                                 <div v-if="logs?.data?.length > 0" class="mt-4">
                                     <div class="flex items-center justify-between">
                                         <div class="text-sm text-gray-600 dark:text-gray-400">Showing {{ logs.from
-                                            }} to
+                                        }} to
                                             {{ logs.to }} of {{ logs.total }} entries</div>
                                         <div class="flex items-center space-x-2">
                                             <button @click="changePage(logs.current_page - 1)"
