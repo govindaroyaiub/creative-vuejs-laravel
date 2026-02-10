@@ -15,8 +15,7 @@ A comprehensive creative project management platform built with Laravel + Vue.js
 **Key Packages:**
 
 - **Real-time Communication**: Laravel Reverb for WebSocket notifications (self-hosted, free)
-- **File Management**: TinyPNG optimization, FFMPEG video processing
-- **File Processing**: TinyPNG compression, FFmpeg for videos
+- **File Processing**: FFmpeg for video processing
 - **Activity Tracking**: Spatie Laravel Activity Log
 - **Rich Text**: TipTap editor
 - **Charts**: Chart.js with Vue integration
@@ -70,7 +69,6 @@ A comprehensive creative project management platform built with Laravel + Vue.js
 ### 6. **Media Library** 📚
 
 - **Storage**: Centralized media management
-- **Processing**: TinyPNG integration for image compression
 - **Organization**: Category-based file organization
 - **Download Management**: Bulk operations support
 
@@ -180,7 +178,6 @@ Clients
 - **Bills**: Invoice generation
 - **File Transfers**: Secure file sharing
 - **Media Library**: Asset management
-- **TinyPNG**: Image compression
 - **Cache Management**: System monitoring and optimization
 - **Log Viewer**: Real-time log monitoring and management
 - **Documentation**: Complete API reference and Q&A system
