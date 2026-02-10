@@ -1351,6 +1351,103 @@ const apiEndpoints = ref({
             permission: '/logs'
         }
     ],
+    notifications: [
+        {
+            method: 'GET',
+            path: '/api/notifications',
+            description: 'Get all notifications for authenticated user with pagination and filtering',
+            authenticated: true,
+            permission: '/notifications',
+            parameters: 'filter (optional: unread, read)',
+            returnType: 'JSON',
+            example: JSON.stringify({
+                data: [
+                    {
+                        id: 1,
+                        type: 'preview_created',
+                        title: 'New Preview Created',
+                        message: 'John Doe created a preview with 3 categories, 2 feedbacks, 4 versions',
+                        preview_id: 42,
+                        actor_id: 5,
+                        is_read: false,
+                        read_at: null,
+                        created_at: '2026-02-11T10:30:00Z',
+                        preview: { id: 42, name: 'Q1 Campaign', slug: 'q1-campaign-xyz' },
+                        actor: { id: 5, name: 'John Doe' }
+                    }
+                ],
+                current_page: 1,
+                per_page: 20,
+                total: 45
+            }, null, 2)
+        },
+        {
+            method: 'GET',
+            path: '/api/notifications/unread-count',
+            description: 'Get count of unread notifications for authenticated user',
+            authenticated: true,
+            permission: '/notifications',
+            returnType: 'JSON',
+            example: JSON.stringify({ count: 12 }, null, 2)
+        },
+        {
+            method: 'POST',
+            path: '/api/notifications/{id}/mark-as-read',
+            description: 'Mark specific notification as read by ID',
+            authenticated: true,
+            permission: '/notifications',
+            parameters: 'id (in URL path)',
+            returnType: 'JSON',
+            example: JSON.stringify({ message: 'Notification marked as read' }, null, 2)
+        },
+        {
+            method: 'POST',
+            path: '/api/notifications/{id}/mark-as-unread',
+            description: 'Mark specific notification as unread by ID',
+            authenticated: true,
+            permission: '/notifications',
+            parameters: 'id (in URL path)',
+            returnType: 'JSON',
+            example: JSON.stringify({ message: 'Notification marked as unread' }, null, 2)
+        },
+        {
+            method: 'POST',
+            path: '/api/notifications/mark-all-as-read',
+            description: 'Mark all unread notifications as read for authenticated user',
+            authenticated: true,
+            permission: '/notifications',
+            returnType: 'JSON',
+            example: JSON.stringify({ message: 'All notifications marked as read' }, null, 2)
+        },
+        {
+            method: 'DELETE',
+            path: '/api/notifications/{id}',
+            description: 'Delete specific notification by ID',
+            authenticated: true,
+            permission: '/notifications',
+            parameters: 'id (in URL path)',
+            returnType: 'JSON',
+            example: JSON.stringify({ message: 'Notification deleted' }, null, 2)
+        },
+        {
+            method: 'DELETE',
+            path: '/api/notifications/all/read',
+            description: 'Delete all read notifications for authenticated user',
+            authenticated: true,
+            permission: '/notifications',
+            returnType: 'JSON',
+            example: JSON.stringify({ message: 'All read notifications deleted' }, null, 2)
+        },
+        {
+            method: 'DELETE',
+            path: '/api/notifications/all',
+            description: 'Delete all notifications for authenticated user (read and unread)',
+            authenticated: true,
+            permission: '/notifications',
+            returnType: 'JSON',
+            example: JSON.stringify({ message: 'All notifications deleted' }, null, 2)
+        }
+    ],
     miscellaneous: [
         {
             method: 'GET',
@@ -1444,6 +1541,7 @@ const getCategoryIcon = (category: string) => {
         'systemAdmin': '⚙️',
         'clientApis': '🌐',
         'tracking': '📊',
+        'notifications': '🔔',
         'utilities': '🛠️'
     };
     return icons[category] || '📋';
@@ -1461,6 +1559,7 @@ const formatCategoryName = (category: string) => {
         'systemAdmin': 'System Administration',
         'clientApis': 'Public Client APIs',
         'tracking': 'Analytics & Tracking',
+        'notifications': 'Real-time Notifications',
         'utilities': 'Utilities & Tools'
     };
     return names[category] || category.charAt(0).toUpperCase() + category.slice(1);
@@ -1722,6 +1821,123 @@ const qaList = ref([
                 <li>The Update.vue file allows creating, editing, and deleting all related entities.</li>
                 <li>The codebase is complex; consider using AI/code analysis tools for better understanding.</li>
                 <li>The reason there are 6 Layers is to show the client a robust preview to differentiate their contents and requirements.</li>
+            </ul>
+        </div>
+    `
+    },
+    {
+        question: 'What is the Notification System?',
+        answer: 'The Notification System is a real-time WebSocket-powered notification center that keeps users instantly informed about activities happening across the platform. It uses Laravel Reverb (a free, self-hosted WebSocket server) and Laravel Echo to deliver notifications immediately without requiring page refresh.',
+        additionalInfo: `
+        <div class="mt-4 p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg border-l-4 border-indigo-400 shadow">
+            <h5 class="font-bold text-indigo-800 dark:text-indigo-300 mb-2">🔔 Core Features</h5>
+            <ul class="list-disc list-inside space-y-1 text-sm text-indigo-700 dark:text-indigo-300">
+                <li><strong>Real-time WebSocket Delivery:</strong> Instant notification updates via Laravel Reverb (no page refresh required)</li>
+                <li><strong>Smart Batching:</strong> Consolidates multiple notifications during preview creation into single professional update</li>
+                <li><strong>Live Updates:</strong> Notifications appear immediately as actions happen across the platform</li>
+                <li><strong>Auto-read on View:</strong> Facebook-style automatic marking as read when bell is clicked</li>
+                <li><strong>Permission-based:</strong> Only users with notification permissions receive updates</li>
+                <li><strong>Actor Attribution:</strong> Every notification shows who performed the action</li>
+            </ul>
+        </div>
+
+        <div class="mt-4">
+            <h5 class="font-bold text-gray-900 dark:text-white mb-3">📋 Notification Types (8 Total)</h5>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="p-3 rounded-lg border-l-4 border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20">
+                    <h6 class="font-semibold text-indigo-900 dark:text-indigo-200">Preview Created</h6>
+                    <p class="text-sm text-indigo-700 dark:text-indigo-300">Consolidated notification showing all created components (Indigo color)</p>
+                </div>
+                <div class="p-3 rounded-lg border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900/20">
+                    <h6 class="font-semibold text-blue-900 dark:text-blue-200">Category Created</h6>
+                    <p class="text-sm text-blue-700 dark:text-blue-300">New category additions to preview (Blue color)</p>
+                </div>
+                <div class="p-3 rounded-lg border-l-4 border-green-500 bg-green-50 dark:bg-green-900/20">
+                    <h6 class="font-semibold text-green-900 dark:text-green-200">Feedback Created</h6>
+                    <p class="text-sm text-green-700 dark:text-green-300">New feedback submissions (Green color)</p>
+                </div>
+                <div class="p-3 rounded-lg border-l-4 border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20">
+                    <h6 class="font-semibold text-emerald-900 dark:text-emerald-200">Feedback Approved ✓</h6>
+                    <p class="text-sm text-emerald-700 dark:text-emerald-300">Feedback approval actions with CheckCircle icon (Emerald color)</p>
+                </div>
+                <div class="p-3 rounded-lg border-l-4 border-red-500 bg-red-50 dark:bg-red-900/20">
+                    <h6 class="font-semibold text-red-900 dark:text-red-200">Feedback Disapproved ✗</h6>
+                    <p class="text-sm text-red-700 dark:text-red-300">Feedback rejection actions with XCircle icon (Red color)</p>
+                </div>
+                <div class="p-3 rounded-lg border-l-4 border-purple-500 bg-purple-50 dark:bg-purple-900/20">
+                    <h6 class="font-semibold text-purple-900 dark:text-purple-200">Feedback Set Created</h6>
+                    <p class="text-sm text-purple-700 dark:text-purple-300">New feedback set additions (Purple color)</p>
+                </div>
+                <div class="p-3 rounded-lg border-l-4 border-amber-500 bg-amber-50 dark:bg-amber-900/20">
+                    <h6 class="font-semibold text-amber-900 dark:text-amber-200">Version Created</h6>
+                    <p class="text-sm text-amber-700 dark:text-amber-300">New version additions (Amber color)</p>
+                </div>
+                <div class="p-3 rounded-lg border-l-4 border-pink-500 bg-pink-50 dark:bg-pink-900/20">
+                    <h6 class="font-semibold text-pink-900 dark:text-pink-200">Asset Created</h6>
+                    <p class="text-sm text-pink-700 dark:text-pink-300">New asset uploads - banners, videos, GIFs, socials (Pink color)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h5 class="font-bold text-gray-900 dark:text-white mb-3">🛠️ Technical Architecture</h5>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-3 rounded-lg border bg-white dark:bg-neutral-800">
+                    <h6 class="font-bold text-blue-600 dark:text-blue-400 mb-2">Backend</h6>
+                    <ul class="list-disc list-inside text-sm space-y-1">
+                        <li><strong>Service:</strong> <code>NotificationService.php</code></li>
+                        <li><strong>Event:</strong> <code>NotificationCreated.php</code> (ShouldBroadcast)</li>
+                        <li><strong>Model:</strong> <code>Notification.php</code></li>
+                        <li><strong>WebSocket Server:</strong> Laravel Reverb v1.7+</li>
+                        <li><strong>Channels:</strong> <code>routes/channels.php</code> (user.{id} private channel)</li>
+                        <li><strong>Observers:</strong> CategoryObserver, FeedbackObserver, etc.</li>
+                    </ul>
+                </div>
+                <div class="p-3 rounded-lg border bg-white dark:bg-neutral-800">
+                    <h6 class="font-bold text-green-600 dark:text-green-400 mb-2">Frontend</h6>
+                    <ul class="list-disc list-inside text-sm space-y-1">
+                        <li><strong>Component:</strong> <code>NotificationCenter.vue</code></li>
+                        <li><strong>Composable:</strong> <code>useNotifications.ts</code></li>
+                        <li><strong>Echo Setup:</strong> <code>resources/js/echo.ts</code></li>
+                        <li><strong>Client Libraries:</strong> laravel-echo, pusher-js</li>
+                        <li><strong>Features:</strong> Live unread count, auto-read on view, date grouping</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h5 class="font-bold text-gray-900 dark:text-white mb-3">⚙️ How Smart Batching Works</h5>
+            <div class="p-4 bg-gray-50 dark:bg-neutral-800 rounded-lg border border-gray-200 dark:border-neutral-700">
+                <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li><strong>During Preview Creation:</strong> When a preview is first created with multiple components (categories, feedbacks, versions, assets), the system starts a batch with <code>NotificationService::beginBatch()</code></li>
+                    <li><strong>Batching Active:</strong> All notifications triggered during this process are consolidated into a single notification instead of sending 4+ separate ones</li>
+                    <li><strong>Batch Complete:</strong> After initial creation, batch auto-ends with <code>NotificationService::endBatch()</code></li>
+                    <li><strong>Subsequent Actions:</strong> Any additions or changes after the initial creation send individual notifications for granular tracking</li>
+                    <li><strong>Real-time Broadcast:</strong> Each notification (batched or individual) is immediately broadcast via WebSocket to all authorized users</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="mt-4 p-4 bg-green-50 dark:bg-green-900/30 rounded-lg border-l-4 border-green-400 shadow">
+            <h5 class="font-bold text-green-800 dark:text-green-300 mb-2">🚀 Setup Requirements</h5>
+            <ul class="list-disc list-inside space-y-1 text-sm text-green-700 dark:text-green-300">
+                <li><strong>Laravel Reverb:</strong> Self-hosted WebSocket server (no external API keys or paid services needed)</li>
+                <li><strong>Environment:</strong> Configure REVERB_* variables in .env file</li>
+                <li><strong>Start Server:</strong> Run <code>php artisan reverb:start</code> in a separate terminal</li>
+                <li><strong>Build Assets:</strong> Frontend needs <code>npm run dev</code> or <code>npm run build</code></li>
+                <li><strong>Documentation:</strong> See <code>REVERB_SETUP.md</code> for complete setup instructions</li>
+            </ul>
+        </div>
+
+        <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border-l-4 border-blue-400 shadow">
+            <h5 class="font-bold text-blue-800 dark:text-blue-300 mb-2">💡 Key Benefits</h5>
+            <ul class="list-disc list-inside space-y-1 text-sm text-blue-700 dark:text-blue-300">
+                <li><strong>Zero Latency:</strong> Notifications appear instantly without polling or page refresh</li>
+                <li><strong>Cost-Free:</strong> Completely self-hosted, no third-party services or API costs</li>
+                <li><strong>Professional UX:</strong> Smart batching prevents notification spam during bulk operations</li>
+                <li><strong>Scalable:</strong> Private channels ensure users only get their own notifications</li>
+                <li><strong>Modern Interface:</strong> Color-coded types, custom icons, date grouping, filtering</li>
             </ul>
         </div>
     `
