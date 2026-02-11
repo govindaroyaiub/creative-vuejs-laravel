@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 use App\Models\newCategory;
 use App\Models\newFeedback;
 use App\Models\newFeedbackSet;
@@ -32,5 +33,10 @@ class AppServiceProvider extends ServiceProvider
         newFeedback::observe(FeedbackObserver::class);
         newFeedbackSet::observe(FeedbackSetObserver::class);
         newVersion::observe(VersionObserver::class);
+
+        // Configure Pulse authorization using permission system
+        Gate::define('viewPulse', function ($user) {
+            return $user->canAccess('pulse');
+        });
     }
 }

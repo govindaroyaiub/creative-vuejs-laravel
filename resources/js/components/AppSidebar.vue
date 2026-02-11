@@ -4,7 +4,7 @@ import NavMain from '@/components/NavMain.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { ChartNoAxesCombined, Link2, Clapperboard, MonitorCog, Megaphone, ReceiptText, LayoutTemplate, Users, Type, FileCode, Handshake, Paintbrush, ImagePlay, HardDriveIcon } from 'lucide-vue-next';
+import { ChartNoAxesCombined, Link2, Clapperboard, MonitorCog, Megaphone, ReceiptText, LayoutTemplate, Users, Type, FileCode, Handshake, Paintbrush, ImagePlay, HardDriveIcon, Activity } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 import { computed } from 'vue'; // ✅ important to make reactive
@@ -31,7 +31,8 @@ const mainNavItems: NavItem[] = [
 const footerNavItems: NavItem[] = [
     { title: 'Access Manager', href: '/user-managements/designations', icon: Users },
     { title: 'Cache Management', href: '/cache-management', icon: HardDriveIcon },
-    { title: 'Documentations', href: '/documentations', icon: FileCode }
+    { title: 'Documentations', href: '/documentations', icon: FileCode },
+    { title: 'Pulse', href: '/pulse', icon: Activity, external: true },
 ];
 
 // Permission check function

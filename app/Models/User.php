@@ -55,6 +55,11 @@ class User extends Authenticatable
     public function canAccess($route)
     {
         if (is_array($this->permissions)) {
+            // Check for wildcard permission
+            if (in_array('*', $this->permissions)) {
+                return true;
+            }
+            // Check for specific route permission
             return in_array($route, $this->permissions);
         }
         return false;

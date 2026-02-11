@@ -16,6 +16,7 @@ export interface NavItem {
     href: string;
     icon?: LucideIcon;
     isActive?: boolean;
+    external?: boolean; // For links outside Inertia (like Pulse, Horizon)
 }
 
 export interface Notification {
