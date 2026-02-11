@@ -3,7 +3,7 @@
     <Head title="Documentations" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
-            class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-black dark:via-black dark:to-black">
+            class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-gray-50 dark:from-black dark:via-black dark:to-black">
             <div class="container mx-auto px-4 py-6 sm:py-8 max-w-5xl">
                 <!-- Header Section -->
                 <div class="text-center mb-6 px-4">
