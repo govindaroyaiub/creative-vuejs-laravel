@@ -865,7 +865,7 @@ const groups = computed(() => {
                                 </section>
                             </div>
 
-                            <div v-else class="bg-white dark:bg-neutral-800 rounded-xl p-8 text-center">
+                            <div v-else class="bg-white dark:bg-neutral-800 rounded-xl p-8 text-center shadow">
                                 <div class="text-gray-600 dark:text-gray-400">No previews found.</div>
                             </div>
                         </div>
