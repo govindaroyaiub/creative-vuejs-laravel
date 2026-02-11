@@ -29,11 +29,11 @@
             </div>
         </template>
 
-        <div class="py-6">
+        <div class="py-2 bg-gradient-to-br from-gray-50 via-gray-50 to-gray-50">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
                 <!-- Controls Panel -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-md sm:rounded-lg">
                     <div class="p-6 border-b border-gray-200 dark:border-gray-700">
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
@@ -132,7 +132,7 @@
                 </div>
 
                 <!-- Log Info Panel -->
-                <div v-if="logData.file_info" class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+                <div v-if="logData.file_info" class="bg-white dark:bg-gray-800 overflow-hidden shadow-md sm:rounded-lg">
                     <div class="p-6">
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div class="text-center">
@@ -164,7 +164,7 @@
                 </div>
 
                 <!-- Log Content -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-md sm:rounded-lg">
                     <div class="p-6">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
