@@ -182,7 +182,7 @@ const getFileSize = (bytes: number) => {
     <Head title="Media Library" />
     <AppLayout :breadcrumbs="[{ title: 'Media Library', href: '/medias' }]">
         <div
-            class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-black dark:via-black dark:to-black">
+            class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-gray-50 dark:from-black dark:via-black dark:to-black">
             <div class="p-4 md:p-6">
                 <!-- Search & Upload (aligned like FileTransfers) -->
                 <div class="mb-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">

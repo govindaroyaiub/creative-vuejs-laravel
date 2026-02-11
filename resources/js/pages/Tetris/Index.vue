@@ -1,6 +1,6 @@
 <template>
     <Head title="Tetris Game" />
-    <AppLayout :breadcrumbs="[{ title: 'Tetris Game' }]">
+    <AppLayout :breadcrumbs="[{ title: 'Tetris Game', href: '/play/tetris' }]">
         <div class="flex flex-col items-center justify-center w-full h-full bg-gray-100 dark:bg-black">
             <h1 class="text-2xl font-bold mb-4 text-black dark:text-white">Tetris Game</h1>
             <div class="mb-4 flex gap-4 justify-between w-full max-w-3xl">

@@ -444,7 +444,7 @@ const formatNumber = (num: number) => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
-            class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-black dark:via-black dark:to-black">
+            class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-gray-50 dark:from-black dark:via-black dark:to-black">
             <div class="p-6 space-y-8">
                 <!-- Header -->
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-0">

@@ -408,7 +408,7 @@ const groups = computed(() => {
     <Head title="Previews" />
     <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }]">
         <div
-            class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-black dark:via-black dark:to-black">
+            class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-gray-50 dark:from-black dark:via-black dark:to-black">
             <div class="p-4 md:p-6 space-y-4">
                 <!-- Tabs / Search (Add button placed next to tabs) -->
                 <div class="flex items-center justify-between gap-4">

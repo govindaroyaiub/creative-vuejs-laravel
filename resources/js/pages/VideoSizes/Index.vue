@@ -136,7 +136,7 @@ const saveNewSize = async () => {
     <Head title="Video Sizes" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <div
-            class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-black dark:via-black dark:to-black">
+            class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-gray-50 dark:from-black dark:via-black dark:to-black">
             <div class="p-4 sm:p-6">
                 <!-- Search & Add -->
                 <div

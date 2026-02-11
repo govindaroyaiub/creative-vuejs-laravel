@@ -5,7 +5,7 @@
     <!-- Modern Minimal Background -->
     <AppLayout :breadcrumbs="[{ title: 'Cache Management', href: '/cache-management' }]">
         <div
-            class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-black dark:via-black dark:to-black animate-fadeIn">
+            class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-gray-50 dark:from-black dark:via-black dark:to-black animate-fadeIn">
             <!-- Clean Header -->
             <div class="container mx-auto px-4 max-w-8xl">
                 <header

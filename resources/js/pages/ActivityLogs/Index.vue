@@ -3,7 +3,7 @@
     <Head title="Activity Logs" />
     <AppLayout :breadcrumbs="[{ title: 'Activity Logs', href: '/activity-logs' }]">
         <div
-            class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-black dark:via-gray-950 dark:to-black">
+            class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-gray-50 dark:from-black dark:via-gray-950 dark:to-black">
             <div class="p-6 space-y-6">
                 <!-- Search Section -->
                 <div class="rounded-2xl flex w-full items-center gap-2">

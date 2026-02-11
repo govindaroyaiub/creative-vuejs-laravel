@@ -143,7 +143,7 @@ function gotoLink(link: any) {
     <Head title="Templates" />
     <AppLayout :breadcrumbs="[{ title: 'Templates', href: '/templates' }]">
         <div
-            class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-black dark:via-black dark:to-black">
+            class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-gray-50 dark:from-black dark:via-black dark:to-black">
             <div class="p-4 md:p-6 space-y-4">
                 <div class="flex items-center justify-between gap-4">
                     <div class="flex-1">
