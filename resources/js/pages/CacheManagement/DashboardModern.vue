@@ -49,7 +49,7 @@
                                         </path>
                                     </svg>
                                     <span class="text-xs sm:text-sm">{{ isRefreshing ? 'Refreshing...' : 'Refresh'
-                                    }}</span>
+                                        }}</span>
                                 </button>
                             </div>
                         </div>
@@ -127,7 +127,7 @@
                                                     {{ stat.name }}</h3>
                                                 <p class="text-xs sm:text-sm text-slate-500 dark:text-gray-400">{{
                                                     stat.files
-                                                    }} files</p>
+                                                }} files</p>
                                             </div>
                                         </div>
                                         <div class="text-right flex-shrink-0">
@@ -228,19 +228,33 @@
                                                 class="ml-2 text-red-500"
                                                 title="Logs exceed 20MB - needs attention">⚠️</span>
                                         </h3>
-                                        <button @click="blankLogFiles" :disabled="isBlankingLogs"
-                                            class="px-3 py-1.5 bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:hover:bg-orange-900/40 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
-                                            <svg v-if="!isBlankingLogs" class="w-3 h-3 mr-1" fill="none"
-                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                                </path>
-                                            </svg>
-                                            <div v-else
-                                                class="w-3 h-3 mr-1 animate-spin rounded-full border-2 border-orange-600 border-t-transparent">
-                                            </div>
-                                            {{ isBlankingLogs ? 'Blanking...' : 'Blank Logs' }}
-                                        </button>
+                                        <div class="flex items-center gap-2">
+                                            <a href="/logs"
+                                                class="px-3 py-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/40 rounded-lg text-xs font-medium transition-colors flex items-center">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                                    </path>
+                                                </svg>
+                                                Logs
+                                            </a>
+                                            <button @click="blankLogFiles" :disabled="isBlankingLogs"
+                                                class="px-3 py-1.5 bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:hover:bg-orange-900/40 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
+                                                <svg v-if="!isBlankingLogs" class="w-3 h-3 mr-1" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                    </path>
+                                                </svg>
+                                                <div v-else
+                                                    class="w-3 h-3 mr-1 animate-spin rounded-full border-2 border-orange-600 border-t-transparent">
+                                                </div>
+                                                {{ isBlankingLogs ? 'Blanking...' : 'Blank Logs' }}
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <div class="space-y-3">
@@ -304,7 +318,7 @@
                                         <div class="min-w-0 flex-1">
                                             <div class="font-semibold text-slate-900 dark:text-white text-sm">{{
                                                 cleanup.total_files
-                                                }} files</div>
+                                            }} files</div>
                                             <div class="text-xs sm:text-sm text-slate-500 dark:text-gray-400">{{
                                                 cleanup.human_time }}
                                             </div>
@@ -440,7 +454,7 @@
                                 <div v-if="logs?.data?.length > 0" class="mt-4">
                                     <div class="flex items-center justify-between">
                                         <div class="text-sm text-gray-600 dark:text-gray-400">Showing {{ logs.from
-                                        }} to
+                                            }} to
                                             {{ logs.to }} of {{ logs.total }} entries</div>
                                         <div class="flex items-center space-x-2">
                                             <button @click="changePage(logs.current_page - 1)"
