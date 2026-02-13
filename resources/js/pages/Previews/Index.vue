@@ -487,13 +487,13 @@ const groups = computed(() => {
                     </div>
                     <div class="flex items-center space-x-2">
                         <button @click="switchTab('grid')" :aria-pressed="activeTab === 'grid'"
-                            :class="activeTab === 'grid' ? 'bg-gray-100 dark:bg-neutral-900 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'"
+                            :class="activeTab === 'grid' ? 'bg-gray-200 dark:bg-neutral-900 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'"
                             class="px-3 py-2 rounded-xl flex items-center gap-2">
                             <LayoutGrid class="w-5 h-5" />
                             <span class="hidden sm:inline">Grid</span>
                         </button>
                         <button @click="switchTab('table')" :aria-pressed="activeTab === 'table'"
-                            :class="activeTab === 'table' ? 'bg-gray-100 dark:bg-neutral-900 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'"
+                            :class="activeTab === 'table' ? 'bg-gray-200 dark:bg-neutral-900 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'"
                             class="px-3 py-2 rounded-xl flex items-center gap-2">
                             <List class="w-5 h-5" />
                             <span class="hidden sm:inline">Table</span>
