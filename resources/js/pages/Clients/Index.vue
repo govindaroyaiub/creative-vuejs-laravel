@@ -338,7 +338,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                     </div>
 
                     <button @click="openCreateModal"
-                        class="w-1/6 inline-flex justify-center items-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-sm hover:shadow-md group">
+                        class="w-1/6 inline-flex justify-center items-center px-6 py-3 bg-green-600 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-sm hover:shadow-md group">
                         <CirclePlus class="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-200" />
                         Add Client
                     </button>
