@@ -239,12 +239,115 @@
                             </div>
                         </div>
 
+                        <!-- Document Management Section -->
+                        <div
+                            class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
+                            <div class="flex items-center mb-4">
+                                <Upload class="w-5 h-5 text-blue-600 mr-2" />
+                                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Supporting Documents
+                                </h2>
+                                <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">(Optional)</span>
+                            </div>
+
+                            <div class="space-y-4">
+                                <!-- Existing Documents -->
+                                <div v-if="existingDocuments.length > 0" class="space-y-2">
+                                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Existing Documents
+                                        ({{ existingDocuments.length }})</p>
+                                    <div class="space-y-2">
+                                        <div v-for="doc in existingDocuments" :key="doc.id"
+                                            class="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                            <div class="flex items-center space-x-3 flex-1 min-w-0">
+                                                <FileText class="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                                <div class="flex-1 min-w-0">
+                                                    <p
+                                                        class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                                        {{ doc.filename }}
+                                                    </p>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                        {{ formatFileSize(doc.file_size) }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center space-x-2 flex-shrink-0">
+                                                <a :href="route('bills-document-download', { billId: bill.id, documentId: doc.id })"
+                                                    class="p-1.5 text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-all duration-200"
+                                                    title="Download">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
+                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                        <polyline points="7 10 12 15 17 10" />
+                                                        <line x1="12" y1="15" x2="12" y2="3" />
+                                                    </svg>
+                                                </a>
+                                                <button type="button" @click="deleteExistingDocument(doc.id)"
+                                                    class="p-1.5 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-all duration-200"
+                                                    title="Delete">
+                                                    <X class="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- File Upload Area -->
+                                <div>
+                                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Add New
+                                        Documents</p>
+                                    <div class="flex items-center justify-center w-full">
+                                        <label
+                                            class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 dark:border-neutral-700 border-dashed rounded-xl cursor-pointer bg-gray-50 dark:bg-neutral-900 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors duration-200">
+                                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                                <Upload class="w-8 h-8 mb-2 text-gray-500 dark:text-gray-400" />
+                                                <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                                                    <span class="font-semibold">Click to upload</span> or drag and drop
+                                                </p>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                    PDF, DOC, DOCX, XLS, XLSX, JPG, PNG (Max 10MB per file)
+                                                </p>
+                                            </div>
+                                            <input type="file" class="hidden" @change="handleFileUpload"
+                                                accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" multiple />
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- New Files to Upload List -->
+                                <div v-if="documents.length > 0" class="space-y-2">
+                                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">New Files to Upload
+                                        ({{ documents.length }})</p>
+                                    <div class="space-y-2">
+                                        <div v-for="(file, index) in documents" :key="index"
+                                            class="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                                            <div class="flex items-center space-x-3 flex-1 min-w-0">
+                                                <FileText class="w-5 h-5 text-green-600 flex-shrink-0" />
+                                                <div class="flex-1 min-w-0">
+                                                    <p
+                                                        class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                                        {{ file.name }}
+                                                    </p>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                        {{ formatFileSize(file.size) }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <button type="button" @click="removeDocument(index)"
+                                                class="ml-3 p-1.5 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-all duration-200 flex-shrink-0">
+                                                <X class="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Form Actions -->
                         <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
                             <Link :href="route('bills')"
                                 class="inline-flex items-center justify-center px-6 py-3 border text-white bg-red-600 dark:bg-neutral-800 rounded-xl hover:bg-red-700 transition-all duration-200">
-                            <ArrowLeft class="w-4 h-4 mr-2" />
-                            Back to Bills
+                                <ArrowLeft class="w-4 h-4 mr-2" />
+                                Back to Bills
                             </Link>
                             <button type="submit" :disabled="isLoading || totalAmount <= 0"
                                 class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
@@ -266,7 +369,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, usePage, Link } from '@inertiajs/vue3';
 import { ref, computed, watch } from 'vue';
-import { Plus, Trash2, Calculator, Receipt, User, FileText, Save, ArrowLeft } from 'lucide-vue-next';
+import { Plus, Trash2, Calculator, Receipt, User, FileText, Save, ArrowLeft, Upload, X } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { type BreadcrumbItem } from '@/types';
 
@@ -304,6 +407,8 @@ const form = ref({
     }),
 });
 
+const existingDocuments = ref(bill.documents || []);
+const documents = ref<File[]>([]);
 const isLoading = ref(false);
 
 const addRow = () => {
@@ -393,12 +498,27 @@ const handleSubmit = async () => {
 
     isLoading.value = true;
 
-    const payload = {
-        ...form.value,
-        total_amount: totalAmount.value,
-    };
+    // Create FormData to handle file uploads
+    const formData = new FormData();
+    formData.append('name', form.value.name);
+    formData.append('client', form.value.client);
+    formData.append('total_amount', totalAmount.value.toString());
+    formData.append('_method', 'PUT'); // Laravel method spoofing
 
-    router.put(route('bills-update', bill.id), payload, {
+    // Append sub_bills
+    form.value.sub_bills.forEach((sub, index) => {
+        formData.append(`sub_bills[${index}][item]`, sub.item);
+        formData.append(`sub_bills[${index}][quantity]`, sub.quantity.toString());
+        formData.append(`sub_bills[${index}][unit_price]`, sub.unit_price.toString());
+        formData.append(`sub_bills[${index}][amount]`, sub.amount.toString());
+    });
+
+    // Append new documents
+    documents.value.forEach((file, index) => {
+        formData.append(`documents[${index}]`, file);
+    });
+
+    router.post(route('bills-update', bill.id), formData, {
         preserveScroll: true,
         onSuccess: () => {
             Swal.fire({
@@ -433,6 +553,66 @@ const formatCurrency = (amount: number) => {
         currency: 'BDT',
         currencyDisplay: 'code'
     }).format(amount).replace('BDT', '৳');
+};
+
+const handleFileUpload = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    if (target.files) {
+        const newFiles = Array.from(target.files);
+        documents.value.push(...newFiles);
+        target.value = ''; // Reset input
+    }
+};
+
+const removeDocument = (index: number) => {
+    documents.value.splice(index, 1);
+};
+
+const deleteExistingDocument = (documentId: number) => {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'This document will be permanently deleted!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        customClass: { popup: 'rounded-2xl' }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.delete(route('bills-document-delete', { billId: bill.id, documentId }), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    existingDocuments.value = existingDocuments.value.filter((doc: any) => doc.id !== documentId);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Document deleted successfully!',
+                        timer: 1500,
+                        showConfirmButton: false,
+                        toast: true,
+                        position: 'top-end',
+                    });
+                },
+                onError: () => {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to delete document.',
+                        icon: 'error',
+                        customClass: { popup: 'rounded-2xl' }
+                    });
+                }
+            });
+        }
+    });
+};
+
+const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
 };
 </script>
 

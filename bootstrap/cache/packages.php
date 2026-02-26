@@ -44,6 +44,13 @@
       1 => 'Laravel\\Reverb\\ReverbServiceProvider',
     ),
   ),
+  'laravel/sentinel' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Laravel\\Sentinel\\SentinelServiceProvider',
+    ),
+  ),
   'laravel/tinker' => 
   array (
     'providers' => 

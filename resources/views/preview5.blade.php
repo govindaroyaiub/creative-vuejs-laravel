@@ -83,7 +83,7 @@
                     <div class="py-2 flex items-end justify-center sidebar-top-desktop content-end">
                         @if($preview['show_sidebar_logo'] == 1)
                         <img src="{{ asset('logos/' . $client['logo']) }}"
-                            alt="clientLogo" style="height: 65px; width: auto; margin: 0 auto;">
+                            alt="clientLogo" style="min-height: 65px; max-height: 90px;width: auto; margin: 0 auto;">
                         @endif
                     </div>
                     <div style="flex: 1;" class="feedbackTabs-parent">

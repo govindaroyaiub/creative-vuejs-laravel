@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bill;
+use App\Models\BillDocument;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -38,7 +41,7 @@ class BillController extends Controller
 
     public function show($id)
     {
-        $bill = Bill::with('subBills')->findOrFail($id);
+        $bill = Bill::with(['subBills', 'documents.uploader'])->findOrFail($id);
         return Inertia::render('Bills/Show', [
             'bill' => $bill,
         ]);
@@ -60,6 +63,8 @@ class BillController extends Controller
             'sub_bills.*.quantity' => 'required|integer|min:1',
             'sub_bills.*.unit_price' => 'required|numeric|min:0',
             'sub_bills.*.amount' => 'required|numeric|min:0',
+            'documents' => 'nullable|array',
+            'documents.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx|max:10240', // Max 10MB per file
         ]);
 
         $bill = Bill::create([
@@ -72,12 +77,19 @@ class BillController extends Controller
             $bill->subBills()->create($sub);
         }
 
+        // Handle document uploads
+        if ($request->hasFile('documents')) {
+            foreach ($request->file('documents') as $file) {
+                $this->storeDocument($bill, $file);
+            }
+        }
+
         return redirect()->route('bills')->with('success', 'Bill created successfully.');
     }
 
     public function edit($id)
     {
-        $bill = Bill::with('subBills')->findOrFail($id);
+        $bill = Bill::with(['subBills', 'documents.uploader'])->findOrFail($id);
         return Inertia::render('Bills/Edit', [
             'bill' => $bill,
         ]);
@@ -94,6 +106,8 @@ class BillController extends Controller
             'sub_bills.*.quantity' => 'required|integer|min:1',
             'sub_bills.*.unit_price' => 'required|numeric|min:0',
             'sub_bills.*.amount' => 'required|numeric|min:0',
+            'documents' => 'nullable|array',
+            'documents.*' => 'file|mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx|max:10240', // Max 10MB per file
         ]);
 
         $bill = Bill::findOrFail($id);
@@ -108,12 +122,25 @@ class BillController extends Controller
             $bill->subBills()->create($sub);
         }
 
+        // Handle new document uploads
+        if ($request->hasFile('documents')) {
+            foreach ($request->file('documents') as $file) {
+                $this->storeDocument($bill, $file);
+            }
+        }
+
         return redirect()->route('bills-edit', $id)->with('success', 'Bill updated successfully.');
     }
 
     public function destroy($id)
     {
         $bill = Bill::findOrFail($id);
+
+        // Delete all documents and their files
+        foreach ($bill->documents as $document) {
+            Storage::disk('public')->delete($document->path);
+            $document->delete();
+        }
 
         // Delete related sub-bills
         $bill->subBills()->delete();
@@ -140,5 +167,56 @@ class BillController extends Controller
         ]);
 
         return $pdf->download("bill-{$bill->id}-{$issueDate}.pdf");
+    }
+
+    /**
+     * Store a document for a bill
+     */
+    private function storeDocument(Bill $bill, $file)
+    {
+        $filename = time() . '_' . $file->getClientOriginalName();
+        $path = $file->storeAs('bill_documents', $filename, 'public');
+
+        $bill->documents()->create([
+            'filename' => $file->getClientOriginalName(),
+            'path' => $path,
+            'mime_type' => $file->getClientMimeType(),
+            'file_size' => $file->getSize(),
+            'uploaded_by' => Auth::id(),
+        ]);
+    }
+
+    /**
+     * Delete a specific document
+     */
+    public function deleteDocument($billId, $documentId)
+    {
+        $bill = Bill::findOrFail($billId);
+        $document = $bill->documents()->findOrFail($documentId);
+
+        // Delete the file from storage
+        Storage::disk('public')->delete($document->path);
+
+        // Delete the database record
+        $document->delete();
+
+        return back()->with('success', 'Document deleted successfully.');
+    }
+
+    /**
+     * Download a specific document
+     */
+    public function downloadDocument($billId, $documentId)
+    {
+        $bill = Bill::findOrFail($billId);
+        $document = $bill->documents()->findOrFail($documentId);
+
+        $filePath = storage_path('app/public/' . $document->path);
+
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found');
+        }
+
+        return response()->download($filePath, $document->filename);
     }
 }

@@ -1,10 +1,13 @@
 <?php
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use App\Models\SubBill;
+use App\Models\BillDocument;
 
 class Bill extends Model
 {
@@ -18,6 +21,11 @@ class Bill extends Model
     public function subBills(): HasMany
     {
         return $this->hasMany(SubBill::class);
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(BillDocument::class);
     }
 
     public function getActivitylogOptions(): LogOptions
