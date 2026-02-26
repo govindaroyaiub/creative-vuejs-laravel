@@ -22,6 +22,7 @@ auth.json
 laravel.log
 storage/logs/*.log
 public/Transfer Files/
+.DS_Store
 
 # Ignore Vite dev server marker file
 /public/hot
