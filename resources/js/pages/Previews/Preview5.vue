@@ -42,7 +42,7 @@
                         <h1><span class="font-semibold">Name: </span> <span class="capitalize">{{ preview.name }}</span>
                         </h1>
                         <h1><span class="font-semibold">Client: </span> <span class="capitalize">{{ client.name
-                        }}</span></h1>
+                                }}</span></h1>
                         <h1>
                             <span class="font-semibold">Date: </span> <span>{{ formatDate(preview.created_at) }}</span>
                         </h1>
@@ -50,7 +50,7 @@
                 </div>
             </section>
 
-            <div id="mobilecolorPaletteClick" @click="showColorPaletteOptions2">
+            <div id="mobilecolorPaletteClick" @click.stop="showColorPaletteOptions2">
                 <img :src="`/${rightTabColorPaletteImage}`" alt="palette icon">
                 <div id="mobilecolorPaletteSelection" :class="{ visible: isPaletteVisible }">
                     <div v-if="isPaletteVisible" class="color-grid">
@@ -109,13 +109,13 @@
                         <div id="bannershowCustom">
                             <nav role="navigation" class="mobileShowcase">
                                 <div id="mobileMenuToggle">
-                                    <button id="openMobileMenu" aria-label="Open menu" @click="openMobileMenu">
+                                    <button id="openMobileMenu" aria-label="Open menu" @click.stop="openMobileMenu">
                                         <i class="fa-solid fa-bars"></i>
                                     </button>
                                 </div>
                                 <div id="mobileMenu" class="mobile-menu-panel" :class="{ open: isMobileMenuOpen }">
                                     <button id="closeMobileMenu" aria-label="Close menu"
-                                        @click="closeMobileMenu">&times;</button>
+                                        @click.stop="closeMobileMenu">&times;</button>
                                     <div v-if="preview.show_sidebar_logo === 1" class="w-full">
                                         <div class="mb-2 mt-2 px-2 py-2 mx-auto flex justify-center">
                                             <img :src="asset(`logos/${client.logo}`)" alt="clientLogo"
@@ -296,7 +296,7 @@
                                                                 <div><strong>FPS:</strong> {{ video.fps ?? '-' }}</div>
                                                                 <div><strong>File Size:</strong> {{ video.file_size ??
                                                                     '-'
-                                                                    }}</div>
+                                                                }}</div>
                                                                 <div v-if="video.companion_banner_path"
                                                                     class="mt-2 w-full flex flex-col items-center justify-center">
                                                                     <img :src="`/${video.companion_banner_path}`"
@@ -378,7 +378,7 @@
                                     </template>
                                 </div>
 
-                                <div id="feedbackClick" @click="showFeedbackDescription">
+                                <div id="feedbackClick" @click.stop="showFeedbackDescription">
                                     <img :src="`/${rightTabFeedbackDescriptionImage}`" alt="feedback icon">
                                 </div>
                                 <div id="feedbackDescription" :class="{ show: isFeedbackDescriptionVisible }">
@@ -433,7 +433,7 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import { router } from '@inertiajs/vue3'
@@ -565,9 +565,19 @@ const fetchViewers = () => {
 
 // Mobile menu
 const openMobileMenu = () => {
+    // Close other panels if open
+    if (isPaletteVisible.value) {
+        hideColorPalette()
+    }
+    if (isFeedbackDescriptionVisible.value) {
+        hideFeedbackDescription()
+    }
+
     isMobileMenuOpen.value = true
     document.body.style.overflow = 'hidden'
-    document.addEventListener('click', handleOutsideClick)
+    setTimeout(() => {
+        document.addEventListener('click', handleOutsideClick)
+    }, 10)
 }
 
 const closeMobileMenu = () => {
@@ -578,11 +588,21 @@ const closeMobileMenu = () => {
 
 // Color palette
 const showColorPaletteOptions2 = () => {
+    // Close feedback description if open
+    if (isFeedbackDescriptionVisible.value) {
+        hideFeedbackDescription()
+    }
+
     isPaletteVisible.value = true
     // Add a small delay to prevent immediate closing from the same click
     setTimeout(() => {
         document.addEventListener('click', handleOutsideClick)
     }, 10)
+}
+
+const hideColorPalette = () => {
+    isPaletteVisible.value = false
+    document.removeEventListener('click', handleOutsideClick)
 }
 
 const changeTheme = (colorId) => {
@@ -601,6 +621,11 @@ const changeTheme = (colorId) => {
 
 // Feedback description
 const showFeedbackDescription = () => {
+    // Close color palette if open
+    if (isPaletteVisible.value) {
+        hideColorPalette()
+    }
+
     isFeedbackDescriptionVisible.value = true
     setTimeout(() => {
         document.addEventListener('click', closeFeedbackDescriptionOutside, true)
@@ -627,8 +652,7 @@ const handleOutsideClick = (event) => {
 
     if (paletteDiv && isPaletteVisible.value) {
         if (!paletteDiv.contains(event.target) && !paletteToggle.contains(event.target)) {
-            isPaletteVisible.value = false
-            document.removeEventListener('click', handleOutsideClick)
+            hideColorPalette()
             return
         }
     }
