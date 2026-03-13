@@ -272,7 +272,14 @@ class NewPreviewController extends Controller
         $color_palettes = ColorPalette::find($preview->color_palette_id);
         $client = Client::select(['id', 'name', 'logo'])->find($preview->client_id);
         $header_logo = Client::select(['id', 'name', 'logo'])->find($preview->header_logo_id);
-        $all_colors = ColorPalette::where('status', 1)->select('id', 'name', 'primary', 'tertiary')->get();
+        $all_colors = ColorPalette::where('status', 1)->select('id', 'name', 'primary', 'tertiary')->get()->map(function ($color) {
+            return [
+                'id' => $color->id,
+                'hex' => $color->primary,
+                'name' => $color->name,
+                'border' => $color->tertiary
+            ];
+        });
 
         $color_name = $color_palettes->name;
         $primary = $color_palettes->primary;
@@ -292,51 +299,27 @@ class NewPreviewController extends Controller
             ? (Client::select(['id', 'name'])->find(Auth::user()->client_id)?->name ?? 'Unknown')
             : 'guest';
 
-        return view('preview5', compact(
-            'preview',
-            'fileTransfer',
-            'primary',
-            'secondary',
-            'tertiary',
-            'quaternary',
-            'quinary',
-            'senary',
-            'septenary',
-            'client',
-            'header_logo',
-            'authUserClientName',
-            'preview_id',
-            'all_colors',
-            'feedback_active_image',
-            'feedback_inactive_image',
-            'rightTab_feedback_description_image',
-            'rightTab_color_palette_image',
-            'header_image',
-        ));
-
-        // return Inertia::render('Previews/Show', [
-        //     'preview' => $preview,
-        //     'client' => $client,
-        //     'headerImage' => $header_image,
-        //     'headerLogo' => $header_logo,
-        //     'rightTabColorPaletteImage' => $rightTab_color_palette_image,
-        //     'rightTabFeedbackDescriptionImage' => $rightTab_feedback_description_image,
-        //     'feedbackActiveImage' => $feedback_active_image,
-        //     'feedbackInactiveImage' => $feedback_inactive_image,
-        //     'authUserClientName' => $authUserClientName,
-        //     'previewId' => $preview_id,
-        //     'primary' => $primary,
-        //     'secondary' => $secondary,
-        //     'tertiary' => $tertiary,
-        //     'quaternary' => $quaternary,
-        //     'quinary' => $quinary,
-        //     'senary' => $senary,
-        //     'septenary' => $septenary,
-        //     'allColors' => $all_colors,
-        //     'auth' => [
-        //         'user' => Auth::user()
-        //     ]
-        // ]);
+        return Inertia::render('Previews/Preview5', [
+            'preview' => $preview,
+            'client' => $client,
+            'primary' => $primary,
+            'secondary' => $secondary,
+            'tertiary' => $tertiary,
+            'quaternary' => $quaternary,
+            'quinary' => $quinary,
+            'senary' => $senary,
+            'septenary' => $septenary,
+            'headerImage' => $header_image,
+            'headerLogo' => $header_logo,
+            'allColors' => $all_colors,
+            'rightTabColorPaletteImage' => $rightTab_color_palette_image,
+            'rightTabFeedbackDescriptionImage' => $rightTab_feedback_description_image,
+            'feedbackActiveImage' => $feedback_active_image,
+            'feedbackInactiveImage' => $feedback_inactive_image,
+            'authUserClientName' => $authUserClientName,
+            'previewId' => $preview_id,
+            'isAuthenticated' => Auth::check(),
+        ]);
     }
 
     /**
