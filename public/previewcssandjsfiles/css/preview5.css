@@ -118,18 +118,18 @@ hr {
 
 /* Loader */
 #loaderArea {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 9999;
 }
 
-/* Full-page dark backdrop using pseudo-element */
+/* Full-page transparent backdrop with blur using pseudo-element */
 #loaderArea::before {
     content: '';
     position: fixed;
@@ -137,7 +137,8 @@ hr {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, .75);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(4px);
     z-index: -1;
 }
 
@@ -865,7 +866,7 @@ hr {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(135deg, var(--tertiary-color), var(--quaternary-color));
+    background: var(--tertiary-color);
     color: white;
     padding: 12px 15px;
     border-radius: 12px 0 0 0;
@@ -930,6 +931,7 @@ hr {
 }
 
 /* Mobile Menu */
+/* ===== MOBILE MENU STYLES ===== */
 #mobileMenuToggle {
     position: fixed;
     top: 21rem;
@@ -945,13 +947,35 @@ hr {
     justify-content: center;
     box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
     cursor: pointer;
-    color: white
+    color: white;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#mobileMenuToggle:hover {
+    transform: scale(1.05);
+}
+
+#mobileMenuToggle:active {
+    transform: scale(0.95);
 }
 
 #mobileMenuToggle.hidden {
-    display: none
+    display: none;
 }
 
+/* Mobile Menu Backdrop */
+.mobile-menu-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    backdrop-filter: blur(2px);
+}
+
+/* Mobile Menu Panel */
 .mobile-menu-panel {
     position: fixed;
     top: 0;
@@ -963,28 +987,73 @@ hr {
     z-index: 10000;
     padding: 60px 20px 20px 20px;
     box-shadow: 2px 0 12px rgba(0, 0, 0, .2);
-    transform: translateX(-100%);
-    transition: transform .3s ease;
-    opacity: 1;
     overflow-y: auto;
-    list-style: none
+    overflow-x: hidden;
+    list-style: none;
 }
 
-.mobile-menu-panel.open {
-    transform: translateX(0)
+/* Backdrop Fade Transition */
+.backdrop-fade-enter-active,
+.backdrop-fade-leave-active {
+    transition: opacity 0.3s ease;
 }
 
+.backdrop-fade-enter-from,
+.backdrop-fade-leave-to {
+    opacity: 0;
+}
+
+.backdrop-fade-enter-to,
+.backdrop-fade-leave-from {
+    opacity: 1;
+}
+
+/* Slide Menu Transition */
+.slide-menu-enter-active,
+.slide-menu-leave-active {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide-menu-enter-from,
+.slide-menu-leave-to {
+    transform: translateX(-100%);
+}
+
+.slide-menu-enter-to,
+.slide-menu-leave-from {
+    transform: translateX(0);
+}
+
+/* Close Button */
 #closeMobileMenu {
     position: absolute;
     top: 20px;
     right: 20px;
     font-size: 2rem;
+    line-height: 1;
     color: white;
     background: none;
     border: none;
-    cursor: pointer
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
 }
 
+#closeMobileMenu:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#closeMobileMenu:active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Category List */
 #mobileCategoryList {
     list-style: none;
     padding: 0;
@@ -1001,12 +1070,12 @@ hr {
     font-size: 1.2rem;
     border-bottom: 1px solid var(--tertiary-color);
     color: var(--tertiary-color);
-    cursor: pointer
+    cursor: pointer;
 }
 
 #mobileCategoryList li.active {
     color: #fff;
-    font-weight: bold
+    font-weight: bold;
 }
 
 /* Color Palette Toggle Button */
@@ -1843,7 +1912,9 @@ hr {
     #feedbackDescription {
         position: fixed;
         right: 0;
-        top: 20rem
+        top: 20rem;
+        width: 320px;
+        max-height: 450px;
     }
 
     .feedbacks {
@@ -1885,8 +1956,10 @@ hr {
 
     #feedbackDescription {
         position: fixed;
-        right: -320px;
+        right: 0;
         top: 19rem;
+        width: 300px;
+        max-height: 400px;
     }
 
     .feedbacks {
@@ -2231,8 +2304,10 @@ hr {
 
     #feedbackDescription {
         position: fixed;
-        right: -320px;
+        right: 0;
         top: 20rem;
+        width: 320px;
+        max-height: 400px;
     }
 
     .feedbacks {

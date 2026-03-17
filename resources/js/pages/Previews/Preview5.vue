@@ -38,7 +38,7 @@
                         <h1><span class="font-semibold">Name: </span> <span class="capitalize">{{ preview.name }}</span>
                         </h1>
                         <h1><span class="font-semibold">Client: </span> <span class="capitalize">{{ client.name
-                                }}</span></h1>
+                        }}</span></h1>
                         <h1>
                             <span class="font-semibold">Date: </span> <span>{{ formatDate(preview.created_at) }}</span>
                         </h1>
@@ -108,35 +108,48 @@
                     <div id="showcase">
                         <div id="bannershowCustom">
                             <nav role="navigation" class="mobileShowcase">
-                                <div id="mobileMenuToggle">
-                                    <button id="openMobileMenu" aria-label="Open menu" @click.stop="openMobileMenu">
+                                <!-- Mobile Menu Toggle Button -->
+                                <div id="mobileMenuToggle" :class="{ hidden: isMobileMenuOpen }">
+                                    <button ref="menuToggleBtn" id="openMobileMenu" aria-label="Open menu"
+                                        @click="openMobileMenu">
                                         <Menu class="h-5 w-5" />
                                     </button>
                                 </div>
-                                <div id="mobileMenu" class="mobile-menu-panel" :class="{ open: isMobileMenuOpen }">
-                                    <button id="closeMobileMenu" aria-label="Close menu"
-                                        @click.stop="closeMobileMenu">&times;</button>
-                                    <div v-if="preview.show_sidebar_logo === 1" class="w-full">
-                                        <div class="mb-2 mt-2 px-2 py-2 mx-auto flex justify-center">
-                                            <img :src="asset(`logos/${client.logo}`)" alt="clientLogo"
-                                                style="width: 180px;">
+
+                                <!-- Mobile Menu Backdrop -->
+                                <Transition name="backdrop-fade">
+                                    <div v-if="isMobileMenuOpen" class="mobile-menu-backdrop" @click="closeMobileMenu"
+                                        @touchstart="closeMobileMenu"></div>
+                                </Transition>
+
+                                <!-- Mobile Menu Panel -->
+                                <Transition name="slide-menu">
+                                    <div v-if="isMobileMenuOpen" ref="mobileMenuPanel" id="mobileMenu"
+                                        class="mobile-menu-panel" @click.stop @touchstart.stop>
+                                        <button id="closeMobileMenu" aria-label="Close menu"
+                                            @click="closeMobileMenu">&times;</button>
+                                        <div v-if="preview.show_sidebar_logo === 1" class="w-full">
+                                            <div class="mb-2 mt-2 px-2 py-2 mx-auto flex justify-center">
+                                                <img :src="asset(`logos/${client.logo}`)" alt="clientLogo"
+                                                    style="width: 180px;">
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="sidebar-image mx-auto mb-4">
-                                        <span>Creative Showcase</span>
-                                    </div>
-                                    <ul id="mobileCategoryList">
-                                        <div v-for="category in categories" :key="category.id"
-                                            :class="['category-row', { 'category-active': category.is_active === 1 }]"
-                                            @click="category.is_active !== 1 && updateActiveCategory(category.id)">
-                                            <span :class="{ 'span-active': category.is_active === 1 }"
-                                                style="font-size: 0.85rem;">{{ category.name }}</span>
-                                            <hr>
-                                            <span class="category-row-date" style="font-size: 0.7rem;">{{
-                                                formatCategoryDate(category.created_at) }}</span>
+                                        <div class="sidebar-image mx-auto mb-4">
+                                            <span>Creative Showcase</span>
                                         </div>
-                                    </ul>
-                                </div>
+                                        <ul id="mobileCategoryList">
+                                            <div v-for="category in categories" :key="category.id"
+                                                :class="['category-row', { 'category-active': category.is_active === 1 }]"
+                                                @click="category.is_active !== 1 && updateActiveCategory(category.id)">
+                                                <span :class="{ 'span-active': category.is_active === 1 }"
+                                                    style="font-size: 0.85rem;">{{ category.name }}</span>
+                                                <hr>
+                                                <span class="category-row-date" style="font-size: 0.7rem;">{{
+                                                    formatCategoryDate(category.created_at) }}</span>
+                                            </div>
+                                        </ul>
+                                    </div>
+                                </Transition>
                             </nav>
                             <div class="navbar tabDesktopShowcase" id="navbar">
                                 <div v-if="preview.show_sidebar_logo === 1"
@@ -299,7 +312,7 @@
                                                                 <div><strong>FPS:</strong> {{ video.fps ?? '-' }}</div>
                                                                 <div><strong>File Size:</strong> {{ video.file_size ??
                                                                     '-'
-                                                                }}</div>
+                                                                    }}</div>
                                                                 <div v-if="video.companion_banner_path"
                                                                     class="mt-2 w-full flex flex-col items-center justify-center">
                                                                     <img :src="`/${video.companion_banner_path}`"
@@ -606,20 +619,24 @@ const fetchViewers = () => {
 
 // Mobile menu
 const openMobileMenu = () => {
-    // Close other panels if open
-    closeAllPanels()
+    // Close other panels first (but not the menu itself to avoid recursion)
+    if (isPaletteVisible.value) {
+        hideColorPalette()
+    }
+    if (isFeedbackDescriptionVisible.value) {
+        hideFeedbackDescription()
+    }
 
+    // Open the mobile menu
     isMobileMenuOpen.value = true
     document.body.style.overflow = 'hidden'
-    setTimeout(() => {
-        document.addEventListener('click', handleOutsideClick)
-    }, 10)
 }
 
 const closeMobileMenu = () => {
+    if (!isMobileMenuOpen.value) return
+
     isMobileMenuOpen.value = false
     document.body.style.overflow = ''
-    document.removeEventListener('click', handleOutsideClick)
 }
 
 // Close all panels utility
@@ -743,17 +760,9 @@ const handleFeedbackOutsideClick = (event) => {
     }
 }
 
-// Outside click handler for mobile menu
-const handleOutsideClick = (event) => {
-    const mobileMenu = document.getElementById('mobileMenu')
-    const mobileMenuToggle = document.getElementById('mobileMenuToggle')
-
-    if (mobileMenu && isMobileMenuOpen.value) {
-        if (!mobileMenu.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
-            closeMobileMenu()
-        }
-    }
-}
+// Vue refs for mobile menu elements
+const mobileMenuPanel = ref(null)
+const menuToggleBtn = ref(null)
 
 // Categories
 const renderCategories = () => {
