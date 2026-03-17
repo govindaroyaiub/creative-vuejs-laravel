@@ -38,7 +38,7 @@
                         <h1><span class="font-semibold">Name: </span> <span class="capitalize">{{ preview.name }}</span>
                         </h1>
                         <h1><span class="font-semibold">Client: </span> <span class="capitalize">{{ client.name
-                        }}</span></h1>
+                                }}</span></h1>
                         <h1>
                             <span class="font-semibold">Date: </span> <span>{{ formatDate(preview.created_at) }}</span>
                         </h1>
@@ -312,7 +312,7 @@
                                                                 <div><strong>FPS:</strong> {{ video.fps ?? '-' }}</div>
                                                                 <div><strong>File Size:</strong> {{ video.file_size ??
                                                                     '-'
-                                                                    }}</div>
+                                                                }}</div>
                                                                 <div v-if="video.companion_banner_path"
                                                                     class="mt-2 w-full flex flex-col items-center justify-center">
                                                                     <img :src="`/${video.companion_banner_path}`"
@@ -473,6 +473,86 @@
                 </div>
             </section>
         </main>
+
+        <!-- Introduction Tour Overlay -->
+        <Transition name="fade">
+            <div v-if="isIntroActive" class="intro-overlay" @click="skipIntro"></div>
+        </Transition>
+
+        <!-- Introduction Tour Modal -->
+        <Transition name="slide-up">
+            <div v-if="isIntroActive" class="intro-modal" @click.stop>
+                <!-- Decorative background elements -->
+                <div class="intro-modal-bg-decoration"></div>
+
+                <div class="intro-modal-header">
+                    <div class="intro-step-indicator">
+                        <div class="intro-step-badge">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 16v-4" />
+                                <path d="M12 8h.01" />
+                            </svg>
+                            <span>Step {{ currentStep + 1 }}/{{ steps.length }}</span>
+                        </div>
+                    </div>
+                    <button class="intro-close-btn" @click="skipIntro" aria-label="Skip tour" title="Close tour">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="intro-modal-body">
+                    <h3 class="intro-modal-title">{{ getCurrentStep()?.title }}</h3>
+                    <p class="intro-modal-description">{{ getCurrentStep()?.description }}</p>
+                </div>
+                <div class="intro-modal-footer">
+                    <div class="intro-nav-buttons">
+                        <button class="intro-btn intro-btn-secondary" @click="prevStep" :disabled="currentStep === 0">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polyline points="15 18 9 12 15 6"></polyline>
+                            </svg>
+                            <span>Previous</span>
+                        </button>
+                        <button class="intro-btn intro-btn-primary" @click="nextStep">
+                            <span>{{ currentStep === steps.length - 1 ? 'Finish' : 'Next' }}</span>
+                            <svg v-if="currentStep !== steps.length - 1" xmlns="http://www.w3.org/2000/svg" width="16"
+                                height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                            <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="intro-progress-section">
+                        <div class="intro-dots">
+                            <span v-for="(step, index) in steps" :key="index" class="intro-dot"
+                                :class="{ 'active': index === currentStep, 'completed': index < currentStep }"></span>
+                        </div>
+                        <button class="intro-skip-btn" @click="skipIntro">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polyline points="13 17 18 12 13 7"></polyline>
+                                <polyline points="6 17 11 12 6 7"></polyline>
+                            </svg>
+                            <span>Skip Tour</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+
         <footer v-if="preview.show_footer" class="footer py-8">
             <div class="container mx-auto px-4 text-center text-base text-gray-600">
                 &copy; All Rights Reserved.
@@ -490,6 +570,7 @@ import { Head } from '@inertiajs/vue3'
 import { router } from '@inertiajs/vue3'
 import axios from 'axios'
 import { Menu, RotateCw, Download, ChevronUp, ChevronDown, ArrowRight } from 'lucide-vue-next'
+import { usePreviewIntro } from '@/composables/usePreviewIntro'
 
 const props = defineProps({
     preview: Object,
@@ -510,7 +591,11 @@ const props = defineProps({
     feedbackInactiveImage: String,
     authUserClientName: String,
     previewId: [String, Number],
-    isAuthenticated: Boolean
+    isAuthenticated: Boolean,
+    intro: {
+        type: Boolean,
+        default: true
+    }
 })
 
 // Set CSS variables immediately (synchronously) so they're available when CSS loads
@@ -539,6 +624,19 @@ const fileTransfer = ref(null)
 const feedbackMessage = ref('')
 const guestName = ref('')
 const isFileTransferMinimized = ref(false)
+
+// Introduction tour
+const {
+    isIntroActive,
+    currentStep,
+    steps,
+    startIntro,
+    nextStep,
+    prevStep,
+    skipIntro,
+    getCurrentStep,
+    hasCompletedIntro
+} = usePreviewIntro()
 
 const currentYear = computed(() => new Date().getFullYear())
 
@@ -1365,6 +1463,15 @@ onMounted(async () => {
         viewerInterval = setInterval(fetchViewers, 10000)
     }
 
+    // Start intro tour if enabled (always show for now)
+    if (props.intro) {
+        setTimeout(() => {
+            // Close any open panels before starting tour
+            closeAllPanels()
+            startIntro()
+        }, 1000)
+    }
+
     // Enable transitions after a brief delay to prevent initial animation
     setTimeout(() => {
         transitionsEnabled.value = true
@@ -1387,4 +1494,450 @@ onUnmounted(() => {
 
 <style>
 /* CSS variables are set synchronously via JavaScript at component setup */
+
+/* Introduction Tour Styles */
+.intro-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.85) 100%);
+    z-index: 10000;
+    backdrop-filter: blur(4px);
+    animation: overlayFadeIn 0.4s ease-out;
+}
+
+@keyframes overlayFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.intro-modal {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    transform: none;
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 20px;
+    box-shadow:
+        0 25px 70px -12px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(0, 0, 0, 0.05),
+        0 0 80px rgba(99, 102, 241, 0.15);
+    z-index: 10002;
+    width: 90%;
+    max-width: 480px;
+    overflow: hidden;
+}
+
+/* Decorative background element */
+.intro-modal-bg-decoration {
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, var(--primary-color, #3b82f6) 0%, transparent 70%);
+    opacity: 0.08;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.intro-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 24px 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+}
+
+.intro-step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.intro-step-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, var(--primary-color, #3b82f6) 0%, var(--primary-color, #2563eb) 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+
+    0%,
+    100% {
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    }
+
+    50% {
+        box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+    }
+}
+
+.intro-step-badge svg {
+    width: 16px;
+    height: 16px;
+}
+
+.intro-close-btn {
+    background: rgba(0, 0, 0, 0.04);
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+    transition: all 0.2s ease;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+}
+
+.intro-close-btn:hover {
+    background: rgba(0, 0, 0, 0.08);
+    color: #111827;
+    transform: rotate(90deg);
+}
+
+.intro-modal-body {
+    padding: 18px 24px;
+    text-align: center;
+}
+
+.intro-modal-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #111827 0%, #374151 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.02em;
+}
+
+.intro-modal-description {
+    font-size: 0.9375rem;
+    color: #6b7280;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.intro-modal-footer {
+    padding: 14px 24px 16px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    background: rgba(249, 250, 251, 0.5);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.intro-nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.intro-btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    overflow: hidden;
+}
+
+.intro-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.intro-btn:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+.intro-btn svg {
+    transition: transform 0.3s ease;
+}
+
+.intro-btn-primary {
+    background: linear-gradient(135deg, var(--primary-color, #3b82f6) 0%, var(--primary-color, #2563eb) 100%);
+    color: white;
+    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+    flex: 1;
+}
+
+.intro-btn-primary:hover {
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
+    transform: translateY(-2px);
+}
+
+.intro-btn-primary:hover svg {
+    transform: translateX(3px);
+}
+
+.intro-btn-secondary {
+    background: white;
+    color: #374151;
+    border: 2px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.intro-btn-secondary:hover:not(:disabled) {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.intro-btn-secondary:hover:not(:disabled) svg {
+    transform: translateX(-3px);
+}
+
+.intro-btn-secondary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    border-color: #f3f4f6;
+}
+
+.intro-progress-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.intro-dots {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+}
+
+.intro-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #d1d5db;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.intro-dot.completed {
+    background: var(--primary-color, #3b82f6);
+    width: 8px;
+}
+
+.intro-dot.active {
+    background: var(--primary-color, #3b82f6);
+    width: 28px;
+    border-radius: 4px;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+.intro-skip-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.intro-skip-btn:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: #6b7280;
+}
+
+.intro-skip-btn svg {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.2s ease;
+}
+
+.intro-skip-btn:hover svg {
+    transform: translateX(2px);
+}
+
+.intro-highlight {
+    animation: intro-pulse 2s infinite;
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+    border-radius: 12px;
+    isolation: isolate;
+}
+
+/* Special handling for fixed positioned elements during intro */
+#mobilecolorPaletteClick,
+#feedbackClick {
+    transition: z-index 0.3s ease;
+}
+
+/* Ensure navbar is visible and not cut off during intro highlight */
+#navbar.intro-highlight {
+    margin-top: 20px;
+}
+
+/* Ensure feedback sets container maintains proper layout */
+.feedbackSetsContainer.intro-highlight {
+    padding: 10px;
+}
+
+@keyframes intro-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+    }
+
+    50% {
+        box-shadow: 0 0 0 20px rgba(59, 130, 246, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
+}
+
+/* Transitions */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.4s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.slide-up-enter-active {
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.slide-up-leave-active {
+    transition: all 0.3s ease;
+}
+
+.slide-up-enter-from {
+    transform: translateY(20px) scale(0.9);
+    opacity: 0;
+}
+
+.slide-up-leave-to {
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .intro-modal {
+        width: 95%;
+        max-width: 100%;
+        bottom: 10px;
+        right: 10px;
+    }
+
+    .intro-modal-header {
+        padding: 12px 18px 10px;
+    }
+
+    .intro-modal-body {
+        padding: 16px 18px;
+    }
+
+    .intro-modal-footer {
+        padding: 12px 18px 14px;
+    }
+
+    .intro-modal-title {
+        font-size: 1.125rem;
+    }
+
+    .intro-modal-description {
+        font-size: 0.875rem;
+    }
+
+    .intro-btn {
+        padding: 9px 16px;
+        font-size: 0.8125rem;
+    }
+
+    .intro-step-badge {
+        padding: 5px 10px;
+        font-size: 0.75rem;
+    }
+
+    .intro-nav-buttons {
+        gap: 8px;
+    }
+
+    .intro-skip-btn {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .intro-modal {
+        width: 95%;
+    }
+
+    .intro-modal-title {
+        font-size: 1rem;
+    }
+
+    .intro-modal-description {
+        font-size: 0.8125rem;
+    }
+
+    .intro-nav-buttons {
+        flex-direction: column-reverse;
+        width: 100%;
+    }
+
+    .intro-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .intro-progress-section {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
 </style>
