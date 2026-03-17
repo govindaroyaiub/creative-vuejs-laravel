@@ -25,10 +25,6 @@
             </form>
         </div>
 
-        <div id="loaderArea" :style="{ display: isLoading ? 'flex' : 'none' }">
-            <span class="loader"></span>
-        </div>
-
         <main class="main">
             <section id="top">
                 <div class="px-4 py-4 flex justify-center content text-center relative">
@@ -388,6 +384,11 @@
                                 <!-- Feedback Description Toggle Button -->
                                 <div id="feedbackClick" @click="toggleFeedbackDescription">
                                     <img :src="`/${rightTabFeedbackDescriptionImage}`" alt="feedback icon">
+                                </div>
+
+                                <!-- Loader positioned inside right-column -->
+                                <div id="loaderArea" :style="{ display: isLoading ? 'flex' : 'none' }">
+                                    <span class="loader"></span>
                                 </div>
                             </div>
                         </div>
@@ -1293,11 +1294,8 @@ const initFileTransferWidget = () => {
     const widget = document.getElementById('fileTransferWidget')
     if (!widget) return
 
-    // Restore minimized state from localStorage
-    const savedState = localStorage.getItem('fileTransferMinimized')
-    if (savedState !== null) {
-        isFileTransferMinimized.value = savedState === 'true'
-    }
+    // Widget always starts maximized on page load
+    isFileTransferMinimized.value = false
 
     window.addEventListener('resize', () => {
         if (window.innerWidth < 420) {
