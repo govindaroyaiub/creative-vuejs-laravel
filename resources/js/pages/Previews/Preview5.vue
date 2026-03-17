@@ -1618,7 +1618,7 @@ onUnmounted(() => {
 
 .intro-modal-body {
     padding: 18px 24px;
-    text-align: center;
+    text-align: left;
 }
 
 .intro-modal-title {
