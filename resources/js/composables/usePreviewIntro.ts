@@ -1,7 +1,7 @@
 import { nextTick, ref } from 'vue';
 
 interface IntroStep {
-    element: string;
+    element?: string;
     title: string;
     description: string;
     position?: 'top' | 'bottom' | 'left' | 'right';
@@ -14,6 +14,10 @@ export function usePreviewIntro() {
 
     const steps: IntroStep[] = [
         {
+            title: 'Welcome to the Previewer!',
+            description: "This quick tour will guide you through the key features of this preview page. Let's get started!",
+        },
+        {
             element: '#topDetails',
             title: 'Preview Details',
             description: 'Here are some basic information about the preview.',
@@ -21,9 +25,9 @@ export function usePreviewIntro() {
         },
         {
             element: '#navbar',
-            title: 'Category List',
+            title: 'Creative Showcase',
             description:
-                'This sidebar displays different categories like Banner, Video, Social Image, Storyboard, and GIF. Click on any category to view its contents.',
+                'This sidebar displays different creatives like Banner, Video, Social Image, Storyboard, and GIF. Click on any creative to view its contents.',
             position: 'right',
         },
         {
@@ -35,8 +39,7 @@ export function usePreviewIntro() {
         {
             element: '.feedbackSetsContainer',
             title: 'Asset Display',
-            description:
-                'All the assets will be loaded here with their respective version and sets.',
+            description: 'All the assets will be loaded here with their respective version and sets.',
             position: 'left',
         },
         {
@@ -95,6 +98,12 @@ export function usePreviewIntro() {
         removeHighlight();
 
         const step = steps[stepIndex];
+
+        // If no element is specified (welcome step), just show the modal
+        if (!step.element) {
+            return;
+        }
+
         const element = document.querySelector(step.element);
 
         if (element) {
