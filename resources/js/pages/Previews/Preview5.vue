@@ -42,7 +42,7 @@
                         <h1><span class="font-semibold">Name: </span> <span class="capitalize">{{ preview.name }}</span>
                         </h1>
                         <h1><span class="font-semibold">Client: </span> <span class="capitalize">{{ client.name
-                                }}</span></h1>
+                        }}</span></h1>
                         <h1>
                             <span class="font-semibold">Date: </span> <span>{{ formatDate(preview.created_at) }}</span>
                         </h1>
@@ -50,14 +50,18 @@
                 </div>
             </section>
 
-            <div id="mobilecolorPaletteClick" @click.stop="showColorPaletteOptions2">
+            <!-- Color Palette Toggle Button -->
+            <div id="mobilecolorPaletteClick" @click="toggleColorPalette">
                 <img :src="`/${rightTabColorPaletteImage}`" alt="palette icon">
-                <div id="mobilecolorPaletteSelection" :class="{ visible: isPaletteVisible }">
-                    <div v-if="isPaletteVisible" class="color-grid">
-                        <div v-for="color in allColors" :key="color.id" class="mobile-color-box"
-                            :style="{ backgroundColor: color.hex, borderColor: color.border }" :title="color.name"
-                            @click.stop="changeTheme(color.id)">
-                        </div>
+            </div>
+
+            <!-- Color Palette Panel (independent) -->
+            <div id="mobilecolorPaletteSelection"
+                :class="{ visible: isPaletteVisible, 'transitions-enabled': transitionsEnabled }">
+                <div class="color-grid">
+                    <div v-for="color in allColors" :key="color.id" class="mobile-color-box"
+                        :style="{ backgroundColor: color.hex, borderColor: color.border }" :title="color.name"
+                        @click="changeTheme(color.id)">
                     </div>
                 </div>
             </div>
@@ -296,7 +300,7 @@
                                                                 <div><strong>FPS:</strong> {{ video.fps ?? '-' }}</div>
                                                                 <div><strong>File Size:</strong> {{ video.file_size ??
                                                                     '-'
-                                                                }}</div>
+                                                                    }}</div>
                                                                 <div v-if="video.companion_banner_path"
                                                                     class="mt-2 w-full flex flex-col items-center justify-center">
                                                                     <img :src="`/${video.companion_banner_path}`"
@@ -378,32 +382,36 @@
                                     </template>
                                 </div>
 
-                                <div id="feedbackClick" @click.stop="showFeedbackDescription">
+                                <!-- Feedback Description Toggle Button -->
+                                <div id="feedbackClick" @click="toggleFeedbackDescription">
                                     <img :src="`/${rightTabFeedbackDescriptionImage}`" alt="feedback icon">
-                                </div>
-                                <div id="feedbackDescription" :class="{ show: isFeedbackDescriptionVisible }">
-                                    <div id="feedbackDescriptionUpperpart">
-                                        <div class="cursor-pointer" style="float: right; padding: 5px;"
-                                            @click.stop="hideFeedbackDescription">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <div id="feedbackDescriptionLowerPart">
-                                        <label id="feedbackMessage" v-html="feedbackMessage"></label>
-                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Feedback Description Panel (independent) -->
+                <div id="feedbackDescription"
+                    :class="{ show: isFeedbackDescriptionVisible, 'transitions-enabled': transitionsEnabled }">
+                    <div id="feedbackDescriptionUpperpart">
+                        <div class="feedback-header-title">Feedback Notes</div>
+                        <div class="cursor-pointer feedback-close-btn" @click="hideFeedbackDescription">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div id="feedbackDescriptionLowerPart">
+                        <div id="feedbackMessage" v-html="feedbackMessage || 'No feedback description available.'">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="fileTransferSection">
                     <div v-if="fileTransfer" id="fileTransferWidget" class="file-transfer-widget" aria-hidden="false">
                         <div id="fileTransferPanel" class="file-transfer-panel" role="region">
-                            aria-label="File transfer">
                             <div class="ft-content">
                                 <i class="fa-solid fa-download ft-icon"></i>
                                 <div class="ft-text-group">
@@ -476,6 +484,7 @@ const viewers = ref([])
 const isPaletteVisible = ref(false)
 const isMobileMenuOpen = ref(false)
 const isFeedbackDescriptionVisible = ref(false)
+const transitionsEnabled = ref(false)
 const categories = ref([])
 const currentCategoryIndex = ref(0)
 const feedbacks = ref([])
@@ -566,12 +575,7 @@ const fetchViewers = () => {
 // Mobile menu
 const openMobileMenu = () => {
     // Close other panels if open
-    if (isPaletteVisible.value) {
-        hideColorPalette()
-    }
-    if (isFeedbackDescriptionVisible.value) {
-        hideFeedbackDescription()
-    }
+    closeAllPanels()
 
     isMobileMenuOpen.value = true
     document.body.style.overflow = 'hidden'
@@ -586,23 +590,64 @@ const closeMobileMenu = () => {
     document.removeEventListener('click', handleOutsideClick)
 }
 
-// Color palette
-const showColorPaletteOptions2 = () => {
-    // Close feedback description if open
+// Close all panels utility
+const closeAllPanels = () => {
+    if (isPaletteVisible.value) {
+        hideColorPalette()
+    }
     if (isFeedbackDescriptionVisible.value) {
         hideFeedbackDescription()
     }
+    if (isMobileMenuOpen.value) {
+        closeMobileMenu()
+    }
+}
+
+// Color palette
+const toggleColorPalette = (event) => {
+    event?.stopPropagation()
+
+    if (isPaletteVisible.value) {
+        hideColorPalette()
+    } else {
+        showColorPalette()
+    }
+}
+
+const showColorPalette = () => {
+    // Close other panels first
+    if (isFeedbackDescriptionVisible.value) {
+        hideFeedbackDescription()
+    }
+    if (isMobileMenuOpen.value) {
+        closeMobileMenu()
+    }
 
     isPaletteVisible.value = true
-    // Add a small delay to prevent immediate closing from the same click
-    setTimeout(() => {
-        document.addEventListener('click', handleOutsideClick)
-    }, 10)
+
+    // Add click listener to close when clicking outside
+    nextTick(() => {
+        setTimeout(() => {
+            document.addEventListener('click', handleColorPaletteOutsideClick)
+        }, 100)
+    })
 }
 
 const hideColorPalette = () => {
+    if (!isPaletteVisible.value) return
     isPaletteVisible.value = false
-    document.removeEventListener('click', handleOutsideClick)
+    document.removeEventListener('click', handleColorPaletteOutsideClick)
+}
+
+const handleColorPaletteOutsideClick = (event) => {
+    const palettePanel = document.getElementById('mobilecolorPaletteSelection')
+    const paletteButton = document.getElementById('mobilecolorPaletteClick')
+
+    if (palettePanel && paletteButton) {
+        if (!palettePanel.contains(event.target) && !paletteButton.contains(event.target)) {
+            hideColorPalette()
+        }
+    }
 }
 
 const changeTheme = (colorId) => {
@@ -620,50 +665,60 @@ const changeTheme = (colorId) => {
 }
 
 // Feedback description
+const toggleFeedbackDescription = (event) => {
+    event?.stopPropagation()
+
+    if (isFeedbackDescriptionVisible.value) {
+        hideFeedbackDescription()
+    } else {
+        showFeedbackDescription()
+    }
+}
+
 const showFeedbackDescription = () => {
-    // Close color palette if open
+    // Close other panels first
     if (isPaletteVisible.value) {
         hideColorPalette()
     }
+    if (isMobileMenuOpen.value) {
+        closeMobileMenu()
+    }
 
     isFeedbackDescriptionVisible.value = true
-    setTimeout(() => {
-        document.addEventListener('click', closeFeedbackDescriptionOutside, true)
-    }, 100)
+
+    // Add click listener to close when clicking outside
+    nextTick(() => {
+        setTimeout(() => {
+            document.addEventListener('click', handleFeedbackOutsideClick)
+        }, 100)
+    })
 }
 
 const hideFeedbackDescription = () => {
+    if (!isFeedbackDescriptionVisible.value) return
     isFeedbackDescriptionVisible.value = false
-    document.removeEventListener('click', closeFeedbackDescriptionOutside, true)
+    document.removeEventListener('click', handleFeedbackOutsideClick)
 }
 
-const closeFeedbackDescriptionOutside = (e) => {
+const handleFeedbackOutsideClick = (event) => {
     const feedbackPanel = document.getElementById('feedbackDescription')
-    const feedbackClick = document.getElementById('feedbackClick')
-    if (feedbackPanel && feedbackClick && !feedbackPanel.contains(e.target) && !feedbackClick.contains(e.target)) {
-        hideFeedbackDescription()
-    }
-}
+    const feedbackButton = document.getElementById('feedbackClick')
 
-// Outside click handler
-const handleOutsideClick = (event) => {
-    const paletteDiv = document.getElementById('mobilecolorPaletteSelection')
-    const paletteToggle = document.getElementById('mobilecolorPaletteClick')
-
-    if (paletteDiv && isPaletteVisible.value) {
-        if (!paletteDiv.contains(event.target) && !paletteToggle.contains(event.target)) {
-            hideColorPalette()
-            return
+    if (feedbackPanel && feedbackButton) {
+        if (!feedbackPanel.contains(event.target) && !feedbackButton.contains(event.target)) {
+            hideFeedbackDescription()
         }
     }
+}
 
+// Outside click handler for mobile menu
+const handleOutsideClick = (event) => {
     const mobileMenu = document.getElementById('mobileMenu')
     const mobileMenuToggle = document.getElementById('mobileMenuToggle')
 
     if (mobileMenu && isMobileMenuOpen.value) {
         if (!mobileMenu.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
             closeMobileMenu()
-            return
         }
     }
 }
@@ -678,6 +733,13 @@ const renderCategories = () => {
             if (currentCategoryIndex.value === -1) currentCategoryIndex.value = 0
 
             renderFeedbacks(response)
+
+            // Initialize file transfer widget after rendering
+            nextTick(() => {
+                if (fileTransfer.value) {
+                    initFileTransferWidget()
+                }
+            })
         })
         .catch(_error => {
             alert('No Category is added yet. Please contact Planet Nine team.')
@@ -723,6 +785,11 @@ const renderFeedbacks = (response) => {
     nextTick(() => {
         enableFeedbackTabsDragScroll()
         scrollActiveFeedbackTabIntoView()
+
+        // Initialize file transfer widget if data exists
+        if (fileTransfer.value) {
+            initFileTransferWidget()
+        }
     })
 }
 
@@ -1237,7 +1304,6 @@ onMounted(async () => {
 
     initGuestName()
     renderCategories()
-    initFileTransferWidget()
 
     trackingInterval = setInterval(trackViewer, 8000)
 
@@ -1245,13 +1311,24 @@ onMounted(async () => {
         fetchViewers()
         viewerInterval = setInterval(fetchViewers, 10000)
     }
+
+    // Enable transitions after a brief delay to prevent initial animation
+    setTimeout(() => {
+        transitionsEnabled.value = true
+    }, 100)
 })
 
 onUnmounted(() => {
     if (viewerInterval) clearInterval(viewerInterval)
     if (trackingInterval) clearInterval(trackingInterval)
+
+    // Clean up all event listeners
     document.removeEventListener('click', handleOutsideClick)
-    document.removeEventListener('click', closeFeedbackDescriptionOutside, true)
+    document.removeEventListener('click', handleColorPaletteOutsideClick)
+    document.removeEventListener('click', handleFeedbackOutsideClick)
+
+    // Close all panels
+    closeAllPanels()
 })
 </script>
 

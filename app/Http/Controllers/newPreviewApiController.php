@@ -43,7 +43,7 @@ class newPreviewApiController extends Controller
         $preview->save();
         return response()->json(['success' => true, 'message' => 'Theme changed successfully']);
     }
-    
+
     function renderCategories($id)
     {
         $preview = newPreview::with([
@@ -58,7 +58,7 @@ class newPreviewApiController extends Controller
         $feedbackSets = $activeFeedback->feedbackSets;
         $versions = $feedbackSets->flatMap->versions;
         $fileTransfer = FileTransfer::find($activeCategory->file_transfer_id);
-        if(!$fileTransfer){
+        if (!$fileTransfer) {
             $fileTransfer = null;
         }
 
@@ -98,7 +98,7 @@ class newPreviewApiController extends Controller
         $feedbackSets = $activeFeedback->feedbackSets;
         $versions = $feedbackSets->flatMap->versions;
         $fileTransfer = FileTransfer::find($activeCategory->file_transfer_id);
-        if(!$fileTransfer){
+        if (!$fileTransfer) {
             $fileTransfer = null;
         }
 
@@ -137,6 +137,10 @@ class newPreviewApiController extends Controller
         $activeFeedback = $feedbacks->where('is_active', 1)->first();
         $feedbackSets = $activeFeedback->feedbackSets;
         $versions = $feedbackSets->flatMap->versions;
+        $fileTransfer = FileTransfer::find($activeCategory->file_transfer_id);
+        if (!$fileTransfer) {
+            $fileTransfer = null;
+        }
 
         return response()->json([
             'preview' => $preview,
@@ -145,7 +149,8 @@ class newPreviewApiController extends Controller
             'feedbackSets' => $feedbackSets,
             'activeCategory' => $activeCategory,
             'activeFeedback' => $activeFeedback,
-            'versions' => $versions
+            'versions' => $versions,
+            'fileTransfer' => $fileTransfer
         ]);
     }
 

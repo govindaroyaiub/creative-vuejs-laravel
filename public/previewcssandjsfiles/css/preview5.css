@@ -31,7 +31,7 @@ body {
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-    width: 8px
+    width: 4px
 }
 
 ::-webkit-scrollbar-track {
@@ -509,16 +509,24 @@ hr {
     transform: rotate(-90deg)
 }
 
+/* Feedback Description Toggle Button */
 #feedbackClick {
     position: fixed;
-    top: 25rem;
+    top: 16rem;
     right: -2px;
-    z-index: 1000;
+    z-index: 999;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+#feedbackClick:hover {
+    transform: scale(1.1);
 }
 
 #feedbackClick img {
     width: 30px;
     height: auto;
+    display: block;
 }
 
 #colorPaletteClick {
@@ -535,50 +543,63 @@ hr {
     top: 15rem
 }
 
+/* Feedback Description Panel - slides in from right */
 #feedbackDescription {
     position: fixed;
-    top: 25.5rem;
+    top: 16rem;
     right: 0;
-    transform: translateX(320px);
-    /* Start hidden off-screen */
-    width: 320px;
-    background: white;
-    border: 1px solid var(--tertiary-color);
-    border-radius: 10px 0 0 10px;
-    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease-in-out;
+    width: 350px;
+    max-height: 500px;
+    background: #ffffff;
+    border-radius: 12px 0 0 12px;
+    box-shadow: -2px 2px 16px rgba(0, 0, 0, 0.2);
     z-index: 1000;
+    /* Hidden by default - fully off screen */
+    transform: translateX(100%);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Only apply transition when explicitly enabled */
+#feedbackDescription.transitions-enabled {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #feedbackDescription.show {
+    /* Slide in when visible */
     transform: translateX(0);
 }
 
+/* Color Palette Panel - slides in from right */
 #mobilecolorPaletteSelection {
-    position: absolute;
-    top: 1rem;
+    position: fixed;
+    top: 11rem;
     right: 0;
-    /* Start hidden */
-    width: 100px;
-    background: #f2f2f2;
-    padding: 3px;
-    border-radius: 10px 0 0 10px;
-    box-shadow: -5px 0 15px rgba(15, 15, 15, 0.2);
-    transition: transform 0.3s ease-in-out;
+    width: 110px;
+    background: #ffffff;
+    padding: 10px;
+    border-radius: 12px 0 0 12px;
+    box-shadow: -2px 2px 12px rgba(0, 0, 0, 0.15);
     z-index: 1000;
-    transform: translateX(100px);
-    display: grid;
+    /* Hidden by default - fully off screen */
+    transform: translateX(100%);
+}
+
+/* Only apply transition when explicitly enabled */
+#mobilecolorPaletteSelection.transitions-enabled {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #mobilecolorPaletteSelection.visible {
+    /* Slide in when visible */
     transform: translateX(0);
 }
 
 .color-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: .5rem;
-    padding: 5px;
+    gap: 8px;
 }
 
 #mobilecolorPaletteSelection.color-grid {
@@ -601,15 +622,19 @@ hr {
 
 .mobile-color-box {
     color: #000;
-    border: 1px solid #aaa;
-    width: 25px;
-    height: 25px;
-    border-radius: 5px;
-    font-family: sans-serif;
-    white-space: pre-line;
-    text-align: center;
-    line-height: 25px;
-    cursor: pointer
+    border: 2px solid #ccc;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mobile-color-box:hover {
+    transform: scale(1.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    border-color: #666;
+    z-index: 10;
 }
 
 /* Sidebar */
@@ -660,25 +685,73 @@ hr {
     cursor: zoom-in
 }
 
+/* Feedback Description Header */
 #feedbackDescriptionUpperpart {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
-    border: 1px solid var(--tertiary-color);
-    border-top-left-radius: 8px;
-    padding: 0;
-    background-color: var(--tertiary-color);
-    color: white
+    background: linear-gradient(135deg, var(--tertiary-color), var(--quaternary-color));
+    color: white;
+    padding: 12px 15px;
+    border-radius: 12px 0 0 0;
+    flex-shrink: 0;
 }
 
+.feedback-header-title {
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.3px;
+}
+
+.feedback-close-btn {
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.feedback-close-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.feedback-close-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Feedback Description Content */
 #feedbackDescriptionLowerPart {
-    color: black;
-    padding: 5px;
-    height: auto;
-    width: 300px;
-    white-space: normal;
-    text-overflow: ellipsis;
-    border-bottom-left-radius: 10px
+    padding: 16px;
+    overflow-y: auto;
+    flex: 1;
+    color: #333;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+#feedbackDescriptionLowerPart::-webkit-scrollbar {
+    width: 6px;
+}
+
+#feedbackDescriptionLowerPart::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+#feedbackDescriptionLowerPart::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+#feedbackDescriptionLowerPart::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+#feedbackMessage {
+    word-wrap: break-word;
+    white-space: pre-wrap;
 }
 
 /* Mobile Menu */
@@ -761,18 +834,24 @@ hr {
     font-weight: bold
 }
 
+/* Color Palette Toggle Button */
 #mobilecolorPaletteClick {
     position: absolute;
     right: -2px;
     top: 10rem;
-    color: white;
     cursor: pointer;
-    z-index: 99
+    z-index: 999;
+    transition: transform 0.2s ease;
+}
+
+#mobilecolorPaletteClick:hover {
+    transform: scale(1.1);
 }
 
 #mobilecolorPaletteClick img {
     width: 30px;
     height: auto;
+    display: block;
 }
 
 /* Social Grid */
