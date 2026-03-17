@@ -42,7 +42,7 @@
                         <h1><span class="font-semibold">Name: </span> <span class="capitalize">{{ preview.name }}</span>
                         </h1>
                         <h1><span class="font-semibold">Client: </span> <span class="capitalize">{{ client.name
-                        }}</span></h1>
+                                }}</span></h1>
                         <h1>
                             <span class="font-semibold">Date: </span> <span>{{ formatDate(preview.created_at) }}</span>
                         </h1>
@@ -114,7 +114,7 @@
                             <nav role="navigation" class="mobileShowcase">
                                 <div id="mobileMenuToggle">
                                     <button id="openMobileMenu" aria-label="Open menu" @click.stop="openMobileMenu">
-                                        <i class="fa-solid fa-bars"></i>
+                                        <Menu class="h-5 w-5" />
                                     </button>
                                 </div>
                                 <div id="mobileMenu" class="mobile-menu-panel" :class="{ open: isMobileMenuOpen }">
@@ -238,16 +238,17 @@
                                                             </div>
                                                             <ul style="display: flex; flex-direction: row;"
                                                                 class="previewIcons">
-                                                                <li><i :id="`relBt${banner.id}`"
-                                                                        @click="reloadBanner(banner.id)"
-                                                                        class="fa-solid fa-repeat"
-                                                                        style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:1rem;"></i>
+                                                                <li>
+                                                                    <RotateCw :id="`relBt${banner.id}`"
+                                                                        @click="reloadBanner(banner.id)" class="h-4 w-4"
+                                                                        style="display: flex; margin-top: 0.5rem; cursor: pointer;" />
                                                                 </li>
                                                                 <li v-if="authUserClientName === 'Planet Nine'"
                                                                     class="banner-options">
-                                                                    <a :href="`/previews/banner/download/${banner.id}`"><i
-                                                                            class="fa-solid fa-download"
-                                                                            style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:1rem;"></i></a>
+                                                                    <a :href="`/previews/banner/download/${banner.id}`">
+                                                                        <Download class="h-4 w-4"
+                                                                            style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem;" />
+                                                                    </a>
                                                                 </li>
                                                             </ul>
                                                         </div>
@@ -271,8 +272,10 @@
                                                                 <div v-if="authUserClientName === 'Planet Nine'"
                                                                     class="flex gap-4 mb-2 justify-center">
                                                                     <a :href="`/${video.path}`" download
-                                                                        title="Download"><i class="fa-solid fa-download"
-                                                                            style="display: flex; margin-left: 0.5rem; font-size:20px;"></i></a>
+                                                                        title="Download">
+                                                                        <Download class="h-5 w-5"
+                                                                            style="display: flex; margin-left: 0.5rem;" />
+                                                                    </a>
                                                                 </div>
                                                                 <div
                                                                     class="font-semibold text-base mb-1 underline text-center flex justify-center align-center">
@@ -300,7 +303,7 @@
                                                                 <div><strong>FPS:</strong> {{ video.fps ?? '-' }}</div>
                                                                 <div><strong>File Size:</strong> {{ video.file_size ??
                                                                     '-'
-                                                                    }}</div>
+                                                                }}</div>
                                                                 <div v-if="video.companion_banner_path"
                                                                     class="mt-2 w-full flex flex-col items-center justify-center">
                                                                     <img :src="`/${video.companion_banner_path}`"
@@ -311,8 +314,7 @@
                                                                         :href="`/${video.companion_banner_path}`"
                                                                         download title="Download Companion Banner"
                                                                         class="mt-2 flex items-center gap-1 text-blue-600 hover:text-blue-800">
-                                                                        <i class="fa-solid fa-download"
-                                                                            style="font-size:18px;"></i>
+                                                                        <Download class="h-4 w-4" />
                                                                         <span class="text-xs">Download Companion
                                                                             Banner</span>
                                                                     </a>
@@ -334,8 +336,8 @@
                                                                 <li v-if="authUserClientName === 'Planet Nine'">
                                                                     <a :href="`/${social.path}`"
                                                                         :download="`${social.name}.jpg`">
-                                                                        <i class="fa-solid fa-download"
-                                                                            style="display: flex; margin-left: 0.5rem; font-size:20px;"></i>
+                                                                        <Download class="h-5 w-5"
+                                                                            style="display: flex; margin-left: 0.5rem;" />
                                                                     </a>
                                                                 </li>
                                                             </ul>
@@ -363,15 +365,16 @@
                                                                 :id="`rel${gif.id}`"></iframe>
                                                             <ul style="display: flex; flex-direction: row;"
                                                                 class="previewIcons">
-                                                                <li><i :id="`relBt${gif.id}`"
-                                                                        @click="reloadBanner(gif.id)"
-                                                                        class="fa-solid fa-repeat"
-                                                                        style="display: flex; margin-top: 0.5rem; cursor: pointer; font-size:20px;"></i>
+                                                                <li>
+                                                                    <RotateCw :id="`relBt${gif.id}`"
+                                                                        @click="reloadBanner(gif.id)" class="h-5 w-5"
+                                                                        style="display: flex; margin-top: 0.5rem; cursor: pointer;" />
                                                                 </li>
                                                                 <li v-if="authUserClientName === 'Planet Nine'">
-                                                                    <a :href="`/${gif.path}`" :download="gif.name"><i
-                                                                            class="fa-solid fa-download"
-                                                                            style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem; font-size:20px;"></i></a>
+                                                                    <a :href="`/${gif.path}`" :download="gif.name">
+                                                                        <Download class="h-5 w-5"
+                                                                            style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem;" />
+                                                                    </a>
                                                                 </li>
                                                             </ul>
                                                         </div>
@@ -410,21 +413,47 @@
                 </div>
 
                 <div class="fileTransferSection">
-                    <div v-if="fileTransfer" id="fileTransferWidget" class="file-transfer-widget" aria-hidden="false">
+                    <div v-if="fileTransfer" id="fileTransferWidget"
+                        :class="['file-transfer-widget', { 'minimized': isFileTransferMinimized }]" aria-hidden="false">
                         <div id="fileTransferPanel" class="file-transfer-panel" role="region">
-                            <div class="ft-content">
-                                <i class="fa-solid fa-download ft-icon"></i>
-                                <div class="ft-text-group">
-                                    <div class="ft-title">Files Ready</div>
-                                    <div class="ft-subtitle">Download now</div>
+                            <!-- Minimize/Maximize Button -->
+                            <button class="ft-toggle-btn" @click="toggleFileTransferWidget"
+                                :title="isFileTransferMinimized ? 'Maximize' : 'Minimize'"
+                                aria-label="Toggle file transfer widget">
+                                <ChevronUp v-if="isFileTransferMinimized" class="h-4 w-4" />
+                                <ChevronDown v-else class="h-4 w-4" />
+                            </button>
+
+                            <!-- Content (hidden when minimized) -->
+                            <Transition name="expand">
+                                <div v-if="!isFileTransferMinimized" class="ft-expandable-wrapper">
+                                    <div class="ft-expandable-content">
+                                        <div class="ft-content">
+                                            <Download class="ft-icon" />
+                                            <div class="ft-text-group">
+                                                <div class="ft-title">Files Ready</div>
+                                                <div class="ft-subtitle">Download now</div>
+                                            </div>
+                                        </div>
+                                        <a id="fileTransferButton" class="file-transfer-btn"
+                                            :href="`/file-transfers-view/${fileTransfer.slug}`" target="_blank"
+                                            rel="noopener noreferrer">
+                                            <span>Get Files</span>
+                                            <ArrowRight class="h-4 w-4" />
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
-                            <a id="fileTransferButton" class="file-transfer-btn"
-                                :href="`/file-transfers-view/${fileTransfer.slug}`" target="_blank"
-                                rel="noopener noreferrer">
-                                <span>Get Files</span>
-                                <i class="fa-solid fa-arrow-right"></i>
-                            </a>
+                            </Transition>
+
+                            <!-- Minimized State Display -->
+                            <Transition name="minimize">
+                                <div v-if="isFileTransferMinimized" class="ft-minimized-wrapper">
+                                    <div class="ft-minimized-content">
+                                        <Download class="ft-minimized-icon" />
+                                        <span class="ft-minimized-text">Files Ready</span>
+                                    </div>
+                                </div>
+                            </Transition>
                         </div>
                     </div>
                 </div>
@@ -446,6 +475,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import { router } from '@inertiajs/vue3'
 import axios from 'axios'
+import { Menu, RotateCw, Download, ChevronUp, ChevronDown, ArrowRight } from 'lucide-vue-next'
 
 const props = defineProps({
     preview: Object,
@@ -494,6 +524,7 @@ const activeCategory = ref(null)
 const fileTransfer = ref(null)
 const feedbackMessage = ref('')
 const guestName = ref('')
+const isFileTransferMinimized = ref(false)
 
 const currentYear = computed(() => new Date().getFullYear())
 
@@ -1252,10 +1283,21 @@ const renderGif = (versionId, version) => {
         })
 }
 
-// File transfer widget
+// File transfer widget handlers
+const toggleFileTransferWidget = () => {
+    isFileTransferMinimized.value = !isFileTransferMinimized.value
+    localStorage.setItem('fileTransferMinimized', isFileTransferMinimized.value)
+}
+
 const initFileTransferWidget = () => {
     const widget = document.getElementById('fileTransferWidget')
     if (!widget) return
+
+    // Restore minimized state from localStorage
+    const savedState = localStorage.getItem('fileTransferMinimized')
+    if (savedState !== null) {
+        isFileTransferMinimized.value = savedState === 'true'
+    }
 
     window.addEventListener('resize', () => {
         if (window.innerWidth < 420) {
@@ -1269,15 +1311,19 @@ const initFileTransferWidget = () => {
 
     try {
         const panel = document.getElementById('fileTransferPanel')
-        if (panel) {
+        if (panel && !isFileTransferMinimized.value) {
+            // Initial attention burst
             setTimeout(() => {
                 panel.classList.add('attention')
                 setTimeout(() => panel.classList.remove('attention'), 1000)
             }, 300)
 
+            // Gentle periodic pulse every 8s (short burst)
             setInterval(() => {
-                panel.classList.add('attention')
-                setTimeout(() => panel.classList.remove('attention'), 900)
+                if (!isFileTransferMinimized.value) {
+                    panel.classList.add('attention')
+                    setTimeout(() => panel.classList.remove('attention'), 900)
+                }
             }, 8000)
         }
     } catch (_e) {

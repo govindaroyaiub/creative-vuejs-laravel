@@ -329,6 +329,10 @@ hr {
     transform: scale(1.05);
 }
 
+.file-transfer-widget.minimized:hover {
+    transform: scale(1.08);
+}
+
 .file-transfer-panel {
     display: flex;
     flex-direction: column;
@@ -337,10 +341,140 @@ hr {
     box-shadow: 0 12px 32px rgba(16, 24, 40, 0.2), 0 0 0 1px rgba(16, 24, 40, 0.05);
     overflow: hidden;
     min-width: 240px;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .file-transfer-panel:hover {
     box-shadow: 0 16px 40px rgba(16, 24, 40, 0.25);
+}
+
+/* Toggle Button */
+.ft-toggle-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(16, 24, 40, 0.1);
+    border-radius: 8px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ft-toggle-btn:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.ft-toggle-btn:active {
+    transform: scale(0.95);
+}
+
+.ft-toggle-btn svg {
+    width: 12px;
+    height: 12px;
+    color: #475569;
+    transition: transform 0.3s ease;
+}
+
+/* Vue Transition Classes for Expand Animation - Grid-based smooth height */
+.expand-enter-active,
+.expand-leave-active {
+    display: grid;
+    transition: grid-template-rows 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+    grid-template-rows: 0fr;
+    opacity: 0;
+}
+
+.expand-enter-to,
+.expand-leave-from {
+    grid-template-rows: 1fr;
+    opacity: 1;
+}
+
+/* Expandable Wrapper and Content */
+.ft-expandable-wrapper {
+    overflow: hidden;
+}
+
+.ft-expandable-content {
+    min-height: 0;
+}
+
+/* Vue Transition Classes for Minimize Animation - Grid-based smooth height */
+.minimize-enter-active,
+.minimize-leave-active {
+    display: grid;
+    transition: grid-template-rows 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.minimize-enter-from,
+.minimize-leave-to {
+    grid-template-rows: 0fr;
+    opacity: 0;
+}
+
+.minimize-enter-to,
+.minimize-leave-from {
+    grid-template-rows: 1fr;
+    opacity: 1;
+}
+
+/* Minimized Wrapper */
+.ft-minimized-wrapper {
+    overflow: hidden;
+}
+
+/* Minimized State */
+.ft-minimized-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    padding-right: 44px;
+    min-height: 0;
+}
+
+.ft-minimized-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--tertiary-color);
+    animation: pulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.ft-minimized-text {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #0f172a;
 }
 
 /* Header with badge */
@@ -387,7 +521,6 @@ hr {
 }
 
 .ft-icon {
-    font-size: 24px;
     color: var(--tertiary-color);
     width: 32px;
     height: 32px;
@@ -396,6 +529,7 @@ hr {
     justify-content: center;
     background: rgba(59, 130, 246, 0.1);
     border-radius: 8px;
+    flex-shrink: 0;
 }
 
 .ft-text-group {
@@ -442,12 +576,13 @@ hr {
     box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
 }
 
-.file-transfer-btn i {
-    font-size: 0.85rem;
+.file-transfer-btn svg {
+    width: 14px;
+    height: 14px;
     transition: transform 0.2s ease;
 }
 
-.file-transfer-btn:hover i {
+.file-transfer-btn:hover svg {
     transform: translateX(2px);
 }
 
@@ -472,7 +607,6 @@ hr {
     }
 
     .ft-icon {
-        font-size: 20px;
         width: 28px;
         height: 28px;
     }
@@ -489,6 +623,35 @@ hr {
         padding: 10px 14px;
         font-size: 0.85rem;
         margin: 0 10px 10px 10px;
+    }
+
+    .ft-toggle-btn {
+        width: 26px;
+        height: 26px;
+    }
+
+    .ft-toggle-btn svg {
+        width: 11px;
+        height: 11px;
+    }
+}
+
+/* Attention Animation */
+.file-transfer-panel.attention {
+    animation: attentionPulse 0.6s ease-in-out;
+}
+
+@keyframes attentionPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 12px 32px rgba(16, 24, 40, 0.2), 0 0 0 1px rgba(16, 24, 40, 0.05);
+    }
+
+    50% {
+        transform: scale(1.03);
+        box-shadow: 0 16px 48px rgba(59, 130, 246, 0.4), 0 0 0 2px rgba(59, 130, 246, 0.3);
     }
 }
 
@@ -1255,7 +1418,7 @@ hr {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: center
+        align-items: center;
     }
 
     .feedbackTab {
@@ -2530,6 +2693,7 @@ hr {
     flex-direction: row;
     justify-content: center;
     flex-wrap: wrap;
+    align-items: end;
     gap: 1rem;
 }
 
