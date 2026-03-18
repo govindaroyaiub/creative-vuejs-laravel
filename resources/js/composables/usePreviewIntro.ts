@@ -133,8 +133,7 @@ export function usePreviewIntro() {
         removeHighlight();
 
         // Store in localStorage that user has seen the intro
-        // Commented out for now - intro will show every time
-        // localStorage.setItem('preview_intro_completed', 'true');
+        localStorage.setItem('preview_intro_completed', 'true');
     };
 
     const highlightStep = (stepIndex: number) => {

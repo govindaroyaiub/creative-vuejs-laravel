@@ -38,7 +38,7 @@
                         <h1><span class="font-semibold">Name: </span> <span class="capitalize">{{ preview.name }}</span>
                         </h1>
                         <h1><span class="font-semibold">Client: </span> <span class="capitalize">{{ client.name
-                                }}</span></h1>
+                        }}</span></h1>
                         <h1>
                             <span class="font-semibold">Date: </span> <span>{{ formatDate(preview.created_at) }}</span>
                         </h1>
@@ -312,7 +312,7 @@
                                                                 <div><strong>FPS:</strong> {{ video.fps ?? '-' }}</div>
                                                                 <div><strong>File Size:</strong> {{ video.file_size ??
                                                                     '-'
-                                                                }}</div>
+                                                                    }}</div>
                                                                 <div v-if="video.companion_banner_path"
                                                                     class="mt-2 w-full flex flex-col items-center justify-center">
                                                                     <img :src="`/${video.companion_banner_path}`"
@@ -425,54 +425,148 @@
                         </div>
                     </div>
                 </div>
+            </section>
+        </main>
 
-                <div class="fileTransferSection">
-                    <div v-if="fileTransfer" id="fileTransferWidget"
-                        :class="['file-transfer-widget', { 'minimized': isFileTransferMinimized }]" aria-hidden="false">
-                        <div id="fileTransferPanel" class="file-transfer-panel" role="region">
-                            <!-- Minimize/Maximize Button -->
-                            <button class="ft-toggle-btn" @click="toggleFileTransferWidget"
-                                :title="isFileTransferMinimized ? 'Maximize' : 'Minimize'"
-                                aria-label="Toggle file transfer widget">
-                                <ChevronUp v-if="isFileTransferMinimized" class="h-4 w-4" />
-                                <ChevronDown v-else class="h-4 w-4" />
-                            </button>
+        <!-- Bottom Right Actions Container -->
+        <div class="bottom-right-actions">
+            <div class="fileTransferSection">
+                <div v-if="fileTransfer" id="fileTransferWidget"
+                    :class="['file-transfer-widget', { 'minimized': isFileTransferMinimized }]" aria-hidden="false">
+                    <div id="fileTransferPanel" class="file-transfer-panel" role="region">
+                        <!-- Minimize/Maximize Button -->
+                        <button class="ft-toggle-btn" @click="toggleFileTransferWidget"
+                            :title="isFileTransferMinimized ? 'Maximize' : 'Minimize'"
+                            aria-label="Toggle file transfer widget">
+                            <ChevronUp v-if="isFileTransferMinimized" class="h-4 w-4" />
+                            <ChevronDown v-else class="h-4 w-4" />
+                        </button>
 
-                            <!-- Content (hidden when minimized) -->
-                            <Transition name="expand">
-                                <div v-if="!isFileTransferMinimized" class="ft-expandable-wrapper">
-                                    <div class="ft-expandable-content">
-                                        <div class="ft-content">
-                                            <Download class="ft-icon" />
-                                            <div class="ft-text-group">
-                                                <div class="ft-title">Files Ready</div>
-                                                <div class="ft-subtitle">Download now</div>
-                                            </div>
+                        <!-- Content (hidden when minimized) -->
+                        <Transition name="expand">
+                            <div v-if="!isFileTransferMinimized" class="ft-expandable-wrapper">
+                                <div class="ft-expandable-content">
+                                    <div class="ft-content">
+                                        <Download class="ft-icon" />
+                                        <div class="ft-text-group">
+                                            <div class="ft-title">Files Ready</div>
+                                            <div class="ft-subtitle">Download now</div>
                                         </div>
-                                        <a id="fileTransferButton" class="file-transfer-btn"
-                                            :href="`/file-transfers-view/${fileTransfer.slug}`" target="_blank"
-                                            rel="noopener noreferrer">
-                                            <span>Get Files</span>
-                                            <ArrowRight class="h-4 w-4" />
-                                        </a>
                                     </div>
+                                    <a id="fileTransferButton" class="file-transfer-btn"
+                                        :href="`/file-transfers-view/${fileTransfer.slug}`" target="_blank"
+                                        rel="noopener noreferrer">
+                                        <span>Get Files</span>
+                                        <ArrowRight class="h-4 w-4" />
+                                    </a>
                                 </div>
-                            </Transition>
+                            </div>
+                        </Transition>
 
-                            <!-- Minimized State Display -->
-                            <Transition name="minimize">
-                                <div v-if="isFileTransferMinimized" class="ft-minimized-wrapper">
-                                    <div class="ft-minimized-content">
-                                        <Download class="ft-minimized-icon" />
-                                        <span class="ft-minimized-text">Files Ready</span>
+                        <!-- Minimized State Display -->
+                        <Transition name="minimize">
+                            <div v-if="isFileTransferMinimized" class="ft-minimized-wrapper">
+                                <div class="ft-minimized-content">
+                                    <Download class="ft-minimized-icon" />
+                                    <span class="ft-minimized-text">Files Ready</span>
+                                </div>
+                            </div>
+                        </Transition>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tour Assistant Chatbot -->
+            <div v-if="!isIntroActive" class="tour-assistant">
+                <button @click="toggleAssistantMenu" class="tour-help-button" :class="{ 'active': isAssistantMenuOpen }"
+                    title="Need Help?" aria-label="Open assistant chatbot">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </button>
+
+                <!-- Chatbot Interface -->
+                <Transition name="chat-slide">
+                    <div v-if="isAssistantMenuOpen" class="assistant-chatbot" @click.stop>
+                        <!-- Chatbot Header -->
+                        <div class="chatbot-header">
+                            <div class="chatbot-avatar">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M12 8V4H8"></path>
+                                    <rect width="16" height="12" x="4" y="8" rx="2"></rect>
+                                    <path d="M2 14h2"></path>
+                                    <path d="M20 14h2"></path>
+                                    <path d="M15 13v2"></path>
+                                    <path d="M9 13v2"></path>
+                                </svg>
+                            </div>
+                            <div class="chatbot-header-text">
+                                <h4>Preview Assistant</h4>
+                            </div>
+                            <button @click="toggleAssistantMenu" class="chatbot-close" aria-label="Close chatbot">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Chat Messages -->
+                        <div class="chatbot-messages">
+                            <!-- Bot greeting -->
+                            <div class="chat-message bot-message">
+                                <div class="message-bubble">
+                                    <p>How can we help?</p>
+                                </div>
+                            </div>
+
+                            <!-- Options as chat buttons -->
+                            <div class="chat-options">
+                                <button @click="restartTour" class="chat-option-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M3 11l18-5v12L3 14v-3z"></path>
+                                        <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path>
+                                    </svg>
+                                    <span>Take a tour</span>
+                                </button>
+                                <button v-if="!showContactReply" @click="contactSupport" class="chat-option-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path
+                                            d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+                                        </path>
+                                        <polyline points="22,6 12,13 2,6"></polyline>
+                                    </svg>
+                                    <span>Contact us</span>
+                                </button>
+                            </div>
+
+                            <!-- Bot reply for contact support -->
+                            <Transition name="message-fade">
+                                <div v-if="showContactReply" class="chat-message bot-message">
+                                    <div class="message-bubble">
+                                        <p>We'd love to hear from you! Please reach out to us at:</p>
+                                        <a href="mailto:support@planetnine.com" class="support-email">
+                                            support@planetnine.com
+                                        </a>
                                     </div>
                                 </div>
                             </Transition>
                         </div>
                     </div>
-                </div>
-            </section>
-        </main>
+                </Transition>
+            </div>
+        </div>
 
         <!-- Introduction Tour Overlay -->
         <Transition name="fade">
@@ -624,6 +718,8 @@ const fileTransfer = ref(null)
 const feedbackMessage = ref('')
 const guestName = ref('')
 const isFileTransferMinimized = ref(false)
+const isAssistantMenuOpen = ref(false)
+const showContactReply = ref(false)
 
 // Introduction tour
 const {
@@ -1484,6 +1580,43 @@ const handleLogout = (event) => {
     })
 }
 
+// Restart tour
+const restartTour = () => {
+    closeAllPanels()
+    isAssistantMenuOpen.value = false
+    showContactReply.value = false
+    setTimeout(() => {
+        startIntro()
+    }, 300)
+}
+
+// Assistant menu toggle
+const toggleAssistantMenu = () => {
+    isAssistantMenuOpen.value = !isAssistantMenuOpen.value
+    if (!isAssistantMenuOpen.value) {
+        // Reset contact reply when closing
+        setTimeout(() => {
+            showContactReply.value = false
+        }, 300)
+    }
+}
+
+// Contact support action
+const contactSupport = () => {
+    showContactReply.value = true
+}
+
+// Handle clicks outside assistant menu
+const handleAssistantOutsideClick = (event) => {
+    const assistantEl = document.querySelector('.tour-assistant')
+    if (assistantEl && !assistantEl.contains(event.target)) {
+        isAssistantMenuOpen.value = false
+        setTimeout(() => {
+            showContactReply.value = false
+        }, 300)
+    }
+}
+
 // Lifecycle hooks
 let viewerInterval = null
 let trackingInterval = null
@@ -1497,13 +1630,16 @@ onMounted(async () => {
 
     trackingInterval = setInterval(trackViewer, 8000)
 
+    // Add outside click listener for assistant menu
+    document.addEventListener('click', handleAssistantOutsideClick)
+
     if (props.authUserClientName === 'Planet Nine') {
         fetchViewers()
         viewerInterval = setInterval(fetchViewers, 10000)
     }
 
-    // Start intro tour if enabled (always show for now)
-    if (props.intro) {
+    // Start intro tour if enabled and user hasn't seen it before
+    if (props.intro && !hasCompletedIntro()) {
         setTimeout(() => {
             // Close any open panels before starting tour
             closeAllPanels()
@@ -1525,6 +1661,7 @@ onUnmounted(() => {
     document.removeEventListener('click', handleOutsideClick)
     document.removeEventListener('click', handleColorPaletteOutsideClick)
     document.removeEventListener('click', handleFeedbackOutsideClick)
+    document.removeEventListener('click', handleAssistantOutsideClick)
 
     // Close all panels
     closeAllPanels()
@@ -1989,6 +2126,289 @@ onUnmounted(() => {
     .intro-progress-section {
         flex-direction: column;
         gap: 10px;
+    }
+}
+
+/* Bottom Right Actions Container */
+.bottom-right-actions {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 12px;
+    z-index: 9999;
+}
+
+/* Tour Assistant Container */
+.tour-assistant {
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* Tour Help Button */
+.tour-help-button {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color, #3b82f6) 0%, var(--primary-color, #2563eb) 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: tourButtonEntrance 0.5s ease-out;
+}
+
+.tour-help-button:hover,
+.tour-help-button.active {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+}
+
+.tour-help-button:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.tour-help-button svg {
+    width: 24px;
+    height: 24px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* Assistant Menu Dropdown */
+.assistant-chatbot {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    right: 0;
+    width: 320px;
+    max-width: calc(100vw - 20px);
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transform-origin: bottom right;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Chatbot Header */
+.chatbot-header {
+    background: linear-gradient(135deg, var(--primary-color, #3b82f6) 0%, var(--primary-color, #2563eb) 100%);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+}
+
+.chatbot-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.chatbot-header-text {
+    flex: 1;
+}
+
+.chatbot-header-text h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.chatbot-header-text span {
+    font-size: 0.75rem;
+    opacity: 0.9;
+}
+
+.chatbot-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.chatbot-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Chat Messages Container */
+.chatbot-messages {
+    padding: 16px;
+    max-height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Chat Message */
+.chat-message {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.bot-message {
+    align-items: flex-start;
+}
+
+.message-bubble {
+    background: #f1f5f9;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border-top-left-radius: 4px;
+    max-width: 85%;
+}
+
+.message-bubble p {
+    margin: 0;
+    font-size: 0.9375rem;
+    color: #334155;
+    line-height: 1.5;
+}
+
+.support-email {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: white;
+    color: var(--primary-color, #3b82f6);
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.support-email:hover {
+    background: var(--primary-color, #3b82f6);
+    color: white;
+    border-color: var(--primary-color, #3b82f6);
+}
+
+/* Chat Options */
+.chat-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.chat-option-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: white;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    color: #334155;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.chat-option-btn:hover {
+    background: linear-gradient(135deg, #f0f7ff 0%, #e0f2fe 100%);
+    border-color: var(--primary-color, #3b82f6);
+    color: var(--primary-color, #3b82f6);
+}
+
+.chat-option-btn svg {
+    flex-shrink: 0;
+}
+
+/* Chat slide animation */
+.chat-slide-enter-active,
+.chat-slide-leave-active {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chat-slide-enter-from {
+    opacity: 0;
+    transform: scale(0.9) translateY(12px);
+}
+
+.chat-slide-leave-to {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+}
+
+/* Message fade animation */
+.message-fade-enter-active {
+    transition: all 0.4s ease;
+}
+
+.message-fade-enter-from {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+@keyframes tourButtonEntrance {
+    from {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .tour-help-button {
+        width: 44px;
+        height: 44px;
+    }
+
+    .tour-help-button svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .assistant-chatbot {
+        width: 280px;
+    }
+
+    .chatbot-messages {
+        max-height: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    .bottom-right-actions {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-end;
+    }
+
+    .assistant-chatbot {
+        width: calc(100vw - 30px);
+        right: -5px;
     }
 }
 </style>

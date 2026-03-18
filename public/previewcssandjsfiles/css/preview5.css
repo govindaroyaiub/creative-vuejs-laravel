@@ -329,10 +329,6 @@ hr {
 
 /* File transfer floating widget */
 .file-transfer-widget {
-    position: fixed;
-    right: 10px;
-    bottom: 10px;
-    z-index: 999;
     font-family: inherit;
     will-change: transform;
     transition: transform 0.3s ease;
