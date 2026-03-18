@@ -2,15 +2,23 @@ import { nextTick, ref } from 'vue';
 
 interface IntroStep {
     element?: string;
+    mobileElement?: string;
     title: string;
     description: string;
     position?: 'top' | 'bottom' | 'left' | 'right';
+    mobileAction?: () => void;
 }
 
 export function usePreviewIntro() {
     const showIntro = ref(false);
     const currentStep = ref(0);
     const isIntroActive = ref(false);
+
+    // Store reference to mobile menu open function
+    let mobileMenuOpenFn: (() => void) | null = null;
+    let mobileMenuCloseFn: (() => void) | null = null;
+    let feedbackPanelOpenFn: (() => void) | null = null;
+    let feedbackPanelCloseFn: (() => void) | null = null;
 
     const steps: IntroStep[] = [
         {
@@ -25,6 +33,7 @@ export function usePreviewIntro() {
         },
         {
             element: '#navbar',
+            mobileElement: '#mobileMenuToggle',
             title: 'Creative Showcase',
             description:
                 'This sidebar displays different creatives like Banner, Video, Social Image, Storyboard, and GIF. Click on any creative to view its contents.',
@@ -44,8 +53,8 @@ export function usePreviewIntro() {
         },
         {
             element: '#mobilecolorPaletteClick',
-            title: 'Color Palette',
-            description: 'Click here to change the theme color palette for this preview page.',
+            title: 'Themes',
+            description: 'Click here to change the theme for this preview page.',
             position: 'left',
         },
         {
@@ -66,6 +75,18 @@ export function usePreviewIntro() {
 
     const nextStep = () => {
         if (currentStep.value < steps.length - 1) {
+            // Close mobile menu if we're leaving the mobile menu step
+            const currentStepData = steps[currentStep.value];
+            const isMobile = window.innerWidth <= 1024;
+            if (isMobile && currentStepData.mobileElement === '#mobileMenuToggle' && mobileMenuCloseFn) {
+                mobileMenuCloseFn();
+            }
+
+            // Close feedback panel if we're leaving the feedback description step
+            if (isMobile && currentStepData.element === '#feedbackClick' && feedbackPanelCloseFn) {
+                feedbackPanelCloseFn();
+            }
+
             currentStep.value++;
             highlightStep(currentStep.value);
         } else {
@@ -75,6 +96,18 @@ export function usePreviewIntro() {
 
     const prevStep = () => {
         if (currentStep.value > 0) {
+            // Close mobile menu if we're leaving the mobile menu step
+            const currentStepData = steps[currentStep.value];
+            const isMobile = window.innerWidth <= 1024;
+            if (isMobile && currentStepData.mobileElement === '#mobileMenuToggle' && mobileMenuCloseFn) {
+                mobileMenuCloseFn();
+            }
+
+            // Close feedback panel if we're leaving the feedback description step
+            if (isMobile && currentStepData.element === '#feedbackClick' && feedbackPanelCloseFn) {
+                feedbackPanelCloseFn();
+            }
+
             currentStep.value--;
             highlightStep(currentStep.value);
         }
@@ -85,6 +118,16 @@ export function usePreviewIntro() {
     };
 
     const endIntro = () => {
+        // Close mobile menu if it's open
+        const isMobile = window.innerWidth <= 1024;
+        if (isMobile && mobileMenuCloseFn) {
+            mobileMenuCloseFn();
+        }
+        // Close feedback panel if it's open
+        if (isMobile && feedbackPanelCloseFn) {
+            feedbackPanelCloseFn();
+        }
+
         isIntroActive.value = false;
         currentStep.value = 0;
         removeHighlight();
@@ -100,11 +143,40 @@ export function usePreviewIntro() {
         const step = steps[stepIndex];
 
         // If no element is specified (welcome step), just show the modal
-        if (!step.element) {
+        if (!step.element && !step.mobileElement) {
             return;
         }
 
-        const element = document.querySelector(step.element);
+        // Detect if we're on mobile/tablet (width <= 1024px)
+        const isMobile = window.innerWidth <= 1024;
+
+        // Choose the appropriate element based on screen size
+        const elementSelector = isMobile && step.mobileElement ? step.mobileElement : step.element;
+
+        // Execute mobile-specific action if needed (e.g., open mobile menu)
+        if (isMobile && elementSelector === '#mobileMenuToggle' && mobileMenuOpenFn) {
+            // Small delay to ensure the tour modal is visible before opening menu
+            setTimeout(() => {
+                if (mobileMenuOpenFn) {
+                    mobileMenuOpenFn();
+                }
+            }, 500);
+        }
+
+        // Open feedback panel on mobile when highlighting feedback button
+        if (isMobile && elementSelector === '#feedbackClick' && feedbackPanelOpenFn) {
+            setTimeout(() => {
+                if (feedbackPanelOpenFn) {
+                    feedbackPanelOpenFn();
+                }
+            }, 500);
+        }
+
+        if (!elementSelector) {
+            return;
+        }
+
+        const element = document.querySelector(elementSelector);
 
         if (element) {
             // Determine scroll position based on element
@@ -113,8 +185,9 @@ export function usePreviewIntro() {
                 block: 'center',
             };
 
-            // For navbar (category list), use 'start' with offset to avoid cutoff
-            if (step.element === '#navbar') {
+            // For navbar (category list) on desktop, use 'start' with offset to avoid cutoff
+            // For mobile menu toggle, center it
+            if (elementSelector === '#navbar') {
                 scrollOptions.block = 'start';
 
                 // Manual scroll with offset for navbar
@@ -221,6 +294,22 @@ export function usePreviewIntro() {
         localStorage.removeItem('preview_intro_completed');
     };
 
+    const setMobileMenuOpen = (fn: () => void) => {
+        mobileMenuOpenFn = fn;
+    };
+
+    const setMobileMenuClose = (fn: () => void) => {
+        mobileMenuCloseFn = fn;
+    };
+
+    const setFeedbackPanelOpen = (fn: () => void) => {
+        feedbackPanelOpenFn = fn;
+    };
+
+    const setFeedbackPanelClose = (fn: () => void) => {
+        feedbackPanelCloseFn = fn;
+    };
+
     return {
         showIntro,
         isIntroActive,
@@ -234,5 +323,9 @@ export function usePreviewIntro() {
         getCurrentStep,
         hasCompletedIntro,
         resetIntro,
+        setMobileMenuOpen,
+        setMobileMenuClose,
+        setFeedbackPanelOpen,
+        setFeedbackPanelClose,
     };
 }

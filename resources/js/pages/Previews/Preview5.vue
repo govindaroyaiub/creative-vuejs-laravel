@@ -476,7 +476,7 @@
 
         <!-- Introduction Tour Overlay -->
         <Transition name="fade">
-            <div v-if="isIntroActive" class="intro-overlay" @click="skipIntro"></div>
+            <div v-if="showIntroOverlay" class="intro-overlay" @click="skipIntro"></div>
         </Transition>
 
         <!-- Introduction Tour Modal -->
@@ -635,10 +635,39 @@ const {
     prevStep,
     skipIntro,
     getCurrentStep,
-    hasCompletedIntro
+    hasCompletedIntro,
+    setMobileMenuOpen,
+    setMobileMenuClose,
+    setFeedbackPanelOpen,
+    setFeedbackPanelClose
 } = usePreviewIntro()
 
 const currentYear = computed(() => new Date().getFullYear())
+
+// Show intro overlay except when on mobile during Creative Showcase, Asset Display, or Feedback Description steps
+const showIntroOverlay = computed(() => {
+    if (!isIntroActive.value) return false
+
+    const isMobile = window.innerWidth <= 1024
+    const currentStepData = getCurrentStep()
+
+    // Hide overlay on mobile when on Creative Showcase step (which uses mobileMenuToggle)
+    if (isMobile && currentStepData?.mobileElement === '#mobileMenuToggle') {
+        return false
+    }
+
+    // Hide overlay on mobile when on Asset Display step
+    if (isMobile && currentStepData?.element === '.feedbackSetsContainer') {
+        return false
+    }
+
+    // Hide overlay on mobile when on Feedback Description step
+    if (isMobile && currentStepData?.element === '#feedbackClick') {
+        return false
+    }
+
+    return true
+})
 
 // Helper functions
 const asset = (path) => `/${path}`
@@ -730,12 +759,18 @@ const openMobileMenu = () => {
     document.body.style.overflow = 'hidden'
 }
 
+// Removed duplicate setMobileMenuOpen call - it's now called after closeMobileMenu definition
+
 const closeMobileMenu = () => {
     if (!isMobileMenuOpen.value) return
 
     isMobileMenuOpen.value = false
     document.body.style.overflow = ''
 }
+
+// Set the mobile menu functions for the tour
+setMobileMenuOpen(openMobileMenu)
+setMobileMenuClose(closeMobileMenu)
 
 // Close all panels utility
 const closeAllPanels = () => {
@@ -857,6 +892,10 @@ const handleFeedbackOutsideClick = (event) => {
         }
     }
 }
+
+// Set the feedback panel functions for the tour
+setFeedbackPanelOpen(showFeedbackDescription)
+setFeedbackPanelClose(hideFeedbackDescription)
 
 // Vue refs for mobile menu elements
 const mobileMenuPanel = ref(null)
@@ -1811,14 +1850,26 @@ onUnmounted(() => {
     transition: z-index 0.3s ease;
 }
 
+/* Ensure mobile menu toggle is prominently highlighted */
+#mobileMenuToggle.intro-highlight {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 12px;
+    border-radius: 12px;
+}
+
 /* Ensure navbar is visible and not cut off during intro highlight */
 #navbar.intro-highlight {
     margin-top: 20px;
 }
 
-/* Ensure feedback sets container maintains proper layout */
+/* Ensure feedback sets container maintains proper layout with white-ish background */
 .feedbackSetsContainer.intro-highlight {
     padding: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 @keyframes intro-pulse {
