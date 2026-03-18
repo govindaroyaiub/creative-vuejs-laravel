@@ -745,15 +745,15 @@ hr {
 
 /* Color Palette Panel - slides in from right */
 #mobilecolorPaletteSelection {
-    position: fixed;
-    top: 11rem;
+    position: absolute;
+    top: 8px;
+    /* Position below the button */
     right: 0;
     width: 110px;
     background: #ffffff;
     padding: 10px;
     border-radius: 12px 0 0 12px;
     box-shadow: -2px 2px 12px rgba(0, 0, 0, 0.15);
-    z-index: 10000;
     /* Hidden by default - fully off screen */
     transform: translateX(100%);
 }
@@ -1088,13 +1088,18 @@ hr {
     font-weight: bold;
 }
 
-/* Color Palette Toggle Button */
-#mobilecolorPaletteClick {
+/* Color Palette Container */
+.color-palette-container {
     position: absolute;
     right: -2px;
     top: 10rem;
-    cursor: pointer;
     z-index: 10000;
+}
+
+/* Color Palette Toggle Button */
+#mobilecolorPaletteClick {
+    position: relative;
+    cursor: pointer;
     transition: transform 0.2s ease;
 }
 

@@ -38,7 +38,7 @@
                         <h1><span class="font-semibold">Name: </span> <span class="capitalize">{{ preview.name }}</span>
                         </h1>
                         <h1><span class="font-semibold">Client: </span> <span class="capitalize">{{ client.name
-                        }}</span></h1>
+                                }}</span></h1>
                         <h1>
                             <span class="font-semibold">Date: </span> <span>{{ formatDate(preview.created_at) }}</span>
                         </h1>
@@ -46,18 +46,20 @@
                 </div>
             </section>
 
-            <!-- Color Palette Toggle Button -->
-            <div id="mobilecolorPaletteClick" @click="toggleColorPalette">
-                <img :src="`/${rightTabColorPaletteImage}`" alt="palette icon">
-            </div>
+            <!-- Color Palette Container -->
+            <div class="color-palette-container">
+                <div id="mobilecolorPaletteClick" @click="toggleColorPalette">
+                    <img :src="`/${rightTabColorPaletteImage}`" alt="palette icon">
+                </div>
 
-            <!-- Color Palette Panel (independent) -->
-            <div id="mobilecolorPaletteSelection"
-                :class="{ visible: isPaletteVisible, 'transitions-enabled': transitionsEnabled }">
-                <div class="color-grid">
-                    <div v-for="color in allColors" :key="color.id" class="mobile-color-box"
-                        :style="{ backgroundColor: color.hex, borderColor: color.border }" :title="color.name"
-                        @click="changeTheme(color.id)">
+                <!-- Color Palette Panel -->
+                <div id="mobilecolorPaletteSelection"
+                    :class="{ visible: isPaletteVisible, 'transitions-enabled': transitionsEnabled }">
+                    <div class="color-grid">
+                        <div v-for="color in allColors" :key="color.id" class="mobile-color-box"
+                            :style="{ backgroundColor: color.hex, borderColor: color.border }" :title="color.name"
+                            @click="changeTheme(color.id)">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -312,7 +314,7 @@
                                                                 <div><strong>FPS:</strong> {{ video.fps ?? '-' }}</div>
                                                                 <div><strong>File Size:</strong> {{ video.file_size ??
                                                                     '-'
-                                                                    }}</div>
+                                                                }}</div>
                                                                 <div v-if="video.companion_banner_path"
                                                                     class="mt-2 w-full flex flex-col items-center justify-center">
                                                                     <img :src="`/${video.companion_banner_path}`"
@@ -2132,8 +2134,8 @@ onUnmounted(() => {
 /* Bottom Right Actions Container */
 .bottom-right-actions {
     position: fixed;
-    bottom: 10px;
-    right: 10px;
+    bottom: 5px;
+    right: 5px;
     display: flex;
     flex-direction: row;
     align-items: flex-end;
@@ -2152,7 +2154,7 @@ onUnmounted(() => {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-color, #3b82f6) 0%, var(--primary-color, #2563eb) 100%);
+    background: var(--primary-color);
     color: white;
     border: none;
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
