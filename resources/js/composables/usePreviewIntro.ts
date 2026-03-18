@@ -96,7 +96,10 @@ export function usePreviewIntro() {
             }
 
             currentStep.value++;
-            highlightStep(currentStep.value);
+            // Use nextTick to ensure DOM updates before highlighting
+            nextTick(() => {
+                highlightStep(currentStep.value);
+            });
         } else {
             endIntro();
         }
@@ -117,7 +120,10 @@ export function usePreviewIntro() {
             }
 
             currentStep.value--;
-            highlightStep(currentStep.value);
+            // Use nextTick to ensure DOM updates before highlighting
+            nextTick(() => {
+                highlightStep(currentStep.value);
+            });
         }
     };
 

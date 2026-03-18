@@ -46,7 +46,8 @@ body {
 section {
     position: relative;
     width: 100%;
-    height: auto
+    height: auto;
+    overflow-x: hidden;
 }
 
 hr {
@@ -685,7 +686,7 @@ hr {
 #feedbackClick {
     position: fixed;
     top: 16rem;
-    right: -2px;
+    right: 0;
     z-index: 10000;
     cursor: pointer;
     transition: transform 0.2s ease;
@@ -719,15 +720,15 @@ hr {
 #feedbackDescription {
     position: fixed;
     top: 16rem;
-    right: 0;
+    right: -350px;
     width: 350px;
     max-height: 500px;
     background: #ffffff;
     border-radius: 12px 0 0 12px;
     box-shadow: -2px 2px 16px rgba(0, 0, 0, 0.2);
     z-index: 10000;
-    /* Hidden by default - fully off screen */
-    transform: translateX(100%);
+    /* Hidden by default - fully off screen to the right */
+    transform: translateX(0);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -739,23 +740,23 @@ hr {
 }
 
 #feedbackDescription.show {
-    /* Slide in when visible */
-    transform: translateX(0);
+    /* Slide in when visible - move left by panel width */
+    transform: translateX(-350px);
 }
 
 /* Color Palette Panel - slides in from right */
 #mobilecolorPaletteSelection {
-    position: absolute;
-    top: 8px;
+    position: fixed;
+    top: calc(10rem + 8px);
     /* Position below the button */
-    right: 0;
+    right: -110px;
     width: 110px;
     background: #ffffff;
     padding: 10px;
     border-radius: 12px 0 0 12px;
     box-shadow: -2px 2px 12px rgba(0, 0, 0, 0.15);
-    /* Hidden by default - fully off screen */
-    transform: translateX(100%);
+    /* Hidden by default - fully off screen to the right */
+    transform: translateX(0);
 }
 
 /* Only apply transition when explicitly enabled */
@@ -764,8 +765,8 @@ hr {
 }
 
 #mobilecolorPaletteSelection.visible {
-    /* Slide in when visible */
-    transform: translateX(0);
+    /* Slide in when visible - move left by panel width */
+    transform: translateX(-110px);
 }
 
 .color-grid {
@@ -1091,9 +1092,14 @@ hr {
 /* Color Palette Container */
 .color-palette-container {
     position: absolute;
-    right: -2px;
+    right: 0;
     top: 10rem;
     z-index: 10000;
+    pointer-events: none;
+}
+
+.color-palette-container>* {
+    pointer-events: auto;
 }
 
 /* Color Palette Toggle Button */
@@ -1252,7 +1258,8 @@ hr {
 .custom-container {
     width: 100vw;
     max-width: 100vw;
-    box-sizing: border-box
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 #navbar {
@@ -1357,7 +1364,8 @@ hr {
 
 #showcase-section {
     padding-left: 3rem;
-    padding-right: 3rem
+    padding-right: 3rem;
+    overflow-x: hidden;
 }
 
 .currentTotalFeedbacks {
@@ -1908,7 +1916,7 @@ hr {
         position: fixed;
         font-size: 1rem;
         top: 20rem;
-        right: -2px;
+        right: 0;
         width: auto;
         height: auto;
         z-index: 1000;
@@ -1926,10 +1934,14 @@ hr {
 
     #feedbackDescription {
         position: fixed;
-        right: 0;
+        right: -320px;
         top: 20rem;
         width: 320px;
         max-height: 450px;
+    }
+
+    #feedbackDescription.show {
+        transform: translateX(-320px);
     }
 
     .feedbacks {
@@ -1971,10 +1983,14 @@ hr {
 
     #feedbackDescription {
         position: fixed;
-        right: 0;
+        right: -300px;
         top: 19rem;
         width: 300px;
         max-height: 400px;
+    }
+
+    #feedbackDescription.show {
+        transform: translateX(-300px);
     }
 
     .feedbacks {
@@ -2311,7 +2327,7 @@ hr {
         position: fixed;
         font-size: 1rem;
         top: 19rem;
-        right: -2px;
+        right: 0;
         width: auto;
         height: auto;
         z-index: 1000;
@@ -2319,10 +2335,14 @@ hr {
 
     #feedbackDescription {
         position: fixed;
-        right: 0;
+        right: -320px;
         top: 20rem;
         width: 320px;
         max-height: 400px;
+    }
+
+    #feedbackDescription.show {
+        transform: translateX(-320px);
     }
 
     .feedbacks {

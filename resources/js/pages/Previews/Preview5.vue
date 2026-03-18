@@ -38,7 +38,7 @@
                         <h1><span class="font-semibold">Name: </span> <span class="capitalize">{{ preview.name }}</span>
                         </h1>
                         <h1><span class="font-semibold">Client: </span> <span class="capitalize">{{ client.name
-                        }}</span></h1>
+                                }}</span></h1>
                         <h1>
                             <span class="font-semibold">Date: </span> <span>{{ formatDate(preview.created_at) }}</span>
                         </h1>
@@ -314,7 +314,7 @@
                                                                 <div><strong>FPS:</strong> {{ video.fps ?? '-' }}</div>
                                                                 <div><strong>File Size:</strong> {{ video.file_size ??
                                                                     '-'
-                                                                    }}</div>
+                                                                }}</div>
                                                                 <div v-if="video.companion_banner_path"
                                                                     class="mt-2 w-full flex flex-col items-center justify-center">
                                                                     <img :src="`/${video.companion_banner_path}`"
@@ -1913,7 +1913,6 @@ onUnmounted(() => {
 
 .intro-btn-primary:hover {
     box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
-    transform: translateY(-2px);
 }
 
 .intro-btn-primary:hover svg {
@@ -2210,6 +2209,13 @@ onUnmounted(() => {
     z-index: 10010;
 }
 
+/* Hide file transfer widget on mobile and tablet */
+@media (max-width: 1024px) {
+    .fileTransferSection {
+        display: none;
+    }
+}
+
 /* Tour Assistant Container */
 .tour-assistant {
     position: relative;
@@ -2455,7 +2461,27 @@ onUnmounted(() => {
     }
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments for Tour Help Button and Assistant */
+
+/* Tablet and larger mobile devices */
+@media (max-width: 768px) {
+    .tour-help-button {
+        width: 46px;
+        height: 46px;
+    }
+
+    .tour-help-button svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .assistant-chatbot {
+        width: 300px;
+        max-width: calc(100vw - 40px);
+    }
+}
+
+/* Smaller mobile devices */
 @media (max-width: 640px) {
     .tour-help-button {
         width: 44px;
@@ -2467,6 +2493,15 @@ onUnmounted(() => {
         height: 20px;
     }
 
+    .tour-help-button:hover,
+    .tour-help-button.active {
+        transform: scale(1.05);
+    }
+
+    .tour-help-button:focus {
+        transform: scale(1.08);
+    }
+
     .assistant-chatbot {
         width: 280px;
     }
@@ -2476,16 +2511,46 @@ onUnmounted(() => {
     }
 }
 
+/* Very small mobile devices */
 @media (max-width: 480px) {
     .bottom-right-actions {
         flex-direction: column;
         gap: 8px;
         align-items: flex-end;
+        bottom: 12px;
+        right: 8px;
+    }
+
+    .tour-help-button {
+        width: 42px;
+        height: 42px;
+    }
+
+    .tour-help-button svg {
+        width: 18px;
+        height: 18px;
     }
 
     .assistant-chatbot {
         width: calc(100vw - 30px);
         right: -5px;
+    }
+
+    .chatbot-messages {
+        max-height: 220px;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 375px) {
+    .tour-help-button {
+        width: 40px;
+        height: 40px;
+    }
+
+    .tour-help-button svg {
+        width: 16px;
+        height: 16px;
     }
 }
 </style>
