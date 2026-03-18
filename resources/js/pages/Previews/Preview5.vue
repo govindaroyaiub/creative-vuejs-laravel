@@ -338,7 +338,7 @@
                                                             style="display: inline-block; margin: 10px; max-width: 1000px;">
                                                             <img :src="`/${social.path}`" :alt="social.name"
                                                                 class="social-preview-img rounded-2xl"
-                                                                style="width: 100%; max-width: 1200px; height: auto; object-fit: contain; box-shadow: 0 2px 8px #0001; cursor: pointer; margin-top: 0;"
+                                                                style="width: 100%; max-width: 600px; height: auto; object-fit: contain; box-shadow: 0 2px 8px #0001; cursor: pointer; margin-top: 0;"
                                                                 @click="openSocialImageModal(`/${social.path}`, social.name)">
                                                             <ul style="display: flex; flex-direction: row; justify-content: left; margin-top: 10px;"
                                                                 class="previewIcons">
