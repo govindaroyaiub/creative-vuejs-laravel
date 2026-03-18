@@ -2134,7 +2134,7 @@ onUnmounted(() => {
 /* Bottom Right Actions Container */
 .bottom-right-actions {
     position: fixed;
-    bottom: 5px;
+    bottom: 10px;
     right: 5px;
     display: flex;
     flex-direction: row;
