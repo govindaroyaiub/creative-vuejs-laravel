@@ -22,21 +22,21 @@ export function usePreviewIntro() {
 
     const steps: IntroStep[] = [
         {
-            title: 'Welcome to the Previewer!',
-            description: "This quick tour will guide you through the key features of this preview page. Let's get started!",
+            title: 'Hello There!',
+            description: "This quick tour will guide you through the key features of the preview page. Let's get started!",
         },
         {
             element: '#topDetails',
-            title: 'Preview Details',
-            description: 'Here are some basic information about the preview.',
+            title: 'Basics',
+            description: 'Here are some basic information about the preview like Name, Client and Date of creation.',
             position: 'bottom',
         },
         {
             element: '#navbar',
             mobileElement: '#mobileMenuToggle',
-            title: 'Creative Showcase',
+            title: 'Showcases',
             description:
-                'This sidebar displays different creatives like Banner, Video, Social Image, Storyboard, and GIF. Click on any creative to view its contents.',
+                'The sidebar shows creatives like Banner, Video, Social Image, Storyboard, and GIF—click any item to view its contents.',
             position: 'right',
         },
         {
@@ -47,14 +47,14 @@ export function usePreviewIntro() {
         },
         {
             element: '.feedbackSetsContainer',
-            title: 'Asset Display',
+            title: 'Assets',
             description: 'All the assets will be loaded here with their respective version and sets.',
             position: 'left',
         },
         {
             element: '#mobilecolorPaletteClick',
             title: 'Themes',
-            description: 'Click here to change the theme for this preview page.',
+            description: 'Click here to explore and switch to a modern, vibrant theme that matches your style and preference.',
             position: 'left',
         },
         {
