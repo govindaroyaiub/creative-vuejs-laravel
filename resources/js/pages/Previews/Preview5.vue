@@ -38,7 +38,7 @@
                         <h1><span class="font-semibold">Name: </span> <span class="capitalize">{{ preview.name }}</span>
                         </h1>
                         <h1><span class="font-semibold">Client: </span> <span class="capitalize">{{ client.name
-                                }}</span></h1>
+                        }}</span></h1>
                         <h1>
                             <span class="font-semibold">Date: </span> <span>{{ formatDate(preview.created_at) }}</span>
                         </h1>
@@ -314,7 +314,7 @@
                                                                 <div><strong>FPS:</strong> {{ video.fps ?? '-' }}</div>
                                                                 <div><strong>File Size:</strong> {{ video.file_size ??
                                                                     '-'
-                                                                }}</div>
+                                                                    }}</div>
                                                                 <div v-if="video.companion_banner_path"
                                                                     class="mt-2 w-full flex flex-col items-center justify-center">
                                                                     <img :src="`/${video.companion_banner_path}`"
@@ -433,7 +433,7 @@
         <!-- Bottom Right Actions Container -->
         <div class="bottom-right-actions">
             <div class="fileTransferSection">
-                <div v-if="fileTransfer" id="fileTransferWidget"
+                <div v-if="fileTransfer && !isIntroActive" id="fileTransferWidget"
                     :class="['file-transfer-widget', { 'minimized': isFileTransferMinimized }]" aria-hidden="false">
                     <div id="fileTransferPanel" class="file-transfer-panel" role="region">
                         <!-- Minimize/Maximize Button -->
@@ -479,9 +479,9 @@
             </div>
 
             <!-- Tour Assistant Chatbot -->
-            <div v-if="!isIntroActive" class="tour-assistant">
+            <div v-if="showTourAssistant" class="tour-assistant">
                 <button @click="toggleAssistantMenu" class="tour-help-button" :class="{ 'active': isAssistantMenuOpen }"
-                    title="Need Help?" aria-label="Open assistant chatbot">
+                    tabindex="0" title="Need Help?" aria-label="Open assistant chatbot">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"></circle>
@@ -492,7 +492,7 @@
 
                 <!-- Chatbot Interface -->
                 <Transition name="chat-slide">
-                    <div v-if="isAssistantMenuOpen" class="assistant-chatbot" @click.stop>
+                    <div v-if="isAssistantMenuOpen && !isIntroActive" class="assistant-chatbot" @click.stop>
                         <!-- Chatbot Header -->
                         <div class="chatbot-header">
                             <div class="chatbot-avatar">
@@ -577,7 +577,8 @@
 
         <!-- Introduction Tour Modal -->
         <Transition name="slide-up">
-            <div v-if="isIntroActive" class="intro-modal" @click.stop>
+            <div v-if="isIntroActive" class="intro-modal"
+                :class="{ 'help-button-step': getCurrentStep()?.element === '.tour-help-button' }" @click.stop>
                 <!-- Decorative background elements -->
                 <div class="intro-modal-bg-decoration"></div>
 
@@ -741,6 +742,13 @@ const {
 } = usePreviewIntro()
 
 const currentYear = computed(() => new Date().getFullYear())
+
+// Show tour assistant when tour is inactive OR when on the help button step
+const showTourAssistant = computed(() => {
+    if (!isIntroActive.value) return true
+    const currentStepData = getCurrentStep()
+    return currentStepData?.element === '.tour-help-button'
+})
 
 // Show intro overlay except when on mobile during Creative Showcase, Asset Display, or Feedback Description steps
 const showIntroOverlay = computed(() => {
@@ -1698,8 +1706,8 @@ onUnmounted(() => {
 
 .intro-modal {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 10px;
+    right: 5px;
     transform: none;
     background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
     border-radius: 20px;
@@ -1711,6 +1719,31 @@ onUnmounted(() => {
     width: 90%;
     max-width: 480px;
     overflow: hidden;
+    transition: bottom 0.3s ease, right 0.3s ease, left 0.3s ease;
+}
+
+/* Move modal to left of help button on help button step to avoid overlap */
+.intro-modal.help-button-step {
+    right: 80px;
+    /* Position to the left of the help button (48px button + 5px right offset + gap) */
+    left: auto;
+}
+
+@media (max-width: 768px) {
+    .intro-modal.help-button-step {
+        right: 70px;
+        /* Adjust for smaller screens */
+        max-width: 320px;
+    }
+}
+
+@media (max-width: 480px) {
+    .intro-modal.help-button-step {
+        right: 10px;
+        bottom: 80px;
+        /* Move above the help button on very small screens */
+        max-width: calc(100vw - 20px);
+    }
 }
 
 /* Decorative background element */
@@ -1983,6 +2016,31 @@ onUnmounted(() => {
     isolation: isolate;
 }
 
+/* Help button needs special handling - no isolation to maintain z-index stacking */
+.tour-help-button.intro-highlight {
+    isolation: auto;
+    animation: intro-pulse-button 2s infinite !important;
+    /* Override the button's default transition during highlight */
+    transition: none !important;
+}
+
+@keyframes intro-pulse-button {
+    0% {
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4), 0 0 0 0 rgba(59, 130, 246, 0.7);
+        transform: scale(1);
+    }
+
+    50% {
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4), 0 0 0 20px rgba(59, 130, 246, 0);
+        transform: scale(1.1);
+    }
+
+    100% {
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4), 0 0 0 0 rgba(59, 130, 246, 0);
+        transform: scale(1);
+    }
+}
+
 /* Special handling for fixed positioned elements during intro */
 #mobilecolorPaletteClick,
 #feedbackClick {
@@ -2009,6 +2067,15 @@ onUnmounted(() => {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+}
+
+/* Ensure color palette button is properly highlighted */
+#mobilecolorPaletteClick.intro-highlight {
+    /* background: rgba(255, 255, 255, 0.95); */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 0;
+    border-radius: 12px;
 }
 
 @keyframes intro-pulse {
@@ -2140,7 +2207,7 @@ onUnmounted(() => {
     flex-direction: row;
     align-items: flex-end;
     gap: 12px;
-    z-index: 9999;
+    z-index: 10010;
 }
 
 /* Tour Assistant Container */
@@ -2162,6 +2229,8 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    /* Ensure proper stacking context */
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     animation: tourButtonEntrance 0.5s ease-out;
 }
@@ -2170,6 +2239,12 @@ onUnmounted(() => {
 .tour-help-button.active {
     transform: translateY(-2px) scale(1.05);
     box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+}
+
+.tour-help-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4), 0 6px 20px rgba(59, 130, 246, 0.5);
+    transform: scale(1.08);
 }
 
 .tour-help-button:active {

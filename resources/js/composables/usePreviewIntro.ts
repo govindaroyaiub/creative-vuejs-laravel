@@ -20,6 +20,9 @@ export function usePreviewIntro() {
     let feedbackPanelOpenFn: (() => void) | null = null;
     let feedbackPanelCloseFn: (() => void) | null = null;
 
+    // Track pending timeouts to prevent race conditions when clicking next quickly
+    let pendingTimeouts: number[] = [];
+
     const steps: IntroStep[] = [
         {
             title: 'Hello There!',
@@ -35,8 +38,7 @@ export function usePreviewIntro() {
             element: '#navbar',
             mobileElement: '#mobileMenuToggle',
             title: 'Showcases',
-            description:
-                'The sidebar shows creatives like Banner, Video, Social Image, Storyboard, and GIF—click any item to view its contents.',
+            description: 'The sidebar shows creatives like Banner, Video, Social Image, Storyboard, and GIF—click any item to view its contents.',
             position: 'right',
         },
         {
@@ -62,6 +64,12 @@ export function usePreviewIntro() {
             title: 'Feedback Description',
             description: 'Click here to view detailed feedback notes and comments for the current feedback round.',
             position: 'left',
+        },
+        {
+            element: '.tour-help-button',
+            title: 'Need Help?',
+            description: "Click this button anytime to restart the tour and explore the features again. We're here to help!",
+            position: 'top',
         },
     ];
 
@@ -118,6 +126,10 @@ export function usePreviewIntro() {
     };
 
     const endIntro = () => {
+        // Clear all pending timeouts
+        pendingTimeouts.forEach((timeoutId) => clearTimeout(timeoutId));
+        pendingTimeouts = [];
+
         // Close mobile menu if it's open
         const isMobile = window.innerWidth <= 1024;
         if (isMobile && mobileMenuCloseFn) {
@@ -137,14 +149,13 @@ export function usePreviewIntro() {
     };
 
     const highlightStep = (stepIndex: number) => {
+        // Clear all pending timeouts to prevent race conditions
+        pendingTimeouts.forEach((timeoutId) => clearTimeout(timeoutId));
+        pendingTimeouts = [];
+
         removeHighlight();
 
         const step = steps[stepIndex];
-
-        // If no element is specified (welcome step), just show the modal
-        if (!step.element && !step.mobileElement) {
-            return;
-        }
 
         // Detect if we're on mobile/tablet (width <= 1024px)
         const isMobile = window.innerWidth <= 1024;
@@ -155,20 +166,22 @@ export function usePreviewIntro() {
         // Execute mobile-specific action if needed (e.g., open mobile menu)
         if (isMobile && elementSelector === '#mobileMenuToggle' && mobileMenuOpenFn) {
             // Small delay to ensure the tour modal is visible before opening menu
-            setTimeout(() => {
+            const timeoutId = setTimeout(() => {
                 if (mobileMenuOpenFn) {
                     mobileMenuOpenFn();
                 }
             }, 500);
+            pendingTimeouts.push(timeoutId);
         }
 
         // Open feedback panel on mobile when highlighting feedback button
         if (isMobile && elementSelector === '#feedbackClick' && feedbackPanelOpenFn) {
-            setTimeout(() => {
+            const timeoutId = setTimeout(() => {
                 if (feedbackPanelOpenFn) {
                     feedbackPanelOpenFn();
                 }
             }, 500);
+            pendingTimeouts.push(timeoutId);
         }
 
         if (!elementSelector) {
@@ -178,6 +191,29 @@ export function usePreviewIntro() {
         const element = document.querySelector(elementSelector);
 
         if (element) {
+            // Special handling for help button - apply z-index IMMEDIATELY before scroll
+            if (step.element === '.tour-help-button') {
+                const helpBtn = document.querySelector('.tour-help-button');
+                const bottomRightActions = document.querySelector('.bottom-right-actions');
+                const tourAssistant = document.querySelector('.tour-assistant');
+
+                if (bottomRightActions) {
+                    (bottomRightActions as HTMLElement).style.zIndex = '10010';
+                }
+                if (tourAssistant) {
+                    (tourAssistant as HTMLElement).style.zIndex = '10011';
+                }
+                if (helpBtn) {
+                    (helpBtn as HTMLElement).style.zIndex = '10012';
+
+                    // Also focus the button for additional visual feedback
+                    const timeoutId = setTimeout(() => {
+                        (helpBtn as HTMLElement).focus();
+                    }, 100);
+                    pendingTimeouts.push(timeoutId);
+                }
+            }
+
             // Determine scroll position based on element
             const scrollOptions: ScrollIntoViewOptions = {
                 behavior: 'smooth',
@@ -204,7 +240,7 @@ export function usePreviewIntro() {
             }
 
             // Small delay to ensure scroll completes before highlighting
-            setTimeout(() => {
+            const highlightTimeoutId = setTimeout(() => {
                 // Add highlight class
                 element.classList.add('intro-highlight');
 
@@ -221,8 +257,10 @@ export function usePreviewIntro() {
                     htmlElement.style.position = 'relative';
                 }
 
-                // Set higher z-index
-                htmlElement.style.zIndex = '10001';
+                // Set higher z-index - but NOT for help button (already set to 10007)
+                if (step.element !== '.tour-help-button') {
+                    htmlElement.style.zIndex = '10001';
+                }
 
                 // Manage fixed positioned buttons based on current step
                 const colorPaletteBtn = document.getElementById('mobilecolorPaletteClick');
@@ -230,9 +268,14 @@ export function usePreviewIntro() {
 
                 // Only manage buttons that are relevant to the current step
                 if (step.element === '#mobilecolorPaletteClick') {
-                    // When highlighting color palette, only elevate color palette button
+                    // When highlighting color palette, elevate both the button and its parent container
                     if (colorPaletteBtn) {
                         (colorPaletteBtn as HTMLElement).style.zIndex = '10004';
+                        // Also set z-index on parent container to prevent stacking context issues
+                        const paletteContainer = colorPaletteBtn.closest('.color-palette-container');
+                        if (paletteContainer) {
+                            (paletteContainer as HTMLElement).style.zIndex = '10004';
+                        }
                     }
                 } else if (step.element === '#feedbackClick') {
                     // When highlighting feedback description, only elevate feedback button
@@ -245,8 +288,10 @@ export function usePreviewIntro() {
                         (colorPaletteBtn as HTMLElement).style.zIndex = '10003';
                     }
                 }
+                // Help button focus is handled immediately in the code above
                 // For other steps (topDetails, navbar, feedbackTabs), don't manage button z-indexes
             }, 300);
+            pendingTimeouts.push(highlightTimeoutId);
         }
     };
 
@@ -272,12 +317,29 @@ export function usePreviewIntro() {
         // Reset z-index on fixed buttons
         const colorPaletteBtn = document.getElementById('mobilecolorPaletteClick');
         const feedbackBtn = document.getElementById('feedbackClick');
+        const helpBtn = document.querySelector('.tour-help-button');
+        const bottomRightActions = document.querySelector('.bottom-right-actions');
+        const tourAssistant = document.querySelector('.tour-assistant');
 
         if (colorPaletteBtn) {
             (colorPaletteBtn as HTMLElement).style.zIndex = '';
+            // Also reset parent container
+            const paletteContainer = colorPaletteBtn.closest('.color-palette-container');
+            if (paletteContainer) {
+                (paletteContainer as HTMLElement).style.zIndex = '';
+            }
         }
         if (feedbackBtn) {
             (feedbackBtn as HTMLElement).style.zIndex = '';
+        }
+        if (helpBtn) {
+            (helpBtn as HTMLElement).style.zIndex = '';
+        }
+        if (bottomRightActions) {
+            (bottomRightActions as HTMLElement).style.zIndex = '';
+        }
+        if (tourAssistant) {
+            (tourAssistant as HTMLElement).style.zIndex = '';
         }
     };
 
