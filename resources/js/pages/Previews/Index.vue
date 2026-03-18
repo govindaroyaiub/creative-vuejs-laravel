@@ -647,8 +647,7 @@ const groups = computed(() => {
 
                                     <div class="mb-3">
                                         <div class="text-sm text-gray-600 dark:text-gray-400">
-                                            <span class="font-medium">Client:</span> {{ preview.client?.name ?? 'No
-                                            client'}}
+                                            <span class="font-medium">Client:</span> {{ preview.client?.name ?? 'No client'}}
                                         </div>
                                         <div class="text-sm text-gray-600 dark:text-gray-400" v-if="getTypes(preview)">
                                             <span class="font-medium">Types:</span> {{ getTypes(preview) }}
