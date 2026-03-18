@@ -458,7 +458,7 @@ const groups = computed(() => {
                                                 <option value="">All Users</option>
                                                 <option v-for="user in users" :key="user.id" :value="user.id">{{
                                                     user.name
-                                                    }}</option>
+                                                }}</option>
                                             </select>
                                         </div>
 
@@ -692,12 +692,14 @@ const groups = computed(() => {
                                         <div v-if="groups.inProgress.length"
                                             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                             <div v-for="p in groups.inProgress.slice(0, inProgressLimit)" :key="p.id"
-                                                class="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-3 hover:shadow-md transition">
+                                                @click="router.visit(`/previews/update/${p.id}`)"
+                                                class="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-3 hover:shadow-md transition cursor-pointer">
                                                 <div class="flex items-start justify-between">
                                                     <div>
-                                                        <a :href="`/previews/update/${p.id}`"
-                                                            class="text-lg font-semibold text-blue-600 dark:text-blue-300 hover:underline">{{
-                                                                p.name }}</a>
+                                                        <div
+                                                            class="text-lg font-semibold text-blue-600 dark:text-blue-300">
+                                                            {{
+                                                                p.name }}</div>
                                                         <div class="text-sm text-gray-500 dark:text-gray-400">Created
                                                             by: {{
                                                                 p.uploader?.name || 'System' }}</div>
@@ -705,7 +707,7 @@ const groups = computed(() => {
                                                     <div class="text-right">
                                                         <div class="text-xs text-gray-500">{{
                                                             formatDateRelative(p.created_at)
-                                                            }}</div>
+                                                        }}</div>
                                                         <div class="mt-2"><span
                                                                 class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 whitespace-nowrap">In
                                                                 Progress</span></div>
@@ -755,12 +757,14 @@ const groups = computed(() => {
                                         <div v-if="groups.completed.length"
                                             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                             <div v-for="p in groups.completed.slice(0, completedLimit)" :key="p.id"
-                                                class="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-4 hover:shadow-md transition">
+                                                @click="router.visit(`/previews/update/${p.id}`)"
+                                                class="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-4 hover:shadow-md transition cursor-pointer">
                                                 <div class="flex items-start justify-between">
                                                     <div>
-                                                        <a :href="`/previews/update/${p.id}`"
-                                                            class="text-lg font-semibold text-blue-600 dark:text-blue-300 hover:underline">{{
-                                                                p.name }}</a>
+                                                        <div
+                                                            class="text-lg font-semibold text-blue-600 dark:text-blue-300">
+                                                            {{
+                                                                p.name }}</div>
                                                         <div class="text-sm text-gray-500 dark:text-gray-400">Created
                                                             by: {{
                                                                 p.uploader?.name || 'System' }}</div>
@@ -768,7 +772,7 @@ const groups = computed(() => {
                                                     <div class="text-right">
                                                         <div class="text-xs text-gray-500">{{
                                                             formatDateRelative(p.created_at)
-                                                            }}</div>
+                                                        }}</div>
                                                         <div class="mt-2"><span
                                                                 class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 whitespace-nowrap">Completed</span>
                                                         </div>
@@ -817,12 +821,14 @@ const groups = computed(() => {
                                         <div v-if="groups.noFeedback.length"
                                             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                             <div v-for="p in groups.noFeedback.slice(0, noFeedbackLimit)" :key="p.id"
-                                                class="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-4 hover:shadow-md transition">
+                                                @click="router.visit(`/previews/update/${p.id}`)"
+                                                class="bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-4 hover:shadow-md transition cursor-pointer">
                                                 <div class="flex items-start justify-between">
                                                     <div>
-                                                        <a :href="`/previews/update/${p.id}`"
-                                                            class="text-lg font-semibold text-blue-600 dark:text-blue-300 hover:underline">{{
-                                                                p.name }}</a>
+                                                        <div
+                                                            class="text-lg font-semibold text-blue-600 dark:text-blue-300">
+                                                            {{
+                                                                p.name }}</div>
                                                         <div class="text-sm text-gray-500 dark:text-gray-400">Created
                                                             by: {{
                                                                 p.uploader?.name || 'System' }}</div>
@@ -830,7 +836,7 @@ const groups = computed(() => {
                                                     <div class="text-right">
                                                         <div class="text-xs text-gray-500">{{
                                                             formatDateRelative(p.created_at)
-                                                            }}</div>
+                                                        }}</div>
                                                         <div class="mt-2"><span
                                                                 class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">No
                                                                 Feedback</span></div>
@@ -844,7 +850,7 @@ const groups = computed(() => {
                                                             150 ?
                                                             p.latest_feedback_description.slice(0, 150) + '...' :
                                                             p.latest_feedback_description)
-                                                    : 'No recent feedback summary' }}</div>
+                                                        : 'No recent feedback summary' }}</div>
                                             </div>
                                         </div>
                                         <div v-else class="text-sm text-gray-500">No previews without feedback.</div>
