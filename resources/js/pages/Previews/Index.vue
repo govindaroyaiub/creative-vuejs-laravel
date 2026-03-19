@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Eye, Trash2, CirclePlus, X, Share2, Settings2, ChevronLeft, ChevronRight, LayoutGrid, List, ListFilter } from 'lucide-vue-next';
+import { Head, router, usePage } from '@inertiajs/vue3';
+import { CirclePlus, X, LayoutGrid, List, ListFilter } from 'lucide-vue-next';
 import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-dayjs.extend(relativeTime)
 import Swal from 'sweetalert2';
-import { computed, ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
+import { computed, ref, nextTick } from 'vue';
 import PreviewStepBasicInfo from './Partials/PreviewStepBasicInfo.vue';
+import PreviewActionButtons from './Partials/PreviewActionButtons.vue';
+import PreviewGridCard from './Partials/PreviewGridCard.vue';
+import PreviewPagination from './Partials/PreviewPagination.vue';
 
 // Click-away directive
 const vClickAway = {
@@ -60,20 +61,37 @@ function getDefaultFormData() {
 
 const formData = ref(getDefaultFormData());
 
+// Helper to build router parameters
+function getRouterParams(additionalParams = {}) {
+    return {
+        search: search.value,
+        view: activeTab.value,
+        from_date: filters.value.fromDate,
+        to_date: filters.value.toDate,
+        uploader_id: filters.value.uploaderId,
+        keywords: filters.value.keywords,
+        ...additionalParams
+    };
+}
+
+// Helper to filter previews by search query
+function applySearchFilter(list: any[], searchQuery: string) {
+    if (!searchQuery) return list;
+    const q = searchQuery.toLowerCase();
+    return list.filter((p: any) =>
+        (p.name || '').toLowerCase().includes(q) ||
+        (p.client?.name || '').toLowerCase().includes(q) ||
+        (p.uploader?.name || '').toLowerCase().includes(q)
+    );
+}
+
 // Server-provided previews are the source of truth; also apply client-side
 // filtering so the table updates immediately while server search remains available.
 const filteredPreviews = computed(() => {
     let list = previews.value.data || [];
 
     // Apply search filter
-    if (search.value) {
-        const q = search.value.toLowerCase();
-        list = list.filter((p: any) =>
-            (p.name || '').toLowerCase().includes(q) ||
-            (p.client?.name || '').toLowerCase().includes(q) ||
-            (p.uploader?.name || '').toLowerCase().includes(q)
-        );
-    }
+    list = applySearchFilter(list, search.value);
 
     // Apply date range filter
     if (filters.value.fromDate) {
@@ -108,15 +126,11 @@ const filteredPreviews = computed(() => {
 
 function applyFilters() {
     loading.value = true
-    router.get(route('previews-index'), {
-        search: search.value,
-        view: activeTab.value,
-        page: 1,
-        from_date: filters.value.fromDate,
-        to_date: filters.value.toDate,
-        uploader_id: filters.value.uploaderId,
-        keywords: filters.value.keywords
-    }, { preserveState: true, replace: true, onFinish: () => { loading.value = false; showFilters.value = false } })
+    router.get(route('previews-index'), getRouterParams({ page: 1 }), {
+        preserveState: true,
+        replace: true,
+        onFinish: () => { loading.value = false; showFilters.value = false }
+    })
 }
 
 function clearFilters() {
@@ -131,59 +145,24 @@ function clearFilters() {
 function onSearchInput() {
     if (debounceTimer.value) clearTimeout(debounceTimer.value)
     debounceTimer.value = window.setTimeout(() => {
-        // Send current view so backend paginates appropriately
         loading.value = true
-        router.get(route('previews-index'), {
-            search: search.value,
-            view: activeTab.value,
-            page: 1,
-            from_date: filters.value.fromDate,
-            to_date: filters.value.toDate,
-            uploader_id: filters.value.uploaderId,
-            keywords: filters.value.keywords
-        }, { preserveState: true, replace: true, onFinish: () => { loading.value = false } })
+        router.get(route('previews-index'), getRouterParams({ page: 1 }), {
+            preserveState: true,
+            replace: true,
+            onFinish: () => { loading.value = false }
+        })
     }, 350)
 }
 
 function switchTab(tab: 'grid' | 'table') {
     activeTab.value = tab
     loading.value = true
-    // Send view parameter so backend knows how to paginate
-    router.get(route('previews-index'), {
-        search: search.value,
-        view: tab,
-        page: 1,
-        from_date: filters.value.fromDate,
-        to_date: filters.value.toDate,
-        uploader_id: filters.value.uploaderId,
-        keywords: filters.value.keywords
-    }, { preserveState: true, replace: true, onFinish: () => { loading.value = false } })
+    router.get(route('previews-index'), getRouterParams({ view: tab, page: 1 }), {
+        preserveState: true,
+        replace: true,
+        onFinish: () => { loading.value = false }
+    })
 }
-
-function formatDateRelative(dateStr: string) {
-    if (!dateStr) return ''
-    return dayjs(dateStr).fromNow()
-}
-
-const deletePreview = async (id: number) => {
-    const result = await Swal.fire({
-        title: 'Are you sure?',
-        text: 'This will permanently delete the preview.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, delete it!',
-    });
-
-    if (result.isConfirmed) {
-        router.delete(route('previews-delete', id), {
-            preserveScroll: true,
-            onSuccess: () => Swal.fire('Deleted!', 'Preview deleted successfully.', 'success'),
-            onError: () => Swal.fire('Error!', 'Failed to delete preview.', 'error'),
-        });
-    }
-};
 
 const getTypes = (preview: any) => {
     const types = new Set();
@@ -239,14 +218,7 @@ const submitForm = () => {
 const changePage = (url: string) => {
     if (url) {
         loading.value = true
-        router.get(url, {
-            search: search.value,
-            view: activeTab.value,
-            from_date: filters.value.fromDate,
-            to_date: filters.value.toDate,
-            uploader_id: filters.value.uploaderId,
-            keywords: filters.value.keywords
-        }, {
+        router.get(url, getRouterParams(), {
             preserveScroll: true,
             preserveState: true,
             onFinish: () => { loading.value = false }
@@ -333,17 +305,13 @@ async function collapseTo(group: 'inProgress' | 'completed' | 'noFeedback', cont
     el.addEventListener('transitionend', cleanup)
 }
 
-function expandGroup(group: string) {
-    if (group === 'inProgress') {
-        const remaining = groups.value.inProgress.length - inProgressLimit.value
-        inProgressLimit.value = Math.min(inProgressLimit.value + 6, groups.value.inProgress.length)
-    } else if (group === 'completed') {
-        const remaining = groups.value.completed.length - completedLimit.value
-        completedLimit.value = Math.min(completedLimit.value + 6, groups.value.completed.length)
-    } else if (group === 'noFeedback') {
-        const remaining = groups.value.noFeedback.length - noFeedbackLimit.value
-        noFeedbackLimit.value = Math.min(noFeedbackLimit.value + 6, groups.value.noFeedback.length)
-    }
+function expandGroup(group: 'inProgress' | 'completed' | 'noFeedback') {
+    const limitMap = { inProgress: inProgressLimit, completed: completedLimit, noFeedback: noFeedbackLimit };
+    const lengthMap = { inProgress: groups.value.inProgress.length, completed: groups.value.completed.length, noFeedback: groups.value.noFeedback.length };
+    
+    const limitRef = limitMap[group];
+    const totalLength = lengthMap[group];
+    limitRef.value = Math.min(limitRef.value + 6, totalLength);
 }
 
 const groups = computed(() => {
@@ -353,14 +321,7 @@ const groups = computed(() => {
 
     // Use the same source as filteredPreviews so grouping matches search results
     const sourceList = previews.value.data || []
-    const q = (search.value || '').toLowerCase()
-    const list = q
-        ? sourceList.filter((p: any) =>
-            (p.name || '').toLowerCase().includes(q) ||
-            (p.client?.name || '').toLowerCase().includes(q) ||
-            (p.uploader?.name || '').toLowerCase().includes(q)
-        )
-        : sourceList
+    const list = applySearchFilter(sourceList, search.value)
 
     for (const p of list) {
         // Derive totals from relationships if backend didn't provide them
@@ -458,7 +419,7 @@ const groups = computed(() => {
                                                 <option value="">All Users</option>
                                                 <option v-for="user in users" :key="user.id" :value="user.id">{{
                                                     user.name
-                                                }}</option>
+                                                    }}</option>
                                             </select>
                                         </div>
 
@@ -565,27 +526,8 @@ const groups = computed(() => {
                                                     }) }}</div>
                                             </td>
                                             <td class="w-32 text-center px-4 py-3 border-b">
-                                                <div class="flex justify-center space-x-1">
-                                                    <a :href="route('previews-show', preview.slug)"
-                                                        class="text-green-600 hover:text-green-800 p-1" target="_blank"
-                                                        rel="noopener" aria-label="View Preview">
-                                                        <Eye class="h-4 w-4" />
-                                                    </a>
-                                                    <a :href="`${preview.client?.preview_url}/previews/show/${preview.slug}`"
-                                                        class="text-yellow-600 hover:text-yellow-800 p-1"
-                                                        target="_blank" rel="noopener" aria-label="Share Preview">
-                                                        <Share2 class="h-4 w-4" />
-                                                    </a>
-                                                    <Link :href="route('previews.update.all', preview.id)"
-                                                        class="text-indigo-600 hover:text-indigo-800 p-1"
-                                                        aria-label="Edit Preview">
-                                                        <Settings2 class="h-4 w-4" />
-                                                    </Link>
-                                                    <button @click="deletePreview(preview.id)"
-                                                        class="text-red-600 hover:text-red-800 p-1"
-                                                        aria-label="Delete Preview">
-                                                        <Trash2 class="h-4 w-4" />
-                                                    </button>
+                                                <div class="flex justify-center">
+                                                    <PreviewActionButtons :preview="preview" size="sm" />
                                                 </div>
                                             </td>
                                         </tr>
@@ -621,28 +563,7 @@ const groups = computed(() => {
                                             </h3>
                                         </div>
 
-                                        <div class="flex gap-2 ml-3">
-                                            <a :href="route('previews-show', preview.slug)"
-                                                class="text-green-600 hover:text-green-800 p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20"
-                                                target="_blank" rel="noopener" aria-label="View Preview">
-                                                <Eye class="h-5 w-5" />
-                                            </a>
-                                            <a :href="`${preview.client?.preview_url}/previews/show/${preview.slug}`"
-                                                class="text-yellow-600 hover:text-yellow-800 p-2 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20"
-                                                target="_blank" rel="noopener" aria-label="Share Preview">
-                                                <Share2 class="h-5 w-5" />
-                                            </a>
-                                            <Link :href="route('previews.update.all', preview.id)"
-                                                class="text-indigo-600 hover:text-indigo-800 p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
-                                                aria-label="Edit Preview">
-                                                <Settings2 class="h-5 w-5" />
-                                            </Link>
-                                            <button @click="deletePreview(preview.id)"
-                                                class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
-                                                aria-label="Delete Preview">
-                                                <Trash2 class="h-5 w-5" />
-                                            </button>
-                                        </div>
+                                        <PreviewActionButtons :preview="preview" size="md" />
                                     </div>
 
                                     <div class="mb-3">
@@ -691,57 +612,12 @@ const groups = computed(() => {
                                     <div ref="inProgressContainer">
                                         <div v-if="groups.inProgress.length"
                                             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            <div v-for="p in groups.inProgress.slice(0, inProgressLimit)" :key="p.id"
-                                                @click="router.visit(`/previews/update/${p.id}`)"
-                                                class="group bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-3 hover:shadow-md transition cursor-pointer">
-                                                <div class="flex items-start justify-between mb-3">
-                                                    <div class="flex-1 min-w-0">
-                                                        <div
-                                                            class="text-lg font-semibold text-blue-600 dark:text-blue-300 truncate">
-                                                            {{ p.name }}</div>
-                                                        <div class="text-sm text-gray-500 dark:text-gray-400">Created
-                                                            by: {{ p.uploader?.name || 'System' }}</div>
-                                                    </div>
-                                                    <div class="flex flex-col items-end gap-2 ml-3">
-                                                        <div class="text-xs text-gray-500">{{
-                                                            formatDateRelative(p.created_at) }}</div>
-                                                        <span
-                                                            class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 whitespace-nowrap">In
-                                                            Progress</span>
-                                                    </div>
-                                                </div>
-                                                <div class="mb-3 text-sm text-gray-600 dark:text-gray-300">
-                                                    <div class="text-xs text-gray-500 mb-1">Latest Summary:</div>
-                                                    <div
-                                                        class="text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
-                                                        {{ p.latest_feedback_description ?
-                                                            (p.latest_feedback_description.length > 150 ?
-                                                                p.latest_feedback_description.slice(0, 150) + '...' :
-                                                                p.latest_feedback_description) : 'No recent feedback summary' }}
-                                                    </div>
-                                                </div>
-                                                <!-- Action Buttons -->
-                                                <div
-                                                    class="flex items-center justify-end gap-2 pt-2 border-t border-gray-100 dark:border-neutral-700">
-                                                    <a :href="route('previews-show', p.slug)"
-                                                        class="text-green-600 hover:text-green-800 dark:hover:text-green-400 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition"
-                                                        target="_blank" rel="noopener" aria-label="View Preview"
-                                                        @click.stop>
-                                                        <Eye class="h-5 w-5" />
-                                                    </a>
-                                                    <a :href="`${p.client?.preview_url}/previews/show/${p.slug}`"
-                                                        class="text-yellow-600 hover:text-yellow-800 dark:hover:text-yellow-400 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition"
-                                                        target="_blank" rel="noopener" aria-label="Share Preview"
-                                                        @click.stop>
-                                                        <Share2 class="h-5 w-5" />
-                                                    </a>
-                                                    <button @click.stop="deletePreview(p.id)"
-                                                        class="text-red-600 hover:text-red-800 dark:hover:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition"
-                                                        aria-label="Delete Preview">
-                                                        <Trash2 class="h-5 w-5" />
-                                                    </button>
-                                                </div>
-                                            </div>
+                                            <PreviewGridCard
+                                                v-for="p in groups.inProgress.slice(0, inProgressLimit)"
+                                                :key="p.id"
+                                                :preview="p"
+                                                status="inProgress"
+                                            />
                                         </div>
                                         <div v-else class="text-sm text-gray-500">No previews in progress.</div>
                                     </div>
@@ -773,56 +649,12 @@ const groups = computed(() => {
                                     <div ref="completedContainer">
                                         <div v-if="groups.completed.length"
                                             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            <div v-for="p in groups.completed.slice(0, completedLimit)" :key="p.id"
-                                                @click="router.visit(`/previews/update/${p.id}`)"
-                                                class="group bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-3 hover:shadow-md transition cursor-pointer">
-                                                <div class="flex items-start justify-between mb-3">
-                                                    <div class="flex-1 min-w-0">
-                                                        <div
-                                                            class="text-lg font-semibold text-blue-600 dark:text-blue-300 truncate">
-                                                            {{ p.name }}</div>
-                                                        <div class="text-sm text-gray-500 dark:text-gray-400">Created
-                                                            by: {{ p.uploader?.name || 'System' }}</div>
-                                                    </div>
-                                                    <div class="flex flex-col items-end gap-2 ml-3">
-                                                        <div class="text-xs text-gray-500">{{
-                                                            formatDateRelative(p.created_at) }}</div>
-                                                        <span
-                                                            class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 whitespace-nowrap">Completed</span>
-                                                    </div>
-                                                </div>
-                                                <div class="mb-3 text-sm text-gray-600 dark:text-gray-300">
-                                                    <div class="text-xs text-gray-500 mb-1">Latest Summary:</div>
-                                                    <div
-                                                        class="text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
-                                                        {{ p.latest_feedback_description ?
-                                                            (p.latest_feedback_description.length > 150 ?
-                                                                p.latest_feedback_description.slice(0, 150) + '...' :
-                                                                p.latest_feedback_description) : 'No recent feedback summary' }}
-                                                    </div>
-                                                </div>
-                                                <!-- Action Buttons -->
-                                                <div
-                                                    class="flex items-center justify-center gap-2 pt-2 border-t border-gray-100 dark:border-neutral-700">
-                                                    <a :href="route('previews-show', p.slug)"
-                                                        class="text-green-600 hover:text-green-800 dark:hover:text-green-400 p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition"
-                                                        target="_blank" rel="noopener" aria-label="View Preview"
-                                                        @click.stop>
-                                                        <Eye class="h-5 w-5" />
-                                                    </a>
-                                                    <a :href="`${p.client?.preview_url}/previews/show/${p.slug}`"
-                                                        class="text-yellow-600 hover:text-yellow-800 dark:hover:text-yellow-400 p-2 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition"
-                                                        target="_blank" rel="noopener" aria-label="Share Preview"
-                                                        @click.stop>
-                                                        <Share2 class="h-5 w-5" />
-                                                    </a>
-                                                    <button @click.stop="deletePreview(p.id)"
-                                                        class="text-red-600 hover:text-red-800 dark:hover:text-red-400 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition"
-                                                        aria-label="Delete Preview">
-                                                        <Trash2 class="h-5 w-5" />
-                                                    </button>
-                                                </div>
-                                            </div>
+                                            <PreviewGridCard
+                                                v-for="p in groups.completed.slice(0, completedLimit)"
+                                                :key="p.id"
+                                                :preview="p"
+                                                status="completed"
+                                            />
                                         </div>
                                         <div v-else class="text-sm text-gray-500">No completed previews.</div>
                                     </div>
@@ -853,55 +685,12 @@ const groups = computed(() => {
                                     <div ref="noFeedbackContainer">
                                         <div v-if="groups.noFeedback.length"
                                             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            <div v-for="p in groups.noFeedback.slice(0, noFeedbackLimit)" :key="p.id"
-                                                @click="router.visit(`/previews/update/${p.id}`)"
-                                                class="group bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-3 hover:shadow-md transition cursor-pointer">
-                                                <div class="flex items-start justify-between mb-3">
-                                                    <div class="flex-1 min-w-0">
-                                                        <div
-                                                            class="text-lg font-semibold text-blue-600 dark:text-blue-300 truncate">
-                                                            {{ p.name }}</div>
-                                                        <div class="text-sm text-gray-500 dark:text-gray-400">Created
-                                                            by: {{ p.uploader?.name || 'System' }}</div>
-                                                    </div>
-                                                    <div class="flex flex-col items-end gap-2 ml-3">
-                                                        <div class="text-xs text-gray-500">{{
-                                                            formatDateRelative(p.created_at) }}</div>
-                                                        <span
-                                                            class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 whitespace-nowrap">No
-                                                            Feedback</span>
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="mb-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
-                                                    {{ p.latest_feedback_description ?
-                                                        (p.latest_feedback_description.length > 150 ?
-                                                            p.latest_feedback_description.slice(0, 150) + '...' :
-                                                            p.latest_feedback_description)
-                                                        : 'No recent feedback summary' }}
-                                                </div>
-                                                <!-- Action Buttons -->
-                                                <div
-                                                    class="flex items-center justify-center gap-2 pt-2 border-t border-gray-100 dark:border-neutral-700">
-                                                    <a :href="route('previews-show', p.slug)"
-                                                        class="text-green-600 hover:text-green-800 dark:hover:text-green-400 p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition"
-                                                        target="_blank" rel="noopener" aria-label="View Preview"
-                                                        @click.stop>
-                                                        <Eye class="h-5 w-5" />
-                                                    </a>
-                                                    <a :href="`${p.client?.preview_url}/previews/show/${p.slug}`"
-                                                        class="text-yellow-600 hover:text-yellow-800 dark:hover:text-yellow-400 p-2 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition"
-                                                        target="_blank" rel="noopener" aria-label="Share Preview"
-                                                        @click.stop>
-                                                        <Share2 class="h-5 w-5" />
-                                                    </a>
-                                                    <button @click.stop="deletePreview(p.id)"
-                                                        class="text-red-600 hover:text-red-800 dark:hover:text-red-400 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition"
-                                                        aria-label="Delete Preview">
-                                                        <Trash2 class="h-5 w-5" />
-                                                    </button>
-                                                </div>
-                                            </div>
+                                            <PreviewGridCard
+                                                v-for="p in groups.noFeedback.slice(0, noFeedbackLimit)"
+                                                :key="p.id"
+                                                :preview="p"
+                                                status="noFeedback"
+                                            />
                                         </div>
                                         <div v-else class="text-sm text-gray-500">No previews without feedback.</div>
                                     </div>
@@ -929,87 +718,11 @@ const groups = computed(() => {
                 </Transition>
 
                 <!-- Pagination (shown for table view only) -->
-                <div v-if="activeTab === 'table' && filteredPreviews.length && previews.links && previews.links.length"
-                    class="mt-6 p-4">
-
-                    <!-- Mobile/Tablet pagination (simplified) -->
-                    <div class="lg:hidden">
-                        <!-- Results Info -->
-                        <div class="text-sm text-gray-600 dark:text-gray-400 text-center mb-3">
-                            Showing {{ previews.from }} to {{ previews.to }} of {{ previews.total }} previews
-                        </div>
-
-                        <!-- Simple prev/next navigation -->
-                        <div class="flex items-center justify-between gap-4">
-                            <button @click="changePage(previews.prev_page_url)" :disabled="!previews.prev_page_url"
-                                class="px-4 py-2 text-sm rounded-xl transition-all duration-200 flex items-center gap-2"
-                                :class="previews.prev_page_url
-                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
-                                    : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
-                                <ChevronLeft class="w-4 h-4" />
-                                Previous
-                            </button>
-
-                            <span class="text-sm text-gray-600 dark:text-gray-400">
-                                Page {{ previews.current_page }} of {{ previews.last_page }}
-                            </span>
-
-                            <button @click="changePage(previews.next_page_url)" :disabled="!previews.next_page_url"
-                                class="px-4 py-2 text-sm rounded-xl transition-all duration-200 flex items-center gap-2"
-                                :class="previews.next_page_url
-                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
-                                    : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
-                                Next
-                                <ChevronRight class="w-4 h-4" />
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Desktop pagination (full features) -->
-                    <div class="hidden lg:flex items-center justify-between">
-                        <!-- Results Info -->
-                        <div class="text-sm text-gray-600 dark:text-gray-400">
-                            Showing {{ previews.from }} to {{ previews.to }} of {{ previews.total }} previews
-                        </div>
-
-                        <!-- Pagination Controls -->
-                        <div class="flex items-center space-x-2">
-                            <!-- Previous Button -->
-                            <button @click="changePage(previews.prev_page_url)" :disabled="!previews.prev_page_url"
-                                class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center"
-                                :class="previews.prev_page_url
-                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
-                                    : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
-                                <ChevronLeft class="w-4 h-4 mr-1" />
-                                Previous
-                            </button>
-
-                            <!-- Page Numbers -->
-                            <div class="flex items-center space-x-1">
-                                <template v-for="link in previews.links.slice(1, -1)" :key="link.label">
-                                    <button v-if="link.url" @click="changePage(link.url)"
-                                        class="px-3 py-2 text-sm rounded-lg transition-all duration-200"
-                                        :class="link.active
-                                            ? 'bg-blue-600 text-white'
-                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'"
-                                        v-html="link.label" />
-                                    <span v-else class="px-3 py-2 text-sm text-gray-400 cursor-not-allowed"
-                                        v-html="link.label" />
-                                </template>
-                            </div>
-
-                            <!-- Next Button -->
-                            <button @click="changePage(previews.next_page_url)" :disabled="!previews.next_page_url"
-                                class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center"
-                                :class="previews.next_page_url
-                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
-                                    : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
-                                Next
-                                <ChevronRight class="w-4 h-4 ml-1" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <PreviewPagination 
+                    v-if="activeTab === 'table' && filteredPreviews.length"
+                    :pagination-data="previews" 
+                    :on-page-change="changePage" 
+                />
             </div>
 
             <!-- Modal -->
