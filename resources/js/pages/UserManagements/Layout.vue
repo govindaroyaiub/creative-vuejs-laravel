@@ -19,7 +19,7 @@ const sidebarNavItems: NavItem[] = [
         href: '/user-managements/users',
     },
     {
-        title: 'Preview Tour Guide',
+        title: 'Tour Guide',
         href: '/preview-tour-guide',
     }
 ];
