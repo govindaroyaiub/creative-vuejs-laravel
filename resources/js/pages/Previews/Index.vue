@@ -692,7 +692,8 @@ const groups = computed(() => {
                                         <div v-if="groups.inProgress.length"
                                             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                             <div v-for="p in groups.inProgress.slice(0, inProgressLimit)" :key="p.id"
-                                                class="group bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-3 hover:shadow-md transition">
+                                                @click="router.visit(`/previews/update/${p.id}`)"
+                                                class="group bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-3 hover:shadow-md transition cursor-pointer">
                                                 <div class="flex items-start justify-between mb-3">
                                                     <div class="flex-1 min-w-0">
                                                         <div
@@ -721,7 +722,7 @@ const groups = computed(() => {
                                                 </div>
                                                 <!-- Action Buttons -->
                                                 <div
-                                                    class="flex items-center justify-end gap-2 border-t border-gray-100 dark:border-neutral-700">
+                                                    class="flex items-center justify-end gap-2 pt-2 border-t border-gray-100 dark:border-neutral-700">
                                                     <a :href="route('previews-show', p.slug)"
                                                         class="text-green-600 hover:text-green-800 dark:hover:text-green-400 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition"
                                                         target="_blank" rel="noopener" aria-label="View Preview"
@@ -734,11 +735,6 @@ const groups = computed(() => {
                                                         @click.stop>
                                                         <Share2 class="h-5 w-5" />
                                                     </a>
-                                                    <Link :href="route('previews.update.all', p.id)"
-                                                        class="text-indigo-600 hover:text-indigo-800 dark:hover:text-indigo-400 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition"
-                                                        aria-label="Edit Preview">
-                                                        <Settings2 class="h-5 w-5" />
-                                                    </Link>
                                                     <button @click.stop="deletePreview(p.id)"
                                                         class="text-red-600 hover:text-red-800 dark:hover:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition"
                                                         aria-label="Delete Preview">
@@ -778,7 +774,8 @@ const groups = computed(() => {
                                         <div v-if="groups.completed.length"
                                             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                             <div v-for="p in groups.completed.slice(0, completedLimit)" :key="p.id"
-                                                class="group bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-3 hover:shadow-md transition">
+                                                @click="router.visit(`/previews/update/${p.id}`)"
+                                                class="group bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-3 hover:shadow-md transition cursor-pointer">
                                                 <div class="flex items-start justify-between mb-3">
                                                     <div class="flex-1 min-w-0">
                                                         <div
@@ -819,11 +816,6 @@ const groups = computed(() => {
                                                         @click.stop>
                                                         <Share2 class="h-5 w-5" />
                                                     </a>
-                                                    <Link :href="route('previews.update.all', p.id)"
-                                                        class="text-indigo-600 hover:text-indigo-800 dark:hover:text-indigo-400 p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition"
-                                                        aria-label="Edit Preview">
-                                                        <Settings2 class="h-5 w-5" />
-                                                    </Link>
                                                     <button @click.stop="deletePreview(p.id)"
                                                         class="text-red-600 hover:text-red-800 dark:hover:text-red-400 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition"
                                                         aria-label="Delete Preview">
@@ -862,7 +854,8 @@ const groups = computed(() => {
                                         <div v-if="groups.noFeedback.length"
                                             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                             <div v-for="p in groups.noFeedback.slice(0, noFeedbackLimit)" :key="p.id"
-                                                class="group bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-3 hover:shadow-md transition">
+                                                @click="router.visit(`/previews/update/${p.id}`)"
+                                                class="group bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-3 hover:shadow-md transition cursor-pointer">
                                                 <div class="flex items-start justify-between mb-3">
                                                     <div class="flex-1 min-w-0">
                                                         <div
@@ -902,11 +895,6 @@ const groups = computed(() => {
                                                         @click.stop>
                                                         <Share2 class="h-5 w-5" />
                                                     </a>
-                                                    <Link :href="route('previews.update.all', p.id)"
-                                                        class="text-indigo-600 hover:text-indigo-800 dark:hover:text-indigo-400 p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition"
-                                                        aria-label="Edit Preview">
-                                                        <Settings2 class="h-5 w-5" />
-                                                    </Link>
                                                     <button @click.stop="deletePreview(p.id)"
                                                         class="text-red-600 hover:text-red-800 dark:hover:text-red-400 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition"
                                                         aria-label="Delete Preview">
