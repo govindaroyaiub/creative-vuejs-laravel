@@ -109,7 +109,7 @@ class DatabaseSeeder extends Seeder
                 'tertiary' => '#e30613',
                 'quaternary' => '#000000',
                 'quinary' => '#c60b1d',
-                'senary' => '#c60b1d',
+                'senary' => '#ffffff',
                 'septenary' => '#c60b1d',
                 'feedbackTab_inactive_image' => 'uploads/colorPalette/velocity_red_feedback_inactive.png',
                 'feedbackTab_active_image' => 'uploads/colorPalette/velocity_red_feedback_active.png',
