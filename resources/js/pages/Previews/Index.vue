@@ -458,7 +458,7 @@ const groups = computed(() => {
                                                 <option value="">All Users</option>
                                                 <option v-for="user in users" :key="user.id" :value="user.id">{{
                                                     user.name
-                                                    }}</option>
+                                                }}</option>
                                             </select>
                                         </div>
 
@@ -692,37 +692,58 @@ const groups = computed(() => {
                                         <div v-if="groups.inProgress.length"
                                             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                             <div v-for="p in groups.inProgress.slice(0, inProgressLimit)" :key="p.id"
-                                                @click="router.visit(`/previews/update/${p.id}`)"
-                                                class="group bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-3 hover:shadow-md transition cursor-pointer">
-                                                <div class="flex items-start justify-between">
-                                                    <div>
+                                                class="group bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-3 hover:shadow-md transition">
+                                                <div class="flex items-start justify-between mb-3">
+                                                    <div class="flex-1 min-w-0">
                                                         <div
-                                                            class="text-lg font-semibold text-blue-600 dark:text-blue-300 group-hover:underline">
-                                                            {{
-                                                                p.name }}</div>
+                                                            class="text-lg font-semibold text-blue-600 dark:text-blue-300 truncate">
+                                                            {{ p.name }}</div>
                                                         <div class="text-sm text-gray-500 dark:text-gray-400">Created
-                                                            by: {{
-                                                                p.uploader?.name || 'System' }}</div>
+                                                            by: {{ p.uploader?.name || 'System' }}</div>
                                                     </div>
-                                                    <div class="text-right">
+                                                    <div class="flex flex-col items-end gap-2 ml-3">
                                                         <div class="text-xs text-gray-500">{{
-                                                            formatDateRelative(p.created_at)
-                                                            }}</div>
-                                                        <div class="mt-2"><span
-                                                                class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 whitespace-nowrap">In
-                                                                Progress</span></div>
+                                                            formatDateRelative(p.created_at) }}</div>
+                                                        <span
+                                                            class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 whitespace-nowrap">In
+                                                            Progress</span>
                                                     </div>
                                                 </div>
-                                                <div class="mt-3 text-sm text-gray-600 dark:text-gray-300">
-                                                    <div class="text-xs text-gray-500">Latest Summary:</div>
+                                                <div class="mb-3 text-sm text-gray-600 dark:text-gray-300">
+                                                    <div class="text-xs text-gray-500 mb-1">Latest Summary:</div>
                                                     <div
-                                                        class="mt-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
+                                                        class="text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
                                                         {{ p.latest_feedback_description ?
-                                                            (p.latest_feedback_description.length
-                                                                > 150 ?
+                                                            (p.latest_feedback_description.length > 150 ?
                                                                 p.latest_feedback_description.slice(0, 150) + '...' :
                                                                 p.latest_feedback_description) : 'No recent feedback summary' }}
                                                     </div>
+                                                </div>
+                                                <!-- Action Buttons -->
+                                                <div
+                                                    class="flex items-center justify-end gap-2 border-t border-gray-100 dark:border-neutral-700">
+                                                    <a :href="route('previews-show', p.slug)"
+                                                        class="text-green-600 hover:text-green-800 dark:hover:text-green-400 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition"
+                                                        target="_blank" rel="noopener" aria-label="View Preview"
+                                                        @click.stop>
+                                                        <Eye class="h-5 w-5" />
+                                                    </a>
+                                                    <a :href="`${p.client?.preview_url}/previews/show/${p.slug}`"
+                                                        class="text-yellow-600 hover:text-yellow-800 dark:hover:text-yellow-400 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition"
+                                                        target="_blank" rel="noopener" aria-label="Share Preview"
+                                                        @click.stop>
+                                                        <Share2 class="h-5 w-5" />
+                                                    </a>
+                                                    <Link :href="route('previews.update.all', p.id)"
+                                                        class="text-indigo-600 hover:text-indigo-800 dark:hover:text-indigo-400 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition"
+                                                        aria-label="Edit Preview">
+                                                        <Settings2 class="h-5 w-5" />
+                                                    </Link>
+                                                    <button @click.stop="deletePreview(p.id)"
+                                                        class="text-red-600 hover:text-red-800 dark:hover:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition"
+                                                        aria-label="Delete Preview">
+                                                        <Trash2 class="h-5 w-5" />
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -757,37 +778,57 @@ const groups = computed(() => {
                                         <div v-if="groups.completed.length"
                                             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                             <div v-for="p in groups.completed.slice(0, completedLimit)" :key="p.id"
-                                                @click="router.visit(`/previews/update/${p.id}`)"
-                                                class="group bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-4 hover:shadow-md transition cursor-pointer">
-                                                <div class="flex items-start justify-between">
-                                                    <div>
+                                                class="group bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-3 hover:shadow-md transition">
+                                                <div class="flex items-start justify-between mb-3">
+                                                    <div class="flex-1 min-w-0">
                                                         <div
-                                                            class="text-lg font-semibold text-blue-600 dark:text-blue-300 group-hover:underline">
-                                                            {{
-                                                                p.name }}</div>
+                                                            class="text-lg font-semibold text-blue-600 dark:text-blue-300 truncate">
+                                                            {{ p.name }}</div>
                                                         <div class="text-sm text-gray-500 dark:text-gray-400">Created
-                                                            by: {{
-                                                                p.uploader?.name || 'System' }}</div>
+                                                            by: {{ p.uploader?.name || 'System' }}</div>
                                                     </div>
-                                                    <div class="text-right">
+                                                    <div class="flex flex-col items-end gap-2 ml-3">
                                                         <div class="text-xs text-gray-500">{{
-                                                            formatDateRelative(p.created_at)
-                                                            }}</div>
-                                                        <div class="mt-2"><span
-                                                                class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 whitespace-nowrap">Completed</span>
-                                                        </div>
+                                                            formatDateRelative(p.created_at) }}</div>
+                                                        <span
+                                                            class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 whitespace-nowrap">Completed</span>
                                                     </div>
                                                 </div>
-                                                <div class="mt-3 text-sm text-gray-600 dark:text-gray-300">
-                                                    <div class="text-xs text-gray-500">Latest Summary:</div>
+                                                <div class="mb-3 text-sm text-gray-600 dark:text-gray-300">
+                                                    <div class="text-xs text-gray-500 mb-1">Latest Summary:</div>
                                                     <div
-                                                        class="mt-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
+                                                        class="text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
                                                         {{ p.latest_feedback_description ?
-                                                            (p.latest_feedback_description.length
-                                                                > 150 ?
+                                                            (p.latest_feedback_description.length > 150 ?
                                                                 p.latest_feedback_description.slice(0, 150) + '...' :
                                                                 p.latest_feedback_description) : 'No recent feedback summary' }}
                                                     </div>
+                                                </div>
+                                                <!-- Action Buttons -->
+                                                <div
+                                                    class="flex items-center justify-center gap-2 pt-2 border-t border-gray-100 dark:border-neutral-700">
+                                                    <a :href="route('previews-show', p.slug)"
+                                                        class="text-green-600 hover:text-green-800 dark:hover:text-green-400 p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition"
+                                                        target="_blank" rel="noopener" aria-label="View Preview"
+                                                        @click.stop>
+                                                        <Eye class="h-5 w-5" />
+                                                    </a>
+                                                    <a :href="`${p.client?.preview_url}/previews/show/${p.slug}`"
+                                                        class="text-yellow-600 hover:text-yellow-800 dark:hover:text-yellow-400 p-2 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition"
+                                                        target="_blank" rel="noopener" aria-label="Share Preview"
+                                                        @click.stop>
+                                                        <Share2 class="h-5 w-5" />
+                                                    </a>
+                                                    <Link :href="route('previews.update.all', p.id)"
+                                                        class="text-indigo-600 hover:text-indigo-800 dark:hover:text-indigo-400 p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition"
+                                                        aria-label="Edit Preview">
+                                                        <Settings2 class="h-5 w-5" />
+                                                    </Link>
+                                                    <button @click.stop="deletePreview(p.id)"
+                                                        class="text-red-600 hover:text-red-800 dark:hover:text-red-400 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition"
+                                                        aria-label="Delete Preview">
+                                                        <Trash2 class="h-5 w-5" />
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -821,36 +862,57 @@ const groups = computed(() => {
                                         <div v-if="groups.noFeedback.length"
                                             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                             <div v-for="p in groups.noFeedback.slice(0, noFeedbackLimit)" :key="p.id"
-                                                @click="router.visit(`/previews/update/${p.id}`)"
-                                                class="group bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-4 hover:shadow-md transition cursor-pointer">
-                                                <div class="flex items-start justify-between">
-                                                    <div>
+                                                class="group bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-3 hover:shadow-md transition">
+                                                <div class="flex items-start justify-between mb-3">
+                                                    <div class="flex-1 min-w-0">
                                                         <div
-                                                            class="text-lg font-semibold text-blue-600 dark:text-blue-300 group-hover:underline">
-                                                            {{
-                                                                p.name }}</div>
+                                                            class="text-lg font-semibold text-blue-600 dark:text-blue-300 truncate">
+                                                            {{ p.name }}</div>
                                                         <div class="text-sm text-gray-500 dark:text-gray-400">Created
-                                                            by: {{
-                                                                p.uploader?.name || 'System' }}</div>
+                                                            by: {{ p.uploader?.name || 'System' }}</div>
                                                     </div>
-                                                    <div class="text-right">
+                                                    <div class="flex flex-col items-end gap-2 ml-3">
                                                         <div class="text-xs text-gray-500">{{
-                                                            formatDateRelative(p.created_at)
-                                                            }}</div>
-                                                        <div class="mt-2"><span
-                                                                class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">No
-                                                                Feedback</span></div>
+                                                            formatDateRelative(p.created_at) }}</div>
+                                                        <span
+                                                            class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 whitespace-nowrap">No
+                                                            Feedback</span>
                                                     </div>
                                                 </div>
                                                 <div
-                                                    class="mt-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
+                                                    class="mb-3 text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
                                                     {{ p.latest_feedback_description ?
-                                                        (p.latest_feedback_description.length
-                                                            >
-                                                            150 ?
+                                                        (p.latest_feedback_description.length > 150 ?
                                                             p.latest_feedback_description.slice(0, 150) + '...' :
                                                             p.latest_feedback_description)
-                                                        : 'No recent feedback summary' }}</div>
+                                                        : 'No recent feedback summary' }}
+                                                </div>
+                                                <!-- Action Buttons -->
+                                                <div
+                                                    class="flex items-center justify-center gap-2 pt-2 border-t border-gray-100 dark:border-neutral-700">
+                                                    <a :href="route('previews-show', p.slug)"
+                                                        class="text-green-600 hover:text-green-800 dark:hover:text-green-400 p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition"
+                                                        target="_blank" rel="noopener" aria-label="View Preview"
+                                                        @click.stop>
+                                                        <Eye class="h-5 w-5" />
+                                                    </a>
+                                                    <a :href="`${p.client?.preview_url}/previews/show/${p.slug}`"
+                                                        class="text-yellow-600 hover:text-yellow-800 dark:hover:text-yellow-400 p-2 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition"
+                                                        target="_blank" rel="noopener" aria-label="Share Preview"
+                                                        @click.stop>
+                                                        <Share2 class="h-5 w-5" />
+                                                    </a>
+                                                    <Link :href="route('previews.update.all', p.id)"
+                                                        class="text-indigo-600 hover:text-indigo-800 dark:hover:text-indigo-400 p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition"
+                                                        aria-label="Edit Preview">
+                                                        <Settings2 class="h-5 w-5" />
+                                                    </Link>
+                                                    <button @click.stop="deletePreview(p.id)"
+                                                        class="text-red-600 hover:text-red-800 dark:hover:text-red-400 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition"
+                                                        aria-label="Delete Preview">
+                                                        <Trash2 class="h-5 w-5" />
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                         <div v-else class="text-sm text-gray-500">No previews without feedback.</div>
