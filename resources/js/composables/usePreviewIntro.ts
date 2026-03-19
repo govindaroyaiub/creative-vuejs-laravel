@@ -23,6 +23,37 @@ export function usePreviewIntro() {
     // Track pending timeouts to prevent race conditions when clicking next quickly
     let pendingTimeouts: number[] = [];
 
+    // Z-index management helpers
+    const setElementZIndex = (selector: string, zIndex: string) => {
+        const element = document.querySelector(selector) as HTMLElement;
+        if (element) element.style.zIndex = zIndex;
+    };
+
+    const resetElementZIndex = (selector: string) => {
+        const element = document.querySelector(selector) as HTMLElement;
+        if (element) element.style.zIndex = '';
+    };
+
+    const manageHelpButtonZIndex = (elevate: boolean) => {
+        const zIndexes = elevate ? { actions: '10010', assistant: '10011', button: '10012' } : { actions: '', assistant: '', button: '' };
+        setElementZIndex('.bottom-right-actions', zIndexes.actions);
+        setElementZIndex('.tour-assistant', zIndexes.assistant);
+        setElementZIndex('.tour-help-button', zIndexes.button);
+    };
+
+    // Panel closing helper
+    const closePanelsOnStepChange = (currentStepData: IntroStep) => {
+        const isMobile = window.innerWidth <= 1024;
+        if (isMobile) {
+            if (currentStepData.mobileElement === '#mobileMenuToggle' && mobileMenuCloseFn) {
+                mobileMenuCloseFn();
+            }
+            if (currentStepData.element === '#feedbackClick' && feedbackPanelCloseFn) {
+                feedbackPanelCloseFn();
+            }
+        }
+    };
+
     const steps: IntroStep[] = [
         {
             title: 'Hello There!',
@@ -83,18 +114,7 @@ export function usePreviewIntro() {
 
     const nextStep = () => {
         if (currentStep.value < steps.length - 1) {
-            // Close mobile menu if we're leaving the mobile menu step
-            const currentStepData = steps[currentStep.value];
-            const isMobile = window.innerWidth <= 1024;
-            if (isMobile && currentStepData.mobileElement === '#mobileMenuToggle' && mobileMenuCloseFn) {
-                mobileMenuCloseFn();
-            }
-
-            // Close feedback panel if we're leaving the feedback description step
-            if (isMobile && currentStepData.element === '#feedbackClick' && feedbackPanelCloseFn) {
-                feedbackPanelCloseFn();
-            }
-
+            closePanelsOnStepChange(steps[currentStep.value]);
             currentStep.value++;
             // Use nextTick to ensure DOM updates before highlighting
             nextTick(() => {
@@ -107,18 +127,7 @@ export function usePreviewIntro() {
 
     const prevStep = () => {
         if (currentStep.value > 0) {
-            // Close mobile menu if we're leaving the mobile menu step
-            const currentStepData = steps[currentStep.value];
-            const isMobile = window.innerWidth <= 1024;
-            if (isMobile && currentStepData.mobileElement === '#mobileMenuToggle' && mobileMenuCloseFn) {
-                mobileMenuCloseFn();
-            }
-
-            // Close feedback panel if we're leaving the feedback description step
-            if (isMobile && currentStepData.element === '#feedbackClick' && feedbackPanelCloseFn) {
-                feedbackPanelCloseFn();
-            }
-
+            closePanelsOnStepChange(steps[currentStep.value]);
             currentStep.value--;
             // Use nextTick to ensure DOM updates before highlighting
             nextTick(() => {
@@ -199,25 +208,11 @@ export function usePreviewIntro() {
         if (element) {
             // Special handling for help button - apply z-index IMMEDIATELY before scroll
             if (step.element === '.tour-help-button') {
-                const helpBtn = document.querySelector('.tour-help-button');
-                const bottomRightActions = document.querySelector('.bottom-right-actions');
-                const tourAssistant = document.querySelector('.tour-assistant');
-
-                if (bottomRightActions) {
-                    (bottomRightActions as HTMLElement).style.zIndex = '10010';
-                }
-                if (tourAssistant) {
-                    (tourAssistant as HTMLElement).style.zIndex = '10011';
-                }
-                if (helpBtn) {
-                    (helpBtn as HTMLElement).style.zIndex = '10012';
-
-                    // Also focus the button for additional visual feedback
-                    const timeoutId = setTimeout(() => {
-                        (helpBtn as HTMLElement).focus();
-                    }, 100);
-                    pendingTimeouts.push(timeoutId);
-                }
+                manageHelpButtonZIndex(true);
+                const helpBtn = element as HTMLElement;
+                // Also focus the button for additional visual feedback
+                const timeoutId = setTimeout(() => helpBtn.focus(), 100);
+                pendingTimeouts.push(timeoutId);
             }
 
             // Determine scroll position based on element
@@ -320,33 +315,15 @@ export function usePreviewIntro() {
             htmlElement.removeAttribute('data-original-zindex');
         });
 
-        // Reset z-index on fixed buttons
-        const colorPaletteBtn = document.getElementById('mobilecolorPaletteClick');
-        const feedbackBtn = document.getElementById('feedbackClick');
-        const helpBtn = document.querySelector('.tour-help-button');
-        const bottomRightActions = document.querySelector('.bottom-right-actions');
-        const tourAssistant = document.querySelector('.tour-assistant');
+        // Reset z-index on fixed buttons using helper
+        ['#mobilecolorPaletteClick', '#feedbackClick'].forEach((selector) => resetElementZIndex(selector));
 
-        if (colorPaletteBtn) {
-            (colorPaletteBtn as HTMLElement).style.zIndex = '';
-            // Also reset parent container
-            const paletteContainer = colorPaletteBtn.closest('.color-palette-container');
-            if (paletteContainer) {
-                (paletteContainer as HTMLElement).style.zIndex = '';
-            }
-        }
-        if (feedbackBtn) {
-            (feedbackBtn as HTMLElement).style.zIndex = '';
-        }
-        if (helpBtn) {
-            (helpBtn as HTMLElement).style.zIndex = '';
-        }
-        if (bottomRightActions) {
-            (bottomRightActions as HTMLElement).style.zIndex = '';
-        }
-        if (tourAssistant) {
-            (tourAssistant as HTMLElement).style.zIndex = '';
-        }
+        // Reset color palette container
+        const paletteContainer = document.getElementById('mobilecolorPaletteClick')?.closest('.color-palette-container');
+        if (paletteContainer) (paletteContainer as HTMLElement).style.zIndex = '';
+
+        // Reset help button z-indexes
+        manageHelpButtonZIndex(false);
     };
 
     const getCurrentStep = () => {

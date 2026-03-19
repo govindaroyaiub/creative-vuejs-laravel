@@ -1,5 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
+/* CSS Custom Properties for better maintainability */
+:root {
+    --transition-default: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fast: 0.2s ease;
+    --shadow-default: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --shadow-hover: 0 8px 20px rgba(0, 0, 0, 0.2);
+    --border-radius-default: 12px;
+}
+
 *,
 *:before,
 *:after {
@@ -332,7 +342,7 @@ hr {
 .file-transfer-widget {
     font-family: inherit;
     will-change: transform;
-    transition: transform 0.3s ease;
+    transition: transform var(--transition-default);
 }
 
 .file-transfer-widget:hover {
@@ -352,7 +362,7 @@ hr {
     overflow: hidden;
     min-width: 240px;
     position: relative;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--transition-smooth);
 }
 
 .file-transfer-panel:hover {
@@ -374,7 +384,7 @@ hr {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -392,7 +402,7 @@ hr {
     width: 12px;
     height: 12px;
     color: #475569;
-    transition: transform 0.3s ease;
+    transition: transform var(--transition-default);
 }
 
 /* Vue Transition Classes for Expand Animation - Grid-based smooth height */
@@ -577,19 +587,19 @@ hr {
     text-decoration: none;
     font-size: 0.9rem;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    transition: all 0.2s ease;
+    box-shadow: var(--shadow-default);
+    transition: all var(--transition-fast);
 }
 
 .file-transfer-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+    box-shadow: var(--shadow-hover);
 }
 
 .file-transfer-btn svg {
     width: 14px;
     height: 14px;
-    transition: transform 0.2s ease;
+    transition: transform var(--transition-fast);
 }
 
 .file-transfer-btn:hover svg {
@@ -689,7 +699,7 @@ hr {
     right: 0;
     z-index: 10000;
     cursor: pointer;
-    transition: transform 0.2s ease;
+    transition: transform var(--transition-fast);
 }
 
 #feedbackClick:hover {
@@ -724,7 +734,7 @@ hr {
     width: 350px;
     max-height: 500px;
     background: #ffffff;
-    border-radius: 12px 0 0 12px;
+    border-radius: var(--border-radius-default) 0 0 var(--border-radius-default);
     box-shadow: -2px 2px 16px rgba(0, 0, 0, 0.2);
     z-index: 10000;
     /* Hidden by default - fully off screen to the right */
@@ -736,7 +746,7 @@ hr {
 
 /* Only apply transition when explicitly enabled */
 #feedbackDescription.transitions-enabled {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform var(--transition-default);
 }
 
 #feedbackDescription.show {
@@ -753,15 +763,15 @@ hr {
     width: 110px;
     background: #ffffff;
     padding: 10px;
-    border-radius: 12px 0 0 12px;
-    box-shadow: -2px 2px 12px rgba(0, 0, 0, 0.15);
+    border-radius: var(--border-radius-default) 0 0 var(--border-radius-default);
+    box-shadow: var(--shadow-default);
     /* Hidden by default - fully off screen to the right */
     transform: translateX(0);
 }
 
 /* Only apply transition when explicitly enabled */
 #mobilecolorPaletteSelection.transitions-enabled {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform var(--transition-default);
 }
 
 #mobilecolorPaletteSelection.visible {

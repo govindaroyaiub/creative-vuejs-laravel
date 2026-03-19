@@ -37,7 +37,7 @@
                         <h1><span class="font-semibold">Name: </span> <span class="capitalize">{{ preview.name }}</span>
                         </h1>
                         <h1><span class="font-semibold">Client: </span> <span class="capitalize">{{ client.name
-                                }}</span></h1>
+                        }}</span></h1>
                         <h1>
                             <span class="font-semibold">Date: </span> <span>{{ formatDate(preview.created_at) }}</span>
                         </h1>
@@ -313,7 +313,7 @@
                                                                 <div><strong>FPS:</strong> {{ video.fps ?? '-' }}</div>
                                                                 <div><strong>File Size:</strong> {{ video.file_size ??
                                                                     '-'
-                                                                }}</div>
+                                                                    }}</div>
                                                                 <div v-if="video.companion_banner_path"
                                                                     class="mt-2 w-full flex flex-col items-center justify-center">
                                                                     <img :src="`/${video.companion_banner_path}`"
@@ -882,63 +882,61 @@ setMobileMenuClose(closeMobileMenu)
 
 // Close all panels utility
 const closeAllPanels = () => {
-    if (isPaletteVisible.value) {
-        hideColorPalette()
+    if (isPaletteVisible.value) hideColorPalette()
+    if (isFeedbackDescriptionVisible.value) hideFeedbackDescription()
+    if (isMobileMenuOpen.value) closeMobileMenu()
+}
+
+// Generic panel management
+const createPanelHandler = (visibilityRef, panelId, buttonId, otherPanelsToClose) => {
+    const show = () => {
+        // Close other panels first
+        otherPanelsToClose.forEach(closeFn => closeFn())
+        visibilityRef.value = true
+
+        // Add click listener to close when clicking outside
+        nextTick(() => {
+            setTimeout(() => {
+                document.addEventListener('click', hide.outsideClickHandler)
+            }, 100)
+        })
     }
-    if (isFeedbackDescriptionVisible.value) {
-        hideFeedbackDescription()
+
+    const hide = () => {
+        if (!visibilityRef.value) return
+        visibilityRef.value = false
+        document.removeEventListener('click', hide.outsideClickHandler)
     }
-    if (isMobileMenuOpen.value) {
-        closeMobileMenu()
+
+    hide.outsideClickHandler = (event) => {
+        const panel = document.getElementById(panelId)
+        const button = document.getElementById(buttonId)
+        if (panel && button) {
+            if (!panel.contains(event.target) && !button.contains(event.target)) {
+                hide()
+            }
+        }
     }
+
+    const toggle = (event) => {
+        event?.stopPropagation()
+        visibilityRef.value ? hide() : show()
+    }
+
+    return { show, hide, toggle }
 }
 
 // Color palette
-const toggleColorPalette = (event) => {
-    event?.stopPropagation()
-
-    if (isPaletteVisible.value) {
-        hideColorPalette()
-    } else {
-        showColorPalette()
-    }
-}
-
-const showColorPalette = () => {
-    // Close other panels first
-    if (isFeedbackDescriptionVisible.value) {
-        hideFeedbackDescription()
-    }
-    if (isMobileMenuOpen.value) {
-        closeMobileMenu()
-    }
-
-    isPaletteVisible.value = true
-
-    // Add click listener to close when clicking outside
-    nextTick(() => {
-        setTimeout(() => {
-            document.addEventListener('click', handleColorPaletteOutsideClick)
-        }, 100)
-    })
-}
-
-const hideColorPalette = () => {
-    if (!isPaletteVisible.value) return
-    isPaletteVisible.value = false
-    document.removeEventListener('click', handleColorPaletteOutsideClick)
-}
-
-const handleColorPaletteOutsideClick = (event) => {
-    const palettePanel = document.getElementById('mobilecolorPaletteSelection')
-    const paletteButton = document.getElementById('mobilecolorPaletteClick')
-
-    if (palettePanel && paletteButton) {
-        if (!palettePanel.contains(event.target) && !paletteButton.contains(event.target)) {
-            hideColorPalette()
-        }
-    }
-}
+const {
+    show: showColorPalette,
+    hide: hideColorPalette,
+    toggle: toggleColorPalette
+} = createPanelHandler(
+    isPaletteVisible,
+    'mobilecolorPaletteSelection',
+    'mobilecolorPaletteClick',
+    [() => isFeedbackDescriptionVisible.value && hideFeedbackDescription(), () => isMobileMenuOpen.value && closeMobileMenu()]
+)
 
 const changeTheme = (colorId) => {
     axios.get(`/preview/${props.previewId}/change/theme/${colorId}`)
@@ -955,51 +953,16 @@ const changeTheme = (colorId) => {
 }
 
 // Feedback description
-const toggleFeedbackDescription = (event) => {
-    event?.stopPropagation()
-
-    if (isFeedbackDescriptionVisible.value) {
-        hideFeedbackDescription()
-    } else {
-        showFeedbackDescription()
-    }
-}
-
-const showFeedbackDescription = () => {
-    // Close other panels first
-    if (isPaletteVisible.value) {
-        hideColorPalette()
-    }
-    if (isMobileMenuOpen.value) {
-        closeMobileMenu()
-    }
-
-    isFeedbackDescriptionVisible.value = true
-
-    // Add click listener to close when clicking outside
-    nextTick(() => {
-        setTimeout(() => {
-            document.addEventListener('click', handleFeedbackOutsideClick)
-        }, 100)
-    })
-}
-
-const hideFeedbackDescription = () => {
-    if (!isFeedbackDescriptionVisible.value) return
-    isFeedbackDescriptionVisible.value = false
-    document.removeEventListener('click', handleFeedbackOutsideClick)
-}
-
-const handleFeedbackOutsideClick = (event) => {
-    const feedbackPanel = document.getElementById('feedbackDescription')
-    const feedbackButton = document.getElementById('feedbackClick')
-
-    if (feedbackPanel && feedbackButton) {
-        if (!feedbackPanel.contains(event.target) && !feedbackButton.contains(event.target)) {
-            hideFeedbackDescription()
-        }
-    }
-}
+const {
+    show: showFeedbackDescription,
+    hide: hideFeedbackDescription,
+    toggle: toggleFeedbackDescription
+} = createPanelHandler(
+    isFeedbackDescriptionVisible,
+    'feedbackDescription',
+    'feedbackClick',
+    [() => isPaletteVisible.value && hideColorPalette(), () => isMobileMenuOpen.value && closeMobileMenu()]
+)
 
 // Set the feedback panel functions for the tour
 setFeedbackPanelOpen(showFeedbackDescription)
@@ -1170,10 +1133,11 @@ const updateFeedbackNav = () => {
     })
 }
 
-const navigateFeedbackFarLeft = () => {
-    if (currentFeedbackIndex.value > 0) {
-        currentFeedbackIndex.value = 0
-        updateActiveFeedback(feedbacks.value[0].id)
+// Unified feedback navigation
+const navigateFeedback = (newIndex) => {
+    if (newIndex >= 0 && newIndex < feedbacks.value.length && newIndex !== currentFeedbackIndex.value) {
+        currentFeedbackIndex.value = newIndex
+        updateActiveFeedback(feedbacks.value[newIndex].id)
         nextTick(() => {
             updateFeedbackNav()
             scrollActiveFeedbackTabIntoView()
@@ -1181,38 +1145,10 @@ const navigateFeedbackFarLeft = () => {
     }
 }
 
-const navigateFeedbackLeft = () => {
-    if (currentFeedbackIndex.value > 0) {
-        currentFeedbackIndex.value--
-        updateActiveFeedback(feedbacks.value[currentFeedbackIndex.value].id)
-        nextTick(() => {
-            updateFeedbackNav()
-            scrollActiveFeedbackTabIntoView()
-        })
-    }
-}
-
-const navigateFeedbackRight = () => {
-    if (currentFeedbackIndex.value < feedbacks.value.length - 1) {
-        currentFeedbackIndex.value++
-        updateActiveFeedback(feedbacks.value[currentFeedbackIndex.value].id)
-        nextTick(() => {
-            updateFeedbackNav()
-            scrollActiveFeedbackTabIntoView()
-        })
-    }
-}
-
-const navigateFeedbackFarRight = () => {
-    if (currentFeedbackIndex.value < feedbacks.value.length - 1) {
-        currentFeedbackIndex.value = feedbacks.value.length - 1
-        updateActiveFeedback(feedbacks.value[currentFeedbackIndex.value].id)
-        nextTick(() => {
-            updateFeedbackNav()
-            scrollActiveFeedbackTabIntoView()
-        })
-    }
-}
+const navigateFeedbackFarLeft = () => navigateFeedback(0)
+const navigateFeedbackLeft = () => navigateFeedback(currentFeedbackIndex.value - 1)
+const navigateFeedbackRight = () => navigateFeedback(currentFeedbackIndex.value + 1)
+const navigateFeedbackFarRight = () => navigateFeedback(feedbacks.value.length - 1)
 
 const scrollActiveFeedbackTabIntoView = () => {
     const container = document.querySelector('.feedbackTabsContainer')
