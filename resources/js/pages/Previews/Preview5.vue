@@ -4,7 +4,6 @@
         <Head :title="`Creative - ${preview.name}`">
             <link rel="shortcut icon" href="https://www.planetnine.com/logo/new_favicon.png">
             <link rel="stylesheet" :href="asset('previewcssandjsfiles/css/photoswipe.css')">
-            <link :href="asset('previewcssandjsfiles/css/preview5.css')" rel="stylesheet">
         </Head>
 
         <div v-if="isAuthenticated" class="absolute top-4 right-4 flex items-center space-x-3 z-50">
@@ -668,6 +667,9 @@ import { router } from '@inertiajs/vue3'
 import axios from 'axios'
 import { Menu, RotateCw, Download, ChevronUp, ChevronDown, ArrowRight } from 'lucide-vue-next'
 import { usePreviewIntro } from '@/composables/usePreviewIntro'
+
+// Import CSS for HMR support
+import '../../../css/preview5.css'
 
 const props = defineProps({
     preview: Object,
