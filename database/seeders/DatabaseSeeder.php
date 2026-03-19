@@ -71,7 +71,7 @@ class DatabaseSeeder extends Seeder
                 'status' => 1,
             ],
             [
-                'name' => 'Lemon Haze',
+                'name' => 'Lemon Haze (Talpa)',
                 'primary' => '#afc89d',
                 'secondary' => '#f6fbf2',
                 'tertiary' => '#6f8357',
@@ -103,7 +103,7 @@ class DatabaseSeeder extends Seeder
                 'status' => 1,
             ],
             [
-                'name' => 'Velocity Red',
+                'name' => 'Velocity Red (DIRK/Deka Mart)',
                 'primary' => '#c60b1d',
                 'secondary' => '#ffffff',
                 'tertiary' => '#e30613',

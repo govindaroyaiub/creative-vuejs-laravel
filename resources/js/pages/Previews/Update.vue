@@ -789,7 +789,7 @@
                         class="border rounded-lg px-2 py-1 dark:bg-neutral-900 dark:text-white dark:border-neutral-700">
                         <option value="banner">Banner</option>
                         <option value="video">Video</option>
-                        <option value="social">Social</option>
+                        <option value="social">Social/Storyboard</option>
                         <option value="gif">Gif</option>
                     </select>
                     <button @click="addCategory" class="bg-green-600 text-white px-3 py-1 rounded-lg">Add</button>
