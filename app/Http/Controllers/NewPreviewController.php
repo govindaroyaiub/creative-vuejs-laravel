@@ -27,6 +27,7 @@ use App\Models\newVideo;
 use App\Models\newGif;
 use App\Models\newSocial;
 use App\Models\FileTransfer;
+use App\Models\TourGuide;
 use Illuminate\Validation\Rule;
 
 class NewPreviewController extends Controller
@@ -299,6 +300,10 @@ class NewPreviewController extends Controller
             ? (Client::select(['id', 'name'])->find(Auth::user()->client_id)?->name ?? 'Unknown')
             : 'guest';
 
+        // Get tour guide status from database
+        $tourGuide = TourGuide::first();
+        $showIntro = $tourGuide ? $tourGuide->is_active : true;
+
         return Inertia::render('Previews/Preview5', [
             'preview' => $preview,
             'client' => $client,
@@ -319,6 +324,7 @@ class NewPreviewController extends Controller
             'authUserClientName' => $authUserClientName,
             'previewId' => $preview_id,
             'isAuthenticated' => Auth::check(),
+            'intro' => $showIntro,
         ]);
     }
 

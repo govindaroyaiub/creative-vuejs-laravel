@@ -17,6 +17,10 @@ const sidebarNavItems: NavItem[] = [
     {
         title: 'Users',
         href: '/user-managements/users',
+    },
+    {
+        title: 'Preview Tour Guide',
+        href: '/preview-tour-guide',
     }
 ];
 

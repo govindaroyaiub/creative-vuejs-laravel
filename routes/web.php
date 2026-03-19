@@ -30,6 +30,7 @@ use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\TetrisController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\CacheManagementController;
+use App\Http\Controllers\PreviewTourGuideController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -147,6 +148,11 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::put('/user-managements/routes-edit/{id}', [UserManagementController::class, 'routesUpdate'])->name('user-managements-routes-update');
     Route::delete('/user-managements/routes-delete/{id}', [UserManagementController::class, 'routesDestroy'])->name('user-managements-routes-delete');
     //user-management routes end
+
+    //preview tour guide code for active/inactive starts
+    Route::get('/preview-tour-guide', [PreviewTourGuideController::class, 'index'])->name('preview-tour-guide.index');
+    Route::put('/preview-tour-guide/update', [PreviewTourGuideController::class, 'update'])->name('preview-tour-guide.update');
+    //preview tour guide routes ends
 
     // Color palette routes start
     Route::get('/color-palettes', [ColorPaletteController::class, 'index'])->name('color-palettes');
