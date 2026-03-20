@@ -56,44 +56,44 @@ export function usePreviewIntro() {
 
     const steps: IntroStep[] = [
         {
-            title: 'Hello There!',
+            title: 'Hello There',
             description: "This quick tour will guide you through the key features of the preview page. Let's get started!",
         },
         {
             element: '#topDetails',
-            title: 'Basics',
+            title: 'The Basics',
             description: 'Here are some basic information about the preview like Name, Client and Date of creation.',
             position: 'bottom',
         },
         {
             element: '#navbar',
             mobileElement: '#mobileMenuToggle',
-            title: 'Showcases',
+            title: 'Creative Showcases',
             description: 'The sidebar shows creatives like Banner, Video, Social Image, Storyboard, and GIF—click any item to view its contents.',
             position: 'right',
         },
         {
             element: '.feedbackTabs-parent',
-            title: 'Feedback Tabs',
+            title: 'Keep Track Of Feedbacks',
             description: 'These tabs represent different feedback rounds. Switch between them to view feedback for each category.',
             position: 'bottom',
         },
         {
+            element: '#feedbackClick',
+            title: 'Your Feedbacks',
+            description: 'Click here to view detailed feedback notes and comments for the current feedback round.',
+            position: 'left',
+        },
+        {
             element: '.feedbackSetsContainer',
-            title: 'Assets',
+            title: 'Your Assets',
             description: 'All the assets will be loaded here with their respective version and sets.',
             position: 'left',
         },
         {
             element: '#mobilecolorPaletteClick',
-            title: 'Themes',
+            title: 'Style Your Preview',
             description: 'Click here to explore and switch to a modern, vibrant theme that matches your style and preference.',
-            position: 'left',
-        },
-        {
-            element: '#feedbackClick',
-            title: 'Feedback Description',
-            description: 'Click here to view detailed feedback notes and comments for the current feedback round.',
             position: 'left',
         },
         {
