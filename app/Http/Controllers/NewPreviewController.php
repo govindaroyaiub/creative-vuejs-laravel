@@ -304,7 +304,7 @@ class NewPreviewController extends Controller
         $tourGuide = TourGuide::first();
         $showIntro = $tourGuide ? $tourGuide->is_active : true;
 
-        return Inertia::render('Previews/Preview5', [
+        return Inertia::render('Previews/Show', [
             'preview' => $preview,
             'client' => $client,
             'primary' => $primary,
