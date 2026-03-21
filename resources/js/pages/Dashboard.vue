@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { Line, Doughnut, Bar } from 'vue-chartjs';
-import { MonitorStop, Video, ImagePlay, Wallpaper, Paperclip, UsersRound, MonitorCog, PiggyBank } from 'lucide-vue-next';
+import { MonitorStop, Video, ImagePlay, Wallpaper, Paperclip, UsersRound, MonitorCog, PiggyBank, Plus, X, Search } from 'lucide-vue-next';
 import {
     Chart as ChartJS,
     Title,
@@ -42,13 +42,158 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
 ];
 
+// Comprehensive timezone database
+interface TimezoneData {
+    city: string;
+    country: string;
+    timezone: string;
+    region: string;
+}
+
+const AVAILABLE_TIMEZONES: TimezoneData[] = [
+    // Asia
+    { city: 'Tokyo', country: 'Japan', timezone: 'Asia/Tokyo', region: 'Asia' },
+    { city: 'Singapore', country: 'Singapore', timezone: 'Asia/Singapore', region: 'Asia' },
+    { city: 'Hong Kong', country: 'Hong Kong', timezone: 'Asia/Hong_Kong', region: 'Asia' },
+    { city: 'Shanghai', country: 'China', timezone: 'Asia/Shanghai', region: 'Asia' },
+    { city: 'Seoul', country: 'South Korea', timezone: 'Asia/Seoul', region: 'Asia' },
+    { city: 'Dubai', country: 'UAE', timezone: 'Asia/Dubai', region: 'Asia' },
+    { city: 'Mumbai', country: 'India', timezone: 'Asia/Kolkata', region: 'Asia' },
+    { city: 'Bangkok', country: 'Thailand', timezone: 'Asia/Bangkok', region: 'Asia' },
+    { city: 'Jakarta', country: 'Indonesia', timezone: 'Asia/Jakarta', region: 'Asia' },
+    { city: 'Manila', country: 'Philippines', timezone: 'Asia/Manila', region: 'Asia' },
+
+    // Europe
+    { city: 'London', country: 'United Kingdom', timezone: 'Europe/London', region: 'Europe' },
+    { city: 'Paris', country: 'France', timezone: 'Europe/Paris', region: 'Europe' },
+    { city: 'Berlin', country: 'Germany', timezone: 'Europe/Berlin', region: 'Europe' },
+    { city: 'Rome', country: 'Italy', timezone: 'Europe/Rome', region: 'Europe' },
+    { city: 'Madrid', country: 'Spain', timezone: 'Europe/Madrid', region: 'Europe' },
+    { city: 'Stockholm', country: 'Sweden', timezone: 'Europe/Stockholm', region: 'Europe' },
+    { city: 'Warsaw', country: 'Poland', timezone: 'Europe/Warsaw', region: 'Europe' },
+    { city: 'Athens', country: 'Greece', timezone: 'Europe/Athens', region: 'Europe' },
+    { city: 'Istanbul', country: 'Turkey', timezone: 'Europe/Istanbul', region: 'Europe' },
+    { city: 'Moscow', country: 'Russia', timezone: 'Europe/Moscow', region: 'Europe' },
+
+    // Americas
+    { city: 'New York', country: 'USA', timezone: 'America/New_York', region: 'Americas' },
+    { city: 'Los Angeles', country: 'USA', timezone: 'America/Los_Angeles', region: 'Americas' },
+    { city: 'Chicago', country: 'USA', timezone: 'America/Chicago', region: 'Americas' },
+    { city: 'Toronto', country: 'Canada', timezone: 'America/Toronto', region: 'Americas' },
+    { city: 'Vancouver', country: 'Canada', timezone: 'America/Vancouver', region: 'Americas' },
+    { city: 'Mexico City', country: 'Mexico', timezone: 'America/Mexico_City', region: 'Americas' },
+    { city: 'São Paulo', country: 'Brazil', timezone: 'America/Sao_Paulo', region: 'Americas' },
+    { city: 'Buenos Aires', country: 'Argentina', timezone: 'America/Argentina/Buenos_Aires', region: 'Americas' },
+    { city: 'Lima', country: 'Peru', timezone: 'America/Lima', region: 'Americas' },
+    { city: 'Santiago', country: 'Chile', timezone: 'America/Santiago', region: 'Americas' },
+
+    // Oceania
+    { city: 'Sydney', country: 'Australia', timezone: 'Australia/Sydney', region: 'Oceania' },
+    { city: 'Melbourne', country: 'Australia', timezone: 'Australia/Melbourne', region: 'Oceania' },
+    { city: 'Brisbane', country: 'Australia', timezone: 'Australia/Brisbane', region: 'Oceania' },
+    { city: 'Perth', country: 'Australia', timezone: 'Australia/Perth', region: 'Oceania' },
+    { city: 'Canberra', country: 'Australia', timezone: 'Australia/Canberra', region: 'Oceania' },
+    { city: 'Auckland', country: 'New Zealand', timezone: 'Pacific/Auckland', region: 'Oceania' },
+
+    // Africa
+    { city: 'Cairo', country: 'Egypt', timezone: 'Africa/Cairo', region: 'Africa' },
+    { city: 'Lagos', country: 'Nigeria', timezone: 'Africa/Lagos', region: 'Africa' },
+    { city: 'Johannesburg', country: 'South Africa', timezone: 'Africa/Johannesburg', region: 'Africa' },
+    { city: 'Nairobi', country: 'Kenya', timezone: 'Africa/Nairobi', region: 'Africa' },
+];
+
 const page = usePage();
 const isLoaded = ref(false);
+
+// Timezone management state
+const selectedTimezones = ref<TimezoneData[]>([]);
+const showTimezonePicker = ref(false);
+const timezoneSearchQuery = ref('');
+
+// Load saved timezones from localStorage
+const loadSavedTimezones = () => {
+    try {
+        const saved = localStorage.getItem('dashboard_timezones');
+        if (saved) {
+            const savedData = JSON.parse(saved);
+            // Validate and restore saved timezones
+            selectedTimezones.value = savedData
+                .map((tz: any) => AVAILABLE_TIMEZONES.find(t => t.timezone === tz.timezone))
+                .filter((tz: any) => tz !== undefined)
+                .slice(0, 4); // Max 4 additional timezones
+        } else {
+            // Default additional timezones if none saved
+            selectedTimezones.value = [
+                AVAILABLE_TIMEZONES.find(t => t.city === 'Tokyo')!,
+                AVAILABLE_TIMEZONES.find(t => t.city === 'Toronto')!,
+                AVAILABLE_TIMEZONES.find(t => t.city === 'London')!,
+                AVAILABLE_TIMEZONES.find(t => t.city === 'Canberra')!,
+            ];
+        }
+    } catch (e) {
+        console.error('Error loading timezones:', e);
+        selectedTimezones.value = [];
+    }
+};
+
+// Save timezones to localStorage
+const saveTimezones = () => {
+    try {
+        localStorage.setItem('dashboard_timezones', JSON.stringify(selectedTimezones.value));
+    } catch (e) {
+        console.error('Error saving timezones:', e);
+    }
+};
+
+// Add timezone
+const addTimezone = (timezone: TimezoneData) => {
+    if (selectedTimezones.value.length < 4 && !selectedTimezones.value.find(t => t.timezone === timezone.timezone)) {
+        selectedTimezones.value.push(timezone);
+        saveTimezones();
+        showTimezonePicker.value = false;
+        timezoneSearchQuery.value = '';
+    }
+};
+
+// Remove timezone
+const removeTimezone = (index: number) => {
+    selectedTimezones.value.splice(index, 1);
+    saveTimezones();
+};
+
+// Filtered timezones for search
+const filteredTimezones = computed(() => {
+    const query = timezoneSearchQuery.value.toLowerCase().trim();
+    if (!query) return AVAILABLE_TIMEZONES;
+
+    return AVAILABLE_TIMEZONES.filter(tz =>
+        tz.city.toLowerCase().includes(query) ||
+        tz.country.toLowerCase().includes(query) ||
+        tz.region.toLowerCase().includes(query)
+    );
+});
+
+// Group filtered timezones by region
+const groupedTimezones = computed(() => {
+    const grouped: Record<string, TimezoneData[]> = {};
+    filteredTimezones.value.forEach(tz => {
+        if (!grouped[tz.region]) grouped[tz.region] = [];
+        grouped[tz.region].push(tz);
+    });
+    return grouped;
+});
+
+// Check if timezone is already selected
+const isTimezoneSelected = (timezone: TimezoneData) => {
+    return selectedTimezones.value.some(t => t.timezone === timezone.timezone);
+};
 
 const currentTime = ref(new Date());
 let timeInterval: NodeJS.Timeout;
 
 onMounted(() => {
+    loadSavedTimezones();
+
     timeInterval = setInterval(() => {
         currentTime.value = new Date();
     }, 1000);
@@ -119,124 +264,58 @@ const getTimeOfDayStyle = (dateTime: Date) => {
     }
 };
 
-// Bangladesh Time (Asia/Dhaka)
-const bangladeshTime = computed(() => {
-    const bdTime = new Date(currentTime.value.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
-    const style = getTimeOfDayStyle(bdTime);
+// Generic function to compute timezone data
+const getTimezoneData = (timezone: string) => {
+    const tzTime = new Date(currentTime.value.toLocaleString("en-US", { timeZone: timezone }));
+    const style = getTimeOfDayStyle(tzTime);
     return {
-        time: bdTime.toLocaleTimeString('en-US', {
+        time: tzTime.toLocaleTimeString('en-US', {
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit',
             hour12: true
         }),
-        date: bdTime.toLocaleDateString('en-US', {
+        date: tzTime.toLocaleDateString('en-US', {
             weekday: 'short',
             month: 'short',
             day: 'numeric'
         }),
         ...style
     };
-});
+};
+
+// Static timezones (always shown)
+// Bangladesh Time (Asia/Dhaka)
+const bangladeshTime = computed(() => getTimezoneData("Asia/Dhaka"));
 
 // Netherlands Time (Europe/Amsterdam)
-const netherlandsTime = computed(() => {
-    const nlTime = new Date(currentTime.value.toLocaleString("en-US", { timeZone: "Europe/Amsterdam" }));
-    const style = getTimeOfDayStyle(nlTime);
-    return {
-        time: nlTime.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: true
-        }),
-        date: nlTime.toLocaleDateString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric'
-        }),
-        ...style
-    };
+const netherlandsTime = computed(() => getTimezoneData("Europe/Amsterdam"));
+
+// Dynamic timezones (user customizable)
+const dynamicTimezones = computed(() => {
+    return selectedTimezones.value.map(tz => ({
+        ...tz,
+        ...getTimezoneData(tz.timezone)
+    }));
 });
 
-// Silicon Valley Time (America/Los_Angeles)
-const siliconValleyTime = computed(() => {
-    const svTime = new Date(currentTime.value.toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
-    const style = getTimeOfDayStyle(svTime);
-    return {
-        time: svTime.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: true
-        }),
-        date: svTime.toLocaleDateString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric'
-        }),
-        ...style
-    };
-});
+// Compute grid layout based on total timezone count
+const timezoneGridClass = computed(() => {
+    const totalCount = 2 + selectedTimezones.value.length; // 2 static + dynamic
 
-// Toronto Time (America/Toronto)
-const torontoTime = computed(() => {
-    const toTime = new Date(currentTime.value.toLocaleString("en-US", { timeZone: "America/Toronto" }));
-    const style = getTimeOfDayStyle(toTime);
-    return {
-        time: toTime.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: true
-        }),
-        date: toTime.toLocaleDateString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric'
-        }),
-        ...style
-    };
-});
-
-// London Time (Europe/London)
-const londonTime = computed(() => {
-    const ldnTime = new Date(currentTime.value.toLocaleString("en-US", { timeZone: "Europe/London" }));
-    const style = getTimeOfDayStyle(ldnTime);
-    return {
-        time: ldnTime.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: true
-        }),
-        date: ldnTime.toLocaleDateString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric'
-        }),
-        ...style
-    };
-});
-
-// Canberra Time (Australia/Canberra)
-const canberraTime = computed(() => {
-    const canTime = new Date(currentTime.value.toLocaleString("en-US", { timeZone: "Australia/Canberra" }));
-    const style = getTimeOfDayStyle(canTime);
-    return {
-        time: canTime.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: true
-        }),
-        date: canTime.toLocaleDateString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric'
-        }),
-        ...style
-    };
+    if (totalCount === 2) {
+        // 2 timezones: 1 column mobile, 2 columns tablet+
+        return 'grid-cols-1 sm:grid-cols-2';
+    } else if (totalCount === 3) {
+        // 3 timezones: 1 column mobile, 2 columns tablet, 3 columns desktop
+        return 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3';
+    } else if (totalCount === 4) {
+        // 4 timezones: 1 column mobile, 2x2 grid on larger screens
+        return 'grid-cols-1 sm:grid-cols-2';
+    } else {
+        // 5-6 timezones: 1 column mobile, 2 columns tablet, 3 columns desktop
+        return 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3';
+    }
 });
 
 const stats = computed(() => page.props.monthlyStats ?? {});
@@ -600,10 +679,18 @@ const formatNumber = (num: number) => {
                     <div class="space-y-3">
                         <!-- World Clocks - Responsive Layout -->
                         <div
-                            class="bg-gradient-to-r from-neutral-300 to-neutral-300 dark:from-neutral-800 dark:to-neutral-800 rounded-xl p-2 md:p-3">
+                            class="bg-gradient-to-r from-neutral-300 to-neutral-300 dark:from-neutral-800 dark:to-neutral-800 rounded-xl p-2 md:p-3 relative">
+
+                            <!-- Add Timezone Button -->
+                            <button v-if="selectedTimezones.length < 4" @click="showTimezonePicker = true"
+                                class="absolute -top-4 -right-4 z-10 p-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-lg transition-all duration-200 hover:scale-110"
+                                title="Add timezone">
+                                <Plus :size="16" />
+                            </button>
+
                             <!-- Mobile: Single Column | Tablet: 2 Columns | Desktop: 3x2 Grid -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                <!-- Bangladesh -->
+                            <div :class="['grid gap-2', timezoneGridClass]">
+                                <!-- Bangladesh (Static) -->
                                 <div
                                     :class="['flex flex-col bg-gradient-to-br rounded-lg p-2 md:p-2.5 shadow-lg transition-all duration-500', bangladeshTime.gradient, bangladeshTime.darkGradient]">
                                     <div class="flex items-center justify-between gap-2 mb-1">
@@ -632,7 +719,7 @@ const formatNumber = (num: number) => {
                                     </div>
                                 </div>
 
-                                <!-- Netherlands -->
+                                <!-- Netherlands (Static) -->
                                 <div
                                     :class="['flex flex-col bg-gradient-to-br rounded-lg p-2 md:p-2.5 shadow-lg transition-all duration-500', netherlandsTime.gradient, netherlandsTime.darkGradient]">
                                     <div class="flex items-center justify-between gap-2 mb-1">
@@ -661,118 +748,39 @@ const formatNumber = (num: number) => {
                                     </div>
                                 </div>
 
-                                <!-- Silicon Valley -->
-                                <div
-                                    :class="['flex flex-col bg-gradient-to-br rounded-lg p-2 md:p-2.5 shadow-lg transition-all duration-500', siliconValleyTime.gradient, siliconValleyTime.darkGradient]">
-                                    <div class="flex items-center justify-between gap-2 mb-1">
-                                        <div class="min-w-0 flex-1">
-                                            <div
-                                                class="text-xs md:text-sm font-bold text-gray-900 dark:text-white truncate">
-                                                Silicon Valley
-                                            </div>
-                                            <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
-                                                California, USA
-                                            </div>
-                                        </div>
-                                        <div
-                                            :class="['text-[10px] md:text-xs font-semibold px-1.5 py-0.5 rounded-full bg-white/50 dark:bg-black/30', siliconValleyTime.textColor]">
-                                            {{ siliconValleyTime.period }}
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <div
-                                            class="text-base md:text-lg font-mono font-bold text-gray-900 dark:text-white">
-                                            {{ siliconValleyTime.time }}
-                                        </div>
-                                        <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
-                                            {{ siliconValleyTime.date }}
-                                        </div>
-                                    </div>
-                                </div>
+                                <!-- Dynamic Timezones (User Customizable) -->
+                                <div v-for="(tz, index) in dynamicTimezones" :key="tz.timezone"
+                                    :class="['flex flex-col bg-gradient-to-br rounded-lg p-2 md:p-2.5 shadow-lg transition-all duration-500 relative group', tz.gradient, tz.darkGradient]">
 
-                                <!-- Toronto -->
-                                <div
-                                    :class="['flex flex-col bg-gradient-to-br rounded-lg p-2 md:p-2.5 shadow-lg transition-all duration-500', torontoTime.gradient, torontoTime.darkGradient]">
-                                    <div class="flex items-center justify-between gap-2 mb-1">
-                                        <div class="min-w-0 flex-1">
-                                            <div
-                                                class="text-xs md:text-sm font-bold text-gray-900 dark:text-white truncate">
-                                                Toronto
-                                            </div>
-                                            <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
-                                                Canada
-                                            </div>
-                                        </div>
-                                        <div
-                                            :class="['text-[10px] md:text-xs font-semibold px-1.5 py-0.5 rounded-full bg-white/50 dark:bg-black/30', torontoTime.textColor]">
-                                            {{ torontoTime.period }}
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <div
-                                            class="text-base md:text-lg font-mono font-bold text-gray-900 dark:text-white">
-                                            {{ torontoTime.time }}
-                                        </div>
-                                        <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
-                                            {{ torontoTime.date }}
-                                        </div>
-                                    </div>
-                                </div>
+                                    <!-- Remove Button (show from 1st dynamic timezone) -->
+                                    <button @click="removeTimezone(index)"
+                                        class="absolute -top-1 -right-1 p-0.5 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 z-10"
+                                        title="Remove timezone">
+                                        <X :size="12" />
+                                    </button>
 
-                                <!-- London -->
-                                <div
-                                    :class="['flex flex-col bg-gradient-to-br rounded-lg p-2 md:p-2.5 shadow-lg transition-all duration-500', londonTime.gradient, londonTime.darkGradient]">
                                     <div class="flex items-center justify-between gap-2 mb-1">
                                         <div class="min-w-0 flex-1">
                                             <div
                                                 class="text-xs md:text-sm font-bold text-gray-900 dark:text-white truncate">
-                                                London
+                                                {{ tz.city }}
                                             </div>
                                             <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
-                                                United Kingdom
+                                                {{ tz.country }}
                                             </div>
                                         </div>
                                         <div
-                                            :class="['text-[10px] md:text-xs font-semibold px-1.5 py-0.5 rounded-full bg-white/50 dark:bg-black/30', londonTime.textColor]">
-                                            {{ londonTime.period }}
+                                            :class="['text-[10px] md:text-xs font-semibold px-1.5 py-0.5 rounded-full bg-white/50 dark:bg-black/30', tz.textColor]">
+                                            {{ tz.period }}
                                         </div>
                                     </div>
                                     <div class="text-right">
                                         <div
                                             class="text-base md:text-lg font-mono font-bold text-gray-900 dark:text-white">
-                                            {{ londonTime.time }}
+                                            {{ tz.time }}
                                         </div>
                                         <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
-                                            {{ londonTime.date }}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Canberra -->
-                                <div
-                                    :class="['flex flex-col bg-gradient-to-br rounded-lg p-2 md:p-2.5 shadow-lg transition-all duration-500', canberraTime.gradient, canberraTime.darkGradient]">
-                                    <div class="flex items-center justify-between gap-2 mb-1">
-                                        <div class="min-w-0 flex-1">
-                                            <div
-                                                class="text-xs md:text-sm font-bold text-gray-900 dark:text-white truncate">
-                                                Canberra
-                                            </div>
-                                            <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
-                                                Australia
-                                            </div>
-                                        </div>
-                                        <div
-                                            :class="['text-[10px] md:text-xs font-semibold px-1.5 py-0.5 rounded-full bg-white/50 dark:bg-black/30', canberraTime.textColor]">
-                                            {{ canberraTime.period }}
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <div
-                                            class="text-base md:text-lg font-mono font-bold text-gray-900 dark:text-white">
-                                            {{ canberraTime.time }}
-                                        </div>
-                                        <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
-                                            {{ canberraTime.date }}
+                                            {{ tz.date }}
                                         </div>
                                     </div>
                                 </div>
@@ -977,6 +985,85 @@ const formatNumber = (num: number) => {
                 </div>
             </div>
         </div>
+
+        <!-- Timezone Picker Modal -->
+        <Transition enter-active-class="transition-opacity duration-200" enter-from-class="opacity-0"
+            enter-to-class="opacity-100" leave-active-class="transition-opacity duration-200"
+            leave-from-class="opacity-100" leave-to-class="opacity-0">
+            <div v-if="showTimezonePicker"
+                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+                @click.self="showTimezonePicker = false">
+
+                <div
+                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden border border-gray-200 dark:border-neutral-700">
+
+                    <!-- Modal Header -->
+                    <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-neutral-700">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Add Timezone</h3>
+                        <button @click="showTimezonePicker = false"
+                            class="p-1 hover:bg-gray-100 dark:hover:bg-neutral-700 rounded-lg transition-colors">
+                            <X :size="20" class="text-gray-600 dark:text-gray-400" />
+                        </button>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="p-4 border-b border-gray-200 dark:border-neutral-700">
+                        <div class="relative">
+                            <Search :size="18" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <input v-model="timezoneSearchQuery" type="text"
+                                placeholder="Search by city, country, or region..."
+                                class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                autofocus>
+                        </div>
+                    </div>
+
+                    <!-- Timezone List -->
+                    <div class="overflow-y-auto max-h-96 p-4">
+                        <div v-if="filteredTimezones.length === 0"
+                            class="text-center py-8 text-gray-500 dark:text-gray-400">
+                            No timezones found
+                        </div>
+
+                        <div v-else class="space-y-4">
+                            <div v-for="(timezones, region) in groupedTimezones" :key="region">
+                                <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2 px-2">
+                                    {{ region }}
+                                </h4>
+                                <div class="space-y-1">
+                                    <button v-for="tz in timezones" :key="tz.timezone" @click="addTimezone(tz)"
+                                        :disabled="isTimezoneSelected(tz)"
+                                        class="w-full flex items-center justify-between p-3 rounded-lg transition-all duration-200 hover:bg-gray-100 dark:hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent dark:disabled:hover:bg-transparent">
+                                        <div class="flex flex-col items-start">
+                                            <span class="font-medium text-gray-900 dark:text-white">{{ tz.city }}</span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">{{ tz.country
+                                                }}</span>
+                                        </div>
+                                        <span v-if="isTimezoneSelected(tz)"
+                                            class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full">
+                                            Added
+                                        </span>
+                                        <Plus v-else :size="18" class="text-blue-500" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div class="p-4 border-t border-gray-200 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-900">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-600 dark:text-gray-400">
+                                {{ selectedTimezones.length }} of 4 additional timezones added
+                            </span>
+                            <button @click="showTimezonePicker = false"
+                                class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+                                Done
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Transition>
     </AppLayout>
 </template>
 
