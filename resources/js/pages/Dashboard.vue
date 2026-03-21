@@ -64,9 +64,65 @@ onUnmounted(() => {
     }
 });
 
+// Helper function to determine time of day styling
+const getTimeOfDayStyle = (dateTime: Date) => {
+    const hour = dateTime.getHours();
+
+    if (hour >= 5 && hour < 7) {
+        // Early Morning (Dawn) - soft pinks and light blues
+        return {
+            gradient: 'from-pink-200 via-orange-100 to-blue-200',
+            darkGradient: 'dark:from-pink-900/40 dark:via-orange-900/40 dark:to-blue-900/40',
+            period: '🌅 Dawn',
+            textColor: 'text-orange-900 dark:text-orange-200'
+        };
+    } else if (hour >= 7 && hour < 12) {
+        // Morning - warm yellows and light
+        return {
+            gradient: 'from-yellow-200 via-amber-100 to-orange-100',
+            darkGradient: 'dark:from-yellow-900/40 dark:via-amber-900/40 dark:to-orange-900/40',
+            period: '☀️ Morning',
+            textColor: 'text-amber-900 dark:text-amber-200'
+        };
+    } else if (hour >= 12 && hour < 17) {
+        // Afternoon - bright and vibrant
+        return {
+            gradient: 'from-sky-200 via-cyan-100 to-blue-200',
+            darkGradient: 'dark:from-sky-900/40 dark:via-cyan-900/40 dark:to-blue-900/40',
+            period: '🌞 Afternoon',
+            textColor: 'text-sky-900 dark:text-sky-200'
+        };
+    } else if (hour >= 17 && hour < 19) {
+        // Evening (Dusk) - oranges and purples
+        return {
+            gradient: 'from-orange-200 via-pink-200 to-purple-200',
+            darkGradient: 'dark:from-orange-900/40 dark:via-pink-900/40 dark:to-purple-900/40',
+            period: '🌆 Dusk',
+            textColor: 'text-purple-900 dark:text-purple-200'
+        };
+    } else if (hour >= 19 && hour < 22) {
+        // Evening - deep oranges to blues
+        return {
+            gradient: 'from-indigo-200 via-purple-200 to-blue-300',
+            darkGradient: 'dark:from-indigo-900/40 dark:via-purple-900/40 dark:to-blue-900/40',
+            period: '🌃 Evening',
+            textColor: 'text-indigo-900 dark:text-indigo-200'
+        };
+    } else {
+        // Night - deep blues and purples
+        return {
+            gradient: 'from-indigo-300 via-blue-400 to-slate-400',
+            darkGradient: 'dark:from-indigo-950/60 dark:via-blue-950/60 dark:to-slate-950/60',
+            period: '🌙 Night',
+            textColor: 'text-slate-100 dark:text-slate-300'
+        };
+    }
+};
+
 // Bangladesh Time (Asia/Dhaka)
 const bangladeshTime = computed(() => {
     const bdTime = new Date(currentTime.value.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
+    const style = getTimeOfDayStyle(bdTime);
     return {
         time: bdTime.toLocaleTimeString('en-US', {
             hour: '2-digit',
@@ -78,13 +134,15 @@ const bangladeshTime = computed(() => {
             weekday: 'short',
             month: 'short',
             day: 'numeric'
-        })
+        }),
+        ...style
     };
 });
 
 // Netherlands Time (Europe/Amsterdam)
 const netherlandsTime = computed(() => {
     const nlTime = new Date(currentTime.value.toLocaleString("en-US", { timeZone: "Europe/Amsterdam" }));
+    const style = getTimeOfDayStyle(nlTime);
     return {
         time: nlTime.toLocaleTimeString('en-US', {
             hour: '2-digit',
@@ -96,7 +154,88 @@ const netherlandsTime = computed(() => {
             weekday: 'short',
             month: 'short',
             day: 'numeric'
-        })
+        }),
+        ...style
+    };
+});
+
+// Silicon Valley Time (America/Los_Angeles)
+const siliconValleyTime = computed(() => {
+    const svTime = new Date(currentTime.value.toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
+    const style = getTimeOfDayStyle(svTime);
+    return {
+        time: svTime.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        }),
+        date: svTime.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+        }),
+        ...style
+    };
+});
+
+// Toronto Time (America/Toronto)
+const torontoTime = computed(() => {
+    const toTime = new Date(currentTime.value.toLocaleString("en-US", { timeZone: "America/Toronto" }));
+    const style = getTimeOfDayStyle(toTime);
+    return {
+        time: toTime.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        }),
+        date: toTime.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+        }),
+        ...style
+    };
+});
+
+// London Time (Europe/London)
+const londonTime = computed(() => {
+    const ldnTime = new Date(currentTime.value.toLocaleString("en-US", { timeZone: "Europe/London" }));
+    const style = getTimeOfDayStyle(ldnTime);
+    return {
+        time: ldnTime.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        }),
+        date: ldnTime.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+        }),
+        ...style
+    };
+});
+
+// Canberra Time (Australia/Canberra)
+const canberraTime = computed(() => {
+    const canTime = new Date(currentTime.value.toLocaleString("en-US", { timeZone: "Australia/Canberra" }));
+    const style = getTimeOfDayStyle(canTime);
+    return {
+        time: canTime.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        }),
+        date: canTime.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+        }),
+        ...style
     };
 });
 
@@ -450,7 +589,7 @@ const formatNumber = (num: number) => {
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-0">
                     <div class="flex-1">
                         <h1
-                            class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            class="text-2xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                             Dashboard Overview
                         </h1>
                         <p class="text-gray-600 dark:text-white mt-1 text-sm md:text-base">
@@ -461,29 +600,33 @@ const formatNumber = (num: number) => {
                     <div class="space-y-3">
                         <!-- World Clocks - Responsive Layout -->
                         <div
-                            class="bg-gradient-to-r from-indigo-300 to-blue-300 dark:from-neutral-800 dark:to-neutral-800 rounded-xl p-3 md:p-3">
-                            <!-- Mobile: Stacked Layout -->
-                            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 md:justify-around sm:justify-around">
+                            class="bg-gradient-to-r from-neutral-300 to-neutral-300 dark:from-neutral-800 dark:to-neutral-800 rounded-xl p-2 md:p-3">
+                            <!-- Mobile: Single Column | Tablet: 2 Columns | Desktop: 3x2 Grid -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                                 <!-- Bangladesh -->
                                 <div
-                                    class="flex items-center justify-between bg-white dark:bg-neutral-900 rounded-lg p-2 md:p-3 sm:w-full lg:w-fit shadow-sm gap-4">
-                                    <div class="flex items-center space-x-2 md:space-x-3 min-w-0">
+                                    :class="['flex flex-col bg-gradient-to-br rounded-lg p-2 md:p-2.5 shadow-lg transition-all duration-500', bangladeshTime.gradient, bangladeshTime.darkGradient]">
+                                    <div class="flex items-center justify-between gap-2 mb-1">
                                         <div class="min-w-0 flex-1">
                                             <div
-                                                class="text-xs md:text-sm font-medium text-gray-900 dark:text-white truncate">
+                                                class="text-xs md:text-sm font-bold text-gray-900 dark:text-white truncate">
                                                 Dhaka
                                             </div>
-                                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                            <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
                                                 Bangladesh
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="text-right ml-2">
                                         <div
-                                            class="text-xs md:text-sm font-mono font-bold text-green-600 dark:text-green-400">
+                                            :class="['text-[10px] md:text-xs font-semibold px-1.5 py-0.5 rounded-full bg-white/50 dark:bg-black/30', bangladeshTime.textColor]">
+                                            {{ bangladeshTime.period }}
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div
+                                            class="text-base md:text-lg font-mono font-bold text-gray-900 dark:text-white">
                                             {{ bangladeshTime.time }}
                                         </div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                                        <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
                                             {{ bangladeshTime.date }}
                                         </div>
                                     </div>
@@ -491,25 +634,145 @@ const formatNumber = (num: number) => {
 
                                 <!-- Netherlands -->
                                 <div
-                                    class="flex items-center justify-between bg-white dark:bg-neutral-900 rounded-lg p-2 md:p-3 sm:w-full lg:w-fit shadow-sm gap-4">
-                                    <div class="flex items-center space-x-2 md:space-x-3 min-w-0">
+                                    :class="['flex flex-col bg-gradient-to-br rounded-lg p-2 md:p-2.5 shadow-lg transition-all duration-500', netherlandsTime.gradient, netherlandsTime.darkGradient]">
+                                    <div class="flex items-center justify-between gap-2 mb-1">
                                         <div class="min-w-0 flex-1">
                                             <div
-                                                class="text-xs md:text-sm font-medium text-gray-900 dark:text-white truncate">
+                                                class="text-xs md:text-sm font-bold text-gray-900 dark:text-white truncate">
                                                 Amsterdam
                                             </div>
-                                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                            <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
                                                 Netherlands
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="text-right ml-2">
                                         <div
-                                            class="text-xs md:text-sm font-mono font-bold text-blue-600 dark:text-blue-400">
+                                            :class="['text-[10px] md:text-xs font-semibold px-1.5 py-0.5 rounded-full bg-white/50 dark:bg-black/30', netherlandsTime.textColor]">
+                                            {{ netherlandsTime.period }}
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div
+                                            class="text-base md:text-lg font-mono font-bold text-gray-900 dark:text-white">
                                             {{ netherlandsTime.time }}
                                         </div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                                        <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
                                             {{ netherlandsTime.date }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Silicon Valley -->
+                                <div
+                                    :class="['flex flex-col bg-gradient-to-br rounded-lg p-2 md:p-2.5 shadow-lg transition-all duration-500', siliconValleyTime.gradient, siliconValleyTime.darkGradient]">
+                                    <div class="flex items-center justify-between gap-2 mb-1">
+                                        <div class="min-w-0 flex-1">
+                                            <div
+                                                class="text-xs md:text-sm font-bold text-gray-900 dark:text-white truncate">
+                                                Silicon Valley
+                                            </div>
+                                            <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
+                                                California, USA
+                                            </div>
+                                        </div>
+                                        <div
+                                            :class="['text-[10px] md:text-xs font-semibold px-1.5 py-0.5 rounded-full bg-white/50 dark:bg-black/30', siliconValleyTime.textColor]">
+                                            {{ siliconValleyTime.period }}
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div
+                                            class="text-base md:text-lg font-mono font-bold text-gray-900 dark:text-white">
+                                            {{ siliconValleyTime.time }}
+                                        </div>
+                                        <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
+                                            {{ siliconValleyTime.date }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Toronto -->
+                                <div
+                                    :class="['flex flex-col bg-gradient-to-br rounded-lg p-2 md:p-2.5 shadow-lg transition-all duration-500', torontoTime.gradient, torontoTime.darkGradient]">
+                                    <div class="flex items-center justify-between gap-2 mb-1">
+                                        <div class="min-w-0 flex-1">
+                                            <div
+                                                class="text-xs md:text-sm font-bold text-gray-900 dark:text-white truncate">
+                                                Toronto
+                                            </div>
+                                            <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
+                                                Canada
+                                            </div>
+                                        </div>
+                                        <div
+                                            :class="['text-[10px] md:text-xs font-semibold px-1.5 py-0.5 rounded-full bg-white/50 dark:bg-black/30', torontoTime.textColor]">
+                                            {{ torontoTime.period }}
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div
+                                            class="text-base md:text-lg font-mono font-bold text-gray-900 dark:text-white">
+                                            {{ torontoTime.time }}
+                                        </div>
+                                        <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
+                                            {{ torontoTime.date }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- London -->
+                                <div
+                                    :class="['flex flex-col bg-gradient-to-br rounded-lg p-2 md:p-2.5 shadow-lg transition-all duration-500', londonTime.gradient, londonTime.darkGradient]">
+                                    <div class="flex items-center justify-between gap-2 mb-1">
+                                        <div class="min-w-0 flex-1">
+                                            <div
+                                                class="text-xs md:text-sm font-bold text-gray-900 dark:text-white truncate">
+                                                London
+                                            </div>
+                                            <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
+                                                United Kingdom
+                                            </div>
+                                        </div>
+                                        <div
+                                            :class="['text-[10px] md:text-xs font-semibold px-1.5 py-0.5 rounded-full bg-white/50 dark:bg-black/30', londonTime.textColor]">
+                                            {{ londonTime.period }}
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div
+                                            class="text-base md:text-lg font-mono font-bold text-gray-900 dark:text-white">
+                                            {{ londonTime.time }}
+                                        </div>
+                                        <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
+                                            {{ londonTime.date }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Canberra -->
+                                <div
+                                    :class="['flex flex-col bg-gradient-to-br rounded-lg p-2 md:p-2.5 shadow-lg transition-all duration-500', canberraTime.gradient, canberraTime.darkGradient]">
+                                    <div class="flex items-center justify-between gap-2 mb-1">
+                                        <div class="min-w-0 flex-1">
+                                            <div
+                                                class="text-xs md:text-sm font-bold text-gray-900 dark:text-white truncate">
+                                                Canberra
+                                            </div>
+                                            <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
+                                                Australia
+                                            </div>
+                                        </div>
+                                        <div
+                                            :class="['text-[10px] md:text-xs font-semibold px-1.5 py-0.5 rounded-full bg-white/50 dark:bg-black/30', canberraTime.textColor]">
+                                            {{ canberraTime.period }}
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div
+                                            class="text-base md:text-lg font-mono font-bold text-gray-900 dark:text-white">
+                                            {{ canberraTime.time }}
+                                        </div>
+                                        <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
+                                            {{ canberraTime.date }}
                                         </div>
                                     </div>
                                 </div>
@@ -649,7 +912,8 @@ const formatNumber = (num: number) => {
                         </div>
                     </div>
 
-                    <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div
+                        class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-green-100">Total Bills (BDT)</p>
