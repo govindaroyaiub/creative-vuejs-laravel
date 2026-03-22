@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import UserInfo from '@/components/UserInfo.vue';
+import AppearanceTabs from '@/components/AppearanceTabs.vue';
 import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import type { User } from '@/types';
 import { Link } from '@inertiajs/vue3';
@@ -18,6 +19,13 @@ defineProps<Props>();
             <UserInfo :user="user" :show-email="true" />
         </div>
     </DropdownMenuLabel>
+    <DropdownMenuSeparator />
+
+    <!-- Appearance Switcher -->
+    <div class="py-1">
+        <AppearanceTabs :icon-only="true" class="w-full justify-evenly bg-neutral-100" />
+    </div>
+
     <DropdownMenuSeparator />
     <DropdownMenuGroup>
         <DropdownMenuItem :as-child="true">
