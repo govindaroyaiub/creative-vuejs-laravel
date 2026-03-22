@@ -74,7 +74,25 @@ export interface User {
     created_at: string;
     updated_at: string;
     permissions?: string[];
+    role?: string;
+    designation?: {
+        id: number;
+        name: string;
+    };
     client_id?: number;
+    client?: {
+        id: number;
+        name: string;
+        website?: string;
+        preview_url?: string;
+        logo?: string;
+    };
+    timezone_preferences?: Array<{
+        city: string;
+        country: string;
+        timezone: string;
+        region: string;
+    }>;
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;
