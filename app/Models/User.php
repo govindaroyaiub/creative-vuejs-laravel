@@ -20,6 +20,7 @@ class User extends Authenticatable
         'role',         // ✅ added
         'permissions',  // ✅ added
         'client_id',  // ✅ added
+        'timezone_preferences',  // ✅ added
     ];
 
     protected $hidden = [
@@ -33,6 +34,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'permissions' => 'array', // ✅ important!
+            'timezone_preferences' => 'array', // ✅ important!
         ];
     }
 

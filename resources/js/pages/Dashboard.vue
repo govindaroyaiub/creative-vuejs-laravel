@@ -3,6 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { Line, Doughnut, Bar } from 'vue-chartjs';
 import { MonitorStop, Video, ImagePlay, Wallpaper, Paperclip, UsersRound, MonitorCog, PiggyBank, Plus, X, Search } from 'lucide-vue-next';
+import axios from 'axios';
 import {
     Chart as ChartJS,
     Title,
@@ -110,55 +111,52 @@ const selectedTimezones = ref<TimezoneData[]>([]);
 const showTimezonePicker = ref(false);
 const timezoneSearchQuery = ref('');
 
-// Load saved timezones from localStorage
-const loadSavedTimezones = () => {
+// Load saved timezones from database
+const loadSavedTimezones = async () => {
     try {
-        const saved = localStorage.getItem('dashboard_timezones');
-        if (saved) {
-            const savedData = JSON.parse(saved);
-            // Validate and restore saved timezones
-            selectedTimezones.value = savedData
+        const response = await axios.get('/api/user/timezone-preferences');
+        if (response.data.success && response.data.timezones.length > 0) {
+            // Validate and restore saved timezones from database
+            selectedTimezones.value = response.data.timezones
                 .map((tz: any) => AVAILABLE_TIMEZONES.find(t => t.timezone === tz.timezone))
                 .filter((tz: any) => tz !== undefined)
                 .slice(0, 4); // Max 4 additional timezones
         } else {
-            // Default additional timezones if none saved
-            selectedTimezones.value = [
-                AVAILABLE_TIMEZONES.find(t => t.city === 'Tokyo')!,
-                AVAILABLE_TIMEZONES.find(t => t.city === 'Toronto')!,
-                AVAILABLE_TIMEZONES.find(t => t.city === 'London')!,
-                AVAILABLE_TIMEZONES.find(t => t.city === 'Canberra')!,
-            ];
+            // Start with no timezones - user can add their own
+            selectedTimezones.value = [];
         }
     } catch (e) {
         console.error('Error loading timezones:', e);
+        // Start with empty array on error
         selectedTimezones.value = [];
     }
 };
 
-// Save timezones to localStorage
-const saveTimezones = () => {
+// Save timezones to database
+const saveTimezones = async () => {
     try {
-        localStorage.setItem('dashboard_timezones', JSON.stringify(selectedTimezones.value));
+        await axios.post('/api/user/timezone-preferences', {
+            timezones: selectedTimezones.value
+        });
     } catch (e) {
         console.error('Error saving timezones:', e);
     }
 };
 
 // Add timezone
-const addTimezone = (timezone: TimezoneData) => {
+const addTimezone = async (timezone: TimezoneData) => {
     if (selectedTimezones.value.length < 4 && !selectedTimezones.value.find(t => t.timezone === timezone.timezone)) {
         selectedTimezones.value.push(timezone);
-        saveTimezones();
+        await saveTimezones();
         showTimezonePicker.value = false;
         timezoneSearchQuery.value = '';
     }
 };
 
 // Remove timezone
-const removeTimezone = (index: number) => {
+const removeTimezone = async (index: number) => {
     selectedTimezones.value.splice(index, 1);
-    saveTimezones();
+    await saveTimezones();
 };
 
 // Filtered timezones for search

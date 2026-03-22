@@ -42,4 +42,34 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/all/read', [NotificationController::class, 'deleteAllRead']);
         Route::delete('/all', [NotificationController::class, 'deleteAll']);
     });
+
+    // Timezone Preferences API Routes
+    Route::prefix('user/timezone-preferences')->group(function () {
+        Route::get('/', function (Illuminate\Http\Request $request) {
+            return response()->json([
+                'success' => true,
+                'timezones' => $request->user()->timezone_preferences ?? []
+            ]);
+        });
+
+        Route::post('/', function (Illuminate\Http\Request $request) {
+            $validated = $request->validate([
+                'timezones' => 'required|array|max:4',
+                'timezones.*.city' => 'required|string',
+                'timezones.*.country' => 'required|string',
+                'timezones.*.timezone' => 'required|string',
+                'timezones.*.region' => 'required|string',
+            ]);
+
+            $request->user()->update([
+                'timezone_preferences' => $validated['timezones']
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'timezones' => $validated['timezones'],
+                'message' => 'Timezone preferences saved successfully'
+            ]);
+        });
+    });
 });
