@@ -51,7 +51,7 @@ class TemplateController extends Controller
             /** @var UploadedFile $file */
             $file = $request->file('file');
             $originalName = $file->getClientOriginalName();
-            $filename = Str::random(12) . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $filename = str_replace(' ', '_', $originalName);
             $path = $file->storeAs('templates', $filename, 'public');
 
             $data['file_path'] = $path;
@@ -92,7 +92,7 @@ class TemplateController extends Controller
 
             $file = $request->file('file');
             $originalName = $file->getClientOriginalName();
-            $filename = Str::random(12) . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $filename = str_replace(' ', '_', $originalName);
             $path = $file->storeAs('templates', $filename, 'public');
 
             $template->file_path = $path;
