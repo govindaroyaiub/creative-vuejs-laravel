@@ -148,8 +148,8 @@ const addTimezone = async (timezone: TimezoneData) => {
     if (selectedTimezones.value.length < 4 && !selectedTimezones.value.find(t => t.timezone === timezone.timezone)) {
         selectedTimezones.value.push(timezone);
         await saveTimezones();
-        showTimezonePicker.value = false;
-        timezoneSearchQuery.value = '';
+        // Keep modal open to allow adding multiple timezones
+        // User can click "Done" button when finished
     }
 };
 
@@ -157,6 +157,12 @@ const addTimezone = async (timezone: TimezoneData) => {
 const removeTimezone = async (index: number) => {
     selectedTimezones.value.splice(index, 1);
     await saveTimezones();
+};
+
+// Close timezone picker modal
+const closeTimezonePicker = () => {
+    showTimezonePicker.value = false;
+    timezoneSearchQuery.value = '';
 };
 
 // Filtered timezones for search
@@ -990,15 +996,15 @@ const formatNumber = (num: number) => {
             leave-from-class="opacity-100" leave-to-class="opacity-0">
             <div v-if="showTimezonePicker"
                 class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-                @click.self="showTimezonePicker = false">
+                @click.self="closeTimezonePicker">
 
                 <div
                     class="bg-white dark:bg-neutral-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden border border-gray-200 dark:border-neutral-700">
 
                     <!-- Modal Header -->
                     <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-neutral-700">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Add Timezone</h3>
-                        <button @click="showTimezonePicker = false"
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Add Timezones</h3>
+                        <button @click="closeTimezonePicker"
                             class="p-1 hover:bg-gray-100 dark:hover:bg-neutral-700 rounded-lg transition-colors">
                             <X :size="20" class="text-gray-600 dark:text-gray-400" />
                         </button>
@@ -1034,7 +1040,7 @@ const formatNumber = (num: number) => {
                                         <div class="flex flex-col items-start">
                                             <span class="font-medium text-gray-900 dark:text-white">{{ tz.city }}</span>
                                             <span class="text-xs text-gray-500 dark:text-gray-400">{{ tz.country
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                         <span v-if="isTimezoneSelected(tz)"
                                             class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full">
@@ -1053,7 +1059,7 @@ const formatNumber = (num: number) => {
                             <span class="text-gray-600 dark:text-gray-400">
                                 {{ selectedTimezones.length }} of 4 additional timezones added
                             </span>
-                            <button @click="showTimezonePicker = false"
+                            <button @click="closeTimezonePicker"
                                 class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
                                 Done
                             </button>
