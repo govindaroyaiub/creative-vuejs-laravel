@@ -192,23 +192,22 @@ const handleDownloadLeave = (event: MouseEvent) => {
                 <div class="planet-logo">
                     <svg viewBox="0 0 100 100" class="logo-svg">
                         <!-- Outer ring -->
-                        <circle cx="50" cy="50" r="40" fill="none" stroke="url(#grad1)" stroke-width="2" />
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="#ffffff" stroke-width="2" />
 
                         <!-- Inner planet -->
-                        <circle cx="50" cy="50" r="25" fill="url(#grad2)" />
+                        <circle cx="50" cy="50" r="25" fill="#ffffff" />
 
                         <!-- Orbital lines -->
-                        <circle cx="50" cy="50" r="32" fill="none" stroke="url(#grad3)" stroke-width="0.5" opacity="0.6"
+                        <circle cx="50" cy="50" r="32" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.6"
                             stroke-dasharray="5,5">
                             <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50"
                                 dur="20s" repeatCount="indefinite" />
                         </circle>
 
                         <!-- Dots -->
-                        <circle cx="50" cy="10" r="3" fill="#a78bfa" />
-                        <circle cx="50" cy="90" r="3" fill="#ec4899" />
-                        <circle cx="10" cy="50" r="3" fill="#6366f1" />
-                        <circle cx="90" cy="50" r="3" fill="#8b5cf6" />
+                        <circle cx="50" cy="10" r="4" fill="#624694" />
+                        <circle cx="85" cy="70" r="4" fill="#e65100" />
+                        <circle cx="10" cy="50" r="4" fill="#4f8d99" />
 
                         <defs>
                             <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
