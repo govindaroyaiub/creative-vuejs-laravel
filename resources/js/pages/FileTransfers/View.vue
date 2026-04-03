@@ -1,574 +1,755 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import { onMounted, onUnmounted } from 'vue';
-import * as THREE from 'three';
+import { onMounted } from 'vue';
+import { animate as animeAnimate, stagger } from 'animejs';
+
+// Helper wrapper for anime.js v4
+const anime = (params: any) => animeAnimate(params.targets, params);
 
 const props = defineProps<{
     fileTransfer: { file_paths: string[] };
 }>();
 
-let renderer: THREE.WebGLRenderer;
-let scene: THREE.Scene;
-let camera: THREE.PerspectiveCamera;
-let animationId: number;
-let smallEarth: THREE.Mesh;
-let nebulaClouds: THREE.Mesh[] = [];
-let shootingStars: THREE.Mesh[] = [];
-let asteroidBelt: THREE.Points | null = null;
-let orbitalRings: THREE.Object3D[] = [];
-
 onMounted(() => {
-    const canvas = document.getElementById('starfield') as HTMLCanvasElement;
+    // Create floating stars
+    createFloatingStars();
 
-    // Scene setup
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(
-        75,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-    );
-    camera.position.z = 5;
-
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-
-    // --- STARFIELD ---
-    const starCount = window.innerWidth < 768 ? 800 : 2000;
-    const radius = 300;
-    const positions = [];
-    for (let i = 0; i < starCount; i++) {
-        const phi = Math.acos(2 * Math.random() - 1);
-        const theta = 2 * Math.PI * Math.random();
-        const r = radius * Math.cbrt(Math.random());
-        positions.push(
-            r * Math.sin(phi) * Math.cos(theta),
-            r * Math.sin(phi) * Math.sin(theta),
-            r * Math.cos(phi)
-        );
-    }
-    const starsGeometry = new THREE.BufferGeometry();
-    starsGeometry.setAttribute(
-        'position',
-        new THREE.Float32BufferAttribute(positions, 3)
-    );
-    const starTexture = new THREE.TextureLoader().load(
-        'https://threejs.org/examples/textures/sprites/disc.png'
-    );
-    const starsMaterial = new THREE.PointsMaterial({
-        size: 1.2,
-        map: starTexture,
-        transparent: true,
-        opacity: 0.7,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-    });
-    const stars = new THREE.Points(starsGeometry, starsMaterial);
-    scene.add(stars);
-
-    // --- CENTER PLANET (Purple Planet) ---
-    const planetGeometry = new THREE.SphereGeometry(1, 64, 64);
-    const planetMaterial = new THREE.ShaderMaterial({
-        uniforms: {
-            time: { value: 0 },
-            primaryColor: { value: new THREE.Color(0x4c1d95) }, // Deep purple
-            secondaryColor: { value: new THREE.Color(0x7c3aed) }, // Brighter purple
-            glowColor: { value: new THREE.Color(0xa855f7) } // Purple glow
-        },
-        vertexShader: `
-            varying vec2 vUv;
-            varying vec3 vNormal;
-            varying vec3 vPosition;
-            uniform float time;
-            
-            void main() {
-                vUv = uv;
-                vNormal = normalize(normalMatrix * normal);
-                vPosition = position;
-                
-                // Subtle surface displacement
-                vec3 pos = position + normal * sin(time * 0.8 + position.x * 8.0) * 0.03;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-            }
-        `,
-        fragmentShader: `
-            uniform float time;
-            uniform vec3 primaryColor;
-            uniform vec3 secondaryColor;
-            uniform vec3 glowColor;
-            varying vec2 vUv;
-            varying vec3 vNormal;
-            varying vec3 vPosition;
-            
-            void main() {
-                // Create surface patterns
-                float noise = sin(vPosition.x * 12.0 + time) * 
-                             sin(vPosition.y * 10.0 + time * 0.7) * 
-                             sin(vPosition.z * 14.0 + time * 0.5);
-                
-                // Fresnel effect for atmospheric glow
-                float fresnel = pow(1.0 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.5);
-                
-                // Mix colors with surface patterns
-                vec3 surfaceColor = mix(primaryColor, secondaryColor, noise * 0.4 + 0.3);
-                vec3 color = mix(surfaceColor, glowColor, fresnel * 0.6);
-                
-                // Add pulsing glow effect
-                float pulse = 0.85 + sin(time * 2.5) * 0.15;
-                color *= pulse;
-                
-                gl_FragColor = vec4(color, 1.0);
-            }
-        `
-    });
-    const planet = new THREE.Mesh(planetGeometry, planetMaterial);
-    scene.add(planet);
-
-    const glow = new THREE.Mesh(
-        new THREE.SphereGeometry(1.3, 64, 64),
-        new THREE.MeshBasicMaterial({
-            color: 0x8b5cf6,
-            transparent: true,
-            opacity: 0.2,
-            side: THREE.BackSide,
-        })
-    );
-    scene.add(glow);
-
-    // --- ORBITAL RINGS (decorative, subtle) ---
-    const ringColors = [0x5b21b6, 0x7c3aed, 0xfb7185];
-    for (let i = 0; i < 3; i++) {
-        const inner = 1.6 + i * 0.28;
-        const outer = inner + 0.02;
-        const ringGeo = new THREE.RingGeometry(inner, outer, 128);
-        const ringMat = new THREE.MeshBasicMaterial({
-            color: ringColors[i],
-            transparent: true,
-            opacity: 0.22,
-            side: THREE.DoubleSide,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false,
+    // Animate page entrance
+    setTimeout(() => {
+        // Animate planet entrance
+        anime({
+            targets: '.planet',
+            scale: [0, 1],
+            opacity: [0, 1],
+            duration: 2000,
+            easing: 'easeOutElastic(1, .6)'
         });
-        const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-        ringMesh.rotation.x = Math.PI / 2 + (i * 0.12);
-        ringMesh.rotation.z = i * 0.5;
-        scene.add(ringMesh);
-        orbitalRings.push(ringMesh);
-    }
 
-    // --- ASTEROID BELT (points) ---
-    const asteroidCount = 420;
-    const aPos: number[] = [];
-    const aCol: number[] = [];
-    for (let i = 0; i < asteroidCount; i++) {
-        const ang = Math.random() * Math.PI * 2;
-        const r = 3.6 + Math.random() * 1.6;
-        const x = Math.cos(ang) * r;
-        const y = (Math.random() - 0.5) * 0.6;
-        const z = Math.sin(ang) * r;
-        aPos.push(x, y, z);
-        const c = new THREE.Color().setHSL(0.08 + Math.random() * 0.05, 0.4, 0.35 + Math.random() * 0.15);
-        aCol.push(c.r, c.g, c.b);
-    }
-    const astGeo = new THREE.BufferGeometry();
-    astGeo.setAttribute('position', new THREE.Float32BufferAttribute(aPos, 3));
-    astGeo.setAttribute('color', new THREE.Float32BufferAttribute(aCol, 3));
-    const astMat = new THREE.PointsMaterial({ size: 0.06, vertexColors: true, transparent: true, opacity: 0.9 });
-    asteroidBelt = new THREE.Points(astGeo, astMat);
-    scene.add(asteroidBelt);
-
-    // --- NEBULA CLOUDS (soft additive spheres with shader) ---
-    const nebulaDefs = [
-        { color: 0xff6b9d, pos: new THREE.Vector3(-9, 6, -18), scale: 4.5 },
-        { color: 0x4dabf7, pos: new THREE.Vector3(10, -4, -20), scale: 5.2 },
-        { color: 0xa78bfa, pos: new THREE.Vector3(-12, -3, -24), scale: 6.0 },
-    ];
-    nebulaDefs.forEach((n, idx) => {
-        const g = new THREE.SphereGeometry(1, 32, 32);
-        const mat = new THREE.ShaderMaterial({
-            uniforms: { time: { value: 0 }, color: { value: new THREE.Color(n.color) }, scale: { value: n.scale } },
-            vertexShader: `varying vec3 vPos; void main(){ vPos = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);} `,
-            fragmentShader: `uniform float time; uniform vec3 color; uniform float scale; varying vec3 vPos; void main(){ float n = length(vPos) + sin(time*0.2+vPos.x*0.8)*0.3; float a = smoothstep(1.0,0.1,n); gl_FragColor = vec4(color/255.0, a*0.35); }`,
-            transparent: true,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false,
+        // Rotate planet continuously
+        anime({
+            targets: '.planet',
+            rotate: 360,
+            duration: 120000,
+            loop: true,
+            easing: 'linear'
         });
-        const mesh = new THREE.Mesh(g, mat);
-        mesh.position.copy(n.pos);
-        mesh.scale.setScalar(n.scale);
-        scene.add(mesh);
-        nebulaClouds.push(mesh);
-    });
 
-    // --- SHOOTING STARS (created dynamically) ---
-    const createShooting = () => {
-        const geo = new THREE.CylinderGeometry(0.01, 0.01, 1.6, 6);
-        const mat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.95 });
-        const star = new THREE.Mesh(geo, mat);
-        star.rotation.z = Math.random() * Math.PI;
-        star.position.set((Math.random() - 0.5) * 24, 8 + Math.random() * 6, -18 - Math.random() * 6);
-        star.userData = { vel: new THREE.Vector3((Math.random() - 0.2) * -0.06, -0.18 - Math.random() * 0.06, 0.03 + Math.random() * 0.03) };
-        scene.add(star);
-        shootingStars.push(star);
-        setTimeout(() => {
-            scene.remove(star);
-            geo.dispose();
-            mat.dispose();
-            const idx = shootingStars.indexOf(star);
-            if (idx > -1) shootingStars.splice(idx, 1);
-        }, 3000 + Math.random() * 2000);
-    };
-    const shootingInterval = setInterval(createShooting, 1800);
-    createShooting();
-
-    // --- SMALL FLOATING EARTH ---
-    const smallEarthTexture = new THREE.TextureLoader().load('/Transfer Files/earth.svg');
-    smallEarth = new THREE.Mesh(
-        new THREE.SphereGeometry(0.3, 32, 32),
-        new THREE.MeshStandardMaterial({ map: smallEarthTexture })
-    );
-    smallEarth.position.set(-2.5, 1.8, -2); // top-left corner placement
-    scene.add(smallEarth);
-
-    // Lighting
-    const ambient = new THREE.AmbientLight(0xffffff, 0.5);
-    const point = new THREE.PointLight(0x9cf, 1.5);
-    point.position.set(5, 5, 5);
-    scene.add(ambient, point);
-
-    const mouse = { x: 0, y: 0 };
-    window.addEventListener('mousemove', (e) => {
-        mouse.x = (e.clientX / window.innerWidth - 0.5) * 0.4;
-        mouse.y = (e.clientY / window.innerHeight - 0.5) * 0.4;
-    });
-
-    // Animation
-    let lastTime = 0;
-    const animate = (time = 0) => {
-        const delta = time - lastTime;
-        if (delta > 16) {
-            const t = time * 0.001;
-            // Update planet shader time
-            if (planetMaterial.uniforms) {
-                planetMaterial.uniforms.time.value = t;
-            }
-
-            planet.rotation.y += 0.0016;
-            glow.rotation.y += 0.0012;
-            stars.rotation.y += 0.00045;
-
-            // nebula subtle motion
-            nebulaClouds.forEach((n, i) => {
-                if ((n.material as any).uniforms) (n.material as any).uniforms.time.value = t;
-                n.rotation.y += 0.00025 * (i % 2 === 0 ? 1 : -1);
-            });
-
-            // rings and asteroid motion
-            orbitalRings.forEach((r, i) => (r.rotation.z += 0.0008 * (i + 1)));
-            if (asteroidBelt) asteroidBelt.rotation.y += 0.0009;
-
-            // shooting stars motion
-            shootingStars.forEach((s) => {
-                const vel = s.userData.vel as THREE.Vector3;
-                s.position.add(vel);
-                s.rotation.z += 0.08;
-                if ((s.material as THREE.Material).opacity !== undefined) {
-                    (s.material as THREE.Material as any).opacity = Math.max(0, (s.material as any).opacity - 0.008);
-                }
-            });
-
-            if (smallEarth) {
-                smallEarth.rotation.y += 0.01;
-                smallEarth.position.y = 1.8 + Math.sin(t * 2.0) * 0.05;
-            }
-
-            camera.rotation.x += (mouse.y - camera.rotation.x) * 0.02;
-            camera.rotation.y += (mouse.x - camera.rotation.y) * 0.02;
-
-            renderer.render(scene, camera);
-            lastTime = time;
-        }
-        animationId = requestAnimationFrame(animate);
-    };
-    animate();
-
-    // cleanup shooting stars interval on unmount
-    const cleanupShooting = () => clearInterval(shootingInterval);
-
-    const handleResize = () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    };
-    window.addEventListener('resize', handleResize);
-
-    onUnmounted(() => {
-        cancelAnimationFrame(animationId);
-        window.removeEventListener('resize', handleResize);
-        cleanupShooting();
-        scene.traverse((object) => {
-            if ((object as THREE.Mesh).geometry)
-                (object as THREE.Mesh).geometry.dispose();
-            if ((object as THREE.Mesh).material) {
-                const mat = (object as THREE.Mesh).material as THREE.Material;
-                mat.dispose();
-            }
+        // Animate logo
+        anime({
+            targets: '.planet-logo',
+            scale: [0, 1],
+            rotate: [180, 0],
+            opacity: [0, 1],
+            duration: 1200,
+            easing: 'easeOutElastic(1, .6)'
         });
-        renderer.dispose();
-    });
+
+        // Pulse logo continuously
+        anime({
+            targets: '.planet-logo',
+            scale: [1, 1.05, 1],
+            duration: 2000,
+            loop: true,
+            easing: 'easeInOutQuad'
+        });
+
+        // Animate title
+        anime({
+            targets: '.main-title',
+            translateY: [-30, 0],
+            opacity: [0, 1],
+            duration: 800,
+            delay: 300,
+            easing: 'easeOutCubic'
+        });
+
+        // Animate subtitle
+        anime({
+            targets: '.subtitle',
+            translateY: [-20, 0],
+            opacity: [0, 1],
+            duration: 800,
+            delay: 500,
+            easing: 'easeOutCubic'
+        });
+
+        // Stagger file cards
+        anime({
+            targets: '.file-card',
+            translateY: [60, 0],
+            opacity: [0, 1],
+            scale: [0.8, 1],
+            duration: 800,
+            delay: stagger(120, { start: 700 }),
+            easing: 'easeOutBack'
+        });
+
+        // Animate footer
+        anime({
+            targets: '.footer-info',
+            translateY: [20, 0],
+            opacity: [0, 1],
+            duration: 600,
+            delay: 1200,
+            easing: 'easeOutQuad'
+        });
+    }, 100);
 });
+
+// Create CSS-based floating stars
+const createFloatingStars = () => {
+    const container = document.querySelector('.stars-container');
+    if (!container) return;
+
+    const starCount = window.innerWidth < 768 ? 80 : 150;
+
+    for (let i = 0; i < starCount; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.position = 'absolute';
+
+        // Random position
+        const left = Math.random() * 100;
+        const top = Math.random() * 100;
+        star.style.left = `${left}%`;
+        star.style.top = `${top}%`;
+
+        // Random size
+        const size = Math.random() * 3 + 2;
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+        star.style.backgroundColor = '#ffffff';
+        star.style.borderRadius = '50%';
+        star.style.boxShadow = '0 0 2px #fff';
+
+        container.appendChild(star);
+
+        // Animate with anime.js for reliable glow effect
+        const delay = Math.random() * 3000;
+        const duration = Math.random() * 2000 + 2000;
+
+        animeAnimate(star, {
+            opacity: ['0.3', '1', '0.3'],
+            scale: ['0.8', '1.4', '0.8'],
+            duration: duration,
+            delay: delay,
+            easing: 'inOutQuad',
+            loop: true
+        });
+    }
+};
+
+// Download button hover animation
+const handleDownloadHover = (event: MouseEvent) => {
+    const button = event.currentTarget as HTMLElement;
+
+    anime({
+        targets: button,
+        scale: 1.05,
+        duration: 300,
+        easing: 'easeOutQuad'
+    });
+};
+
+const handleDownloadLeave = (event: MouseEvent) => {
+    const button = event.currentTarget as HTMLElement;
+
+    anime({
+        targets: button,
+        scale: 1,
+        duration: 300,
+        easing: 'easeOutQuad'
+    });
+};
 </script>
 
 <template>
 
     <Head title="Planet Nine Transfer" />
-    <div class="relative min-h-screen w-screen overflow-hidden bg-[#0a0a1a] text-white">
-        <canvas id="starfield" class="absolute top-0 left-0 h-full w-full"></canvas>
 
-        <!-- Decorative Assets -->
-        <img class="object_rocket" src="/Transfer Files/rocket.svg" alt="rocket" aria-hidden="true" />
-        <img class="object_moon" src="/Transfer Files/download.png" alt="moon" aria-hidden="true" />
-        <div class="box_astronaut">
-            <img id="astronaut" class="object_astronaut" src="/Transfer Files/astronaut.svg" alt="astronaut" />
+    <div class="page-wrapper">
+        <!-- Animated background -->
+        <div class="stars-container"></div>
+
+        <!-- Gradient orbs -->
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+
+        <!-- Planet -->
+        <div class="planet">
+            <div class="planet-surface"></div>
+            <div class="planet-glow"></div>
         </div>
 
-        <!-- Download Panel -->
-        <div class="relative z-10 flex min-h-screen items-center justify-center px-4">
-            <div
-                class="w-full max-w-3xl rounded-2xl bg-white/10 p-6 sm:p-8 shadow-xl backdrop-blur-xl border border-white/20">
-                <h1
-                    class="mb-4 flex items-center gap-2 text-left text-2xl sm:text-3xl font-extrabold text-indigo-300 drop-shadow-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"
-                        class="w-8 h-8 text-indigo-300 drop-shadow-md animate-pulse">
-                        <path d="M12 2C8 6 7 10 7 13l-4 4 3 3 4-4c3 0 7-1 11-5-1-4-5-8-9-9Z" />
-                        <circle cx="12" cy="12" r="1.5" fill="#1a1a2e" />
+        <!-- Main content -->
+
+        <!-- Main content -->
+        <div class="content-wrapper">
+            <div class="content-container">
+
+                <!-- Logo -->
+                <div class="planet-logo">
+                    <svg viewBox="0 0 100 100" class="logo-svg">
+                        <!-- Outer ring -->
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="url(#grad1)" stroke-width="2" />
+
+                        <!-- Inner planet -->
+                        <circle cx="50" cy="50" r="25" fill="url(#grad2)" />
+
+                        <!-- Orbital lines -->
+                        <circle cx="50" cy="50" r="32" fill="none" stroke="url(#grad3)" stroke-width="0.5" opacity="0.6"
+                            stroke-dasharray="5,5">
+                            <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50"
+                                dur="20s" repeatCount="indefinite" />
+                        </circle>
+
+                        <!-- Dots -->
+                        <circle cx="50" cy="10" r="3" fill="#a78bfa" />
+                        <circle cx="50" cy="90" r="3" fill="#ec4899" />
+                        <circle cx="10" cy="50" r="3" fill="#6366f1" />
+                        <circle cx="90" cy="50" r="3" fill="#8b5cf6" />
+
+                        <defs>
+                            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#8b5cf6;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#4c1d95;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#a78bfa;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
                     </svg>
+                </div>
+
+                <!-- Title -->
+                <h1 class="main-title">
                     Planet Nine Transfer
                 </h1>
-                <p class="mb-6 text-left text-sm sm:text-base text-blue-200">
-                    Transfer files are ready! May the high grounds and files be with you.
+
+                <!-- Subtitle -->
+                <p class="subtitle">
+                    May the high ground and files be with you 🚀
                 </p>
-                <div class="space-y-4">
-                    <div v-for="(file, index) in fileTransfer.file_paths" :key="index"
-                        class="flex items-center justify-between rounded-xl bg-white/10 px-3 sm:px-4 py-2 sm:py-3 shadow hover:bg-white/20 transition">
-                        <span class="truncate text-sm sm:text-base">{{ file }}</span>
-                        <a :href="`/Transfer Files/${file}`" download
-                            class="mt-2 sm:mt-0 rounded-md bg-yellow-400 px-3 sm:px-4 py-1 sm:py-2 text-sm font-medium text-black transition hover:bg-yellow-300 focus:outline-dashed focus:outline-2 focus:outline-yellow-400">
-                            Download
-                        </a>
+
+                <!-- File Cards -->
+                <div class="files-grid">
+                    <div v-for="(file, index) in fileTransfer.file_paths" :key="index" class="file-card">
+                        <div class="file-card-inner">
+                            <!-- File icon -->
+                            <div class="file-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 3v6a1 1 0 001 1h6" />
+                                </svg>
+                            </div>
+
+                            <!-- File info -->
+                            <div class="file-info">
+                                <p class="file-name">{{ file }}</p>
+                                
+                            </div>
+
+                            <!-- Download button -->
+                            <a :href="`/Transfer Files/${file}`" download class="download-button"
+                                @mouseenter="handleDownloadHover" @mouseleave="handleDownloadLeave">
+                                <span>Download</span>
+                                <svg class="download-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                            </a>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Footer -->
+                <div class="footer-info">
+                    <div class="footer-badge">
+                        <div class="status-dot"></div>
+                        <span>Secure Transfer</span>
+                    </div>
+                    <div class="footer-divider"></div>
+                    <div class="footer-badge">
+                        <svg class="footer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        <span>{{ fileTransfer.file_paths.length }} {{ fileTransfer.file_paths.length === 1 ? 'File' :
+                            'Files' }}</span>
+                    </div>
+                </div>
+
+                <p class="footer-text">
+                    Powered by <strong>Planet Nine</strong> · Making file transfers out of this world
+                </p>
             </div>
         </div>
     </div>
 </template>
 
+<style>
+/* Prevent white flash on page load */
+body {
+    background: #0a0a0a;
+    margin: 0;
+    padding: 0;
+}
+</style>
+
 <style scoped>
-@import url('https://fonts.googleapis.com/css?family=Dosis:300,400,500');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap');
 
-/* Enhanced decorative elements and subtle UI polish (download panel left intact) */
-.object_rocket {
+* {
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.page-wrapper {
+    position: relative;
+    min-height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+    opacity: 0;
+    animation: fadeInPage 0.8s ease-out forwards;
+}
+
+@keyframes fadeInPage {
+    to {
+        opacity: 1;
+    }
+}
+
+/* Animated stars background */
+.stars-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2;
+    pointer-events: none;
+    overflow: visible;
+}
+
+.star {
     position: absolute;
-    top: 18%;
-    left: 6%;
-    width: 64px;
-    animation: rocket-float 6s ease-in-out infinite alternate;
-    will-change: transform;
-    filter: drop-shadow(0 6px 18px rgba(251, 191, 36, 0.25));
-    z-index: 6;
+    filter: drop-shadow(0 0 3px #fff) drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
+    will-change: opacity, transform;
 }
 
-.object_moon {
-    position: absolute;
-    top: 6%;
-    right: 12%;
-    width: 110px;
-    opacity: 0.22;
-    animation: slow-rotate 24s linear infinite reverse, moon-pulse 6s ease-in-out infinite;
-    filter: drop-shadow(0 8px 24px rgba(147, 197, 253, 0.25));
-    z-index: 4;
-}
-
-.box_astronaut {
-    position: absolute;
-    top: 56%;
-    right: 10%;
-    z-index: 6;
-}
-
-.object_astronaut {
-    width: 160px;
-    animation: float-around 20s ease-in-out infinite alternate;
-    will-change: transform;
-    filter: drop-shadow(0 8px 22px rgba(167, 139, 250, 0.18));
-}
-
-@keyframes float-around {
-    0% {
-        transform: translate(0, 0) rotate(0deg);
-    }
-
-    25% {
-        transform: translate(-28px, -36px) rotate(-6deg);
-    }
-
-    50% {
-        transform: translate(36px, -14px) rotate(12deg);
-    }
-
-    75% {
-        transform: translate(-22px, 28px) rotate(-10deg);
-    }
-
-    100% {
-        transform: translate(28px, 18px) rotate(8deg);
-    }
-}
-
-@keyframes rocket-float {
-    0% {
-        transform: translateY(0px) rotate(-15deg);
-    }
-
-    50% {
-        transform: translateY(-28px) rotate(-10deg);
-    }
-
-    100% {
-        transform: translateY(-6px) rotate(-22deg);
-    }
-}
-
-@keyframes slow-rotate {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes moon-pulse {
+@keyframes starGlow {
 
     0%,
     100% {
-        opacity: 0.18;
-        transform: scale(1);
+        opacity: 0.3;
+        transform: scale(0.8);
+        box-shadow: 0 0 2px #fff;
     }
 
     50% {
-        opacity: 0.36;
-        transform: scale(1.06);
+        opacity: 1;
+        transform: scale(1.4);
+        box-shadow: 0 0 15px #fff, 0 0 25px rgba(255, 255, 255, 0.8), 0 0 35px rgba(255, 255, 255, 0.5);
     }
 }
 
-/* Shooting particles overlay to add depth (DOM layer) */
-.particles-overlay {
-    position: absolute;
-    inset: 0;
+/* Gradient orbs */
+.orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.2;
+    animation: float 20s ease-in-out infinite;
     pointer-events: none;
+    z-index: 1;
+}
+
+.orb-1 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, #6366f1 0%, transparent 70%);
+    top: -200px;
+    left: -200px;
+    animation-delay: 0s;
+}
+
+.orb-2 {
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+    bottom: -250px;
+    right: -250px;
+    animation-delay: 5s;
+}
+
+.orb-3 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, #ec4899 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-delay: 10s;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(50px, -50px) scale(1.1);
+    }
+
+    66% {
+        transform: translate(-30px, 30px) scale(0.9);
+    }
+}
+
+/* Planet - Centered purple gas giant */
+.planet {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 300px;
+    height: 300px;
+    margin-left: -150px;
+    margin-top: -150px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.planet-surface {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fbbf24, #f59e0b 35%, #d97706 65%, #92400e);
+    box-shadow:
+        inset -25px -25px 50px rgba(0, 0, 0, 0.6),
+        0 0 80px rgba(251, 191, 36, 0.4);
+    position: relative;
     z-index: 2;
 }
 
-.particle-dot {
+.planet-glow {
     position: absolute;
-    width: 4px;
-    height: 4px;
+    top: 50%;
+    left: 50%;
+    width: 320%;
+    height: 90%;
+    transform: translate(-50%, -50%) rotateX(75deg);
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
-    opacity: 0.9;
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
-    animation: rise 9s linear infinite;
+    border: 15px solid transparent;
+    border-color: rgba(251, 191, 36, 0.5);
+    /* z-index: 1; */
 }
 
-@keyframes rise {
-    0% {
-        transform: translateY(20vh) scale(0.9);
-        opacity: 0;
-    }
-
-    10% {
-        opacity: 1;
-    }
-
-    90% {
-        opacity: 1;
-    }
-
-    100% {
-        transform: translateY(-120vh) scale(1.2);
-        opacity: 0;
-    }
+/* Content */
+.content-wrapper {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
 }
 
-/* Small satellites (pure CSS) */
-.satellite {
+.content-container {
+    width: 100%;
+    max-width: 56rem;
+    text-align: center;
+}
+
+/* Logo */
+.planet-logo {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 2rem;
+    filter: drop-shadow(0 10px 30px rgba(139, 92, 246, 0.4));
+}
+
+.logo-svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Title */
+.main-title {
+    font-size: clamp(2.5rem, 6vw, 2rem);
+    font-weight: 900;
+    background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #ec4899 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+    line-height: 1.1;
+}
+
+.subtitle {
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+    color: rgba(191, 219, 254);
+    margin-bottom: 2.5rem;
+    font-weight: 300;
+}
+
+/* Files grid */
+.files-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 3rem;
+}
+
+.file-card {
+    opacity: 0;
+}
+
+.file-card-inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.file-card-inner::before {
+    content: '';
     position: absolute;
-    width: 20px;
-    height: 12px;
-    border-radius: 4px;
-    background: linear-gradient(90deg, #94a3b8, #e2e8f0);
-    box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
-    transform-origin: center;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-.satellite.s1 {
-    top: 22%;
-    left: 74%;
-    animation: small-orbit 22s linear infinite;
+.file-card-inner:hover {
+    border-color: rgba(139, 92, 246, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px -10px rgba(139, 92, 246, 0.3);
 }
 
-.satellite.s2 {
-    top: 68%;
-    left: 18%;
-    animation: small-orbit 28s linear infinite reverse;
+.file-card-inner:hover::before {
+    opacity: 1;
 }
 
-@keyframes small-orbit {
-    0% {
-        transform: translateX(0) rotate(0deg);
-    }
+.file-icon {
+    flex-shrink: 0;
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border-radius: 0.75rem;
+    color: white;
+}
 
+.file-icon svg {
+    width: 1.75rem;
+    height: 1.75rem;
+}
+
+.file-info {
+    flex: 1;
+    text-align: left;
+    min-width: 0;
+}
+
+.file-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-status {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    color: rgba(147, 197, 253, 0.8);
+}
+
+.status-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Download button */
+.download-button {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+    border-radius: 0.75rem;
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.download-button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.download-button:hover::before {
+    opacity: 1;
+}
+
+.download-button span,
+.download-button svg {
+    position: relative;
+    z-index: 1;
+}
+
+.download-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* Footer */
+.footer-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+}
+
+.footer-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: rgba(191, 219, 254, 0.9);
+}
+
+.status-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    background: #10b981;
+    border-radius: 50%;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+
+    0%,
     100% {
-        transform: translateX(60px) rotate(360deg);
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
     }
 }
 
-/* keep responsive balance */
+.footer-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+.footer-divider {
+    width: 1px;
+    height: 1rem;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.footer-text {
+    font-size: 0.875rem;
+    color: rgba(191, 219, 254, 0.6);
+    font-weight: 300;
+}
+
+.footer-text strong {
+    font-weight: 700;
+    background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-    .object_rocket {
-        width: 42px;
-        top: 72%;
-        left: 6%;
+    .file-card-inner {
+        flex-direction: column;
+        text-align: center;
     }
 
-    .object_moon {
-        width: 82px;
-        right: 10%;
+    .file-info {
+        text-align: center;
     }
 
-    .object_astronaut {
-        width: 120px;
+    .file-status {
+        justify-content: center;
     }
 
-    .satellite.s2 {
-        display: none;
+    .download-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .footer-info {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    /* Smaller planet on mobile */
+    .planet {
+        width: 200px;
+        height: 200px;
+        margin-left: -100px;
+        margin-top: -100px;
     }
 }
 
-@media (max-width: 480px) {
-    .object_rocket {
-        width: 34px;
-    }
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
 
-    .object_moon {
-        width: 64px;
-    }
-
-    .object_astronaut {
-        width: 96px;
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
     }
 }
 </style>
