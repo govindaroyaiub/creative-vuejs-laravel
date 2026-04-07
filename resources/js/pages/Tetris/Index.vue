@@ -1,10 +1,13 @@
 <template>
+
     <Head title="Tetris Game" />
     <AppLayout :breadcrumbs="[{ title: 'Tetris Game', href: '/play/tetris' }]">
-        <div class="flex flex-col items-center justify-center w-full h-full bg-gray-50 dark:bg-black font-mono">
+        <div class="flex flex-col items-center justify-center w-full h-full bg-white dark:bg-black font-mono">
             <h1 class="text-2xl font-bold mb-4 text-black dark:text-white">Tetris Game</h1>
             <div class="mb-4 flex gap-4 justify-between w-full max-w-3xl">
-                <button @click="startGame" class="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700">New
+                <button @click="startGame" :disabled="isPlaying"
+                    class="px-4 py-2 bg-black text-white rounded-xl border-2 hover:bg-white hover:text-black disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-black disabled:hover:text-white">
+                    New
                     Game</button>
                 <span class="text-lg text-black dark:text-white ml-auto">Score: {{ score }}</span>
             </div>
@@ -50,7 +53,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { ref, onMounted, onUnmounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 
 const props = defineProps({
@@ -66,6 +69,8 @@ const gameOver = ref(false)
 const intervalId = ref(null)
 const boardRef = ref(null)
 const topScores = ref(props.topScores)
+const hasStarted = ref(false)
+const isPlaying = computed(() => hasStarted.value && !gameOver.value)
 
 const tetrominoes = [
     { color: '#00f0f0', shape: [[[1, 1, 1, 1]], [[1], [1], [1], [1]]] },
@@ -179,7 +184,7 @@ function spawnTetromino() {
     if (!canMove(current.value, 0, 0, 0)) {
         gameOver.value = true
         clearInterval(intervalId.value)
-        submitScore()
+        if (hasStarted.value) submitScore()
     }
 }
 
@@ -223,7 +228,7 @@ function tick() {
 }
 
 function handleKey(e) {
-    if (gameOver.value) return
+    if (!hasStarted.value || gameOver.value) return
     if (['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp', ' '].includes(e.key)) {
         e.preventDefault()
     }
@@ -258,6 +263,8 @@ function getCellStyle(x, y) {
 }
 
 function startGame() {
+    if (isPlaying.value) return
+    hasStarted.value = true
     resetBoard()
     score.value = 0
     gameOver.value = false
@@ -271,8 +278,7 @@ function startGame() {
 }
 
 onMounted(() => {
-    startGame()
-    boardRef.value && boardRef.value.focus()
+    resetBoard()
 })
 
 onUnmounted(() => {

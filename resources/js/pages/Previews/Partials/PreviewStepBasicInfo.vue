@@ -142,7 +142,7 @@
                 class="w-11 h-6 bg-[#E8E8E8] dark:bg-[#222222] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-black dark:peer-focus:ring-white rounded-full peer peer-checked:bg-black dark:peer-checked:bg-white transition-all duration-200">
               </div>
               <div
-                class="absolute w-5 h-5 bg-white dark:bg-black peer-checked:bg-white rounded-full left-0.5 top-0.5 peer-checked:translate-x-full transition-transform duration-200">
+                class="absolute w-5 h-5 bg-white dark:bg-black peer-checked:bg-white dark:peer-checked:bg-black rounded-full left-0.5 top-0.5 peer-checked:translate-x-full transition-transform duration-200">
               </div>
             </label>
           </div>
@@ -268,7 +268,7 @@ const toggleConfigs = [
     description: 'Logo in navigation'
   },
   {
-    label: 'Show Footer?',
+    label: 'Show Footer in Preview?',
     model: 'show_footer' as keyof FormData,
     description: 'Display page footer'
   },

@@ -102,7 +102,7 @@
                         <input type="checkbox" :checked="palette.status" @change="toggleStatus(palette)"
                           class="sr-only peer" />
                         <div
-                          class="w-9 h-5 bg-[#E8E8E8] dark:bg-[#222222] border-2 border-[#CCCCCC] dark:border-[#333333] rounded-full peer peer-checked:bg-black peer-checked:dark:bg-white peer-checked:border-black peer-checked:dark:border-white transition-colors">
+                          class="w-9 h-5 bg-[#E8E8E8] dark:bg-[#222222] border-2 border-[#CCCCCC] dark:border-[#333333] rounded-full peer peer-checked:bg-black peer-checked:dark:bg-black peer-checked:border-black peer-checked:dark:border-white transition-colors">
                         </div>
                         <div
                           class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4">
@@ -141,7 +141,7 @@
                 <div
                   class="bg-[#F5F5F5] dark:bg-[#111111] border border-[#CCCCCC] dark:border-[#333333] rounded-lg p-3">
                   <img :src="`/${palette.header_image}`" alt="Header"
-                    class="h-12 mx-auto rounded border-2 border-[#E8E8E8] dark:border-[#222222]" />
+                    class="h-12 mx-auto" />
                 </div>
               </div>
 
