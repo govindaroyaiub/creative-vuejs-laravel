@@ -295,9 +295,6 @@ const deleteRoute = async (id: number) => {
                             TOTAL: {{ filteredRoutes.length }} {{ filteredRoutes.length === 1 ? 'ROUTE' : 'ROUTES' }}
                         </span>
                     </div>
-                    <span class="text-xs tracking-widest uppercase text-[#666666] dark:text-[#999999]">
-                        NOTHING · SYSTEM
-                    </span>
                 </div>
             </div>
         </SettingsLayout>

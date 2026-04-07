@@ -287,9 +287,6 @@ const deleteDesignation = async (id: number) => {
                             'ITEMS' }}
                         </span>
                     </div>
-                    <span class="text-xs tracking-widest uppercase text-[#666666] dark:text-[#999999]">
-                        NOTHING · SYSTEM
-                    </span>
                 </div>
             </div>
         </SettingsLayout>

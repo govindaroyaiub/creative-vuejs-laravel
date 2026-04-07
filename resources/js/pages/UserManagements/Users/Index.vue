@@ -451,9 +451,6 @@ const resetPassword = async (userId: number) => {
                             TOTAL: {{ filteredUsers.length }} {{ filteredUsers.length === 1 ? 'USER' : 'USERS' }}
                         </span>
                     </div>
-                    <span class="text-xs tracking-widest uppercase text-[#666666] dark:text-[#999999]">
-                        NOTHING · SYSTEM
-                    </span>
                 </div>
             </div>
 
