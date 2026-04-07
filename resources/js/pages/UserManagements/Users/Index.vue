@@ -15,6 +15,8 @@ const page = usePage();
 const users = ref<any[]>((page.props.users as any[]) ?? []);
 const routes = ref<any[]>((page.props.routes as any[]) ?? []);
 const clients = ref<any[]>((page.props.clients as any[]) ?? []);
+const authUser = computed(() => (page.props.auth as any)?.user);
+const isSuperAdmin = computed(() => authUser.value?.role === 'super_admin');
 
 const search = ref('');
 const addingUser = ref(false);
@@ -231,7 +233,7 @@ const resetPassword = async (userId: number) => {
                         <div class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-[#D71921] rounded-full">
                         </div>
                     </div>
-                    <Button v-if="!addingUser" @click="addingUser = true"
+                    <Button v-if="!addingUser" @click="addingUser = true" :disabled="!isSuperAdmin"
                         class="px-6 py-3 border-2 border-[#1A1A1A] dark:border-[#FFFFFF] text-[#1A1A1A] dark:text-[#FFFFFF] bg-transparent rounded-full transition-all duration-200 hover:bg-[#1A1A1A] hover:text-white dark:hover:bg-[#FFFFFF] dark:hover:text-black text-xs tracking-widest uppercase font-bold">
                         + ADD USER
                     </Button>
@@ -331,7 +333,7 @@ const resetPassword = async (userId: number) => {
                                                 class="w-4 h-4 rounded border-[#CCCCCC] dark:border-[#333333] text-[#D71921] focus:ring-[#D71921]" />
                                             <label
                                                 class="text-xs tracking-wider uppercase text-black dark:text-white cursor-pointer">{{
-                                                route.title }}</label>
+                                                    route.title }}</label>
                                         </div>
                                     </div>
                                 </td>
@@ -375,7 +377,8 @@ const resetPassword = async (userId: number) => {
                                         </div>
                                         <select :value="user.client_id"
                                             @change="updateUserClient(user.id, Number(($event.target as HTMLSelectElement)?.value))"
-                                            class="w-full px-2 py-1 bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded text-xs tracking-wider uppercase text-black dark:text-white focus:outline-none focus:border-[#1A1A1A] dark:focus:border-[#FFFFFF] transition-all duration-200">
+                                            :disabled="!isSuperAdmin"
+                                            class="w-full px-2 py-1 bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded text-xs tracking-wider uppercase text-black dark:text-white focus:outline-none focus:border-[#1A1A1A] dark:focus:border-[#FFFFFF] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
                                             <option disabled value="">SELECT CLIENT</option>
                                             <option v-for="client in clients" :key="client.id" :value="client.id">
                                                 {{ client.name }}
@@ -387,8 +390,8 @@ const resetPassword = async (userId: number) => {
                                 <td class="px-6 py-4">
                                     <div class="space-y-2">
                                         <select v-model="user.role" @change="updateUserRole(user.id, user.role)"
-                                            :disabled="updatingRoleUserId === user.id"
-                                            class="w-full px-3 py-2 bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded text-xs tracking-wider uppercase text-black dark:text-white focus:outline-none focus:border-[#1A1A1A] dark:focus:border-[#FFFFFF] transition-all duration-200 disabled:opacity-50">
+                                            :disabled="!isSuperAdmin || updatingRoleUserId === user.id"
+                                            class="w-full px-3 py-2 bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded text-xs tracking-wider uppercase text-black dark:text-white focus:outline-none focus:border-[#1A1A1A] dark:focus:border-[#FFFFFF] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
                                             <option value="super_admin">SUPER ADMIN</option>
                                             <option value="admin">ADMIN</option>
                                             <option value="user">USER</option>
@@ -402,7 +405,8 @@ const resetPassword = async (userId: number) => {
 
                                 <td class="px-6 py-4 text-center">
                                     <Button variant="secondary" @click="openPermissionsModal(user)"
-                                        class="px-4 py-2 bg-[#F5F5F5] dark:bg-[#0A0A0A] border border-[#E8E8E8] dark:border-[#222222] text-[#1A1A1A] dark:text-[#FFFFFF] rounded-full text-xs tracking-widest uppercase font-bold hover:border-[#1A1A1A] dark:hover:border-[#FFFFFF] transition-all duration-200">
+                                        :disabled="!isSuperAdmin"
+                                        class="px-4 py-2 bg-[#F5F5F5] dark:bg-[#0A0A0A] border border-[#E8E8E8] dark:border-[#222222] text-[#1A1A1A] dark:text-[#FFFFFF] rounded-full text-xs tracking-widest uppercase font-bold hover:border-[#1A1A1A] dark:hover:border-[#FFFFFF] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
                                         PERMISSIONS
                                     </Button>
                                 </td>
@@ -410,13 +414,14 @@ const resetPassword = async (userId: number) => {
                                 <td class="px-6 py-4">
                                     <div class="flex items-center justify-center gap-2">
                                         <Button variant="outline" @click="resetPassword(user.id)"
-                                            :disabled="resettingPasswordUserId === user.id"
+                                            :disabled="!isSuperAdmin || resettingPasswordUserId === user.id"
                                             class="px-3 py-1.5 border border-[#CCCCCC] dark:border-[#333333] text-[#666666] dark:text-[#999999] rounded-full text-xs tracking-widest uppercase hover:border-[#1A1A1A] dark:hover:border-[#FFFFFF] hover:text-[#1A1A1A] dark:hover:text-[#FFFFFF] transition-all duration-200 disabled:opacity-50">
                                             <LoaderCircle v-if="resettingPasswordUserId === user.id"
                                                 class="h-3 w-3 animate-spin" />
                                             <span v-else>RESET</span>
                                         </Button>
                                         <Button variant="destructive" @click="deleteUser(user.id)"
+                                            :disabled="!isSuperAdmin"
                                             class="px-3 py-1.5 bg-[#D71921] text-white rounded-full text-xs tracking-widest uppercase font-bold hover:bg-[#B01419] transition-all duration-200">
                                             DELETE
                                         </Button>
@@ -506,7 +511,7 @@ const resetPassword = async (userId: number) => {
                                     </div>
                                     <span
                                         class="text-sm tracking-wider uppercase font-medium text-black dark:text-white">{{
-                                        route.title }}</span>
+                                            route.title }}</span>
                                 </div>
                                 <code
                                     class="text-xs font-mono text-[#666666] dark:text-[#999999] ml-3 mt-1 block">{{ route.href }}</code>

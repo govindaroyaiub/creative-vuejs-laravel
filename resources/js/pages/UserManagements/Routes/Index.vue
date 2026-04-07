@@ -12,6 +12,8 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'Routes', href: '/user-managemen
 const page = usePage();
 const routes = ref(page.props.routes ?? []);
 const search = ref('');
+const authUser = computed(() => (page.props.auth as any)?.user);
+const isSuperAdmin = computed(() => authUser.value?.role === 'super_admin');
 
 const filteredRoutes = computed(() => {
     const query = search.value.toLowerCase();
@@ -134,6 +136,7 @@ const deleteRoute = async (id: number) => {
                         </div>
                     </div>
                     <Button v-if="!adding" @click="startAdding"
+                        :disabled="!isSuperAdmin"
                         class="px-6 py-3 border-2 border-[#1A1A1A] dark:border-[#FFFFFF] text-[#1A1A1A] dark:text-[#FFFFFF] bg-transparent rounded-full transition-all duration-200 hover:bg-[#1A1A1A] hover:text-white dark:hover:bg-[#FFFFFF] dark:hover:text-black text-xs tracking-widest uppercase font-bold">
                         + ADD NEW
                     </Button>
@@ -256,10 +259,12 @@ const deleteRoute = async (id: number) => {
                                         </template>
                                         <template v-else>
                                             <Button variant="outline" @click="startEditing(route)"
+                                                :disabled="!isSuperAdmin"
                                                 class="px-4 py-1.5 border border-[#CCCCCC] dark:border-[#333333] text-[#666666] dark:text-[#999999] rounded-full text-xs tracking-widest uppercase hover:border-[#1A1A1A] dark:hover:border-[#FFFFFF] hover:text-[#1A1A1A] dark:hover:text-[#FFFFFF] transition-all duration-200">
                                                 EDIT
                                             </Button>
                                             <Button variant="destructive" @click="deleteRoute(route.id)"
+                                                :disabled="!isSuperAdmin"
                                                 class="px-4 py-1.5 bg-[#D71921] text-white rounded-full text-xs tracking-widest uppercase font-bold hover:bg-[#B01419] transition-all duration-200">
                                                 DELETE
                                             </Button>

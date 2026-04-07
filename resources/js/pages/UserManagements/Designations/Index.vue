@@ -12,6 +12,8 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'Designations', href: '/user-man
 const page = usePage();
 const designations = ref(page.props.designations ?? []);
 const search = ref('');
+const authUser = computed(() => (page.props.auth as any)?.user);
+const isSuperAdmin = computed(() => authUser.value?.role === 'super_admin');
 
 const filteredDesignations = computed(() => {
     const query = search.value.toLowerCase();
@@ -145,7 +147,7 @@ const deleteDesignation = async (id: number) => {
                         <div class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-[#D71921] rounded-full">
                         </div>
                     </div>
-                    <Button v-if="!adding" @click="startAdding"
+                    <Button v-if="!adding" @click="startAdding" :disabled="!isSuperAdmin"
                         class="px-6 py-3 border-2 border-[#1A1A1A] dark:border-[#FFFFFF] text-[#1A1A1A] dark:text-[#FFFFFF] bg-transparent rounded-full transition-all duration-200 hover:bg-[#1A1A1A] hover:text-white dark:hover:bg-[#FFFFFF] dark:hover:text-black text-xs tracking-widest uppercase font-bold">
                         + ADD NEW
                     </Button>
@@ -247,10 +249,12 @@ const deleteDesignation = async (id: number) => {
                                         </template>
                                         <template v-else>
                                             <Button variant="outline" @click="startEditing(designation)"
+                                                :disabled="!isSuperAdmin"
                                                 class="px-4 py-1.5 border border-[#CCCCCC] dark:border-[#333333] text-[#666666] dark:text-[#999999] rounded-full text-xs tracking-widest uppercase hover:border-[#1A1A1A] dark:hover:border-[#FFFFFF] hover:text-[#1A1A1A] dark:hover:text-[#FFFFFF] transition-all duration-200">
                                                 EDIT
                                             </Button>
                                             <Button variant="destructive" @click="deleteDesignation(designation.id)"
+                                                :disabled="!isSuperAdmin"
                                                 class="px-4 py-1.5 bg-[#D71921] text-white rounded-full text-xs tracking-widest uppercase font-bold hover:bg-[#B01419] transition-all duration-200">
                                                 DELETE
                                             </Button>
@@ -284,7 +288,7 @@ const deleteDesignation = async (id: number) => {
                         <div class="w-1 h-1 bg-[#D71921] rounded-full"></div>
                         <span class="text-xs tracking-widest uppercase text-[#666666] dark:text-[#999999]">
                             TOTAL: {{ filteredDesignations.length }} {{ filteredDesignations.length === 1 ? 'ITEM' :
-                            'ITEMS' }}
+                                'ITEMS' }}
                         </span>
                     </div>
                 </div>
