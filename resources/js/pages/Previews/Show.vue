@@ -958,608 +958,659 @@ onUnmounted(() => {
 
   <Head :title="`Creative - ${preview.name}`" />
   <div v-if="isAuthenticated" class="absolute top-4 right-4 flex items-center space-x-3 z-50">
-      <div v-if="authUserClientName === 'Planet Nine'" id="viewerList" class="flex space-x-2">
-        <span v-for="viewer in viewers" :key="viewer"
-          class="bg-blue-100 text-blue-900 font-semibold rounded-full px-3 py-1 text-sm shadow-sm" :title="viewer">
-          {{ viewer.trim().charAt(0).toUpperCase() }}
-        </span>
+    <div v-if="authUserClientName === 'Planet Nine'" id="viewerList" class="flex space-x-2">
+      <span v-for="viewer in viewers" :key="viewer"
+        class="bg-blue-100 text-blue-900 font-semibold rounded-full px-3 py-1 text-sm shadow-sm" :title="viewer">
+        {{ viewer.trim().charAt(0).toUpperCase() }}
+      </span>
+    </div>
+    <form v-if="preview.requires_login" method="POST" :action="route('preview.logout')" id="customPreviewLogoutForm"
+      @submit.prevent="handleLogout">
+      <input type="hidden" name="preview_id" :value="preview.id">
+      <button type="submit"
+        class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-3 py-2 rounded-xl shadow transition cursor-pointer">
+        Logout
+      </button>
+    </form>
+  </div>
+
+  <main class="main">
+    <section id="top">
+      <div class="px-4 py-4 flex justify-center content text-center relative">
+        <div id="topDetails" class="mt-4" :style="{
+          backgroundImage: `url('/${headerImage}')`,
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center center'
+        }">
+          <img v-if="preview.show_planetnine_logo" :src="asset(`logos/${headerLogo.logo}`)" id="planetnineLogo"
+            alt="planetnineLogo" style="height: 65px; width: auto; margin: 0 auto;">
+          <h1><span class="font-semibold">Name: </span> <span class="capitalize">{{ preview.name }}</span>
+          </h1>
+          <h1><span class="font-semibold">Client: </span> <span class="capitalize">{{ client.name
+              }}</span></h1>
+          <h1>
+            <span class="font-semibold">Date: </span> <span>{{ formatDate(preview.created_at) }}</span>
+          </h1>
+        </div>
       </div>
-      <form v-if="preview.requires_login" method="POST" :action="route('preview.logout')" id="customPreviewLogoutForm"
-        @submit.prevent="handleLogout">
-        <input type="hidden" name="preview_id" :value="preview.id">
-        <button type="submit"
-          class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-3 py-2 rounded-xl shadow transition cursor-pointer">
-          Logout
-        </button>
-      </form>
+    </section>
+
+    <!-- Color Palette Container -->
+    <div class="color-palette-container">
+      <div id="mobilecolorPaletteClick" @click="toggleColorPalette">
+        <img :src="`/${rightTabColorPaletteImage}`" alt="palette icon">
+      </div>
+
+      <!-- Color Palette Panel -->
+      <div id="mobilecolorPaletteSelection"
+        :class="{ visible: isPaletteVisible, 'transitions-enabled': transitionsEnabled }">
+        <div class="color-grid">
+          <div v-for="color in allColors" :key="color.id" class="mobile-color-box"
+            :style="{ backgroundColor: color.hex, borderColor: color.border }" :title="color.name"
+            @click="changeTheme(color.id)">
+          </div>
+        </div>
+      </div>
     </div>
 
-    <main class="main">
-      <section id="top">
-        <div class="px-4 py-4 flex justify-center content text-center relative">
-          <div id="topDetails" class="mt-4" :style="{
-            backgroundImage: `url('/${headerImage}')`,
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center center'
-          }">
-            <img v-if="preview.show_planetnine_logo" :src="asset(`logos/${headerLogo.logo}`)" id="planetnineLogo"
-              alt="planetnineLogo" style="height: 65px; width: auto; margin: 0 auto;">
-            <h1><span class="font-semibold">Name: </span> <span class="capitalize">{{ preview.name }}</span>
-            </h1>
-            <h1><span class="font-semibold">Client: </span> <span class="capitalize">{{ client.name
-            }}</span></h1>
-            <h1>
-              <span class="font-semibold">Date: </span> <span>{{ formatDate(preview.created_at) }}</span>
-            </h1>
+    <section id="middle" class="mb-4">
+      <div id="showcase-section" class="mx-auto custom-container mt-2">
+        <div class="flex row justify-around items-end" style="min-height: 50px;">
+          <div class="py-2 flex items-end justify-center sidebar-top-desktop content-end">
+            <img v-if="preview.show_sidebar_logo === 1" :src="asset(`logos/${client.logo}`)" alt="clientLogo"
+              style="min-height: 65px; max-height: 90px;width: auto; margin: 0 auto;">
           </div>
-        </div>
-      </section>
-
-      <!-- Color Palette Container -->
-      <div class="color-palette-container">
-        <div id="mobilecolorPaletteClick" @click="toggleColorPalette">
-          <img :src="`/${rightTabColorPaletteImage}`" alt="palette icon">
-        </div>
-
-        <!-- Color Palette Panel -->
-        <div id="mobilecolorPaletteSelection"
-          :class="{ visible: isPaletteVisible, 'transitions-enabled': transitionsEnabled }">
-          <div class="color-grid">
-            <div v-for="color in allColors" :key="color.id" class="mobile-color-box"
-              :style="{ backgroundColor: color.hex, borderColor: color.border }" :title="color.name"
-              @click="changeTheme(color.id)">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <section id="middle" class="mb-4">
-        <div id="showcase-section" class="mx-auto custom-container mt-2">
-          <div class="flex row justify-around items-end" style="min-height: 50px;">
-            <div class="py-2 flex items-end justify-center sidebar-top-desktop content-end">
-              <img v-if="preview.show_sidebar_logo === 1" :src="asset(`logos/${client.logo}`)" alt="clientLogo"
-                style="min-height: 65px; max-height: 90px;width: auto; margin: 0 auto;">
-            </div>
-            <div style="flex: 1;" class="feedbackTabs-parent">
-              <div class="feedbacks relative flex justify-center flex-row">
-                <div class="feedbackTabsContainer">
-                  <div v-for="feedback in feedbacks" :key="feedback.id"
-                    style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
-                    <div :id="`feedbackTab${feedback.id}`"
-                      :class="['feedbackTab', { feedbackTabActive: feedback.is_active === 1 }]" :style="{
-                        bottom: '-1px',
-                        backgroundImage: `url('/${feedback.is_active === 1 ? feedbackActiveImage : feedbackInactiveImage}')`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat',
-                        position: 'relative',
-                        cursor: 'pointer',
-                        minWidth: '110px',
-                        width: '100%',
-                        maxWidth: '110px',
-                        height: '35px'
-                      }" @click="feedback.is_active !== 1 && updateActiveFeedback(feedback.id)"
-                      @mouseover="feedback.is_active !== 1 && changeFeedbackActiveBackground($event)"
-                      @mouseout="feedback.is_active !== 1 && changeFeedbackInactiveBackground($event)">
-                      <div
-                        style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 0.875rem; font-weight: 500; text-align: center; width: 100%; text-shadow: 1px 1px 2px rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center;">
-                        <span style="text-align: center;">{{ feedback.name }}</span>
-                        <div v-if="feedback.is_approved === 1"
-                          class="w-2 h-2 bg-green-700 rounded-full border border-white animate-pulse-green"
-                          style="margin-left: 5px; flex-shrink: 0;"></div>
-                      </div>
+          <div style="flex: 1;" class="feedbackTabs-parent">
+            <div class="feedbacks relative flex justify-center flex-row">
+              <div class="feedbackTabsContainer">
+                <div v-for="feedback in feedbacks" :key="feedback.id"
+                  style="display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                  <div :id="`feedbackTab${feedback.id}`"
+                    :class="['feedbackTab', { feedbackTabActive: feedback.is_active === 1 }]" :style="{
+                      bottom: '-1px',
+                      backgroundImage: `url('/${feedback.is_active === 1 ? feedbackActiveImage : feedbackInactiveImage}')`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundRepeat: 'no-repeat',
+                      position: 'relative',
+                      cursor: 'pointer',
+                      minWidth: '110px',
+                      width: '100%',
+                      maxWidth: '110px',
+                      height: '35px'
+                    }" @click="feedback.is_active !== 1 && updateActiveFeedback(feedback.id)"
+                    @mouseover="feedback.is_active !== 1 && changeFeedbackActiveBackground($event)"
+                    @mouseout="feedback.is_active !== 1 && changeFeedbackInactiveBackground($event)">
+                    <div
+                      style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 0.875rem; font-weight: 500; text-align: center; width: 100%; text-shadow: 1px 1px 2px rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center;">
+                      <span style="text-align: center;">{{ feedback.name }}</span>
+                      <div v-if="feedback.is_approved === 1"
+                        class="w-2 h-2 bg-green-700 rounded-full border border-white animate-pulse-green"
+                        style="margin-left: 5px; flex-shrink: 0;"></div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div id="showcase">
-            <div id="bannershowCustom">
-              <nav role="navigation" class="mobileShowcase">
-                <!-- Mobile Menu Toggle Button -->
-                <div id="mobileMenuToggle" :class="{ hidden: isMobileMenuOpen }">
-                  <button ref="menuToggleBtn" id="openMobileMenu" aria-label="Open menu" @click="openMobileMenu">
-                    <Menu class="h-5 w-5" />
-                  </button>
-                </div>
+        </div>
+        <div id="showcase">
+          <div id="bannershowCustom">
+            <nav role="navigation" class="mobileShowcase">
+              <!-- Mobile Menu Toggle Button -->
+              <div id="mobileMenuToggle" :class="{ hidden: isMobileMenuOpen }">
+                <button ref="menuToggleBtn" id="openMobileMenu" aria-label="Open menu" @click="openMobileMenu">
+                  <Menu class="h-5 w-5" />
+                </button>
+              </div>
 
-                <!-- Mobile Menu Backdrop -->
-                <Transition name="backdrop-fade">
-                  <div v-if="isMobileMenuOpen" class="mobile-menu-backdrop" @click="closeMobileMenu"
-                    @touchstart="closeMobileMenu"></div>
-                </Transition>
+              <!-- Mobile Menu Backdrop -->
+              <Transition name="backdrop-fade">
+                <div v-if="isMobileMenuOpen" class="mobile-menu-backdrop" @click="closeMobileMenu"
+                  @touchstart="closeMobileMenu"></div>
+              </Transition>
 
-                <!-- Mobile Menu Panel -->
-                <Transition name="slide-menu">
-                  <div v-if="isMobileMenuOpen" ref="mobileMenuPanel" id="mobileMenu" class="mobile-menu-panel"
-                    @click.stop @touchstart.stop>
-                    <button id="closeMobileMenu" aria-label="Close menu" @click="closeMobileMenu">&times;</button>
-                    <div v-if="preview.show_sidebar_logo === 1" class="w-full">
-                      <div class="mb-2 mt-2 px-2 py-2 mx-auto flex justify-center">
-                        <img :src="asset(`logos/${client.logo}`)" alt="clientLogo" style="width: 180px;">
-                      </div>
+              <!-- Mobile Menu Panel -->
+              <Transition name="slide-menu">
+                <div v-if="isMobileMenuOpen" ref="mobileMenuPanel" id="mobileMenu" class="mobile-menu-panel" @click.stop
+                  @touchstart.stop>
+                  <button id="closeMobileMenu" aria-label="Close menu" @click="closeMobileMenu">&times;</button>
+                  <div v-if="preview.show_sidebar_logo === 1" class="w-full">
+                    <div class="mb-2 mt-2 px-2 py-2 mx-auto flex justify-center">
+                      <img :src="asset(`logos/${client.logo}`)" alt="clientLogo" style="width: 180px;">
                     </div>
-                    <div class="sidebar-image mx-auto mb-4">
-                      <span>Creative Showcase</span>
-                    </div>
-                    <ul id="mobileCategoryList">
-                      <div v-for="category in categories" :key="category.id"
-                        :class="['category-row', { 'category-active': category.is_active === 1 }]"
-                        @click="category.is_active !== 1 && updateActiveCategory(category.id)">
-                        <span :class="{ 'span-active': category.is_active === 1 }" style="font-size: 0.85rem;">{{
-                          category.name }}</span>
-                        <hr>
-                        <span class="category-row-date" style="font-size: 0.7rem;">{{
-                          formatCategoryDate(category.created_at) }}</span>
-                      </div>
-                    </ul>
                   </div>
-                </Transition>
-              </nav>
-              <div class="navbar tabDesktopShowcase" id="navbar">
-                <div v-if="preview.show_sidebar_logo === 1" class="w-full client-logo-div sidebar-top-tab-mobile">
-                  <div id="clientLogoSection" class="mb-2 mt-2 px-2 py-2 mx-auto">
-                    <img :src="asset(`logos/${client.logo}`)" alt="clientLogo" style="width: 150px;">
-                  </div>
-                </div>
-                <div class="sidebar-image-div w-full py-2">
-                  <div class="sidebar-image mx-auto">
+                  <div class="sidebar-image mx-auto mb-4">
                     <span>Creative Showcase</span>
                   </div>
+                  <ul id="mobileCategoryList">
+                    <div v-for="category in categories" :key="category.id"
+                      :class="['category-row', { 'category-active': category.is_active === 1 }]"
+                      @click="category.is_active !== 1 && updateActiveCategory(category.id)">
+                      <span :class="{ 'span-active': category.is_active === 1 }" style="font-size: 0.85rem;">{{
+                        category.name }}</span>
+                      <hr>
+                      <span class="category-row-date" style="font-size: 0.7rem;">{{
+                        formatCategoryDate(category.created_at) }}</span>
+                    </div>
+                  </ul>
                 </div>
-
-                <div id="creative-list2">
-                  <div v-for="category in categories" :key="category.id"
-                    :class="['category-row', { 'category-active': category.is_active === 1 }]"
-                    @click="category.is_active !== 1 && updateActiveCategory(category.id)">
-                    <span :class="{ 'span-active': category.is_active === 1 }" style="font-size: 0.85rem;">{{
-                      category.name }}</span>
-                    <hr>
-                    <span class="category-row-date" style="font-size: 0.7rem;">{{
-                      formatCategoryDate(category.created_at) }}</span>
-                  </div>
+              </Transition>
+            </nav>
+            <div class="navbar tabDesktopShowcase" id="navbar">
+              <div v-if="preview.show_sidebar_logo === 1" class="w-full client-logo-div sidebar-top-tab-mobile">
+                <div id="clientLogoSection" class="mb-2 mt-2 px-2 py-2 mx-auto">
+                  <img :src="asset(`logos/${client.logo}`)" alt="clientLogo" style="width: 150px;">
+                </div>
+              </div>
+              <div class="sidebar-image-div w-full py-2">
+                <div class="sidebar-image mx-auto">
+                  <span>Creative Showcase</span>
                 </div>
               </div>
 
-              <div class="right-column">
-                <div
-                  class="justify-center items-center mt-1 py-2 px-2 relative top-0 left-0 right-0 currentTotalFeedbacks">
-                  <span id="feedbackCounter" v-html="feedbackCounterHtml"></span>
+              <div id="creative-list2">
+                <div v-for="category in categories" :key="category.id"
+                  :class="['category-row', { 'category-active': category.is_active === 1 }]"
+                  @click="category.is_active !== 1 && updateActiveCategory(category.id)">
+                  <span :class="{ 'span-active': category.is_active === 1 }" style="font-size: 0.85rem;">{{
+                    category.name }}</span>
+                  <hr>
+                  <span class="category-row-date" style="font-size: 0.7rem;">{{
+                    formatCategoryDate(category.created_at) }}</span>
                 </div>
+              </div>
+            </div>
 
-                <div class="feedbackSetsContainer">
-                  <template v-for="feedbackSet in feedbackSets" :key="feedbackSet.id">
-                    <div v-if="feedbackSet.name" class="feedbackSet" :id="`feedbackSet${feedbackSet.id}`"
-                      style="display: flex; align-items: center; justify-content: space-between;">
-                      <div class="feedbackSetName" style="flex: 1; text-align: center;">
-                        {{ feedbackSet.name }}
-                      </div>
+            <div class="right-column">
+              <div
+                class="justify-center items-center mt-1 py-2 px-2 relative top-0 left-0 right-0 currentTotalFeedbacks">
+                <span id="feedbackCounter" v-html="feedbackCounterHtml"></span>
+              </div>
+
+              <div class="feedbackSetsContainer">
+                <template v-for="feedbackSet in feedbackSets" :key="feedbackSet.id">
+                  <div v-if="feedbackSet.name" class="feedbackSet" :id="`feedbackSet${feedbackSet.id}`"
+                    style="display: flex; align-items: center; justify-content: space-between;">
+                    <div class="feedbackSetName" style="flex: 1; text-align: center;">
+                      {{ feedbackSet.name }}
                     </div>
-                    <div class="versions" :id="`versions${feedbackSet.id}`">
-                      <div v-for="version in feedbackSet.versions" :key="version.id">
-                        <div v-if="version.name" class="version-title" style="font-weight: bold;">{{
-                          version.name }}</div>
-                        <div class="banners-list" :id="`bannersList${version.id}`">
-                          <!-- Banner content -->
+                  </div>
+                  <div class="versions" :id="`versions${feedbackSet.id}`">
+                    <div v-for="version in feedbackSet.versions" :key="version.id">
+                      <div v-if="version.name" class="version-title" style="font-weight: bold;">{{
+                        version.name }}</div>
+                      <div class="banners-list" :id="`bannersList${version.id}`">
+                        <!-- Skeleton Loaders -->
+                        <div v-if="isLoading" class="skeleton-container">
+                          <!-- Banner Skeletons -->
                           <template v-if="activeCategory && activeCategory.type === 'banner'">
-                            <div v-for="(banner, index) in version.banners" :key="banner.id"
-                              :class="`banner-creatives banner-area-${banner.size.width}-${banner.size.height}`"
-                              style="display: inline-block; margin-right: 0.5rem; margin-left: 0.5rem; margin-bottom: 2rem;"
-                              :style="{ width: `${banner.size.width}px` }">
-                              <div
-                                style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">
-                                <small style="float: left; font-size: 0.85rem; font-weight: bold;">{{
-                                  banner.size.width }}x{{ banner.size.height
-                                  }}</small>
-                                <small style="float: right; font-size: 0.85rem; font-weight: bold;">{{
-                                  banner.file_size }}</small>
+                            <div v-for="n in 6" :key="`skeleton-banner-${n}`" class="skeleton-banner-item">
+                              <div class="skeleton-banner-header">
+                                <div class="skeleton-text skeleton-text-sm"></div>
+                                <div class="skeleton-text skeleton-text-sm"></div>
                               </div>
-                              <iframe v-if="index < 3" class="iframe-banners" :src="`/${banner.path}/index.html`"
-                                :width="banner.size.width" :height="banner.size.height" frameBorder="0" scrolling="no"
-                                :id="`rel${banner.id}`" loading="eager"></iframe>
-                              <div v-else class="banner-placeholder" :data-banner-path="`/${banner.path}/index.html`"
-                                :data-banner-id="banner.id" :data-width="banner.size.width"
-                                :data-height="banner.size.height" :style="{
-                                  width: `${banner.size.width}px`,
-                                  height: `${banner.size.height}px`,
-                                  background: '#f8f9fa',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  border: '1px solid #dee2e6',
-                                  cursor: 'pointer',
-                                  position: 'relative'
-                                }" @click="loadBanner(banner.id)">
-                                <div style="text-align: center; color: #6c757d;">
-                                  <div style="font-size: 14px; margin-bottom: 5px;">
-                                    Click
-                                    to Load</div>
-                                  <div style="font-size: 12px;">Banner Preview</div>
-                                </div>
-                                <div class="loading-spinner"
-                                  style="display: none; border: 2px solid #f3f4f6; border-top: 2px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; position: absolute;">
-                                </div>
+                              <div class="skeleton-banner-body"
+                                :style="{ width: n === 1 ? '300px' : n === 2 ? '728px' : n === 3 ? '160px' : n === 4 ? '320px' : n === 5 ? '970px' : '468px', height: n === 1 ? '250px' : n === 2 ? '90px' : n === 3 ? '600px' : n === 4 ? '50px' : n === 5 ? '250px' : '60px' }">
                               </div>
-                              <ul style="display: flex; flex-direction: row;" class="previewIcons">
-                                <li>
-                                  <RotateCw :id="`relBt${banner.id}`" @click="reloadBanner(banner.id)" class="h-4 w-4"
-                                    style="display: flex; margin-top: 0.5rem; cursor: pointer;" />
-                                </li>
-                                <li v-if="authUserClientName === 'Planet Nine'" class="banner-options">
-                                  <a :href="`/previews/banner/download/${banner.id}`">
-                                    <Download class="h-4 w-4"
-                                      style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem;" />
-                                  </a>
-                                </li>
-                              </ul>
+                              <div class="skeleton-banner-footer">
+                                <div class="skeleton-icon"></div>
+                              </div>
                             </div>
                           </template>
 
-                          <!-- Video content -->
+                          <!-- Video Skeletons -->
                           <template v-if="activeCategory && activeCategory.type === 'video'">
-                            <div v-for="video in version.videos" :key="video.id" class="mx-auto mb-8"
-                              style="max-width: 100%;">
-                              <div style="background:transparent; display:flex; justify-content:center;"
-                                class="mt-2 mb-2 rounded-lg">
-                                <video :src="`/${video.path}`" controls muted
-                                  class="block mx-auto rounded-2xl video-preview"
-                                  style="max-width:70vw; max-height:50vh; min-width: 340px; width:auto; height:auto; background:#000;"
-                                  controlsList="nodownload noremoteplayback" disablePictureInPicture
-                                  @loadedmetadata="matchVideoMetaWidth"></video>
-                              </div>
-                              <div class="bg-gray-50 text-gray-800 text-sm rounded-2xl p-3 mt-2 w-full video-media-info"
-                                style="margin:0 auto;">
-                                <div v-if="authUserClientName === 'Planet Nine'" class="flex gap-4 mb-2 justify-center">
-                                  <a :href="`/${video.path}`" download title="Download">
-                                    <Download class="h-5 w-5" style="display: flex; margin-left: 0.5rem;" />
-                                  </a>
-                                </div>
-                                <div
-                                  class="font-semibold text-base mb-1 underline text-center flex justify-center align-center">
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="lucide lucide-info-icon lucide-info">
-                                    <circle cx="12" cy="12" r="10" />
-                                    <path d="M12 16v-4" />
-                                    <path d="M12 8h.01" />
-                                  </svg>
-                                </div>
-                                <div class="font-semibold text-base mb-1 underline text-center">
-                                  Media Info</div>
-                                <div><strong>Resolution:</strong> {{ video.size.width }}
-                                  x
-                                  {{ video.size.height }}</div>
-                                <div><strong>Aspect Ratio:</strong> {{
-                                  video.aspect_ratio ??
-                                  '-' }}</div>
-                                <div><strong>Codec:</strong> {{ video.codec ?? '-' }}
-                                </div>
-                                <div><strong>FPS:</strong> {{ video.fps ?? '-' }}</div>
-                                <div><strong>File Size:</strong> {{ video.file_size ??
-                                  '-'
-                                }}</div>
-                                <div v-if="video.companion_banner_path"
-                                  class="mt-2 w-full flex flex-col items-center justify-center">
-                                  <img :src="`/${video.companion_banner_path}`" alt="Companion Banner"
-                                    class="rounded border mx-auto" style="max-width:970px;max-height:auto;" />
-                                  <a v-if="authUserClientName === 'Planet Nine'"
-                                    :href="`/${video.companion_banner_path}`" download title="Download Companion Banner"
-                                    class="mt-2 flex items-center gap-1 text-blue-600 hover:text-blue-800">
-                                    <Download class="h-4 w-4" />
-                                    <span class="text-xs">Download Companion
-                                      Banner</span>
-                                  </a>
-                                </div>
+                            <div v-for="n in 2" :key="`skeleton-video-${n}`" class="skeleton-video-item">
+                              <div class="skeleton-video-player"></div>
+                              <div class="skeleton-video-info">
+                                <div class="skeleton-text skeleton-text-lg mb-2"></div>
+                                <div class="skeleton-text skeleton-text-md mb-1"></div>
+                                <div class="skeleton-text skeleton-text-md mb-1"></div>
+                                <div class="skeleton-text skeleton-text-sm"></div>
                               </div>
                             </div>
                           </template>
 
-                          <!-- Social content -->
+                          <!-- Social Skeletons -->
                           <template v-if="activeCategory && activeCategory.type === 'social'">
-                            <div v-for="social in version.socials" :key="social.id"
-                              style="display: inline-block; margin: 10px; max-width: 1000px;">
-                              <img :src="`/${social.path}`" :alt="social.name" class="social-preview-img rounded-2xl"
-                                style="width: 100%; max-width: 600px; height: auto; object-fit: contain; box-shadow: 0 2px 8px #0001; cursor: pointer; margin-top: 0;"
-                                @click="openSocialImageModal(`/${social.path}`, social.name)">
-                              <ul style="display: flex; flex-direction: row; justify-content: left; margin-top: 10px;"
-                                class="previewIcons">
-                                <li v-if="authUserClientName === 'Planet Nine'">
-                                  <a :href="`/${social.path}`" :download="`${social.name}.jpg`">
-                                    <Download class="h-5 w-5" style="display: flex; margin-left: 0.5rem;" />
-                                  </a>
-                                </li>
-                              </ul>
+                            <div v-for="n in 4" :key="`skeleton-social-${n}`" class="skeleton-social-item">
+                              <div class="skeleton-social-image"></div>
+                              <div class="skeleton-icon mt-2"></div>
                             </div>
                           </template>
 
-                          <!-- GIF content -->
+                          <!-- GIF Skeletons -->
                           <template v-if="activeCategory && activeCategory.type === 'gif'">
-                            <div v-for="gif in version.gifs" :key="gif.id"
-                              :class="`banner-creatives banner-area-${gif.size.width}-${gif.size.height}`"
-                              style="display: inline-block; margin-right: 0.5rem; margin-left: 0.5rem; margin-bottom: 1rem;"
-                              :style="{ width: `${gif.size.width}px` }">
-                              <div
-                                style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">
-                                <small style="float: left; font-size: 0.85rem; font-weight: bold;">{{
-                                  gif.size.width }}x{{ gif.size.height }}</small>
-                                <small style="float: right; font-size: 0.85rem; font-weight: bold;">{{
-                                  gif.file_size }}</small>
+                            <div v-for="n in 6" :key="`skeleton-gif-${n}`" class="skeleton-gif-item">
+                              <div class="skeleton-banner-header">
+                                <div class="skeleton-text skeleton-text-sm"></div>
+                                <div class="skeleton-text skeleton-text-sm"></div>
                               </div>
-                              <iframe class="iframe-banners" style="margin-top: 2px;" :src="`/${gif.path}`"
-                                :width="gif.size.width" :height="gif.size.height" frameBorder="0" scrolling="no"
-                                :id="`rel${gif.id}`"></iframe>
-                              <ul style="display: flex; flex-direction: row;" class="previewIcons">
-                                <li>
-                                  <RotateCw :id="`relBt${gif.id}`" @click="reloadBanner(gif.id)" class="h-5 w-5"
-                                    style="display: flex; margin-top: 0.5rem; cursor: pointer;" />
-                                </li>
-                                <li v-if="authUserClientName === 'Planet Nine'">
-                                  <a :href="`/${gif.path}`" :download="gif.name">
-                                    <Download class="h-5 w-5"
-                                      style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem;" />
-                                  </a>
-                                </li>
-                              </ul>
+                              <div class="skeleton-gif-body"
+                                :style="{ width: n === 1 ? '300px' : n === 2 ? '728px' : n === 3 ? '160px' : n === 4 ? '320px' : n === 5 ? '970px' : '468px', height: n === 1 ? '250px' : n === 2 ? '90px' : n === 3 ? '600px' : n === 4 ? '50px' : n === 5 ? '250px' : '60px' }">
+                              </div>
+                              <div class="skeleton-banner-footer">
+                                <div class="skeleton-icon"></div>
+                              </div>
                             </div>
                           </template>
                         </div>
+
+                        <!-- Banner content -->
+                        <template v-if="!isLoading && activeCategory && activeCategory.type === 'banner'">
+                          <div v-for="(banner, index) in version.banners" :key="banner.id"
+                            :class="`banner-creatives banner-area-${banner.size.width}-${banner.size.height}`"
+                            style="display: inline-block; margin-right: 0.5rem; margin-left: 0.5rem; margin-bottom: 2rem;"
+                            :style="{ width: `${banner.size.width}px` }">
+                            <div
+                              style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">
+                              <small style="float: left; font-size: 0.85rem; font-weight: bold;">{{
+                                banner.size.width }}x{{ banner.size.height
+                                }}</small>
+                              <small style="float: right; font-size: 0.85rem; font-weight: bold;">{{
+                                banner.file_size }}</small>
+                            </div>
+                            <iframe v-if="index < 3" class="iframe-banners" :src="`/${banner.path}/index.html`"
+                              :width="banner.size.width" :height="banner.size.height" frameBorder="0" scrolling="no"
+                              :id="`rel${banner.id}`" loading="eager"></iframe>
+                            <div v-else class="banner-placeholder" :data-banner-path="`/${banner.path}/index.html`"
+                              :data-banner-id="banner.id" :data-width="banner.size.width"
+                              :data-height="banner.size.height" :style="{
+                                width: `${banner.size.width}px`,
+                                height: `${banner.size.height}px`,
+                                background: '#f8f9fa',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                border: '1px solid #dee2e6',
+                                cursor: 'pointer',
+                                position: 'relative'
+                              }" @click="loadBanner(banner.id)">
+                              <div style="text-align: center; color: #6c757d;">
+                                <div style="font-size: 14px; margin-bottom: 5px;">
+                                  Click
+                                  to Load</div>
+                                <div style="font-size: 12px;">Banner Preview</div>
+                              </div>
+                              <div class="loading-spinner"
+                                style="display: none; border: 2px solid #f3f4f6; border-top: 2px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; position: absolute;">
+                              </div>
+                            </div>
+                            <ul style="display: flex; flex-direction: row;" class="previewIcons">
+                              <li>
+                                <RotateCw :id="`relBt${banner.id}`" @click="reloadBanner(banner.id)" class="h-4 w-4"
+                                  style="display: flex; margin-top: 0.5rem; cursor: pointer;" />
+                              </li>
+                              <li v-if="authUserClientName === 'Planet Nine'" class="banner-options">
+                                <a :href="`/previews/banner/download/${banner.id}`">
+                                  <Download class="h-4 w-4"
+                                    style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem;" />
+                                </a>
+                              </li>
+                            </ul>
+                          </div>
+                        </template>
+
+                        <!-- Video content -->
+                        <template v-if="!isLoading && activeCategory && activeCategory.type === 'video'">
+                          <div v-for="video in version.videos" :key="video.id" class="mx-auto mb-8"
+                            style="max-width: 100%;">
+                            <div style="background:transparent; display:flex; justify-content:center;"
+                              class="mt-2 mb-2 rounded-lg">
+                              <video :src="`/${video.path}`" controls muted
+                                class="block mx-auto rounded-2xl video-preview"
+                                style="max-width:70vw; max-height:50vh; min-width: 340px; width:auto; height:auto; background:#000;"
+                                controlsList="nodownload noremoteplayback" disablePictureInPicture
+                                @loadedmetadata="matchVideoMetaWidth"></video>
+                            </div>
+                            <div class="bg-gray-50 text-gray-800 text-sm rounded-2xl p-3 mt-2 w-full video-media-info"
+                              style="margin:0 auto;">
+                              <div v-if="authUserClientName === 'Planet Nine'" class="flex gap-4 mb-2 justify-center">
+                                <a :href="`/${video.path}`" download title="Download">
+                                  <Download class="h-5 w-5" style="display: flex; margin-left: 0.5rem;" />
+                                </a>
+                              </div>
+                              <div
+                                class="font-semibold text-base mb-1 underline text-center flex justify-center align-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                  stroke-linejoin="round" class="lucide lucide-info-icon lucide-info">
+                                  <circle cx="12" cy="12" r="10" />
+                                  <path d="M12 16v-4" />
+                                  <path d="M12 8h.01" />
+                                </svg>
+                              </div>
+                              <div class="font-semibold text-base mb-1 underline text-center">
+                                Media Info</div>
+                              <div><strong>Resolution:</strong> {{ video.size.width }}
+                                x
+                                {{ video.size.height }}</div>
+                              <div><strong>Aspect Ratio:</strong> {{
+                                video.aspect_ratio ??
+                                '-' }}</div>
+                              <div><strong>Codec:</strong> {{ video.codec ?? '-' }}
+                              </div>
+                              <div><strong>FPS:</strong> {{ video.fps ?? '-' }}</div>
+                              <div><strong>File Size:</strong> {{ video.file_size ??
+                                '-'
+                              }}</div>
+                              <div v-if="video.companion_banner_path"
+                                class="mt-2 w-full flex flex-col items-center justify-center">
+                                <img :src="`/${video.companion_banner_path}`" alt="Companion Banner"
+                                  class="rounded border mx-auto" style="max-width:970px;max-height:auto;" />
+                                <a v-if="authUserClientName === 'Planet Nine'" :href="`/${video.companion_banner_path}`"
+                                  download title="Download Companion Banner"
+                                  class="mt-2 flex items-center gap-1 text-blue-600 hover:text-blue-800">
+                                  <Download class="h-4 w-4" />
+                                  <span class="text-xs">Download Companion
+                                    Banner</span>
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        </template>
+
+                        <!-- Social content -->
+                        <template v-if="!isLoading && activeCategory && activeCategory.type === 'social'">
+                          <div v-for="social in version.socials" :key="social.id"
+                            style="display: inline-block; margin: 10px; max-width: 1000px;">
+                            <img :src="`/${social.path}`" :alt="social.name" class="social-preview-img rounded-2xl"
+                              style="width: 100%; max-width: 600px; height: auto; object-fit: contain; box-shadow: 0 2px 8px #0001; cursor: pointer; margin-top: 0;"
+                              @click="openSocialImageModal(`/${social.path}`, social.name)">
+                            <ul style="display: flex; flex-direction: row; justify-content: left; margin-top: 10px;"
+                              class="previewIcons">
+                              <li v-if="authUserClientName === 'Planet Nine'">
+                                <a :href="`/${social.path}`" :download="`${social.name}.jpg`">
+                                  <Download class="h-5 w-5" style="display: flex; margin-left: 0.5rem;" />
+                                </a>
+                              </li>
+                            </ul>
+                          </div>
+                        </template>
+
+                        <!-- GIF content -->
+                        <template v-if="!isLoading && activeCategory && activeCategory.type === 'gif'">
+                          <div v-for="gif in version.gifs" :key="gif.id"
+                            :class="`banner-creatives banner-area-${gif.size.width}-${gif.size.height}`"
+                            style="display: inline-block; margin-right: 0.5rem; margin-left: 0.5rem; margin-bottom: 1rem;"
+                            :style="{ width: `${gif.size.width}px` }">
+                            <div
+                              style="display: flex; justify-content: space-between; padding: 0; color: black; border-top-left-radius: 5px; border-top-right-radius: 5px;">
+                              <small style="float: left; font-size: 0.85rem; font-weight: bold;">{{
+                                gif.size.width }}x{{ gif.size.height }}</small>
+                              <small style="float: right; font-size: 0.85rem; font-weight: bold;">{{
+                                gif.file_size }}</small>
+                            </div>
+                            <iframe class="iframe-banners" style="margin-top: 2px;" :src="`/${gif.path}`"
+                              :width="gif.size.width" :height="gif.size.height" frameBorder="0" scrolling="no"
+                              :id="`rel${gif.id}`"></iframe>
+                            <ul style="display: flex; flex-direction: row;" class="previewIcons">
+                              <li>
+                                <RotateCw :id="`relBt${gif.id}`" @click="reloadBanner(gif.id)" class="h-5 w-5"
+                                  style="display: flex; margin-top: 0.5rem; cursor: pointer;" />
+                              </li>
+                              <li v-if="authUserClientName === 'Planet Nine'">
+                                <a :href="`/${gif.path}`" :download="gif.name">
+                                  <Download class="h-5 w-5"
+                                    style="display: flex; margin-top: 0.5rem; margin-left: 0.5rem;" />
+                                </a>
+                              </li>
+                            </ul>
+                          </div>
+                        </template>
                       </div>
                     </div>
-                  </template>
-                </div>
+                  </div>
+                </template>
+              </div>
 
-                <!-- Feedback Description Toggle Button -->
-                <div id="feedbackClick" @click="toggleFeedbackDescription">
-                  <img :src="`/${rightTabFeedbackDescriptionImage}`" alt="feedback icon">
-                </div>
-
-                <!-- Loader positioned inside right-column -->
-                <div id="loaderArea" :style="{ display: isLoading ? 'flex' : 'none' }">
-                  <span class="loader"></span>
-                </div>
+              <!-- Feedback Description Toggle Button -->
+              <div id="feedbackClick" @click="toggleFeedbackDescription">
+                <img :src="`/${rightTabFeedbackDescriptionImage}`" alt="feedback icon">
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Feedback Description Panel (independent) -->
-        <div id="feedbackDescription"
-          :class="{ show: isFeedbackDescriptionVisible, 'transitions-enabled': transitionsEnabled }">
-          <div id="feedbackDescriptionUpperpart">
-            <div class="feedback-header-title">Feedback Notes</div>
-            <div class="cursor-pointer feedback-close-btn" @click="hideFeedbackDescription">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                stroke="currentColor" class="w-5 h-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </div>
-          </div>
-          <div id="feedbackDescriptionLowerPart">
-            <div id="feedbackMessage" v-html="feedbackMessage || 'No feedback description available.'">
-            </div>
+      <!-- Feedback Description Panel (independent) -->
+      <div id="feedbackDescription"
+        :class="{ show: isFeedbackDescriptionVisible, 'transitions-enabled': transitionsEnabled }">
+        <div id="feedbackDescriptionUpperpart">
+          <div class="feedback-header-title">Feedback Notes</div>
+          <div class="cursor-pointer feedback-close-btn" @click="hideFeedbackDescription">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+              stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </div>
         </div>
-      </section>
-    </main>
+        <div id="feedbackDescriptionLowerPart">
+          <div id="feedbackMessage" v-html="feedbackMessage || 'No feedback description available.'">
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-    <!-- Bottom Right Actions Container -->
-    <div class="bottom-right-actions">
-      <div class="fileTransferSection">
-        <div v-if="fileTransfer && !isIntroActive" id="fileTransferWidget"
-          :class="['file-transfer-widget', { 'minimized': isFileTransferMinimized }]" aria-hidden="false">
-          <div id="fileTransferPanel" class="file-transfer-panel" role="region">
-            <!-- Minimize/Maximize Button -->
-            <button class="ft-toggle-btn" @click="toggleFileTransferWidget"
-              :title="isFileTransferMinimized ? 'Maximize' : 'Minimize'" aria-label="Toggle file transfer widget">
-              <ChevronUp v-if="isFileTransferMinimized" class="h-4 w-4" />
-              <ChevronDown v-else class="h-4 w-4" />
-            </button>
+  <!-- Bottom Right Actions Container -->
+  <div class="bottom-right-actions">
+    <div class="fileTransferSection">
+      <div v-if="fileTransfer && !isIntroActive" id="fileTransferWidget"
+        :class="['file-transfer-widget', { 'minimized': isFileTransferMinimized }]" aria-hidden="false">
+        <div id="fileTransferPanel" class="file-transfer-panel" role="region">
+          <!-- Minimize/Maximize Button -->
+          <button class="ft-toggle-btn" @click="toggleFileTransferWidget"
+            :title="isFileTransferMinimized ? 'Maximize' : 'Minimize'" aria-label="Toggle file transfer widget">
+            <ChevronUp v-if="isFileTransferMinimized" class="h-4 w-4" />
+            <ChevronDown v-else class="h-4 w-4" />
+          </button>
 
-            <!-- Content (hidden when minimized) -->
-            <Transition name="expand">
-              <div v-if="!isFileTransferMinimized" class="ft-expandable-wrapper">
-                <div class="ft-expandable-content">
-                  <div class="ft-content">
-                    <Download class="ft-icon" />
-                    <div class="ft-text-group">
-                      <div class="ft-title">Files Ready</div>
-                      <div class="ft-subtitle">Download now</div>
-                    </div>
+          <!-- Content (hidden when minimized) -->
+          <Transition name="expand">
+            <div v-if="!isFileTransferMinimized" class="ft-expandable-wrapper">
+              <div class="ft-expandable-content">
+                <div class="ft-content">
+                  <Download class="ft-icon" />
+                  <div class="ft-text-group">
+                    <div class="ft-title">Files Ready</div>
+                    <div class="ft-subtitle">Download now</div>
                   </div>
-                  <a id="fileTransferButton" class="file-transfer-btn"
-                    :href="`/file-transfers-view/${fileTransfer.slug}`" target="_blank" rel="noopener noreferrer">
-                    <span>Get Files</span>
-                    <ArrowRight class="h-4 w-4" />
+                </div>
+                <a id="fileTransferButton" class="file-transfer-btn" :href="`/file-transfers-view/${fileTransfer.slug}`"
+                  target="_blank" rel="noopener noreferrer">
+                  <span>Get Files</span>
+                  <ArrowRight class="h-4 w-4" />
+                </a>
+              </div>
+            </div>
+          </Transition>
+
+          <!-- Minimized State Display -->
+          <Transition name="minimize">
+            <div v-if="isFileTransferMinimized" class="ft-minimized-wrapper">
+              <div class="ft-minimized-content">
+                <Download class="ft-minimized-icon" />
+                <span class="ft-minimized-text">Files Ready</span>
+              </div>
+            </div>
+          </Transition>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tour Assistant Chatbot -->
+    <div v-if="showTourAssistant" class="tour-assistant">
+      <button @click="toggleAssistantMenu" class="tour-help-button" :class="{ 'active': isAssistantMenuOpen }"
+        tabindex="0" title="Need Help?" aria-label="Open assistant chatbot">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </button>
+
+      <!-- Chatbot Interface -->
+      <Transition name="chat-slide">
+        <div v-if="isAssistantMenuOpen && !isIntroActive" class="assistant-chatbot" @click.stop>
+          <!-- Chatbot Header -->
+          <div class="chatbot-header">
+            <div class="chatbot-avatar">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 8V4H8"></path>
+                <rect width="16" height="12" x="4" y="8" rx="2"></rect>
+                <path d="M2 14h2"></path>
+                <path d="M20 14h2"></path>
+                <path d="M15 13v2"></path>
+                <path d="M9 13v2"></path>
+              </svg>
+            </div>
+            <div class="chatbot-header-text">
+              <h4>Preview Assistant</h4>
+            </div>
+            <button @click="toggleAssistantMenu" class="chatbot-close" aria-label="Close chatbot">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Chat Messages -->
+          <div class="chatbot-messages">
+            <!-- Bot greeting -->
+            <div class="chat-message bot-message">
+              <div class="message-bubble">
+                <p>How can we help?</p>
+              </div>
+            </div>
+
+            <!-- Options as chat buttons -->
+            <div class="chat-options">
+              <button @click="restartTour" class="chat-option-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 11l18-5v12L3 14v-3z"></path>
+                  <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path>
+                </svg>
+                <span>Take a tour</span>
+              </button>
+              <button v-if="!showContactReply" @click="contactSupport" class="chat-option-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+                  </path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                <span>Contact us</span>
+              </button>
+            </div>
+
+            <!-- Bot reply for contact support -->
+            <Transition name="message-fade">
+              <div v-if="showContactReply" class="chat-message bot-message">
+                <div class="message-bubble">
+                  <p>We'd love to hear from you! Please reach out to us at:</p>
+                  <a href="mailto:support@planetnine.com" class="support-email">
+                    support@planetnine.com
                   </a>
                 </div>
               </div>
             </Transition>
-
-            <!-- Minimized State Display -->
-            <Transition name="minimize">
-              <div v-if="isFileTransferMinimized" class="ft-minimized-wrapper">
-                <div class="ft-minimized-content">
-                  <Download class="ft-minimized-icon" />
-                  <span class="ft-minimized-text">Files Ready</span>
-                </div>
-              </div>
-            </Transition>
           </div>
         </div>
-      </div>
+      </Transition>
+    </div>
+  </div>
 
-      <!-- Tour Assistant Chatbot -->
-      <div v-if="showTourAssistant" class="tour-assistant">
-        <button @click="toggleAssistantMenu" class="tour-help-button" :class="{ 'active': isAssistantMenuOpen }"
-          tabindex="0" title="Need Help?" aria-label="Open assistant chatbot">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+  <!-- Introduction Tour Overlay -->
+  <Transition name="fade">
+    <div v-if="showIntroOverlay" class="intro-overlay" @click="skipIntro"></div>
+  </Transition>
+
+  <!-- Introduction Tour Modal -->
+  <Transition name="slide-up">
+    <div v-if="isIntroActive" class="intro-modal"
+      :class="{ 'help-button-step': getCurrentStep()?.element === '.tour-help-button' }" @click.stop>
+      <!-- Decorative background elements -->
+      <div class="intro-modal-bg-decoration"></div>
+
+      <div class="intro-modal-header">
+        <div class="intro-step-indicator">
+          <div class="intro-step-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4" />
+              <path d="M12 8h.01" />
+            </svg>
+            <span>Step {{ currentStep + 1 }}/{{ steps.length }}</span>
+          </div>
+        </div>
+        <button class="intro-close-btn" @click="skipIntro" aria-label="Skip tour" title="Close tour">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
         </button>
-
-        <!-- Chatbot Interface -->
-        <Transition name="chat-slide">
-          <div v-if="isAssistantMenuOpen && !isIntroActive" class="assistant-chatbot" @click.stop>
-            <!-- Chatbot Header -->
-            <div class="chatbot-header">
-              <div class="chatbot-avatar">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 8V4H8"></path>
-                  <rect width="16" height="12" x="4" y="8" rx="2"></rect>
-                  <path d="M2 14h2"></path>
-                  <path d="M20 14h2"></path>
-                  <path d="M15 13v2"></path>
-                  <path d="M9 13v2"></path>
-                </svg>
-              </div>
-              <div class="chatbot-header-text">
-                <h4>Preview Assistant</h4>
-              </div>
-              <button @click="toggleAssistantMenu" class="chatbot-close" aria-label="Close chatbot">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
-            </div>
-
-            <!-- Chat Messages -->
-            <div class="chatbot-messages">
-              <!-- Bot greeting -->
-              <div class="chat-message bot-message">
-                <div class="message-bubble">
-                  <p>How can we help?</p>
-                </div>
-              </div>
-
-              <!-- Options as chat buttons -->
-              <div class="chat-options">
-                <button @click="restartTour" class="chat-option-btn">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 11l18-5v12L3 14v-3z"></path>
-                    <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"></path>
-                  </svg>
-                  <span>Take a tour</span>
-                </button>
-                <button v-if="!showContactReply" @click="contactSupport" class="chat-option-btn">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
-                    </path>
-                    <polyline points="22,6 12,13 2,6"></polyline>
-                  </svg>
-                  <span>Contact us</span>
-                </button>
-              </div>
-
-              <!-- Bot reply for contact support -->
-              <Transition name="message-fade">
-                <div v-if="showContactReply" class="chat-message bot-message">
-                  <div class="message-bubble">
-                    <p>We'd love to hear from you! Please reach out to us at:</p>
-                    <a href="mailto:support@planetnine.com" class="support-email">
-                      support@planetnine.com
-                    </a>
-                  </div>
-                </div>
-              </Transition>
-            </div>
-          </div>
-        </Transition>
       </div>
-    </div>
-
-    <!-- Introduction Tour Overlay -->
-    <Transition name="fade">
-      <div v-if="showIntroOverlay" class="intro-overlay" @click="skipIntro"></div>
-    </Transition>
-
-    <!-- Introduction Tour Modal -->
-    <Transition name="slide-up">
-      <div v-if="isIntroActive" class="intro-modal"
-        :class="{ 'help-button-step': getCurrentStep()?.element === '.tour-help-button' }" @click.stop>
-        <!-- Decorative background elements -->
-        <div class="intro-modal-bg-decoration"></div>
-
-        <div class="intro-modal-header">
-          <div class="intro-step-indicator">
-            <div class="intro-step-badge">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 16v-4" />
-                <path d="M12 8h.01" />
-              </svg>
-              <span>Step {{ currentStep + 1 }}/{{ steps.length }}</span>
-            </div>
-          </div>
-          <button class="intro-close-btn" @click="skipIntro" aria-label="Skip tour" title="Close tour">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+      <div class="intro-modal-body">
+        <h3 class="intro-modal-title">{{ getCurrentStep()?.title }}</h3>
+        <p class="intro-modal-description">{{ getCurrentStep()?.description }}</p>
+      </div>
+      <div class="intro-modal-footer">
+        <div class="intro-nav-buttons">
+          <button class="intro-btn intro-btn-secondary" @click="prevStep" :disabled="currentStep === 0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            <span>Previous</span>
+          </button>
+          <button class="intro-btn intro-btn-primary" @click="nextStep">
+            <span>{{ currentStep === steps.length - 1 ? 'Finish' : 'Next' }}</span>
+            <svg v-if="currentStep !== steps.length - 1" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
           </button>
         </div>
-        <div class="intro-modal-body">
-          <h3 class="intro-modal-title">{{ getCurrentStep()?.title }}</h3>
-          <p class="intro-modal-description">{{ getCurrentStep()?.description }}</p>
-        </div>
-        <div class="intro-modal-footer">
-          <div class="intro-nav-buttons">
-            <button class="intro-btn intro-btn-secondary" @click="prevStep" :disabled="currentStep === 0">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="15 18 9 12 15 6"></polyline>
-              </svg>
-              <span>Previous</span>
-            </button>
-            <button class="intro-btn intro-btn-primary" @click="nextStep">
-              <span>{{ currentStep === steps.length - 1 ? 'Finish' : 'Next' }}</span>
-              <svg v-if="currentStep !== steps.length - 1" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-              <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            </button>
+        <div class="intro-progress-section">
+          <div class="intro-dots">
+            <span v-for="(step, index) in steps" :key="index" class="intro-dot"
+              :class="{ 'active': index === currentStep, 'completed': index < currentStep }"></span>
           </div>
-          <div class="intro-progress-section">
-            <div class="intro-dots">
-              <span v-for="(step, index) in steps" :key="index" class="intro-dot"
-                :class="{ 'active': index === currentStep, 'completed': index < currentStep }"></span>
-            </div>
-            <button class="intro-skip-btn" @click="skipIntro">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="13 17 18 12 13 7"></polyline>
-                <polyline points="6 17 11 12 6 7"></polyline>
-              </svg>
-              <span>Skip Tour</span>
-            </button>
-          </div>
+          <button class="intro-skip-btn" @click="skipIntro">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="13 17 18 12 13 7"></polyline>
+              <polyline points="6 17 11 12 6 7"></polyline>
+            </svg>
+            <span>Skip Tour</span>
+          </button>
         </div>
       </div>
-    </Transition>
+    </div>
+  </Transition>
 
-    <footer v-if="preview.show_footer" class="footer py-8">
-      <div class="container mx-auto px-4 text-center text-base text-gray-600">
-        &copy; All Rights Reserved.
-        <a href="https://www.planetnine.com" class="underline hover:text-black" target="_blank">
-          Planet Nine
-        </a> - {{ currentYear }}
-      </div>
-    </footer>
+  <footer v-if="preview.show_footer" class="footer py-8">
+    <div class="container mx-auto px-4 text-center text-base text-gray-600">
+      &copy; All Rights Reserved.
+      <a href="https://www.planetnine.com" class="underline hover:text-black" target="_blank">
+        Planet Nine
+      </a> - {{ currentYear }}
+    </div>
+  </footer>
 </template>
 <style>
 /* CSS variables are set synchronously via JavaScript at component setup */
