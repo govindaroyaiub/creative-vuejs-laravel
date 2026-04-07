@@ -987,7 +987,7 @@ onUnmounted(() => {
           <h1><span class="font-semibold">Name: </span> <span class="capitalize">{{ preview.name }}</span>
           </h1>
           <h1><span class="font-semibold">Client: </span> <span class="capitalize">{{ client.name
-              }}</span></h1>
+          }}</span></h1>
           <h1>
             <span class="font-semibold">Date: </span> <span>{{ formatDate(preview.created_at) }}</span>
           </h1>
@@ -1123,13 +1123,102 @@ onUnmounted(() => {
             </div>
 
             <div class="right-column">
+              <!-- Feedback Counter Skeleton -->
               <div
                 class="justify-center items-center mt-1 py-2 px-2 relative top-0 left-0 right-0 currentTotalFeedbacks">
-                <span id="feedbackCounter" v-html="feedbackCounterHtml"></span>
+                <template v-if="isLoading">
+                  <div class="skeleton-feedback-counter">
+                    <div class="skeleton-counter-text"></div>
+                  </div>
+                </template>
+                <span v-else id="feedbackCounter" v-html="feedbackCounterHtml"></span>
               </div>
 
               <div class="feedbackSetsContainer">
-                <template v-for="feedbackSet in feedbackSets" :key="feedbackSet.id">
+                <!-- Full Page Skeleton Loader -->
+                <template v-if="isLoading">
+                  <div class="skeleton-page-wrapper">
+                    <!-- Feedback Set Name Skeleton -->
+                    <div class="skeleton-feedbackset-name"></div>
+
+                    <!-- Version Title Skeleton -->
+                    <div class="skeleton-version-title"></div>
+
+                    <!-- Content Skeleton Container -->
+                    <div class="skeleton-content-area">
+                      <!-- Banner Skeletons -->
+                      <template v-if="activeCategory && activeCategory.type === 'banner'">
+                        <div v-for="n in 6" :key="`skeleton-banner-${n}`" class="skeleton-banner-card">
+                          <div class="skeleton-banner-header">
+                            <div class="skeleton-size-text"></div>
+                            <div class="skeleton-size-text"></div>
+                          </div>
+                          <div class="skeleton-banner-preview" :style="{
+                            width: n === 1 ? '300px' : n === 2 ? '728px' : n === 3 ? '160px' : n === 4 ? '320px' : n === 5 ? '970px' : '468px',
+                            height: n === 1 ? '250px' : n === 2 ? '90px' : n === 3 ? '600px' : n === 4 ? '50px' : n === 5 ? '250px' : '60px'
+                          }">
+                            <div class="skeleton-play-icon"></div>
+                          </div>
+                          <div class="skeleton-banner-actions">
+                            <div class="skeleton-action-icon"></div>
+                          </div>
+                        </div>
+                      </template>
+
+                      <!-- Video Skeletons -->
+                      <template v-if="activeCategory && activeCategory.type === 'video'">
+                        <div v-for="n in 2" :key="`skeleton-video-${n}`" class="skeleton-video-card">
+                          <div class="skeleton-video-player">
+                            <div class="skeleton-play-button"></div>
+                          </div>
+                          <div class="skeleton-video-info">
+                            <div class="skeleton-video-title"></div>
+                            <div class="skeleton-video-meta"></div>
+                            <div class="skeleton-video-meta" style="width: 70%;"></div>
+                            <div class="skeleton-video-stats">
+                              <div class="skeleton-stat"></div>
+                              <div class="skeleton-stat"></div>
+                              <div class="skeleton-stat"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </template>
+
+                      <!-- Social Skeletons -->
+                      <template v-if="activeCategory && activeCategory.type === 'social'">
+                        <div v-for="n in 4" :key="`skeleton-social-${n}`" class="skeleton-social-card">
+                          <div class="skeleton-social-image"></div>
+                          <div class="skeleton-social-actions">
+                            <div class="skeleton-action-icon"></div>
+                            <div class="skeleton-action-icon"></div>
+                          </div>
+                        </div>
+                      </template>
+
+                      <!-- GIF Skeletons -->
+                      <template v-if="activeCategory && activeCategory.type === 'gif'">
+                        <div v-for="n in 6" :key="`skeleton-gif-${n}`" class="skeleton-banner-card">
+                          <div class="skeleton-banner-header">
+                            <div class="skeleton-size-text"></div>
+                            <div class="skeleton-size-text"></div>
+                          </div>
+                          <div class="skeleton-banner-preview" :style="{
+                            width: n === 1 ? '300px' : n === 2 ? '728px' : n === 3 ? '160px' : n === 4 ? '320px' : n === 5 ? '970px' : '468px',
+                            height: n === 1 ? '250px' : n === 2 ? '90px' : n === 3 ? '600px' : n === 4 ? '50px' : n === 5 ? '250px' : '60px'
+                          }">
+                            <div class="skeleton-play-icon"></div>
+                          </div>
+                          <div class="skeleton-banner-actions">
+                            <div class="skeleton-action-icon"></div>
+                          </div>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                </template>
+
+                <!-- Actual Content -->
+                <template v-else v-for="feedbackSet in feedbackSets" :key="feedbackSet.id">
                   <div v-if="feedbackSet.name" class="feedbackSet" :id="`feedbackSet${feedbackSet.id}`"
                     style="display: flex; align-items: center; justify-content: space-between;">
                     <div class="feedbackSetName" style="flex: 1; text-align: center;">
@@ -1141,62 +1230,6 @@ onUnmounted(() => {
                       <div v-if="version.name" class="version-title" style="font-weight: bold;">{{
                         version.name }}</div>
                       <div class="banners-list" :id="`bannersList${version.id}`">
-                        <!-- Skeleton Loaders -->
-                        <div v-if="isLoading" class="skeleton-container">
-                          <!-- Banner Skeletons -->
-                          <template v-if="activeCategory && activeCategory.type === 'banner'">
-                            <div v-for="n in 6" :key="`skeleton-banner-${n}`" class="skeleton-banner-item">
-                              <div class="skeleton-banner-header">
-                                <div class="skeleton-text skeleton-text-sm"></div>
-                                <div class="skeleton-text skeleton-text-sm"></div>
-                              </div>
-                              <div class="skeleton-banner-body"
-                                :style="{ width: n === 1 ? '300px' : n === 2 ? '728px' : n === 3 ? '160px' : n === 4 ? '320px' : n === 5 ? '970px' : '468px', height: n === 1 ? '250px' : n === 2 ? '90px' : n === 3 ? '600px' : n === 4 ? '50px' : n === 5 ? '250px' : '60px' }">
-                              </div>
-                              <div class="skeleton-banner-footer">
-                                <div class="skeleton-icon"></div>
-                              </div>
-                            </div>
-                          </template>
-
-                          <!-- Video Skeletons -->
-                          <template v-if="activeCategory && activeCategory.type === 'video'">
-                            <div v-for="n in 2" :key="`skeleton-video-${n}`" class="skeleton-video-item">
-                              <div class="skeleton-video-player"></div>
-                              <div class="skeleton-video-info">
-                                <div class="skeleton-text skeleton-text-lg mb-2"></div>
-                                <div class="skeleton-text skeleton-text-md mb-1"></div>
-                                <div class="skeleton-text skeleton-text-md mb-1"></div>
-                                <div class="skeleton-text skeleton-text-sm"></div>
-                              </div>
-                            </div>
-                          </template>
-
-                          <!-- Social Skeletons -->
-                          <template v-if="activeCategory && activeCategory.type === 'social'">
-                            <div v-for="n in 4" :key="`skeleton-social-${n}`" class="skeleton-social-item">
-                              <div class="skeleton-social-image"></div>
-                              <div class="skeleton-icon mt-2"></div>
-                            </div>
-                          </template>
-
-                          <!-- GIF Skeletons -->
-                          <template v-if="activeCategory && activeCategory.type === 'gif'">
-                            <div v-for="n in 6" :key="`skeleton-gif-${n}`" class="skeleton-gif-item">
-                              <div class="skeleton-banner-header">
-                                <div class="skeleton-text skeleton-text-sm"></div>
-                                <div class="skeleton-text skeleton-text-sm"></div>
-                              </div>
-                              <div class="skeleton-gif-body"
-                                :style="{ width: n === 1 ? '300px' : n === 2 ? '728px' : n === 3 ? '160px' : n === 4 ? '320px' : n === 5 ? '970px' : '468px', height: n === 1 ? '250px' : n === 2 ? '90px' : n === 3 ? '600px' : n === 4 ? '50px' : n === 5 ? '250px' : '60px' }">
-                              </div>
-                              <div class="skeleton-banner-footer">
-                                <div class="skeleton-icon"></div>
-                              </div>
-                            </div>
-                          </template>
-                        </div>
-
                         <!-- Banner content -->
                         <template v-if="!isLoading && activeCategory && activeCategory.type === 'banner'">
                           <div v-for="(banner, index) in version.banners" :key="banner.id"
@@ -1294,7 +1327,7 @@ onUnmounted(() => {
                               <div><strong>FPS:</strong> {{ video.fps ?? '-' }}</div>
                               <div><strong>File Size:</strong> {{ video.file_size ??
                                 '-'
-                              }}</div>
+                                }}</div>
                               <div v-if="video.companion_banner_path"
                                 class="mt-2 w-full flex flex-col items-center justify-center">
                                 <img :src="`/${video.companion_banner_path}`" alt="Companion Banner"

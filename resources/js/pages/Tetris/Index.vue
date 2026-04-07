@@ -2,6 +2,96 @@
 
     <Head title="Tetris Game" />
     <AppLayout :breadcrumbs="[{ title: 'Tetris Game', href: '/play/tetris' }]">
+        <!-- Introductory Guide Overlay -->
+        <div v-if="showIntro"
+            class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 backdrop-blur-sm">
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-2xl mx-4 transform transition-all animate-fade-in">
+                <h2 class="text-3xl font-bold mb-6 text-center text-black dark:text-white">How to Play Tetris</h2>
+                <p class="text-gray-600 dark:text-gray-300 mb-8 text-center">Use your keyboard to control the falling
+                    blocks!</p>
+
+                <div class="grid grid-cols-2 gap-6 mb-8">
+                    <!-- Left Arrow -->
+                    <div
+                        class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl transition-all hover:scale-105">
+                        <div class="keyboard-key animate-pulse-subtle">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-black dark:text-white">Move Left</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">← Arrow Key</div>
+                        </div>
+                    </div>
+
+                    <!-- Right Arrow -->
+                    <div
+                        class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl transition-all hover:scale-105">
+                        <div class="keyboard-key animate-pulse-subtle" style="animation-delay: 0.1s;">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-black dark:text-white">Move Right</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">→ Arrow Key</div>
+                        </div>
+                    </div>
+
+                    <!-- Up Arrow -->
+                    <div
+                        class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl transition-all hover:scale-105">
+                        <div class="keyboard-key animate-pulse-subtle" style="animation-delay: 0.2s;">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 15l7-7 7 7" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-black dark:text-white">Rotate</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">↑ Arrow Key</div>
+                        </div>
+                    </div>
+
+                    <!-- Down Arrow -->
+                    <div
+                        class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl transition-all hover:scale-105">
+                        <div class="keyboard-key animate-pulse-subtle" style="animation-delay: 0.3s;">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-black dark:text-white">Move Down Faster</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">↓ Arrow Key</div>
+                        </div>
+                    </div>
+
+                    <!-- Spacebar -->
+                    <div
+                        class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl transition-all hover:scale-105 col-span-2">
+                        <div class="keyboard-key-wide animate-pulse-subtle" style="animation-delay: 0.4s;">
+                            <span class="text-xs font-bold">SPACE</span>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-black dark:text-white">Instant Drop</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Drop block to bottom instantly</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button @click="closeIntro"
+                    class="w-full py-3 px-6 bg-black dark:bg-white text-white dark:text-black rounded-xl font-bold text-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-all transform hover:scale-105 active:scale-95">
+                    Got it! Let's Play 🎮
+                </button>
+            </div>
+        </div>
+
         <div class="flex flex-col items-center justify-center w-full h-full bg-white dark:bg-black font-mono">
             <h1 class="text-2xl font-bold mb-4 text-black dark:text-white">Tetris Game</h1>
             <div class="mb-4 flex gap-4 justify-between w-full max-w-3xl">
@@ -71,6 +161,7 @@ const boardRef = ref(null)
 const topScores = ref(props.topScores)
 const hasStarted = ref(false)
 const isPlaying = computed(() => hasStarted.value && !gameOver.value)
+const showIntro = ref(true)
 
 const tetrominoes = [
     { color: '#00f0f0', shape: [[[1, 1, 1, 1]], [[1], [1], [1], [1]]] },
@@ -262,6 +353,14 @@ function getCellStyle(x, y) {
     }
 }
 
+function closeIntro() {
+    showIntro.value = false
+    // Auto-focus the game board after closing intro
+    setTimeout(() => {
+        boardRef.value && boardRef.value.focus()
+    }, 100)
+}
+
 function startGame() {
     if (isPlaying.value) return
     hasStarted.value = true
@@ -285,3 +384,53 @@ onUnmounted(() => {
     if (intervalId.value) clearInterval(intervalId.value)
 })
 </script>
+
+<style scoped>
+.keyboard-key {
+    @apply w-12 h-12 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700;
+    @apply rounded-lg shadow-md flex items-center justify-center;
+    @apply border-2 border-gray-400 dark:border-gray-500;
+    @apply text-black dark:text-white;
+}
+
+.keyboard-key-wide {
+    @apply w-24 h-12 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700;
+    @apply rounded-lg shadow-md flex items-center justify-center;
+    @apply border-2 border-gray-400 dark:border-gray-500;
+    @apply text-black dark:text-white;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes pulseSubtle {
+
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+.animate-pulse-subtle {
+    animation: pulseSubtle 2s ease-in-out infinite;
+}
+</style>

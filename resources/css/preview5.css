@@ -127,163 +127,430 @@ hr {
     font-size: 1rem;
 }
 
-/* Skeleton Loaders - Modern loading UI */
-.skeleton-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    padding: 2rem;
-    justify-content: center;
-    animation: skeletonFadeIn 0.3s ease-in;
+/* ============================================
+   MODERN SKELETON LOADERS - Enhanced Full Page Design
+   ============================================ */
+
+/* Page Wrapper with Fade In */
+.skeleton-page-wrapper {
+    width: 100%;
+    padding: 2rem 1rem;
+    animation: skeletonFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes skeletonFadeIn {
     from {
         opacity: 0;
+        transform: translateY(8px);
     }
 
     to {
         opacity: 1;
+        transform: translateY(0);
     }
 }
 
-/* Base skeleton shimmer effect */
+/* Enhanced Shimmer Effect */
 @keyframes shimmer {
     0% {
-        background-position: -468px 0;
+        background-position: -1000px 0;
     }
 
     100% {
-        background-position: 468px 0;
+        background-position: 1000px 0;
     }
 }
 
-.skeleton-banner-item,
-.skeleton-gif-item {
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Base Shimmer Gradient */
+.skeleton-shimmer {
+    background: linear-gradient(90deg,
+            #f0f0f0 0%,
+            #f8f8f8 20%,
+            #ffffff 40%,
+            #f8f8f8 60%,
+            #f0f0f0 100%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s linear infinite;
+}
+
+/* ============================================
+   FEEDBACK COUNTER SKELETON
+   ============================================ */
+.skeleton-feedback-counter {
+    display: flex;
+    justify-content: center;
+    padding: 1rem 0;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.skeleton-counter-text {
+    width: 300px;
+    height: 28px;
+    border-radius: 8px;
+    background: linear-gradient(90deg,
+            #e8eaed 0%,
+            #f3f4f6 20%,
+            #ffffff 40%,
+            #f3f4f6 60%,
+            #e8eaed 100%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s linear infinite;
+}
+
+/* ============================================
+   FEEDBACK SET & VERSION TITLE SKELETONS
+   ============================================ */
+.skeleton-feedbackset-name {
+    width: 400px;
+    max-width: 80%;
+    height: 36px;
+    margin: 2rem auto 1.5rem;
+    border-radius: 10px;
+    background: linear-gradient(90deg,
+            #e0e4e8 0%,
+            #eef1f5 20%,
+            #ffffff 40%,
+            #eef1f5 60%,
+            #e0e4e8 100%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s linear infinite;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.skeleton-version-title {
+    width: 250px;
+    height: 24px;
+    margin: 1.5rem 0 2rem 2rem;
+    border-radius: 6px;
+    background: linear-gradient(90deg,
+            #e8eaed 0%,
+            #f3f4f6 20%,
+            #ffffff 40%,
+            #f3f4f6 60%,
+            #e8eaed 100%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s linear infinite;
+}
+
+/* ============================================
+   CONTENT AREA
+   ============================================ */
+.skeleton-content-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    padding: 1rem 2rem;
+    justify-content: center;
+}
+
+/* ============================================
+   BANNER CARD SKELETONS
+   ============================================ */
+.skeleton-banner-card {
     display: inline-flex;
     flex-direction: column;
-    margin: 0.5rem;
-    background: #f8f9fa;
-    border-radius: 8px;
+    background: #ffffff;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: skeletonFadeIn 0.4s ease-out backwards;
 }
 
-.skeleton-banner-header,
-.skeleton-banner-footer {
+.skeleton-banner-card:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.skeleton-banner-card:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.skeleton-banner-card:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.skeleton-banner-card:nth-child(4) {
+    animation-delay: 0.2s;
+}
+
+.skeleton-banner-card:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.skeleton-banner-card:nth-child(6) {
+    animation-delay: 0.3s;
+}
+
+.skeleton-banner-header {
     display: flex;
     justify-content: space-between;
-    padding: 0.5rem;
-    gap: 0.5rem;
-}
-
-.skeleton-banner-body,
-.skeleton-gif-body {
-    background: linear-gradient(to right,
-            #f0f0f0 0%,
-            #e0e0e0 20%,
-            #f0f0f0 40%,
-            #f0f0f0 100%);
-    background-size: 800px 100%;
-    animation: shimmer 1.5s linear infinite;
-    border: 1px solid #e8e8e8;
-}
-
-.skeleton-text {
-    background: linear-gradient(to right,
-            #f0f0f0 0%,
-            #e0e0e0 20%,
-            #f0f0f0 40%,
-            #f0f0f0 100%);
-    background-size: 800px 100%;
-    animation: shimmer 1.5s linear infinite;
-    border-radius: 4px;
-    height: 12px;
-}
-
-.skeleton-text-sm {
-    width: 60px;
-}
-
-.skeleton-text-md {
-    width: 200px;
-    height: 14px;
-}
-
-.skeleton-text-lg {
-    width: 300px;
-    height: 16px;
-}
-
-.skeleton-icon {
-    width: 24px;
-    height: 24px;
-    background: linear-gradient(to right,
-            #f0f0f0 0%,
-            #e0e0e0 20%,
-            #f0f0f0 40%,
-            #f0f0f0 100%);
-    background-size: 800px 100%;
-    animation: shimmer 1.5s linear infinite;
-    border-radius: 4px;
-}
-
-/* Video Skeleton */
-.skeleton-video-item {
-    width: 100%;
-    max-width: 800px;
-    margin: 2rem auto;
+    padding: 0.75rem 1rem;
     background: #f8f9fa;
-    border-radius: 12px;
-    padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid #e9ecef;
+}
+
+.skeleton-size-text {
+    width: 60px;
+    height: 14px;
+    border-radius: 4px;
+    background: linear-gradient(90deg,
+            #e0e4e8 0%,
+            #eef1f5 20%,
+            #ffffff 40%,
+            #eef1f5 60%,
+            #e0e4e8 100%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s linear infinite;
+}
+
+.skeleton-banner-preview {
+    position: relative;
+    background: linear-gradient(90deg,
+            #f0f2f5 0%,
+            #f8f9fa 20%,
+            #ffffff 40%,
+            #f8f9fa 60%,
+            #f0f2f5 100%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s linear infinite;
+    border: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.skeleton-play-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.skeleton-banner-actions {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+.skeleton-action-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    background: linear-gradient(90deg,
+            #d0d4d8 0%,
+            #e0e4e8 20%,
+            #f0f2f5 40%,
+            #e0e4e8 60%,
+            #d0d4d8 100%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s linear infinite;
+}
+
+/* ============================================
+   VIDEO CARD SKELETONS
+   ============================================ */
+.skeleton-video-card {
+    width: 100%;
+    max-width: 900px;
+    margin: 2rem auto;
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    animation: skeletonFadeIn 0.5s ease-out;
+}
+
+.skeleton-video-card:nth-child(2) {
+    animation-delay: 0.15s;
 }
 
 .skeleton-video-player {
+    position: relative;
     width: 100%;
-    height: 450px;
-    background: linear-gradient(to right,
-            #f0f0f0 0%,
-            #e0e0e0 20%,
-            #f0f0f0 40%,
-            #f0f0f0 100%);
-    background-size: 800px 100%;
-    animation: shimmer 1.5s linear infinite;
-    border-radius: 8px;
-    margin-bottom: 1rem;
+    height: 500px;
+    background: linear-gradient(135deg,
+            #e8eaed 0%,
+            #f0f2f5 25%,
+            #f8f9fa 50%,
+            #f0f2f5 75%,
+            #e8eaed 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 3s ease infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes gradientShift {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+.skeleton-play-button {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    animation: pulse 2s ease-in-out infinite;
 }
 
 .skeleton-video-info {
-    padding: 1rem;
-    background: white;
-    border-radius: 8px;
+    padding: 2rem;
+    background: #ffffff;
 }
 
-/* Social Skeleton */
-.skeleton-social-item {
+.skeleton-video-title {
+    width: 70%;
+    height: 24px;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    background: linear-gradient(90deg,
+            #e0e4e8 0%,
+            #eef1f5 20%,
+            #ffffff 40%,
+            #eef1f5 60%,
+            #e0e4e8 100%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s linear infinite;
+}
+
+.skeleton-video-meta {
+    width: 100%;
+    height: 16px;
+    margin-bottom: 0.75rem;
+    border-radius: 4px;
+    background: linear-gradient(90deg,
+            #f0f2f5 0%,
+            #f8f9fa 20%,
+            #ffffff 40%,
+            #f8f9fa 60%,
+            #f0f2f5 100%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s linear infinite;
+}
+
+.skeleton-video-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.5rem;
+}
+
+.skeleton-stat {
+    width: 100px;
+    height: 20px;
+    border-radius: 10px;
+    background: linear-gradient(90deg,
+            #e8eaed 0%,
+            #f3f4f6 20%,
+            #ffffff 40%,
+            #f3f4f6 60%,
+            #e8eaed 100%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s linear infinite;
+}
+
+/* ============================================
+   SOCIAL CARD SKELETONS
+   ============================================ */
+.skeleton-social-card {
     display: inline-block;
     margin: 1rem;
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    animation: skeletonFadeIn 0.4s ease-out backwards;
+}
+
+.skeleton-social-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.skeleton-social-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.skeleton-social-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.skeleton-social-card:nth-child(4) {
+    animation-delay: 0.4s;
 }
 
 .skeleton-social-image {
     width: 400px;
     height: 400px;
-    background: linear-gradient(to right,
-            #f0f0f0 0%,
-            #e0e0e0 20%,
-            #f0f0f0 40%,
-            #f0f0f0 100%);
-    background-size: 800px 100%;
-    animation: shimmer 1.5s linear infinite;
-    border-radius: 8px;
+    border-radius: 12px;
+    background: linear-gradient(135deg,
+            #e8eaed 0%,
+            #f0f2f5 25%,
+            #f8f9fa 50%,
+            #f0f2f5 75%,
+            #e8eaed 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 3s ease infinite;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
-/* Responsive adjustments */
+.skeleton-social-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
 @media (max-width: 768px) {
+    .skeleton-page-wrapper {
+        padding: 1rem 0.5rem;
+    }
+
+    .skeleton-content-area {
+        gap: 1.5rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .skeleton-feedbackset-name {
+        width: 90%;
+        height: 32px;
+    }
+
+    .skeleton-version-title {
+        margin-left: 1rem;
+    }
+
+    .skeleton-counter-text {
+        width: 90%;
+        max-width: 250px;
+    }
+
     .skeleton-social-image {
         width: 300px;
         height: 300px;
@@ -291,6 +558,38 @@ hr {
 
     .skeleton-video-player {
         height: 300px;
+    }
+
+    .skeleton-play-button {
+        width: 60px;
+        height: 60px;
+    }
+
+    .skeleton-video-info {
+        padding: 1.5rem;
+    }
+
+    .skeleton-video-stats {
+        gap: 1rem;
+    }
+
+    .skeleton-stat {
+        width: 80px;
+    }
+}
+
+@media (max-width: 480px) {
+    .skeleton-feedbackset-name {
+        margin: 1rem auto;
+    }
+
+    .skeleton-social-image {
+        width: 250px;
+        height: 250px;
+    }
+
+    .skeleton-video-player {
+        height: 200px;
     }
 }
 

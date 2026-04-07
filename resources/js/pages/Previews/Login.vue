@@ -26,7 +26,7 @@ const submit = async () => {
 
     <Head title="Login to View Preview" />
 
-    <div class="min-h-screen flex items-center justify-center bg-[#F5F5F5] dark:bg-black px-4">
+    <div class="min-h-screen flex items-center justify-center bg-[#F5F5F5] dark:bg-black px-4 font-mono">
         <div
             class="w-full max-w-md bg-white dark:bg-[#111111] rounded-lg border-2 border-black dark:border-white p-8 space-y-6">
             <div class="text-center">
