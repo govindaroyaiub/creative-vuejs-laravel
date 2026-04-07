@@ -102,10 +102,10 @@
                         <input type="checkbox" :checked="palette.status" @change="toggleStatus(palette)"
                           class="sr-only peer" />
                         <div
-                          class="w-9 h-5 bg-[#E8E8E8] dark:bg-[#222222] border-2 border-[#CCCCCC] dark:border-[#333333] rounded-full peer peer-checked:bg-black peer-checked:dark:bg-black peer-checked:border-black peer-checked:dark:border-white transition-colors">
+                          class="w-9 h-5 bg-[#E8E8E8] dark:bg-[#222222] border-2 border-[#CCCCCC] dark:border-[#333333] rounded-full peer peer-checked:bg-black peer-checked:dark:bg-white peer-checked:border-black peer-checked:dark:border-white transition-colors">
                         </div>
                         <div
-                          class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4">
+                          class="absolute left-0.5 top-0.5 w-4 h-4 bg-white dark:bg-black rounded-full transition-transform peer-checked:translate-x-4">
                         </div>
                       </label>
                       <span class="ml-2 text-xs uppercase font-mono tracking-wider"
