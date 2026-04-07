@@ -122,71 +122,174 @@ const deleteDesignation = async (id: number) => {
 
         <Head title="Designations" />
         <SettingsLayout>
+            <!-- Nothing Design System -->
             <div class="space-y-6 font-mono">
+                <!-- Header Section -->
                 <div class="flex flex-col items-start justify-between">
-                    <h2 class="text-lg font-bold">Designations</h2>
-                    <small>List of Designations to manage</small>
+                    <div class="flex items-center gap-3">
+                        <div class="w-2 h-2 bg-[#D71921] rounded-full animate-pulse"></div>
+                        <h2 class="text-2xl font-light tracking-widest uppercase text-black dark:text-white">
+                            DESIGNATIONS
+                        </h2>
+                    </div>
+                    <p class="text-xs tracking-widest uppercase text-[#666666] dark:text-[#999999] mt-2">
+                        MANAGE · SYSTEM · ROLES
+                    </p>
                 </div>
 
-                <div class="mb-6 flex items-center justify-between space-x-4">
-                    <input v-model="search" placeholder="Search designations..."
-                        class="w-full max-w-xs rounded-2xl border px-3 py-2 dark:bg-neutral-800 dark:text-white" />
-                    <Button class="rounded-xl" size="sm" @click="startAdding" v-if="!adding"> Add </Button>
+                <!-- Search & Add Section -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+                    <div class="relative flex-1 max-w-md">
+                        <input v-model="search" placeholder="SEARCH..."
+                            class="w-full px-4 py-3 bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded-lg text-sm tracking-wider uppercase placeholder:text-[#CCCCCC] dark:placeholder:text-[#333333] text-black dark:text-white focus:outline-none focus:border-[#1A1A1A] dark:focus:border-[#FFFFFF] transition-all duration-200" />
+                        <div class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-[#D71921] rounded-full">
+                        </div>
+                    </div>
+                    <Button v-if="!adding" @click="startAdding"
+                        class="px-6 py-3 border-2 border-[#1A1A1A] dark:border-[#FFFFFF] text-[#1A1A1A] dark:text-[#FFFFFF] bg-transparent rounded-full transition-all duration-200 hover:bg-[#1A1A1A] hover:text-white dark:hover:bg-[#FFFFFF] dark:hover:text-black text-xs tracking-widest uppercase font-bold">
+                        + ADD NEW
+                    </Button>
                 </div>
 
-                <div class="overflow-x-auto rounded-2xl bg-white shadow dark:bg-neutral-800">
-                    <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-black">
-                        <thead class="bg-gray-100 text-xs uppercase dark:bg-neutral-900 dark:text-gray-300">
+                <!-- Table Container -->
+                <div
+                    class="bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded-lg overflow-hidden">
+                    <table class="min-w-full">
+                        <!-- Table Header -->
+                        <thead class="bg-[#F5F5F5] dark:bg-[#0A0A0A] border-b border-[#E8E8E8] dark:border-[#222222]">
                             <tr>
-                                <th class="px-6 py-3">#</th>
-                                <th class="px-6 py-3">Name</th>
-                                <th class="px-6 py-3 text-center">Actions</th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs tracking-widest uppercase text-[#666666] dark:text-[#999999] font-mono">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-1 h-1 bg-[#D71921] rounded-full"></div>
+                                        INDEX
+                                    </div>
+                                </th>
+                                <th
+                                    class="px-6 py-4 text-left text-xs tracking-widest uppercase text-[#666666] dark:text-[#999999] font-mono">
+                                    DESIGNATION NAME
+                                </th>
+                                <th
+                                    class="px-6 py-4 text-center text-xs tracking-widest uppercase text-[#666666] dark:text-[#999999] font-mono">
+                                    ACTIONS
+                                </th>
                             </tr>
                         </thead>
+
+                        <!-- Table Body -->
                         <tbody>
-                            <tr v-if="adding" class="border-b dark:border-gray-700">
-                                <td class="px-6 py-4">#</td>
+                            <!-- Add New Row -->
+                            <tr v-if="adding"
+                                class="border-b border-[#E8E8E8] dark:border-[#222222] bg-[#FAFAFA] dark:bg-[#0D0D0D] hover:bg-[#F5F5F5] dark:hover:bg-[#151515] transition-all duration-200">
                                 <td class="px-6 py-4">
-                                    <input v-model="newDesignation"
-                                        class="w-full rounded border px-2 py-1 dark:bg-neutral-700 dark:text-white"
-                                        placeholder="New designation" />
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-1.5 h-1.5 bg-[#D71921] rounded-full animate-pulse"></div>
+                                        <span class="text-sm font-mono text-[#999999]">NEW</span>
+                                    </div>
                                 </td>
-                                <td class="space-x-2 px-6 py-4 text-center">
-                                    <Button size="sm" @click="saveDesignation">Save</Button>
-                                    <Button size="sm" variant="outline" @click="cancelAdding">Cancel</Button>
+                                <td class="px-6 py-4">
+                                    <input v-model="newDesignation" placeholder="ENTER DESIGNATION NAME..."
+                                        class="w-full px-3 py-2 bg-white dark:bg-[#111111] border border-[#CCCCCC] dark:border-[#333333] rounded text-sm tracking-wider uppercase placeholder:text-[#CCCCCC] dark:placeholder:text-[#333333] text-black dark:text-white focus:outline-none focus:border-[#1A1A1A] dark:focus:border-[#FFFFFF] transition-all duration-200"
+                                        autofocus />
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center justify-center gap-3">
+                                        <Button @click="saveDesignation"
+                                            class="px-4 py-2 bg-[#1A1A1A] dark:bg-[#FFFFFF] text-white dark:text-black rounded-full text-xs tracking-widest uppercase font-bold hover:opacity-80 transition-all duration-200">
+                                            SAVE
+                                        </Button>
+                                        <Button variant="outline" @click="cancelAdding"
+                                            class="px-4 py-2 border border-[#CCCCCC] dark:border-[#333333] text-[#666666] dark:text-[#999999] rounded-full text-xs tracking-widest uppercase hover:border-[#1A1A1A] dark:hover:border-[#FFFFFF] hover:text-[#1A1A1A] dark:hover:text-[#FFFFFF] transition-all duration-200">
+                                            CANCEL
+                                        </Button>
+                                    </div>
                                 </td>
                             </tr>
 
+                            <!-- Data Rows -->
                             <tr v-for="(designation, index) in filteredDesignations" :key="designation.id"
-                                class="border-b dark:border-gray-700">
-                                <td class="px-6 py-4 text-center">{{ index + 1 }}</td>
-                                <td class="px-6 py-4 text-center">
-                                    <template v-if="editingId !== designation.id">{{ designation.name }}</template>
+                                class="border-b border-[#E8E8E8] dark:border-[#222222] hover:bg-[#FAFAFA] dark:hover:bg-[#0D0D0D] transition-all duration-200 group">
+
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-2">
+                                        <div
+                                            class="w-1 h-1 bg-[#666666] dark:bg-[#999999] rounded-full group-hover:bg-[#D71921] transition-all duration-200">
+                                        </div>
+                                        <span class="text-sm font-mono tabular-nums text-black dark:text-white">{{
+                                            String(index + 1).padStart(2, '0') }}</span>
+                                    </div>
+                                </td>
+
+                                <td class="px-6 py-4">
+                                    <template v-if="editingId !== designation.id">
+                                        <span
+                                            class="text-sm tracking-wider uppercase font-medium text-black dark:text-white">
+                                            {{ designation.name }}
+                                        </span>
+                                    </template>
                                     <template v-else>
                                         <input v-model="editName"
-                                            class="w-full rounded border px-2 py-1 dark:bg-neutral-700 dark:text-white" />
+                                            class="w-full px-3 py-2 bg-white dark:bg-[#111111] border border-[#CCCCCC] dark:border-[#333333] rounded text-sm tracking-wider uppercase text-black dark:text-white focus:outline-none focus:border-[#1A1A1A] dark:focus:border-[#FFFFFF] transition-all duration-200" />
                                     </template>
                                 </td>
-                                <td class="space-x-2 px-6 py-4 text-center">
-                                    <template v-if="editingId === designation.id">
-                                        <Button size="sm" variant="outline"
-                                            @click="updateDesignation(designation.id)">Update</Button>
-                                        <Button size="sm" variant="outline" @click="cancelEditing">Cancel</Button>
-                                    </template>
-                                    <template v-else>
-                                        <Button size="sm" variant="outline"
-                                            @click="startEditing(designation)">Edit</Button>
-                                        <Button size="sm" variant="destructive"
-                                            @click="deleteDesignation(designation.id)">Delete</Button>
-                                    </template>
+
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <template v-if="editingId === designation.id">
+                                            <Button @click="updateDesignation(designation.id)"
+                                                class="px-4 py-1.5 bg-[#1A1A1A] dark:bg-[#FFFFFF] text-white dark:text-black rounded-full text-xs tracking-widest uppercase font-bold hover:opacity-80 transition-all duration-200">
+                                                UPDATE
+                                            </Button>
+                                            <Button variant="outline" @click="cancelEditing"
+                                                class="px-4 py-1.5 border border-[#CCCCCC] dark:border-[#333333] text-[#666666] dark:text-[#999999] rounded-full text-xs tracking-widest uppercase hover:border-[#1A1A1A] dark:hover:border-[#FFFFFF] hover:text-[#1A1A1A] dark:hover:text-[#FFFFFF] transition-all duration-200">
+                                                CANCEL
+                                            </Button>
+                                        </template>
+                                        <template v-else>
+                                            <Button variant="outline" @click="startEditing(designation)"
+                                                class="px-4 py-1.5 border border-[#CCCCCC] dark:border-[#333333] text-[#666666] dark:text-[#999999] rounded-full text-xs tracking-widest uppercase hover:border-[#1A1A1A] dark:hover:border-[#FFFFFF] hover:text-[#1A1A1A] dark:hover:text-[#FFFFFF] transition-all duration-200">
+                                                EDIT
+                                            </Button>
+                                            <Button variant="destructive" @click="deleteDesignation(designation.id)"
+                                                class="px-4 py-1.5 bg-[#D71921] text-white rounded-full text-xs tracking-widest uppercase font-bold hover:bg-[#B01419] transition-all duration-200">
+                                                DELETE
+                                            </Button>
+                                        </template>
+                                    </div>
                                 </td>
                             </tr>
 
+                            <!-- Empty State -->
                             <tr v-if="filteredDesignations.length === 0 && !adding">
-                                <td colspan="3" class="py-6 text-center text-gray-400">No designations found.</td>
+                                <td colspan="3" class="px-6 py-12 text-center">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <div class="flex items-center gap-1">
+                                            <div class="w-1.5 h-1.5 bg-[#666666] dark:bg-[#999999] rounded-full"></div>
+                                            <div class="w-1 h-1 bg-[#666666] dark:bg-[#999999] rounded-full"></div>
+                                            <div class="w-1.5 h-1.5 bg-[#666666] dark:bg-[#999999] rounded-full"></div>
+                                        </div>
+                                        <p class="text-xs tracking-widest uppercase text-[#666666] dark:text-[#999999]">
+                                            NO DESIGNATIONS FOUND
+                                        </p>
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Footer Info -->
+                <div class="flex items-center justify-between pt-4 border-t border-[#E8E8E8] dark:border-[#222222]">
+                    <div class="flex items-center gap-2">
+                        <div class="w-1 h-1 bg-[#D71921] rounded-full"></div>
+                        <span class="text-xs tracking-widest uppercase text-[#666666] dark:text-[#999999]">
+                            TOTAL: {{ filteredDesignations.length }} {{ filteredDesignations.length === 1 ? 'ITEM' :
+                            'ITEMS' }}
+                        </span>
+                    </div>
+                    <span class="text-xs tracking-widest uppercase text-[#666666] dark:text-[#999999]">
+                        NOTHING · SYSTEM
+                    </span>
                 </div>
             </div>
         </SettingsLayout>

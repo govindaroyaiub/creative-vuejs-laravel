@@ -30,7 +30,7 @@ const currentPath = page.props.ziggy?.location ? new URL(page.props.ziggy.locati
 
 <template>
     <div class="px-4 py-6 font-mono">
-        <Heading title="User Managament" description="Manage your designations and users" />
+        <Heading title="Access Management" description="Manage users, routes and permissions" />
 
         <div class="flex flex-col space-y-8 md:space-y-0 lg:flex-row lg:space-x-12 lg:space-y-0">
             <aside class="w-full max-w-xl lg:w-48">
