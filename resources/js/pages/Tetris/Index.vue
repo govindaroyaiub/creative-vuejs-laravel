@@ -394,7 +394,7 @@ onUnmounted(() => {
 }
 
 .keyboard-key-wide {
-    @apply w-24 h-12 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700;
+    @apply w-48 h-12 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700;
     @apply rounded-lg shadow-md flex items-center justify-center;
     @apply border-2 border-gray-400 dark:border-gray-500;
     @apply text-black dark:text-white;
