@@ -235,7 +235,7 @@ const deleteClient = async (id: number, name: string) => {
         cancelButtonText: 'Cancel',
         reverseButtons: true,
         customClass: {
-            popup: 'rounded-md',
+            popup: 'rounded-lg',
             confirmButton: 'rounded-lg px-6 py-2',
             cancelButton: 'rounded-lg px-6 py-2'
         }
@@ -251,7 +251,7 @@ const deleteClient = async (id: number, name: string) => {
                     icon: 'success',
                     timer: 2000,
                     showConfirmButton: false,
-                    customClass: { popup: 'rounded-md' }
+                    customClass: { popup: 'rounded-lg' }
                 });
             },
             onError: () => {
@@ -259,7 +259,7 @@ const deleteClient = async (id: number, name: string) => {
                     title: 'Error!',
                     text: 'Failed to delete client.',
                     icon: 'error',
-                    customClass: { popup: 'rounded-md' }
+                    customClass: { popup: 'rounded-lg' }
                 });
             }
         });
@@ -291,7 +291,7 @@ onMounted(() => {
             icon: 'success',
             timer: 1000,
             showConfirmButton: false,
-            customClass: { popup: 'rounded-md' }
+            customClass: { popup: 'rounded-lg' }
         });
     }
 });
@@ -303,32 +303,35 @@ const totalClients = computed(() => clients.value?.total || 0);
 
     <Head title="Clients Management" />
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
-            class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-gray-50 dark:from-black dark:via-black dark:to-black">
+        <div class="min-h-screen bg-white dark:bg-black">
             <div class="p-6 space-y-6">
                 <!-- Stats Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
-                    <div
-                        class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300">
+                    <div class="bg-white dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg p-6">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Clients</p>
-                                <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ totalClients }}</p>
+                                <p
+                                    class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">
+                                    Total Clients</p>
+                                <p class="text-3xl font-bold font-mono tabular-nums text-black dark:text-white">{{
+                                    totalClients }}</p>
                             </div>
-                            <div class="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-md">
-                                <Users class="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                            <div
+                                class="p-3 bg-[#F5F5F5] dark:bg-[#111111] border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg">
+                                <Users class="w-6 h-6 text-black dark:text-white" />
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Search and Filters -->
-                <div class="rounded-2xl flex items-center space-x-4">
+                <div class="flex items-center space-x-4">
                     <div class="flex flex-col sm:flex-row gap-4 w-full">
                         <div class="relative flex-1">
-                            <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                            <Search
+                                class="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#666666] dark:text-[#999999] w-4 h-4" />
                             <input v-model="search" placeholder="Search clients by name, website..."
-                                class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" />
+                                class="w-full pl-10 pr-4 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#666666] dark:placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
                             <div v-if="isLoading" class="absolute right-3 top-1/2 transform -translate-y-1/2">
                                 <div
                                     class="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent">
@@ -336,9 +339,9 @@ const totalClients = computed(() => clients.value?.total || 0);
                             </div>
                         </div>
                     </div>
-
+                    
                     <button @click="openCreateModal"
-                        class="w-1/6 inline-flex justify-center items-center px-6 py-3 bg-green-600 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-sm hover:shadow-md group">
+                        class="w-1/5 inline-flex items-center justify-center px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors uppercase font-mono tracking-wider text-sm group">
                         <CirclePlus class="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-200" />
                         Add Client
                     </button>
@@ -347,19 +350,20 @@ const totalClients = computed(() => clients.value?.total || 0);
                 <!-- Clients Grid -->
                 <div v-if="clients?.data?.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div v-for="(client, index) in clients.data" :key="client.id"
-                        class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-blue-200 dark:hover:border-neutral-600 transition-all duration-200 overflow-hidden group">
+                        class="bg-white dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg hover:border-black hover:dark:border-white transition-all duration-200 overflow-hidden group">
                         <!-- Card Header -->
                         <div class="py-2 px-6">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center justify-start">
                                     <img v-if="client.logo" :src="`/logos/${client.logo}`" :alt="client.name + ' logo'"
                                         @click="openImageModal(`/logos/${client.logo}`)"
-                                        class="h-20 w-40 aspect-auto object-contain rounded-xl bg-neutral-300 p-1 dark:bg-neutral-700 border cursor-pointer hover:scale-105 transition-transform duration-150" />
-                                    <Building2 v-else class="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                                        class="h-20 w-40 aspect-auto object-contain rounded-lg bg-[#F5F5F5] p-1 dark:bg-[#F0F0F0] border-2 border-[#E8E8E8] dark:border-[#222222] cursor-pointer hover:scale-105 transition-transform duration-150" />
+                                    <Building2 v-else class="w-6 h-6 text-black dark:text-white" />
                                 </div>
                                 <div class="flex items-center justify-end">
-                                    <h1 class="font-semibold text-gray-900 dark:text-white text-xl">{{ client.name
-                                        }}</h1>
+                                    <h1
+                                        class="font-semibold text-black dark:text-white text-lg uppercase font-mono tracking-wider text-end">
+                                        {{ client.name}}</h1>
                                 </div>
                             </div>
                         </div>
@@ -368,9 +372,10 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <div class="px-6 pb-2 space-y-4">
                             <!-- Website -->
                             <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Website:</span>
+                                <span
+                                    class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">Website:</span>
                                 <a :href="client.website" target="_blank"
-                                    class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center group/link">
+                                    class="text-xs font-mono text-black dark:text-white hover:underline flex items-center group/link">
                                     {{ client.website?.replace(/^https?:\/\//, '') || 'Not set' }}
                                     <ExternalLink
                                         class="w-3 h-3 ml-1 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform duration-200" />
@@ -379,32 +384,35 @@ const totalClients = computed(() => clients.value?.total || 0);
 
                             <!-- Preview URL -->
                             <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Preview:</span>
+                                <span
+                                    class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">Preview:</span>
                                 <a v-if="client.preview_url" :href="client.preview_url" target="_blank"
-                                    class="text-sm text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 flex items-center group/link">
+                                    class="text-xs font-mono text-black dark:text-white hover:underline flex items-center group/link">
                                     Visit Preview
                                     <Eye
                                         class="w-3 h-3 ml-1 group-hover/link:scale-110 transition-transform duration-200" />
                                 </a>
-                                <span v-else class="text-sm text-gray-400">Not configured</span>
+                                <span v-else class="text-xs text-[#999999] uppercase font-mono">Not configured</span>
                             </div>
 
                             <!-- Brand Color -->
                             <div class="flex items-center justify-between">
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Brand Color:</span>
+                                <span
+                                    class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">Brand
+                                    Color:</span>
                                 <button v-if="client.color_palette?.primary"
                                     @click="copyColor(client.color_palette.primary)"
                                     class="flex items-center space-x-2 group/color hover:scale-105 transition-transform duration-200"
                                     :title="`Click to copy: ${client.color_palette.primary}`">
                                     <div :style="{ backgroundColor: client.color_palette.primary }"
-                                        class="w-6 h-6 rounded-lg border-2 border-white dark:border-neutral-700 shadow-sm">
+                                        class="w-6 h-6 rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333]">
                                     </div>
                                     <span
-                                        class="text-xs text-gray-500 font-mono group-hover/color:text-blue-600 transition-colors">
+                                        class="text-xs text-[#666666] dark:text-[#999999] font-mono group-hover/color:text-black group-hover/color:dark:text-white transition-colors">
                                         {{ client.color_palette.primary }}
                                     </span>
                                 </button>
-                                <span v-else class="text-sm text-gray-400 flex items-center">
+                                <span v-else class="text-xs text-[#999999] uppercase font-mono flex items-center">
                                     <Palette class="w-4 h-4 mr-1" />
                                     Not set
                                 </span>
@@ -413,16 +421,16 @@ const totalClients = computed(() => clients.value?.total || 0);
 
                         <!-- Card Actions -->
                         <div
-                            class="px-6 py-4 bg-gray-50 dark:bg-neutral-900 border-t border-gray-200 dark:border-neutral-700">
+                            class="px-6 py-4 bg-[#F5F5F5] dark:bg-[#111111] border-t-2 border-[#E8E8E8] dark:border-[#222222]">
                             <div class="flex justify-end space-x-2">
                                 <button @click="openEditModal(client)"
-                                    class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-all duration-200 group/edit"
+                                    class="p-2 text-black dark:text-white hover:bg-white hover:dark:bg-black border-2 border-transparent hover:border-black hover:dark:border-white rounded-full transition-all duration-200 group/edit"
                                     title="Edit Client">
                                     <Pencil
                                         class="w-4 h-4 group-hover/edit:scale-110 transition-transform duration-200" />
                                 </button>
                                 <button @click="deleteClient(client.id, client.name)"
-                                    class="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-all duration-200 group/delete"
+                                    class="p-2 text-[#D71921] hover:bg-red-100 dark:hover:bg-[#D71921]/20 border-2 border-transparent hover:border-[#D71921] rounded-full transition-all duration-200 group/delete"
                                     title="Delete Client">
                                     <Trash2
                                         class="w-4 h-4 group-hover/delete:scale-110 transition-transform duration-200" />
@@ -434,17 +442,19 @@ const totalClients = computed(() => clients.value?.total || 0);
 
                 <!-- Empty State -->
                 <div v-else
-                    class="bg-white dark:bg-neutral-800 rounded-md shadow-sm border border-gray-200 dark:border-neutral-700 p-12 text-center">
+                    class="bg-white dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg p-12 text-center">
                     <div
-                        class="w-20 h-20 mx-auto bg-gray-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mb-6">
-                        <Building2 class="w-10 h-10 text-gray-400" />
+                        class="w-20 h-20 mx-auto bg-[#F5F5F5] dark:bg-[#111111] border-2 border-[#E8E8E8] dark:border-[#222222] rounded-full flex items-center justify-center mb-6">
+                        <Building2 class="w-10 h-10 text-[#666666] dark:text-[#999999]" />
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No clients found</h3>
-                    <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                    <h3
+                        class="text-xl font-semibold text-black dark:text-white mb-2 uppercase font-mono tracking-wider">
+                        No clients found</h3>
+                    <p class="text-[#666666] dark:text-[#999999] mb-6 max-w-md mx-auto">
                         {{ search ? 'Try adjusting your search terms' : 'Get started by adding your first client' }}
                     </p>
                     <button v-if="!search" @click="openCreateModal"
-                        class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200">
+                        class="inline-flex items-center px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors uppercase font-mono tracking-wider text-sm">
                         <CirclePlus class="w-5 h-5 mr-2" />
                         Add Your First Client
                     </button>
@@ -452,18 +462,19 @@ const totalClients = computed(() => clients.value?.total || 0);
 
                 <!-- Pagination -->
                 <div v-if="clients?.links?.length > 3"
-                    class="bg-white dark:bg-neutral-800 rounded-md shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
+                    class="bg-white dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg p-6">
                     <div class="flex items-center justify-between">
-                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                        <div class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">
                             Showing {{ clients.from }} to {{ clients.to }} of {{ clients.total }} clients
                         </div>
                         <div class="flex space-x-1">
                             <template v-for="link in clients.links" :key="link.label">
                                 <component :is="link.url ? 'a' : 'span'" v-html="link.label" :href="link.url"
-                                    class="px-3 py-2 text-sm rounded-xl transition-all duration-200" :class="{
-                                        'bg-blue-600 text-white shadow-sm': link.active,
-                                        'text-gray-400 cursor-not-allowed': !link.url,
-                                        'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white': link.url && !link.active,
+                                    class="px-3 py-2 text-xs rounded-full uppercase font-mono tracking-wider transition-all duration-200"
+                                    :class="{
+                                        'bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white': link.active,
+                                        'text-[#999999] cursor-not-allowed': !link.url,
+                                        'text-black dark:text-white border-2 border-[#CCCCCC] dark:border-[#333333] hover:border-black hover:dark:border-white': link.url && !link.active,
                                     }" />
                             </template>
                         </div>
@@ -477,13 +488,15 @@ const totalClients = computed(() => clients.value?.total || 0);
             class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
             @click.self="closeCreateModal">
             <div
-                class="bg-white dark:bg-neutral-800 rounded-2xl w-full max-w-2xl max-h-[90vh] shadow-2xl border border-gray-200 dark:border-neutral-700 flex flex-col">
+                class="bg-white dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
                 <!-- Modal Header -->
                 <div
-                    class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-neutral-700 flex-shrink-0">
-                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Add New Client</h2>
+                    class="flex items-center justify-between p-6 border-b-2 border-[#E8E8E8] dark:border-[#222222] flex-shrink-0">
+                    <h2 class="text-xl font-bold text-black dark:text-white uppercase font-mono tracking-wider">Add New
+                        Client
+                    </h2>
                     <button @click="closeCreateModal"
-                        class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-all duration-200">
+                        class="p-2 text-[#666666] dark:text-[#999999] hover:text-black hover:dark:text-white hover:bg-[#F5F5F5] hover:dark:bg-[#111111] rounded-full transition-all duration-200">
                         <X class="w-5 h-5" />
                     </button>
                 </div>
@@ -494,37 +507,37 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <!-- Name -->
                         <div>
                             <label for="create-name"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Name</label>
+                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1">Name</label>
                             <input id="create-name" v-model="createForm.name" required type="text"
                                 placeholder="e.g. Acme Corp"
-                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700" />
+                                class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors" />
                         </div>
 
                         <!-- Website -->
                         <div>
                             <label for="create-website"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Website</label>
+                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1">Website</label>
                             <input id="create-website" v-model="createForm.website" required type="url"
                                 placeholder="e.g. https://example.com"
-                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700" />
+                                class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors" />
                         </div>
 
                         <!-- Preview URL -->
                         <div>
                             <label for="create-preview"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Preview
+                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1">Preview
                                 URL</label>
                             <input id="create-preview" v-model="createForm.preview_url" type="url"
-                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700" />
+                                class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors" />
                         </div>
 
                         <!-- Brand Color -->
                         <div>
                             <label for="create-color"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Brand
+                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1">Brand
                                 Color</label>
                             <select id="create-color" v-model="createForm.color_palette_id"
-                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700"
+                                class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors"
                                 required>
                                 <option disabled value="">Select a color palette</option>
                                 <option v-for="palette in colorPalettes" :key="palette.id" :value="palette.id">
@@ -534,11 +547,12 @@ const totalClients = computed(() => clients.value?.total || 0);
 
                             <!-- Color Preview -->
                             <div v-if="createForm.color_palette_id" class="mt-2 flex items-center gap-2">
-                                <span class="text-sm text-gray-500 dark:text-gray-400">Preview:</span>
+                                <span
+                                    class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">Preview:</span>
                                 <div v-if="colorPalettes.find(p => p.id == createForm.color_palette_id)"
                                     :style="{ backgroundColor: colorPalettes.find(p => p.id == createForm.color_palette_id)?.primary }"
-                                    class="h-5 w-10 rounded-lg border border-gray-300 dark:border-neutral-600"></div>
-                                <span class="text-sm text-gray-500 dark:text-gray-400">
+                                    class="h-5 w-10 rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333]"></div>
+                                <span class="text-xs font-mono text-[#666666] dark:text-[#999999]">
                                     {{colorPalettes.find(p => p.id == createForm.color_palette_id)?.primary}}
                                 </span>
                             </div>
@@ -546,7 +560,8 @@ const totalClients = computed(() => clients.value?.total || 0);
 
                         <!-- Logo Upload -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Logo
+                            <label
+                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">Logo
                                 (Image)</label>
                             <FilePond name="logo" :files="createFilePondFiles" @updatefiles="handleCreateFilePondUpdate"
                                 :allowMultiple="false" :acceptedFileTypes="['image/*']"
@@ -557,12 +572,12 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <!-- Submit Buttons -->
                         <div class="flex space-x-4 pt-4">
                             <button type="button" @click="closeCreateModal"
-                                class="flex-1 rounded-xl bg-red-600 px-6 py-3 text-white shadow hover:bg-red-700 transition-colors">
+                                class="flex-1 rounded-full bg-[#D71921] hover:bg-red-700 px-6 py-3 text-white uppercase font-mono tracking-wider text-sm transition-colors">
                                 Cancel
                             </button>
                             <button type="submit"
                                 :disabled="!createForm.name || !createForm.website || !createForm.color_palette_id"
-                                class="flex-1 rounded-xl bg-green-600 px-6 py-3 text-white shadow hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                class="flex-1 rounded-full bg-black dark:bg-white text-white dark:text-black px-6 py-3 hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white disabled:opacity-50 disabled:cursor-not-allowed uppercase font-mono tracking-wider text-sm transition-colors">
                                 Create Client
                             </button>
                         </div>
@@ -575,13 +590,14 @@ const totalClients = computed(() => clients.value?.total || 0);
         <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
             @click.self="closeEditModal">
             <div
-                class="bg-white dark:bg-neutral-800 rounded-2xl w-full max-w-2xl max-h-[90vh] shadow-2xl border border-gray-200 dark:border-neutral-700 flex flex-col">
+                class="bg-white dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
                 <!-- Modal Header -->
                 <div
-                    class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-neutral-700 flex-shrink-0">
-                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Edit Client</h2>
+                    class="flex items-center justify-between p-6 border-b-2 border-[#E8E8E8] dark:border-[#222222] flex-shrink-0">
+                    <h2 class="text-xl font-bold text-black dark:text-white uppercase font-mono tracking-wider">Edit
+                        Client</h2>
                     <button @click="closeEditModal"
-                        class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-all duration-200">
+                        class="p-2 text-[#666666] dark:text-[#999999] hover:text-black hover:dark:text-white hover:bg-[#F5F5F5] hover:dark:bg-[#111111] rounded-full transition-all duration-200">
                         <X class="w-5 h-5" />
                     </button>
                 </div>
@@ -592,35 +608,35 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <!-- Name -->
                         <div>
                             <label for="edit-name"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Name</label>
+                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1">Name</label>
                             <input id="edit-name" v-model="editForm.name" required type="text"
-                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700" />
+                                class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors" />
                         </div>
 
                         <!-- Website -->
                         <div>
                             <label for="edit-website"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Website</label>
+                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1">Website</label>
                             <input id="edit-website" v-model="editForm.website" required type="url"
-                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700" />
+                                class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors" />
                         </div>
 
                         <!-- Preview URL -->
                         <div>
                             <label for="edit-preview"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Preview
+                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1">Preview
                                 URL</label>
                             <input id="edit-preview" v-model="editForm.preview_url" type="url"
-                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700" />
+                                class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors" />
                         </div>
 
                         <!-- Brand Color -->
                         <div>
                             <label for="edit-color"
-                                class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Brand
+                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1">Brand
                                 Color</label>
                             <select id="edit-color" v-model="editForm.color_palette_id"
-                                class="w-full rounded-2xl border px-3 py-2 dark:bg-black dark:text-white border-gray-300 dark:border-neutral-700">
+                                class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors">
                                 <option :value="null">Select a palette</option>
                                 <option v-for="palette in colorPalettes" :key="palette.id" :value="palette.id">
                                     {{ palette.name }} ({{ palette.primary }})
@@ -629,11 +645,12 @@ const totalClients = computed(() => clients.value?.total || 0);
 
                             <!-- Color Preview -->
                             <div v-if="editForm.color_palette_id" class="mt-2 flex items-center gap-2">
-                                <span class="text-sm text-gray-500 dark:text-gray-400">Selected:</span>
+                                <span
+                                    class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">Selected:</span>
                                 <div v-if="colorPalettes.find(p => p.id == editForm.color_palette_id)"
                                     :style="{ backgroundColor: colorPalettes.find(p => p.id == editForm.color_palette_id)?.primary }"
-                                    class="h-6 w-12 rounded-lg border border-gray-300 dark:border-neutral-600"></div>
-                                <span class="text-sm text-gray-500 dark:text-gray-400">
+                                    class="h-6 w-12 rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333]"></div>
+                                <span class="text-xs font-mono text-[#666666] dark:text-[#999999]">
                                     {{colorPalettes.find(p => p.id == editForm.color_palette_id)?.primary}}
                                 </span>
                             </div>
@@ -641,16 +658,19 @@ const totalClients = computed(() => clients.value?.total || 0);
 
                         <!-- Current Logo Display -->
                         <div v-if="logoPreview && !editForm.logo">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Current
+                            <label
+                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">Current
                                 Logo</label>
                             <div class="mb-4">
-                                <img :src="logoPreview" alt="Current Logo" class="h-16 mx-auto rounded-lg" />
+                                <img :src="logoPreview" alt="Current Logo"
+                                    class="h-16 mx-auto rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222]" />
                             </div>
                         </div>
 
                         <!-- Logo Upload -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+                            <label
+                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">
                                 {{ logoPreview && !editForm.logo ? 'Upload New Logo' : 'Logo (Image)' }}
                             </label>
                             <FilePond name="logo" :files="editFilePondFiles" @updatefiles="handleEditFilePondUpdate"
@@ -662,11 +682,11 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <!-- Submit Buttons -->
                         <div class="flex space-x-4 pt-4">
                             <button type="button" @click="closeEditModal"
-                                class="flex-1 rounded-xl bg-red-600 px-6 py-3 text-white shadow hover:bg-red-700 transition-colors">
+                                class="flex-1 rounded-full bg-[#D71921] hover:bg-red-700 px-6 py-3 text-white uppercase font-mono tracking-wider text-sm transition-colors">
                                 Cancel
                             </button>
                             <button type="submit" :disabled="!editForm.name || !editForm.website"
-                                class="flex-1 rounded-xl bg-blue-600 px-6 py-3 text-white shadow hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                class="flex-1 rounded-full bg-black dark:bg-white text-white dark:text-black px-6 py-3 hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white disabled:opacity-50 disabled:cursor-not-allowed uppercase font-mono tracking-wider text-sm transition-colors">
                                 Update Client
                             </button>
                         </div>
@@ -676,12 +696,11 @@ const totalClients = computed(() => clients.value?.total || 0);
         </div>
 
         <!-- Image Viewer Modal -->
-        <div v-if="showImageModal"
-            class="fixed inset-0 flex items-center justify-center bg-white dark:bg-black bg-opacity-80 p-4" style="z-index: 999;"
-            @click.self="closeImageModal">
+        <div v-if="showImageModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-90 p-4"
+            style="z-index: 999;" @click.self="closeImageModal">
             <div class="relative max-w-4xl w-full max-h-[90vh]">
                 <button @click="closeImageModal"
-                    class="absolute right-1 top-2 z-50 p-2 bg-black/40 hover:bg-black/60 rounded-full text-white">
+                    class="absolute right-1 top-2 z-50 p-2 bg-black/60 hover:bg-black/80 rounded-full text-white border-2 border-white transition-colors">
                     <X class="w-5 h-5" />
                 </button>
                 <img :src="currentImage" alt="Preview"

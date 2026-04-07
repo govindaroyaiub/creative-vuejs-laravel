@@ -308,7 +308,7 @@ async function collapseTo(group: 'inProgress' | 'completed' | 'noFeedback', cont
 function expandGroup(group: 'inProgress' | 'completed' | 'noFeedback') {
     const limitMap = { inProgress: inProgressLimit, completed: completedLimit, noFeedback: noFeedbackLimit };
     const lengthMap = { inProgress: groups.value.inProgress.length, completed: groups.value.completed.length, noFeedback: groups.value.noFeedback.length };
-    
+
     const limitRef = limitMap[group];
     const totalLength = lengthMap[group];
     limitRef.value = Math.min(limitRef.value + 6, totalLength);
@@ -368,77 +368,76 @@ const groups = computed(() => {
 
     <Head title="Previews" />
     <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }]">
-        <div
-            class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-gray-50 dark:from-black dark:via-black dark:to-black">
-            <div class="p-4 md:p-6 space-y-4">
+        <div class="min-h-screen bg-[#FFFFFF] dark:bg-black font-mono">
+            <div class="p-4 md:p-6 space-y-6">
                 <!-- Tabs / Search (Add button placed next to tabs) -->
                 <div class="flex items-center justify-between gap-4">
                     <div class="flex-1 flex items-center gap-2">
-                        <input v-model="search" @input="onSearchInput" placeholder="Search..."
+                        <input v-model="search" @input="onSearchInput" placeholder="SEARCH PREVIEWS..."
                             aria-label="Search previews"
-                            class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
+                            class="w-full max-w-xs rounded-lg border border-[#CCCCCC] dark:border-[#333333] px-4 py-2 bg-white dark:bg-[#111111] text-[#1A1A1A] dark:text-[#E8E8E8] placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white font-mono text-sm uppercase tracking-wider" />
 
                         <!-- Filter Button -->
                         <div class="relative">
                             <button @click.stop="showFilters = !showFilters"
-                                :class="(filters.fromDate || filters.toDate || filters.uploaderId || filters.keywords) ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700' : 'bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-neutral-600'"
-                                class="px-2 py-2 rounded-xl border flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-neutral-700 transition relative">
+                                :class="(filters.fromDate || filters.toDate || filters.uploaderId || filters.keywords) ? 'bg-white dark:bg-[#111111] text-black dark:text-white border-black dark:border-white' : 'bg-white dark:bg-[#111111] text-[#666666] dark:text-[#999999] border-[#CCCCCC] dark:border-[#333333]'"
+                                class="px-2 py-2 rounded-lg border flex items-center gap-2 hover:border-black dark:hover:border-white transition relative">
                                 <ListFilter class="w-5 h-5" />
                                 <span
                                     v-if="filters.fromDate || filters.toDate || filters.uploaderId || filters.keywords"
-                                    class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-blue-600 rounded-full border-2 border-white dark:border-neutral-800"></span>
+                                    class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#D71921] rounded-full border-2 border-white dark:border-black"></span>
                             </button>
 
                             <!-- Filter Dropdown -->
                             <Transition name="fade-slide">
                                 <div v-if="showFilters" v-click-away="() => showFilters = false" @click.stop
-                                    class="absolute left-0 mt-2 w-80 bg-white dark:bg-neutral-800 rounded-xl shadow-lg border border-gray-200 dark:border-neutral-700 p-4 z-50">
+                                    class="absolute left-0 mt-2 w-80 bg-white dark:bg-[#111111] rounded-lg border-2 border-black dark:border-white p-4 z-50">
                                     <div class="space-y-4">
                                         <div class="grid grid-cols-2 gap-2">
                                             <div>
                                                 <label
-                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">From</label>
+                                                    class="block text-xs font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999] mb-1">FROM</label>
                                                 <input v-model="filters.fromDate" type="date"
-                                                    class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 px-2 py-2 text-sm dark:bg-neutral-700 dark:text-white" />
+                                                    class="w-full rounded border border-[#CCCCCC] dark:border-[#333333] px-2 py-2 text-sm bg-[#F5F5F5] dark:bg-black text-[#1A1A1A] dark:text-[#E8E8E8] focus:outline-none focus:border-black dark:focus:border-white" />
                                             </div>
 
                                             <div>
                                                 <label
-                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">To</label>
+                                                    class="block text-xs font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999] mb-1">TO</label>
                                                 <input v-model="filters.toDate" type="date"
-                                                    class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 px-2 py-2 text-sm dark:bg-neutral-700 dark:text-white" />
+                                                    class="w-full rounded border border-[#CCCCCC] dark:border-[#333333] px-2 py-2 text-sm bg-[#F5F5F5] dark:bg-black text-[#1A1A1A] dark:text-[#E8E8E8] focus:outline-none focus:border-black dark:focus:border-white" />
                                             </div>
                                         </div>
 
                                         <div>
                                             <label
-                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Uploaded
-                                                By</label>
+                                                class="block text-xs font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999] mb-1">UPLOADED
+                                                BY</label>
                                             <select v-model="filters.uploaderId"
-                                                class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 px-3 py-2 dark:bg-neutral-700 dark:text-white">
+                                                class="w-full rounded border border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-[#F5F5F5] dark:bg-black text-[#1A1A1A] dark:text-[#E8E8E8] focus:outline-none focus:border-black dark:focus:border-white">
                                                 <option value="">All Users</option>
                                                 <option v-for="user in users" :key="user.id" :value="user.id">{{
                                                     user.name
-                                                    }}</option>
+                                                }}</option>
                                             </select>
                                         </div>
 
                                         <div>
                                             <label
-                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Keywords</label>
+                                                class="block text-xs font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999] mb-1">KEYWORDS</label>
                                             <input v-model="filters.keywords" type="text"
-                                                placeholder="Enter keywords..."
-                                                class="w-full rounded-lg border border-gray-300 dark:border-neutral-600 px-3 py-2 dark:bg-neutral-700 dark:text-white" />
+                                                placeholder="ENTER KEYWORDS..."
+                                                class="w-full rounded border border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-[#F5F5F5] dark:bg-black text-[#1A1A1A] dark:text-[#E8E8E8] placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white font-mono text-sm uppercase tracking-wider" />
                                         </div>
 
                                         <div class="flex gap-2 pt-2">
                                             <button @click="applyFilters"
-                                                class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                                                Apply Filters
+                                                class="flex-1 px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-[#1A1A1A] dark:hover:bg-[#E8E8E8] transition uppercase font-mono text-xs tracking-wider">
+                                                APPLY
                                             </button>
                                             <button @click="clearFilters"
-                                                class="px-4 py-2 bg-gray-200 dark:bg-neutral-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-neutral-600 transition">
-                                                Clear
+                                                class="px-4 py-2 border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] rounded-full hover:border-black dark:hover:border-white transition uppercase font-mono text-xs tracking-wider">
+                                                CLEAR
                                             </button>
                                         </div>
                                     </div>
@@ -448,23 +447,24 @@ const groups = computed(() => {
                     </div>
                     <div class="flex items-center space-x-2">
                         <button @click="switchTab('grid')" :aria-pressed="activeTab === 'grid'"
-                            :class="activeTab === 'grid' ? 'bg-gray-200 dark:bg-neutral-900 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'"
-                            class="px-3 py-2 rounded-xl flex items-center gap-2">
-                            <LayoutGrid class="w-5 h-5" />
-                            <span class="hidden sm:inline">Grid</span>
+                            :class="activeTab === 'grid' ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white' : 'text-[#666666] dark:text-[#999999] border-[#E8E8E8] dark:border-[#222222]'"
+                            class="px-3 py-2 rounded-full border flex items-center gap-2 transition-colors uppercase font-mono text-xs tracking-wider">
+                            <LayoutGrid class="w-4 h-4" :stroke-width="1.5" />
+                            <span class="hidden sm:inline">GRID</span>
                         </button>
                         <button @click="switchTab('table')" :aria-pressed="activeTab === 'table'"
-                            :class="activeTab === 'table' ? 'bg-gray-200 dark:bg-neutral-900 text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'"
-                            class="px-3 py-2 rounded-xl flex items-center gap-2">
-                            <List class="w-5 h-5" />
-                            <span class="hidden sm:inline">Table</span>
+                            :class="activeTab === 'table' ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white' : 'text-[#666666] dark:text-[#999999] border-[#E8E8E8] dark:border-[#222222]'"
+                            class="px-3 py-2 rounded-full border flex items-center gap-2 transition-colors uppercase font-mono text-xs tracking-wider">
+                            <List class="w-4 h-4" :stroke-width="1.5" />
+                            <span class="hidden sm:inline">TABLE</span>
                         </button>
 
                         <button @click="showModal = true"
-                            class="ml-3 rounded-xl bg-green-600 px-3 py-2 text-white hover:bg-green-700 group flex items-center justify-center whitespace-nowrap"
+                            class="ml-3 rounded-full bg-black dark:bg-white px-3 py-2 text-white dark:text-black hover:bg-[#1A1A1A] dark:hover:bg-[#E8E8E8] group flex items-center justify-center whitespace-nowrap uppercase font-mono text-xs tracking-wider transition-colors"
                             aria-label="Add Preview">
-                            <CirclePlus class="w-4 h-4 mr-2 group-hover:rotate-90 transition-transform duration-200" />
-                            <span class="hidden sm:inline">Add Preview</span>
+                            <CirclePlus class="w-4 h-4 mr-2 group-hover:rotate-90 transition-transform duration-200"
+                                :stroke-width="1.5" />
+                            <span class="hidden sm:inline">ADD</span>
                         </button>
                     </div>
                 </div>
@@ -474,30 +474,45 @@ const groups = computed(() => {
                     <div :key="activeTab">
                         <div v-if="activeTab === 'table'">
                             <!-- Desktop Table -->
-                            <div class="hidden lg:block overflow-x-auto rounded-2xl shadow">
+                            <div class="hidden lg:block overflow-x-auto rounded-lg">
                                 <table
-                                    class="w-full rounded-2xl bg-white shadow dark:bg-neutral-800 dark:border border table-fixed">
-                                    <thead class="bg-gray-100 dark:bg-neutral-900 text-xs uppercase">
+                                    class="w-full rounded-lg bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] table-fixed">
+                                    <thead
+                                        class="bg-[#F5F5F5] dark:bg-black text-xs uppercase font-mono tracking-widest">
                                         <tr>
-                                            <th class="w-16 px-4 py-3 text-center border-b">#</th>
-                                            <th class="w-80 px-4 py-3 text-left border-b">Name & Client</th>
-                                            <th class="w-48 px-4 py-3 text-center border-b">Team</th>
-                                            <th class="w-36 px-4 py-3 text-center border-b">Uploader</th>
-                                            <th class="w-32 px-4 py-3 text-center border-b">Actions</th>
+                                            <th
+                                                class="w-16 px-4 py-3 text-center border-b border-[#E8E8E8] dark:border-[#222222] text-[#666666] dark:text-[#999999]">
+                                                #</th>
+                                            <th
+                                                class="w-80 px-4 py-3 text-left border-b border-[#E8E8E8] dark:border-[#222222] text-[#666666] dark:text-[#999999]">
+                                                NAME & CLIENT</th>
+                                            <th
+                                                class="w-48 px-4 py-3 text-center border-b border-[#E8E8E8] dark:border-[#222222] text-[#666666] dark:text-[#999999]">
+                                                TEAM</th>
+                                            <th
+                                                class="w-36 px-4 py-3 text-center border-b border-[#E8E8E8] dark:border-[#222222] text-[#666666] dark:text-[#999999]">
+                                                UPLOADER</th>
+                                            <th
+                                                class="w-32 px-4 py-3 text-center border-b border-[#E8E8E8] dark:border-[#222222] text-[#666666] dark:text-[#999999]">
+                                                ACTIONS</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-gray-200 dark:divide-black">
+                                    <tbody class="divide-y divide-[#E8E8E8] dark:divide-[#222222]">
                                         <tr v-for="(preview, index) in filteredPreviews" :key="preview.id"
-                                            class="hover:bg-gray-50 dark:hover:bg-neutral-700 border-b">
-                                            <td class="w-16 text-center px-4 py-3 font-medium border-b">
+                                            class="hover:bg-[#F5F5F5] dark:hover:bg-black border-b border-[#E8E8E8] dark:border-[#222222] transition-colors">
+                                            <td
+                                                class="w-16 text-center px-4 py-3 font-mono border-b border-[#E8E8E8] dark:border-[#222222] text-[#1A1A1A] dark:text-[#E8E8E8]">
                                                 {{ ((previews.current_page - 1) * previews.per_page) + index + 1 }}
                                             </td>
-                                            <td class="w-80 px-4 py-3 text-left border-b">
-                                                <div class="font-semibold capitalize break-words" :title="preview.name">
+                                            <td
+                                                class="w-80 px-4 py-3 text-left border-b border-[#E8E8E8] dark:border-[#222222]">
+                                                <div class="font-medium capitalize break-words text-[#1A1A1A] dark:text-[#E8E8E8]"
+                                                    :title="preview.name">
                                                     {{
                                                         preview.name
                                                     }}</div>
-                                                <div class="text-xs text-gray-500 flex gap-2 items-center">
+                                                <div
+                                                    class="text-xs text-[#666666] dark:text-[#999999] flex gap-2 items-center font-mono uppercase tracking-wider mt-1">
                                                     <div class="h-5 w-5 rounded-full border flex-shrink-0"
                                                         :style="{ backgroundColor: preview.color_palette?.primary ?? 'red' }"
                                                         title="Primary Color"></div>
@@ -511,7 +526,7 @@ const groups = computed(() => {
                                             <td class="w-48 px-4 py-3 text-center border-b">
                                                 <div class="flex justify-center flex-wrap gap-1">
                                                     <span v-for="u in preview.team_users" :key="u.id"
-                                                        class="inline-block rounded-2xl bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700 dark:bg-indigo-800 dark:text-white truncate">
+                                                        class="inline-block rounded-full bg-white dark:bg-[#111111] border border-[#CCCCCC] dark:border-[#333333] px-2 py-0.5 text-xs text-[#1A1A1A] dark:text-[#E8E8E8] truncate uppercase font-mono tracking-wider">
                                                         {{ u.name }}
                                                     </span>
                                                 </div>
@@ -602,36 +617,35 @@ const groups = computed(() => {
                                 <!-- In Progress -->
                                 <section>
                                     <div class="flex items-center justify-between mb-1">
-                                        <h3 class="text-lg font-semibold whitespace-nowrap">In Progress</h3>
-                                        <div class="text-sm text-gray-500">Showing {{ Math.min(groups.inProgress.length,
-                                            inProgressLimit) }} of {{ groups.inProgress.length }}</div>
+                                        <h3
+                                            class="text-xs font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999]">
+                                            IN PROGRESS</h3>
+                                        <div class="text-xs text-[#666666] dark:text-[#999999] font-mono">{{
+                                            Math.min(groups.inProgress.length,
+                                            inProgressLimit) }} / {{ groups.inProgress.length }}</div>
                                     </div>
-                                    <div
-                                        class="h-0.5 w-full bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-200 rounded-full mb-4">
+                                    <div class="h-px w-full bg-[#666666] dark:bg-[#999999] mb-4">
                                     </div>
                                     <div ref="inProgressContainer">
                                         <div v-if="groups.inProgress.length"
                                             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            <PreviewGridCard
-                                                v-for="p in groups.inProgress.slice(0, inProgressLimit)"
-                                                :key="p.id"
-                                                :preview="p"
-                                                status="inProgress"
-                                            />
+                                            <PreviewGridCard v-for="p in groups.inProgress.slice(0, inProgressLimit)"
+                                                :key="p.id" :preview="p" status="inProgress" />
                                         </div>
-                                        <div v-else class="text-sm text-gray-500">No previews in progress.</div>
+                                        <div v-else
+                                            class="text-xs text-[#666666] dark:text-[#999999] font-mono uppercase tracking-wider">
+                                            NO PREVIEWS IN PROGRESS</div>
                                     </div>
                                     <div v-if="groups.inProgress.length > inProgressDefault" class="mt-4 text-center">
                                         <button v-if="inProgressLimit < groups.inProgress.length"
                                             @click="expandGroup('inProgress')"
-                                            class="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-neutral-700 rounded-lg transition">
-                                            See More ({{ Math.min(6, groups.inProgress.length - inProgressLimit) }}
-                                            more)
+                                            class="px-4 py-2 text-xs font-mono uppercase tracking-wider border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] hover:border-black dark:hover:border-white rounded-full transition-colors">
+                                            SHOW {{ Math.min(6, groups.inProgress.length - inProgressLimit) }} MORE
                                         </button>
                                         <button v-else-if="inProgressLimit > inProgressDefault"
                                             @click="collapseTo('inProgress', inProgressContainer, inProgressDefault)"
-                                            class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-neutral-700 rounded-lg transition">
-                                            See Less
+                                            class="px-4 py-2 text-xs font-mono uppercase tracking-wider border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] hover:border-black dark:hover:border-white rounded-full transition-colors">
+                                            SHOW LESS
                                         </button>
                                     </div>
                                 </section>
@@ -639,35 +653,35 @@ const groups = computed(() => {
                                 <!-- Completed -->
                                 <section>
                                     <div class="flex items-center justify-between mb-1">
-                                        <h3 class="text-lg font-semibold whitespace-nowrap">Completed</h3>
-                                        <div class="text-sm text-gray-500">Showing {{ Math.min(groups.completed.length,
-                                            completedLimit) }} of {{ groups.completed.length }}</div>
+                                        <h3
+                                            class="text-xs font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999]">
+                                            COMPLETED</h3>
+                                        <div class="text-xs text-[#666666] dark:text-[#999999] font-mono">{{
+                                            Math.min(groups.completed.length,
+                                            completedLimit) }} / {{ groups.completed.length }}</div>
                                     </div>
-                                    <div
-                                        class="h-0.5 w-full bg-gradient-to-r from-green-400 via-green-300 to-green-200 rounded-full mb-4">
+                                    <div class="h-px w-full bg-black dark:bg-white mb-4">
                                     </div>
                                     <div ref="completedContainer">
                                         <div v-if="groups.completed.length"
                                             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            <PreviewGridCard
-                                                v-for="p in groups.completed.slice(0, completedLimit)"
-                                                :key="p.id"
-                                                :preview="p"
-                                                status="completed"
-                                            />
+                                            <PreviewGridCard v-for="p in groups.completed.slice(0, completedLimit)"
+                                                :key="p.id" :preview="p" status="completed" />
                                         </div>
-                                        <div v-else class="text-sm text-gray-500">No completed previews.</div>
+                                        <div v-else
+                                            class="text-xs text-[#666666] dark:text-[#999999] font-mono uppercase tracking-wider">
+                                            NO COMPLETED PREVIEWS</div>
                                     </div>
                                     <div v-if="groups.completed.length > completedDefault" class="mt-4 text-center">
                                         <button v-if="completedLimit < groups.completed.length"
                                             @click="expandGroup('completed')"
-                                            class="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-neutral-700 rounded-lg transition">
-                                            See More ({{ Math.min(6, groups.completed.length - completedLimit) }} more)
+                                            class="px-4 py-2 text-xs font-mono uppercase tracking-wider border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] hover:border-black dark:hover:border-white rounded-full transition-colors">
+                                            SHOW {{ Math.min(6, groups.completed.length - completedLimit) }} MORE
                                         </button>
                                         <button v-else-if="completedLimit > completedDefault"
                                             @click="collapseTo('completed', completedContainer, completedDefault)"
-                                            class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-neutral-700 rounded-lg transition">
-                                            See Less
+                                            class="px-4 py-2 text-xs font-mono uppercase tracking-wider border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] hover:border-black dark:hover:border-white rounded-full transition-colors">
+                                            SHOW LESS
                                         </button>
                                     </div>
                                 </section>
@@ -675,68 +689,67 @@ const groups = computed(() => {
                                 <!-- No Feedback -->
                                 <section>
                                     <div class="flex items-center justify-between mb-1">
-                                        <h3 class="text-lg font-semibold whitespace-nowrap">No Feedback</h3>
-                                        <div class="text-sm text-gray-500">Showing {{ Math.min(groups.noFeedback.length,
-                                            noFeedbackLimit) }} of {{ groups.noFeedback.length }}</div>
+                                        <h3
+                                            class="text-xs font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999]">
+                                            NO FEEDBACK</h3>
+                                        <div class="text-xs text-[#666666] dark:text-[#999999] font-mono">{{
+                                            Math.min(groups.noFeedback.length,
+                                            noFeedbackLimit) }} / {{ groups.noFeedback.length }}</div>
                                     </div>
-                                    <div
-                                        class="h-0.5 w-full bg-gradient-to-r from-gray-400 via-gray-300 to-gray-200 rounded-full mb-4">
+                                    <div class="h-px w-full bg-[#CCCCCC] dark:bg-[#333333] mb-4">
                                     </div>
                                     <div ref="noFeedbackContainer">
                                         <div v-if="groups.noFeedback.length"
                                             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            <PreviewGridCard
-                                                v-for="p in groups.noFeedback.slice(0, noFeedbackLimit)"
-                                                :key="p.id"
-                                                :preview="p"
-                                                status="noFeedback"
-                                            />
+                                            <PreviewGridCard v-for="p in groups.noFeedback.slice(0, noFeedbackLimit)"
+                                                :key="p.id" :preview="p" status="noFeedback" />
                                         </div>
-                                        <div v-else class="text-sm text-gray-500">No previews without feedback.</div>
+                                        <div v-else
+                                            class="text-xs text-[#666666] dark:text-[#999999] font-mono uppercase tracking-wider">
+                                            NO PREVIEWS WITHOUT FEEDBACK</div>
                                     </div>
                                     <div v-if="groups.noFeedback.length > noFeedbackDefault" class="mt-4 text-center">
                                         <button v-if="noFeedbackLimit < groups.noFeedback.length"
                                             @click="expandGroup('noFeedback')"
-                                            class="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-neutral-700 rounded-lg transition">
-                                            See More ({{ Math.min(6, groups.noFeedback.length - noFeedbackLimit) }}
-                                            more)
+                                            class="px-4 py-2 text-xs font-mono uppercase tracking-wider border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] hover:border-black dark:hover:border-white rounded-full transition-colors">
+                                            SHOW {{ Math.min(6, groups.noFeedback.length - noFeedbackLimit) }} MORE
                                         </button>
                                         <button v-else-if="noFeedbackLimit > noFeedbackDefault"
                                             @click="collapseTo('noFeedback', noFeedbackContainer, noFeedbackDefault)"
-                                            class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-neutral-700 rounded-lg transition">
-                                            See Less
+                                            class="px-4 py-2 text-xs font-mono uppercase tracking-wider border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] hover:border-black dark:hover:border-white rounded-full transition-colors">
+                                            SHOW LESS
                                         </button>
                                     </div>
                                 </section>
                             </div>
 
-                            <div v-else class="bg-white dark:bg-neutral-800 rounded-xl p-8 text-center shadow">
-                                <div class="text-gray-600 dark:text-gray-400">No previews found.</div>
+                            <div v-else
+                                class="bg-white dark:bg-[#111111] rounded-lg p-8 text-center border border-[#E8E8E8] dark:border-[#222222]">
+                                <div
+                                    class="text-[#666666] dark:text-[#999999] font-mono uppercase tracking-wider text-sm">
+                                    NO PREVIEWS FOUND</div>
                             </div>
                         </div>
                     </div>
                 </Transition>
 
                 <!-- Pagination (shown for table view only) -->
-                <PreviewPagination 
-                    v-if="activeTab === 'table' && filteredPreviews.length"
-                    :pagination-data="previews" 
-                    :on-page-change="changePage" 
-                />
+                <PreviewPagination v-if="activeTab === 'table' && filteredPreviews.length" :pagination-data="previews"
+                    :on-page-change="changePage" />
             </div>
 
             <!-- Modal -->
-            <div v-if="showModal"
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4"
+            <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
                 @click.self="closeModal">
                 <div
-                    class="bg-white dark:bg-neutral-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl border border-gray-200 dark:border-neutral-700">
+                    class="bg-white dark:bg-[#111111] rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden border-2 border-black dark:border-white">
                     <!-- Modal Header -->
-                    <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-neutral-700">
-                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Create New Preview</h2>
+                    <div class="flex items-center justify-between p-4 border-b border-[#E8E8E8] dark:border-[#222222]">
+                        <h2 class="text-sm font-mono uppercase tracking-widest text-black dark:text-white">CREATE NEW
+                            PREVIEW</h2>
                         <button @click="closeModal"
-                            class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-lg transition-all duration-200">
-                            <X class="w-5 h-5" />
+                            class="p-2 text-[#666666] dark:text-[#999999] hover:text-black dark:hover:text-white border border-transparent hover:border-[#CCCCCC] dark:hover:border-[#333333] rounded transition-colors">
+                            <X class="w-4 h-4" :stroke-width="1.5" />
                         </button>
                     </div>
 

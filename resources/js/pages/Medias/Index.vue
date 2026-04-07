@@ -51,7 +51,12 @@ const handleFilePondUpdate = (files: any[]) => {
 
 const uploadFile = () => {
     if (!newForm.value.name || !newForm.value.file) {
-        Swal.fire('Error!', 'Name and file are required.', 'error');
+        Swal.fire({
+            title: 'Error!',
+            text: 'Name and file are required.',
+            icon: 'error',
+            customClass: { popup: 'rounded-lg' }
+        });
         return;
     }
 
@@ -65,10 +70,20 @@ const uploadFile = () => {
         preserveScroll: true,
         onSuccess: () => {
             modalVisible.value = false;
-            Swal.fire('Uploaded!', 'Media uploaded successfully.', 'success');
+            Swal.fire({
+                title: 'Uploaded!',
+                text: 'Media uploaded successfully.',
+                icon: 'success',
+                customClass: { popup: 'rounded-lg' }
+            });
         },
         onError: () => {
-            Swal.fire('Error!', 'Failed to upload.', 'error');
+            Swal.fire({
+                title: 'Error!',
+                text: 'Failed to upload.',
+                icon: 'error',
+                customClass: { popup: 'rounded-lg' }
+            });
         },
         onFinish: () => {
             uploading.value = false;
@@ -92,7 +107,12 @@ watch(medias, () => {
 
 const bulkDelete = async () => {
     if (!selectedIds.value.length) {
-        Swal.fire('No selection', 'Please select one or more media files.', 'info');
+        Swal.fire({
+            title: 'No selection',
+            text: 'Please select one or more media files.',
+            icon: 'info',
+            customClass: { popup: 'rounded-lg' }
+        });
         return;
     }
 
@@ -101,21 +121,33 @@ const bulkDelete = async () => {
         text: `This will permanently delete ${selectedIds.value.length} file(s).`,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#d33',
+        confirmButtonColor: '#D71921',
+        cancelButtonColor: '#000000',
         confirmButtonText: 'Yes, delete',
+        customClass: { popup: 'rounded-lg' }
     });
 
     if (result.isConfirmed) {
         router.post(route('medias-bulk-delete'), { ids: selectedIds.value }, {
             preserveState: true,
             onSuccess: () => {
-                Swal.fire('Deleted', `${selectedIds.value.length} file(s) deleted.`, 'success');
+                Swal.fire({
+                    title: 'Deleted',
+                    text: `${selectedIds.value.length} file(s) deleted.`,
+                    icon: 'success',
+                    customClass: { popup: 'rounded-lg' }
+                });
                 selectedIds.value = [];
                 selectAllChecked.value = false;
                 router.reload();
             },
             onError: () => {
-                Swal.fire('Error', 'Bulk delete failed.', 'error');
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Bulk delete failed.',
+                    icon: 'error',
+                    customClass: { popup: 'rounded-lg' }
+                });
             }
         });
     }
@@ -142,16 +174,27 @@ const deleteMedia = async (id: number) => {
         text: 'This will permanently delete the file.',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
+        confirmButtonColor: '#D71921',
+        cancelButtonColor: '#000000',
         confirmButtonText: 'Yes, delete it!',
+        customClass: { popup: 'rounded-lg' }
     });
 
     if (result.isConfirmed) {
         router.delete(route('medias-delete', id), {
             preserveScroll: true,
-            onSuccess: () => Swal.fire('Deleted!', 'File deleted.', 'success'),
-            onError: () => Swal.fire('Error!', 'Delete failed.', 'error'),
+            onSuccess: () => Swal.fire({
+                title: 'Deleted!',
+                text: 'File deleted.',
+                icon: 'success',
+                customClass: { popup: 'rounded-lg' }
+            }),
+            onError: () => Swal.fire({
+                title: 'Error!',
+                text: 'Delete failed.',
+                icon: 'error',
+                customClass: { popup: 'rounded-lg' }
+            }),
         });
     }
 };
@@ -181,18 +224,17 @@ const getFileSize = (bytes: number) => {
 
     <Head title="Media Library" />
     <AppLayout :breadcrumbs="[{ title: 'Media Library', href: '/medias' }]">
-        <div
-            class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-gray-50 dark:from-black dark:via-black dark:to-black">
+        <div class="min-h-screen bg-white dark:bg-black">
             <div class="p-4 md:p-6">
                 <!-- Search & Upload (aligned like FileTransfers) -->
                 <div class="mb-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
                     <div class="flex-1 items-center gap-3">
                         <input v-model="search" placeholder="Search..."
-                            class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
+                            class="w-full max-w-xs rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-2 bg-white dark:bg-black text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
 
                         <!-- Show all toggle -->
                         <button @click="toggleShowAll"
-                            class="ml-2 rounded-xl bg-gray-200 dark:bg-neutral-700 px-3 py-2 text-sm hover:bg-gray-300 dark:hover:bg-neutral-600 transition whitespace-nowrap">
+                            class="ml-2 rounded-full bg-white dark:bg-black border-2 border-black dark:border-white px-3 py-2 text-xs uppercase font-mono tracking-wider text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors whitespace-nowrap">
                             <span v-if="!showAll">Show all</span>
                             <span v-else>Paged</span>
                         </button>
@@ -200,47 +242,60 @@ const getFileSize = (bytes: number) => {
 
                     <div class="flex items-center gap-3">
                         <div v-if="selectedIds.length > 0" class="flex items-center space-x-3">
-                            <div class="text-sm">Selected: <strong>{{ selectedIds.length }}</strong></div>
+                            <div class="text-xs uppercase font-mono tracking-wider text-black dark:text-white">Selected:
+                                <strong class="tabular-nums">{{ selectedIds.length }}</strong></div>
                             <button @click="bulkDelete"
-                                class="rounded-xl bg-red-600 px-3 py-2 text-white hover:bg-red-700">Delete
+                                class="rounded-full bg-white dark:bg-black border-2 border-[#D71921] px-3 py-2 text-xs uppercase font-mono tracking-wider text-[#D71921] hover:bg-[#D71921] hover:text-white transition-colors">Delete
                                 Selected</button>
                         </div>
 
                         <button @click="openUploadModal"
-                            class="rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 flex items-center justify-center whitespace-nowrap group">
-                            <Upload class="mr-2 h-5 w-5 group-hover:animate-bounce transition-transform duration-200" />
-                            Upload
+                            class="rounded-full bg-black dark:bg-white border-2 border-black dark:border-white px-4 py-2 text-white dark:text-black hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white flex items-center justify-center whitespace-nowrap transition-colors duration-200">
+                            <Upload :stroke-width="1.5" class="mr-2 h-4 w-4" />
+                            <span class="text-xs uppercase font-mono tracking-wider">Upload</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Desktop Table -->
-                <div class="hidden lg:block rounded-2xl overflow-x-auto shadow">
-                    <table class="w-full rounded bg-white dark:bg-neutral-800 dark:border border">
-                        <thead class="bg-gray-100 text-gray-700 dark:bg-neutral-900 dark:text-gray-300">
-                            <tr class="bg-gray-100 dark:bg-neutral-900 uppercase text-sm">
-                                <th class="border-b px-4 py-2 text-center">
+                <div class="hidden lg:block rounded-lg overflow-x-auto border-2 border-[#CCCCCC] dark:border-[#222222]">
+                    <table class="w-full bg-white dark:bg-[#111111]">
+                        <thead class="bg-[#F5F5F5] dark:bg-[#0A0A0A]">
+                            <tr>
+                                <th
+                                    class="border-b-2 border-[#CCCCCC] dark:border-[#222222] px-4 py-2 text-center text-xs uppercase font-mono tracking-widest text-black dark:text-white">
                                     <input type="checkbox" class="form-checkbox" v-model="selectAllChecked"
                                         @change="toggleSelectAllPage" />
                                 </th>
-                                <th class="border-b px-4 py-2 text-center">#</th>
-                                <th class="border-b px-4 py-2 text-center">Name</th>
-                                <th class="border-b px-4 py-2 text-center">Uploader</th>
-                                <th class="border-b px-4 py-2 text-center">Actions</th>
+                                <th
+                                    class="border-b-2 border-[#CCCCCC] dark:border-[#222222] px-4 py-2 text-center text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                    #</th>
+                                <th
+                                    class="border-b-2 border-[#CCCCCC] dark:border-[#222222] px-4 py-2 text-center text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                    Name</th>
+                                <th
+                                    class="border-b-2 border-[#CCCCCC] dark:border-[#222222] px-4 py-2 text-center text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                    Uploader</th>
+                                <th
+                                    class="border-b-2 border-[#CCCCCC] dark:border-[#222222] px-4 py-2 text-center text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                    Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(media, index) in medias" :key="media.id"
-                                class="hover:bg-gray-50 dark:hover:bg-gray-800 border-b">
-                                <td class="border-b px-4 py-2 text-center">
+                                class="hover:bg-[#F5F5F5] dark:hover:bg-[#0A0A0A] border-b-2 border-[#E8E8E8] dark:border-[#222222] transition-colors duration-200">
+                                <td class="px-4 py-2 text-center">
                                     <input type="checkbox" class="form-checkbox" :value="media.id"
                                         v-model="selectedIds" />
                                 </td>
-                                <td class="border-b px-4 py-2 text-center">{{ index + 1 }}</td>
-                                <td class="border-b px-4 py-2 text-center font-medium">{{ media.name }}</td>
-                                <td class="border-b px-4 py-2 text-center">
-                                    <div>{{ media.uploader?.name ?? 'N/A' }}</div>
-                                    <div class="text-xs text-gray-500">
+                                <td class="px-4 py-2 text-center font-mono tabular-nums text-black dark:text-white">{{
+                                    index + 1 }}</td>
+                                <td
+                                    class="px-4 py-2 text-center uppercase font-mono tracking-wider text-black dark:text-white">
+                                    {{ media.name }}</td>
+                                <td class="px-4 py-2 text-center">
+                                    <div class="text-black dark:text-white">{{ media.uploader?.name ?? 'N/A' }}</div>
+                                    <div class="text-xs font-mono text-[#666666] dark:text-[#999999]">
                                         {{ new Date(media.created_at).toLocaleDateString('en-GB', {
                                             day: '2-digit',
                                             month: 'short',
@@ -248,23 +303,27 @@ const getFileSize = (bytes: number) => {
                                         }) }}
                                     </div>
                                 </td>
-                                <td class="border-b px-4 py-2 text-center space-x-2">
+                                <td class="px-4 py-2 text-center space-x-2">
                                     <a :href="`/${media.path}`" target="_blank"
-                                        class="text-indigo-600 hover:text-indigo-800 p-1" aria-label="View Media">
-                                        <Eye class="inline h-5 w-5" />
+                                        class="inline-flex items-center justify-center p-2 text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-black dark:border-white rounded-full transition-colors duration-200"
+                                        aria-label="View Media">
+                                        <Eye :stroke-width="1.5" class="inline h-4 w-4" />
                                     </a>
                                     <a :href="route('medias-download', media.id)"
-                                        class="text-green-600 hover:text-green-800 p-1" aria-label="Download Media">
-                                        <Download class="inline h-5 w-5" />
+                                        class="inline-flex items-center justify-center p-2 text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-black dark:border-white rounded-full transition-colors duration-200"
+                                        aria-label="Download Media">
+                                        <Download :stroke-width="1.5" class="inline h-4 w-4" />
                                     </a>
-                                    <button @click="deleteMedia(media.id)" class="text-red-600 hover:text-red-800 p-1"
+                                    <button @click="deleteMedia(media.id)"
+                                        class="inline-flex items-center justify-center p-2 text-[#D71921] hover:bg-[#D71921] hover:text-white border-2 border-[#D71921] rounded-full transition-colors duration-200"
                                         aria-label="Delete Media">
-                                        <Trash2 class="inline h-5 w-5" />
+                                        <Trash2 :stroke-width="1.5" class="inline h-4 w-4" />
                                     </button>
                                 </td>
                             </tr>
                             <tr v-if="medias.length === 0">
-                                <td colspan="5" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">No media
+                                <td colspan="5" class="px-4 py-6 text-center text-[#666666] dark:text-[#999999]">No
+                                    media
                                     files found.</td>
                             </tr>
                         </tbody>
@@ -274,7 +333,7 @@ const getFileSize = (bytes: number) => {
                 <!-- Mobile/Tablet Cards -->
                 <div class="lg:hidden space-y-4">
                     <div v-for="(media, index) in medias" :key="media.id"
-                        class="bg-white dark:bg-neutral-800 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-4">
+                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#CCCCCC] dark:border-[#222222] p-4">
 
                         <!-- Header: Number + Name -->
                         <div class="flex items-start justify-between mb-3">
@@ -283,10 +342,11 @@ const getFileSize = (bytes: number) => {
                                     v-model="selectedIds" />
                             </div>
                             <div class="flex-1 min-w-0">
-                                <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                                <div class="text-xs font-mono text-[#666666] dark:text-[#999999] mb-1">
                                     #{{ index + 1 }}
                                 </div>
-                                <h3 class="font-semibold text-lg break-words text-gray-900 dark:text-white">
+                                <h3
+                                    class="text-sm uppercase font-mono tracking-wider break-words text-black dark:text-white">
                                     {{ media.name }}
                                 </h3>
                             </div>
@@ -294,37 +354,41 @@ const getFileSize = (bytes: number) => {
                             <!-- Actions -->
                             <div class="flex gap-2 ml-3">
                                 <a :href="`/${media.path}`" target="_blank"
-                                    class="text-indigo-600 hover:text-indigo-800 p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                                    class="p-2 text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-black dark:border-white rounded-full transition-colors duration-200"
                                     aria-label="View Media">
-                                    <Eye class="h-5 w-5" />
+                                    <Eye :stroke-width="1.5" class="h-4 w-4" />
                                 </a>
                                 <a :href="route('medias-download', media.id)"
-                                    class="text-green-600 hover:text-green-800 p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20"
+                                    class="p-2 text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-black dark:border-white rounded-full transition-colors duration-200"
                                     aria-label="Download Media">
-                                    <Download class="h-5 w-5" />
+                                    <Download :stroke-width="1.5" class="h-4 w-4" />
                                 </a>
                                 <button @click="deleteMedia(media.id)"
-                                    class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
+                                    class="p-2 text-[#D71921] hover:bg-[#D71921] hover:text-white border-2 border-[#D71921] rounded-full transition-colors duration-200"
                                     aria-label="Delete Media">
-                                    <Trash2 class="h-5 w-5" />
+                                    <Trash2 :stroke-width="1.5" class="h-4 w-4" />
                                 </button>
                             </div>
                         </div>
 
                         <!-- File Info -->
                         <div class="mb-3">
-                            <div class="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                                <span class="font-medium">File Type:</span> {{ media.type || 'Unknown' }}
+                            <div class="text-xs font-mono text-[#666666] dark:text-[#999999] mb-1">
+                                <span class="uppercase tracking-wider text-black dark:text-white">File Type:</span> {{
+                                media.type || 'Unknown' }}
                             </div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400" v-if="media.size">
-                                <span class="font-medium">Size:</span> {{ getFileSize(media.size) }}
+                            <div class="text-xs font-mono text-[#666666] dark:text-[#999999]" v-if="media.size">
+                                <span class="uppercase tracking-wider text-black dark:text-white">Size:</span> {{
+                                getFileSize(media.size) }}
                             </div>
                         </div>
 
                         <!-- Uploader & Date -->
-                        <div class="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
+                        <div
+                            class="flex justify-between items-center text-xs font-mono text-[#666666] dark:text-[#999999]">
                             <div>
-                                <span class="font-medium">Uploader:</span> {{ media.uploader?.name ?? 'N/A' }}
+                                <span class="uppercase tracking-wider text-black dark:text-white">Uploader:</span> {{
+                                media.uploader?.name ?? 'N/A' }}
                             </div>
                             <div>
                                 {{ new Date(media.created_at).toLocaleDateString('en-GB', {
@@ -338,8 +402,8 @@ const getFileSize = (bytes: number) => {
 
                     <!-- No results card -->
                     <div v-if="medias.length === 0"
-                        class="bg-white dark:bg-neutral-800 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-8 text-center">
-                        <div class="text-gray-500 dark:text-gray-400">No media files found.</div>
+                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#CCCCCC] dark:border-[#222222] p-8 text-center">
+                        <div class="text-[#666666] dark:text-[#999999]">No media files found.</div>
                     </div>
                 </div>
 
@@ -349,7 +413,7 @@ const getFileSize = (bytes: number) => {
                     <!-- Mobile/Tablet pagination (simplified) -->
                     <div class="lg:hidden">
                         <!-- Results Info -->
-                        <div class="text-sm text-gray-600 dark:text-gray-400 text-center mb-3"
+                        <div class="text-xs font-mono text-[#666666] dark:text-[#999999] text-center mb-3"
                             v-if="page.props.medias?.total">
                             Showing {{ page.props.medias?.from }} to {{ page.props.medias?.to }} of {{
                                 page.props.medias?.total }}
@@ -360,26 +424,26 @@ const getFileSize = (bytes: number) => {
                         <div class="flex items-center justify-between gap-4">
                             <button @click="changePage(page.props.medias?.prev_page_url)"
                                 :disabled="!page.props.medias?.prev_page_url"
-                                class="px-4 py-2 text-sm rounded-xl transition-all duration-200 flex items-center gap-2"
+                                class="px-4 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center gap-2 border-2"
                                 :class="page.props.medias?.prev_page_url
-                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
-                                    : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
-                                <ChevronLeft class="w-4 h-4" />
+                                    ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
+                                    : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
+                                <ChevronLeft :stroke-width="1.5" class="w-4 h-4" />
                                 Previous
                             </button>
 
-                            <span class="text-sm text-gray-600 dark:text-gray-400">
+                            <span class="text-xs font-mono tabular-nums text-[#666666] dark:text-[#999999]">
                                 Page {{ page.props.medias?.current_page }} of {{ page.props.medias?.last_page }}
                             </span>
 
                             <button @click="changePage(page.props.medias?.next_page_url)"
                                 :disabled="!page.props.medias?.next_page_url"
-                                class="px-4 py-2 text-sm rounded-xl transition-all duration-200 flex items-center gap-2"
+                                class="px-4 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center gap-2 border-2"
                                 :class="page.props.medias?.next_page_url
-                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
-                                    : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
+                                    ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
+                                    : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
                                 Next
-                                <ChevronRight class="w-4 h-4" />
+                                <ChevronRight :stroke-width="1.5" class="w-4 h-4" />
                             </button>
                         </div>
                     </div>
@@ -387,7 +451,7 @@ const getFileSize = (bytes: number) => {
                     <!-- Desktop pagination (full features) -->
                     <div class="hidden lg:flex items-center justify-between">
                         <!-- Results Info -->
-                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                        <div class="text-xs font-mono text-[#666666] dark:text-[#999999]">
                             Showing {{ page.props.medias?.from }} to {{ page.props.medias?.to }} of {{
                                 page.props.medias?.total }}
                             files
@@ -398,11 +462,11 @@ const getFileSize = (bytes: number) => {
                             <!-- Previous Button -->
                             <button @click="changePage(page.props.medias?.prev_page_url)"
                                 :disabled="!page.props.medias?.prev_page_url"
-                                class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center"
+                                class="px-3 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center border-2"
                                 :class="page.props.medias?.prev_page_url
-                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
-                                    : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
-                                <ChevronLeft class="w-4 h-4 mr-1" />
+                                    ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
+                                    : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
+                                <ChevronLeft :stroke-width="1.5" class="w-4 h-4 mr-1" />
                                 Previous
                             </button>
 
@@ -410,12 +474,12 @@ const getFileSize = (bytes: number) => {
                             <div class="flex items-center space-x-1">
                                 <template v-for="link in links.slice(1, -1)" :key="link.label">
                                     <button v-if="link.url" @click="changePage(link.url)"
-                                        class="px-3 py-2 text-sm rounded-lg transition-all duration-200"
+                                        class="px-3 py-2 text-xs font-mono tabular-nums rounded-full transition-colors duration-200 border-2"
                                         :class="link.active
-                                            ? 'bg-blue-600 text-white'
-                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'"
+                                            ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white'
+                                            : 'text-black dark:text-white border-[#CCCCCC] dark:border-[#333333] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black hover:border-black dark:hover:border-white'"
                                         v-html="link.label" />
-                                    <span v-else class="px-3 py-2 text-sm text-gray-400 cursor-not-allowed"
+                                    <span v-else class="px-3 py-2 text-xs font-mono text-[#CCCCCC] cursor-not-allowed"
                                         v-html="link.label" />
                                 </template>
                             </div>
@@ -423,12 +487,12 @@ const getFileSize = (bytes: number) => {
                             <!-- Next Button -->
                             <button @click="changePage(page.props.medias?.next_page_url)"
                                 :disabled="!page.props.medias?.next_page_url"
-                                class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center"
+                                class="px-3 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center border-2"
                                 :class="page.props.medias?.next_page_url
-                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
-                                    : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
+                                    ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
+                                    : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
                                 Next
-                                <ChevronRight class="w-4 h-4 ml-1" />
+                                <ChevronRight :stroke-width="1.5" class="w-4 h-4 ml-1" />
                             </button>
                         </div>
                     </div>
@@ -439,17 +503,19 @@ const getFileSize = (bytes: number) => {
                     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
                     @click.self="modalVisible = false">
                     <div
-                        class="w-full max-w-md rounded-2xl bg-white p-6 shadow-lg dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700">
-                        <h2 class="text-lg font-bold mb-4 text-gray-800 dark:text-white">Upload Media</h2>
+                        class="w-full max-w-md rounded-lg bg-white p-6 dark:bg-[#111111] border-2 border-[#CCCCCC] dark:border-[#222222]">
+                        <h2 class="text-xs uppercase font-mono tracking-widest mb-4 text-black dark:text-white">Upload
+                            Media</h2>
 
                         <div class="space-y-4">
                             <!-- File Name Input -->
                             <input type="text" v-model="newForm.name" placeholder="File name"
-                                class="w-full rounded-2xl border px-3 py-2 dark:bg-neutral-800 dark:text-white border-gray-300 dark:border-neutral-700" />
+                                class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] bg-white dark:bg-black text-black dark:text-white px-3 py-2 focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
 
                             <!-- FilePond Upload -->
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Upload
+                                <label
+                                    class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-2">Upload
                                     File</label>
                                 <FilePond name="file" :files="filePondFiles" @updatefiles="handleFilePondUpdate"
                                     :allowMultiple="false"
@@ -460,11 +526,11 @@ const getFileSize = (bytes: number) => {
                             <!-- Buttons -->
                             <div class="flex flex-col sm:flex-row justify-end gap-2 pt-4">
                                 <button @click="modalVisible = false"
-                                    class="px-4 py-2 rounded-xl border text-gray-700 bg-white hover:bg-gray-50 dark:bg-neutral-800 dark:text-gray-300 dark:hover:bg-gray-700 border-gray-300 dark:border-neutral-700">
+                                    class="px-4 py-2 rounded-full border-2 border-[#D71921] text-[#D71921] bg-white dark:bg-black hover:bg-[#D71921] hover:text-white transition-colors text-xs uppercase font-mono tracking-wider">
                                     Cancel
                                 </button>
                                 <button @click="uploadFile" :disabled="uploading"
-                                    class="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                                    class="px-4 py-2 rounded-full bg-black dark:bg-white border-2 border-black dark:border-white text-white dark:text-black hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors text-xs uppercase font-mono tracking-wider">
                                     <svg v-if="uploading" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                                             stroke-width="4" />

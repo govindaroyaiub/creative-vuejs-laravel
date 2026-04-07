@@ -32,7 +32,7 @@ const removeRow = (index: number) => {
             title: 'Cannot Remove',
             text: 'At least one item is required.',
             icon: 'warning',
-            customClass: { popup: 'rounded-2xl' }
+            customClass: { popup: 'rounded-lg' }
         });
         return;
     }
@@ -63,7 +63,7 @@ const handleSubmit = async () => {
             title: 'Validation Error',
             text: 'Please enter a bill name.',
             icon: 'error',
-            customClass: { popup: 'rounded-2xl' }
+            customClass: { popup: 'rounded-lg' }
         });
         return;
     }
@@ -73,7 +73,7 @@ const handleSubmit = async () => {
             title: 'Validation Error',
             text: 'Please enter a client name.',
             icon: 'error',
-            customClass: { popup: 'rounded-2xl' }
+            customClass: { popup: 'rounded-lg' }
         });
         return;
     }
@@ -185,38 +185,41 @@ const formatFileSize = (bytes: number) => {
 
     <Head title="Create Bill" />
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
-            class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-black dark:via-gray-950 dark:to-black">
+        <div class="min-h-screen bg-white dark:bg-black">
             <div class="p-4">
                 <div class="max-w-6xl mx-auto space-y-6">
                     <!-- Bill Form -->
                     <form @submit.prevent="handleSubmit" class="space-y-2">
                         <!-- Basic Information -->
                         <div
-                            class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 p-4">
+                            class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-4">
                             <div class="flex items-center mb-2">
-                                <FileText class="w-5 h-5 text-blue-600 mr-2" />
-                                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Bill Information</h2>
+                                <FileText class="w-5 h-5 mr-2" stroke-width="1.5" />
+                                <h2 class="text-lg font-semibold uppercase font-mono tracking-wider">Bill Information
+                                </h2>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                        Bill Name <span class="text-red-500">*</span>
+                                    <label
+                                        class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">
+                                        Bill Name <span class="text-[#D71921]">*</span>
                                     </label>
                                     <input v-model="form.name" type="text" placeholder="Enter bill name..."
-                                        class="w-full px-4 py-3 border border-gray-300 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                        class="w-full px-4 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
                                         required />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                        Client Name <span class="text-red-500">*</span>
+                                    <label
+                                        class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">
+                                        Client Name <span class="text-[#D71921]">*</span>
                                     </label>
                                     <div class="relative">
                                         <User
-                                            class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                            class="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#999999] w-4 h-4"
+                                            stroke-width="1.5" />
                                         <input v-model="form.client" type="text" placeholder="Enter client name..."
-                                            class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                            class="w-full pl-10 pr-4 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
                                             required />
                                     </div>
                                 </div>
@@ -226,43 +229,50 @@ const formatFileSize = (bytes: number) => {
                         <!-- Bill Statistics -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div
-                                class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 p-4">
+                                class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-4">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Items</p>
-                                        <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ totalItems }}
+                                        <p
+                                            class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">
+                                            Total Items</p>
+                                        <p class="text-2xl font-bold tabular-nums">{{ totalItems }}
                                         </p>
                                     </div>
-                                    <div class="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl">
-                                        <FileText class="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                                    <div
+                                        class="p-3 bg-[#F5F5F5] dark:bg-[#0A0A0A] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222]">
+                                        <FileText class="w-5 h-5" stroke-width="1.5" />
                                     </div>
                                 </div>
                             </div>
 
                             <div
-                                class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 p-4">
+                                class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-4">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Quantity
+                                        <p
+                                            class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">
+                                            Total Quantity
                                         </p>
-                                        <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{
+                                        <p class="text-2xl font-bold tabular-nums">{{
                                             totalQuantity }}</p>
                                     </div>
-                                    <div class="p-3 bg-green-100 dark:bg-green-900/50 rounded-xl">
-                                        <Calculator class="w-5 h-5 text-green-600 dark:text-green-400" />
+                                    <div
+                                        class="p-3 bg-[#F5F5F5] dark:bg-[#0A0A0A] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222]">
+                                        <Calculator class="w-5 h-5" stroke-width="1.5" />
                                     </div>
                                 </div>
                             </div>
 
                             <div
-                                class="bg-gradient-to-r from-purple-600 to-purple-700 rounded-2xl shadow-sm p-4 text-white">
+                                class="bg-black dark:bg-white rounded-lg border-2 border-black dark:border-white p-4 text-white dark:text-black">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-purple-100">Total Amount</p>
-                                        <p class="text-2xl font-bold">{{ formatCurrency(totalAmount) }}</p>
+                                        <p class="text-xs uppercase font-mono tracking-wider opacity-80">Total Amount
+                                        </p>
+                                        <p class="text-2xl font-bold tabular-nums">{{ formatCurrency(totalAmount) }}</p>
                                     </div>
-                                    <div class="p-3 bg-white/20 rounded-xl">
-                                        <Receipt class="w-5 h-5 text-white" />
+                                    <div class="p-3 bg-white/20 dark:bg-black/20 rounded-lg">
+                                        <Receipt class="w-5 h-5" stroke-width="1.5" />
                                     </div>
                                 </div>
                             </div>
@@ -270,17 +280,19 @@ const formatFileSize = (bytes: number) => {
 
                         <!-- Bill Items -->
                         <div
-                            class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 overflow-hidden">
-                            <div class="p-4 border-b border-gray-200 dark:border-neutral-700">
+                            class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] overflow-hidden">
+                            <div class="p-4 border-b-2 border-[#E8E8E8] dark:border-[#222222]">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center">
-                                        <Calculator class="w-5 h-5 text-purple-600 mr-2" />
-                                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Bill Items</h2>
+                                        <Calculator class="w-5 h-5 mr-2" stroke-width="1.5" />
+                                        <h2 class="text-lg font-semibold uppercase font-mono tracking-wider">Bill Items
+                                        </h2>
                                     </div>
                                     <button type="button" @click="addRow"
-                                        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors duration-200 group">
+                                        class="inline-flex items-center px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors uppercase font-mono tracking-wider text-xs group">
                                         <Plus
-                                            class="w-4 h-4 mr-2 group-hover:rotate-90 transition-transform duration-200" />
+                                            class="w-4 h-4 mr-2 group-hover:rotate-90 transition-transform duration-200"
+                                            stroke-width="1.5" />
                                         Add Item
                                     </button>
                                 </div>

@@ -15,21 +15,23 @@ defineProps<Props>();
 
 <template>
     <DropdownMenuLabel class="p-0 font-normal">
-        <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+        <div class="flex items-center gap-2 px-2 py-2 text-left text-sm">
             <UserInfo :user="user" :show-email="true" />
         </div>
     </DropdownMenuLabel>
     <DropdownMenuSeparator />
 
     <!-- Appearance Switcher -->
-    <div class="py-1">
-        <AppearanceTabs :icon-only="true" class="w-full justify-evenly bg-neutral-100" />
+    <div class="py-1 px-2">
+        <AppearanceTabs :icon-only="true"
+            class="w-full justify-evenly bg-[#F5F5F5] dark:bg-[#0A0A0A] border-2 border-[#E8E8E8] dark:border-[#222222]" />
     </div>
 
     <DropdownMenuSeparator />
     <DropdownMenuGroup>
         <DropdownMenuItem :as-child="true">
-            <Link class="block w-full" :href="route('profile.edit')" as="button">
+            <Link class="block w-full font-mono uppercase tracking-wider text-xs" :href="route('profile.edit')"
+                as="button">
                 <Settings class="mr-2 h-4 w-4" />
                 Settings
             </Link>
@@ -37,7 +39,8 @@ defineProps<Props>();
     </DropdownMenuGroup>
     <DropdownMenuSeparator />
     <DropdownMenuItem :as-child="true">
-        <Link class="block w-full" method="post" :href="route('logout')" as="button">
+        <Link class="block w-full font-mono uppercase tracking-wider text-xs" method="post" :href="route('logout')"
+            as="button">
             <LogOut class="mr-2 h-4 w-4" />
             Log out
         </Link>

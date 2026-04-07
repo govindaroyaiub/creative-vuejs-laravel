@@ -6,15 +6,18 @@
         <div class="max-w-8xl py-4 px-4">
             <div v-if="preview">
                 <div class="mb-6">
-                    <div class="flex items-center justify-between gap-4 bg-gray-100 dark:bg-neutral-900 rounded-xl p-3">
+                    <div
+                        class="flex items-center justify-between gap-4 bg-white dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg p-3">
                         <div class="flex-1">
                             <div class="text-xs uppercase text-gray-500 px-2">Name</div>
                             <h1
                                 class="text-xl md:text-xl font-extrabold text-gray-900 dark:text-white leading-tight truncate capitalize px-2">
                                 {{ preview.name }}</h1>
                             <div class="mt-1 flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
-                                <div class="font-mono bg-gray-50 dark:bg-neutral-800 rounded px-2 py-1 select-all">{{
-                                    copyText }}</div>
+                                <div
+                                    class="font-mono bg-[#F5F5F5] dark:bg-[#111111] border border-[#CCCCCC] dark:border-[#333333] rounded px-2 py-1 select-all">
+                                    {{
+                                        copyText }}</div>
                                 <button @click.prevent="copyToClipboard" aria-label="Copy preview identifier"
                                     class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-200">
                                     <Copy class="w-4 h-4" />
@@ -32,9 +35,9 @@
                 </div>
                 <div v-for="(category, catIdx) in preview.categories" :key="category.id" class="mb-4">
                     <details v-bind="category.is_active == 1 ? { open: true } : {}"
-                        class="mb-4 border rounded-lg shadow">
+                        class="mb-4 border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg">
                         <summary
-                            class="px-4 py-2 font-semibold text-lg bg-gray-100 dark:bg-neutral-900 cursor-pointer flex items-center justify-between">
+                            class="px-4 py-2 font-semibold text-lg bg-white dark:bg-[#111111] cursor-pointer flex items-center justify-between hover:bg-[#F5F5F5] dark:hover:bg-black transition-colors">
                             <!-- Left side: icon, name, type -->
                             <span class="flex items-center gap-2">
                                 <svg width="16" height="16" class="mr-1">
@@ -43,24 +46,25 @@
                                 </svg>
                                 <span>Category:</span>
                                 <input v-model="category.name"
-                                    class="border rounded-lg px-2 py-1 font-semibold text-lg bg-white-100 dark:bg-neutral-900 dark:text-white dark:border-neutral-700"
+                                    class="border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg px-2 py-1 font-semibold text-lg bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white"
                                     placeholder="Category Name" style="min-width:180px;" />
-                                <span class="text-xs text-red-500 ml-2 uppercase">({{ category.type }})</span>
+                                <span class="text-xs text-[#D71921] ml-2 uppercase font-mono tracking-wider">({{
+                                    category.type }})</span>
                             </span>
                             <!-- Right side: delete buttons -->
                             <span class="flex items-center gap-2">
                                 <button v-if="!isDbId(category.id)" @click.stop="removeCategory(catIdx)"
-                                    class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs">Delete</button>
+                                    class="text-[#D71921] hover:bg-[#D71921] hover:text-white px-2 py-1 rounded-full border border-[#D71921] text-xs uppercase tracking-wider font-mono transition-all">DELETE</button>
                                 <button v-else @click.stop="deleteCategory(category, catIdx)"
-                                    class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs">Delete</button>
+                                    class="text-[#D71921] hover:bg-[#D71921] hover:text-white px-2 py-1 rounded-full border border-[#D71921] text-xs uppercase tracking-wider font-mono transition-all">DELETE</button>
                             </span>
                         </summary>
                         <div class="p-4">
                             <div v-for="(feedback, fbIdx) in category.feedbacks" :key="feedback.id" class="mb-4">
                                 <details v-bind="feedback.is_active == 1 ? { open: true } : {}"
-                                    class="mb-2 border rounded">
+                                    class="mb-2 border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg">
                                     <summary
-                                        class="px-3 py-1 font-medium bg-gray-50 dark:bg-neutral-800 cursor-pointer flex items-center justify-between">
+                                        class="px-3 py-1 font-medium bg-white dark:bg-[#111111] cursor-pointer flex items-center justify-between hover:bg-[#F5F5F5] dark:hover:bg-black transition-colors">
                                         <!-- Left side: icon, label, name, description -->
                                         <span class="flex items-center gap-2">
                                             <svg width="16" height="16" class="mr-1">
@@ -69,7 +73,7 @@
                                             </svg>
                                             <span>Feedback:</span>
                                             <input :value="feedback.name" @input="onFeedbackNameInput($event, feedback)"
-                                                class="border rounded px-2 py-1 font-medium dark:bg-neutral-900 dark:text-white dark:border-neutral-700"
+                                                class="border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg px-2 py-1 font-medium bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white"
                                                 placeholder="Feedback Name" style="min-width:120px;" />
                                         </span>
                                         <!-- Right side: delete buttons -->
@@ -78,7 +82,7 @@
                                             <button v-if="isDbId(feedback.id) && feedback.is_approved"
                                                 @click.stop="disapproveFeedback(feedback, category, fbIdx)"
                                                 :disabled="feedback.isDisapproving"
-                                                class="flex items-center bg-green-50 border hover:bg-green-200 border-green-200 text-green-700 px-2 py-1 rounded text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                                class="flex items-center bg-black dark:bg-white border-2 border-black dark:border-white hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white text-white dark:text-black px-2 py-1 rounded-full text-xs font-medium uppercase tracking-wider font-mono transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                                                 <span v-if="feedback.isDisapproving" class="flex items-center">
                                                     <svg class="animate-spin w-3 h-3 mr-1" fill="none"
                                                         viewBox="0 0 24 24">
@@ -104,15 +108,15 @@
                                             <a v-if="isDbId(feedback.id) && feedback.is_approved && category.file_transfer_slug"
                                                 :href="`/file-transfers-view/${category.file_transfer_slug}`"
                                                 target="_blank"
-                                                class="ml-2 text-blue-600 hover:underline px-2 py-1 rounded text-xs">
-                                                Transfer
+                                                class="ml-2 text-black dark:text-white hover:underline px-2 py-1 rounded-full border border-black dark:border-white text-xs uppercase tracking-wider font-mono">
+                                                TRANSFER
                                             </a>
 
                                             <!-- Approve button with loading state -->
                                             <button v-else-if="isDbId(feedback.id) && !feedback.is_approved"
                                                 @click.stop="approveFeedback(feedback, category, fbIdx)"
                                                 :disabled="feedback.isApproving"
-                                                class="bg-blue-100 text-blue-700 hover:bg-blue-200 hover:text-blue-900 px-2 py-1 rounded text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                                class="bg-white dark:bg-black text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-2 border-black dark:border-white px-2 py-1 rounded-full text-xs font-medium uppercase tracking-wider font-mono transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                                                 <span v-if="feedback.isApproving" class="flex items-center">
                                                     <svg class="animate-spin w-3 h-3 mr-1" fill="none"
                                                         viewBox="0 0 24 24">
@@ -125,62 +129,64 @@
                                                     Approving...
                                                 </span>
                                                 <span v-else class="flex items-center">
-                                                    Approve
+                                                    APPROVE
                                                 </span>
                                             </button>
 
                                             <!-- Delete Buttons -->
                                             <button v-if="!isDbId(feedback.id)"
                                                 @click.stop="removeFeedback(category, fbIdx)"
-                                                class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs">
-                                                Delete
+                                                class="text-[#D71921] hover:bg-[#D71921] hover:text-white px-2 py-1 rounded-full border border-[#D71921] text-xs uppercase tracking-wider font-mono transition-all">
+                                                DELETE
                                             </button>
                                             <button v-else @click.stop="deleteFeedback(feedback, category, fbIdx)"
-                                                class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs">
-                                                Delete
+                                                class="text-[#D71921] hover:bg-[#D71921] hover:text-white px-2 py-1 rounded-full border border-[#D71921] text-xs uppercase tracking-wider font-mono transition-all">
+                                                DELETE
                                             </button>
                                         </span>
                                     </summary>
                                     <div class="p-3">
                                         <textarea v-model="feedback.description"
-                                            class="border rounded px-2 py-1 mb-2 w-1/2 h-36 dark:bg-neutral-900 dark:text-white dark:border-neutral-700"
+                                            class="border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg px-2 py-1 mb-2 w-1/2 h-36 bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white"
                                             placeholder="Feedback Description" />
                                         <div v-for="(set, setIdx) in feedback.feedback_sets" :key="set.id" class="mb-4">
-                                            <details open class="mb-2 border rounded">
+                                            <details open
+                                                class="mb-2 border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg">
                                                 <summary
-                                                    class="px-2 py-1 mb-2 font-medium bg-gray-50 dark:bg-neutral-900 dark:text-white dark:border-neutral-700 cursor-pointer flex items-center justify-between">
+                                                    class="px-2 py-1 mb-2 font-medium bg-white dark:bg-[#111111] text-black dark:text-white cursor-pointer flex items-center justify-between hover:bg-[#F5F5F5] dark:hover:bg-black transition-colors">
                                                     <span>
                                                         <span class="px-2">Set:</span>
                                                         <input v-model="set.name"
-                                                            class="border rounded px-2 py-1 dark:bg-neutral-900 dark:text-white dark:border-neutral-700"
+                                                            class="border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg px-2 py-1 bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white"
                                                             placeholder="Set Name (Optional)"
                                                             style="min-width:100px;" />
                                                     </span>
                                                     <button v-if="!isDbId(set.id)"
                                                         @click.stop="removeSet(feedback, setIdx)"
-                                                        class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs">Delete</button>
+                                                        class="text-[#D71921] hover:bg-[#D71921] hover:text-white px-2 py-1 rounded-full border border-[#D71921] text-xs uppercase tracking-wider font-mono transition-all">DELETE</button>
                                                     <button v-else @click.stop="deleteSet(set, feedback, setIdx)"
-                                                        class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs">Delete</button>
+                                                        class="text-[#D71921] hover:bg-[#D71921] hover:text-white px-2 py-1 rounded-full border border-[#D71921] text-xs uppercase tracking-wider font-mono transition-all">DELETE</button>
                                                 </summary>
                                                 <div class="p-2">
                                                     <div v-for="(version, verIdx) in set.versions" :key="version.id"
                                                         class="mb-4">
-                                                        <details open class="mb-2 border rounded">
+                                                        <details open
+                                                            class="mb-2 border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg">
                                                             <summary
-                                                                class="px-2 py-1 font-medium bg-gray-50 dark:bg-neutral-800 cursor-pointer flex items-center justify-between">
+                                                                class="px-2 py-1 font-medium bg-white dark:bg-[#111111] cursor-pointer flex items-center justify-between hover:bg-[#F5F5F5] dark:hover:bg-black transition-colors">
                                                                 <span>
                                                                     <span class="px-2">Version:</span>
                                                                     <input v-model="version.name"
-                                                                        class="border rounded px-2 py-1 dark:bg-neutral-900 dark:text-white dark:border-neutral-700"
+                                                                        class="border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg px-2 py-1 bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white"
                                                                         placeholder="Version Name (Optional)"
                                                                         style="min-width:100px;" />
                                                                 </span>
                                                                 <button v-if="!isDbId(version.id)"
                                                                     @click.stop="removeVersion(set, verIdx)"
-                                                                    class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs">Delete</button>
+                                                                    class="text-[#D71921] hover:bg-[#D71921] hover:text-white px-2 py-1 rounded-full border border-[#D71921] text-xs uppercase tracking-wider font-mono transition-all">DELETE</button>
                                                                 <button v-else
                                                                     @click.stop="deleteVersion(version, set, verIdx)"
-                                                                    class="text-red-600 hover:text-red-800 hover:underline px-2 py-1 rounded text-xs">Delete</button>
+                                                                    class="text-[#D71921] hover:bg-[#D71921] hover:text-white px-2 py-1 rounded-full border border-[#D71921] text-xs uppercase tracking-wider font-mono transition-all">DELETE</button>
                                                             </summary>
                                                             <div class="p-2">
                                                                 <h4 class="font-semibold mb-2">Assets</h4>
@@ -199,7 +205,7 @@
                                                                         class="space-y-2 mt-4">
                                                                         <template #item="{ element, index }">
                                                                             <div
-                                                                                class="flex items-center bg-white dark:bg-neutral-900 rounded shadow px-4 py-3">
+                                                                                class="flex items-center bg-white dark:bg-black border border-[#CCCCCC] dark:border-[#333333] rounded-lg px-4 py-3">
                                                                                 <span
                                                                                     class="text-xs text-gray-500 mr-2">{{
                                                                                         index + 1 }}</span>
@@ -232,7 +238,7 @@
                                                                                         v-model="element.size_id"
                                                                                         placeholder="Select Banner Size"
                                                                                         :clearable="false"
-                                                                                        class="w-40 dark:bg-white dark:text-gray-800 dark:border-neutral-700" />
+                                                                                        class="w-40 bg-white dark:bg-[#111111] text-black dark:text-white border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg" />
                                                                                 </div>
                                                                                 <button v-if="isDbId(element.id)"
                                                                                     @click.stop="editBanner(element, version, index)"
@@ -258,7 +264,7 @@
                                                                         <div
                                                                             class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                                                                             <div
-                                                                                class="bg-white dark:bg-neutral-800 rounded-lg shadow-lg p-6 w-full max-w-md">
+                                                                                class="bg-white dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg p-6 w-full max-w-md">
                                                                                 <h2 class="text-lg font-bold mb-4">
                                                                                     Edit Banner</h2>
                                                                                 <div class="mb-4">
@@ -282,13 +288,13 @@
                                                                                         v-model="bannerEditSizeId"
                                                                                         placeholder="Select Banner Size"
                                                                                         :clearable="false"
-                                                                                        class="w-full dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
+                                                                                        class="w-full bg-white dark:bg-[#111111] text-black dark:text-white border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg focus:border-black dark:focus:border-white" />
                                                                                 </div>
                                                                                 <div class="flex gap-2 mt-6 w-full">
                                                                                     <button @click="closeBannerEdit"
-                                                                                        class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold">Cancel</button>
+                                                                                        class="w-full bg-[#D71921] hover:bg-red-700 text-white px-4 py-2 rounded-full font-semibold uppercase font-mono tracking-wider">Cancel</button>
                                                                                     <button @click="submitBannerEdit"
-                                                                                        class="w-full bg-blue-600 text-white px-4 py-2 rounded font-semibold">Update</button>
+                                                                                        class="w-full bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-full font-semibold uppercase font-mono tracking-wider hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors">Update</button>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -302,7 +308,7 @@
                                                                         class="space-y-2 mt-4">
                                                                         <template #item="{ element, index }">
                                                                             <div
-                                                                                class="bg-white dark:bg-neutral-900 rounded shadow px-4 py-3 mb-2">
+                                                                                class="bg-white dark:bg-black border border-[#CCCCCC] dark:border-[#333333] rounded-lg px-4 py-3 mb-2">
                                                                                 <div
                                                                                     class="flex items-center gap-2 mb-2 w-full">
                                                                                     <span
@@ -393,7 +399,7 @@
                                                                                             v-model="element.size_id"
                                                                                             placeholder="Select Video Size"
                                                                                             :clearable="false"
-                                                                                            class="w-fill dark:bg-white dark:text-gray-800 dark:border-neutral-700" />
+                                                                                            class="w-fill bg-white dark:bg-[#111111] text-black dark:text-white border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg" />
                                                                                     </div>
                                                                                     <div class="w-full">
                                                                                         <label
@@ -402,21 +408,21 @@
                                                                                         <input
                                                                                             v-model="element.aspect_ratio"
                                                                                             placeholder="Aspect Ratio"
-                                                                                            class="border rounded px-2 py-1 text-xs w-full dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
+                                                                                            class="border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg px-2 py-1 text-xs w-full bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none" />
                                                                                     </div>
                                                                                     <div class="w-full">
                                                                                         <label
                                                                                             class="block text-xs mb-1">Codec</label>
                                                                                         <input v-model="element.codec"
                                                                                             placeholder="Codec"
-                                                                                            class="border rounded px-2 py-1 text-xs w-full dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
+                                                                                            class="border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg px-2 py-1 text-xs w-full bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none" />
                                                                                     </div>
                                                                                     <div class="w-full">
                                                                                         <label
                                                                                             class="block text-xs mb-1">FPS</label>
                                                                                         <input v-model="element.fps"
                                                                                             placeholder="FPS"
-                                                                                            class="border rounded px-2 py-1 text-xs w-full dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
+                                                                                            class="border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg px-2 py-1 text-xs w-full bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none" />
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -424,7 +430,7 @@
                                                                     </draggable>
                                                                     <div class="mb-2">
                                                                         <button @click="addVideo(version)"
-                                                                            class="bg-indigo-500 text-white px-3 py-1 rounded text-sm">
+                                                                            class="bg-black dark:bg-white text-white dark:text-black px-4 py-1.5 rounded-full text-xs uppercase font-mono tracking-wider hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors">
                                                                             + Add Video
                                                                         </button>
                                                                     </div>
@@ -433,7 +439,7 @@
                                                                         <div
                                                                             class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                                                                             <div
-                                                                                class="bg-white dark:bg-neutral-800 rounded-lg shadow-lg p-6 w-full max-w-md">
+                                                                                class="bg-white dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg p-6 w-full max-w-md">
                                                                                 <h2 class="text-lg font-bold mb-4">Edit
                                                                                     Video</h2>
                                                                                 <div class="mb-4">
@@ -467,7 +473,7 @@
                                                                                         v-model="videoEditSizeId"
                                                                                         placeholder="Select Video Size"
                                                                                         :clearable="false"
-                                                                                        class="w-full dark:bg-white dark:text-gray-800 dark:border-neutral-700" />
+                                                                                        class="w-full bg-white dark:bg-[#111111] text-black dark:text-white border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg" />
                                                                                 </div>
                                                                                 <div class="flex gap-1 w-full">
                                                                                     <div class="mb-4">
@@ -475,7 +481,7 @@
                                                                                             class="block text-sm font-medium mb-1">Codec</label>
                                                                                         <input v-model="videoEditCodec"
                                                                                             placeholder="Codec"
-                                                                                            class="border rounded px-2 py-1 text-xs w-full dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
+                                                                                            class="border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg px-2 py-1 text-xs w-full bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none" />
                                                                                     </div>
                                                                                     <div class="mb-4">
                                                                                         <label
@@ -484,22 +490,22 @@
                                                                                         <input
                                                                                             v-model="videoEditAspectRatio"
                                                                                             placeholder="Aspect Ratio"
-                                                                                            class="border rounded px-2 py-1 text-xs w-full dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
+                                                                                            class="border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg px-2 py-1 text-xs w-full bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none" />
                                                                                     </div>
                                                                                     <div class="mb-4">
                                                                                         <label
                                                                                             class="block text-sm font-medium mb-1">FPS</label>
                                                                                         <input v-model="videoEditFps"
                                                                                             placeholder="FPS"
-                                                                                            class="border rounded px-2 py-1 text-xs w-full dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
+                                                                                            class="border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg px-2 py-1 text-xs w-full bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none" />
                                                                                     </div>
                                                                                 </div>
 
                                                                                 <div class="flex gap-2 mt-6 w-full">
                                                                                     <button @click="closeVideoEdit"
-                                                                                        class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold">Cancel</button>
+                                                                                        class="w-full bg-[#D71921] hover:bg-red-700 text-white px-4 py-2 rounded-full font-semibold uppercase font-mono tracking-wider">Cancel</button>
                                                                                     <button @click="submitVideoEdit"
-                                                                                        class="w-full bg-blue-600 text-white px-4 py-2 rounded font-semibold">
+                                                                                        class="w-full bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-full font-semibold uppercase font-mono tracking-wider hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors">
                                                                                         Update
                                                                                     </button>
                                                                                 </div>
@@ -527,7 +533,7 @@
                                                                         class="space-y-2 mt-4">
                                                                         <template #item="{ element, index }">
                                                                             <div
-                                                                                class="flex items-center bg-white dark:bg-neutral-900 rounded shadow px-4 py-3">
+                                                                                class="flex items-center bg-white dark:bg-black border border-[#CCCCCC] dark:border-[#333333] rounded-lg px-4 py-3">
                                                                                 <span
                                                                                     class="text-xs text-gray-500 mr-2">{{
                                                                                         index + 1 }}</span>
@@ -580,7 +586,7 @@
                                                                         <div
                                                                             class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                                                                             <div
-                                                                                class="bg-white dark:bg-neutral-800 rounded-lg shadow-lg p-6 w-full max-w-md">
+                                                                                class="bg-white dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg p-6 w-full max-w-md">
                                                                                 <h2 class="text-lg font-bold mb-4">Edit
                                                                                     Social Image</h2>
                                                                                 <div class="mb-4">
@@ -592,9 +598,9 @@
                                                                                 </div>
                                                                                 <div class="flex gap-2 mt-6 w-full">
                                                                                     <button @click="closeSocialEdit"
-                                                                                        class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold">Cancel</button>
+                                                                                        class="w-full bg-[#D71921] hover:bg-red-700 text-white px-4 py-2 rounded-full font-semibold uppercase font-mono tracking-wider">Cancel</button>
                                                                                     <button @click="submitSocialEdit"
-                                                                                        class="w-full bg-blue-600 text-white px-4 py-2 rounded font-semibold">
+                                                                                        class="w-full bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-full font-semibold uppercase font-mono tracking-wider hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors">
                                                                                         Update
                                                                                     </button>
                                                                                 </div>
@@ -620,7 +626,7 @@
                                                                         class="space-y-2 mt-4">
                                                                         <template #item="{ element, index }">
                                                                             <div
-                                                                                class="flex items-center bg-white dark:bg-neutral-900 rounded shadow px-4 py-3">
+                                                                                class="flex items-center bg-white dark:bg-black border border-[#CCCCCC] dark:border-[#333333] rounded-lg px-4 py-3">
                                                                                 <span
                                                                                     class="text-xs text-gray-500 mr-2">{{
                                                                                         index + 1 }}</span>
@@ -660,7 +666,7 @@
                                                                                         v-model="element.size_id"
                                                                                         placeholder="Select GIF Size"
                                                                                         :clearable="false"
-                                                                                        class="w-48 dark:bg-white dark:text-gray-800 dark:border-neutral-700" />
+                                                                                        class="w-48 bg-white dark:bg-[#111111] text-black dark:text-white border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg" />
                                                                                 </div>
                                                                                 <button v-if="isDbId(element.id)"
                                                                                     @click.stop="editGif(element, version, index)"
@@ -685,7 +691,7 @@
                                                                         <div
                                                                             class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                                                                             <div
-                                                                                class="bg-white dark:bg-neutral-800 rounded-lg shadow-lg p-6 w-full max-w-md">
+                                                                                class="bg-white dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg p-6 w-full max-w-md">
                                                                                 <h2 class="text-lg font-bold mb-4">Edit
                                                                                     GIF</h2>
                                                                                 <div class="mb-4">
@@ -706,13 +712,13 @@
                                                                                         v-model="gifEditSizeId"
                                                                                         placeholder="Select GIF Size"
                                                                                         :clearable="false"
-                                                                                        class="w-full dark:bg-white dark:text-gray-800 dark:border-neutral-700" />
+                                                                                        class="w-full bg-white dark:bg-[#111111] text-black dark:text-white border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg" />
                                                                                 </div>
                                                                                 <div class="flex gap-2 mt-6 w-full">
                                                                                     <button @click="closeGifEdit"
-                                                                                        class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold">Cancel</button>
+                                                                                        class="w-full bg-[#D71921] hover:bg-red-700 text-white px-4 py-2 rounded-full font-semibold uppercase font-mono tracking-wider">Cancel</button>
                                                                                     <button @click="submitGifEdit"
-                                                                                        class="w-full bg-blue-600 text-white px-4 py-2 rounded font-semibold">Update</button>
+                                                                                        class="w-full bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-full font-semibold uppercase font-mono tracking-wider hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors">Update</button>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -724,7 +730,7 @@
                                                     <div class="mt-4 flex gap-2 items-center justify-start">
                                                         <button
                                                             @click="showAddVersion[set.id] = !showAddVersion[set.id]"
-                                                            class="bg-indigo-300 text-white px-3 py-1 rounded text-sm">
+                                                            class="bg-black dark:bg-white text-white dark:text-black px-4 py-1.5 rounded-full text-xs uppercase font-mono tracking-wider hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors">
                                                             + Add Version
                                                         </button>
                                                     </div>
@@ -732,25 +738,25 @@
                                                         class="mt-2 flex gap-2 items-center justify-start">
                                                         <input v-model="newVersionName[set.id]"
                                                             placeholder="Version Name (Optional)"
-                                                            class="border rounded px-2 py-1 dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
+                                                            class="border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg px-2 py-1 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none" />
                                                         <button @click="addVersion(set)"
-                                                            class="bg-green-600 text-white px-3 py-1 rounded">Add</button>
+                                                            class="bg-black dark:bg-white text-white dark:text-black px-4 py-1.5 rounded-full text-xs uppercase font-mono tracking-wider hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors">Add</button>
                                                     </div>
                                                 </div>
                                             </details>
                                         </div>
                                         <div class="mt-4 flex gap-2 items-center justify-start">
                                             <button @click="showAddSet[feedback.id] = !showAddSet[feedback.id]"
-                                                class="bg-indigo-400 text-white px-3 py-1 rounded text-sm">
+                                                class="bg-black dark:bg-white text-white dark:text-black px-4 py-1.5 rounded-full text-xs uppercase font-mono tracking-wider hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors">
                                                 + Add Feedback Set
                                             </button>
                                         </div>
                                         <div v-if="showAddSet[feedback.id]"
                                             class="mt-2 flex gap-2 items-center justify-start">
                                             <input v-model="newSetName[feedback.id]" placeholder="Set Name (Optional)"
-                                                class="border rounded px-2 py-1 dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
+                                                class="border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg px-2 py-1 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none" />
                                             <button @click="addSet(feedback)"
-                                                class="bg-green-600 text-white px-3 py-1 rounded">Add</button>
+                                                class="bg-black dark:bg-white text-white dark:text-black px-4 py-1.5 rounded-full text-xs uppercase font-mono tracking-wider hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors">Add</button>
                                         </div>
                                     </div>
                                 </details>
@@ -758,18 +764,18 @@
                             <div v-if="showAddFeedback[category.id]"
                                 class="mt-2 flex-col gap-2 items-start justify-start">
                                 <textarea v-model="newFeedbackDesc[category.id]" placeholder="Enter Description"
-                                    class="border rounded px-2 py-1 w-1/2 h-36 dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
+                                    class="border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg px-2 py-1 w-1/2 h-36 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none" />
                                 <div class="flex gap-2">
                                     <input :value="newFeedbackName[category.id]"
                                         @input="onNewFeedbackNameInput($event, category)" placeholder="Feedback Name"
-                                        class="border rounded px-2 py-1 dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
+                                        class="border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg px-2 py-1 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none" />
                                     <button @click="addFeedback(category)"
-                                        class="bg-green-600 text-white px-3 py-1 rounded">Add</button>
+                                        class="bg-black dark:bg-white text-white dark:text-black px-4 py-1.5 rounded-full text-xs uppercase font-mono tracking-wider hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors">Add</button>
                                 </div>
                             </div>
                             <div class="mt-2 flex gap-2 items-center justify-start">
                                 <button @click="showAddFeedback[category.id] = !showAddFeedback[category.id]"
-                                    class="bg-indigo-500 text-white px-3 py-1 rounded text-sm">
+                                    class="bg-black dark:bg-white text-white dark:text-black px-4 py-1.5 rounded-full text-xs uppercase font-mono tracking-wider hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors">
                                     + Add Feedback
                                 </button>
                             </div>
@@ -778,27 +784,30 @@
                 </div>
                 <div class="mt-4 flex gap-2 items-center justify-start">
                     <button @click="showAddCategory = !showAddCategory"
-                        class="bg-indigo-600 text-white px-4 py-2 rounded-lg">
+                        class="bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-full text-xs uppercase font-mono tracking-wider hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors">
                         + Add Category
                     </button>
                 </div>
                 <div v-if="showAddCategory" class="mt-2 flex gap-2 items-center justify-start">
                     <input v-model="newCategoryName" placeholder="Category Name"
-                        class="border rounded px-2 py-1 dark:bg-neutral-900 dark:text-white dark:border-neutral-700" />
+                        class="border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg px-2 py-1 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none" />
                     <select v-model="newCategoryType"
-                        class="border rounded-lg px-2 py-1 dark:bg-neutral-900 dark:text-white dark:border-neutral-700">
+                        class="border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg px-2 py-1 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none">
                         <option value="banner">Banner</option>
                         <option value="video">Video</option>
                         <option value="social">Social/Storyboard</option>
                         <option value="gif">Gif</option>
                     </select>
-                    <button @click="addCategory" class="bg-green-600 text-white px-3 py-1 rounded-lg">Add</button>
+                    <button @click="addCategory"
+                        class="bg-black dark:bg-white text-white dark:text-black px-4 py-1.5 rounded-full text-xs uppercase font-mono tracking-wider hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors">Add</button>
                 </div>
                 <!-- Approve modal -->
                 <div v-if="showApproveModal"
                     class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
-                    <div class="bg-white dark:bg-neutral-900 rounded-lg shadow-xl w-full max-w-3xl overflow-hidden">
-                        <div class="flex items-center justify-between px-6 py-4 border-b dark:border-neutral-800">
+                    <div
+                        class="bg-white dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg w-full max-w-3xl overflow-hidden">
+                        <div
+                            class="flex items-center justify-between px-6 py-4 border-b-2 border-[#E8E8E8] dark:border-[#222222]">
                             <div class="flex items-center gap-3">
                                 <h3 class="text-lg font-semibold">Prepare File Transfer</h3>
                             </div>
@@ -820,7 +829,7 @@
                                         Transfer
                                         Name</label>
                                     <input v-model="approveTransferName"
-                                        class="w-full border rounded-lg px-3 py-2 bg-white dark:bg-neutral-800 text-sm"
+                                        class="w-full border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white text-sm focus:border-black dark:focus:border-white focus:outline-none"
                                         placeholder="E.g. Weekly Transfer - 2025-12-19" />
                                     <p class="text-xs text-gray-500 mt-1">A short descriptive name for this transfer.
                                     </p>
@@ -831,7 +840,7 @@
                                         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Client
                                         Name</label>
                                     <input v-model="approveClientName"
-                                        class="w-full border rounded-lg px-3 py-2 bg-white dark:bg-neutral-800 text-sm"
+                                        class="w-full border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white text-sm focus:border-black dark:focus:border-white focus:outline-none"
                                         placeholder="Client name" />
                                     <p class="text-xs text-gray-500 mt-1">Optional — shown on the file transfer page.
                                     </p>
@@ -841,7 +850,8 @@
                             <div class="mt-4">
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload
                                     ZIP files</label>
-                                <div class="border border-dashed rounded p-3 bg-gray-50 dark:bg-neutral-850">
+                                <div
+                                    class="border-2 border-dashed border-[#CCCCCC] dark:border-[#333333] rounded-lg p-3 bg-[#F5F5F5] dark:bg-[#111111]">
                                     <FilePond ref="approvePond" :allowMultiple="true"
                                         :acceptedFileTypes="['application/zip', 'application/x-zip-compressed']"
                                         :files="approveFiles.value" @updatefiles="files => approveFiles.value = files"
@@ -853,11 +863,12 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t dark:border-neutral-800">
+                        <div
+                            class="flex items-center justify-end gap-3 px-6 py-4 border-t-2 border-[#E8E8E8] dark:border-[#222222]">
                             <button @click="closeApproveModal"
-                                class="px-4 py-2 rounded-xl bg-transparent border border-gray-200 dark:border-neutral-700 text-sm">Cancel</button>
+                                class="px-4 py-2 rounded-full bg-white dark:bg-black border-2 border-[#CCCCCC] dark:border-[#333333] text-sm uppercase font-mono tracking-wider hover:border-black hover:dark:border-white transition-colors">Cancel</button>
                             <button @click="submitApprove"
-                                class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm hover:bg-indigo-700">Approve
+                                class="px-4 py-2 rounded-full bg-black dark:bg-white text-white dark:text-black text-sm uppercase font-mono tracking-wider hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors">Approve
                                 &
                                 Upload</button>
                         </div>
@@ -865,25 +876,25 @@
                 </div>
 
                 <div
-                    class="sticky-action-bar bg-white dark:bg-neutral-900 flex items-center justify-center gap-3 p-4 border-t shadow-lg">
+                    class="sticky-action-bar bg-white dark:bg-black border-t-2 border-[#E8E8E8] dark:border-[#222222] flex items-center justify-center gap-3 p-4">
                     <a :href="route('previews-index')"
-                        class="bg-gray-600 text-white px-6 py-2 rounded-xl hover:bg-gray-700 font-semibold inline-flex items-center gap-2 transition-colors">
+                        class="bg-[#666666] dark:bg-[#999999] text-white dark:text-black px-6 py-2 rounded-full font-semibold inline-flex items-center gap-2 transition-colors hover:bg-black hover:dark:bg-white uppercase font-mono tracking-wider text-sm">
                         <ArrowLeft class="w-4 h-4" />
                         Back
                     </a>
                     <a :href="route('previews-edit', preview.id)"
-                        class="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 font-semibold inline-flex items-center gap-2 transition-colors"
+                        class="bg-black dark:bg-white text-white dark:text-black px-6 py-2 rounded-full font-semibold inline-flex items-center gap-2 transition-colors hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white uppercase font-mono tracking-wider text-sm"
                         aria-label="Edit Preview">
                         <Info class="w-4 h-4" />
                         More Info
                     </a>
                     <button type="button" @click="goToPreview"
-                        class="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 font-semibold inline-flex items-center gap-2 transition-colors">
+                        class="bg-black dark:bg-white text-white dark:text-black px-6 py-2 rounded-full font-semibold inline-flex items-center gap-2 transition-colors hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white uppercase font-mono tracking-wider text-sm">
                         <Eye class="w-4 h-4" />
                         Preview
                     </button>
                     <button @click="saveAll"
-                        class="bg-green-600 text-white px-6 py-2 rounded-xl hover:bg-green-700 font-semibold inline-flex items-center gap-2 transition-colors">
+                        class="bg-black dark:bg-white text-white dark:text-black px-6 py-2 rounded-full font-semibold inline-flex items-center gap-2 transition-colors hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white uppercase font-mono tracking-wider text-sm">
                         <Save class="w-4 h-4" />
                         Save
                     </button>

@@ -19,9 +19,7 @@ const page = usePage<SharedData>();
         <SidebarGroupContent>
             <SidebarMenu>
                 <SidebarMenuItem v-for="item in items" :key="item.title">
-                    <SidebarMenuButton
-                        class="text-neutral-600 hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100"
-                        as-child :is-active="page.url.startsWith(item.href)" :tooltip="item.title">
+                    <SidebarMenuButton as-child :is-active="page.url.startsWith(item.href)" :tooltip="item.title">
                         <!-- Use regular anchor for external links -->
                         <a v-if="item.external" :href="item.href">
                             <component :is="item.icon" />

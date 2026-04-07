@@ -16,19 +16,19 @@ const props = defineProps<Props>();
 const statusConfig = computed(() => {
     const configs = {
         inProgress: {
-            label: 'In Progress',
-            bgColor: 'bg-yellow-100',
-            textColor: 'text-yellow-800',
+            label: 'IN PROGRESS',
+            borderColor: 'border-[#666666]',
+            textColor: 'text-[#666666] dark:text-[#999999]',
         },
         completed: {
-            label: 'Completed',
-            bgColor: 'bg-green-100',
-            textColor: 'text-green-800',
+            label: 'COMPLETED',
+            borderColor: 'border-black dark:border-white',
+            textColor: 'text-black dark:text-white',
         },
         noFeedback: {
-            label: 'No Feedback',
-            bgColor: 'bg-gray-100',
-            textColor: 'text-gray-700',
+            label: 'NO FEEDBACK',
+            borderColor: 'border-[#CCCCCC]',
+            textColor: 'text-[#CCCCCC]',
         }
     };
     return configs[props.status];
@@ -41,7 +41,7 @@ const formatDateRelative = (dateStr: string) => {
 
 const latestFeedbackText = computed(() => {
     const description = props.preview.latest_feedback_description;
-    if (!description) return 'No recent feedback summary';
+    if (!description) return 'NO RECENT FEEDBACK SUMMARY';
     return description.length > 150 ? description.slice(0, 150) + '...' : description;
 });
 
@@ -52,40 +52,43 @@ const navigateToPreview = () => {
 
 <template>
     <div @click="navigateToPreview"
-        class="group bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow p-3 hover:shadow-md transition cursor-pointer">
+        class="group bg-[#FFFFFF] dark:bg-black rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-3 hover:border-black dark:hover:border-white transition-all cursor-pointer">
         <!-- Header -->
         <div class="flex items-start justify-between mb-3">
             <div class="flex-1 min-w-0">
-                <div class="text-lg font-semibold text-blue-600 dark:text-blue-300 truncate">
+                <div class="text-lg font-semibold text-black dark:text-white truncate uppercase tracking-wide">
                     {{ preview.name }}
                 </div>
-                <div class="text-sm text-gray-500 dark:text-gray-400">
-                    Created by: {{ preview.uploader?.name || 'System' }}
+                <div class="text-sm text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono">
+                    CREATED BY: {{ preview.uploader?.name || 'SYSTEM' }}
                 </div>
             </div>
             <div class="flex flex-col items-end gap-2 ml-3">
-                <div class="text-xs text-gray-500">
+                <div class="text-xs text-[#666666] dark:text-[#999999] font-mono uppercase tracking-wider">
                     {{ formatDateRelative(preview.created_at) }}
                 </div>
-                <span class="px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap"
-                    :class="[statusConfig.bgColor, statusConfig.textColor]">
+                <span
+                    class="px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap border-2 font-mono tracking-wider"
+                    :class="[statusConfig.borderColor, statusConfig.textColor]">
                     {{ statusConfig.label }}
                 </span>
             </div>
         </div>
 
         <!-- Latest Feedback -->
-        <div class="mb-3 text-sm" :class="status !== 'noFeedback' ? 'text-gray-600 dark:text-gray-300' : ''">
-            <div v-if="status !== 'noFeedback'" class="text-xs text-gray-500 mb-1">
-                Latest Summary:
+        <div class="mb-3 text-sm" :class="status !== 'noFeedback' ? 'text-[#666666] dark:text-[#999999]' : ''">
+            <div v-if="status !== 'noFeedback'"
+                class="text-xs text-[#666666] dark:text-[#999999] mb-1 uppercase tracking-wider font-mono">
+                LATEST SUMMARY:
             </div>
-            <div class="text-sm text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-neutral-700 rounded-md p-2">
+            <div
+                class="text-sm text-black dark:text-black bg-white dark:bg-white rounded-lg border border-[#E8E8E8] dark:border-[#222222] p-2">
                 {{ latestFeedbackText }}
             </div>
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex items-center justify-end gap-2 pt-2 border-t border-gray-100 dark:border-neutral-700">
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-[#E8E8E8] dark:border-[#222222]">
             <PreviewActionButtons :preview="preview" size="md" :show-edit="false" :stop-propagation="true" />
         </div>
     </div>

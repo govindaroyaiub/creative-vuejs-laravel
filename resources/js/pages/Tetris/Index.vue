@@ -1,7 +1,7 @@
 <template>
     <Head title="Tetris Game" />
     <AppLayout :breadcrumbs="[{ title: 'Tetris Game', href: '/play/tetris' }]">
-        <div class="flex flex-col items-center justify-center w-full h-full bg-gray-50 dark:bg-black">
+        <div class="flex flex-col items-center justify-center w-full h-full bg-gray-50 dark:bg-black font-mono">
             <h1 class="text-2xl font-bold mb-4 text-black dark:text-white">Tetris Game</h1>
             <div class="mb-4 flex gap-4 justify-between w-full max-w-3xl">
                 <button @click="startGame" class="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700">New

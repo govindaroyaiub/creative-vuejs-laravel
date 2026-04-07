@@ -22,7 +22,6 @@ const {
     recentlyRead,
     fetchNotifications,
     fetchUnreadCount,
-    markAsRead,
     markAllAsRead,
     deleteNotification,
     deleteAllRead,
@@ -98,29 +97,29 @@ const handleFilterChange = (filterType: 'all' | 'unread' | 'read') => {
 const getNotificationStyle = (type: string) => {
     switch (type) {
         case 'preview_created':
-            return { icon: Sparkles, color: 'text-indigo-600', bgColor: 'bg-indigo-50', borderColor: 'border-l-indigo-500', label: 'Preview' };
+            return { icon: Sparkles, color: 'text-black dark:text-white', bgColor: 'bg-white dark:bg-black border border-[#CCCCCC] dark:border-[#333333]', borderColor: 'border-l-black dark:border-l-white', label: 'Preview' };
         case 'category_created':
-            return { icon: Folder, color: 'text-blue-600', bgColor: 'bg-blue-50', borderColor: 'border-l-blue-500', label: 'Category' };
+            return { icon: Folder, color: 'text-black dark:text-white', bgColor: 'bg-white dark:bg-black border border-[#CCCCCC] dark:border-[#333333]', borderColor: 'border-l-black dark:border-l-white', label: 'Category' };
         case 'feedback_created':
-            return { icon: MessageSquare, color: 'text-green-600', bgColor: 'bg-green-50', borderColor: 'border-l-green-500', label: 'Feedback' };
+            return { icon: MessageSquare, color: 'text-black dark:text-white', bgColor: 'bg-white dark:bg-black border border-[#CCCCCC] dark:border-[#333333]', borderColor: 'border-l-black dark:border-l-white', label: 'Feedback' };
         case 'feedback_approved':
-            return { icon: CheckCircle, color: 'text-emerald-600', bgColor: 'bg-emerald-50', borderColor: 'border-l-emerald-500', label: 'Approved' };
+            return { icon: CheckCircle, color: 'text-black dark:text-white', bgColor: 'bg-white dark:bg-black border border-[#CCCCCC] dark:border-[#333333]', borderColor: 'border-l-black dark:border-l-white', label: 'Approved' };
         case 'feedback_disapproved':
-            return { icon: XCircle, color: 'text-red-600', bgColor: 'bg-red-50', borderColor: 'border-l-red-500', label: 'Disapproved' };
+            return { icon: XCircle, color: 'text-[#D71921]', bgColor: 'bg-white dark:bg-black border border-[#D71921]', borderColor: 'border-l-[#D71921]', label: 'Disapproved' };
         case 'feedback_set_created':
-            return { icon: Package, color: 'text-purple-600', bgColor: 'bg-purple-50', borderColor: 'border-l-purple-500', label: 'Set' };
+            return { icon: Package, color: 'text-black dark:text-white', bgColor: 'bg-white dark:bg-black border border-[#CCCCCC] dark:border-[#333333]', borderColor: 'border-l-black dark:border-l-white', label: 'Set' };
         case 'version_created':
-            return { icon: Sparkles, color: 'text-amber-600', bgColor: 'bg-amber-50', borderColor: 'border-l-amber-500', label: 'Version' };
+            return { icon: Sparkles, color: 'text-black dark:text-white', bgColor: 'bg-white dark:bg-black border border-[#CCCCCC] dark:border-[#333333]', borderColor: 'border-l-black dark:border-l-white', label: 'Version' };
         case 'asset_created':
-            return { icon: Image, color: 'text-pink-600', bgColor: 'bg-pink-50', borderColor: 'border-l-pink-500', label: 'Asset' };
+            return { icon: Image, color: 'text-black dark:text-white', bgColor: 'bg-white dark:bg-black border border-[#CCCCCC] dark:border-[#333333]', borderColor: 'border-l-black dark:border-l-white', label: 'Asset' };
         default:
-            return { icon: Bell, color: 'text-gray-600', bgColor: 'bg-gray-50', borderColor: 'border-l-gray-500', label: 'Update' };
+            return { icon: Bell, color: 'text-black dark:text-white', bgColor: 'bg-white dark:bg-black border border-[#CCCCCC] dark:border-[#333333]', borderColor: 'border-l-black dark:border-l-white', label: 'Update' };
     }
 };
 
 // Group notifications by date
 const groupedNotifications = computed(() => {
-    const groups: { [key: string]: typeof filteredNotifications.value } = {
+    const groups: { Today: typeof filteredNotifications.value; Yesterday: typeof filteredNotifications.value; Earlier: typeof filteredNotifications.value } = {
         Today: [],
         Yesterday: [],
         Earlier: []
@@ -162,33 +161,38 @@ const filteredNotifications = computed(() => {
 <template>
     <DropdownMenu v-if="hasNotificationPermission" :open="isOpen" @update:open="handleOpenChange">
         <DropdownMenuTrigger as-child>
-            <Button variant="ghost" size="icon" class="relative h-9 w-9" aria-label="Notifications">
+            <Button variant="ghost" size="icon"
+                class="relative h-9 w-9 rounded-full border-2 border-[#CCCCCC] dark:border-[#333333] text-black dark:text-white hover:border-black dark:hover:border-white"
+                aria-label="Notifications">
                 <Bell class="h-5 w-5" />
                 <span v-if="unreadCount > 0"
-                    class="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-semibold text-white ring-2 ring-background">
+                    class="absolute -top-1 -right-1 flex h-5 min-w-[20px] items-center justify-center rounded-full border-2 border-[#D71921] bg-[#D71921] px-1 text-[10px] font-mono font-semibold text-white">
                     {{ unreadCount > 99 ? '99+' : unreadCount }}
                 </span>
             </Button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end" class="w-[90vw] sm:w-[440px] p-0" :side-offset="8">
+        <DropdownMenuContent align="end"
+            class="w-[90vw] sm:w-[440px] p-0 rounded-lg border-2 border-[#CCCCCC] dark:border-[#222222] bg-white dark:bg-black"
+            :side-offset="8">
             <!-- Header -->
             <div
-                class="flex items-center justify-between px-4 py-3 border-b bg-gradient-to-r from-background to-accent/20">
+                class="flex items-center justify-between px-4 py-3 border-b-2 border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-black">
                 <div class="flex items-center gap-2">
-                    <Bell class="h-4 w-4 text-muted-foreground" />
-                    <h3 class="text-sm font-semibold">Preview Activity</h3>
+                    <Bell class="h-4 w-4 text-[#666666] dark:text-[#999999]" />
+                    <h3 class="text-xs font-mono uppercase tracking-wider text-black dark:text-white">Preview Activity
+                    </h3>
                 </div>
                 <div class="flex items-center gap-1">
                     <Button variant="ghost" size="sm" :class="[
-                        'h-6 px-2 text-[10px] font-medium',
-                        showFilter === 'all' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+                        'h-7 px-2 text-[10px] rounded-full border-2 font-mono uppercase tracking-wider',
+                        showFilter === 'all' ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white' : 'text-[#666666] dark:text-[#999999] border-[#CCCCCC] dark:border-[#333333]'
                     ]" @click="handleFilterChange('all')">
                         All
                     </Button>
                     <Button variant="ghost" size="sm" :class="[
-                        'h-6 px-2 text-[10px] font-medium',
-                        showFilter === 'unread' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+                        'h-7 px-2 text-[10px] rounded-full border-2 font-mono uppercase tracking-wider',
+                        showFilter === 'unread' ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white' : 'text-[#666666] dark:text-[#999999] border-[#CCCCCC] dark:border-[#333333]'
                     ]" @click="handleFilterChange('unread')">
                         Unread
                     </Button>
@@ -204,11 +208,13 @@ const filteredNotifications = computed(() => {
 
                 <div v-else-if="filteredNotifications.length === 0"
                     class="flex flex-col items-center justify-center h-[50vh] sm:h-[400px] px-4 text-center">
-                    <div class="h-16 w-16 rounded-full bg-accent/50 flex items-center justify-center mb-3">
-                        <Inbox class="h-8 w-8 text-muted-foreground/50" />
+                    <div
+                        class="h-16 w-16 rounded-full border-2 border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-black flex items-center justify-center mb-3">
+                        <Inbox class="h-8 w-8 text-[#666666] dark:text-[#999999]" />
                     </div>
-                    <p class="text-sm font-medium text-foreground">All caught up!</p>
-                    <p class="text-xs text-muted-foreground mt-1">No new notifications</p>
+                    <p class="text-sm font-medium text-black dark:text-white uppercase tracking-wide">All caught up!</p>
+                    <p class="text-xs text-[#666666] dark:text-[#999999] mt-1 font-mono uppercase tracking-wider">No new
+                        notifications</p>
                 </div>
 
                 <div v-else class="py-2">
@@ -216,8 +222,9 @@ const filteredNotifications = computed(() => {
                     <template v-for="(group, groupName) in groupedNotifications" :key="groupName">
                         <div v-if="group.length > 0" class="mb-3">
                             <!-- Date Header -->
-                            <div class="px-4 py-1.5 sticky top-0 bg-background/95 backdrop-blur-sm z-10">
-                                <h4 class="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                            <div class="px-4 py-1.5 sticky top-0 bg-white/95 dark:bg-black/95 backdrop-blur-sm z-10">
+                                <h4
+                                    class="text-[10px] font-semibold text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono">
                                     {{ groupName }}
                                 </h4>
                             </div>
@@ -225,18 +232,18 @@ const filteredNotifications = computed(() => {
                             <!-- Notifications in Group -->
                             <div class="space-y-1 px-2">
                                 <div v-for="notification in group" :key="notification.id"
-                                    class="group relative rounded-lg border-l-2 mx-2 hover:shadow-sm transition-all duration-200"
+                                    class="group relative rounded-lg border-l-2 border-t border-r border-b border-[#E8E8E8] dark:border-[#222222] mx-2 transition-colors duration-200"
                                     :class="[
                                         getNotificationStyle(notification.type).borderColor,
                                         recentlyRead.has(notification.id)
-                                            ? 'bg-gradient-to-r from-gray-100/80 to-gray-50/40'
+                                            ? 'bg-[#F5F5F5] dark:bg-[#0A0A0A]'
                                             : !notification.is_read
-                                                ? 'bg-gradient-to-r from-blue-50/60 to-transparent'
-                                                : 'bg-card hover:bg-accent/30'
+                                                ? 'bg-white dark:bg-black'
+                                                : 'bg-white dark:bg-black hover:bg-[#F5F5F5] dark:hover:bg-[#0A0A0A]'
                                     ]">
                                     <!-- Unread Dot -->
                                     <div v-if="!notification.is_read"
-                                        class="absolute -left-1 top-3 h-2 w-2 rounded-full bg-blue-600 ring-2 ring-background" />
+                                        class="absolute -left-1 top-3 h-2 w-2 rounded-full bg-black dark:bg-white" />
 
                                     <div class="flex gap-3 p-3 cursor-pointer"
                                         @click="handleNotificationClick(notification)"
@@ -258,32 +265,34 @@ const filteredNotifications = computed(() => {
                                             <!-- Title & Badge -->
                                             <div class="flex items-start gap-2">
                                                 <p
-                                                    class="text-xs font-semibold text-foreground leading-tight line-clamp-1 flex-1">
+                                                    class="text-xs font-semibold text-black dark:text-white leading-tight line-clamp-1 flex-1">
                                                     {{ notification.title }}
                                                 </p>
                                                 <span
-                                                    class="text-[10px] px-1.5 py-0.5 rounded font-medium flex-shrink-0"
+                                                    class="text-[10px] px-1.5 py-0.5 rounded-full border font-mono uppercase tracking-wider flex-shrink-0"
                                                     :class="[getNotificationStyle(notification.type).bgColor, getNotificationStyle(notification.type).color]">
                                                     {{ getNotificationStyle(notification.type).label }}
                                                 </span>
                                             </div>
 
                                             <!-- Message -->
-                                            <p class="text-[11px] text-muted-foreground line-clamp-1 leading-tight">
+                                            <p
+                                                class="text-[11px] text-[#666666] dark:text-[#999999] line-clamp-1 leading-tight">
                                                 {{ notification.message }}
                                             </p>
 
                                             <!-- Footer: Preview & Time -->
                                             <div class="flex items-center gap-2 pt-0.5">
                                                 <span v-if="notification.preview"
-                                                    class="text-[10px] text-muted-foreground/70 font-medium truncate">
+                                                    class="text-[10px] text-[#666666] dark:text-[#999999] font-medium truncate">
                                                     {{ notification.preview.name }}
                                                 </span>
-                                                <span class="text-[10px] text-muted-foreground/50 flex-shrink-0">
+                                                <span
+                                                    class="text-[10px] text-[#999999] dark:text-[#666666] flex-shrink-0">
                                                     • {{ getRelativeTime(notification.created_at) }}
                                                 </span>
                                                 <span v-if="notification.actor"
-                                                    class="text-[10px] text-muted-foreground/60 font-medium flex-shrink-0">
+                                                    class="text-[10px] text-[#666666] dark:text-[#999999] font-medium flex-shrink-0">
                                                     • by {{ notification.actor.name }}
                                                 </span>
                                             </div>
@@ -293,7 +302,7 @@ const filteredNotifications = computed(() => {
                                         <div
                                             class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                             <Button variant="ghost" size="icon"
-                                                class="h-6 w-6 text-muted-foreground hover:text-destructive"
+                                                class="h-6 w-6 text-[#666666] dark:text-[#999999] hover:text-[#D71921]"
                                                 @click.stop="deleteNotification(notification.id)" title="Delete">
                                                 <Trash2 class="h-3 w-3" />
                                             </Button>
@@ -306,8 +315,9 @@ const filteredNotifications = computed(() => {
 
                     <!-- Load More -->
                     <div v-if="hasMore" class="px-4 pb-2 pt-3">
-                        <Button variant="outline" size="sm" class="w-full h-7 text-xs" @click="loadMore"
-                            :disabled="isLoading">
+                        <Button variant="outline" size="sm"
+                            class="w-full h-8 text-xs font-mono uppercase tracking-wider rounded-full border-2 border-[#CCCCCC] dark:border-[#333333]"
+                            @click="loadMore" :disabled="isLoading">
                             <Loader2 v-if="isLoading" class="h-3 w-3 mr-1.5 animate-spin" />
                             Load more
                         </Button>
@@ -316,9 +326,10 @@ const filteredNotifications = computed(() => {
             </ScrollArea>
 
             <!-- Footer -->
-            <div v-if="notifications.length > 0" class="border-t bg-accent/10">
+            <div v-if="notifications.length > 0"
+                class="border-t-2 border-[#E8E8E8] dark:border-[#222222] bg-[#F5F5F5] dark:bg-[#0A0A0A]">
                 <Button variant="ghost" size="sm"
-                    class="w-full h-8 text-[11px] text-muted-foreground hover:text-destructive rounded-none"
+                    class="w-full h-9 text-[11px] text-[#666666] dark:text-[#999999] hover:text-[#D71921] rounded-none font-mono uppercase tracking-wider"
                     @click="deleteAllRead">
                     <Trash2 class="h-3 w-3 mr-1.5" />
                     Clear all read

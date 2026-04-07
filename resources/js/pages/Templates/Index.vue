@@ -95,19 +95,19 @@ function submit() {
         router.post(route('templates.update', form.value.id), payload, {
             forceFormData: true,
             onSuccess: () => {
-                Swal.fire({ icon: 'success', title: 'Updated', toast: true, position: 'top-end', timer: 1200, showConfirmButton: false });
+                Swal.fire({ icon: 'success', title: 'Updated', toast: true, position: 'top-end', timer: 1200, showConfirmButton: false, customClass: { popup: 'rounded-lg' } });
                 closeModal();
             },
-            onError: () => Swal.fire('Error', 'Failed to update template', 'error'),
+            onError: () => Swal.fire({ title: 'Error', text: 'Failed to update template', icon: 'error', customClass: { popup: 'rounded-lg' } }),
         });
     } else {
         router.post(route('templates.store'), payload, {
             forceFormData: true,
             onSuccess: () => {
-                Swal.fire({ icon: 'success', title: 'Uploaded', toast: true, position: 'top-end', timer: 1200, showConfirmButton: false });
+                Swal.fire({ icon: 'success', title: 'Uploaded', toast: true, position: 'top-end', timer: 1200, showConfirmButton: false, customClass: { popup: 'rounded-lg' } });
                 closeModal();
             },
-            onError: () => Swal.fire('Error', 'Failed to upload template', 'error'),
+            onError: () => Swal.fire({ title: 'Error', text: 'Failed to upload template', icon: 'error', customClass: { popup: 'rounded-lg' } }),
         });
     }
 }
@@ -119,15 +119,16 @@ const remove = async (id: number) => {
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
+        cancelButtonColor: '#000000',
         confirmButtonText: 'Yes, delete it!',
+        customClass: { popup: 'rounded-lg' }
     });
 
     if (result.isConfirmed) {
         router.delete(route('templates.delete', id), {
             preserveScroll: true,
-            onSuccess: () => Swal.fire({ icon: 'success', title: 'Deleted', toast: true, position: 'top-end', timer: 1200, showConfirmButton: false }),
-            onError: () => Swal.fire('Error', 'Could not delete template', 'error'),
+            onSuccess: () => Swal.fire({ icon: 'success', title: 'Deleted', toast: true, position: 'top-end', timer: 1200, showConfirmButton: false, customClass: { popup: 'rounded-lg' } }),
+            onError: () => Swal.fire({ title: 'Error', text: 'Could not delete template', icon: 'error', customClass: { popup: 'rounded-lg' } }),
         });
     }
 };
@@ -142,73 +143,89 @@ function gotoLink(link: any) {
 
     <Head title="Templates" />
     <AppLayout :breadcrumbs="[{ title: 'Templates', href: '/templates' }]">
-        <div
-            class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-gray-50 dark:from-black dark:via-black dark:to-black">
+        <div class="min-h-screen bg-white dark:bg-black">
             <div class="p-4 md:p-6 space-y-4">
                 <div class="flex items-center justify-between gap-4">
                     <div class="flex-1">
                         <input v-model="search" @input="onSearchInput" placeholder="Search templates..."
                             aria-label="Search templates"
-                            class="w-full max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
+                            class="w-full max-w-xs rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-2 bg-white dark:bg-black text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
                     </div>
                     <div class="flex items-center">
                         <button @click="openAdd"
-                            class="ml-3 rounded-xl bg-green-600 px-3 py-2 text-white hover:bg-green-700 group flex items-center justify-center whitespace-nowrap"
+                            class="ml-3 rounded-full bg-black dark:bg-white px-4 py-2 text-white dark:text-black border-2 border-black dark:border-white hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white group flex items-center justify-center whitespace-nowrap transition-colors duration-200"
                             aria-label="Add Template">
-                            <CirclePlus class="w-4 h-4 mr-2 group-hover:rotate-90 transition-transform duration-200" />
-                            <span class="hidden sm:inline">Add Template</span>
+                            <CirclePlus :stroke-width="1.5" class="w-4 h-4 mr-2" />
+                            <span class="hidden sm:inline text-xs uppercase font-mono tracking-wider">Add
+                                Template</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Table view (desktop) -->
-                <div class="hidden lg:block overflow-x-auto rounded-2xl shadow">
-                    <table
-                        class="w-full rounded-2xl bg-white shadow dark:bg-neutral-800 dark:border border table-fixed">
-                        <thead class="bg-gray-100 dark:bg-neutral-900 text-xs uppercase">
+                <div class="hidden lg:block overflow-x-auto rounded-lg border-2 border-[#CCCCCC] dark:border-[#222222]">
+                    <table class="w-full bg-white dark:bg-[#111111] table-fixed">
+                        <thead class="bg-[#F5F5F5] dark:bg-[#0A0A0A]">
                             <tr>
-                                <th class="w-16 px-4 py-3 text-center">#</th>
-                                <th class="px-4 py-3 text-left">Name</th>
-                                <th class="px-4 py-3 text-left">File</th>
-                                <th class="w-36 px-4 py-3 text-center">Created</th>
-                                <th class="w-36 px-4 py-3 text-center">Updated</th>
-                                <th class="w-32 px-4 py-3 text-center">Actions</th>
+                                <th
+                                    class="w-16 px-4 py-3 text-center text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                    #</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                    Name</th>
+                                <th
+                                    class="px-4 py-3 text-left text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                    File</th>
+                                <th
+                                    class="w-36 px-4 py-3 text-center text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                    Created</th>
+                                <th
+                                    class="w-36 px-4 py-3 text-center text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                    Updated</th>
+                                <th
+                                    class="w-32 px-4 py-3 text-center text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                    Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200 dark:divide-black">
+                        <tbody class="divide-y divide-[#E8E8E8] dark:divide-[#222222]">
                             <tr v-for="(tpl, idx) in templates.data" :key="tpl.id"
-                                class="hover:bg-gray-50 dark:hover:bg-neutral-700 border-b">
-                                <td class="text-center px-4 py-3">{{ ((templates.current_page - 1) * templates.per_page)
+                                class="hover:bg-[#F5F5F5] dark:hover:bg-[#0A0A0A] transition-colors duration-200">
+                                <td class="text-center px-4 py-3 font-mono tabular-nums text-black dark:text-white">{{
+                                    ((templates.current_page - 1) * templates.per_page)
                                     +
                                     idx + 1 }}</td>
-                                <td class="px-4 py-3">{{ tpl.name }}</td>
+                                <td class="px-4 py-3 uppercase font-mono text-black dark:text-white">{{ tpl.name }}</td>
                                 <td class="px-4 py-3">
                                     <template v-if="tpl.url">
-                                        <a :href="tpl.url" class="text-blue-600" target="_blank"
-                                            rel="noopener noreferrer">{{ tpl.url }}</a>
+                                        <a :href="tpl.url"
+                                            class="text-black dark:text-white underline hover:no-underline"
+                                            target="_blank" rel="noopener noreferrer">{{ tpl.url }}</a>
                                     </template>
                                     <template v-else>
-                                        <a :href="route('templates.download', tpl.id)" class="text-blue-600">{{
-                                            tpl.file_name }}</a>
+                                        <a :href="route('templates.download', tpl.id)"
+                                            class="text-black dark:text-white underline hover:no-underline">{{
+                                                tpl.file_name }}</a>
                                     </template>
                                 </td>
-                                <td class="px-4 py-3 text-center"
+                                <td class="px-4 py-3 text-center text-xs font-mono text-[#666666] dark:text-[#999999]"
                                     :title="dayjs(tpl.created_at).format('DD MMM YYYY, HH:mm')">{{ tpl.created_at ?
                                         dayjs(tpl.created_at).fromNow() : '-' }}</td>
-                                <td class="px-4 py-3 text-center"
+                                <td class="px-4 py-3 text-center text-xs font-mono text-[#666666] dark:text-[#999999]"
                                     :title="dayjs(tpl.updated_at).format('DD MMM YYYY, HH:mm')">{{ tpl.updated_at ?
                                         dayjs(tpl.updated_at).fromNow() : '-' }}</td>
                                 <td class="px-4 py-3 text-center">
-                                    <button @click="openEdit(tpl)" class="text-blue-600 hover:text-blue-800">
-                                        <Pencil class="inline h-5 w-5" />
+                                    <button @click="openEdit(tpl)"
+                                        class="p-2 text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-black dark:border-white rounded-full transition-colors duration-200">
+                                        <Pencil :stroke-width="1.5" class="inline h-4 w-4" />
                                     </button>
-                                    <button @click="remove(tpl.id)" class="text-red-600 hover:text-red-800 ml-3">
-                                        <Trash2 class="inline h-5 w-5" />
+                                    <button @click="remove(tpl.id)"
+                                        class="p-2 text-[#D71921] hover:bg-[#D71921] hover:text-white border-2 border-[#D71921] rounded-full ml-3 transition-colors duration-200">
+                                        <Trash2 :stroke-width="1.5" class="inline h-4 w-4" />
                                     </button>
                                 </td>
                             </tr>
                             <tr v-if="templates.data.length === 0">
-                                <td colspan="6" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">No
+                                <td colspan="6" class="px-4 py-6 text-center text-[#666666] dark:text-[#999999]">No
                                     templates
                                     found.</td>
                             </tr>
@@ -219,18 +236,20 @@ function gotoLink(link: any) {
                 <!-- Mobile cards -->
                 <div class="lg:hidden space-y-4">
                     <div v-for="(tpl, idx) in templates.data" :key="tpl.id"
-                        class="bg-white dark:bg-neutral-800 rounded-2xl shadow border p-4">
+                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#CCCCCC] dark:border-[#222222] p-4">
                         <div class="flex items-start justify-between mb-3">
                             <div class="flex-1 min-w-0">
-                                <div class="text-sm font-medium text-gray-500 dark:text-gray-400">#{{
+                                <div class="text-xs font-mono text-[#666666] dark:text-[#999999]">#{{
                                     ((templates.current_page - 1) * templates.per_page) + idx + 1 }}</div>
-                                <h3 class="font-semibold text-lg capitalize break-words text-gray-900 dark:text-white">
+                                <h3
+                                    class="text-sm uppercase font-mono tracking-wider break-words text-black dark:text-white">
                                     {{
                                         tpl.name }}</h3>
-                                <div class="text-sm text-gray-600 dark:text-gray-400">
+                                <div class="text-xs font-mono text-[#666666] dark:text-[#999999]">
                                     <template v-if="tpl.url">
-                                        <a :href="tpl.url" class="text-blue-600" target="_blank"
-                                            rel="noopener noreferrer">{{ tpl.url }}</a>
+                                        <a :href="tpl.url"
+                                            class="text-black dark:text-white underline hover:no-underline"
+                                            target="_blank" rel="noopener noreferrer">{{ tpl.url }}</a>
                                     </template>
                                     <template v-else>
                                         {{ tpl.file_name }}
@@ -239,46 +258,45 @@ function gotoLink(link: any) {
                             </div>
                             <div class="flex gap-2 ml-3">
                                 <template v-if="tpl.url">
-                                    <a :href="tpl.url" class="text-blue-600 p-2 rounded-lg" aria-label="Open link"
-                                        target="_blank" rel="noopener noreferrer">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    <a :href="tpl.url"
+                                        class="p-2 text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-2 border-black dark:border-white rounded-full transition-colors duration-200"
+                                        aria-label="Open link" target="_blank" rel="noopener noreferrer">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M10 14a1 1 0 001.414 0L21 4.414V13a1 1 0 11-2 0V6.414L11.414 16A1 1 0 0010 14z" />
                                         </svg>
                                     </a>
                                 </template>
                                 <template v-else>
-                                    <a :href="route('templates.download', tpl.id)" class="text-blue-600 p-2 rounded-lg"
+                                    <a :href="route('templates.download', tpl.id)"
+                                        class="p-2 text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-2 border-black dark:border-white rounded-full transition-colors duration-200"
                                         aria-label="Download">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M12 3v12m0 0l3-3m-3 3l-3-3m6 9H6" />
                                         </svg>
                                     </a>
                                 </template>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 3v12m0 0l3-3m-3 3l-3-3m6 9H6" />
-                                </svg>
-                                <button @click="openEdit(tpl)" class="text-blue-600 p-2 rounded-lg">
-                                    <Pencil class="h-5 w-5" />
+                                <button @click="openEdit(tpl)"
+                                    class="p-2 text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-2 border-black dark:border-white rounded-full transition-colors duration-200">
+                                    <Pencil :stroke-width="1.5" class="h-4 w-4" />
                                 </button>
-                                <button @click="remove(tpl.id)" class="text-red-600 p-2 rounded-lg">
-                                    <Trash2 class="h-5 w-5" />
+                                <button @click="remove(tpl.id)"
+                                    class="p-2 text-[#D71921] hover:bg-[#D71921] hover:text-white border-2 border-[#D71921] rounded-full transition-colors duration-200">
+                                    <Trash2 :stroke-width="1.5" class="h-4 w-4" />
                                 </button>
                             </div>
                         </div>
-                        <div class="text-sm text-gray-500 dark:text-gray-400">Created: <span
+                        <div class="text-xs font-mono text-[#666666] dark:text-[#999999]">Created: <span
                                 :title="dayjs(tpl.created_at).format('DD MMM YYYY, HH:mm')">{{ tpl.created_at ?
                                     dayjs(tpl.created_at).fromNow() : '-' }}</span></div>
                     </div>
 
                     <div v-if="templates.data.length === 0"
-                        class="bg-white dark:bg-neutral-800 rounded-2xl shadow border p-8 text-center">
-                        <div class="text-gray-500 dark:text-gray-400">No templates found.</div>
+                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#CCCCCC] dark:border-[#222222] p-8 text-center">
+                        <div class="text-[#666666] dark:text-[#999999]">No templates found.</div>
                     </div>
                 </div>
 
@@ -288,32 +306,32 @@ function gotoLink(link: any) {
                     <!-- Mobile/Tablet pagination (simplified) -->
                     <div class="lg:hidden">
                         <!-- Results Info -->
-                        <div class="text-sm text-gray-600 dark:text-gray-400 text-center mb-3">
+                        <div class="text-xs font-mono text-[#666666] dark:text-[#999999] text-center mb-3">
                             Showing {{ templates.from }} to {{ templates.to }} of {{ templates.total }} templates
                         </div>
 
                         <!-- Simple prev/next navigation -->
                         <div class="flex items-center justify-between gap-4">
                             <button @click="changePage(templates.prev_page_url)" :disabled="!templates.prev_page_url"
-                                class="px-4 py-2 text-sm rounded-xl transition-all duration-200 flex items-center gap-2"
+                                class="px-4 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center gap-2 border-2"
                                 :class="templates.prev_page_url
-                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
-                                    : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
-                                <ChevronLeft class="w-4 h-4" />
+                                    ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
+                                    : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
+                                <ChevronLeft :stroke-width="1.5" class="w-4 h-4" />
                                 Previous
                             </button>
 
-                            <span class="text-sm text-gray-600 dark:text-gray-400">
+                            <span class="text-xs font-mono tabular-nums text-[#666666] dark:text-[#999999]">
                                 Page {{ templates.current_page }} of {{ templates.last_page }}
                             </span>
 
                             <button @click="changePage(templates.next_page_url)" :disabled="!templates.next_page_url"
-                                class="px-4 py-2 text-sm rounded-xl transition-all duration-200 flex items-center gap-2"
+                                class="px-4 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center gap-2 border-2"
                                 :class="templates.next_page_url
-                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
-                                    : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
+                                    ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
+                                    : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
                                 Next
-                                <ChevronRight class="w-4 h-4" />
+                                <ChevronRight :stroke-width="1.5" class="w-4 h-4" />
                             </button>
                         </div>
                     </div>
@@ -321,7 +339,7 @@ function gotoLink(link: any) {
                     <!-- Desktop pagination (full features) -->
                     <div class="hidden lg:flex items-center justify-between">
                         <!-- Results Info -->
-                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                        <div class="text-xs font-mono text-[#666666] dark:text-[#999999]">
                             Showing {{ templates.from }} to {{ templates.to }} of {{ templates.total }} templates
                         </div>
 
@@ -329,11 +347,11 @@ function gotoLink(link: any) {
                         <div class="flex items-center space-x-2">
                             <!-- Previous Button -->
                             <button @click="changePage(templates.prev_page_url)" :disabled="!templates.prev_page_url"
-                                class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center"
+                                class="px-3 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center border-2"
                                 :class="templates.prev_page_url
-                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
-                                    : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
-                                <ChevronLeft class="w-4 h-4 mr-1" />
+                                    ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
+                                    : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
+                                <ChevronLeft :stroke-width="1.5" class="w-4 h-4 mr-1" />
                                 Previous
                             </button>
 
@@ -341,24 +359,24 @@ function gotoLink(link: any) {
                             <div class="flex items-center space-x-1">
                                 <template v-for="link in templates.links.slice(1, -1)" :key="link.label">
                                     <button v-if="link.url" @click="changePage(link.url)"
-                                        class="px-3 py-2 text-sm rounded-lg transition-all duration-200"
+                                        class="px-3 py-2 text-xs font-mono tabular-nums rounded-full transition-colors duration-200 border-2"
                                         :class="link.active
-                                            ? 'bg-blue-600 text-white'
-                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'"
+                                            ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white'
+                                            : 'text-black dark:text-white border-[#CCCCCC] dark:border-[#333333] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black hover:border-black dark:hover:border-white'"
                                         v-html="link.label" />
-                                    <span v-else class="px-3 py-2 text-sm text-gray-400 cursor-not-allowed"
+                                    <span v-else class="px-3 py-2 text-xs font-mono text-[#CCCCCC] cursor-not-allowed"
                                         v-html="link.label" />
                                 </template>
                             </div>
 
                             <!-- Next Button -->
                             <button @click="changePage(templates.next_page_url)" :disabled="!templates.next_page_url"
-                                class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center"
+                                class="px-3 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center border-2"
                                 :class="templates.next_page_url
-                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
-                                    : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
+                                    ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
+                                    : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
                                 Next
-                                <ChevronRight class="w-4 h-4 ml-1" />
+                                <ChevronRight :stroke-width="1.5" class="w-4 h-4 ml-1" />
                             </button>
                         </div>
                     </div>
@@ -369,78 +387,89 @@ function gotoLink(link: any) {
                     class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4"
                     style="margin-top: 0!important;" @click.self="closeModal">
                     <div
-                        class="mx-4 bg-white dark:bg-neutral-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-neutral-700">
+                        class="mx-4 bg-white dark:bg-[#111111] rounded-lg w-full max-w-2xl overflow-hidden border-2 border-[#CCCCCC] dark:border-[#222222]">
                         <div
-                            class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-neutral-700">
-                            <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ isEditing ? 'Edit Template' :
+                            class="flex items-center justify-between p-4 border-b-2 border-[#CCCCCC] dark:border-[#222222]">
+                            <h2 class="text-xs uppercase font-mono tracking-widest text-black dark:text-white">{{
+                                isEditing ? 'EditTemplate' :
                                 'Add Template'
                                 }}</h2>
-                            <button @click="closeModal" class="p-2 text-gray-400 hover:text-gray-600 rounded-lg"><svg
+                            <button @click="closeModal"
+                                class="p-2 text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-2 border-black dark:border-white rounded-full transition-colors duration-200"><svg
                                     xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                         d="M6 18L18 6M6 6l12 12" />
                                 </svg></button>
                         </div>
                         <div class="p-6">
                             <div class="mb-3">
-                                <label class="block text-sm">Name</label>
-                                <input v-model="form.name" class="w-full rounded-2xl border px-4 py-2" />
+                                <label
+                                    class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-2">Name</label>
+                                <input v-model="form.name"
+                                    class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] bg-white dark:bg-black text-black dark:text-white px-4 py-2 focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
                             </div>
                             <div class="mb-3">
-                                <label class="block text-sm mb-2">Type</label>
+                                <label
+                                    class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-2">Type</label>
                                 <div class="flex items-center gap-4 mb-3">
-                                    <label class="inline-flex items-center cursor-pointer">
+                                    <label
+                                        class="inline-flex items-center cursor-pointer text-xs uppercase font-mono tracking-wider text-black dark:text-white">
                                         <input type="radio" v-model="mode" value="file" class="mr-2" />
                                         <span>Upload ZIP</span>
                                     </label>
-                                    <label class="inline-flex items-center cursor-pointer">
+                                    <label
+                                        class="inline-flex items-center cursor-pointer text-xs uppercase font-mono tracking-wider text-black dark:text-white">
                                         <input type="radio" v-model="mode" value="link" class="mr-2" />
                                         <span>External Link</span>
                                     </label>
                                 </div>
 
                                 <div v-if="mode === 'file'">
-                                    <label class="block text-sm">Zip File</label>
+                                    <label
+                                        class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white">Zip
+                                        File</label>
                                     <FilePond name="file" :files="filePondFiles" @updatefiles="handleFilePondUpdate"
                                         :allowMultiple="false"
                                         :labelIdle="'Drag & Drop your ZIP file or <span class=\'filepond--label-action\'>Browse</span>'"
                                         class="mt-1 filepond-dropzone" />
 
-                                    <div v-if="form.file" class="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                                    <div v-if="form.file" class="mt-3 text-sm text-black dark:text-white">
                                         <div
-                                            class="flex items-center justify-between p-2 bg-gray-50 dark:bg-neutral-700 rounded-lg">
-                                            <span>{{ form.file.name }}</span>
-                                            <span class="text-xs text-gray-500">{{ (form.file.size / 1024 /
+                                            class="flex items-center justify-between p-2 bg-[#F5F5F5] dark:bg-[#0A0A0A] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222]">
+                                            <span class="font-mono text-sm">{{ form.file.name }}</span>
+                                            <span class="text-xs font-mono text-[#666666] dark:text-[#999999]">{{
+                                                (form.file.size / 1024
+                                                    /
                                                 1024).toFixed(2)
                                                 }}
                                                 MB</span>
                                         </div>
                                     </div>
 
-                                    <div v-else-if="form.file_name"
-                                        class="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                                    <div v-else-if="form.file_name" class="mt-3 text-sm text-black dark:text-white">
                                         <div
-                                            class="flex items-center justify-between p-2 bg-gray-50 dark:bg-neutral-700 rounded-lg">
-                                            <span>{{ form.file_name }}</span>
+                                            class="flex items-center justify-between p-2 bg-[#F5F5F5] dark:bg-[#0A0A0A] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222]">
+                                            <span class="font-mono text-sm">{{ form.file_name }}</span>
                                             <a :href="route('templates.download', form.id)"
-                                                class="text-blue-600 text-xs">Download</a>
+                                                class="text-xs font-mono uppercase tracking-wider text-black dark:text-white underline hover:no-underline">Download</a>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div v-else>
-                                    <label class="block text-sm">URL</label>
+                                    <label
+                                        class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white">URL</label>
                                     <input v-model="form.url" placeholder="https://example.com/template.zip"
-                                        class="w-full rounded-2xl border px-4 py-2" />
+                                        class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] bg-white dark:bg-black text-black dark:text-white px-4 py-2 focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
                                 </div>
                             </div>
                             <div class="flex space-x-4 pt-4">
                                 <button type="button" @click="closeModal"
-                                    class="flex-1 rounded-xl bg-red-600 px-6 py-3 text-white shadow hover:bg-red-700 transition-colors">Cancel</button>
+                                    class="flex-1 rounded-full bg-white dark:bg-black border-2 border-[#D71921] px-6 py-3 text-[#D71921] hover:bg-[#D71921] hover:text-white transition-colors text-xs uppercase font-mono tracking-wider">Cancel</button>
                                 <button type="button" @click="submit"
                                     :disabled="(!isEditing && ((mode === 'file' && !form.file) || (mode === 'link' && !form.url)))"
-                                    class="flex-1 rounded-xl bg-green-600 px-6 py-3 text-white shadow hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">Save</button>
+                                    class="flex-1 rounded-full bg-black dark:bg-white border-2 border-black dark:border-white px-6 py-3 text-white dark:text-black hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-xs uppercase font-mono tracking-wider">Save</button>
                             </div>
                         </div>
                     </div>

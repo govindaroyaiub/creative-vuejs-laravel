@@ -4,21 +4,21 @@
 
     <!-- Modern Minimal Background -->
     <AppLayout :breadcrumbs="[{ title: 'Cache Management', href: '/cache-management' }]">
-        <div
-            class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-gray-50 dark:from-black dark:via-black dark:to-black animate-fadeIn">
+        <div class="min-h-screen bg-white dark:bg-black animate-fadeIn font-mono">
             <!-- Clean Header -->
             <div class="container mx-auto px-4 max-w-8xl">
-                <header
-                    class="backdrop-blur-xl border-b border-slate-200/50 dark:border-neutral-700/50 sticky top-0 z-50">
+                <header class="backdrop-blur-xl sticky top-0 z-50 bg-white dark:bg-black">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
                         <div
                             class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                             <div class="flex items-center space-x-3 sm:space-x-4">
                                 <div class="min-w-0 flex-1">
-                                    <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white truncate">
+                                    <h1
+                                        class="text-xl sm:text-2xl font-light text-black dark:text-white truncate uppercase tracking-wide">
                                         Cache
                                         Management</h1>
-                                    <p class="text-slate-500 dark:text-gray-400 text-xs sm:text-sm hidden sm:block">
+                                    <p
+                                        class="text-[#666666] dark:text-[#999999] text-xs sm:text-sm hidden sm:block font-mono uppercase trackixpxng-wider">
                                         System
                                         cleanup and monitoring</p>
                                 </div>
@@ -27,11 +27,13 @@
                             <div class="flex items-center justify-between sm:justify-end space-x-2 sm:space-x-3">
                                 <!-- Live Server Time Card -->
                                 <div
-                                    class="bg-white dark:bg-neutral-800 rounded-lg sm:rounded-xl px-3 sm:px-6 py-1.5 sm:py-2 text-right flex-shrink-0">
-                                    <p class="text-xs text-slate-500 dark:text-gray-400 hidden sm:block">Server Time
+                                    class="bg-white dark:bg-black rounded-lg px-3 sm:px-6 py-1.5 sm:py-2 text-right flex-shrink-0 border-2 border-[#CCCCCC] dark:border-[#222222]">
+                                    <p
+                                        class="text-xs text-[#666666] dark:text-[#999999] hidden sm:block font-mono uppercase tracking-wider">
+                                        Server Time
                                     </p>
                                     <p
-                                        class="text-xs sm:text-sm font-mono font-semibold text-slate-900 dark:text-white">
+                                        class="text-xs sm:text-sm font-mono font-semibold text-black dark:text-white tabular-nums">
                                         {{ currentTime || 'Loading...' }}
                                     </p>
                                     <p class="text-xs text-emerald-500 mt-0.5 sm:mt-1 hidden sm:block">
@@ -41,7 +43,7 @@
 
                                 <!-- Refresh Button -->
                                 <button @click="refreshAllData()" :disabled="isRefreshing"
-                                    class="px-3 sm:px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg sm:rounded-xl transition-all duration-200 flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+                                    class="px-3 sm:px-4 py-2 bg-black dark:bg-white disabled:bg-[#CCCCCC] dark:disabled:bg-[#333333] text-white dark:text-black rounded-full border-2 border-black dark:border-white transition-colors duration-200 hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white flex items-center space-x-1 sm:space-x-2 flex-shrink-0 text-xs font-mono uppercase tracking-wider">
                                     <svg :class="{ 'animate-spin': isRefreshing }" class="w-3 h-3 sm:w-4 sm:h-4"
                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -61,14 +63,13 @@
 
                     <!-- Tab Navigation -->
                     <div class="mb-6 sm:mb-8">
-                        <div
-                            class="bg-white dark:bg-neutral-800/50 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200/60 dark:border-neutral-700/50 p-1.5 sm:p-2">
+                        <div class="bg-white dark:bg-black backdrop-blur-sm rounded-lg p-1.5 sm:p-2">
                             <nav class="flex gap-1 sm:gap-2">
                                 <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="[
-                                    'relative flex-1 px-4 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base whitespace-nowrap transition-all duration-300 group overflow-hidden',
+                                    'relative flex-1 px-4 sm:px-8 py-3 sm:py-4 rounded-full border-2 font-mono uppercase tracking-wider text-xs sm:text-sm whitespace-nowrap transition-colors duration-200 group overflow-hidden',
                                     activeTab === tab.id
-                                        ? 'bg-blue-600 dark:bg-blue-700 text-white shadow-lg scale-105'
-                                        : 'text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-neutral-700/50'
+                                        ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white'
+                                        : 'text-[#666666] dark:text-[#999999] border-[#CCCCCC] dark:border-[#333333] hover:text-black dark:hover:text-white hover:border-black dark:hover:border-white'
                                 ]">
                                     <!-- Icon and Text -->
                                     <div class="relative flex items-center justify-center space-x-2 sm:space-x-3">
@@ -81,7 +82,7 @@
 
                                     <!-- Active Indicator -->
                                     <div v-if="activeTab === tab.id"
-                                        class="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-white/40 rounded-t-full">
+                                        class="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-0.5 bg-white/40 dark:bg-black/40 rounded-t-full">
                                     </div>
                                 </button>
                             </nav>
@@ -96,9 +97,9 @@
 
                             <!-- Quick Actions -->
                             <section
-                                class="bg-white dark:bg-neutral-800 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-neutral-700 p-4 sm:p-6">
+                                class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-4 sm:p-6">
                                 <h2
-                                    class="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 flex items-center">
+                                    class="text-base sm:text-lg font-semibold text-black dark:text-white mb-3 sm:mb-4 flex items-center">
                                     <span class="text-lg sm:text-xl mr-2 sm:mr-3">⚡</span>
                                     Quick Actions
                                 </h2>
@@ -110,33 +111,33 @@
                                         :class="action.gradient">
                                         <div class="text-lg sm:text-2xl mb-1 sm:mb-2">{{ action.icon }}</div>
                                         <div class="text-xs sm:text-sm font-semibold text-white">{{ action.name }}</div>
-                                        <div class="text-xs text-white/80 mt-0.5 sm:mt-1">{{ action.description }}</div>
+                                        <div class="text-xs mt-0.5 sm:mt-1">{{ action.description }}</div>
                                     </button>
                                 </div>
                             </section>
 
                             <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-2 gap-4 sm:gap-6">
                                 <div v-for="(stat, key) in currentStats" :key="key"
-                                    class="bg-white dark:bg-neutral-800 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-neutral-700 p-4 sm:p-6 hover:shadow-lg transition-all duration-200">
+                                    class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-4 sm:p-6 hover:border-[#CCCCCC] dark:hover:border-[#333333] transition-colors duration-200">
                                     <div class="flex items-center justify-between mb-3 sm:mb-4">
                                         <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
                                             <div class="text-xl sm:text-2xl flex-shrink-0">{{ stat.icon }}</div>
                                             <div class="min-w-0 flex-1">
                                                 <h3
-                                                    class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base truncate">
+                                                    class="font-semibold text-black dark:text-white text-sm sm:text-base truncate">
                                                     {{ stat.name }}</h3>
-                                                <p class="text-xs sm:text-sm text-slate-500 dark:text-gray-400">{{
+                                                <p class="text-xs sm:text-sm text-[#666666] dark:text-[#999999]">{{
                                                     stat.files
                                                 }} files</p>
                                             </div>
                                         </div>
                                         <div class="text-right flex-shrink-0">
-                                            <div class="text-sm sm:text-lg font-bold text-slate-900 dark:text-white">{{
+                                            <div class="text-sm sm:text-lg font-bold text-black dark:text-white">{{
                                                 formatBytes(stat.size) }}</div>
                                         </div>
                                     </div>
 
-                                    <div class="w-full bg-slate-200 dark:bg-neutral-700 rounded-full h-2">
+                                    <div class="w-full bg-[#E8E8E8] dark:bg-[#222222] rounded-full h-2">
                                         <div class="h-2 rounded-full transition-all duration-1000" :style="{
                                             width: `${getUsagePercentage(stat.size)}%`,
                                             background: getColorGradient(stat.color)
@@ -150,34 +151,34 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
                                 <!-- System Info & Disk Usage -->
                                 <div
-                                    class="bg-white dark:bg-neutral-800 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-neutral-700 p-4 sm:p-6">
+                                    class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-4 sm:p-6">
                                     <h3
-                                        class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
+                                        class="font-semibold text-black dark:text-white mb-3 sm:mb-4 text-sm sm:text-base uppercase tracking-wide">
                                         System Overview</h3>
 
                                     <!-- System Info Section -->
                                     <div class="space-y-2 sm:space-y-3 mb-4">
                                         <div class="flex justify-between text-xs sm:text-sm">
-                                            <span class="text-slate-500 dark:text-gray-400">PHP</span>
                                             <span
-                                                class="font-medium text-slate-900 dark:text-white font-mono text-right">
+                                                class="text-[#666666] dark:text-[#999999] font-mono uppercase tracking-wider">PHP</span>
+                                            <span class="font-medium text-black dark:text-white font-mono text-right">
                                                 {{ systemInfo?.php_version || 'Loading...' }}
                                             </span>
                                         </div>
 
                                         <div class="flex justify-between text-xs sm:text-sm">
-                                            <span class="text-slate-500 dark:text-gray-400">Laravel</span>
                                             <span
-                                                class="font-medium text-slate-900 dark:text-white font-mono text-right">
+                                                class="text-[#666666] dark:text-[#999999] font-mono uppercase tracking-wider">Laravel</span>
+                                            <span class="font-medium text-black dark:text-white font-mono text-right">
                                                 {{ systemInfo?.laravel_version || 'Loading...' }}
                                             </span>
                                         </div>
 
                                         <div class="flex justify-between text-xs sm:text-sm">
-                                            <span class="text-slate-500 dark:text-gray-400">Timezone</span>
+                                            <span
+                                                class="text-[#666666] dark:text-[#999999] font-mono uppercase tracking-wider">Timezone</span>
                                             <div class="text-right">
-                                                <span
-                                                    class="font-medium text-slate-900 dark:text-white font-mono text-xs">
+                                                <span class="font-medium text-black dark:text-white font-mono text-xs">
                                                     {{ systemInfo?.timezone || 'Loading...' }}
                                                 </span>
                                                 <div v-if="systemInfo?.is_timezone_detected"
@@ -189,27 +190,28 @@
                                     </div>
 
                                     <!-- Divider -->
-                                    <div class="border-t border-slate-200 dark:border-neutral-700 my-4"></div>
+                                    <div class="border-t-2 border-[#E8E8E8] dark:border-[#222222] my-4"></div>
 
                                     <!-- Disk Usage Section -->
                                     <div class="space-y-3">
                                         <div class="flex justify-between items-center">
-                                            <span class="text-slate-500 dark:text-gray-400 text-xs sm:text-sm">Disk
+                                            <span
+                                                class="text-[#666666] dark:text-[#999999] text-xs sm:text-sm font-mono uppercase tracking-wider">Disk
                                                 Usage</span>
                                             <div class="text-right">
-                                                <div class="text-lg font-bold text-slate-900 dark:text-white">
+                                                <div class="text-lg font-bold text-black dark:text-white">
                                                     {{ systemInfo?.disk_usage?.used_percentage || 0 }}%
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div class="w-full bg-slate-200 dark:bg-neutral-700 rounded-full h-2">
-                                            <div class="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-1000"
+                                        <div class="w-full bg-[#E8E8E8] dark:bg-[#222222] rounded-full h-2">
+                                            <div class="bg-black dark:bg-white h-2 rounded-full transition-all duration-1000"
                                                 :style="{ width: `${systemInfo?.disk_usage?.used_percentage || 0}%` }">
                                             </div>
                                         </div>
 
-                                        <div class="flex justify-between text-xs text-slate-500 dark:text-gray-400">
+                                        <div class="flex justify-between text-xs text-[#666666] dark:text-[#999999]">
                                             <span>Free: {{ systemInfo?.disk_usage?.free || 'N/A' }}</span>
                                             <span>Total: {{ systemInfo?.disk_usage?.total || 'N/A' }}</span>
                                         </div>
@@ -217,7 +219,7 @@
                                 </div>
 
                                 <!-- Log Files -->
-                                <div class="bg-white dark:bg-neutral-800 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-neutral-700 p-4 sm:p-6"
+                                <div class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-4 sm:p-6"
                                     :class="{ 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/10': systemInfo?.logs?.total?.needs_attention }">
                                     <div class="flex items-center justify-between mb-3 sm:mb-4">
                                         <h3 class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base flex items-center"
@@ -230,7 +232,7 @@
                                         </h3>
                                         <div class="flex items-center gap-2">
                                             <a href="/logs"
-                                                class="px-3 py-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/40 rounded-lg text-xs font-medium transition-colors flex items-center">
+                                                class="px-3 py-1.5 bg-white dark:bg-black border-2 border-black dark:border-white text-black dark:text-white rounded-full text-xs font-mono uppercase tracking-wider transition-colors hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black flex items-center">
                                                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -306,7 +308,7 @@
                         <div v-show="activeTab === 'activity'" class="space-y-4 sm:space-y-6">
                             <!-- Recent Activity -->
                             <div
-                                class="bg-white dark:bg-neutral-800 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-neutral-700 p-4 sm:p-6">
+                                class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-4 sm:p-6">
                                 <h3
                                     class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
                                     Recent Cleanups</h3>
@@ -344,8 +346,8 @@
                         <!-- Activity Logs Tab -->
                         <div v-show="activeTab === 'activity_logs'" class="space-y-4 sm:space-y-6">
                             <div
-                                class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-slate-200 dark:border-neutral-700 p-6">
-                                <div class="rounded-2xl flex w-full items-center gap-2 mb-4">
+                                class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-6">
+                                <div class="rounded-lg flex w-full items-center gap-2 mb-4">
                                     <div class="relative w-full">
                                         <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
                                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -354,35 +356,35 @@
                                         </svg>
                                         <input v-model="activitySearch" @input="onActivitySearchInput" type="text"
                                             placeholder="Search"
-                                            class="w-1/2 pl-10 pr-4 py-3 border border-slate-300 dark:border-neutral-600 rounded-xl bg-white dark:bg-neutral-700 text-slate-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" />
+                                            class="w-1/2 pl-10 pr-4 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors duration-200 font-mono text-xs uppercase tracking-wider" />
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <button @click="confirmEmptyAll" v-if="logs?.total > 0"
-                                            class="px-3 py-2 bg-red-600 text-sm rounded-xl text-white hover:bg-red-700 transition whitespace-nowrap">Empty
+                                            class="px-3 py-2 bg-white dark:bg-black border-2 border-[#D71921] text-[#D71921] text-xs font-mono uppercase tracking-wider rounded-full hover:bg-[#D71921] hover:text-white transition-colors whitespace-nowrap">Empty
                                             Logs</button>
                                     </div>
                                     <div
-                                        class="text-sm text-slate-500 dark:text-gray-400 bg-slate-100 dark:bg-neutral-700 px-3 py-4 rounded-2xl whitespace-nowrap text-center">
+                                        class="text-xs font-mono uppercase tracking-wider text-[#666666] dark:text-[#999999] bg-[#F5F5F5] dark:bg-[#0A0A0A] px-3 py-4 rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] whitespace-nowrap text-center">
                                         Total: {{ logs?.total || 0 }} entries</div>
                                 </div>
 
                                 <div v-if="logs?.data?.length > 0" class="flex items-center justify-between mt-3 mb-4">
                                     <div class="flex items-center gap-3">
                                         <label
-                                            class="inline-flex items-center space-x-2 text-sm text-slate-700 dark:text-gray-300">
+                                            class="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-[#666666] dark:text-[#999999]">
                                             <input type="checkbox" v-model="selectAll" @change="toggleSelectAll"
                                                 class="w-4 h-4 text-blue-600 border-slate-300 rounded" />
                                             <span>Select all on page</span>
                                         </label>
                                         <button v-if="selectedIds.length" @click="confirmDeleteSelected"
-                                            class="px-3 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition">Delete
+                                            class="px-3 py-2 bg-white dark:bg-black border-2 border-[#D71921] text-[#D71921] rounded-full text-xs font-mono uppercase tracking-wider hover:bg-[#D71921] hover:text-white transition-colors">Delete
                                             Selected ({{ selectedIds.length }})</button>
                                     </div>
                                 </div>
 
                                 <div v-if="logs?.data?.length > 0" class="space-y-4">
                                     <div v-for="(log, index) in logs.data" :key="log.id"
-                                        class="bg-white dark:bg-neutral-700 rounded-2xl shadow-sm border border-slate-200 dark:border-neutral-600 hover:shadow-md transition-all duration-200 overflow-hidden">
+                                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] hover:border-[#CCCCCC] dark:hover:border-[#333333] transition-colors duration-200 overflow-hidden">
                                         <div class="p-4">
                                             <div
                                                 class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
@@ -391,9 +393,9 @@
                                                         <input type="checkbox" :value="log.id" v-model="selectedIds"
                                                             class="w-4 h-4 text-blue-600 border-gray-300 rounded" />
                                                         <div
-                                                            class="px-2 py-1 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 rounded-lg">
+                                                            class="px-2 py-1 bg-[#F5F5F5] dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg">
                                                             <span
-                                                                class="text-xs font-semibold text-blue-600 dark:text-blue-400">#{{
+                                                                class="text-xs font-mono font-semibold text-black dark:text-white">#{{
                                                                     log.id }}</span>
                                                         </div>
                                                         <div class="font-semibold text-slate-900 dark:text-white">{{
@@ -406,7 +408,7 @@
 
                                                 <div class="flex-shrink-0">
                                                     <button @click="toggleExpand(log.id)"
-                                                        class="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm">Details</button>
+                                                        class="px-3 py-2 bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white rounded-full text-xs font-mono uppercase tracking-wider hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white transition-colors">Details</button>
                                                 </div>
                                             </div>
 
@@ -431,7 +433,7 @@
                                 </div>
 
                                 <div v-else
-                                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-slate-200 dark:border-neutral-700 p-12 text-center">
+                                    class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-12 text-center">
                                     <div
                                         class="w-20 h-20 mx-auto bg-slate-100 dark:bg-neutral-700 rounded-full flex items-center justify-center mb-6">
                                         <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor"
@@ -459,15 +461,15 @@
                                         <div class="flex items-center space-x-2">
                                             <button @click="changePage(logs.current_page - 1)"
                                                 :disabled="!logs.prev_page_url"
-                                                class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center"
-                                                :class="logs.prev_page_url ? 'bg-white dark:bg-neutral-800' : 'text-gray-400 cursor-not-allowed'">Previous</button>
+                                                class="px-3 py-2 text-xs rounded-full border-2 transition-colors duration-200 flex items-center font-mono uppercase tracking-wider"
+                                                :class="logs.prev_page_url ? 'bg-white dark:bg-black text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black' : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">Previous</button>
                                             <div
-                                                class="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg">
+                                                class="px-4 py-2 text-xs font-mono uppercase tracking-wider bg-black dark:bg-white text-white dark:text-black rounded-full border-2 border-black dark:border-white">
                                                 Page {{ logs.current_page }} of {{ logs.last_page }}</div>
                                             <button @click="changePage(logs.current_page + 1)"
                                                 :disabled="!logs.next_page_url"
-                                                class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center"
-                                                :class="logs.next_page_url ? 'bg-white dark:bg-neutral-800' : 'text-gray-400 cursor-not-allowed'">Next</button>
+                                                class="px-3 py-2 text-xs rounded-full border-2 transition-colors duration-200 flex items-center font-mono uppercase tracking-wider"
+                                                :class="logs.next_page_url ? 'bg-white dark:bg-black text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black' : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">Next</button>
                                         </div>
                                     </div>
                                 </div>
@@ -504,6 +506,8 @@ const isRefreshing = ref(false)
 const isRunningCleanup = ref(false)
 const activeTab = ref('overview')
 const isBlankingLogs = ref(false)
+const isDarkMode = ref(false)
+let themeObserver: MutationObserver | null = null
 
 // Live clock variables
 const currentTime = ref('')
@@ -519,12 +523,12 @@ const tabs = ref([
 
 // Quick actions configuration
 const quickActions = ref([
-    { type: 'all', name: 'Clean All', description: 'Complete cleanup', icon: '🧹', gradient: 'bg-emerald-600 dark:bg-emerald-700' },
-    { type: 'storage', name: 'Storage', description: 'Temp files', icon: '📁', gradient: 'bg-amber-600 dark:bg-amber-700' },
-    { type: 'logs', name: 'Logs', description: 'Old log files', icon: '📋', gradient: 'bg-red-600 dark:bg-red-700' },
-    { type: 'temp', name: 'Temp Files', description: 'Upload temps', icon: '🗃️', gradient: 'bg-purple-600 dark:bg-purple-700' },
-    { type: 'artisan', name: 'Artisan Clear', description: 'Clear & cache configs', icon: '⚡', gradient: 'bg-indigo-600 dark:bg-indigo-700' },
-    { type: 'view-logs', name: 'View Logs', description: 'Browse log files', icon: '👀', gradient: 'bg-teal-600 dark:bg-teal-700' }
+    { type: 'all', name: 'Clean All', description: 'Complete cleanup', icon: '🧹', gradient: 'bg-black dark:bg-[#111111] text-white dark:text-black border-2 border-black dark:border-[#222222]' },
+    { type: 'storage', name: 'Storage', description: 'Temp files', icon: '📁', gradient: 'bg-black dark:bg-[#111111] text-white dark:text-black border-2 border-black dark:border-[#222222]' },
+    { type: 'logs', name: 'Logs', description: 'Old log files', icon: '📋', gradient: 'bg-black dark:bg-[#111111] text-white dark:text-black border-2 border-black dark:border-[#222222]' },
+    { type: 'temp', name: 'Temp Files', description: 'Upload temps', icon: '🗃️', gradient: 'bg-black dark:bg-[#111111] text-white dark:text-black border-2 border-black dark:border-[#222222]' },
+    { type: 'artisan', name: 'Artisan Clear', description: 'Clear & cache configs', icon: '⚡', gradient: 'bg-black dark:bg-[#111111] text-white dark:text-black border-2 border-black dark:border-[#222222]' },
+    { type: 'view-logs', name: 'View Logs', description: 'Browse log files', icon: '👀', gradient: 'bg-black dark:bg-[#111111] text-white dark:text-black border-2 border-black dark:border-[#222222]' }
 ])
 
 // Methods
@@ -542,19 +546,57 @@ const getUsagePercentage = (size) => {
 }
 
 const getColorGradient = (color) => {
-    const colors = {
-        'blue': '#3b82f6',
-        'green': '#10b981',
-        'yellow': '#f59e0b',
-        'purple': '#8b5cf6',
-        'red': '#ef4444',
-        'indigo': '#6366f1',
-        'pink': '#ec4899',
-        'teal': '#14b8a6',
-        'orange': '#f97316',
-        'emerald': '#10b981'
+    const colors = isDarkMode.value
+        ? {
+            blue: '#FFFFFF',
+            green: '#FFFFFF',
+            yellow: '#E8E8E8',
+            purple: '#E8E8E8',
+            red: '#D71921',
+            indigo: '#FFFFFF',
+            pink: '#E8E8E8',
+            teal: '#E8E8E8',
+            orange: '#CCCCCC',
+            emerald: '#FFFFFF'
+        }
+        : {
+            blue: '#000000',
+            green: '#000000',
+            yellow: '#666666',
+            purple: '#666666',
+            red: '#D71921',
+            indigo: '#000000',
+            pink: '#666666',
+            teal: '#666666',
+            orange: '#999999',
+            emerald: '#000000'
+        }
+
+    return colors[color] || colors.blue
+}
+
+const syncThemeState = () => {
+    isDarkMode.value = document.documentElement.classList.contains('dark')
+}
+
+const initThemeObserver = () => {
+    syncThemeState()
+
+    themeObserver = new MutationObserver(() => {
+        syncThemeState()
+    })
+
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class']
+    })
+}
+
+const stopThemeObserver = () => {
+    if (themeObserver) {
+        themeObserver.disconnect()
+        themeObserver = null
     }
-    return colors[color] || colors['blue']
 }
 
 const refreshSystemInfo = async () => {
@@ -816,7 +858,7 @@ const runArtisanClear = async () => {
                 `,
                 icon: 'success',
                 confirmButtonText: 'Great!',
-                confirmButtonColor: '#10b981'
+                confirmButtonColor: '#000000'
             })
 
             await refreshStats()
@@ -830,7 +872,7 @@ const runArtisanClear = async () => {
             text: error.message || 'An error occurred while running artisan commands',
             icon: 'error',
             confirmButtonText: 'OK',
-            confirmButtonColor: '#ef4444'
+            confirmButtonColor: '#D71921'
         })
     } finally {
         isRunningCleanup.value = false
@@ -914,7 +956,7 @@ const runCleanup = async (type) => {
                 `,
                 icon: 'success',
                 confirmButtonText: 'Great!',
-                confirmButtonColor: '#10b981'
+                confirmButtonColor: '#000000'
             })
 
             // Refresh both stats and recent cleanups
@@ -932,7 +974,7 @@ const runCleanup = async (type) => {
             text: error.message || 'An error occurred during cleanup',
             icon: 'error',
             confirmButtonText: 'OK',
-            confirmButtonColor: '#ef4444'
+            confirmButtonColor: '#D71921'
         })
     } finally {
         isRunningCleanup.value = false
@@ -977,7 +1019,7 @@ const blankLogFiles = async () => {
                 `,
                 icon: 'success',
                 confirmButtonText: 'Great!',
-                confirmButtonColor: '#10b981'
+                confirmButtonColor: '#000000'
             })
 
             await refreshStats()
@@ -992,7 +1034,7 @@ const blankLogFiles = async () => {
             text: error.message || 'An error occurred while blanking logs',
             icon: 'error',
             confirmButtonText: 'OK',
-            confirmButtonColor: '#ef4444'
+            confirmButtonColor: '#D71921'
         })
     } finally {
         isBlankingLogs.value = false
@@ -1164,6 +1206,8 @@ watch(activeTab, (val) => {
 
 // Auto-refresh stats every 30 seconds
 onMounted(() => {
+    initThemeObserver()
+
     // Initialize timezone detection
     timezoneDetector.init()
 
@@ -1180,6 +1224,7 @@ onMounted(() => {
 // Cleanup on unmount
 onUnmounted(() => {
     stopLiveClock()
+    stopThemeObserver()
 })
 </script>
 

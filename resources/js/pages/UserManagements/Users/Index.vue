@@ -208,7 +208,7 @@ const resetPassword = async (userId: number) => {
 
         <Head title="Users" />
         <SettingsLayout>
-            <div class="space-y-6">
+            <div class="space-y-6 font-mono">
                 <div class="flex flex-col items-start">
                     <h2 class="text-lg font-bold">Users</h2>
                     <small>Manage Users and their permissions</small>

@@ -194,9 +194,17 @@ const isTimezoneSelected = (timezone: TimezoneData) => {
 
 const currentTime = ref(new Date());
 let timeInterval: NodeJS.Timeout;
+const isDarkMode = ref(false);
+let themeObserver: MutationObserver | null = null;
 
 onMounted(() => {
     loadSavedTimezones();
+
+    isDarkMode.value = document.documentElement.classList.contains('dark');
+    themeObserver = new MutationObserver(() => {
+        isDarkMode.value = document.documentElement.classList.contains('dark');
+    });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
     timeInterval = setInterval(() => {
         currentTime.value = new Date();
@@ -210,6 +218,11 @@ onMounted(() => {
 onUnmounted(() => {
     if (timeInterval) {
         clearInterval(timeInterval);
+    }
+
+    if (themeObserver) {
+        themeObserver.disconnect();
+        themeObserver = null;
     }
 });
 
@@ -272,13 +285,14 @@ const getTimeOfDayStyle = (dateTime: Date) => {
 const getTimezoneData = (timezone: string) => {
     const tzTime = new Date(currentTime.value.toLocaleString("en-US", { timeZone: timezone }));
     const style = getTimeOfDayStyle(tzTime);
+    const formattedTime = tzTime.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    }).replace(/:/g, '·');
     return {
-        time: tzTime.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: true
-        }),
+        time: formattedTime,
         date: tzTime.toLocaleDateString('en-US', {
             weekday: 'short',
             month: 'short',
@@ -334,36 +348,36 @@ const datasets = computed(() => [
     {
         label: 'Banners',
         data: labels.map((_, i) => stats.value.banners?.[i + 1] || 0),
-        borderColor: '#6366f1',
-        backgroundColor: 'rgba(99, 102, 241, 0.1)',
-        borderWidth: 3,
+        borderColor: '#000000',
+        backgroundColor: 'rgba(0, 0, 0, 0.05)',
+        borderWidth: 2,
         tension: 0.4,
         fill: true,
     },
     {
         label: 'Videos',
         data: labels.map((_, i) => stats.value.videos?.[i + 1] || 0),
-        borderColor: '#10b981',
-        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-        borderWidth: 3,
+        borderColor: '#666666',
+        backgroundColor: 'rgba(102, 102, 102, 0.05)',
+        borderWidth: 2,
         tension: 0.4,
         fill: true,
     },
     {
         label: 'GIFs',
         data: labels.map((_, i) => stats.value.gifs?.[i + 1] || 0),
-        borderColor: '#f59e0b',
-        backgroundColor: 'rgba(245, 158, 11, 0.1)',
-        borderWidth: 3,
+        borderColor: '#999999',
+        backgroundColor: 'rgba(153, 153, 153, 0.05)',
+        borderWidth: 2,
         tension: 0.4,
         fill: true,
     },
     {
         label: 'Socials',
         data: labels.map((_, i) => stats.value.socials?.[i + 1] || 0),
-        borderColor: '#ef4444',
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-        borderWidth: 3,
+        borderColor: '#D71921',
+        backgroundColor: 'rgba(215, 25, 33, 0.05)',
+        borderWidth: 2,
         tension: 0.4,
         fill: true,
     },
@@ -374,57 +388,96 @@ const chartData = computed(() => ({
     datasets: datasets.value,
 }));
 
-const chartOptions = {
+const chartTheme = computed(() => ({
+    axisText: isDarkMode.value ? '#999999' : '#666666',
+    titleText: isDarkMode.value ? '#E8E8E8' : '#1A1A1A',
+    gridLine: isDarkMode.value ? '#222222' : '#E8E8E8',
+    tooltipBg: isDarkMode.value ? 'rgba(255, 255, 255, 0.92)' : 'rgba(0, 0, 0, 0.9)',
+    tooltipText: isDarkMode.value ? '#000000' : '#FFFFFF',
+    tooltipBorder: isDarkMode.value ? '#CCCCCC' : '#222222',
+}));
+
+const chartOptions = computed(() => ({
     responsive: true,
     maintainAspectRatio: false,
     interaction: {
-        mode: 'index',
+        mode: 'index' as const,
         intersect: false,
     },
     animation: {
-        duration: 2000,
-        easing: 'easeOutCubic',
+        duration: 300,
+        easing: 'easeOutCubic' as const,
     },
     plugins: {
         legend: {
-            position: 'bottom',
+            position: 'bottom' as const,
             labels: {
-                padding: 20,
+                padding: 16,
                 usePointStyle: true,
-                pointStyle: 'circle',
+                pointStyle: 'circle' as const,
+                font: {
+                    size: 11,
+                    family: 'monospace',
+                },
+                color: chartTheme.value.axisText,
             }
         },
         title: {
             display: true,
-            text: `Yearly Content Statistics (${year})`,
-            font: { size: 16, weight: 'bold' },
+            text: `YEARLY CONTENT STATISTICS (${year})`,
+            font: {
+                size: 12,
+                weight: '400',
+                family: 'monospace',
+            },
             padding: 20,
+            color: chartTheme.value.titleText,
         },
         tooltip: {
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            titleColor: 'white',
-            bodyColor: 'white',
-            borderColor: '#6366f1',
+            backgroundColor: chartTheme.value.tooltipBg,
+            titleColor: chartTheme.value.tooltipText,
+            bodyColor: chartTheme.value.tooltipText,
+            borderColor: chartTheme.value.tooltipBorder,
             borderWidth: 1,
+            padding: 12,
+            titleFont: {
+                family: 'monospace',
+                size: 11,
+            },
+            bodyFont: {
+                family: 'monospace',
+                size: 11,
+            },
         }
     },
     scales: {
         x: {
             grid: { display: false },
             ticks: {
-                font: { weight: 'bold' },
-                color: 'rgba(0, 0, 0, 0.7)' // Add text color
+                font: {
+                    weight: '400',
+                    family: 'monospace',
+                    size: 10,
+                },
+                color: chartTheme.value.axisText
             }
         },
         y: {
             beginAtZero: true,
-            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+            grid: {
+                color: chartTheme.value.gridLine,
+                lineWidth: 1,
+            },
             ticks: {
-                color: 'rgba(0, 0, 0, 0.7)' // Add text color
+                font: {
+                    family: 'monospace',
+                    size: 10,
+                },
+                color: chartTheme.value.axisText
             }
         }
     }
-};
+}));
 
 // Enhanced count-up animation
 const animateCount = (target: number, duration: number = 2000) => {
@@ -478,40 +531,50 @@ const contentDistributionData = computed(() => ({
             page.props.socialCount
         ],
         backgroundColor: [
-            '#6366f1',
-            '#10b981',
-            '#f59e0b',
-            '#ef4444'
+            '#000000',
+            '#666666',
+            '#999999',
+            '#D71921'
         ],
         borderWidth: 0,
-        hoverOffset: 10,
+        hoverOffset: 4,
     }]
 }));
 
-const doughnutOptions = {
+const doughnutOptions = computed(() => ({
     responsive: true,
     maintainAspectRatio: false,
     animation: {
-        duration: 2000,
-        easing: 'easeOutCubic',
+        duration: 300,
+        easing: 'easeOutCubic' as const,
     },
     plugins: {
         legend: {
-            position: 'bottom',
+            position: 'bottom' as const,
             labels: {
-                padding: 15,
+                padding: 12,
                 usePointStyle: true,
+                font: {
+                    size: 11,
+                    family: 'monospace',
+                },
+                color: chartTheme.value.axisText,
             }
         },
         title: {
             display: true,
-            text: 'Content Distribution',
-            font: { size: 16, weight: 'bold' },
+            text: 'CONTENT DISTRIBUTION',
+            font: {
+                size: 12,
+                weight: '400',
+                family: 'monospace',
+            },
             padding: 20,
+            color: chartTheme.value.titleText,
         }
     },
     cutout: '60%',
-};
+}));
 
 const billChartData = computed(() => ({
     labels,
@@ -519,21 +582,21 @@ const billChartData = computed(() => ({
         {
             label: 'Monthly Bills (BDT)',
             data: labels.map((_, i) => monthlyBillTotals.value[i + 1] || 0),
-            backgroundColor: 'rgba(99,102,241,0.8)',
-            borderColor: '#6366f1',
-            borderWidth: 2,
-            borderRadius: 8,
+            backgroundColor: '#000000',
+            borderColor: '#000000',
+            borderWidth: 0,
+            borderRadius: 4,
             borderSkipped: false,
         },
     ],
 }));
 
-const billChartOptions = {
+const billChartOptions = computed(() => ({
     responsive: true,
     maintainAspectRatio: false,
     animation: {
-        duration: 2000,
-        easing: 'easeOutCubic',
+        duration: 300,
+        easing: 'easeOutCubic' as const,
     },
     plugins: {
         legend: {
@@ -541,25 +604,58 @@ const billChartOptions = {
         },
         title: {
             display: true,
-            text: `Monthly Bills Overview (${year})`,
-            font: { size: 16, weight: 'bold' },
+            text: `MONTHLY BILLS OVERVIEW (${year})`,
+            font: {
+                size: 12,
+                weight: '400',
+                family: 'monospace',
+            },
             padding: 20,
+            color: chartTheme.value.titleText,
+        },
+        tooltip: {
+            backgroundColor: chartTheme.value.tooltipBg,
+            titleColor: chartTheme.value.tooltipText,
+            bodyColor: chartTheme.value.tooltipText,
+            titleFont: {
+                family: 'monospace',
+                size: 11,
+            },
+            bodyFont: {
+                family: 'monospace',
+                size: 11,
+            },
         }
     },
     scales: {
         x: {
             grid: { display: false },
-            ticks: { font: { weight: 'bold' } }
+            ticks: {
+                font: {
+                    weight: '400',
+                    family: 'monospace',
+                    size: 10,
+                },
+                color: chartTheme.value.axisText,
+            }
         },
         y: {
             beginAtZero: true,
-            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+            grid: {
+                color: chartTheme.value.gridLine,
+                lineWidth: 1,
+            },
             ticks: {
+                font: {
+                    family: 'monospace',
+                    size: 10,
+                },
+                color: chartTheme.value.axisText,
                 callback: (value) => `৳${value}`
             }
         }
     }
-};
+}));
 
 const previewChartData = computed(() => ({
     labels,
@@ -567,24 +663,24 @@ const previewChartData = computed(() => ({
         {
             label: 'Monthly Previews',
             data: labels.map((_, i) => monthlyPreviewStats.value[i + 1] || 0),
-            backgroundColor: 'rgba(34, 197, 94, 0.8)',
-            borderColor: '#22c55e',
-            borderWidth: 2,
-            borderRadius: 6,
+            backgroundColor: '#666666',
+            borderColor: '#666666',
+            borderWidth: 0,
+            borderRadius: 4,
             borderSkipped: false,
-            hoverBackgroundColor: 'rgba(34, 197, 94, 0.9)',
-            hoverBorderColor: '#16a34a',
-            hoverBorderWidth: 3,
+            hoverBackgroundColor: '#000000',
+            hoverBorderColor: '#000000',
+            hoverBorderWidth: 0,
         },
     ],
 }));
 
-const previewChartOptions = {
+const previewChartOptions = computed(() => ({
     responsive: true,
     maintainAspectRatio: false,
     animation: {
-        duration: 2500,
-        easing: 'easeOutElastic',
+        duration: 300,
+        easing: 'easeOutCubic' as const,
     },
     plugins: {
         legend: {
@@ -592,17 +688,30 @@ const previewChartOptions = {
         },
         title: {
             display: true,
-            text: `Monthly Previews Statistics (${year})`,
-            font: { size: 16, weight: 'bold' },
+            text: `MONTHLY PREVIEWS STATISTICS (${year})`,
+            font: {
+                size: 12,
+                weight: '400',
+                family: 'monospace',
+            },
             padding: 20,
+            color: chartTheme.value.titleText,
         },
         tooltip: {
-            backgroundColor: 'rgba(34, 197, 94, 0.9)',
-            titleColor: 'white',
-            bodyColor: 'white',
-            borderColor: '#22c55e',
-            borderWidth: 2,
-            cornerRadius: 8,
+            backgroundColor: chartTheme.value.tooltipBg,
+            titleColor: chartTheme.value.tooltipText,
+            bodyColor: chartTheme.value.tooltipText,
+            borderColor: chartTheme.value.tooltipBorder,
+            borderWidth: 1,
+            padding: 12,
+            titleFont: {
+                family: 'monospace',
+                size: 11,
+            },
+            bodyFont: {
+                family: 'monospace',
+                size: 11,
+            },
             callbacks: {
                 title: (context) => `${context[0].label} ${year}`,
                 label: (context) => `Previews: ${context.parsed.y}`,
@@ -615,23 +724,31 @@ const previewChartOptions = {
                 display: false
             },
             ticks: {
-                font: { weight: 'bold' },
-                color: 'rgba(0, 0, 0, 0.7)'
+                font: {
+                    weight: '400',
+                    family: 'monospace',
+                    size: 10,
+                },
+                color: chartTheme.value.axisText
             }
         },
         y: {
             beginAtZero: true,
             grid: {
-                color: 'rgba(34, 197, 94, 0.1)',
+                color: chartTheme.value.gridLine,
                 lineWidth: 1
             },
             ticks: {
-                color: 'rgba(0, 0, 0, 0.7)',
+                font: {
+                    family: 'monospace',
+                    size: 10,
+                },
+                color: chartTheme.value.axisText,
                 callback: (value) => `${value} previews`
             }
         }
     }
-};
+}));
 
 // Calculate growth percentages
 const currentMonthData = computed(() => {
@@ -665,59 +782,57 @@ const formatNumber = (num: number) => {
     <Head title="Dashboard" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
-            class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-gray-50 dark:from-black dark:via-black dark:to-black">
-            <div class="p-6 space-y-8">
+        <div class="min-h-screen bg-[#FFFFFF] dark:bg-black font-mono">
+            <div class="p-6 space-y-12">
                 <!-- Header -->
-                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-0">
+                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8 lg:gap-0">
                     <div class="flex-1">
-                        <h1
-                            class="text-2xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                            Dashboard Overview
+                        <h1 class="text-4xl md:text-5xl font-light tracking-tight text-black dark:text-white uppercase">
+                            DASHBOARD
                         </h1>
-                        <p class="text-gray-600 dark:text-white mt-1 text-sm md:text-base">
-                            Analytics and insights for {{ year }}
+                        <p class="text-[#666666] dark:text-[#999999] mt-2 text-lg tracking-widest uppercase font-mono">
+                            ANALYTICS — {{ year }}
                         </p>
                     </div>
 
-                    <div class="space-y-3">
-                        <!-- World Clocks - Responsive Layout -->
-                        <div
-                            class="bg-gradient-to-r from-neutral-300 to-neutral-300 dark:from-neutral-800 dark:to-neutral-800 rounded-xl p-2 md:p-3 relative">
-
-                            <!-- Add Timezone Button -->
+                    <!-- World Clocks - Nothing Design -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-xs tracking-widest uppercase font-mono text-[#666666] dark:text-[#999999]">
+                                WORLD TIME</h2>
                             <button v-if="selectedTimezones.length < 4" @click="showTimezonePicker = true"
-                                class="absolute -top-4 -right-4 z-10 p-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-lg transition-all duration-200 hover:scale-110"
+                                class="px-3 py-1.5 border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] rounded-full transition-all duration-200 hover:border-[#1A1A1A] dark:hover:border-[#FFFFFF] text-xs tracking-wider uppercase font-mono"
                                 title="Add timezone">
-                                <Plus :size="16" />
+                                <Plus :size="14" class="inline -mt-0.5" /> ADD
                             </button>
+                        </div>
 
+                        <div
+                            class="bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded-lg p-3 md:p-4">
                             <!-- Mobile: Single Column | Tablet: 2 Columns | Desktop: 3x2 Grid -->
-                            <div :class="['grid gap-2', timezoneGridClass]">
+                            <div :class="['grid gap-3', timezoneGridClass]">
                                 <!-- Bangladesh (Static) -->
                                 <div
-                                    :class="['flex flex-col bg-gradient-to-br rounded-lg p-2 md:p-2.5 shadow-lg transition-all duration-500', bangladeshTime.gradient, bangladeshTime.darkGradient]">
-                                    <div class="flex items-center justify-between gap-2 mb-1">
+                                    class="flex flex-col border border-[#E8E8E8] dark:border-[#222222] rounded-md p-3 transition-all duration-200 hover:border-[#CCCCCC] dark:hover:border-[#333333]">
+                                    <div class="flex items-start justify-between gap-2 mb-2">
                                         <div class="min-w-0 flex-1">
                                             <div
-                                                class="text-xs md:text-sm font-bold text-gray-900 dark:text-white truncate">
-                                                Dhaka
+                                                class="text-xs md:text-sm font-medium text-[#1A1A1A] dark:text-[#E8E8E8] truncate uppercase tracking-wide">
+                                                DHAKA
                                             </div>
-                                            <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
-                                                Bangladesh
+                                            <div
+                                                class="text-[10px] md:text-xs text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono mt-0.5">
+                                                BANGLADESH
                                             </div>
-                                        </div>
-                                        <div
-                                            :class="['text-[10px] md:text-xs font-semibold px-1.5 py-0.5 rounded-full bg-white/50 dark:bg-black/30', bangladeshTime.textColor]">
-                                            {{ bangladeshTime.period }}
                                         </div>
                                     </div>
-                                    <div class="text-right">
+                                    <div class="text-right mt-auto">
                                         <div
-                                            class="text-base md:text-lg font-mono font-bold text-gray-900 dark:text-white">
+                                            class="text-xl md:text-2xl font-mono font-light text-black dark:text-white tabular-nums">
                                             {{ bangladeshTime.time }}
                                         </div>
-                                        <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
+                                        <div
+                                            class="text-[10px] md:text-xs text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono mt-1">
                                             {{ bangladeshTime.date }}
                                         </div>
                                     </div>
@@ -725,28 +840,26 @@ const formatNumber = (num: number) => {
 
                                 <!-- Netherlands (Static) -->
                                 <div
-                                    :class="['flex flex-col bg-gradient-to-br rounded-lg p-2 md:p-2.5 shadow-lg transition-all duration-500', netherlandsTime.gradient, netherlandsTime.darkGradient]">
-                                    <div class="flex items-center justify-between gap-2 mb-1">
+                                    class="flex flex-col border border-[#E8E8E8] dark:border-[#222222] rounded-md p-3 transition-all duration-200 hover:border-[#CCCCCC] dark:hover:border-[#333333]">
+                                    <div class="flex items-start justify-between gap-2 mb-2">
                                         <div class="min-w-0 flex-1">
                                             <div
-                                                class="text-xs md:text-sm font-bold text-gray-900 dark:text-white truncate">
-                                                Amsterdam
+                                                class="text-xs md:text-sm font-medium text-[#1A1A1A] dark:text-[#E8E8E8] truncate uppercase tracking-wide">
+                                                AMSTERDAM
                                             </div>
-                                            <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
-                                                Netherlands
+                                            <div
+                                                class="text-[10px] md:text-xs text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono mt-0.5">
+                                                NETHERLANDS
                                             </div>
-                                        </div>
-                                        <div
-                                            :class="['text-[10px] md:text-xs font-semibold px-1.5 py-0.5 rounded-full bg-white/50 dark:bg-black/30', netherlandsTime.textColor]">
-                                            {{ netherlandsTime.period }}
                                         </div>
                                     </div>
-                                    <div class="text-right">
+                                    <div class="text-right mt-auto">
                                         <div
-                                            class="text-base md:text-lg font-mono font-bold text-gray-900 dark:text-white">
+                                            class="text-xl md:text-2xl font-mono font-light text-black dark:text-white tabular-nums">
                                             {{ netherlandsTime.time }}
                                         </div>
-                                        <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
+                                        <div
+                                            class="text-[10px] md:text-xs text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono mt-1">
                                             {{ netherlandsTime.date }}
                                         </div>
                                     </div>
@@ -754,36 +867,34 @@ const formatNumber = (num: number) => {
 
                                 <!-- Dynamic Timezones (User Customizable) -->
                                 <div v-for="(tz, index) in dynamicTimezones" :key="tz.timezone"
-                                    :class="['flex flex-col bg-gradient-to-br rounded-lg p-2 md:p-2.5 shadow-lg transition-all duration-500 relative group', tz.gradient, tz.darkGradient]">
+                                    class="flex flex-col border border-[#E8E8E8] dark:border-[#222222] rounded-md p-3 transition-all duration-200 hover:border-[#CCCCCC] dark:hover:border-[#333333] relative group">
 
-                                    <!-- Remove Button (show from 1st dynamic timezone) -->
+                                    <!-- Remove Button -->
                                     <button @click="removeTimezone(index)"
-                                        class="absolute -top-1 -right-1 p-0.5 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 z-10"
+                                        class="absolute -top-2 -right-2 p-1 bg-[#D71921] text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 z-10"
                                         title="Remove timezone">
                                         <X :size="12" />
                                     </button>
 
-                                    <div class="flex items-center justify-between gap-2 mb-1">
+                                    <div class="flex items-start justify-between gap-2 mb-2">
                                         <div class="min-w-0 flex-1">
                                             <div
-                                                class="text-xs md:text-sm font-bold text-gray-900 dark:text-white truncate">
+                                                class="text-xs md:text-sm font-medium text-[#1A1A1A] dark:text-[#E8E8E8] truncate uppercase tracking-wide">
                                                 {{ tz.city }}
                                             </div>
-                                            <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
+                                            <div
+                                                class="text-[10px] md:text-xs text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono mt-0.5">
                                                 {{ tz.country }}
                                             </div>
                                         </div>
-                                        <div
-                                            :class="['text-[10px] md:text-xs font-semibold px-1.5 py-0.5 rounded-full bg-white/50 dark:bg-black/30', tz.textColor]">
-                                            {{ tz.period }}
-                                        </div>
                                     </div>
-                                    <div class="text-right">
+                                    <div class="text-right mt-auto">
                                         <div
-                                            class="text-base md:text-lg font-mono font-bold text-gray-900 dark:text-white">
+                                            class="text-xl md:text-2xl font-mono font-light text-black dark:text-white tabular-nums">
                                             {{ tz.time }}
                                         </div>
-                                        <div class="text-[10px] md:text-xs text-gray-700 dark:text-gray-300">
+                                        <div
+                                            class="text-[10px] md:text-xs text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono mt-1">
                                             {{ tz.date }}
                                         </div>
                                     </div>
@@ -793,48 +904,40 @@ const formatNumber = (num: number) => {
                     </div>
                 </div>
 
-                <!-- Stats Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Stats Grid - Nothing Design -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <!-- Users Card -->
                     <div
-                        class="group relative bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-orange-300 dark:hover:border-orange-600 transition-all duration-300 overflow-hidden">
-                        <div
-                            class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-orange-500/10 to-500/10 rounded-full -translate-y-10 translate-x-10">
-                        </div>
-                        <div
-                            class="absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-br from-orange-500/10 to-500/10 rounded-full translate-y-10 -translate-x-10">
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-600 dark:text-white">Total Users</p>
-                                <p class="text-3xl font-bold text-orange-600 dark:text-white mt-2">
+                        class="bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded-lg p-6 transition-all duration-200 hover:border-[#CCCCCC] dark:hover:border-[#333333]">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <p
+                                    class="text-xs font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999]">
+                                    TOTAL USERS</p>
+                                <p class="text-4xl font-light text-black dark:text-white mt-3 font-mono tabular-nums">
                                     {{ formatNumber(animatedCounts.userCount.value) }}
                                 </p>
                             </div>
-                            <div class="p-3 bg-orange-100 dark:bg-blue-900/50 rounded-xl">
-                                <UsersRound class="w-6 h-6 text-orange-600 dark:text-orange-400" />
+                            <div class="p-2">
+                                <UsersRound class="w-5 h-5 text-[#666666] dark:text-[#999999]" :stroke-width="1.5" />
                             </div>
                         </div>
                     </div>
 
                     <!-- Previews Card -->
                     <div
-                        class="group relative bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-green-300 dark:hover:border-green-600 transition-all duration-300 overflow-hidden">
-                        <div
-                            class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-full -translate-y-10 translate-x-10">
-                        </div>
-                        <div
-                            class="absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-full translate-y-10 -translate-x-10">
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-600 dark:text-white">Total Previews</p>
-                                <p class="text-3xl font-bold text-green-600 dark:text-white mt-2">
+                        class="bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded-lg p-6 transition-all duration-200 hover:border-[#CCCCCC] dark:hover:border-[#333333]">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <p
+                                    class="text-xs font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999]">
+                                    TOTAL PREVIEWS</p>
+                                <p class="text-4xl font-light text-black dark:text-white mt-3 font-mono tabular-nums">
                                     {{ formatNumber(animatedCounts.previewCount.value) }}
                                 </p>
                             </div>
-                            <div class="p-3 bg-green-100 dark:bg-green-900/50 rounded-xl">
-                                <MonitorStop class="w-6 h-6 text-green-600 dark:text-green-400" />
+                            <div class="p-2">
+                                <MonitorStop class="w-5 h-5 text-[#666666] dark:text-[#999999]" :stroke-width="1.5" />
                             </div>
                         </div>
                     </div>
@@ -842,127 +945,143 @@ const formatNumber = (num: number) => {
                     <!-- Content Cards Row -->
                     <div class="col-span-1 sm:col-span-2 lg:col-span-2 grid grid-cols-2 gap-4">
                         <div
-                            class="bg-white dark:bg-neutral-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-300">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm font-medium text-gray-600 dark:text-white">Banners</p>
-                                    <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                            class="bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded-lg p-4 transition-all duration-200 hover:border-[#CCCCCC] dark:hover:border-[#333333]">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <p
+                                        class="text-[10px] font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999]">
+                                        BANNERS</p>
+                                    <p
+                                        class="text-2xl font-light text-black dark:text-white mt-2 font-mono tabular-nums">
                                         {{ formatNumber(animatedCounts.bannerCount.value) }}
                                     </p>
                                 </div>
-                                <div
-                                    class="w-8 h-8 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center">
-                                    <MonitorCog class="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                                <div class="p-1">
+                                    <MonitorCog class="w-4 h-4 text-[#666666] dark:text-[#999999]"
+                                        :stroke-width="1.5" />
                                 </div>
                             </div>
                         </div>
 
                         <div
-                            class="bg-white dark:bg-neutral-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-600 transition-all duration-300">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm font-medium text-gray-600 dark:text-white">Videos</p>
-                                    <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                            class="bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded-lg p-4 transition-all duration-200 hover:border-[#CCCCCC] dark:hover:border-[#333333]">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <p
+                                        class="text-[10px] font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999]">
+                                        VIDEOS</p>
+                                    <p
+                                        class="text-2xl font-light text-black dark:text-white mt-2 font-mono tabular-nums">
                                         {{ formatNumber(animatedCounts.videoCount.value) }}
                                     </p>
                                 </div>
-                                <div
-                                    class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg flex items-center justify-center">
-                                    <Video class="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                                <div class="p-1">
+                                    <Video class="w-4 h-4 text-[#666666] dark:text-[#999999]" :stroke-width="1.5" />
                                 </div>
                             </div>
                         </div>
 
                         <div
-                            class="bg-white dark:bg-neutral-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-yellow-300 dark:hover:border-yellow-600 transition-all duration-300">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm font-medium text-gray-600 dark:text-white">GIFs</p>
-                                    <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                            class="bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded-lg p-4 transition-all duration-200 hover:border-[#CCCCCC] dark:hover:border-[#333333]">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <p
+                                        class="text-[10px] font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999]">
+                                        GIFS</p>
+                                    <p
+                                        class="text-2xl font-light text-black dark:text-white mt-2 font-mono tabular-nums">
                                         {{ formatNumber(animatedCounts.gifCount.value) }}
                                     </p>
                                 </div>
-                                <div
-                                    class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/50 rounded-lg flex items-center justify-center">
-                                    <ImagePlay class="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                                <div class="p-1">
+                                    <ImagePlay class="w-4 h-4 text-[#666666] dark:text-[#999999]" :stroke-width="1.5" />
                                 </div>
                             </div>
                         </div>
 
                         <div
-                            class="bg-white dark:bg-neutral-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg hover:border-pink-300 dark:hover:border-pink-600 transition-all duration-300">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm font-medium text-gray-600 dark:text-white">Socials</p>
-                                    <p class="text-2xl font-bold text-pink-600 dark:text-pink-400">
+                            class="bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded-lg p-4 transition-all duration-200 hover:border-[#CCCCCC] dark:hover:border-[#333333]">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <p
+                                        class="text-[10px] font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999]">
+                                        SOCIALS</p>
+                                    <p
+                                        class="text-2xl font-light text-black dark:text-white mt-2 font-mono tabular-nums">
                                         {{ formatNumber(animatedCounts.socialCount.value) }}
                                     </p>
                                 </div>
-                                <div
-                                    class="w-8 h-8 bg-pink-100 dark:bg-pink-900/50 rounded-lg flex items-center justify-center">
-                                    <Wallpaper class="w-4 h-4 text-pink-600 dark:text-pink-400" />
+                                <div class="p-1">
+                                    <Wallpaper class="w-4 h-4 text-[#666666] dark:text-[#999999]" :stroke-width="1.5" />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Additional Stats Row -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <!-- Additional Stats Row - Nothing Design -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div
-                        class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-lg transition-all duration-300">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-600 dark:text-white">File Transfers</p>
-                                <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                        class="bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded-lg p-6 transition-all duration-200 hover:border-[#CCCCCC] dark:hover:border-[#333333]">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <p
+                                    class="text-xs font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999]">
+                                    FILE TRANSFERS</p>
+                                <p class="text-4xl font-light text-black dark:text-white mt-3 font-mono tabular-nums">
                                     {{ formatNumber(animatedCounts.fileTransferCount.value) }}
                                 </p>
                             </div>
-                            <div class="p-3 bg-blue-100 dark:bg-blue-900/50 rounded-xl">
-                                <Paperclip class="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                            <div class="p-2">
+                                <Paperclip class="w-5 h-5 text-[#666666] dark:text-[#999999]" :stroke-width="1.5" />
                             </div>
                         </div>
                     </div>
 
-                    <div
-                        class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-green-100">Total Bills (BDT)</p>
-                                <p class="text-3xl font-bold">
+                    <div class="bg-white dark:bg-[#111111] border-2 border-black dark:border-white rounded-lg p-6">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <p
+                                    class="text-xs font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999]">
+                                    TOTAL BILLS</p>
+                                <p class="text-4xl font-light text-black dark:text-white mt-3 font-mono tabular-nums">
                                     ৳{{ formatNumber(animatedCounts.totalBill.value) }}
                                 </p>
-                                <div class="flex items-center mt-2">
-                                    <span class="text-green-200 text-sm font-medium">
+                                <div
+                                    class="flex items-center mt-3 border-t border-[#E8E8E8] dark:border-[#222222] pt-3">
+                                    <span class="text-xs font-mono text-[#1A1A1A] dark:text-[#E8E8E8]">
                                         {{ calculateGrowth(currentMonthData.bills.current,
                                             currentMonthData.bills.previous) }}%
                                     </span>
-                                    <span class="text-xs text-green-200 ml-1">vs last month</span>
+                                    <span
+                                        class="text-xs text-[#666666] dark:text-[#999999] ml-2 uppercase tracking-wider">VS
+                                        LAST MONTH</span>
                                 </div>
                             </div>
-                            <div class="p-3 bg-white/20 rounded-xl">
-                                <PiggyBank class="w-6 h-6 text-white" />
+                            <div class="p-2">
+                                <PiggyBank class="w-5 h-5 text-black dark:text-white" :stroke-width="1.5" />
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Charts Section -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 ">
+                <!-- Charts Section - Nothing Design -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 ">
                     <!-- Content Trends Chart -->
                     <div
-                        class="lg:col-span-2 bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300">
+                        class="lg:col-span-2 bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded-lg p-6">
                         <div style="height: 400px;">
                             <Line v-if="chartData && chartData.datasets" :data="chartData" :options="chartOptions" />
-                            <div v-else class="flex items-center justify-center h-full text-gray-500">
-                                Loading chart...
+                            <div v-else
+                                class="flex items-center justify-center h-full text-[#666666] dark:text-[#999999] font-mono text-xs uppercase tracking-wider">
+                                [LOADING CHART...]
                             </div>
                         </div>
                     </div>
 
                     <!-- Content Distribution Pie Chart -->
                     <div
-                        class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300">
+                        class="bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded-lg p-6">
                         <div style="height: 400px;">
                             <Doughnut :data="contentDistributionData" :options="doughnutOptions" />
                         </div>
@@ -970,10 +1089,10 @@ const formatNumber = (num: number) => {
                 </div>
 
                 <!-- Bottom Charts -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <!-- Preview Statistics -->
                     <div
-                        class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300">
+                        class="bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded-lg p-6">
                         <div style="height: 350px;">
                             <Bar :data="previewChartData" :options="previewChartOptions" />
                         </div>
@@ -981,7 +1100,7 @@ const formatNumber = (num: number) => {
 
                     <!-- Bills Overview -->
                     <div
-                        class="bg-white dark:bg-neutral-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-neutral-700 hover:shadow-lg transition-all duration-300">
+                        class="bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded-lg p-6">
                         <div style="height: 350px;">
                             <Bar :data="billChartData" :options="billChartOptions" />
                         </div>
@@ -990,33 +1109,34 @@ const formatNumber = (num: number) => {
             </div>
         </div>
 
-        <!-- Timezone Picker Modal -->
+        <!-- Timezone Picker Modal - Nothing Design -->
         <Transition enter-active-class="transition-opacity duration-200" enter-from-class="opacity-0"
             enter-to-class="opacity-100" leave-active-class="transition-opacity duration-200"
             leave-from-class="opacity-100" leave-to-class="opacity-0">
-            <div v-if="showTimezonePicker"
-                class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            <div v-if="showTimezonePicker" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80"
                 @click.self="closeTimezonePicker">
 
                 <div
-                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden border border-gray-200 dark:border-neutral-700">
+                    class="bg-white dark:bg-[#111111] rounded-lg max-w-2xl w-full max-h-[80vh] overflow-hidden border-2 border-black dark:border-white">
 
                     <!-- Modal Header -->
-                    <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-neutral-700">
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Add Timezones</h3>
+                    <div class="flex items-center justify-between p-4 border-b border-[#E8E8E8] dark:border-[#222222]">
+                        <h3 class="text-sm font-mono uppercase tracking-widest text-black dark:text-white">ADD TIMEZONES
+                        </h3>
                         <button @click="closeTimezonePicker"
-                            class="p-1 hover:bg-gray-100 dark:hover:bg-neutral-700 rounded-lg transition-colors">
-                            <X :size="20" class="text-gray-600 dark:text-gray-400" />
+                            class="p-1.5 border border-[#E8E8E8] dark:border-[#222222] rounded transition-colors hover:border-black dark:hover:border-white">
+                            <X :size="16" class="text-[#666666] dark:text-[#999999]" />
                         </button>
                     </div>
 
                     <!-- Search Bar -->
-                    <div class="p-4 border-b border-gray-200 dark:border-neutral-700">
+                    <div class="p-4 border-b border-[#E8E8E8] dark:border-[#222222]">
                         <div class="relative">
-                            <Search :size="18" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <Search :size="16"
+                                class="absolute left-3 top-1/2 -translate-y-1/2 text-[#666666] dark:text-[#999999]" />
                             <input v-model="timezoneSearchQuery" type="text"
-                                placeholder="Search by city, country, or region..."
-                                class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="SEARCH CITY, COUNTRY, OR REGION..."
+                                class="w-full pl-10 pr-4 py-2 border border-[#CCCCCC] dark:border-[#333333] rounded bg-[#F5F5F5] dark:bg-black text-[#1A1A1A] dark:text-[#E8E8E8] placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white font-mono text-xs uppercase tracking-wider"
                                 autofocus>
                         </div>
                     </div>
@@ -1024,29 +1144,34 @@ const formatNumber = (num: number) => {
                     <!-- Timezone List -->
                     <div class="overflow-y-auto max-h-96 p-4">
                         <div v-if="filteredTimezones.length === 0"
-                            class="text-center py-8 text-gray-500 dark:text-gray-400">
-                            No timezones found
+                            class="text-center py-8 text-[#666666] dark:text-[#999999] font-mono text-xs uppercase tracking-wider">
+                            [NO TIMEZONES FOUND]
                         </div>
 
                         <div v-else class="space-y-4">
                             <div v-for="(timezones, region) in groupedTimezones" :key="region">
-                                <h4 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2 px-2">
+                                <h4
+                                    class="text-xs font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999] mb-2 px-2">
                                     {{ region }}
                                 </h4>
                                 <div class="space-y-1">
                                     <button v-for="tz in timezones" :key="tz.timezone" @click="addTimezone(tz)"
                                         :disabled="isTimezoneSelected(tz)"
-                                        class="w-full flex items-center justify-between p-3 rounded-lg transition-all duration-200 hover:bg-gray-100 dark:hover:bg-neutral-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent dark:disabled:hover:bg-transparent">
+                                        class="w-full flex items-center justify-between p-3 border border-transparent rounded transition-all duration-200 hover:border-[#CCCCCC] dark:hover:border-[#333333] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-transparent">
                                         <div class="flex flex-col items-start">
-                                            <span class="font-medium text-gray-900 dark:text-white">{{ tz.city }}</span>
-                                            <span class="text-xs text-gray-500 dark:text-gray-400">{{ tz.country
-                                            }}</span>
+                                            <span
+                                                class="font-medium text-[#1A1A1A] dark:text-[#E8E8E8] text-sm uppercase tracking-wide">{{
+                                                    tz.city }}</span>
+                                            <span
+                                                class="text-xs text-[#666666] dark:text-[#999999] uppercase font-mono tracking-wider">{{
+                                                    tz.country
+                                                }}</span>
                                         </div>
                                         <span v-if="isTimezoneSelected(tz)"
-                                            class="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full">
-                                            Added
+                                            class="text-xs px-2 py-1 border border-black dark:border-white text-black dark:text-white rounded-full uppercase font-mono tracking-wider">
+                                            ADDED
                                         </span>
-                                        <Plus v-else :size="18" class="text-blue-500" />
+                                        <Plus v-else :size="16" class="text-[#666666] dark:text-[#999999]" />
                                     </button>
                                 </div>
                             </div>
@@ -1054,14 +1179,14 @@ const formatNumber = (num: number) => {
                     </div>
 
                     <!-- Modal Footer -->
-                    <div class="p-4 border-t border-gray-200 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-900">
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-gray-600 dark:text-gray-400">
-                                {{ selectedTimezones.length }} of 4 additional timezones added
+                    <div class="p-4 border-t border-[#E8E8E8] dark:border-[#222222] bg-[#F5F5F5] dark:bg-black">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-[#666666] dark:text-[#999999] uppercase font-mono tracking-wider">
+                                {{ selectedTimezones.length }} / 4 TIMEZONES
                             </span>
                             <button @click="closeTimezonePicker"
-                                class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
-                                Done
+                                class="px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full transition-colors hover:bg-[#1A1A1A] dark:hover:bg-[#E8E8E8] uppercase font-mono text-xs tracking-wider">
+                                DONE
                             </button>
                         </div>
                     </div>

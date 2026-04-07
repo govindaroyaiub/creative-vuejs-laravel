@@ -145,40 +145,51 @@ const changePage = (url: string) => {
         <div class="p-4 md:p-6 space-y-4">
             <!-- Search & Create -->
             <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-                <input v-model="search" placeholder="Search..." aria-label="Search previews"
-                    class="w-full sm:max-w-xs rounded-2xl border px-4 py-2 dark:bg-neutral-800 dark:text-white" />
+                <input v-model="search" placeholder="SEARCH PREVIEWS..." aria-label="Search previews"
+                    class="w-full sm:max-w-xs rounded-lg border border-[#CCCCCC] dark:border-[#333333] px-4 py-2 bg-white dark:bg-[#111111] text-[#1A1A1A] dark:text-[#E8E8E8] placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white font-mono text-sm uppercase tracking-wider" />
             </div>
 
             <!-- Desktop Table -->
-            <div class="hidden lg:block overflow-x-auto rounded-2xl shadow">
-                <table class="w-full rounded-2xl bg-white shadow dark:bg-neutral-800 dark:border border table-fixed">
-                    <thead class="bg-gray-100 dark:bg-neutral-900 text-xs uppercase">
+            <div class="hidden lg:block overflow-x-auto rounded-lg">
+                <table
+                    class="w-full rounded-lg bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] table-fixed">
+                    <thead class="bg-[#F5F5F5] dark:bg-black text-xs uppercase font-mono tracking-widest">
                         <tr>
-                            <th class="w-16 px-4 py-3 text-center border-b">#</th>
-                            <th class="w-80 px-4 py-3 text-left border-b">Name & Client</th>
-                            <th class="w-36 px-4 py-3 text-center border-b">Date</th>
-                            <th class="w-32 px-4 py-3 text-center border-b">Actions</th>
+                            <th
+                                class="w-16 px-4 py-3 text-center border-b border-[#E8E8E8] dark:border-[#222222] text-[#666666] dark:text-[#999999]">
+                                #</th>
+                            <th
+                                class="w-80 px-4 py-3 text-left border-b border-[#E8E8E8] dark:border-[#222222] text-[#666666] dark:text-[#999999]">
+                                NAME & CLIENT</th>
+                            <th
+                                class="w-36 px-4 py-3 text-center border-b border-[#E8E8E8] dark:border-[#222222] text-[#666666] dark:text-[#999999]">
+                                DATE</th>
+                            <th
+                                class="w-32 px-4 py-3 text-center border-b border-[#E8E8E8] dark:border-[#222222] text-[#666666] dark:text-[#999999]">
+                                ACTIONS</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200 dark:divide-black">
+                    <tbody class="divide-y divide-[#E8E8E8] dark:divide-[#222222]">
                         <tr v-for="(preview, index) in filteredPreviews" :key="preview.id"
-                            class="hover:bg-gray-50 dark:hover:bg-neutral-700 border-b">
+                            class="hover:bg-[#F5F5F5] dark:hover:bg-black border-b border-[#E8E8E8] dark:border-[#222222] transition-colors">
                             <td class="w-16 text-center px-4 py-3 font-medium border-b">
                                 {{ ((previews.current_page - 1) * previews.per_page) + index + 1 }}
                             </td>
                             <td class="w-80 px-4 py-3 text-left border-b">
                                 <div class="font-semibold capitalize break-words" :title="preview.name">{{ preview.name
-                                    }}</div>
-                                <div class="text-xs text-gray-500 flex gap-2 items-center">
+                                }}</div>
+                                <div
+                                    class="text-xs text-[#666666] dark:text-[#999999] flex gap-2 items-center font-mono uppercase tracking-wider">
                                     <div class="h-5 w-5 rounded-full border flex-shrink-0"
                                         :style="{ backgroundColor: preview.color_palette?.primary ?? 'red' }"
                                         title="Primary Color"></div>
                                     <span class="break-words">{{ preview.client?.name ?? '-' }}</span> -
-                                    <div class="text-xs text-gray-400 break-words">{{ getTypes(preview) || '-' }}</div>
+                                    <div class="text-xs text-[#666666] dark:text-[#999999] break-words">{{
+                                        getTypes(preview) || '-' }}</div>
                                 </div>
                             </td>
                             <td class="w-36 px-4 py-3 text-center border-b">
-                                <div class="text-xs text-gray-400">{{ new
+                                <div class="text-xs text-[#666666] dark:text-[#999999] font-mono">{{ new
                                     Date(preview.created_at).toLocaleDateString('en-GB', {
                                         day: '2-digit', month: 'short', year: 'numeric'
                                     }) }}</div>
@@ -186,16 +197,17 @@ const changePage = (url: string) => {
                             <td class="w-32 text-center px-4 py-3 border-b">
                                 <div class="flex justify-center space-x-1">
                                     <a :href="`${preview.client?.preview_url}/previews/show/${preview.slug}`"
-                                        class="text-green-600 hover:text-green-800 p-1" target="_blank" rel="noopener"
-                                        aria-label="Share Preview">
-                                        <Eye class="h-4 w-4" />
+                                        class="text-[#666666] dark:text-[#999999] hover:text-black dark:hover:text-white p-1 rounded-full hover:border hover:border-black dark:hover:border-white transition-colors"
+                                        target="_blank" rel="noopener" aria-label="Share Preview">
+                                        <Eye class="h-4 w-4" stroke-width="1.5" />
                                     </a>
                                 </div>
                             </td>
                         </tr>
                         <tr v-if="filteredPreviews.length === 0">
-                            <td colspan="4" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">No previews
-                                found.</td>
+                            <td colspan="4"
+                                class="px-4 py-6 text-center text-[#666666] dark:text-[#999999] uppercase tracking-widest font-mono">
+                                NO PREVIEWS FOUND</td>
                         </tr>
                     </tbody>
                 </table>
@@ -204,20 +216,21 @@ const changePage = (url: string) => {
             <!-- Mobile/Tablet Cards -->
             <div class="lg:hidden space-y-4">
                 <div v-for="(preview, index) in filteredPreviews" :key="preview.id"
-                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-4">
+                    class="bg-[#F5F5F5] dark:bg-black rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-4">
 
                     <!-- Header: Number + Name -->
                     <div class="flex items-start justify-between mb-3">
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                <span
+                                    class="text-sm font-medium text-[#666666] dark:text-[#999999] font-mono uppercase tracking-wider">
                                     #{{ ((previews.current_page - 1) * previews.per_page) + index + 1 }}
                                 </span>
                                 <div class="h-4 w-4 rounded-full border flex-shrink-0"
                                     :style="{ backgroundColor: preview.color_palette?.primary ?? '#ccc' }"
                                     title="Primary Color"></div>
                             </div>
-                            <h3 class="font-semibold text-lg capitalize break-words text-gray-900 dark:text-white">
+                            <h3 class="font-semibold text-lg capitalize break-words text-black dark:text-white">
                                 {{ preview.name }}
                             </h3>
                         </div>
@@ -225,53 +238,57 @@ const changePage = (url: string) => {
                         <!-- Actions -->
                         <div class="flex gap-2 ml-3">
                             <a :href="route('previews-show', preview.slug)"
-                                class="text-green-600 hover:text-green-800 p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20"
+                                class="text-[#666666] dark:text-[#999999] hover:text-black dark:hover:text-white p-2 rounded-full hover:border hover:border-black dark:hover:border-white transition-colors"
                                 target="_blank" rel="noopener" aria-label="View Preview">
-                                <Eye class="h-5 w-5" />
+                                <Eye class="h-5 w-5" stroke-width="1.5" />
                             </a>
                             <a :href="`${preview.client?.preview_url}/previews/show/${preview.slug}`"
-                                class="text-yellow-600 hover:text-yellow-800 p-2 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20"
+                                class="text-[#666666] dark:text-[#999999] hover:text-black dark:hover:text-white p-2 rounded-full hover:border hover:border-black dark:hover:border-white transition-colors"
                                 target="_blank" rel="noopener" aria-label="Share Preview">
-                                <Share2 class="h-5 w-5" />
+                                <Share2 class="h-5 w-5" stroke-width="1.5" />
                             </a>
                             <Link :href="route('previews.update.all', preview.id)"
-                                class="text-indigo-600 hover:text-indigo-800 p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                                class="text-[#666666] dark:text-[#999999] hover:text-black dark:hover:text-white p-2 rounded-full hover:border hover:border-black dark:hover:border-white transition-colors"
                                 aria-label="Edit Preview">
-                            <Settings2 class="h-5 w-5" />
+                                <Settings2 class="h-5 w-5" stroke-width="1.5" />
                             </Link>
                             <button @click="deletePreview(preview.id)"
-                                class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
+                                class="text-[#D71921] hover:bg-[#D71921] hover:text-white p-2 rounded-full border border-[#D71921] transition-all"
                                 aria-label="Delete Preview">
-                                <Trash2 class="h-5 w-5" />
+                                <Trash2 class="h-5 w-5" stroke-width="1.5" />
                             </button>
                         </div>
                     </div>
 
                     <!-- Client & Types -->
                     <div class="mb-3">
-                        <div class="text-sm text-gray-600 dark:text-gray-400">
-                            <span class="font-medium">Client:</span> {{ preview.client?.name ?? 'No client' }}
+                        <div class="text-sm text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono">
+                            <span class="font-medium">CLIENT:</span> {{ preview.client?.name ?? 'No client' }}
                         </div>
-                        <div class="text-sm text-gray-600 dark:text-gray-400" v-if="getTypes(preview)">
-                            <span class="font-medium">Types:</span> {{ getTypes(preview) }}
+                        <div class="text-sm text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono"
+                            v-if="getTypes(preview)">
+                            <span class="font-medium">TYPES:</span> {{ getTypes(preview) }}
                         </div>
                     </div>
 
                     <!-- Team -->
                     <div class="mb-3" v-if="preview.team_users?.length">
-                        <div class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Team:</div>
+                        <div
+                            class="text-sm font-medium text-[#666666] dark:text-[#999999] mb-1 uppercase tracking-wider font-mono">
+                            TEAM:</div>
                         <div class="flex flex-wrap gap-2">
                             <span v-for="u in preview.team_users" :key="u.id"
-                                class="inline-block rounded-xl bg-indigo-100 px-3 py-1 text-sm text-indigo-700 dark:bg-indigo-800 dark:text-white">
+                                class="inline-block rounded-full border border-black dark:border-white px-3 py-1 text-xs text-black dark:text-white uppercase tracking-wider font-mono">
                                 {{ u.name }}
                             </span>
                         </div>
                     </div>
 
                     <!-- Uploader & Date -->
-                    <div class="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
+                    <div
+                        class="flex justify-between items-center text-sm text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono">
                         <div>
-                            <span class="font-medium">Uploader:</span> {{ preview.uploader?.name ?? 'Unknown' }}
+                            <span class="font-medium">UPLOADER:</span> {{ preview.uploader?.name ?? 'Unknown' }}
                         </div>
                         <div>
                             {{ new Date(preview.created_at).toLocaleDateString('en-GB', {
@@ -283,8 +300,9 @@ const changePage = (url: string) => {
 
                 <!-- No results card -->
                 <div v-if="filteredPreviews.length === 0"
-                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-8 text-center">
-                    <div class="text-gray-500 dark:text-gray-400">No previews found.</div>
+                    class="bg-[#F5F5F5] dark:bg-black rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-8 text-center">
+                    <div class="text-[#666666] dark:text-[#999999] uppercase tracking-widest font-mono">NO PREVIEWS
+                        FOUND</div>
                 </div>
             </div>
 
@@ -294,32 +312,33 @@ const changePage = (url: string) => {
                 <!-- Mobile/Tablet pagination (simplified) -->
                 <div class="lg:hidden">
                     <!-- Results Info -->
-                    <div class="text-sm text-gray-600 dark:text-gray-400 text-center mb-3">
+                    <div
+                        class="text-sm text-[#666666] dark:text-[#999999] text-center mb-3 uppercase tracking-wider font-mono">
                         Showing {{ previews.from }} to {{ previews.to }} of {{ previews.total }} previews
                     </div>
 
                     <!-- Simple prev/next navigation -->
                     <div class="flex items-center justify-between gap-4">
                         <button @click="changePage(previews.prev_page_url)" :disabled="!previews.prev_page_url"
-                            class="px-4 py-2 text-sm rounded-xl transition-all duration-200 flex items-center gap-2"
+                            class="px-4 py-2 text-sm rounded-full transition-all duration-200 flex items-center gap-2 uppercase tracking-wider font-mono"
                             :class="previews.prev_page_url
-                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
-                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
-                            <ChevronLeft class="w-4 h-4" />
+                                ? 'text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-2 border-black dark:border-white'
+                                : 'text-[#CCCCCC] cursor-not-allowed border-2 border-[#CCCCCC]'">
+                            <ChevronLeft class="w-4 h-4" stroke-width="1.5" />
                             Previous
                         </button>
 
-                        <span class="text-sm text-gray-600 dark:text-gray-400">
+                        <span class="text-sm text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono">
                             Page {{ previews.current_page }} of {{ previews.last_page }}
                         </span>
 
                         <button @click="changePage(previews.next_page_url)" :disabled="!previews.next_page_url"
-                            class="px-4 py-2 text-sm rounded-xl transition-all duration-200 flex items-center gap-2"
+                            class="px-4 py-2 text-sm rounded-full transition-all duration-200 flex items-center gap-2 uppercase tracking-wider font-mono"
                             :class="previews.next_page_url
-                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
-                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
+                                ? 'text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-2 border-black dark:border-white'
+                                : 'text-[#CCCCCC] cursor-not-allowed border-2 border-[#CCCCCC]'">
                             Next
-                            <ChevronRight class="w-4 h-4" />
+                            <ChevronRight class="w-4 h-4" stroke-width="1.5" />
                         </button>
                     </div>
                 </div>
@@ -327,7 +346,7 @@ const changePage = (url: string) => {
                 <!-- Desktop pagination (full features) -->
                 <div class="hidden lg:flex items-center justify-between">
                     <!-- Results Info -->
-                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                    <div class="text-sm text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono">
                         Showing {{ previews.from }} to {{ previews.to }} of {{ previews.total }} previews
                     </div>
 
@@ -335,10 +354,11 @@ const changePage = (url: string) => {
                     <div class="flex items-center space-x-2">
                         <!-- Previous Button -->
                         <button @click="changePage(previews.prev_page_url)" :disabled="!previews.prev_page_url"
-                            class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center" :class="previews.prev_page_url
-                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
-                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
-                            <ChevronLeft class="w-4 h-4 mr-1" />
+                            class="px-3 py-2 text-sm rounded-full transition-all duration-200 flex items-center uppercase tracking-wider font-mono"
+                            :class="previews.prev_page_url
+                                ? 'text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-2 border-black dark:border-white'
+                                : 'text-[#CCCCCC] cursor-not-allowed border-2 border-[#CCCCCC]'">
+                            <ChevronLeft class="w-4 h-4 mr-1" stroke-width="1.5" />
                             Previous
                         </button>
 
@@ -346,23 +366,25 @@ const changePage = (url: string) => {
                         <div class="flex items-center space-x-1">
                             <template v-for="link in previews.links.slice(1, -1)" :key="link.label">
                                 <button v-if="link.url" @click="changePage(link.url)"
-                                    class="px-3 py-2 text-sm rounded-lg transition-all duration-200"
+                                    class="px-3 py-2 text-sm rounded-full transition-all duration-200 font-mono tabular-nums"
                                     :class="link.active
-                                        ? 'bg-blue-600 text-white'
-                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'"
+                                        ? 'bg-black text-white dark:bg-white dark:text-black border-2 border-black dark:border-white'
+                                        : 'text-[#666666] dark:text-[#999999] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-2 border-[#E8E8E8] dark:border-[#222222]'"
                                     v-html="link.label" />
-                                <span v-else class="px-3 py-2 text-sm text-gray-400 cursor-not-allowed"
+                                <span v-else
+                                    class="px-3 py-2 text-sm text-[#CCCCCC] cursor-not-allowed font-mono tabular-nums"
                                     v-html="link.label" />
                             </template>
                         </div>
 
                         <!-- Next Button -->
                         <button @click="changePage(previews.next_page_url)" :disabled="!previews.next_page_url"
-                            class="px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center" :class="previews.next_page_url
-                                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 border border-gray-300 dark:border-neutral-700'
-                                : 'text-gray-400 cursor-not-allowed border border-gray-200 dark:border-neutral-700'">
+                            class="px-3 py-2 text-sm rounded-full transition-all duration-200 flex items-center uppercase tracking-wider font-mono"
+                            :class="previews.next_page_url
+                                ? 'text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-2 border-black dark:border-white'
+                                : 'text-[#CCCCCC] cursor-not-allowed border-2 border-[#CCCCCC]'">
                             Next
-                            <ChevronRight class="w-4 h-4 ml-1" />
+                            <ChevronRight class="w-4 h-4 ml-1" stroke-width="1.5" />
                         </button>
                     </div>
                 </div>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import Heading from '@/components/Heading.vue';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
@@ -26,23 +25,21 @@ const currentPath = page.props.ziggy?.location ? new URL(page.props.ziggy.locati
 </script>
 
 <template>
-    <div class="px-4 py-6">
+    <div class="px-4 py-6 font-mono">
         <Heading title="Settings" description="Manage your profile and account settings" />
 
         <div class="flex flex-col space-y-8 md:space-y-0 lg:flex-row lg:space-x-12 lg:space-y-0">
             <aside class="w-full max-w-xl lg:w-48">
-                <nav class="flex flex-col space-x-0 space-y-1">
-                    <Button
-                        v-for="item in sidebarNavItems"
-                        :key="item.href"
-                        variant="ghost"
-                        :class="['w-full justify-start', { 'bg-muted': currentPath === item.href }]"
-                        as-child
-                    >
-                        <Link :href="item.href">
-                            {{ item.title }}
-                        </Link>
-                    </Button>
+                <nav
+                    class="flex flex-col space-x-0 space-y-1 rounded-lg border-2 border-[#CCCCCC] dark:border-[#222222] p-2 bg-white dark:bg-black">
+                    <Link v-for="item in sidebarNavItems" :key="item.href" :href="item.href" :class="[
+                        'flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-xs uppercase font-mono tracking-wider outline-none transition-colors',
+                        currentPath === item.href
+                            ? 'bg-black text-white dark:bg-white dark:text-black'
+                            : 'text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
+                    ]">
+                        {{ item.title }}
+                    </Link>
                 </nav>
             </aside>
 

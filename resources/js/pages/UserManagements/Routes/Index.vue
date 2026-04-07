@@ -110,7 +110,7 @@ const deleteRoute = async (id: number) => {
 
         <Head title="Routes" />
         <SettingsLayout>
-            <div class="space-y-6">
+            <div class="space-y-6 font-mono">
                 <div class="flex flex-col items-start">
                     <h2 class="text-lg font-bold">Routes</h2>
                     <small>Manage all available routes for user permissions</small>

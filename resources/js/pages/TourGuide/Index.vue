@@ -59,7 +59,7 @@ const toggleStatus = async () => {
 
         <Head title="Preview Tour Guide" />
         <SettingsLayout>
-            <div class="space-y-6">
+            <div class="space-y-6 font-mono">
                 <div class="flex flex-col items-start">
                     <h2 class="text-lg font-bold">Preview Tour Guide Permission</h2>
                     <small>Set Active/Inactive status in the Preview page if you want to show the Preview tour guide

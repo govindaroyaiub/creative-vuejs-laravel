@@ -25,7 +25,7 @@ const firstName = computed(() => user.name.split(' ')[0]);
 
 <template>
     <header
-        class="flex h-16 shrink-0 items-center gap-2 border-b border-sidebar-border/70 px-6 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 md:px-4">
+        class="flex h-16 shrink-0 items-center gap-2 border-b-2 border-[#E8E8E8] dark:border-[#222222] px-6 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 md:px-4 bg-white dark:bg-black">
         <div class="flex items-center gap-2 flex-1">
             <SidebarTrigger class="-ml-1" />
             <template v-if="breadcrumbs.length > 0">
@@ -41,17 +41,20 @@ const firstName = computed(() => user.name.split(' ')[0]);
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>
                     <Button variant="ghost" size="icon"
-                        class="h-9 w-9 rounded-full data-[state=open]:ring-2 data-[state=open]:ring-primary/20"
+                        class="h-9 w-9 rounded-full border-2 border-[#CCCCCC] dark:border-[#333333] hover:border-black dark:hover:border-white data-[state=open]:border-black dark:data-[state=open]:border-white"
                         :title="user.name">
-                        <Avatar class="h-8 w-8">
+                        <Avatar class="h-8 w-8 rounded-full">
                             <AvatarImage v-if="showAvatar" :src="user.avatar" :alt="user.name" />
-                            <AvatarFallback class="text-xs font-semibold text-primary">
+                            <AvatarFallback
+                                class="text-xs font-mono font-semibold text-black dark:text-white dark:bg-black">
                                 {{ getInitials(user.name) }}
                             </AvatarFallback>
                         </Avatar>
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent class="w-56 rounded-lg" align="end" :side-offset="8">
+                <DropdownMenuContent
+                    class="w-56 rounded-lg border-2 border-[#CCCCCC] dark:border-[#222222] bg-white dark:bg-black"
+                    align="end" :side-offset="8">
                     <UserMenuContent :user="user" />
                 </DropdownMenuContent>
             </DropdownMenu>

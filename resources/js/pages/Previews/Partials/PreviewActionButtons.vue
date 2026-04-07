@@ -51,32 +51,32 @@ const handleClick = (e: Event, callback: () => void) => {
     <div class="flex items-center gap-2">
         <!-- View Button -->
         <a :href="route('previews-show', preview.slug)"
-            class="text-green-600 hover:text-green-800 dark:hover:text-green-400 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition"
+            class="text-[#666666] dark:text-[#999999] hover:text-black dark:hover:text-white rounded-full hover:border hover:border-black dark:hover:border-white transition-colors"
             :class="padding" target="_blank" rel="noopener" aria-label="View Preview"
             @click="stopPropagation ? $event.stopPropagation() : null">
-            <Eye :class="iconSize" />
+            <Eye :class="iconSize" stroke-width="1.5" />
         </a>
 
         <!-- Share Button -->
         <a :href="`${preview.client?.preview_url}/previews/show/${preview.slug}`"
-            class="text-yellow-600 hover:text-yellow-800 dark:hover:text-yellow-400 rounded-lg hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition"
+            class="text-[#666666] dark:text-[#999999] hover:text-black dark:hover:text-white rounded-full hover:border hover:border-black dark:hover:border-white transition-colors"
             :class="padding" target="_blank" rel="noopener" aria-label="Share Preview"
             @click="stopPropagation ? $event.stopPropagation() : null">
-            <Share2 :class="iconSize" />
+            <Share2 :class="iconSize" stroke-width="1.5" />
         </a>
 
         <!-- Edit Button (optional) -->
         <a v-if="showEdit" :href="route('previews.update.all', preview.id)"
-            class="text-indigo-600 hover:text-indigo-800 dark:hover:text-indigo-400 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition"
+            class="text-[#666666] dark:text-[#999999] hover:text-black dark:hover:text-white rounded-full hover:border hover:border-black dark:hover:border-white transition-colors"
             :class="padding" aria-label="Edit Preview" @click="stopPropagation ? $event.stopPropagation() : null">
-            <Settings2 :class="iconSize" />
+            <Settings2 :class="iconSize" stroke-width="1.5" />
         </a>
 
         <!-- Delete Button -->
         <button @click="handleClick($event, () => deletePreview(preview.id))"
-            class="text-red-600 hover:text-red-800 dark:hover:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition"
+            class="text-[#D71921] hover:bg-[#D71921] hover:text-white rounded-full border border-[#D71921] transition-all"
             :class="padding" aria-label="Delete Preview">
-            <Trash2 :class="iconSize" />
+            <Trash2 :class="iconSize" stroke-width="1.5" />
         </button>
     </div>
 </template>

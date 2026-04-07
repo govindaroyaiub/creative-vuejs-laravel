@@ -2,14 +2,13 @@
 
     <Head title="Documentations" />
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
-            class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-gray-50 dark:from-black dark:via-black dark:to-black">
+        <div class="min-h-screen bg-white dark:bg-black">
             <div class="container mx-auto px-4 py-6 sm:py-8 max-w-5xl">
                 <!-- Header Section -->
                 <div class="text-center mb-6 px-4">
                     <div
-                        class="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full mb-4">
-                        <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor"
+                        class="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-white dark:bg-black border-2 border-black dark:border-white rounded-full mb-4">
+                        <svg class="w-6 h-6 sm:w-8 sm:h-8 text-black dark:text-white" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
@@ -17,18 +16,18 @@
                         </svg>
                     </div>
                     <h1
-                        class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-1 leading-tight">
+                        class="text-2xl sm:text-3xl lg:text-4xl font-light text-black dark:text-white mb-1 leading-tight uppercase tracking-wide">
                         <span class="block sm:inline creative-studio-font mr-2">CREATIVE STUDIO</span>
-                        <span
-                            class="block sm:inline bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Documentation</span>
+                        <span class="block sm:inline font-mono tracking-wider">DOCUMENTATION</span>
                     </h1>
-                    <p class="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
+                    <p
+                        class="text-base sm:text-lg text-[#666666] dark:text-[#999999] max-w-2xl mx-auto leading-relaxed font-mono uppercase tracking-wider">
                         Everything you need to know about our preview system, from basics to advanced features.
                     </p>
                     <div class="mt-4 flex justify-center">
                         <a href="https://github.com/govindaroyaiub/creative-vuejs-laravel" target="_blank"
                             rel="noopener noreferrer"
-                            class="inline-flex items-center px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors shadow-sm">
+                            class="inline-flex items-center px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full border-2 border-black dark:border-white hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white transition-colors text-xs font-mono uppercase tracking-wider">
                             <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                 <path fill-rule="evenodd" clip-rule="evenodd"
                                     d="M12 .5C5.648.5.5 5.648.5 12c0 5.097 3.292 9.418 7.86 10.944.575.105.784-.25.784-.555 0-.275-.01-1.007-.016-1.978-3.197.696-3.873-1.542-3.873-1.542-.522-1.33-1.276-1.684-1.276-1.684-1.043-.713.08-.699.08-.699 1.154.081 1.761 1.184 1.761 1.184 1.025 1.756 2.689 1.25 3.345.957.104-.744.401-1.25.73-1.538-2.553-.29-5.236-1.277-5.236-5.682 0-1.255.45-2.281 1.185-3.087-.119-.29-.513-1.458.112-3.04 0 0 .966-.31 3.166 1.18a11.01 11.01 0 012.882-.388c.978.004 1.964.131 2.882.388 2.197-1.49 3.162-1.18 3.162-1.18.628 1.582.234 2.75.116 3.04.737.806 1.183 1.832 1.183 3.087 0 4.415-2.688 5.388-5.251 5.674.412.355.78 1.054.78 2.126 0 1.536-.014 2.775-.014 3.152 0 .308.206.666.79.553C20.71 21.416 24 17.095 24 12c0-6.352-5.148-11.5-12-11.5z" />
@@ -40,21 +39,21 @@
 
                 <!-- Navigation Tabs -->
                 <div
-                    class="flex flex-col sm:flex-row mb-8 bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-2 gap-2 sm:gap-0">
+                    class="flex flex-col sm:flex-row mb-8 bg-white dark:bg-black rounded-lg p-2 gap-2 sm:gap-0">
                     <button @click="activeTab = 'qa'" :class="[
-                        'flex-1 px-4 sm:px-6 py-3 rounded-lg font-medium transition-all duration-200 text-sm sm:text-base sm:mr-1',
+                        'flex-1 px-4 sm:px-6 py-3 rounded-full border-2 transition-all duration-200 text-xs sm:text-sm font-mono uppercase tracking-wider sm:mr-1',
                         activeTab === 'qa'
-                            ? 'bg-blue-600 text-white shadow-lg'
-                            : 'text-gray-600 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-neutral-700'
+                            ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white'
+                            : 'text-black dark:text-white border-[#CCCCCC] dark:border-[#333333] hover:border-black dark:hover:border-white'
                     ]">
                         <span class="hidden sm:inline">📚 Q&A Documentation</span>
                         <span class="sm:hidden">📚 Q&A</span>
                     </button>
                     <button @click="activeTab = 'api'" :class="[
-                        'flex-1 px-4 sm:px-6 py-3 rounded-lg font-medium transition-all duration-200 text-sm sm:text-base sm:ml-1',
+                        'flex-1 px-4 sm:px-6 py-3 rounded-full border-2 transition-all duration-200 text-xs sm:text-sm font-mono uppercase tracking-wider sm:ml-1',
                         activeTab === 'api'
-                            ? 'bg-green-600 text-white shadow-lg'
-                            : 'text-gray-600 dark:text-gray-300 hover:bg-green-100 dark:hover:bg-neutral-700'
+                            ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white'
+                            : 'text-black dark:text-white border-[#CCCCCC] dark:border-[#333333] hover:border-black dark:hover:border-white'
                     ]">
                         <span class="hidden sm:inline">🚀 API Documentation</span>
                         <span class="sm:hidden">🚀 API</span>
@@ -70,7 +69,7 @@
                         </svg>
                     </div>
                     <input v-model="search" type="text" placeholder="Search documentation..."
-                        class="block w-full pl-10 pr-4 py-4 text-lg border-2 border-gray-200 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md" />
+                        class="block w-full pl-10 pr-4 py-4 text-sm border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors font-mono uppercase tracking-wider" />
                     <div v-if="search" class="absolute inset-y-0 right-0 pr-3 flex items-center">
                         <button @click="search = ''" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,7 +89,7 @@
                         </svg>
                     </div>
                     <input v-model="apiSearch" type="text" placeholder="Search API endpoints, methods, categories..."
-                        class="block w-full pl-10 pr-4 py-4 text-lg border-2 border-gray-200 dark:border-neutral-700 rounded-xl bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow-md" />
+                        class="block w-full pl-10 pr-4 py-4 text-sm border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors font-mono uppercase tracking-wider" />
                     <div v-if="apiSearch" class="absolute inset-y-0 right-0 pr-3 flex items-center">
                         <button @click="apiSearch = ''"
                             class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
@@ -107,24 +106,25 @@
                     <!-- Q/A Cards -->
                     <div class="space-y-4">
                         <div v-for="(qa, idx) in filteredQA" :key="idx" :id="'qa-' + idx"
-                            class="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-blue-200 dark:hover:border-blue-700">
+                            class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] overflow-hidden transition-colors duration-200 hover:border-[#CCCCCC] dark:hover:border-[#333333]">
                             <button @click="toggle(idx)"
-                                class="w-full text-left px-4 sm:px-6 py-4 sm:py-5 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:ring-inset group">
+                                class="w-full text-left px-4 sm:px-6 py-4 sm:py-5 focus:outline-none group">
                                 <div class="flex justify-between items-start gap-4">
                                     <div class="flex items-start space-x-3 sm:space-x-4 flex-1">
                                         <div
-                                            class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 rounded-lg flex items-center justify-center group-hover:from-blue-200 group-hover:to-indigo-200 dark:group-hover:from-blue-800 dark:group-hover:to-indigo-800 transition-colors">
-                                            <span
-                                                class="text-blue-600 dark:text-blue-400 font-bold text-sm sm:text-lg">{{
-                                                    idx + 1
-                                                }}</span>
+                                            class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-[#F5F5F5] dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg flex items-center justify-center transition-colors">
+                                            <span class="text-black dark:text-white font-mono text-sm sm:text-lg">{{
+                                                idx + 1
+                                            }}</span>
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <h3
-                                                class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight">
+                                                class="text-base sm:text-lg font-semibold text-black dark:text-white transition-colors leading-tight">
                                                 {{ qa.question }}
                                             </h3>
-                                            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Click to
+                                            <p
+                                                class="text-xs sm:text-sm text-[#666666] dark:text-[#999999] mt-1 font-mono uppercase tracking-wider">
+                                                Click to
                                                 {{ openIdx
                                                     ===
                                                     idx ? 'collapse' : 'expand' }} answer</p>
@@ -132,8 +132,8 @@
                                     </div>
                                     <div class="flex-shrink-0">
                                         <div
-                                            class="w-6 h-6 sm:w-8 sm:h-8 bg-gray-100 dark:bg-neutral-800 rounded-full flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900 transition-colors">
-                                            <svg :class="['w-3 h-3 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400 transition-transform duration-200', openIdx === idx ? 'rotate-180' : '']"
+                                            class="w-6 h-6 sm:w-8 sm:h-8 bg-[#F5F5F5] dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-full flex items-center justify-center transition-colors">
+                                            <svg :class="['w-3 h-3 sm:w-4 sm:h-4 text-black dark:text-white transition-transform duration-200', openIdx === idx ? 'rotate-180' : '']"
                                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M19 9l-7 7-7-7"></path>
@@ -144,16 +144,16 @@
                             </button>
 
                             <transition name="slide-fade">
-                                <div v-if="openIdx === idx" class="border-t border-gray-200 dark:border-neutral-700">
-                                    <div class="px-4 sm:px-6 py-4 sm:py-6 bg-gray-50 dark:bg-neutral-900/50">
+                                <div v-if="openIdx === idx" class="border-t-2 border-[#E8E8E8] dark:border-[#222222]">
+                                    <div class="px-4 sm:px-6 py-4 sm:py-6 bg-[#F5F5F5] dark:bg-[#0A0A0A]">
                                         <div
                                             class="prose prose-gray dark:prose-invert max-w-none prose-sm sm:prose-base">
                                             <div v-html="qa.answer"
                                                 class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4"></div>
                                             <div v-if="qa.additionalInfo"
-                                                class="mt-4 sm:mt-6 p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border-l-4 shadow border-blue-400">
+                                                class="mt-4 sm:mt-6 p-3 sm:p-4 bg-white dark:bg-black rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222]">
                                                 <h4
-                                                    class="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2 flex items-center">
+                                                    class="text-xs font-mono uppercase tracking-wider text-black dark:text-white mb-2 flex items-center">
                                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor"
                                                         viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -183,10 +183,12 @@
                                 </path>
                             </svg>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">No questions found</h3>
-                        <p class="text-gray-500 dark:text-gray-400 mb-4">Try searching with different keywords</p>
+                        <h3 class="text-lg font-semibold text-black dark:text-white mb-2 uppercase tracking-wide">No
+                            questions found</h3>
+                        <p class="text-[#666666] dark:text-[#999999] mb-4 font-mono uppercase tracking-wider">Try
+                            searching with different keywords</p>
                         <button @click="search = ''"
-                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            class="inline-flex items-center px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full border-2 border-black dark:border-white hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white transition-colors text-xs font-mono uppercase tracking-wider">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
@@ -201,33 +203,45 @@
                 <div v-show="activeTab === 'api'" class="space-y-8">
                     <!-- API Introduction -->
                     <div
-                        class="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-8">
+                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-8">
                         <div class="flex items-center mb-6">
                             <span
-                                class="w-8 h-8 bg-green-600 text-white rounded-lg flex items-center justify-center text-lg font-bold mr-3">🚀</span>
-                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Complete API Reference</h2>
+                                class="w-8 h-8 bg-black dark:bg-white text-white dark:text-black rounded-lg flex items-center justify-center text-lg font-bold mr-3">🚀</span>
+                            <h2 class="text-2xl font-bold text-black dark:text-white">Complete API Reference</h2>
                         </div>
-                        <p class="text-gray-600 dark:text-gray-300 text-lg mb-6">
+                        <p class="text-[#666666] dark:text-[#999999] text-lg mb-6">
                             Comprehensive documentation for all Creative Studio Planet Nine endpoints. This covers every
                             route
                             in the application including authentication, permissions, and expected parameters.
                         </p>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                                <h4 class="font-semibold text-blue-900 dark:text-blue-200 mb-2">Base URL</h4>
-                                <code class="text-sm text-blue-700 dark:text-blue-300 break-all">{{ baseUrl }}</code>
+                            <div
+                                class="p-4 bg-white dark:bg-black rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222]">
+                                <h4
+                                    class="font-semibold text-black dark:text-white mb-2 text-xs uppercase font-mono tracking-wider">
+                                    Base URL</h4>
+                                <code class="text-sm text-black dark:text-white break-all">{{ baseUrl }}</code>
                             </div>
-                            <div class="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                                <h4 class="font-semibold text-green-900 dark:text-green-200 mb-2">Authentication</h4>
-                                <code class="text-sm text-green-700 dark:text-green-300">Session-based</code>
+                            <div
+                                class="p-4 bg-white dark:bg-black rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222]">
+                                <h4
+                                    class="font-semibold text-black dark:text-white mb-2 text-xs uppercase font-mono tracking-wider">
+                                    Authentication</h4>
+                                <code class="text-sm text-black dark:text-white">Session-based</code>
                             </div>
-                            <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                                <h4 class="font-semibold text-purple-900 dark:text-purple-200 mb-2">Total Routes</h4>
-                                <code class="text-sm text-purple-700 dark:text-purple-300">100+ Endpoints</code>
+                            <div
+                                class="p-4 bg-white dark:bg-black rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222]">
+                                <h4
+                                    class="font-semibold text-black dark:text-white mb-2 text-xs uppercase font-mono tracking-wider">
+                                    Total Routes</h4>
+                                <code class="text-sm text-black dark:text-white">100+ Endpoints</code>
                             </div>
-                            <div class="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                                <h4 class="font-semibold text-orange-900 dark:text-orange-200 mb-2">Security</h4>
-                                <code class="text-sm text-orange-700 dark:text-orange-300">CSRF + Permissions</code>
+                            <div
+                                class="p-4 bg-white dark:bg-black rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222]">
+                                <h4
+                                    class="font-semibold text-black dark:text-white mb-2 text-xs uppercase font-mono tracking-wider">
+                                    Security</h4>
+                                <code class="text-sm text-black dark:text-white">CSRF + Permissions</code>
                             </div>
                         </div>
                     </div>
@@ -235,7 +249,7 @@
                     <!-- Search Results Counter -->
                     <div v-if="apiSearch" class="mb-6 text-center">
                         <div
-                            class="inline-flex items-center px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-lg">
+                            class="inline-flex items-center px-4 py-2 bg-white dark:bg-black border-2 border-[#CCCCCC] dark:border-[#333333] text-black dark:text-white rounded-full">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -252,70 +266,71 @@
 
                     <!-- Endpoint Categories -->
                     <div v-for="(endpoints, category) in filteredApiEndpoints" :key="category"
-                        class="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-8">
+                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-8">
                         <div class="flex items-center mb-6">
                             <span
-                                class="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center text-lg font-bold mr-3">
+                                class="w-8 h-8 bg-black dark:bg-white text-white dark:text-black rounded-lg flex items-center justify-center text-lg font-bold mr-3">
                                 {{ getCategoryIcon(category) }}
                             </span>
-                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatCategoryName(category)
-                            }}</h2>
+                            <h2 class="text-2xl font-bold text-black dark:text-white">{{ formatCategoryName(category)
+                                }}</h2>
                         </div>
 
                         <div class="space-y-4">
                             <div v-for="endpoint in endpoints" :key="endpoint.path"
-                                class="border border-gray-200 dark:border-neutral-600 rounded-lg p-3 sm:p-4 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors">
+                                class="border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg p-3 sm:p-4 hover:border-[#CCCCCC] dark:hover:border-[#333333] transition-colors">
                                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
                                     <div class="flex flex-col sm:flex-row sm:items-center gap-2">
                                         <span :class="getMethodBadgeClass(endpoint.method)"
-                                            class="px-3 py-1 rounded text-xs font-bold w-fit">
+                                            class="px-3 py-1 rounded-full border-2 text-xs font-mono uppercase tracking-wider w-fit">
                                             {{ endpoint.method }}
                                         </span>
                                         <code
-                                            class="text-sm font-mono text-gray-700 dark:text-gray-300 break-all">{{ endpoint.path }}</code>
+                                            class="text-sm font-mono text-black dark:text-white break-all">{{ endpoint.path }}</code>
                                     </div>
                                     <div class="flex flex-wrap items-center gap-2 text-xs">
                                         <span v-if="endpoint.authenticated"
-                                            class="px-2 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200 rounded whitespace-nowrap">
+                                            class="px-2 py-1 bg-white dark:bg-black border-2 border-[#CCCCCC] dark:border-[#333333] text-black dark:text-white rounded-full whitespace-nowrap font-mono uppercase tracking-wider">
                                             🔒 Auth Required
                                         </span>
                                         <span v-if="(endpoint as any).permission"
-                                            class="px-2 py-1 bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-200 rounded whitespace-nowrap">
+                                            class="px-2 py-1 bg-white dark:bg-black border-2 border-[#CCCCCC] dark:border-[#333333] text-black dark:text-white rounded-full whitespace-nowrap font-mono uppercase tracking-wider">
                                             📋 {{ (endpoint as any).permission }}
                                         </span>
                                         <span v-if="(endpoint as any).middleware"
-                                            class="px-2 py-1 bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200 rounded whitespace-nowrap">
+                                            class="px-2 py-1 bg-white dark:bg-black border-2 border-[#D71921] text-[#D71921] rounded-full whitespace-nowrap font-mono uppercase tracking-wider">
                                             🛡️ {{ (endpoint as any).middleware }}
                                         </span>
                                     </div>
                                 </div>
 
-                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">{{ endpoint.description }}</p>
+                                <p class="text-sm text-[#666666] dark:text-[#999999] mb-3">{{ endpoint.description }}
+                                </p>
 
                                 <div v-if="(endpoint as any).parameters" class="mb-3">
-                                    <h5 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Parameters:
+                                    <h5 class="text-xs font-semibold text-black dark:text-white mb-1">Parameters:
                                     </h5>
                                     <code
-                                        class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{ (endpoint as any).parameters }}</code>
+                                        class="text-xs bg-[#F5F5F5] dark:bg-black border border-[#E8E8E8] dark:border-[#222222] px-2 py-1 rounded">{{ (endpoint as any).parameters }}</code>
                                 </div>
 
                                 <div v-if="(endpoint as any).returnType" class="mb-3">
-                                    <h5 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Returns:
+                                    <h5 class="text-xs font-semibold text-black dark:text-white mb-1">Returns:
                                     </h5>
                                     <code
-                                        class="text-xs bg-green-100 dark:bg-green-700 px-2 py-1 rounded">{{ (endpoint as any).returnType }}</code>
+                                        class="text-xs bg-[#F5F5F5] dark:bg-black border border-[#E8E8E8] dark:border-[#222222] px-2 py-1 rounded">{{ (endpoint as any).returnType }}</code>
                                 </div>
 
                                 <div v-if="(endpoint as any).rateLimit" class="mb-3">
-                                    <h5 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Rate Limit:
+                                    <h5 class="text-xs font-semibold text-black dark:text-white mb-1">Rate Limit:
                                     </h5>
                                     <code
-                                        class="text-xs bg-orange-100 dark:bg-orange-700 px-2 py-1 rounded">{{ (endpoint as any).rateLimit }}</code>
+                                        class="text-xs bg-[#F5F5F5] dark:bg-black border border-[#E8E8E8] dark:border-[#222222] px-2 py-1 rounded">{{ (endpoint as any).rateLimit }}</code>
                                 </div>
 
                                 <div v-if="(endpoint as any).note"
-                                    class="mb-3 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
-                                    <p class="text-xs text-blue-700 dark:text-blue-300">💡 {{ (endpoint as any).note }}
+                                    class="mb-3 p-2 bg-white dark:bg-black border border-[#E8E8E8] dark:border-[#222222] rounded">
+                                    <p class="text-xs text-black dark:text-white">💡 {{ (endpoint as any).note }}
                                     </p>
                                 </div>
 
@@ -331,7 +346,7 @@
 
                     <!-- No Results Message for API Search -->
                     <div v-if="apiSearch && Object.keys(filteredApiEndpoints).length === 0"
-                        class="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-8 text-center">
+                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-8 text-center">
                         <div class="flex flex-col items-center">
                             <div
                                 class="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
@@ -341,15 +356,15 @@
                                         d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.485 0-4.735.974-6.369 2.567" />
                                 </svg>
                             </div>
-                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No API endpoints found
+                            <h3 class="text-xl font-semibold text-black dark:text-white mb-2">No API endpoints found
                             </h3>
-                            <p class="text-gray-600 dark:text-gray-400 max-w-md">
+                            <p class="text-[#666666] dark:text-[#999999] max-w-md">
                                 No endpoints match your search for "<strong>{{ apiSearch }}</strong>".
                                 Try searching for different terms like method types (GET, POST), endpoint paths, or
                                 categories.
                             </p>
                             <button @click="apiSearch = ''"
-                                class="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                class="mt-4 px-6 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full border-2 border-black dark:border-white hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white transition-colors text-xs font-mono uppercase tracking-wider">
                                 Clear Search
                             </button>
                         </div>
@@ -357,24 +372,27 @@
 
                     <!-- Authentication Guide -->
                     <div
-                        class="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-8">
+                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-8">
                         <div class="flex items-center mb-6">
                             <span
-                                class="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center text-lg font-bold mr-3">🔑</span>
-                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Authentication & Security</h2>
+                                class="w-8 h-8 bg-black dark:bg-white text-white dark:text-black rounded-lg flex items-center justify-center text-lg font-bold mr-3">🔑</span>
+                            <h2 class="text-2xl font-bold text-black dark:text-white">Authentication & Security</h2>
                         </div>
 
                         <div class="space-y-6">
                             <div>
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Session
+                                <h3 class="text-lg font-semibold text-black dark:text-white mb-3">Session
                                     Authentication</h3>
-                                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                                <p class="text-[#666666] dark:text-[#999999] mb-4">
                                     Most endpoints require authentication via Laravel's session system. Users must be
                                     logged in through the web interface.
                                 </p>
-                                <div class="bg-gray-50 dark:bg-neutral-900 rounded-lg p-4">
-                                    <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Login Process:</h4>
-                                    <pre class="text-sm text-gray-600 dark:text-gray-300 overflow-x-auto"><code>// 1. Get CSRF token
+                                <div
+                                    class="bg-[#F5F5F5] dark:bg-black rounded-lg p-4 border-2 border-[#E8E8E8] dark:border-[#222222]">
+                                    <h4
+                                        class="font-semibold text-black dark:text-white mb-2 text-xs uppercase font-mono tracking-wider">
+                                        Login Process:</h4>
+                                    <pre class="text-sm text-[#666666] dark:text-[#999999] overflow-x-auto"><code>// 1. Get CSRF token
 await axios.get('/sanctum/csrf-cookie');
 
 // 2. Login
@@ -389,42 +407,48 @@ const response = await axios.get('/dashboard');</code></pre>
                             </div>
 
                             <div>
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Permission System
+                                <h3 class="text-lg font-semibold text-black dark:text-white mb-3">Permission System
                                 </h3>
-                                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                                <p class="text-[#666666] dark:text-[#999999] mb-4">
                                     Each user has specific route permissions. Routes are protected by the
                                     CheckUserPermission middleware.
                                 </p>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div class="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                                        <h4 class="font-semibold text-green-900 dark:text-green-200 mb-2">Admin Access
+                                    <div
+                                        class="p-4 bg-white dark:bg-black rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222]">
+                                        <h4
+                                            class="font-semibold text-black dark:text-white mb-2 text-xs uppercase font-mono tracking-wider">
+                                            Admin Access
                                         </h4>
-                                        <p class="text-sm text-green-700 dark:text-green-300">Users with '*' permission
+                                        <p class="text-sm text-[#666666] dark:text-[#999999]">Users with '*' permission
                                             can access all routes</p>
                                     </div>
-                                    <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                                        <h4 class="font-semibold text-blue-900 dark:text-blue-200 mb-2">Route-Specific
+                                    <div
+                                        class="p-4 bg-white dark:bg-black rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222]">
+                                        <h4
+                                            class="font-semibold text-black dark:text-white mb-2 text-xs uppercase font-mono tracking-wider">
+                                            Route-Specific
                                         </h4>
-                                        <p class="text-sm text-blue-700 dark:text-blue-300">Users need specific route
+                                        <p class="text-sm text-[#666666] dark:text-[#999999]">Users need specific route
                                             permissions like '/previews', '/clients'</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div>
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Security Features
+                                <h3 class="text-lg font-semibold text-black dark:text-white mb-3">Security Features
                                 </h3>
-                                <ul class="space-y-2 text-gray-600 dark:text-gray-300">
+                                <ul class="space-y-2 text-[#666666] dark:text-[#999999]">
                                     <li class="flex items-center">
-                                        <span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                                        <span class="w-2 h-2 bg-black dark:bg-white rounded-full mr-3"></span>
                                         CSRF protection on all POST/PUT/DELETE requests
                                     </li>
                                     <li class="flex items-center">
-                                        <span class="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
+                                        <span class="w-2 h-2 bg-black dark:bg-white rounded-full mr-3"></span>
                                         Rate limiting on authentication endpoints
                                     </li>
                                     <li class="flex items-center">
-                                        <span class="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
+                                        <span class="w-2 h-2 bg-black dark:bg-white rounded-full mr-3"></span>
                                         Permission-based route access control
                                     </li>
                                 </ul>
@@ -434,21 +458,21 @@ const response = await axios.get('/dashboard');</code></pre>
 
                     <!-- Response Codes -->
                     <div
-                        class="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 p-8">
+                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-8">
                         <div class="flex items-center mb-6">
                             <span
-                                class="w-8 h-8 bg-yellow-600 text-white rounded-lg flex items-center justify-center text-lg font-bold mr-3">⚠️</span>
-                            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">HTTP Response Codes</h2>
+                                class="w-8 h-8 bg-black dark:bg-white text-white dark:text-black rounded-lg flex items-center justify-center text-lg font-bold mr-3">⚠️</span>
+                            <h2 class="text-2xl font-bold text-black dark:text-white">HTTP Response Codes</h2>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div v-for="code in responseCodes" :key="code.code"
-                                class="flex items-center p-4 rounded-lg border border-gray-200 dark:border-neutral-600">
+                                class="flex items-center p-4 rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222]">
                                 <span :class="code.badgeClass" class="px-3 py-1 rounded font-bold text-sm mr-4">
                                     {{ code.code }}
                                 </span>
                                 <div>
-                                    <h4 class="font-semibold text-gray-900 dark:text-white">{{ code.title }}</h4>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ code.description }}</p>
+                                    <h4 class="font-semibold text-black dark:text-white">{{ code.title }}</h4>
+                                    <p class="text-sm text-[#666666] dark:text-[#999999]">{{ code.description }}</p>
                                 </div>
                             </div>
                         </div>
@@ -458,7 +482,7 @@ const response = await axios.get('/dashboard');</code></pre>
                 <!-- Footer -->
                 <div class="mt-16 text-center">
                     <div
-                        class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full text-sm font-medium">
+                        class="inline-flex items-center px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full border-2 border-black dark:border-white text-xs font-mono uppercase tracking-wider">
                         Made with ❤️ by Govinda Roy
                     </div>
                 </div>
@@ -1485,48 +1509,48 @@ const responseCodes = ref([
         code: '200',
         title: 'Success',
         description: 'Request completed successfully',
-        badgeClass: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200'
+        badgeClass: 'bg-white dark:bg-black border-2 border-black dark:border-white text-black dark:text-white'
     },
     {
         code: '201',
         title: 'Created',
         description: 'Resource created successfully',
-        badgeClass: 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200'
+        badgeClass: 'bg-white dark:bg-black border-2 border-black dark:border-white text-black dark:text-white'
     },
     {
         code: '400',
         title: 'Bad Request',
         description: 'Invalid request parameters',
-        badgeClass: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200'
+        badgeClass: 'bg-white dark:bg-black border-2 border-[#CCCCCC] dark:border-[#333333] text-black dark:text-white'
     },
     {
         code: '401',
         title: 'Unauthorized',
         description: 'Authentication required',
-        badgeClass: 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200'
+        badgeClass: 'bg-white dark:bg-black border-2 border-[#D71921] text-[#D71921]'
     },
     {
         code: '403',
         title: 'Forbidden',
         description: 'Insufficient permissions',
-        badgeClass: 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200'
+        badgeClass: 'bg-white dark:bg-black border-2 border-[#D71921] text-[#D71921]'
     },
     {
         code: '429',
         title: 'Too Many Requests',
         description: 'Rate limit exceeded',
-        badgeClass: 'bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-200'
+        badgeClass: 'bg-white dark:bg-black border-2 border-[#D71921] text-[#D71921]'
     }
 ])
 
 const getMethodBadgeClass = (method: string) => {
     const classes = {
-        GET: 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-200',
-        POST: 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200',
-        PUT: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200',
-        DELETE: 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200'
+        GET: 'bg-white dark:bg-black border-black dark:border-white text-black dark:text-white',
+        POST: 'bg-black dark:bg-white border-black dark:border-white text-white dark:text-black',
+        PUT: 'bg-white dark:bg-black border-[#CCCCCC] dark:border-[#333333] text-black dark:text-white',
+        DELETE: 'bg-white dark:bg-black border-[#D71921] text-[#D71921]'
     }
-    return classes[method as keyof typeof classes] || 'bg-gray-100 text-gray-800'
+    return classes[method as keyof typeof classes] || 'bg-white dark:bg-black border-[#CCCCCC] dark:border-[#333333] text-black dark:text-white'
 }
 
 // Get category icon

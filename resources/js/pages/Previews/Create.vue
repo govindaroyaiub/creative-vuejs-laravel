@@ -75,25 +75,28 @@ const submit = () => {
 
     <Head title="Create Preview" />
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="mx-auto w-full max-w-4xl bg-white dark:bg-gray-900 rounded-xl shadow p-8 space-y-8">
-            <h2 class="text-2xl font-semibold text-gray-800 dark:text-white">Create Preview</h2>
+        <div
+            class="mx-auto w-full max-w-4xl bg-[#F5F5F5] dark:bg-black rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-8 space-y-8">
+            <h2 class="text-2xl font-semibold text-black dark:text-white uppercase tracking-wide">CREATE PREVIEW</h2>
 
             <div class="space-y-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
+                    <label
+                        class="block text-sm font-medium text-[#666666] dark:text-[#999999] mb-1 uppercase tracking-widest font-mono">NAME</label>
                     <input v-model="form.name" type="text"
-                        class="w-full rounded-md border px-4 py-2 text-sm dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500" />
+                        class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-2 text-sm bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Client</label>
+                    <label
+                        class="block text-sm font-medium text-[#666666] dark:text-[#999999] mb-1 uppercase tracking-widest font-mono">CLIENT</label>
                     <input v-model="clientSearch" @focus="showClientDropdown = true"
-                        @blur="setTimeout(() => showClientDropdown = false, 150)" placeholder="Search client..."
-                        class="w-full rounded-md border px-4 py-2 text-sm dark:bg-gray-800 dark:text-white" />
+                        @blur="setTimeout(() => showClientDropdown = false, 150)" placeholder="SEARCH CLIENT..."
+                        class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-2 text-sm bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
                     <div v-if="showClientDropdown"
-                        class="border mt-1 rounded bg-white dark:bg-gray-800 shadow max-h-48 overflow-y-auto">
+                        class="border-2 border-[#E8E8E8] dark:border-[#222222] mt-1 rounded-lg bg-white dark:bg-[#111111] max-h-48 overflow-y-auto">
                         <div v-for="client in filteredClients" :key="client.id"
-                            class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                            class="px-4 py-2 hover:bg-[#F5F5F5] dark:hover:bg-black cursor-pointer transition-colors"
                             @click="selectClient(client.id)">
                             {{ client.name }}
                         </div>
@@ -101,45 +104,50 @@ const submit = () => {
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Team Members</label>
+                    <label
+                        class="block text-sm font-medium text-[#666666] dark:text-[#999999] mb-1 uppercase tracking-widest font-mono">TEAM
+                        MEMBERS</label>
                     <div class="flex flex-wrap gap-2 mb-2">
                         <span v-for="uid in form.team_members" :key="uid"
-                            class="flex items-center gap-1 rounded-full bg-indigo-100 dark:bg-indigo-800 text-indigo-700 dark:text-indigo-200 px-3 py-1 text-sm font-medium">
+                            class="flex items-center gap-1 rounded-full border-2 border-black dark:border-white text-black dark:text-white px-3 py-1 text-xs font-medium uppercase tracking-wider font-mono">
                             {{ resolveUserName(uid) }}
                             <button v-if="uid !== authUser.value?.id" @click="toggleUser(uid)"
-                                class="hover:text-red-600">
-                                <Minus class="inline h-4 w-4" />
+                                class="hover:text-[#D71921] transition-colors">
+                                <Minus class="inline h-4 w-4" stroke-width="1.5" />
                             </button>
                         </span>
                     </div>
                     <input v-model="userSearch" @focus="showUserDropdown = true"
-                        @blur="setTimeout(() => showUserDropdown = false, 150)" placeholder="Add team members..."
-                        class="w-full rounded-md border px-4 py-2 text-sm dark:bg-gray-800 dark:text-white" />
+                        @blur="setTimeout(() => showUserDropdown = false, 150)" placeholder="ADD TEAM MEMBERS..."
+                        class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-2 text-sm bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
                     <div v-if="showUserDropdown && userSearch"
-                        class="border mt-1 rounded bg-white dark:bg-gray-800 shadow max-h-48 overflow-y-auto">
+                        class="border-2 border-[#E8E8E8] dark:border-[#222222] mt-1 rounded-lg bg-white dark:bg-[#111111] max-h-48 overflow-y-auto">
                         <div v-for="user in filteredUsers" :key="user.id"
-                            class="flex items-center justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                            class="flex items-center justify-between px-3 py-2 hover:bg-[#F5F5F5] dark:hover:bg-black cursor-pointer transition-colors"
                             @click="toggleUser(user.id)">
                             <span>{{ user.name }}</span>
-                            <span class="text-indigo-600">
-                                <Check class="h-4 w-4" v-if="isSelected(user.id)" />
-                                <Plus class="h-4 w-4" v-else />
+                            <span class="text-black dark:text-white">
+                                <Check class="h-4 w-4" stroke-width="1.5" v-if="isSelected(user.id)" />
+                                <Plus class="h-4 w-4" stroke-width="1.5" v-else />
                             </span>
                         </div>
-                        <div v-if="filteredUsers.length === 0" class="px-3 py-2 text-gray-500 text-sm">No users found
+                        <div v-if="filteredUsers.length === 0"
+                            class="px-3 py-2 text-[#666666] dark:text-[#999999] text-sm uppercase tracking-wider font-mono">
+                            NO USERS FOUND
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Theme</label>
+                    <label
+                        class="block text-sm font-medium text-[#666666] dark:text-[#999999] mb-1 uppercase tracking-widest font-mono">THEME</label>
                     <input v-model="paletteSearch" @focus="showThemeDropdown = true"
-                        @blur="setTimeout(() => showThemeDropdown = false, 150)" placeholder="Search theme..."
-                        class="w-full rounded-md border px-4 py-2 text-sm dark:bg-gray-800 dark:text-white" />
+                        @blur="setTimeout(() => showThemeDropdown = false, 150)" placeholder="SEARCH THEME..."
+                        class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-2 text-sm bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
                     <div v-if="showThemeDropdown"
-                        class="border mt-1 rounded bg-white dark:bg-gray-800 shadow max-h-48 overflow-y-auto">
+                        class="border-2 border-[#E8E8E8] dark:border-[#222222] mt-1 rounded-lg bg-white dark:bg-[#111111] max-h-48 overflow-y-auto">
                         <div v-for="palette in filteredPalettes" :key="palette.id"
-                            class="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                            class="px-4 py-2 hover:bg-[#F5F5F5] dark:hover:bg-black cursor-pointer transition-colors"
                             @click="selectPalette(palette.id)">
                             {{ palette.name }}
                         </div>
@@ -148,8 +156,8 @@ const submit = () => {
 
                 <div class="flex justify-end">
                     <button @click="submit" :disabled="form.processing"
-                        class="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-6 py-2 text-white hover:bg-indigo-700 disabled:opacity-50">
-                        Create
+                        class="inline-flex items-center gap-2 rounded-full bg-black text-white dark:bg-white dark:text-black px-6 py-2 uppercase tracking-widest font-mono text-sm hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white border-2 border-black dark:border-white transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                        CREATE
                     </button>
                 </div>
             </div>

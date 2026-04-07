@@ -26,36 +26,42 @@ const submit = async () => {
 
     <Head title="Login to View Preview" />
 
-    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-100 to-indigo-200 px-4">
-        <div class="w-full max-w-md bg-white rounded-xl shadow-xl p-8 space-y-6">
+    <div class="min-h-screen flex items-center justify-center bg-[#F5F5F5] dark:bg-black px-4">
+        <div
+            class="w-full max-w-md bg-white dark:bg-[#111111] rounded-lg border-2 border-black dark:border-white p-8 space-y-6">
             <div class="text-center">
-                <h2 class="text-2xl font-bold text-gray-800 mb-2">Sign in</h2>
-                <p class="text-base text-gray-500">Access restricted preview content</p>
+                <h2 class="text-2xl font-light uppercase tracking-wide text-black dark:text-white mb-2">SIGN IN</h2>
+                <p class="text-xs font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999]">RESTRICTED
+                    PREVIEW ACCESS</p>
             </div>
 
             <form @submit.prevent="submit" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <label
+                        class="block text-xs font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999] mb-1">EMAIL</label>
                     <input type="email" v-model="form.email" required autofocus
-                        class="w-full px-4 py-2 border rounded-2xl text-gray-800 focus:outline-none focus:ring-1 focus:ring-black" />
+                        class="w-full px-4 py-2 border border-[#CCCCCC] dark:border-[#333333] rounded bg-[#F5F5F5] dark:bg-black text-[#1A1A1A] dark:text-[#E8E8E8] focus:outline-none focus:border-black dark:focus:border-white" />
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <label
+                        class="block text-xs font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999] mb-1">PASSWORD</label>
                     <input type="password" v-model="form.password" required
-                        class="w-full px-4 py-2 border rounded-2xl text-gray-800 focus:outline-none focus:ring-1 focus:ring-black" />
+                        class="w-full px-4 py-2 border border-[#CCCCCC] dark:border-[#333333] rounded bg-[#F5F5F5] dark:bg-black text-[#1A1A1A] dark:text-[#E8E8E8] focus:outline-none focus:border-black dark:focus:border-white" />
                 </div>
 
-                <div class="flex items-center text-sm text-gray-600">
+                <div
+                    class="flex items-center text-xs text-[#666666] dark:text-[#999999] font-mono uppercase tracking-wider">
                     <label class="flex items-center space-x-2">
-                        <input type="checkbox" v-model="form.remember" class="rounded border-gray-300">
-                        <span>Remember me</span>
+                        <input type="checkbox" v-model="form.remember"
+                            class="rounded border-[#CCCCCC] dark:border-[#333333]">
+                        <span>REMEMBER ME</span>
                     </label>
                 </div>
 
                 <button type="submit"
-                    class="w-full bg-black text-white border border-gray-900 font-semibold py-2 rounded-xl hover:bg-white hover:border-gray-900 hover:text-black transition-all duration-200 shadow">
-                    Login
+                    class="w-full bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white font-mono uppercase tracking-wider py-2 rounded-full hover:bg-white dark:hover:bg-black hover:text-black dark:hover:text-white transition-colors text-xs">
+                    LOGIN
                 </button>
             </form>
         </div>

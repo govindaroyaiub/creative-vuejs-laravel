@@ -122,7 +122,7 @@ const deleteDesignation = async (id: number) => {
 
         <Head title="Designations" />
         <SettingsLayout>
-            <div class="space-y-6">
+            <div class="space-y-6 font-mono">
                 <div class="flex flex-col items-start justify-between">
                     <h2 class="text-lg font-bold">Designations</h2>
                     <small>List of Designations to manage</small>
