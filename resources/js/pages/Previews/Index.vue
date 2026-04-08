@@ -373,9 +373,9 @@ const groups = computed(() => {
                 <!-- Tabs / Search (Add button placed next to tabs) -->
                 <div class="flex items-center justify-between gap-4">
                     <div class="flex-1 flex items-center gap-2">
-                        <input v-model="search" @input="onSearchInput" placeholder="SEARCH PREVIEWS..."
+                        <input v-model="search" @input="onSearchInput" placeholder="Search Previews..."
                             aria-label="Search previews"
-                            class="w-full max-w-xs border border-[#CCCCCC] dark:border-[#333333] px-4 py-2 bg-white dark:bg-white text-[#1A1A1A] dark:text-[#E8E8E8] placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white text-sm uppercase tracking-wider rounded-full" />
+                            class="w-full max-w-xs border border-[#CCCCCC] dark:border-[#333333] px-4 py-2 bg-white dark:bg-black text-[#1A1A1A] dark:text-[#E8E8E8] placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white text-sm tracking-wider rounded-full" />
 
                         <!-- Filter Button -->
                         <div class="relative">

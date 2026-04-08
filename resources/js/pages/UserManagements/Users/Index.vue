@@ -229,7 +229,7 @@ const resetPassword = async (userId: number) => {
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
                     <div class="relative flex-1 max-w-md">
                         <input v-model="search" placeholder="SEARCH USERS..."
-                            class="w-full px-4 py-3 bg-white dark:bg-white border border-[#E8E8E8] dark:border-[#222222] rounded-full text-sm tracking-wider uppercase placeholder:text-[#CCCCCC] dark:placeholder:text-[#333333] text-black dark:text-white focus:outline-none focus:border-[#1A1A1A] dark:focus:border-[#FFFFFF] transition-all duration-200" />
+                            class="w-full px-4 py-3 bg-white dark:bg-black border border-[#E8E8E8] dark:border-[#222222] rounded-full text-sm tracking-wider uppercase placeholder:text-[#CCCCCC] dark:placeholder:text-[#E8E8E8] text-[#1A1A1A] dark:text-[#E8E8E8] focus:outline-none focus:border-[#1A1A1A] dark:focus:border-[#FFFFFF] transition-all duration-200" />
                         <div class="absolute right-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-[#D71921] rounded-full">
                         </div>
                     </div>

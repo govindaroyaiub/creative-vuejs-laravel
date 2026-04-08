@@ -801,7 +801,7 @@ const formatNumber = (num: number) => {
                             <h2 class="text-xs tracking-widest uppercase font-mono text-[#666666] dark:text-[#999999]">
                                 WORLD TIME</h2>
                             <button v-if="selectedTimezones.length < 4" @click="showTimezonePicker = true"
-                                class="px-3 py-1.5 border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] rounded-full transition-all duration-200 hover:border-[#1A1A1A] dark:hover:border-[#FFFFFF] text-xs tracking-wider uppercase font-mono"
+                                class="px-3 py-1.5 rounded-full transition-all duration-200 text-xs tracking-wider uppercase border-2 bg-black text-white border-white hover:bg-white hover:text-black hover:border-black dark:bg-white dark:text-black dark:hover:bg-black dark:hover:text-white dark:hover:border-white"
                                 title="Add timezone">
                                 <Plus :size="14" class="inline -mt-0.5" /> ADD
                             </button>

@@ -331,7 +331,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                             <Search
                                 class="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#666666] dark:text-[#999999] w-4 h-4" />
                             <input v-model="search" placeholder="Search clients by name, website..."
-                                class="w-full pl-10 pr-4 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-full bg-white dark:bg-white text-black dark:text-white placeholder-[#666666] dark:placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
+                                class="w-full pl-10 pr-4 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-full bg-white dark:bg-black text-[#1A1A1A] dark:text-[#E8E8E8] placeholder-[#666666] dark:placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
                             <div v-if="isLoading" class="absolute right-3 top-1/2 transform -translate-y-1/2">
                                 <div
                                     class="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent">

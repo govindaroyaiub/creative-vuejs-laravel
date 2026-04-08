@@ -149,7 +149,7 @@ function gotoLink(link: any) {
                     <div class="flex-1">
                         <input v-model="search" @input="onSearchInput" placeholder="Search templates..."
                             aria-label="Search templates"
-                            class="w-full max-w-xs rounded-full border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-2 bg-white dark:bg-white text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
+                            class="w-full max-w-xs rounded-full border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-2 bg-white dark:bg-black text-[#1A1A1A] dark:text-[#E8E8E8] placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
                     </div>
                     <div class="flex items-center">
                         <button @click="openAdd"
