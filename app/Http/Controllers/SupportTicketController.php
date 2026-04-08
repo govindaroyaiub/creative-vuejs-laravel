@@ -132,8 +132,7 @@ class SupportTicketController extends Controller
     private function notifyAdmins(SupportTicket $ticket)
     {
         // Get all admin users (adjust based on your role system)
-        $admins = User::where('role', 'superadmin')
-            ->orWhere('role', 'admin')
+        $admins = User::where('role', 'super_admin')
             ->get();
 
         foreach ($admins as $admin) {

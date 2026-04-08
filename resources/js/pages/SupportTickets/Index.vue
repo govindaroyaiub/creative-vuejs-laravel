@@ -13,6 +13,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 const page = usePage();
 const tickets = computed(() => page.props.tickets as any);
 const user = computed(() => (page.props as any).auth?.user);
+const authUser = computed(() => (page.props.auth as any)?.user);
+const isSuperAdmin = computed(() => authUser.value?.role === 'super_admin');
 
 const isAdmin = computed(() => {
     return user.value?.role === 'super_admin' || user.value?.role === 'admin';
@@ -249,6 +251,7 @@ const getPriorityColor = (priority: string) => {
                                             <Eye class="h-5 w-5" stroke-width="1.5" />
                                         </button>
                                         <button @click="deleteTicket(ticket.id)"
+                                            :disabled="!isSuperAdmin"
                                             class="text-[#D71921] hover:text-red-700 transition-colors">
                                             <Trash2 class="h-5 w-5" stroke-width="1.5" />
                                         </button>
