@@ -195,6 +195,16 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/logs/download', [App\Http\Controllers\LogViewerController::class, 'downloadLog'])->name('logs.download');
     Route::post('/logs/clear', [App\Http\Controllers\LogViewerController::class, 'clearLog'])->name('logs.clear');
     //Log Viewer Routes End
+
+    //Support Ticket Routes Start
+    Route::get('/support-tickets', [App\Http\Controllers\SupportTicketController::class, 'index'])->name('support-tickets.index');
+    Route::get('/support-tickets/create', [App\Http\Controllers\SupportTicketController::class, 'create'])->name('support-tickets.create');
+    Route::post('/support-tickets', [App\Http\Controllers\SupportTicketController::class, 'store'])->name('support-tickets.store');
+    Route::get('/support-tickets/{ticket}', [App\Http\Controllers\SupportTicketController::class, 'show'])->name('support-tickets.show');
+    Route::put('/support-tickets/{ticket}/status', [App\Http\Controllers\SupportTicketController::class, 'updateStatus'])->name('support-tickets.update-status');
+    Route::put('/support-tickets/{ticket}/priority', [App\Http\Controllers\SupportTicketController::class, 'updatePriority'])->name('support-tickets.update-priority');
+    Route::delete('/support-tickets/{ticket}', [App\Http\Controllers\SupportTicketController::class, 'destroy'])->name('support-tickets.destroy');
+    //Support Ticket Routes End
 });
 
 Route::get('/previews/show/{slug}', [newPreviewController::class, 'show'])->name('previews-show');

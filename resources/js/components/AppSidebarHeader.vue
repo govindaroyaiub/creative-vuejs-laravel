@@ -45,8 +45,7 @@ const firstName = computed(() => user.name.split(' ')[0]);
                         :title="user.name">
                         <Avatar class="h-8 w-8 rounded-full">
                             <AvatarImage v-if="showAvatar" :src="user.avatar" :alt="user.name" />
-                            <AvatarFallback
-                                class="text-xs font-mono font-semibold text-black dark:text-white">
+                            <AvatarFallback class="text-xs font-mono font-semibold text-black dark:text-white">
                                 {{ getInitials(user.name) }}
                             </AvatarFallback>
                         </Avatar>
