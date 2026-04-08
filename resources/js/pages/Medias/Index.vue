@@ -230,7 +230,7 @@ const getFileSize = (bytes: number) => {
                 <div class="mb-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
                     <div class="flex-1 items-center gap-3">
                         <input v-model="search" placeholder="Search..."
-                            class="w-full max-w-xs rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-2 bg-white dark:bg-black text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
+                            class="w-full max-w-xs rounded-full border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-2 bg-white dark:bg-white text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
 
                         <!-- Show all toggle -->
                         <button @click="toggleShowAll"

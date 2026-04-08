@@ -73,7 +73,7 @@
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
             <input v-model="search" type="text" placeholder="Search palettes by name..."
-              class="w-full pl-10 pr-4 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#666666] dark:placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
+              class="w-full pl-10 pr-4 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] bg-white dark:bg-white text-black dark:text-white placeholder-[#666666] dark:placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors rounded-full" />
           </div>
           <button @click="openAddModal"
             class="w-1/5 inline-flex items-center justify-center px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors uppercase font-mono tracking-wider text-sm group">

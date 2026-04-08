@@ -375,7 +375,7 @@ const groups = computed(() => {
                     <div class="flex-1 flex items-center gap-2">
                         <input v-model="search" @input="onSearchInput" placeholder="SEARCH PREVIEWS..."
                             aria-label="Search previews"
-                            class="w-full max-w-xs rounded-lg border border-[#CCCCCC] dark:border-[#333333] px-4 py-2 bg-white dark:bg-[#111111] text-[#1A1A1A] dark:text-[#E8E8E8] placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white font-mono text-sm uppercase tracking-wider" />
+                            class="w-full max-w-xs border border-[#CCCCCC] dark:border-[#333333] px-4 py-2 bg-white dark:bg-white text-[#1A1A1A] dark:text-[#E8E8E8] placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white text-sm uppercase tracking-wider rounded-full" />
 
                         <!-- Filter Button -->
                         <div class="relative">
@@ -460,7 +460,7 @@ const groups = computed(() => {
                         </button>
 
                         <button @click="showModal = true"
-                            class="ml-3 rounded-full bg-black dark:bg-white px-3 py-2 text-white dark:text-black hover:bg-[#1A1A1A] dark:hover:bg-[#E8E8E8] group flex items-center justify-center whitespace-nowrap uppercase font-mono text-xs tracking-wider transition-colors"
+                            class="ml-3 bg-black text-white border-2 border-black hover:bg-white hover:text-black dark:bg-white dark:text-black dark:border-white dark:hover:bg-black dark:hover:text-white rounded-full px-3 py-2 group flex items-center justify-center whitespace-nowrap uppercase text-xs tracking-wider transition-colors"
                             aria-label="Add Preview">
                             <CirclePlus class="w-4 h-4 mr-2 group-hover:rotate-90 transition-transform duration-200"
                                 :stroke-width="1.5" />

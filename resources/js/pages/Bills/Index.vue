@@ -95,7 +95,7 @@ onMounted(() => {
                 <!-- Search & Add -->
                 <div class="mb-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
                     <input v-model="search" placeholder="Search..."
-                        class="w-full sm:max-w-xs rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors" />
+                        class="w-full sm:max-w-xs rounded-full border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-2 bg-white dark:bg-white text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors" />
                     <Link :href="route('bills-create')"
                         class="rounded-full bg-black dark:bg-white text-white dark:text-black px-4 py-2 hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white flex items-center justify-center whitespace-nowrap group uppercase font-mono tracking-wider text-sm transition-colors">
                         <CirclePlus class="mr-2 h-5 w-5 group-hover:rotate-90 transition-transform duration-200"

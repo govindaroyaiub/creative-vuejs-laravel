@@ -110,7 +110,7 @@
                                         class="group relative p-3 sm:p-4 rounded-lg sm:rounded-xl transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:opacity-50 min-h-[80px] sm:min-h-[100px] flex flex-col justify-center"
                                         :class="action.gradient">
                                         <div class="text-lg sm:text-2xl mb-1 sm:mb-2">{{ action.icon }}</div>
-                                        <div class="text-xs sm:text-sm font-semibold text-white">{{ action.name }}</div>
+                                        <div class="text-xs sm:text-sm font-semibold">{{ action.name }}</div>
                                         <div class="text-xs mt-0.5 sm:mt-1">{{ action.description }}</div>
                                     </button>
                                 </div>
@@ -523,12 +523,12 @@ const tabs = ref([
 
 // Quick actions configuration
 const quickActions = ref([
-    { type: 'all', name: 'Clean All', description: 'Complete cleanup', icon: '🧹', gradient: 'bg-black dark:bg-[#111111] text-white dark:text-black border-2 border-black dark:border-[#222222]' },
-    { type: 'storage', name: 'Storage', description: 'Temp files', icon: '📁', gradient: 'bg-black dark:bg-[#111111] text-white dark:text-black border-2 border-black dark:border-[#222222]' },
-    { type: 'logs', name: 'Logs', description: 'Old log files', icon: '📋', gradient: 'bg-black dark:bg-[#111111] text-white dark:text-black border-2 border-black dark:border-[#222222]' },
-    { type: 'temp', name: 'Temp Files', description: 'Upload temps', icon: '🗃️', gradient: 'bg-black dark:bg-[#111111] text-white dark:text-black border-2 border-black dark:border-[#222222]' },
-    { type: 'artisan', name: 'Artisan Clear', description: 'Clear & cache configs', icon: '⚡', gradient: 'bg-black dark:bg-[#111111] text-white dark:text-black border-2 border-black dark:border-[#222222]' },
-    { type: 'view-logs', name: 'View Logs', description: 'Browse log files', icon: '👀', gradient: 'bg-black dark:bg-[#111111] text-white dark:text-black border-2 border-black dark:border-[#222222]' }
+    { type: 'all', name: 'Clean All', description: 'Complete cleanup', icon: '🧹', gradient: 'border-2 bg-white border-black text-black dark:bg-[#111111] dark:border-white dark:text-white' },
+    { type: 'storage', name: 'Storage', description: 'Temp files', icon: '📁', gradient: 'border-2 bg-white border-black text-black dark:bg-[#111111] dark:border-white dark:text-white' },
+    { type: 'logs', name: 'Logs', description: 'Old log files', icon: '📋', gradient: 'border-2 bg-white border-black text-black dark:bg-[#111111] dark:border-white dark:text-white' },
+    { type: 'temp', name: 'Temp Files', description: 'Upload temps', icon: '🗃️', gradient: 'border-2 bg-white border-black text-black dark:bg-[#111111] dark:border-white dark:text-white' },
+    { type: 'artisan', name: 'Artisan Clear', description: 'Clear & cache configs', icon: '⚡', gradient: 'border-2 bg-white border-black text-black dark:bg-[#111111] dark:border-white dark:text-white' },
+    { type: 'view-logs', name: 'View Logs', description: 'Browse log files', icon: '👀', gradient: 'border-2 bg-white border-black text-black dark:bg-[#111111] dark:border-white dark:text-white' }
 ])
 
 // Methods
