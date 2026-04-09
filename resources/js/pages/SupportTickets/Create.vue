@@ -60,9 +60,6 @@ const submitTicket = () => {
                 text: 'Your support ticket has been created successfully.',
                 icon: 'success',
                 confirmButtonText: 'OK'
-            }).then(() => {
-                // Close this tab and focus back on the main window
-                window.close();
             });
         },
         onError: (errors) => {
