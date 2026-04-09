@@ -50,6 +50,7 @@ class DashboardController extends Controller
                 'monthlyStats' => $monthlyStats,
                 'monthlyBillTotals' => $this->getMonthlyBillTotals($year),
                 'monthlyPreviewStats' => $monthlyPreviewStats,
+                'timezonePreferences' => Auth::user()->timezone_preferences ?? [],
             ]);
         } else {
             return Inertia::render('GuestWelcome', [

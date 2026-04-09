@@ -107,31 +107,16 @@ const AVAILABLE_TIMEZONES: TimezoneData[] = [
 const page = usePage();
 const isLoaded = ref(false);
 
+// Initialize timezones from server props immediately
+const savedTimezones = (page.props.timezonePreferences as any[] || [])
+    .map((tz: any) => AVAILABLE_TIMEZONES.find(t => t.timezone === tz.timezone))
+    .filter((tz): tz is TimezoneData => tz !== undefined)
+    .slice(0, 5); // Max 5 additional timezones
+
 // Timezone management state
-const selectedTimezones = ref<TimezoneData[]>([]);
+const selectedTimezones = ref<TimezoneData[]>(savedTimezones);
 const showTimezonePicker = ref(false);
 const timezoneSearchQuery = ref('');
-
-// Load saved timezones from database
-const loadSavedTimezones = async () => {
-    try {
-        const response = await axios.get('/api/user/timezone-preferences');
-        if (response.data.success && response.data.timezones.length > 0) {
-            // Validate and restore saved timezones from database
-            selectedTimezones.value = response.data.timezones
-                .map((tz: any) => AVAILABLE_TIMEZONES.find(t => t.timezone === tz.timezone))
-                .filter((tz: any) => tz !== undefined)
-                .slice(0, 5); // Max 5 additional timezones
-        } else {
-            // Start with no timezones - user can add their own
-            selectedTimezones.value = [];
-        }
-    } catch (e) {
-        console.error('Error loading timezones:', e);
-        // Start with empty array on error
-        selectedTimezones.value = [];
-    }
-};
 
 // Save timezones to database
 const saveTimezones = async () => {
@@ -199,8 +184,6 @@ const isDarkMode = ref(false);
 let themeObserver: MutationObserver | null = null;
 
 onMounted(() => {
-    loadSavedTimezones();
-
     isDarkMode.value = document.documentElement.classList.contains('dark');
     themeObserver = new MutationObserver(() => {
         isDarkMode.value = document.documentElement.classList.contains('dark');
