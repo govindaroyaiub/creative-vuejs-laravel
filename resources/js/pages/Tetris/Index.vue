@@ -3,7 +3,7 @@
     <Head title="Tetris Game" />
     <AppLayout :breadcrumbs="[{ title: 'Tetris Game', href: '/play/tetris' }]">
         <!-- Introductory Guide Overlay -->
-        <div v-if="showIntro"
+        <div v-if="showIntro" @click.self="closeIntro"
             class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 backdrop-blur-sm">
             <div
                 class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-2xl mx-4 transform transition-all animate-fade-in">
@@ -93,26 +93,32 @@
         </div>
 
         <div class="flex flex-col items-center justify-center w-full h-full bg-white dark:bg-black font-mono">
-            <h1 class="text-2xl font-bold mb-4 text-black dark:text-white">Tetris Game</h1>
-            <div class="mb-4 flex gap-4 justify-between w-full max-w-3xl">
-                <button @click="startGame" :disabled="isPlaying"
-                    class="px-4 py-2 bg-black text-white rounded-xl border-2 hover:bg-white hover:text-black disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-black disabled:hover:text-white">
-                    New
-                    Game</button>
-                <span class="text-lg text-black dark:text-white ml-auto">Score: {{ score }}</span>
-            </div>
             <div class="flex flex-row gap-8 w-full max-w-3xl">
-                <div ref="boardRef" class="relative" tabindex="0" @keydown="handleKey" style="outline: none;">
-                    <div v-for="y in rows" :key="y" class="flex">
-                        <div v-for="x in cols" :key="x" class="w-6 h-6 border border-gray-300 dark:border-gray-700"
-                            :style="getCellStyle(x - 1, y - 1)"></div>
+                <div class="flex flex-col gap-4">
+                    <div class="flex gap-4 justify-between">
+                        <button @click="startGame" :disabled="isPlaying"
+                            class="px-4 py-2 bg-black text-white rounded-xl border-2 hover:bg-white hover:text-black disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-black disabled:hover:text-white">
+                            New Game
+                        </button>
+                        <button @click="resetScore"
+                            :disabled="!isSuperAdmin"
+                            class="px-4 py-2 bg-red-600 text-white rounded-xl border-2 hover:bg-white hover:text-red-600 hover:border-red-600 transition-all">
+                            Reset
+                        </button>
                     </div>
-                    <div v-if="gameOver"
-                        class="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center">
-                        <span class="text-2xl text-white font-bold">Game Over</span>
+                    <div ref="boardRef" class="relative" tabindex="0" @keydown="handleKey" style="outline: none;">
+                        <div v-for="y in rows" :key="y" class="flex">
+                            <div v-for="x in cols" :key="x" class="w-6 h-6 border border-gray-300 dark:border-gray-700"
+                                :style="getCellStyle(x - 1, y - 1)"></div>
+                        </div>
+                        <div v-if="gameOver"
+                            class="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center">
+                            <span class="text-2xl text-white font-bold">Game Over</span>
+                        </div>
                     </div>
                 </div>
-                <div class="flex-1">
+                <div class="flex-1 flex flex-col gap-4">
+                    <div class="text-lg text-black dark:text-white font-bold">Score: {{ score }}</div>
                     <h2 class="text-xl font-bold mb-2 text-black dark:text-white">Top 10 High Scores</h2>
                     <table
                         class="min-w-full table-auto bg-white dark:bg-black text-black dark:text-white text-center rounded-xl shadow">
@@ -145,6 +151,8 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
+const authUser = computed(() => (page.props.auth as any)?.user);
+const isSuperAdmin = computed(() => authUser.value?.role === 'super_admin');
 
 const props = defineProps({
     topScores: Array
@@ -359,6 +367,16 @@ function closeIntro() {
     setTimeout(() => {
         boardRef.value && boardRef.value.focus()
     }, 100)
+}
+
+function resetScore() {
+    if (confirm('Are you sure you want to reset your score? This will reset your current game and score to 0.')) {
+        score.value = 0
+        gameOver.value = true
+        hasStarted.value = false
+        if (intervalId.value) clearInterval(intervalId.value)
+        resetBoard()
+    }
 }
 
 function startGame() {
