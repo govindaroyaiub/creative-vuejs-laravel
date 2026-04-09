@@ -1008,12 +1008,14 @@ const formatNumber = (num: number) => {
         <div class="min-h-screen bg-[#FFFFFF] dark:bg-black font-mono">
             <div class="p-6 space-y-12">
                 <!-- Header -->
-                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8 lg:gap-0">
-                    <div class="flex-1">
-                        <h1 class="text-4xl md:text-5xl font-light tracking-tight text-black dark:text-white uppercase">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 lg:gap-0">
+                    <div class="flex-1 text-center lg:text-left">
+                        <h1 class="text-4xl md:text-5xl font-light tracking-tight text-black dark:text-white uppercase dot-matrix-text"
+                            style="font-family: 'Doto', 'Space Mono', monospace; font-variation-settings: 'DOTS' 20; font-weight: 700;">
                             DASHBOARD
                         </h1>
-                        <p class="text-[#666666] dark:text-[#999999] mt-2 text-lg tracking-widest uppercase font-mono">
+                        <p class="text-[#666666] dark:text-[#999999] mt-2 text-lg tracking-widest uppercase font-mono dot-matrix-text"
+                            style="font-family: 'Doto', 'Space Mono', monospace; font-variation-settings: 'DOTS' 20;">
                             ANALYTICS — {{ year }}
                         </p>
                     </div>
@@ -1374,6 +1376,33 @@ const formatNumber = (num: number) => {
 
     50% {
         opacity: .5;
+    }
+}
+
+/* Enhanced dot matrix effect using text-shadow */
+.dot-matrix-text {
+    position: relative;
+    font-weight: 400;
+    /* Add subtle dot grid effect with multiple text shadows */
+    text-shadow:
+        0.5px 0.5px 0 currentColor,
+        -0.5px -0.5px 0 rgba(0, 0, 0, 0.1);
+    letter-spacing: 0.05em;
+}
+
+/* Additional dot pattern overlay for dark mode */
+@media (prefers-color-scheme: dark) {
+    .dot-matrix-text {
+        text-shadow:
+            0.5px 0.5px 0 currentColor,
+            -0.5px -0.5px 0 rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* Ensure Doto font renders with optimal settings */
+@supports (font-variation-settings: normal) {
+    .dot-matrix-text {
+        font-variation-settings: 'DOTS' 20, 'ROND' 0;
     }
 }
 </style>
