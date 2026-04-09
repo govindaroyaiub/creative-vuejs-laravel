@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
-import { Plus, Trash2, Calculator, Receipt, User, FileText, Save, Upload, X } from 'lucide-vue-next';
+import { Plus, Trash2, Calculator, Receipt, User, FileText, Save, Upload, X, Calendar } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { type BreadcrumbItem } from '@/types';
 
@@ -14,6 +14,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 const form = ref({
     name: '',
     client: '',
+    bill_date: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
     sub_bills: [
         { item: '', quantity: 1, unit_price: 0, amount: 0 },
     ],
@@ -108,6 +109,7 @@ const handleSubmit = async () => {
     const formData = new FormData();
     formData.append('name', form.value.name);
     formData.append('client', form.value.client);
+    formData.append('bill_date', form.value.bill_date);
     formData.append('total_amount', totalAmount.value.toString());
 
     // Append sub_bills
@@ -199,7 +201,7 @@ const formatFileSize = (bytes: number) => {
                                 </h2>
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
                                     <label
                                         class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">
@@ -220,6 +222,20 @@ const formatFileSize = (bytes: number) => {
                                             stroke-width="1.5" />
                                         <input v-model="form.client" type="text" placeholder="Enter client name..."
                                             class="w-full pl-10 pr-4 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                                            required />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">
+                                        Bill Date <span class="text-[#D71921]">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <Calendar
+                                            class="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#999999] w-4 h-4 pointer-events-none"
+                                            stroke-width="1.5" />
+                                        <input v-model="form.bill_date" type="date"
+                                            class="w-full pl-10 pr-4 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors [&::-webkit-calendar-picker-indicator]:dark:invert"
                                             required />
                                     </div>
                                 </div>

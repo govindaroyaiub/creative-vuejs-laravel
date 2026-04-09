@@ -57,6 +57,7 @@ class BillController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'client' => 'required|string|max:255',
+            'bill_date' => 'required|date',
             'total_amount' => 'required|numeric',
             'sub_bills' => 'required|array|min:1',
             'sub_bills.*.item' => 'required|string',
@@ -71,6 +72,8 @@ class BillController extends Controller
             'name' => $validated['name'],
             'client' => $validated['client'],
             'total_amount' => $validated['total_amount'],
+            'created_at' => $validated['bill_date'],
+            'updated_at' => now(),
         ]);
 
         foreach ($validated['sub_bills'] as $sub) {
@@ -100,6 +103,7 @@ class BillController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'client' => 'required|string|max:255',
+            'bill_date' => 'required|date',
             'total_amount' => 'required|numeric',
             'sub_bills' => 'required|array|min:1',
             'sub_bills.*.item' => 'required|string',
@@ -115,6 +119,7 @@ class BillController extends Controller
             'name' => $validated['name'],
             'client' => $validated['client'],
             'total_amount' => $validated['total_amount'],
+            'created_at' => $validated['bill_date'],
         ]);
 
         $bill->subBills()->delete(); // Optional: clean up old sub-bills

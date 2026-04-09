@@ -16,7 +16,7 @@ class Bill extends Model
     protected static $logAttributes = ['*']; // logs all attributes
     protected static $logName = 'Bill'; // name for this log
 
-    protected $fillable = ['name', 'client', 'total_amount'];
+    protected $fillable = ['name', 'client', 'total_amount', 'created_at'];
 
     public function subBills(): HasMany
     {
