@@ -148,9 +148,10 @@
 
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
+const page = usePage();
 const authUser = computed(() => (page.props.auth as any)?.user);
 const isSuperAdmin = computed(() => authUser.value?.role === 'super_admin');
 

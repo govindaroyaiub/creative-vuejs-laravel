@@ -1276,7 +1276,7 @@ const formatNumber = (num: number) => {
                         <h3 class="text-sm font-mono uppercase tracking-widest text-black dark:text-white">ADD TIMEZONES
                         </h3>
                         <button @click="closeTimezonePicker"
-                            class="p-1.5 border border-[#E8E8E8] dark:border-[#222222] rounded transition-colors hover:border-black dark:hover:border-white">
+                            class="p-1.5 border border-[#E8E8E8] dark:border-[#222222] rounded-full transition-colors hover:border-black dark:hover:border-white">
                             <X :size="16" class="text-[#666666] dark:text-[#999999]" />
                         </button>
                     </div>
@@ -1334,7 +1334,7 @@ const formatNumber = (num: number) => {
                     <div class="p-4 border-t border-[#E8E8E8] dark:border-[#222222] bg-[#F5F5F5] dark:bg-black">
                         <div class="flex items-center justify-between text-xs">
                             <span class="text-[#666666] dark:text-[#999999] uppercase font-mono tracking-wider">
-                                {{ selectedTimezones.length }} / 4 TIMEZONES
+                                {{ selectedTimezones.length }} / 5 TIMEZONES
                             </span>
                             <button @click="closeTimezonePicker"
                                 class="px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full transition-colors hover:bg-[#1A1A1A] dark:hover:bg-[#E8E8E8] uppercase font-mono text-xs tracking-wider">
