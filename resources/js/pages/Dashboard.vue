@@ -121,7 +121,7 @@ const loadSavedTimezones = async () => {
             selectedTimezones.value = response.data.timezones
                 .map((tz: any) => AVAILABLE_TIMEZONES.find(t => t.timezone === tz.timezone))
                 .filter((tz: any) => tz !== undefined)
-                .slice(0, 4); // Max 4 additional timezones
+                .slice(0, 5); // Max 5 additional timezones
         } else {
             // Start with no timezones - user can add their own
             selectedTimezones.value = [];

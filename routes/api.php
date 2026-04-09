@@ -54,7 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::post('/', function (Illuminate\Http\Request $request) {
             $validated = $request->validate([
-                'timezones' => 'required|array|max:4',
+                'timezones' => 'nullable|array|max:5',
                 'timezones.*.city' => 'required|string',
                 'timezones.*.country' => 'required|string',
                 'timezones.*.timezone' => 'required|string',
@@ -62,7 +62,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ]);
 
             $request->user()->update([
-                'timezone_preferences' => $validated['timezones']
+                'timezone_preferences' => $validated['timezones'] ?? []
             ]);
 
             return response()->json([
