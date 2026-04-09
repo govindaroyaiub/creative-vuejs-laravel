@@ -3,6 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { Line, Doughnut, Bar } from 'vue-chartjs';
 import { MonitorStop, Video, ImagePlay, Wallpaper, Paperclip, UsersRound, MonitorCog, PiggyBank, Plus, X, Search } from 'lucide-vue-next';
+import DotMatrixClock from '@/components/DotMatrixClock.vue';
 import axios from 'axios';
 import {
     Chart as ChartJS,
@@ -145,7 +146,7 @@ const saveTimezones = async () => {
 
 // Add timezone
 const addTimezone = async (timezone: TimezoneData) => {
-    if (selectedTimezones.value.length < 4 && !selectedTimezones.value.find(t => t.timezone === timezone.timezone)) {
+    if (selectedTimezones.value.length < 5 && !selectedTimezones.value.find(t => t.timezone === timezone.timezone)) {
         selectedTimezones.value.push(timezone);
         await saveTimezones();
         // Keep modal open to allow adding multiple timezones
@@ -303,9 +304,6 @@ const getTimezoneData = (timezone: string) => {
 };
 
 // Static timezones (always shown)
-// Bangladesh Time (Asia/Dhaka)
-const bangladeshTime = computed(() => getTimezoneData("Asia/Dhaka"));
-
 // Netherlands Time (Europe/Amsterdam)
 const netherlandsTime = computed(() => getTimezoneData("Europe/Amsterdam"));
 
@@ -319,9 +317,12 @@ const dynamicTimezones = computed(() => {
 
 // Compute grid layout based on total timezone count
 const timezoneGridClass = computed(() => {
-    const totalCount = 2 + selectedTimezones.value.length; // 2 static + dynamic
+    const totalCount = 1 + selectedTimezones.value.length; // 1 static + dynamic
 
-    if (totalCount === 2) {
+    if (totalCount === 1) {
+        // 1 timezone: single column
+        return 'grid-cols-1';
+    } else if (totalCount === 2) {
         // 2 timezones: 1 column mobile, 2 columns tablet+
         return 'grid-cols-1 sm:grid-cols-2';
     } else if (totalCount === 3) {
@@ -800,7 +801,7 @@ const formatNumber = (num: number) => {
                         <div class="flex items-center justify-between">
                             <h2 class="text-xs tracking-widest uppercase font-mono text-[#666666] dark:text-[#999999]">
                                 WORLD TIME</h2>
-                            <button v-if="selectedTimezones.length < 4" @click="showTimezonePicker = true"
+                            <button v-if="selectedTimezones.length < 5" @click="showTimezonePicker = true"
                                 class="px-3 py-1.5 rounded-full transition-all duration-200 text-xs tracking-wider uppercase border-2 bg-black text-white border-white hover:bg-white hover:text-black hover:border-black dark:bg-white dark:text-black dark:hover:bg-black dark:hover:text-white dark:hover:border-white"
                                 title="Add timezone">
                                 <Plus :size="14" class="inline -mt-0.5" /> ADD
@@ -808,96 +809,25 @@ const formatNumber = (num: number) => {
                         </div>
 
                         <div
-                            class="bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded-lg p-3 md:p-4">
+                            class="bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded-lg p-2.5 md:p-3">
                             <!-- Mobile: Single Column | Tablet: 2 Columns | Desktop: 3x2 Grid -->
-                            <div :class="['grid gap-3', timezoneGridClass]">
-                                <!-- Bangladesh (Static) -->
-                                <div
-                                    class="flex flex-col border border-[#E8E8E8] dark:border-[#222222] rounded-md p-3 transition-all duration-200 hover:border-[#CCCCCC] dark:hover:border-[#333333]">
-                                    <div class="flex items-start justify-between gap-2 mb-2">
-                                        <div class="min-w-0 flex-1">
-                                            <div
-                                                class="text-xs md:text-sm font-medium text-[#1A1A1A] dark:text-[#E8E8E8] truncate uppercase tracking-wide">
-                                                DHAKA
-                                            </div>
-                                            <div
-                                                class="text-[10px] md:text-xs text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono mt-0.5">
-                                                BANGLADESH
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="text-right mt-auto">
-                                        <div
-                                            class="text-xl md:text-2xl font-mono font-light text-black dark:text-white tabular-nums">
-                                            {{ bangladeshTime.time }}
-                                        </div>
-                                        <div
-                                            class="text-[10px] md:text-xs text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono mt-1">
-                                            {{ bangladeshTime.date }}
-                                        </div>
-                                    </div>
-                                </div>
-
+                            <div :class="['grid gap-2.5', timezoneGridClass]">
                                 <!-- Netherlands (Static) -->
-                                <div
-                                    class="flex flex-col border border-[#E8E8E8] dark:border-[#222222] rounded-md p-3 transition-all duration-200 hover:border-[#CCCCCC] dark:hover:border-[#333333]">
-                                    <div class="flex items-start justify-between gap-2 mb-2">
-                                        <div class="min-w-0 flex-1">
-                                            <div
-                                                class="text-xs md:text-sm font-medium text-[#1A1A1A] dark:text-[#E8E8E8] truncate uppercase tracking-wide">
-                                                AMSTERDAM
-                                            </div>
-                                            <div
-                                                class="text-[10px] md:text-xs text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono mt-0.5">
-                                                NETHERLANDS
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="text-right mt-auto">
-                                        <div
-                                            class="text-xl md:text-2xl font-mono font-light text-black dark:text-white tabular-nums">
-                                            {{ netherlandsTime.time }}
-                                        </div>
-                                        <div
-                                            class="text-[10px] md:text-xs text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono mt-1">
-                                            {{ netherlandsTime.date }}
-                                        </div>
-                                    </div>
-                                </div>
+                                <DotMatrixClock :time="netherlandsTime.time" :date="netherlandsTime.date"
+                                    city="Amsterdam" country="Netherlands" size="sm" />
 
                                 <!-- Dynamic Timezones (User Customizable) -->
-                                <div v-for="(tz, index) in dynamicTimezones" :key="tz.timezone"
-                                    class="flex flex-col border border-[#E8E8E8] dark:border-[#222222] rounded-md p-3 transition-all duration-200 hover:border-[#CCCCCC] dark:hover:border-[#333333] relative group">
+                                <div v-for="(tz, index) in dynamicTimezones" :key="tz.timezone" class="relative group">
 
                                     <!-- Remove Button -->
                                     <button @click="removeTimezone(index)"
-                                        class="absolute -top-2 -right-2 p-1 bg-[#D71921] text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 z-10"
+                                        class="absolute -top-2 -right-2 p-1.5 bg-[#D71921] text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 z-20 shadow-lg hover:bg-[#B01519]"
                                         title="Remove timezone">
-                                        <X :size="12" />
+                                        <X :size="14" />
                                     </button>
 
-                                    <div class="flex items-start justify-between gap-2 mb-2">
-                                        <div class="min-w-0 flex-1">
-                                            <div
-                                                class="text-xs md:text-sm font-medium text-[#1A1A1A] dark:text-[#E8E8E8] truncate uppercase tracking-wide">
-                                                {{ tz.city }}
-                                            </div>
-                                            <div
-                                                class="text-[10px] md:text-xs text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono mt-0.5">
-                                                {{ tz.country }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="text-right mt-auto">
-                                        <div
-                                            class="text-xl md:text-2xl font-mono font-light text-black dark:text-white tabular-nums">
-                                            {{ tz.time }}
-                                        </div>
-                                        <div
-                                            class="text-[10px] md:text-xs text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono mt-1">
-                                            {{ tz.date }}
-                                        </div>
-                                    </div>
+                                    <DotMatrixClock :time="tz.time" :date="tz.date" :city="tz.city"
+                                        :country="tz.country" size="sm" />
                                 </div>
                             </div>
                         </div>

@@ -13,76 +13,72 @@
                             class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                             <div class="flex items-center space-x-3 sm:space-x-4">
                                 <div class="min-w-0 flex-1">
-                                    <h1
-                                        class="text-xl sm:text-2xl font-light text-black dark:text-white truncate uppercase tracking-wide">
-                                        Cache
-                                        Management</h1>
+                                    <h1 class="text-xl sm:text-2xl md:text-3xl font-light text-black dark:text-white uppercase tracking-[0.08em]"
+                                        style="font-family: 'Space Grotesk', sans-serif;">
+                                        Cache Management
+                                    </h1>
                                     <p
-                                        class="text-[#666666] dark:text-[#999999] text-xs sm:text-sm hidden sm:block font-mono uppercase trackixpxng-wider">
-                                        System
-                                        cleanup and monitoring</p>
+                                        class="text-[#666666] dark:text-[#999999] text-[10px] sm:text-xs hidden sm:block font-mono uppercase tracking-[0.08em] mt-1">
+                                        System cleanup and monitoring
+                                    </p>
                                 </div>
                             </div>
 
                             <div class="flex items-center justify-between sm:justify-end space-x-2 sm:space-x-3">
                                 <!-- Live Server Time Card -->
                                 <div
-                                    class="bg-white dark:bg-black rounded-lg px-3 sm:px-6 py-1.5 sm:py-2 text-right flex-shrink-0 border-2 border-[#CCCCCC] dark:border-[#222222]">
+                                    class="bg-white dark:bg-[#111111] rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 text-right flex-shrink-0 border border-[#E8E8E8] dark:border-[#222222]">
                                     <p
-                                        class="text-xs text-[#666666] dark:text-[#999999] hidden sm:block font-mono uppercase tracking-wider">
+                                        class="text-[10px] text-[#666666] dark:text-[#999999] hidden sm:block font-mono uppercase tracking-[0.08em] mb-1">
                                         Server Time
                                     </p>
-                                    <p
-                                        class="text-xs sm:text-sm font-mono font-semibold text-black dark:text-white tabular-nums">
+                                    <div class="text-xs sm:text-sm font-mono tabular-nums text-black dark:text-white"
+                                        style="font-family: 'Doto', 'Space Mono', monospace; font-variation-settings: 'DOTS' 20;">
                                         {{ currentTime || 'Loading...' }}
-                                    </p>
-                                    <p class="text-xs text-emerald-500 mt-0.5 sm:mt-1 hidden sm:block">
-                                        🌍 {{ currentTimezone }}
+                                    </div>
+                                    <p
+                                        class="text-[9px] text-[#999999] dark:text-[#1f1d1d] mt-1 hidden sm:block font-mono uppercase tracking-wider">
+                                        {{ currentTimezone }}
                                     </p>
                                 </div>
-
-                                <!-- Refresh Button -->
-                                <button @click="refreshAllData()" :disabled="isRefreshing"
-                                    class="px-3 sm:px-4 py-2 bg-black dark:bg-white disabled:bg-[#CCCCCC] dark:disabled:bg-[#333333] text-white dark:text-black rounded-full border-2 border-black dark:border-white transition-colors duration-200 hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white flex items-center space-x-1 sm:space-x-2 flex-shrink-0 text-xs font-mono uppercase tracking-wider">
-                                    <svg :class="{ 'animate-spin': isRefreshing }" class="w-3 h-3 sm:w-4 sm:h-4"
-                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-                                        </path>
-                                    </svg>
-                                    <span class="text-xs sm:text-sm">{{ isRefreshing ? 'Refreshing...' : 'Refresh'
-                                        }}</span>
-                                </button>
                             </div>
+
+                            <!-- Refresh Button -->
+                            <button @click="refreshAllData()" :disabled="isRefreshing"
+                                class="px-3 sm:px-4 py-2 bg-black dark:bg-white disabled:bg-[#CCCCCC] dark:disabled:bg-[#333333] text-white dark:text-black rounded-full border border-black dark:border-white transition-all duration-200 hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white flex items-center gap-1.5 flex-shrink-0 text-[10px] font-mono uppercase tracking-[0.08em]">
+                                <svg :class="{ 'animate-spin': isRefreshing }" class="w-3.5 h-3.5" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                    </path>
+                                </svg>
+                                <span>{{ isRefreshing ? 'Refreshing...' : 'Refresh' }}</span>
+                            </button>
                         </div>
                     </div>
                 </header>
 
                 <!-- Main Content -->
-                <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+                <main class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
 
                     <!-- Tab Navigation -->
-                    <div class="mb-6 sm:mb-8">
-                        <div class="bg-white dark:bg-black backdrop-blur-sm rounded-lg p-1.5 sm:p-2">
-                            <nav class="flex gap-1 sm:gap-2">
+                    <div class="mb-6">
+                        <div
+                            class="bg-white dark:bg-[#111111] rounded-lg p-1.5 border border-[#E8E8E8] dark:border-[#222222]">
+                            <nav class="flex gap-1">
                                 <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="[
-                                    'relative flex-1 px-4 sm:px-8 py-3 sm:py-4 rounded-full border-2 font-mono uppercase tracking-wider text-xs sm:text-sm whitespace-nowrap transition-colors duration-200 group overflow-hidden',
+                                    'relative flex-1 px-4 sm:px-6 py-2.5 sm:py-3 rounded-md font-mono uppercase tracking-[0.08em] text-[10px] sm:text-xs whitespace-nowrap transition-all duration-200 group overflow-hidden',
                                     activeTab === tab.id
-                                        ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white'
-                                        : 'text-[#666666] dark:text-[#999999] border-[#CCCCCC] dark:border-[#333333] hover:text-black dark:hover:text-white hover:border-black dark:hover:border-white'
+                                        ? 'bg-black dark:bg-white text-white dark:text-black'
+                                        : 'text-[#666666] dark:text-[#999999] hover:text-black dark:hover:text-white'
                                 ]">
                                     <!-- Icon and Text -->
-                                    <div class="relative flex items-center justify-center space-x-2 sm:space-x-3">
+                                    <div class="relative flex items-center justify-center gap-2">
                                         <span :class="[
-                                            'text-lg sm:text-xl transition-transform duration-300',
+                                            'text-sm sm:text-base transition-transform duration-300',
                                             activeTab === tab.id ? 'scale-110' : 'group-hover:scale-110'
                                         ]">{{ tab.icon }}</span>
-                                        <span class="font-medium">{{ tab.name }}</span>
-                                    </div>
-
-                                    <!-- Active Indicator -->
-                                    <div v-if="activeTab === tab.id"
-                                        class="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-0.5 bg-white/40 dark:bg-black/40 rounded-t-full">
+                                        <span>{{ tab.name }}</span>
                                     </div>
                                 </button>
                             </nav>
@@ -90,60 +86,64 @@
                     </div>
 
                     <!-- Tab Content -->
-                    <div class="space-y-6 sm:space-y-8">
+                    <div class="space-y-6">
 
                         <!-- Overview Tab -->
-                        <div v-show="activeTab === 'overview'" class="space-y-4 sm:space-y-6">
+                        <div v-show="activeTab === 'overview'" class="space-y-4 sm:space-y-5">
 
                             <!-- Quick Actions -->
                             <section
-                                class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-4 sm:p-6">
+                                class="bg-white dark:bg-[#111111] rounded-lg border border-[#E8E8E8] dark:border-[#222222] p-4 sm:p-5">
                                 <h2
-                                    class="text-base sm:text-lg font-semibold text-black dark:text-white mb-3 sm:mb-4 flex items-center">
-                                    <span class="text-lg sm:text-xl mr-2 sm:mr-3">⚡</span>
+                                    class="text-xs font-mono uppercase tracking-[0.08em] text-[#666666] dark:text-[#999999] mb-4 flex items-center gap-2">
+                                    <span class="text-base">⚡</span>
                                     Quick Actions
                                 </h2>
 
-                                <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 gap-4 sm:gap-6">
+                                <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 gap-3">
                                     <button v-for="action in quickActions" :key="action.type"
                                         @click="handleQuickAction(action.type)" :disabled="isRunningCleanup"
-                                        class="group relative p-3 sm:p-4 rounded-lg sm:rounded-xl transition-all duration-200 transform hover:scale-105 disabled:scale-100 disabled:opacity-50 min-h-[80px] sm:min-h-[100px] flex flex-col justify-center"
+                                        class="group relative p-3 sm:p-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:opacity-50 min-h-[90px] sm:min-h-[100px] flex flex-col justify-center"
                                         :class="action.gradient">
-                                        <div class="text-lg sm:text-2xl mb-1 sm:mb-2">{{ action.icon }}</div>
-                                        <div class="text-xs sm:text-sm font-semibold">{{ action.name }}</div>
-                                        <div class="text-xs mt-0.5 sm:mt-1">{{ action.description }}</div>
+                                        <div class="text-lg sm:text-xl mb-1.5">{{ action.icon }}</div>
+                                        <div class="text-xs sm:text-sm font-mono font-medium uppercase tracking-wide">{{
+                                            action.name }}</div>
+                                        <div
+                                            class="text-[10px] mt-1 font-mono text-[#666666] dark:text-[#999999] uppercase tracking-wider">
+                                            {{ action.description }}</div>
                                     </button>
                                 </div>
                             </section>
 
-                            <div class="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-2 gap-4 sm:gap-6">
+                            <!-- Cache Stats Grid - Nothing Design -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div v-for="(stat, key) in currentStats" :key="key"
-                                    class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-4 sm:p-6 hover:border-[#CCCCCC] dark:hover:border-[#333333] transition-colors duration-200">
-                                    <div class="flex items-center justify-between mb-3 sm:mb-4">
-                                        <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-                                            <div class="text-xl sm:text-2xl flex-shrink-0">{{ stat.icon }}</div>
-                                            <div class="min-w-0 flex-1">
+                                    class="bg-white dark:bg-[#111111] rounded-lg border border-[#E8E8E8] dark:border-[#222222] p-4 sm:p-5 hover:border-[#CCCCCC] dark:hover:border-[#333333] transition-colors duration-200">
+
+                                    <!-- Icon + Label Row -->
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xl">{{ stat.icon }}</span>
+                                            <div>
                                                 <h3
-                                                    class="font-semibold text-black dark:text-white text-sm sm:text-base truncate">
-                                                    {{ stat.name }}</h3>
-                                                <p class="text-xs sm:text-sm text-[#666666] dark:text-[#999999]">{{
-                                                    stat.files
-                                                }} files</p>
+                                                    class="text-xs font-mono uppercase tracking-[0.08em] text-[#666666] dark:text-[#999999]">
+                                                    {{ stat.name }}
+                                                </h3>
+                                                <p
+                                                    class="text-[10px] font-mono text-[#999999] dark:text-[#666666] mt-0.5">
+                                                    {{ stat.files }} FILES
+                                                </p>
                                             </div>
-                                        </div>
-                                        <div class="text-right flex-shrink-0">
-                                            <div class="text-sm sm:text-lg font-bold text-black dark:text-white">{{
-                                                formatBytes(stat.size) }}</div>
                                         </div>
                                     </div>
 
-                                    <div class="w-full bg-[#E8E8E8] dark:bg-[#222222] rounded-full h-2">
-                                        <div class="h-2 rounded-full transition-all duration-1000" :style="{
-                                            width: `${getUsagePercentage(stat.size)}%`,
-                                            background: getColorGradient(stat.color)
-                                        }">
-                                        </div>
+                                    <!-- Dot Matrix Size Display -->
+                                    <div class="mb-3">
+                                        <DotMatrixNumber :value="formatBytes(stat.size)" size="sm" />
                                     </div>
+
+                                    <!-- Segmented Progress Bar -->
+                                    <SegmentedProgressBar :percentage="getUsagePercentage(stat.size)" :segments="16" />
                                 </div>
                             </div>
 
@@ -194,24 +194,22 @@
 
                                     <!-- Disk Usage Section -->
                                     <div class="space-y-3">
-                                        <div class="flex justify-between items-center">
+                                        <div class="flex justify-between items-baseline">
                                             <span
-                                                class="text-[#666666] dark:text-[#999999] text-xs sm:text-sm font-mono uppercase tracking-wider">Disk
-                                                Usage</span>
-                                            <div class="text-right">
-                                                <div class="text-lg font-bold text-black dark:text-white">
-                                                    {{ systemInfo?.disk_usage?.used_percentage || 0 }}%
-                                                </div>
-                                            </div>
+                                                class="text-xs font-mono uppercase tracking-[0.08em] text-[#666666] dark:text-[#999999]">
+                                                Disk Usage
+                                            </span>
+                                            <DotMatrixNumber :value="systemInfo?.disk_usage?.used_percentage || 0"
+                                                unit="%" size="sm" />
                                         </div>
 
-                                        <div class="w-full bg-[#E8E8E8] dark:bg-[#222222] rounded-full h-2">
-                                            <div class="bg-black dark:bg-white h-2 rounded-full transition-all duration-1000"
-                                                :style="{ width: `${systemInfo?.disk_usage?.used_percentage || 0}%` }">
-                                            </div>
-                                        </div>
+                                        <!-- Segmented Progress Bar -->
+                                        <SegmentedProgressBar :percentage="systemInfo?.disk_usage?.used_percentage || 0"
+                                            :segments="20"
+                                            :color="(systemInfo?.disk_usage?.used_percentage || 0) > 80 ? 'accent' : 'default'" />
 
-                                        <div class="flex justify-between text-xs text-[#666666] dark:text-[#999999]">
+                                        <div
+                                            class="flex justify-between text-[10px] font-mono text-[#666666] dark:text-[#999999] uppercase tracking-wider">
                                             <span>Free: {{ systemInfo?.disk_usage?.free || 'N/A' }}</span>
                                             <span>Total: {{ systemInfo?.disk_usage?.total || 'N/A' }}</span>
                                         </div>
@@ -219,32 +217,32 @@
                                 </div>
 
                                 <!-- Log Files -->
-                                <div class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-4 sm:p-6"
-                                    :class="{ 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/10': systemInfo?.logs?.total?.needs_attention }">
-                                    <div class="flex items-center justify-between mb-3 sm:mb-4">
-                                        <h3 class="font-semibold text-slate-900 dark:text-white text-sm sm:text-base flex items-center"
-                                            :class="{ 'text-red-600 dark:text-red-400': systemInfo?.logs?.total?.needs_attention }">
-                                            <span class="mr-2">📋</span>
+                                <div class="bg-white dark:bg-[#111111] rounded-lg border border-[#E8E8E8] dark:border-[#222222] p-4 sm:p-5"
+                                    :class="{ 'border-[#D71921]/30 dark:border-[#D71921]/30 bg-red-50/30 dark:bg-red-900/5': systemInfo?.logs?.total?.needs_attention }">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <h3 class="text-xs font-mono uppercase tracking-[0.08em] flex items-center gap-2"
+                                            :class="systemInfo?.logs?.total?.needs_attention ? 'text-[#D71921]' : 'text-[#666666] dark:text-[#999999]'">
+                                            <span class="text-base">📋</span>
                                             Log Files
                                             <span v-if="systemInfo?.logs?.total?.needs_attention"
-                                                class="ml-2 text-red-500"
+                                                class="text-[#D71921] text-xs"
                                                 title="Logs exceed 20MB - needs attention">⚠️</span>
                                         </h3>
                                         <div class="flex items-center gap-2">
                                             <a href="/logs"
-                                                class="px-3 py-1.5 bg-white dark:bg-black border-2 border-black dark:border-white text-black dark:text-white rounded-full text-xs font-mono uppercase tracking-wider transition-colors hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black flex items-center">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor"
+                                                class="px-3 py-1.5 bg-white dark:bg-black border border-black dark:border-white text-black dark:text-white rounded-full text-[10px] font-mono uppercase tracking-[0.08em] transition-colors hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         stroke-width="2"
                                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                                                     </path>
                                                 </svg>
-                                                Logs
+                                                View
                                             </a>
                                             <button @click="blankLogFiles" :disabled="isBlankingLogs"
-                                                class="px-3 py-1.5 bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:hover:bg-orange-900/40 rounded-lg text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
-                                                <svg v-if="!isBlankingLogs" class="w-3 h-3 mr-1" fill="none"
+                                                class="px-3 py-1.5 bg-white dark:bg-black border border-[#D71921] text-[#D71921] rounded-full text-[10px] font-mono uppercase tracking-[0.08em] transition-colors hover:bg-[#D71921] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1">
+                                                <svg v-if="!isBlankingLogs" class="w-3 h-3" fill="none"
                                                     stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         stroke-width="2"
@@ -252,9 +250,9 @@
                                                     </path>
                                                 </svg>
                                                 <div v-else
-                                                    class="w-3 h-3 mr-1 animate-spin rounded-full border-2 border-orange-600 border-t-transparent">
+                                                    class="w-3 h-3 animate-spin rounded-full border-2 border-[#D71921] border-t-transparent">
                                                 </div>
-                                                {{ isBlankingLogs ? 'Blanking...' : 'Blank Logs' }}
+                                                {{ isBlankingLogs ? 'Blanking...' : 'Blank' }}
                                             </button>
                                         </div>
                                     </div>
@@ -262,25 +260,27 @@
                                     <div class="space-y-3">
                                         <!-- Total Size -->
                                         <div class="flex justify-between items-center text-xs sm:text-sm p-3 rounded-lg"
-                                            :class="systemInfo?.logs?.total?.needs_attention ? 'bg-red-100 dark:bg-red-900/20' : 'bg-slate-100 dark:bg-neutral-800'">
-                                            <span class="font-medium"
-                                                :class="systemInfo?.logs?.total?.needs_attention ? 'text-red-700 dark:text-red-400' : 'text-slate-700 dark:text-gray-300'">Total
+                                            :class="systemInfo?.logs?.total?.needs_attention ? 'bg-[#D71921]/10 dark:bg-[#D71921]/10' : 'bg-[#F5F5F5] dark:bg-black'">
+                                            <span class="font-mono uppercase tracking-[0.08em]"
+                                                :class="systemInfo?.logs?.total?.needs_attention ? 'text-[#D71921]' : 'text-[#666666] dark:text-[#999999]'">Total
                                                 Size</span>
-                                            <span class="font-bold"
-                                                :class="systemInfo?.logs?.total?.needs_attention ? 'text-red-700 dark:text-red-400' : 'text-slate-900 dark:text-white'">
+                                            <span class="font-mono font-medium tabular-nums"
+                                                :class="systemInfo?.logs?.total?.needs_attention ? 'text-[#D71921]' : 'text-black dark:text-white'">
                                                 {{ systemInfo?.logs?.total?.formatted_size || '0 B' }}
                                             </span>
                                         </div>
 
                                         <!-- Laravel Application Logs -->
                                         <div class="flex justify-between text-xs sm:text-sm">
-                                            <span class="text-slate-500 dark:text-gray-400">Laravel App Logs</span>
+                                            <span
+                                                class="text-[#666666] dark:text-[#999999] font-mono uppercase tracking-[0.08em]">Laravel
+                                                App</span>
                                             <div class="text-right">
-                                                <span class="font-medium text-slate-900 dark:text-white font-mono">
+                                                <span class="font-mono text-black dark:text-white tabular-nums">
                                                     {{ systemInfo?.logs?.laravel?.formatted_size || '0 B' }}
                                                 </span>
                                                 <div v-if="systemInfo?.logs?.laravel?.count"
-                                                    class="text-xs text-gray-400">
+                                                    class="text-[10px] text-[#999999] dark:text-[#666666] font-mono uppercase tracking-wider">
                                                     {{ systemInfo.logs.laravel.count }} file(s)
                                                 </div>
                                             </div>
@@ -288,13 +288,15 @@
 
                                         <!-- Cache Management Logs -->
                                         <div class="flex justify-between text-xs sm:text-sm">
-                                            <span class="text-slate-500 dark:text-gray-400">Cache Mgmt Logs</span>
+                                            <span
+                                                class="text-[#666666] dark:text-[#999999] font-mono uppercase tracking-[0.08em]">Cache
+                                                Mgmt</span>
                                             <div class="text-right">
-                                                <span class="font-medium text-slate-900 dark:text-white font-mono">
+                                                <span class="font-mono text-black dark:text-white tabular-nums">
                                                     {{ systemInfo?.logs?.cache_management?.formatted_size || '0 B' }}
                                                 </span>
                                                 <div v-if="systemInfo?.logs?.cache_management?.count"
-                                                    class="text-xs text-gray-400">
+                                                    class="text-[10px] text-[#999999] dark:text-[#666666] font-mono uppercase tracking-wider">
                                                     {{ systemInfo.logs.cache_management.count }} file(s)
                                                 </div>
                                             </div>
@@ -305,127 +307,142 @@
                         </div>
 
                         <!-- Cleanup Logs Tab -->
-                        <div v-show="activeTab === 'activity'" class="space-y-4 sm:space-y-6">
+                        <div v-show="activeTab === 'activity'" class="space-y-4">
                             <!-- Recent Activity -->
                             <div
-                                class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-4 sm:p-6">
+                                class="bg-white dark:bg-[#111111] rounded-lg border border-[#E8E8E8] dark:border-[#222222] p-4 sm:p-5">
                                 <h3
-                                    class="font-semibold text-slate-900 dark:text-white mb-3 sm:mb-4 text-sm sm:text-base">
-                                    Recent Cleanups</h3>
+                                    class="text-xs font-mono uppercase tracking-[0.08em] text-[#666666] dark:text-[#999999] mb-4">
+                                    Recent Cleanups
+                                </h3>
 
-                                <div v-if="recentCleanups && recentCleanups.length"
-                                    class="space-y-2 sm:space-y-3 overflow-y-auto">
+                                <div v-if="recentCleanups && recentCleanups.length" class="space-y-3 overflow-y-auto">
                                     <div v-for="(cleanup, index) in recentCleanups" :key="index"
-                                        class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-slate-50 dark:bg-neutral-700 rounded-lg space-y-2 sm:space-y-0">
+                                        class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-[#F5F5F5] dark:bg-black rounded-lg space-y-2 sm:space-y-0 border border-[#E8E8E8] dark:border-[#222222]">
                                         <div class="min-w-0 flex-1">
-                                            <div class="font-semibold text-slate-900 dark:text-white text-sm">{{
-                                                cleanup.total_files
-                                            }} files</div>
-                                            <div class="text-xs sm:text-sm text-slate-500 dark:text-gray-400">{{
-                                                cleanup.human_time }}
+                                            <div class="text-sm font-mono text-black dark:text-white">
+                                                {{ cleanup.total_files }} files
+                                            </div>
+                                            <div
+                                                class="text-[10px] font-mono text-[#666666] dark:text-[#999999] uppercase tracking-wider">
+                                                {{ cleanup.human_time }}
                                             </div>
                                         </div>
-                                        <div class="flex justify-between sm:text-right">
-                                            <div class="font-semibold text-emerald-600 dark:text-emerald-400 text-sm">{{
-                                                cleanup.total_size }}</div>
+                                        <div class="flex justify-between sm:flex-col sm:text-right sm:items-end gap-2">
                                             <div
-                                                class="text-xs text-slate-500 dark:text-gray-400 font-mono sm:ml-2 sm:mt-1">
-                                                {{
-                                                    cleanup.timestamp }}</div>
+                                                class="font-mono font-medium text-emerald-600 dark:text-emerald-400 text-sm">
+                                                {{ cleanup.total_size }}
+                                            </div>
+                                            <div
+                                                class="text-[10px] text-[#999999] dark:text-[#666666] font-mono tabular-nums uppercase tracking-wider">
+                                                {{ cleanup.timestamp }}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div v-else class="text-center py-6 sm:py-8">
-                                    <div class="text-3xl sm:text-4xl mb-2 sm:mb-3">🧹</div>
-                                    <p class="text-slate-500 dark:text-gray-400 text-sm">No cleanup activity yet</p>
+                                <div v-else class="text-center py-8 sm:py-10">
+                                    <div class="text-3xl sm:text-4xl mb-3">🧹</div>
+                                    <p
+                                        class="text-xs font-mono uppercase tracking-[0.08em] text-[#999999] dark:text-[#666666]">
+                                        No cleanup activity yet</p>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Activity Logs Tab -->
-                        <div v-show="activeTab === 'activity_logs'" class="space-y-4 sm:space-y-6">
+                        <div v-show="activeTab === 'activity_logs'" class="space-y-4">
                             <div
-                                class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-6">
+                                class="bg-white dark:bg-[#111111] rounded-lg border border-[#E8E8E8] dark:border-[#222222] p-4 sm:p-5">
                                 <div class="rounded-lg flex w-full items-center gap-2 mb-4">
                                     <div class="relative w-full">
-                                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
+                                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#999999] dark:text-[#666666] w-4 h-4"
                                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                         </svg>
                                         <input v-model="activitySearch" @input="onActivitySearchInput" type="text"
-                                            placeholder="Search"
-                                            class="w-1/2 pl-10 pr-4 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors duration-200 font-mono text-xs uppercase tracking-wider" />
+                                            placeholder="Search logs..."
+                                            class="w-1/2 pl-10 pr-4 py-2.5 border border-[#E8E8E8] dark:border-[#222222] rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors duration-200 font-mono text-xs uppercase tracking-[0.08em]" />
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <button @click="confirmEmptyAll" v-if="logs?.total > 0"
-                                            class="px-3 py-2 bg-white dark:bg-black border-2 border-[#D71921] text-[#D71921] text-xs font-mono uppercase tracking-wider rounded-full hover:bg-[#D71921] hover:text-white transition-colors whitespace-nowrap">Empty
-                                            Logs</button>
+                                            class="px-3 py-2.5 bg-white dark:bg-black border border-[#D71921] text-[#D71921] text-[10px] font-mono uppercase tracking-[0.08em] rounded-full hover:bg-[#D71921] hover:text-white transition-colors whitespace-nowrap">
+                                            Empty Logs
+                                        </button>
                                     </div>
                                     <div
-                                        class="text-xs font-mono uppercase tracking-wider text-[#666666] dark:text-[#999999] bg-[#F5F5F5] dark:bg-[#0A0A0A] px-3 py-4 rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] whitespace-nowrap text-center">
-                                        Total: {{ logs?.total || 0 }} entries</div>
+                                        class="text-[10px] font-mono uppercase tracking-[0.08em] text-[#666666] dark:text-[#999999] bg-[#F5F5F5] dark:bg-black px-3 py-2.5 rounded-lg border border-[#E8E8E8] dark:border-[#222222] whitespace-nowrap text-center">
+                                        Total: {{ logs?.total || 0 }}
+                                    </div>
                                 </div>
 
                                 <div v-if="logs?.data?.length > 0" class="flex items-center justify-between mt-3 mb-4">
                                     <div class="flex items-center gap-3">
                                         <label
-                                            class="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-[#666666] dark:text-[#999999]">
+                                            class="inline-flex items-center space-x-2 text-[10px] font-mono uppercase tracking-[0.08em] text-[#666666] dark:text-[#999999]">
                                             <input type="checkbox" v-model="selectAll" @change="toggleSelectAll"
-                                                class="w-4 h-4 text-blue-600 border-slate-300 rounded" />
-                                            <span>Select all on page</span>
+                                                class="w-4 h-4 text-black border-[#CCCCCC] dark:border-[#333333] rounded" />
+                                            <span>Select all</span>
                                         </label>
                                         <button v-if="selectedIds.length" @click="confirmDeleteSelected"
-                                            class="px-3 py-2 bg-white dark:bg-black border-2 border-[#D71921] text-[#D71921] rounded-full text-xs font-mono uppercase tracking-wider hover:bg-[#D71921] hover:text-white transition-colors">Delete
-                                            Selected ({{ selectedIds.length }})</button>
+                                            class="px-3 py-2 bg-white dark:bg-black border border-[#D71921] text-[#D71921] rounded-full text-[10px] font-mono uppercase tracking-[0.08em] hover:bg-[#D71921] hover:text-white transition-colors">
+                                            Delete ({{ selectedIds.length }})
+                                        </button>
                                     </div>
                                 </div>
 
-                                <div v-if="logs?.data?.length > 0" class="space-y-4">
+                                <div v-if="logs?.data?.length > 0" class="space-y-3">
                                     <div v-for="(log, index) in logs.data" :key="log.id"
-                                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] hover:border-[#CCCCCC] dark:hover:border-[#333333] transition-colors duration-200 overflow-hidden">
+                                        class="bg-white dark:bg-[#111111] rounded-lg border border-[#E8E8E8] dark:border-[#222222] hover:border-[#CCCCCC] dark:hover:border-[#333333] transition-colors duration-200 overflow-hidden">
                                         <div class="p-4">
                                             <div
                                                 class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                                                 <div class="flex items-start space-x-4 flex-1">
                                                     <div class="flex-shrink-0 flex items-center space-x-3">
                                                         <input type="checkbox" :value="log.id" v-model="selectedIds"
-                                                            class="w-4 h-4 text-blue-600 border-gray-300 rounded" />
+                                                            class="w-4 h-4 text-black border-[#CCCCCC] dark:border-[#333333] rounded" />
                                                         <div
-                                                            class="px-2 py-1 bg-[#F5F5F5] dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg">
+                                                            class="px-2 py-1 bg-[#F5F5F5] dark:bg-black border border-[#E8E8E8] dark:border-[#222222] rounded">
                                                             <span
-                                                                class="text-xs font-mono font-semibold text-black dark:text-white">#{{
-                                                                    log.id }}</span>
+                                                                class="text-[10px] font-mono font-medium text-black dark:text-white tabular-nums">
+                                                                #{{ log.id }}
+                                                            </span>
                                                         </div>
-                                                        <div class="font-semibold text-slate-900 dark:text-white">{{
-                                                            log.description }}</div>
-                                                        <div class="text-xs text-slate-500 dark:text-gray-400">{{
-                                                            log.log_name }} • {{ log.causer?.name || 'System' }}
+                                                        <div>
+                                                            <div class="font-mono text-sm text-black dark:text-white">
+                                                                {{ log.description }}
+                                                            </div>
+                                                            <div
+                                                                class="text-[10px] text-[#666666] dark:text-[#999999] font-mono uppercase tracking-[0.08em] mt-1">
+                                                                {{ log.log_name }} • {{ log.causer?.name || 'System' }}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
 
                                                 <div class="flex-shrink-0">
                                                     <button @click="toggleExpand(log.id)"
-                                                        class="px-3 py-2 bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white rounded-full text-xs font-mono uppercase tracking-wider hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white transition-colors">Details</button>
+                                                        class="px-3 py-2 bg-black dark:bg-white text-white dark:text-black border border-black dark:border-white rounded-full text-[10px] font-mono uppercase tracking-[0.08em] hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white transition-colors">
+                                                        Details
+                                                    </button>
                                                 </div>
                                             </div>
 
                                             <div v-if="expandedRows.includes(log.id)"
-                                                class="mt-4 pt-4 border-t border-slate-200 dark:border-neutral-600 animate-fadeIn">
+                                                class="mt-4 pt-4 border-t border-[#E8E8E8] dark:border-[#222222] animate-fadeIn">
                                                 <div v-if="log.properties && log.properties.attributes"
                                                     class="space-y-3">
-                                                    <div class="text-sm text-slate-700 dark:text-gray-300">Updated:
-                                                        {{
-                                                            formatDate(log.created_at) }}</div>
+                                                    <div class="text-xs font-mono text-[#666666] dark:text-[#999999]">
+                                                        Updated: {{ formatDate(log.created_at) }}
+                                                    </div>
                                                     <pre
-                                                        class="bg-slate-50 dark:bg-neutral-900 p-3 rounded text-xs overflow-auto">{{ JSON.stringify(log.properties.attributes, null, 2) }}</pre>
+                                                        class="bg-[#F5F5F5] dark:bg-black p-3 rounded text-[10px] font-mono overflow-auto border border-[#E8E8E8] dark:border-[#222222]">{{ JSON.stringify(log.properties.attributes, null, 2) }}</pre>
                                                 </div>
                                                 <div v-else-if="log.properties && Object.keys(log.properties).length"
                                                     class="space-y-3">
                                                     <pre
-                                                        class="bg-slate-50 dark:bg-neutral-900 p-3 rounded text-xs overflow-auto">{{ JSON.stringify(log.properties, null, 2) }}</pre>
+                                                        class="bg-[#F5F5F5] dark:bg-black p-3 rounded text-[10px] font-mono overflow-auto border border-[#E8E8E8] dark:border-[#222222]">{{ JSON.stringify(log.properties, null, 2) }}</pre>
                                                 </div>
                                             </div>
                                         </div>
@@ -433,43 +450,50 @@
                                 </div>
 
                                 <div v-else
-                                    class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-12 text-center">
+                                    class="bg-white dark:bg-[#111111] rounded-lg border border-[#E8E8E8] dark:border-[#222222] p-12 text-center">
                                     <div
-                                        class="w-20 h-20 mx-auto bg-slate-100 dark:bg-neutral-700 rounded-full flex items-center justify-center mb-6">
-                                        <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
+                                        class="w-16 h-16 mx-auto bg-[#F5F5F5] dark:bg-black rounded-full flex items-center justify-center mb-4 border border-[#E8E8E8] dark:border-[#222222]">
+                                        <svg class="w-8 h-8 text-[#999999] dark:text-[#666666]" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                                             </path>
                                         </svg>
                                     </div>
-                                    <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-2">No activity
-                                        logs found</h3>
-                                    <p class="text-slate-600 dark:text-gray-400 mb-6 max-w-md mx-auto">{{
-                                        activitySearch
-                                            ? 'Try adjusting your search terms' : 'No activities have been logged yet'
-                                    }}
+                                    <h3
+                                        class="text-sm font-mono uppercase tracking-[0.08em] text-black dark:text-white mb-2">
+                                        No activity logs found
+                                    </h3>
+                                    <p
+                                        class="text-xs font-mono text-[#666666] dark:text-[#999999] uppercase tracking-[0.08em]">
+                                        {{ activitySearch ? 'Try adjusting your search' : 'No activities logged yet' }}
                                     </p>
                                 </div>
 
-                                <!-- Pagination (simple) -->
+                                <!-- Pagination -->
                                 <div v-if="logs?.data?.length > 0" class="mt-4">
                                     <div class="flex items-center justify-between">
-                                        <div class="text-sm text-gray-600 dark:text-gray-400">Showing {{ logs.from
-                                            }} to
-                                            {{ logs.to }} of {{ logs.total }} entries</div>
+                                        <div
+                                            class="text-[10px] font-mono text-[#666666] dark:text-[#999999] uppercase tracking-[0.08em]">
+                                            Showing {{ logs.from }} to {{ logs.to }} of {{ logs.total }}
+                                        </div>
                                         <div class="flex items-center space-x-2">
                                             <button @click="changePage(logs.current_page - 1)"
                                                 :disabled="!logs.prev_page_url"
-                                                class="px-3 py-2 text-xs rounded-full border-2 transition-colors duration-200 flex items-center font-mono uppercase tracking-wider"
-                                                :class="logs.prev_page_url ? 'bg-white dark:bg-black text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black' : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">Previous</button>
+                                                class="px-3 py-2 text-[10px] rounded-full border transition-colors duration-200 flex items-center font-mono uppercase tracking-[0.08em]"
+                                                :class="logs.prev_page_url ? 'bg-white dark:bg-black text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black' : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
+                                                Prev
+                                            </button>
                                             <div
-                                                class="px-4 py-2 text-xs font-mono uppercase tracking-wider bg-black dark:bg-white text-white dark:text-black rounded-full border-2 border-black dark:border-white">
-                                                Page {{ logs.current_page }} of {{ logs.last_page }}</div>
+                                                class="px-4 py-2 text-[10px] font-mono uppercase tracking-[0.08em] bg-black dark:bg-white text-white dark:text-black rounded-full border border-black dark:border-white">
+                                                {{ logs.current_page }} / {{ logs.last_page }}
+                                            </div>
                                             <button @click="changePage(logs.current_page + 1)"
                                                 :disabled="!logs.next_page_url"
-                                                class="px-3 py-2 text-xs rounded-full border-2 transition-colors duration-200 flex items-center font-mono uppercase tracking-wider"
-                                                :class="logs.next_page_url ? 'bg-white dark:bg-black text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black' : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">Next</button>
+                                                class="px-3 py-2 text-[10px] rounded-full border transition-colors duration-200 flex items-center font-mono uppercase tracking-[0.08em]"
+                                                :class="logs.next_page_url ? 'bg-white dark:bg-black text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black' : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
+                                                Next
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -485,6 +509,8 @@
 
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import DotMatrixNumber from '@/components/DotMatrixNumber.vue';
+import SegmentedProgressBar from '@/components/SegmentedProgressBar.vue';
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { router, Head } from '@inertiajs/vue3'
 import Swal from 'sweetalert2'
@@ -523,12 +549,12 @@ const tabs = ref([
 
 // Quick actions configuration
 const quickActions = ref([
-    { type: 'all', name: 'Clean All', description: 'Complete cleanup', icon: '🧹', gradient: 'border-2 bg-white border-black text-black dark:bg-[#111111] dark:border-white dark:text-white' },
-    { type: 'storage', name: 'Storage', description: 'Temp files', icon: '📁', gradient: 'border-2 bg-white border-black text-black dark:bg-[#111111] dark:border-white dark:text-white' },
-    { type: 'logs', name: 'Logs', description: 'Old log files', icon: '📋', gradient: 'border-2 bg-white border-black text-black dark:bg-[#111111] dark:border-white dark:text-white' },
-    { type: 'temp', name: 'Temp Files', description: 'Upload temps', icon: '🗃️', gradient: 'border-2 bg-white border-black text-black dark:bg-[#111111] dark:border-white dark:text-white' },
-    { type: 'artisan', name: 'Artisan Clear', description: 'Clear & cache configs', icon: '⚡', gradient: 'border-2 bg-white border-black text-black dark:bg-[#111111] dark:border-white dark:text-white' },
-    { type: 'view-logs', name: 'View Logs', description: 'Browse log files', icon: '👀', gradient: 'border-2 bg-white border-black text-black dark:bg-[#111111] dark:border-white dark:text-white' }
+    { type: 'all', name: 'Clean All', description: 'Complete cleanup', icon: '🧹', gradient: 'border-2 bg-white border-[#333333] text-black dark:bg-[#111111] dark:border-white dark:text-white' },
+    { type: 'storage', name: 'Storage', description: 'Temp files', icon: '📁', gradient: 'border-2 bg-white border-[#333333] text-black dark:bg-[#111111] dark:border-white dark:text-white' },
+    { type: 'logs', name: 'Logs', description: 'Old log files', icon: '📋', gradient: 'border-2 bg-white border-[#333333] text-black dark:bg-[#111111] dark:border-white dark:text-white' },
+    { type: 'temp', name: 'Temp Files', description: 'Upload temps', icon: '🗃️', gradient: 'border-2 bg-white border-[#333333] text-black dark:bg-[#111111] dark:border-white dark:text-white' },
+    { type: 'artisan', name: 'Artisan Clear', description: 'Clear & cache configs', icon: '⚡', gradient: 'border-2 bg-white border-[#333333] text-black dark:bg-[#111111] dark:border-white dark:text-white' },
+    { type: 'view-logs', name: 'View Logs', description: 'Browse log files', icon: '👀', gradient: 'border-2 bg-white border-[#333333] text-black dark:bg-[#111111] dark:border-white dark:text-white' }
 ])
 
 // Methods
