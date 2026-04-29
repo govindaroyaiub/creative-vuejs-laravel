@@ -17,6 +17,7 @@ use App\Models\newVersion;
 use App\Models\newBanner;
 use App\Models\ColorPalette;
 use App\Models\VideoSize;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
@@ -328,6 +329,62 @@ class NewPreviewController extends Controller
         ]);
     }
 
+    public function show2($slug)
+    {
+        $preview = newPreview::with(['client.colorPalette', 'colorPalette', 'uploader'])->where('slug', $slug)->firstOrFail();
+
+        if ($preview->requires_login && !Auth::check()) {
+            Session::put('preview_redirect_after_login', route('previews-show-2', $slug));
+            return Inertia::render('Previews/Login', [
+                'preview_id' => $preview->id,
+            ]);
+        }
+
+        $palette = ColorPalette::find($preview->color_palette_id);
+        $client = Client::select(['id', 'name', 'logo'])->find($preview->client_id);
+        $headerLogo = Client::select(['id', 'name', 'logo'])->find($preview->header_logo_id);
+
+        $allColors = ColorPalette::where('status', 1)
+            ->select('id', 'name', 'primary', 'secondary', 'tertiary', 'quaternary', 'quinary', 'senary', 'septenary')
+            ->get()
+            ->map(fn ($c) => [
+                'id'         => $c->id,
+                'name'       => $c->name,
+                'primary'    => $c->primary,
+                'secondary'  => $c->secondary,
+                'tertiary'   => $c->tertiary,
+                'quaternary' => $c->quaternary,
+                'quinary'    => $c->quinary,
+                'senary'     => $c->senary,
+                'septenary'  => $c->septenary,
+            ]);
+
+        $authUserClientName = Auth::check()
+            ? (Client::select(['id', 'name'])->find(Auth::user()->client_id)?->name ?? 'Unknown')
+            : 'guest';
+
+        return Inertia::render('Previews/Show2', [
+            'preview'            => $preview,
+            'client'             => $client,
+            'headerLogo'         => $headerLogo,
+            'palette'            => $palette ? [
+                'id'         => $palette->id,
+                'name'       => $palette->name,
+                'primary'    => $palette->primary,
+                'secondary'  => $palette->secondary,
+                'tertiary'   => $palette->tertiary,
+                'quaternary' => $palette->quaternary,
+                'quinary'    => $palette->quinary,
+                'senary'     => $palette->senary,
+                'septenary'  => $palette->septenary,
+            ] : null,
+            'allColors'          => $allColors,
+            'authUserClientName' => $authUserClientName,
+            'previewId'          => $preview->id,
+            'isAuthenticated'    => Auth::check(),
+        ]);
+    }
+
     /**
      * Show the form for editing the specified resource.
      */
@@ -488,7 +545,7 @@ class NewPreviewController extends Controller
         $client = Client::select(['id', 'name', 'logo'])->find($preview->client_id);
         $client_name = $client->name;
 
-        return Inertia::render('Previews/Update', [
+        return Inertia::render('Previews/Update2', [
             'preview' => $preview,
             'preview_id' => $preview_id,
             // per-category transfer slugs are attached on the preview.categories items
@@ -500,8 +557,54 @@ class NewPreviewController extends Controller
         ]);
     }
 
+    public function updatePreview2($id)
+    {
+        $preview = newPreview::with([
+            'categories.feedbacks.feedbackSets.versions.banners.size',
+            'categories.feedbacks.feedbackSets.versions.videos.size',
+            'categories.feedbacks.feedbackSets.versions.socials',
+            'categories.feedbacks.feedbackSets.versions.gifs.size',
+        ])->findOrFail($id);
+
+        foreach ($preview->categories as $category) {
+            $category->file_transfer_slug = null;
+            if (!empty($category->file_transfer_id)) {
+                $ft = FileTransfer::find($category->file_transfer_id);
+                if ($ft) {
+                    $category->file_transfer_slug = $ft->slug;
+                }
+            }
+        }
+
+        $client = Client::select(['id', 'name', 'logo'])->find($preview->client_id);
+
+        return Inertia::render('Previews/Update2', [
+            'preview'      => $preview,
+            'preview_id'   => $preview->id,
+            'preview_name' => $preview->name,
+            'preview_slug' => $preview->slug,
+            'client_name'  => $client?->name,
+            'bannerSizes'  => BannerSize::orderBy('width')->orderBy('height')->get(),
+            'videoSizes'   => VideoSize::orderBy('width')->orderBy('height')->get(),
+        ]);
+    }
+
     public function bulkEdit(Request $request, $id)
     {
+        // Idempotency: if the client sent an `idempotency_key`, refuse to
+        // process the same key twice. Cache::add returns false if the key
+        // already exists, which means the original request already landed.
+        $idempotencyKey = $request->input('idempotency_key');
+        if ($idempotencyKey) {
+            $cacheKey = "bulk-edit:{$id}:{$idempotencyKey}";
+            $acquired = Cache::add($cacheKey, 1, now()->addMinutes(10));
+            if (!$acquired) {
+                // Already processed (or in flight). Send the user back to the
+                // edit page; their state will reload from the DB.
+                return back()->with('flash', ['message' => 'Save already applied.']);
+            }
+        }
+
         $validated = $request->validate([
             'preview_id' => 'required|exists:new_previews,id',
             'categories' => 'required|array|min:1',

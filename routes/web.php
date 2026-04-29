@@ -62,6 +62,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::put('/previews-edit/{newPreview}', [NewPreviewController::class, 'update'])->name('previews-update');
     Route::delete('/previews-delete/{newPreview}', [NewPreviewController::class, 'destroy'])->name('previews-delete');
     Route::get('/previews/update/{id}', [NewPreviewController::class, 'updatePreview'])->name('previews.update.all');
+    Route::get('/previews/update2/{id}', [NewPreviewController::class, 'updatePreview2'])->name('previews.update2.all');
     Route::post('/previews/{id}/bulk-edit', [NewPreviewController::class, 'bulkEdit'])->name('previews.bulkEdit');
 
     Route::delete('/previews/category/delete/{id}', [NewCategoryController::class, 'destroy'])->name('previews.category.delete');
@@ -208,6 +209,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
 });
 
 Route::get('/previews/show/{slug}', [newPreviewController::class, 'show'])->name('previews-show');
+Route::get('/previews/show2/{slug}', [newPreviewController::class, 'show2'])->name('previews-show-2');
 
 //preview axios get requests start
 
