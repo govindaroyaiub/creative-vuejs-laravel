@@ -108,8 +108,13 @@ const saveAll = () => {
   router.post(`/previews/${p.id}/bulk-edit`, fd, {
     forceFormData: true,
     preserveScroll: true,
-    onSuccess: () => {
-      tree.clearDirty()
+    onSuccess: (page: any) => {
+      // Swap local temp IDs for the server's real DB IDs so `hasUnsavedNew`
+      // drops to 0. `clearDirty()` alone leaves new records counted as
+      // unsaved and the TopBar badge sticks.
+      const fresh = page?.props?.preview
+      if (fresh) tree.rehydrate(fresh)
+      else tree.clearDirty()
       pendingIdempotencyKey.value = null
       Swal.fire({
         icon: 'success',

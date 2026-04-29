@@ -250,7 +250,12 @@ export function createPreviewTree(initialPreview: any) {
     return undefined
   }
 
-  const addAsset = (versionId: any, type: AssetType, partial: any = {}) => {
+  const addAsset = (
+    versionId: any,
+    type: AssetType,
+    partial: any = {},
+    options: { select?: boolean } = {}
+  ) => {
     for (const c of preview.categories) {
       for (const f of c.feedbacks) {
         for (const s of f.feedback_sets) {
@@ -263,14 +268,17 @@ export function createPreviewTree(initialPreview: any) {
                 ...partial,
               }
               list.push(asset)
-              select({ kind: 'asset', id: asset.id, assetType: type })
-              expandPathTo({ kind: 'asset', id: asset.id, assetType: type })
+              if (options.select !== false) {
+                select({ kind: 'asset', id: asset.id, assetType: type })
+                expandPathTo({ kind: 'asset', id: asset.id, assetType: type })
+              }
               return asset
             }
           }
         }
       }
     }
+    return undefined
   }
 
   // ---------------------------------------------------------------------
@@ -317,6 +325,53 @@ export function createPreviewTree(initialPreview: any) {
     }
   }
 
+  /**
+   * Replace the local tree with fresh server data (called after a successful
+   * save). This is what swaps temp IDs (`>=1e12`) for real DB IDs, so
+   * `hasUnsavedNew` drops to 0 and a second Save All can target the right
+   * rows. Selection is kept if the same kind+id still exists; otherwise
+   * cleared so the inspector falls back to the empty state.
+   */
+  const rehydrate = (newPreview: any) => {
+    if (!newPreview) return
+
+    const next: any = JSON.parse(JSON.stringify(newPreview))
+
+    // Match the normalisation done in `createPreviewTree`
+    for (const c of next.categories || []) {
+      c.feedbacks ||= []
+      for (const f of c.feedbacks) {
+        f.feedback_sets ||= f.feedbackSets || []
+        delete f.feedbackSets
+        for (const s of f.feedback_sets) {
+          s.versions ||= []
+          for (const v of s.versions) {
+            v.banners ||= []
+            v.videos ||= []
+            v.socials ||= []
+            v.gifs ||= []
+          }
+        }
+      }
+    }
+
+    // Replace fields in-place so anything holding a reference to `preview`
+    // (template bindings, child components) keeps working.
+    for (const k of Object.keys(preview)) {
+      if (!(k in next)) delete (preview as any)[k]
+    }
+    Object.assign(preview, next)
+
+    // Wipe dirty state — by definition we're back in sync with the server.
+    dirtyKeys.value = new Set()
+
+    // Drop selection if its target no longer exists (typical when the user
+    // had a freshly-created node selected; it now has a different DB id).
+    if (selection.value && !findPath(selection.value).category) {
+      selection.value = null
+    }
+  }
+
   return {
     // state
     preview,
@@ -354,6 +409,9 @@ export function createPreviewTree(initialPreview: any) {
     addVersion,
     addAsset,
     removeNode,
+
+    // server sync
+    rehydrate,
   }
 }
 
