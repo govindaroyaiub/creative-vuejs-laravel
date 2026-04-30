@@ -162,7 +162,7 @@ const skeletonCount = computed(() => {
             >Version</div>
             <div class="text-base font-semibold text-zinc-900 dark:text-zinc-100">{{ set.name }}</div>
           </div>
-          <div class="ml-auto h-px flex-1 bg-gradient-to-r from-[var(--p2-accent-soft)] to-transparent" />
+          <div class="ml-auto h-px flex-1 bg-gradient-to-r from-[var(--p2-accent)] to-transparent" />
         </header>
 
         <div class="space-y-6">

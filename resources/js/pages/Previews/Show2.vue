@@ -46,9 +46,12 @@ const DEFAULT_PALETTE = {
   septenary:  '#1f2937',
 }
 
-const accent = computed(() => props.palette?.primary || DEFAULT_PALETTE.primary)
-const accent2 = computed(() => props.palette?.tertiary || DEFAULT_PALETTE.tertiary)
-const accent3 = computed(() => props.palette?.senary || DEFAULT_PALETTE.senary)
+// Mirror the prop into a local ref so theme changes apply instantly without
+// a page reload — `onThemeChange` updates this and the CSS vars recompute.
+const currentPalette = ref<Palette | null>(props.palette)
+const accent = computed(() => currentPalette.value?.primary || DEFAULT_PALETTE.primary)
+const accent2 = computed(() => currentPalette.value?.tertiary || DEFAULT_PALETTE.tertiary)
+const accent3 = computed(() => currentPalette.value?.senary || DEFAULT_PALETTE.senary)
 const accentSoft = computed(() => `${accent.value}1a`)   // ~10% alpha (light)
 const accentMuted = computed(() => `${accent.value}33`)  // ~20% alpha
 const accent2Soft = computed(() => `${accent2.value}14`) // ~8%  alpha (light)
@@ -141,86 +144,109 @@ const applyAjaxPayload = (data: any) => {
   fileTransfer.value = data.fileTransfer || null
 }
 
-const loadVersionsAndAssets = async () => {
-  if (!activeCategory.value) return
-  isAssetsLoading.value = true
-  const type = activeCategory.value.type
-  try {
-    await Promise.all(
-      feedbackSets.value.map(async (set) => {
-        const versionsRes = await axios.get(`/preview/renderVersions/${set.id}`)
-        const versions = (versionsRes.data.versions || []).map((v: any) => ({ ...v, assets: [] }))
-        set.versions = versions
+// Race-condition guard. Each async select operation bumps + captures the
+// epoch; after every await we re-check it. If the user fired another
+// select while we were waiting, the stale handler bails out before
+// overwriting fresh state with old data or clearing the loading flag too
+// early (which was making the empty state flash on rapid switches).
+let activeEpoch = 0
 
-        await Promise.all(
-          versions.map(async (version: any) => {
-            try {
-              if (type === 'banner') {
-                const r = await axios.get(`/preview/renderBanners/${version.id}`)
-                version.assets = r.data.banners || []
-              } else if (type === 'video') {
-                const r = await axios.get(`/preview/renderVideos/${version.id}`)
-                version.assets = r.data.videos || []
-              } else if (type === 'social') {
-                const r = await axios.get(`/preview/renderSocials/${version.id}`)
-                version.assets = r.data.socials || []
-              } else if (type === 'gif') {
-                const r = await axios.get(`/preview/renderGifs/${version.id}`)
-                version.assets = r.data.gifs || []
-              }
-            } catch (e) {
-              version.assets = []
+const loadVersionsAndAssets = async (epoch: number) => {
+  if (!activeCategory.value) return
+  const type = activeCategory.value.type
+  await Promise.all(
+    feedbackSets.value.map(async (set) => {
+      const versionsRes = await axios.get(`/preview/renderVersions/${set.id}`)
+      if (epoch !== activeEpoch) return
+      const versions = (versionsRes.data.versions || []).map((v: any) => ({ ...v, assets: [] }))
+      set.versions = versions
+
+      await Promise.all(
+        versions.map(async (version: any) => {
+          try {
+            if (type === 'banner') {
+              const r = await axios.get(`/preview/renderBanners/${version.id}`)
+              if (epoch !== activeEpoch) return
+              version.assets = r.data.banners || []
+            } else if (type === 'video') {
+              const r = await axios.get(`/preview/renderVideos/${version.id}`)
+              if (epoch !== activeEpoch) return
+              version.assets = r.data.videos || []
+            } else if (type === 'social') {
+              const r = await axios.get(`/preview/renderSocials/${version.id}`)
+              if (epoch !== activeEpoch) return
+              version.assets = r.data.socials || []
+            } else if (type === 'gif') {
+              const r = await axios.get(`/preview/renderGifs/${version.id}`)
+              if (epoch !== activeEpoch) return
+              version.assets = r.data.gifs || []
             }
-          })
-        )
-      })
-    )
-  } finally {
-    isAssetsLoading.value = false
-  }
+          } catch {
+            version.assets = []
+          }
+        })
+      )
+    })
+  )
 }
 
 const initialLoad = async () => {
+  const epoch = ++activeEpoch
   isInitialLoading.value = true
   try {
     const res = await axios.get(`/preview/renderCategories/${props.previewId}`)
+    if (epoch !== activeEpoch) return
     applyAjaxPayload(res.data)
-    await loadVersionsAndAssets()
+    await loadVersionsAndAssets(epoch)
   } catch (e) {
     console.error('Failed to load categories', e)
   } finally {
-    isInitialLoading.value = false
+    if (epoch === activeEpoch) {
+      isInitialLoading.value = false
+    }
   }
 }
 
 const onCategorySelect = async (categoryId: number) => {
   if (activeCategory.value?.id === categoryId) return
+  const epoch = ++activeEpoch
   isAssetsLoading.value = true
   isSidebarOpen.value = false
   try {
     const res = await axios.get(`/preview/updateActiveCategory/${categoryId}`)
+    if (epoch !== activeEpoch) return
     applyAjaxPayload(res.data)
-    await loadVersionsAndAssets()
+    await loadVersionsAndAssets(epoch)
   } finally {
-    isAssetsLoading.value = false
+    if (epoch === activeEpoch) {
+      isAssetsLoading.value = false
+    }
   }
 }
 
 const onFeedbackSelect = async (feedbackId: number) => {
   if (activeFeedback.value?.id === feedbackId) return
+  const epoch = ++activeEpoch
   isAssetsLoading.value = true
   try {
     const res = await axios.get(`/preview/updateActiveFeedback/${feedbackId}`)
+    if (epoch !== activeEpoch) return
     applyAjaxPayload(res.data)
-    await loadVersionsAndAssets()
+    await loadVersionsAndAssets(epoch)
   } finally {
-    isAssetsLoading.value = false
+    if (epoch === activeEpoch) {
+      isAssetsLoading.value = false
+    }
   }
 }
 
 const onThemeChange = (colorId: number) => {
-  axios.get(`/preview/${props.previewId}/change/theme/${colorId}`).then((res) => {
-    if (res.data?.success) location.reload()
+  // Apply locally for instant feedback; the request below just persists.
+  const next = props.allColors.find((p) => p.id === colorId)
+  if (next) currentPalette.value = next
+  isPaletteOpen.value = false
+  axios.get(`/preview/${props.previewId}/change/theme/${colorId}`).catch((err) => {
+    console.error('Failed to persist theme change', err)
   })
 }
 
@@ -327,7 +353,7 @@ const themeStyle = computed(() => ({
     <PaletteSwitcher
       v-model:open="isPaletteOpen"
       :all-colors="allColors"
-      :current-id="palette?.id"
+      :current-id="currentPalette?.id"
       @select="onThemeChange"
     />
 

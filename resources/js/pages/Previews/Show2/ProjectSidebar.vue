@@ -67,7 +67,7 @@ const sorted = computed(() =>
       <div class="border-b border-zinc-100 px-5 py-4 dark:border-zinc-800">
         <div class="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-400">Creatives</div>
         <div class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-          {{ categories.length }} {{ categories.length === 1 ? 'project' : 'projects' }}
+          Total: {{ categories.length }} {{ categories.length === 1 ? 'creative' : 'creatives' }}
         </div>
       </div>
 

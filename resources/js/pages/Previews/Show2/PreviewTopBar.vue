@@ -144,7 +144,7 @@ const isPlanetNineStaff = computed(() => props.authUserClientName === 'Planet Ni
           <input type="hidden" name="preview_id" :value="preview.id" />
           <button
             type="submit"
-            class="inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-zinc-800"
+            class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-700"
           >
             <LogOut class="h-4 w-4" />
             <span class="hidden sm:inline">Logout</span>

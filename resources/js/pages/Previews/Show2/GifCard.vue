@@ -35,9 +35,6 @@ const reload = () => {
   >
     <div class="flex items-center justify-between gap-2 border-b border-zinc-100 px-3 py-2 dark:border-zinc-800">
       <div class="flex items-center gap-2">
-        <span class="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
-          GIF
-        </span>
         <span class="font-mono text-[11px] font-semibold tabular-nums text-zinc-700 dark:text-zinc-200">
           {{ width }}<span class="text-zinc-400 dark:text-zinc-500">×</span>{{ height }}
         </span>
@@ -60,7 +57,7 @@ const reload = () => {
         />
       </div>
 
-      <div class="pointer-events-none absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+      <div class="pointer-events-none absolute right-2 bottom-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
         <button
           type="button"
           class="pointer-events-auto grid h-7 w-7 place-items-center rounded-md bg-white/90 text-zinc-700 shadow-sm ring-1 ring-zinc-200 backdrop-blur transition hover:bg-white hover:text-[var(--p2-accent)] dark:bg-zinc-900/90 dark:text-zinc-300 dark:ring-zinc-700 dark:hover:bg-zinc-900"
