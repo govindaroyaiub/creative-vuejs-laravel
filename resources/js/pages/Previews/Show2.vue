@@ -323,11 +323,6 @@ const themeStyle = computed(() => ({
       :feedback="activeFeedback"
     />
 
-    <FileTransferDock
-      v-if="fileTransfer"
-      :file-transfer="fileTransfer"
-      data-tour="file-transfer"
-    />
 
     <PaletteSwitcher
       v-model:open="isPaletteOpen"
@@ -343,10 +338,18 @@ const themeStyle = computed(() => ({
       @update:open="onIntroOpenChange"
     />
 
-    <IntroAssistant
-      v-show="!isIntroOpen"
-      @start-tour="isIntroOpen = true"
-    />
+    <!-- Floating bottom-right row: file transfer dock left of the help fab -->
+    <div class="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-3">
+      <FileTransferDock
+        v-if="fileTransfer"
+        :file-transfer="fileTransfer"
+        data-tour="file-transfer"
+      />
+      <IntroAssistant
+        v-show="!isIntroOpen"
+        @start-tour="isIntroOpen = true"
+      />
+    </div>
   </div>
 </template>
 

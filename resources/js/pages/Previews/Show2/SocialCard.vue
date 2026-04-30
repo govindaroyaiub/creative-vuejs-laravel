@@ -169,7 +169,7 @@ onUnmounted(() => {
       <img
         :src="`/${social.path}`"
         :alt="social.name"
-        class="block aspect-square w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+        class="block w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
         loading="lazy"
       />
 

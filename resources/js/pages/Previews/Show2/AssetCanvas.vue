@@ -181,7 +181,7 @@ const skeletonCount = computed(() => {
             <!-- Banners -->
             <div
               v-if="categoryType === 'banner'"
-              class="flex flex-wrap items-start gap-5"
+              class="flex flex-wrap items-end gap-5"
               :data-tour="sIdx === 0 && vIdx === 0 ? 'assets' : undefined"
             >
               <BannerCard
@@ -195,7 +195,7 @@ const skeletonCount = computed(() => {
             <!-- GIFs -->
             <div
               v-else-if="categoryType === 'gif'"
-              class="flex flex-wrap items-start gap-5"
+              class="flex flex-wrap items-end gap-5"
               :data-tour="sIdx === 0 && vIdx === 0 ? 'assets' : undefined"
             >
               <GifCard

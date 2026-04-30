@@ -114,7 +114,7 @@ const performDelete = async () => {
       </div>
     </div>
 
-    <div v-else class="mx-auto flex min-h-full max-w-3xl flex-col px-6 py-5">
+    <div v-else class="mx-auto flex min-h-full max-w-6xl flex-col px-6 py-5">
       <!-- Breadcrumb -->
       <nav class="mb-4 flex flex-wrap items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
         <template v-for="(c, idx) in breadcrumb" :key="idx">

@@ -52,7 +52,7 @@ const addVersion = () => {
         <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Sets in this version</h3>
         <button
           type="button"
-          class="inline-flex items-center gap-1 rounded-md border border-zinc-200 px-2.5 py-1.5 text-[11px] font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-300 dark:hover:text-zinc-100"
+          class="inline-flex items-center gap-1 rounded-md bg-indigo-50 px-2.5 py-1.5 text-[11px] font-semibold text-indigo-700 ring-1 ring-inset ring-indigo-200 transition hover:bg-indigo-100 dark:bg-indigo-500/15 dark:text-indigo-300 dark:ring-indigo-500/30 dark:hover:bg-indigo-500/25"
           @click="addVersion"
         >
           <Plus class="h-3 w-3" /> New set

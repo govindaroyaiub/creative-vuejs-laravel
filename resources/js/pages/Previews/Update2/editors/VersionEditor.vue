@@ -139,7 +139,10 @@ const addFiles = (filesIn: FileList | File[]) => {
   const files = Array.from(filesIn)
   if (!files.length) return
   const t = assetType.value
-  files.forEach((f) => {
+
+  // Build partial asset objects up-front so we can sort them before pushing
+  // them into the tree.
+  const partials = files.map((f) => {
     const partial: any = {
       name: f.name.replace(/\.[^.]+$/, ''),
       file: f,
@@ -147,8 +150,6 @@ const addFiles = (filesIn: FileList | File[]) => {
     if (t === 'banner' || t === 'gif') {
       const detected = detectSize(f.name)
       partial.size_id = detected?.id ?? null
-      // Attach a synthetic size object too so the row's chip + inspector
-      // header can render the dimensions immediately.
       if (detected) {
         partial.size = { id: detected.id, width: detected.width, height: detected.height }
       }
@@ -159,9 +160,28 @@ const addFiles = (filesIn: FileList | File[]) => {
       partial.aspect_ratio = ''
       partial.fps = ''
     }
+    return partial
+  })
+
+  // Auto-sort banners (and gifs, same dimension story) by detected size:
+  // smallest width first, with height as a tiebreaker. Files with no
+  // detectable size sink to the bottom so the user notices and picks one.
+  if (t === 'banner' || t === 'gif') {
+    partials.sort((a, b) => {
+      const aw = a.size?.width ?? Number.POSITIVE_INFINITY
+      const bw = b.size?.width ?? Number.POSITIVE_INFINITY
+      if (aw !== bw) return aw - bw
+      const ah = a.size?.height ?? Number.POSITIVE_INFINITY
+      const bh = b.size?.height ?? Number.POSITIVE_INFINITY
+      return ah - bh
+    })
+  }
+
+  partials.forEach((partial) => {
     const a = tree.addAsset(props.version.id, t, partial, { select: false })
     if (a) tree.markDirty({ kind: 'asset', id: a.id, assetType: t })
   })
+
   // Renumber positions to match the new list order
   assets.value.forEach((a: any, i: number) => {
     a.position = i + 1

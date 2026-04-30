@@ -81,7 +81,7 @@ const filtered = computed(() => {
       </div>
       <button
         type="button"
-        class="grid h-8 w-8 place-items-center rounded-lg bg-zinc-900 text-white transition hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+        class="grid h-8 w-8 place-items-center rounded-lg bg-indigo-600 text-white shadow-sm transition hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
         title="New project"
         aria-label="Add category"
         @click="$emit('add-category')"

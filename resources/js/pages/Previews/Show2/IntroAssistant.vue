@@ -14,12 +14,12 @@ const toggle = () => { isOpen.value = !isOpen.value }
 </script>
 
 <template>
-  <div class="fixed bottom-5 left-5 z-40 w-[19rem] max-w-[calc(100vw-2.5rem)]">
+  <div class="relative w-[19rem] max-w-[calc(100vw-2.5rem)]">
     <!-- Chat panel (above the FAB) -->
     <Transition name="assistant-panel">
       <div
         v-if="isOpen"
-        class="mb-3 origin-bottom-left overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl shadow-zinc-900/15 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/40"
+        class="mb-3 origin-bottom-right overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl shadow-zinc-900/15 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/40"
       >
         <!-- Header -->
         <div
@@ -101,7 +101,7 @@ const toggle = () => { isOpen.value = !isOpen.value }
     <!-- Floating action button -->
     <button
       type="button"
-      class="grid h-12 w-12 place-items-center rounded-full text-white shadow-xl transition active:scale-95"
+      class="ml-auto grid h-12 w-12 place-items-center rounded-full text-white shadow-xl transition active:scale-95"
       :class="isOpen ? '' : 'hover:scale-105'"
       :style="{
         background:

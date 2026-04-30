@@ -10,8 +10,8 @@ const isMinimized = ref(false)
 </script>
 
 <template>
-  <div class="fixed bottom-5 right-5 z-40 max-w-xs">
-    <Transition name="dock">
+  <div class="max-w-xs">
+    <Transition name="dock" mode="out-in">
       <div v-if="!isMinimized"
         class="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-3 pr-2 shadow-xl shadow-zinc-900/10 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/40">
         <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-white"
