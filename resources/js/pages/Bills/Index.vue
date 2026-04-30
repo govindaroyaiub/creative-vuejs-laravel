@@ -97,7 +97,7 @@ onMounted(() => {
                     <input v-model="search" placeholder="Search..."
                         class="w-full sm:max-w-xs rounded-full border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-2 bg-white dark:bg-black text-[#1A1A1A] dark:text-[#E8E8E8] focus:border-black dark:focus:border-white focus:outline-none transition-colors" />
                     <Link :href="route('bills-create')"
-                        class="rounded-full bg-black dark:bg-white text-white dark:text-black px-4 py-2 hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white flex items-center justify-center whitespace-nowrap group uppercase font-mono tracking-wider text-sm transition-colors">
+                        class="rounded-full bg-black dark:bg-white text-white dark:text-black px-4 py-2 hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white flex items-center justify-center whitespace-nowrap group font-mono tracking-wide text-sm transition-colors">
                         <CirclePlus class="mr-2 h-5 w-5 group-hover:rotate-90 transition-transform duration-200"
                             stroke-width="1.5" />
                         Add Bill
@@ -107,8 +107,8 @@ onMounted(() => {
                 <!-- Desktop Table -->
                 <div class="hidden lg:block rounded-lg overflow-x-auto border-2 border-[#E8E8E8] dark:border-[#222222]">
                     <table class="w-full rounded bg-white dark:bg-[#111111]">
-                        <thead class="bg-[#F5F5F5] dark:bg-[#0A0A0A] text-black dark:text-white">
-                            <tr class="text-center text-xs uppercase font-mono tracking-wider">
+                        <thead class="bg-[#F5F5F5] dark:bg-black text-black dark:text-white">
+                            <tr class="text-center text-xs font-mono tracking-wide">
                                 <th class="px-4 py-3 border-b border-[#E8E8E8] dark:border-[#222222]">#</th>
                                 <th class="px-4 py-3 border-b border-[#E8E8E8] dark:border-[#222222]">Name</th>
                                 <th class="px-4 py-3 border-b border-[#E8E8E8] dark:border-[#222222]">Client</th>
@@ -159,7 +159,7 @@ onMounted(() => {
                             </tr>
                             <tr v-if="bills.data.length === 0">
                                 <td colspan="6"
-                                    class="px-4 py-8 text-center text-[#666666] dark:text-[#999999] uppercase font-mono tracking-wider text-sm">
+                                    class="px-4 py-8 text-center text-[#666666] dark:text-[#999999] font-mono tracking-wide text-sm">
                                     No bills
                                     found.</td>
                             </tr>
@@ -176,10 +176,10 @@ onMounted(() => {
                         <div class="flex items-start justify-between mb-3">
                             <div class="flex-1 min-w-0">
                                 <div
-                                    class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1 tabular-nums">
+                                    class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-1 tabular-nums">
                                     #{{ index + 1 }}
                                 </div>
-                                <h3 class="font-semibold text-lg break-words uppercase font-mono">
+                                <h3 class="font-semibold text-sm break-words font-mono">
                                     {{ bill.name }}
                                 </h3>
                             </div>
@@ -208,19 +208,19 @@ onMounted(() => {
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                             <div class="text-sm">
                                 <span
-                                    class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">Client:</span>
+                                    class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">Client:</span>
                                 <span class="ml-1">{{ bill.client || 'No client' }}</span>
                             </div>
                             <div class="text-sm">
                                 <span
-                                    class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">Amount:</span>
+                                    class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">Amount:</span>
                                 <span class="font-bold ml-1 tabular-nums">{{ bill.total_amount }}</span>
                             </div>
                         </div>
 
                         <!-- Date -->
                         <div class="text-sm text-[#666666] dark:text-[#999999]">
-                            <span class="text-xs uppercase font-mono tracking-wider">Created:</span>
+                            <span class="text-xs font-mono tracking-wide">Created:</span>
                             <span class="ml-1">{{ new Date(bill.created_at).toLocaleDateString('en-GB', {
                                 day: '2-digit',
                                 month: 'long',
@@ -232,7 +232,7 @@ onMounted(() => {
                     <!-- No results card -->
                     <div v-if="bills.data.length === 0"
                         class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-8 text-center">
-                        <div class="text-[#666666] dark:text-[#999999] uppercase font-mono tracking-wider text-sm">No
+                        <div class="text-[#666666] dark:text-[#999999] font-mono tracking-wide text-sm">No
                             bills found.</div>
                     </div>
                 </div>
@@ -244,7 +244,7 @@ onMounted(() => {
                     <div class="lg:hidden">
                         <!-- Results Info -->
                         <div
-                            class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] text-center mb-3">
+                            class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] text-center mb-3">
                             Showing <span class="tabular-nums">{{ bills.from }}</span> to <span class="tabular-nums">{{
                                 bills.to }}</span> of <span class="tabular-nums">{{ bills.total }}</span> bills
                         </div>
@@ -252,7 +252,7 @@ onMounted(() => {
                         <!-- Simple prev/next navigation -->
                         <div class="flex items-center justify-between gap-4">
                             <button @click="changePage(bills.prev_page_url)" :disabled="!bills.prev_page_url"
-                                class="px-4 py-2 text-xs rounded-full transition-colors uppercase font-mono tracking-wider flex items-center gap-2"
+                                class="px-4 py-2 text-xs rounded-full transition-colors font-mono tracking-wide flex items-center gap-2"
                                 :class="bills.prev_page_url
                                     ? 'text-black dark:text-white hover:bg-black hover:dark:bg-white hover:text-white hover:dark:text-black border-2 border-black dark:border-white'
                                     : 'text-[#CCCCCC] dark:text-[#333333] cursor-not-allowed border-2 border-[#CCCCCC] dark:border-[#333333]'">
@@ -260,13 +260,13 @@ onMounted(() => {
                                 Previous
                             </button>
 
-                            <span class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">
+                            <span class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">
                                 Page <span class="tabular-nums">{{ bills.current_page }}</span> of <span
                                     class="tabular-nums">{{ bills.last_page }}</span>
                             </span>
 
                             <button @click="changePage(bills.next_page_url)" :disabled="!bills.next_page_url"
-                                class="px-4 py-2 text-xs rounded-full transition-colors uppercase font-mono tracking-wider flex items-center gap-2"
+                                class="px-4 py-2 text-xs rounded-full transition-colors font-mono tracking-wide flex items-center gap-2"
                                 :class="bills.next_page_url
                                     ? 'text-black dark:text-white hover:bg-black hover:dark:bg-white hover:text-white hover:dark:text-black border-2 border-black dark:border-white'
                                     : 'text-[#CCCCCC] dark:text-[#333333] cursor-not-allowed border-2 border-[#CCCCCC] dark:border-[#333333]'">
@@ -279,7 +279,7 @@ onMounted(() => {
                     <!-- Desktop pagination (full features) -->
                     <div class="hidden lg:flex items-center justify-between">
                         <!-- Results Info -->
-                        <div class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">
+                        <div class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">
                             Showing <span class="tabular-nums">{{ bills.from }}</span> to <span class="tabular-nums">{{
                                 bills.to }}</span> of <span class="tabular-nums">{{ bills.total }}</span> bills
                         </div>
@@ -288,7 +288,7 @@ onMounted(() => {
                         <div class="flex items-center space-x-2">
                             <!-- Previous Button -->
                             <button @click="changePage(bills.prev_page_url)" :disabled="!bills.prev_page_url"
-                                class="px-4 py-2 text-xs rounded-full transition-colors flex items-center uppercase font-mono tracking-wider"
+                                class="px-4 py-2 text-xs rounded-full transition-colors flex items-center font-mono tracking-wide"
                                 :class="bills.prev_page_url
                                     ? 'text-black dark:text-white hover:bg-black hover:dark:bg-white hover:text-white hover:dark:text-black border-2 border-black dark:border-white'
                                     : 'text-[#CCCCCC] dark:text-[#333333] cursor-not-allowed border-2 border-[#CCCCCC] dark:border-[#333333]'">
@@ -313,7 +313,7 @@ onMounted(() => {
 
                             <!-- Next Button -->
                             <button @click="changePage(bills.next_page_url)" :disabled="!bills.next_page_url"
-                                class="px-4 py-2 text-xs rounded-full transition-colors flex items-center uppercase font-mono tracking-wider"
+                                class="px-4 py-2 text-xs rounded-full transition-colors flex items-center font-mono tracking-wide"
                                 :class="bills.next_page_url
                                     ? 'text-black dark:text-white hover:bg-black hover:dark:bg-white hover:text-white hover:dark:text-black border-2 border-black dark:border-white'
                                     : 'text-[#CCCCCC] dark:text-[#333333] cursor-not-allowed border-2 border-[#CCCCCC] dark:border-[#333333]'">

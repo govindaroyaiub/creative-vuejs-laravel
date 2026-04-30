@@ -21,9 +21,9 @@
                 </svg>
               </div>
               <div>
-                <p class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">Total Palettes
+                <p class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">Total Palettes
                 </p>
-                <p class="text-2xl font-bold font-mono tabular-nums text-black dark:text-white">{{ colorPalettes?.length
+                <p class="text-lg font-bold font-mono tabular-nums text-black dark:text-white">{{ colorPalettes?.length
                   || 0 }}</p>
               </div>
             </div>
@@ -37,9 +37,9 @@
                 </svg>
               </div>
               <div>
-                <p class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">Active Palettes
+                <p class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">Active Palettes
                 </p>
-                <p class="text-2xl font-bold font-mono tabular-nums text-black dark:text-white">
+                <p class="text-lg font-bold font-mono tabular-nums text-black dark:text-white">
                   {{colorPalettes?.filter(p => p.status).length || 0}}
                 </p>
               </div>
@@ -55,9 +55,9 @@
                 </svg>
               </div>
               <div>
-                <p class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">Color
+                <p class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">Color
                   Variations</p>
-                <p class="text-2xl font-bold font-mono tabular-nums text-black dark:text-white">{{ colorKeys.length }}
+                <p class="text-lg font-bold font-mono tabular-nums text-black dark:text-white">{{ colorKeys.length }}
                 </p>
               </div>
             </div>
@@ -76,7 +76,7 @@
               class="w-full pl-10 pr-4 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] bg-white dark:bg-black text-[#1A1A1A] dark:text-[#E8E8E8] placeholder-[#666666] dark:placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors rounded-full" />
           </div>
           <button @click="openAddModal"
-            class="w-1/5 inline-flex items-center justify-center px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors uppercase font-mono tracking-wider text-sm group">
+            class="w-1/5 inline-flex items-center justify-center px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors font-mono tracking-wide text-sm group">
             <CirclePlus class="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-200" />
             Add Palette
           </button>
@@ -95,7 +95,7 @@
                     <span class="font-bold font-mono tabular-nums text-black dark:text-white">#{{ index + 1 }}</span>
                   </div>
                   <div>
-                    <h3 class="font-semibold text-black dark:text-white text-lg uppercase font-mono tracking-wider">{{
+                    <h3 class="font-semibold text-black dark:text-white text-sm font-mono">{{
                       palette.name }}</h3>
                     <div class="flex items-center mt-1">
                       <label class="relative inline-flex items-center cursor-pointer">
@@ -108,7 +108,7 @@
                           class="absolute left-0.5 top-0.5 w-4 h-4 bg-white dark:bg-black rounded-full transition-transform peer-checked:translate-x-4">
                         </div>
                       </label>
-                      <span class="ml-2 text-xs uppercase font-mono tracking-wider"
+                      <span class="ml-2 text-xs font-mono tracking-wide"
                         :class="palette.status ? 'text-black dark:text-white' : 'text-[#999999]'">
                         {{ palette.status ? 'Active' : 'Inactive' }}
                       </span>
@@ -136,7 +136,7 @@
 
               <!-- Header Image -->
               <div v-if="palette.header_image" class="mb-2">
-                <p class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">Header
+                <p class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">Header
                   Image</p>
                 <div
                   class="bg-[#F5F5F5] dark:bg-[#111111] border border-[#CCCCCC] dark:border-[#333333] rounded-lg p-3">
@@ -148,7 +148,7 @@
               <!-- Tab Images -->
               <div class="space-y-4">
                 <div>
-                  <p class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">Feedback
+                  <p class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">Feedback
                     Tabs</p>
                   <div
                     class="flex items-center justify-between space-x-4 bg-[#F5F5F5] dark:bg-[#111111] border border-[#CCCCCC] dark:border-[#333333] rounded-lg p-3">
@@ -167,7 +167,7 @@
                 </div>
 
                 <div>
-                  <p class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">Right
+                  <p class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">Right
                     Side Tabs</p>
                   <div
                     class="flex items-center justify-between space-x-4 bg-[#F5F5F5] dark:bg-[#111111] border border-[#CCCCCC] dark:border-[#333333] rounded-lg p-3">
@@ -229,13 +229,12 @@
               </path>
             </svg>
           </div>
-          <h3 class="text-xl font-semibold text-black dark:text-white mb-2 uppercase font-mono tracking-wider">No color
-            palettes found</h3>
+          <h3 class="text-base font-semibold text-black dark:text-white mb-2 font-mono">No color palettes found</h3>
           <p class="text-[#666666] dark:text-[#999999] mb-6 max-w-md mx-auto">
             {{ search ? 'Try adjusting your search terms' : 'Get started by creating your first color palette' }}
           </p>
           <button v-if="!search" @click="openAddModal"
-            class="inline-flex items-center px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors uppercase font-mono tracking-wider text-sm">
+            class="inline-flex items-center px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors font-mono tracking-wide text-sm">
             <CirclePlus class="w-5 h-5 mr-2" />
             Create Your First Palette
           </button>
@@ -244,13 +243,13 @@
     </div>
 
     <!-- Enhanced Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
       @click.self="closeModal">
       <div
-        class="bg-white dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg w-full max-w-6xl max-h-[90vh] overflow-hidden">
-        <div class="flex items-center justify-between p-6 border-b-2 border-[#E8E8E8] dark:border-[#222222]">
-          <h2 class="text-xl font-bold text-black dark:text-white uppercase font-mono tracking-wider">
-            {{ modalMode === 'edit' ? 'Edit Color Palette' : 'Create New Color Palette' }}
+        class="bg-white dark:bg-[#111111] border-2 border-black dark:border-white rounded-lg w-full max-w-6xl max-h-[90vh] overflow-hidden">
+        <div class="flex items-center justify-between p-4 border-b border-[#E8E8E8] dark:border-[#222222]">
+          <h2 class="text-base font-semibold font-mono text-black dark:text-white">
+            {{ modalMode === 'edit' ? 'Edit color palette' : 'Create new color palette' }}
           </h2>
           <button @click="closeModal"
             class="p-2 text-[#666666] dark:text-[#999999] hover:text-black hover:dark:text-white hover:bg-[#F5F5F5] hover:dark:bg-[#111111] rounded-full transition-all duration-200">
@@ -267,7 +266,7 @@
               <!-- Color Inputs -->
               <div>
                 <label
-                  class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">Color
+                  class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">Color
                   Variations</label>
                 <div class="grid grid-cols-1 gap-4">
                   <div v-for="key in colorKeys" :key="key"
@@ -276,7 +275,7 @@
                       <input type="color" v-model="form[key]"
                         class="w-12 h-12 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg cursor-pointer" />
                       <div>
-                        <p class="font-semibold text-black dark:text-white uppercase font-mono tracking-wider text-sm">
+                        <p class="font-semibold text-black dark:text-white font-mono tracking-wide text-sm">
                           {{ key.charAt(0).toUpperCase() +
                             key.slice(1) }}</p>
                         <p class="text-xs text-[#666666] dark:text-[#999999] font-mono">{{ form[key] }}</p>
@@ -293,7 +292,7 @@
               <!-- Name Input -->
               <div>
                 <label
-                  class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">Palette
+                  class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">Palette
                   Name</label>
                 <input v-model="form.name" type="text" placeholder="Enter palette name..."
                   class="w-full px-4 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#666666] dark:placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
@@ -301,7 +300,7 @@
               </div>
               <div>
                 <label
-                  class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">Header
+                  class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">Header
                   Image
                   (738x294)</label>
                 <div
@@ -316,14 +315,14 @@
               <!-- Feedback Tab Images -->
               <div>
                 <label
-                  class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">Feedback
+                  class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">Feedback
                   Tab
                   Images (110x33)</label>
                 <div class="space-y-4">
                   <div
                     class="p-4 bg-[#F5F5F5] dark:bg-[#111111] border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg">
                     <label
-                      class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">Inactive
+                      class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">Inactive
                       State</label>
                     <img v-if="form.feedbackTab_inactive_image_preview" :src="form.feedbackTab_inactive_image_preview"
                       class="h-12 mb-3 rounded border-2 border-[#E8E8E8] dark:border-[#222222]" />
@@ -334,7 +333,7 @@
                   <div
                     class="p-4 bg-[#F5F5F5] dark:bg-[#111111] border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg">
                     <label
-                      class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">Active
+                      class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">Active
                       State</label>
                     <img v-if="form.feedbackTab_active_image_preview" :src="form.feedbackTab_active_image_preview"
                       class="h-12 mb-3 rounded border-2 border-[#E8E8E8] dark:border-[#222222]" />
@@ -347,14 +346,14 @@
               <!-- Right Side Tab Images -->
               <div>
                 <label
-                  class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">Right
+                  class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">Right
                   Side Tab
                   Images (41x137)</label>
                 <div class="space-y-4">
                   <div
                     class="p-4 bg-[#F5F5F5] dark:bg-[#111111] border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg">
                     <label
-                      class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">Feedback
+                      class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">Feedback
                       Description</label>
                     <img v-if="form.rightSideTab_feedback_description_image_preview"
                       :src="form.rightSideTab_feedback_description_image_preview"
@@ -367,7 +366,7 @@
                   <div
                     class="p-4 bg-[#F5F5F5] dark:bg-[#111111] border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg">
                     <label
-                      class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">Color
+                      class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">Color
                       Palette
                       Tab</label>
                     <img v-if="form.rightSideTab_color_palette_image_preview"
@@ -385,11 +384,11 @@
           <!-- Modal Actions -->
           <div class="flex justify-end space-x-4 mt-8 pt-6 border-t-2 border-[#E8E8E8] dark:border-[#222222]">
             <button type="button" @click="closeModal"
-              class="px-6 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] text-black dark:text-white rounded-full hover:border-black hover:dark:border-white transition-colors uppercase font-mono tracking-wider text-sm">
+              class="px-6 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] text-black dark:text-white rounded-full hover:border-black hover:dark:border-white transition-colors font-mono tracking-wide text-sm">
               Cancel
             </button>
             <button type="submit"
-              class="px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors uppercase font-mono tracking-wider text-sm">
+              class="px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors font-mono tracking-wide text-sm">
               {{ modalMode === 'edit' ? 'Update Palette' : 'Create Palette' }}
             </button>
           </div>

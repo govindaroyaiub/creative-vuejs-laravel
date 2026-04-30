@@ -226,7 +226,7 @@ const handleEditSubmit = () => {
 const deleteClient = async (id: number, name: string) => {
     const result = await Swal.fire({
         title: 'Delete Client?',
-        html: `Are you sure you want to delete <strong>${name}</strong>?<br><small class="text-gray-500">This action cannot be undone!</small>`,
+        html: `Are you sure you want to delete <strong>${name}</strong>?<br><small class="text-[#666666]">This action cannot be undone!</small>`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#ef4444',
@@ -311,9 +311,9 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <div class="flex items-center justify-between">
                             <div>
                                 <p
-                                    class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">
+                                    class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">
                                     Total Clients</p>
-                                <p class="text-3xl font-bold font-mono tabular-nums text-black dark:text-white">{{
+                                <p class="text-lg font-bold font-mono tabular-nums text-black dark:text-white">{{
                                     totalClients }}</p>
                             </div>
                             <div
@@ -341,7 +341,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                     </div>
                     
                     <button @click="openCreateModal"
-                        class="w-1/5 inline-flex items-center justify-center px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors uppercase font-mono tracking-wider text-sm group">
+                        class="w-1/5 inline-flex items-center justify-center px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors font-mono tracking-wide text-sm group">
                         <CirclePlus class="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-200" />
                         Add Client
                     </button>
@@ -362,7 +362,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                                 </div>
                                 <div class="flex items-center justify-end">
                                     <h1
-                                        class="font-semibold text-black dark:text-white text-lg uppercase font-mono tracking-wider text-end">
+                                        class="font-semibold text-black dark:text-white text-sm uppercase font-mono tracking-widest text-end">
                                         {{ client.name}}</h1>
                                 </div>
                             </div>
@@ -373,7 +373,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                             <!-- Website -->
                             <div class="flex items-center justify-between">
                                 <span
-                                    class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">Website:</span>
+                                    class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">Website:</span>
                                 <a :href="client.website" target="_blank"
                                     class="text-xs font-mono text-black dark:text-white hover:underline flex items-center group/link">
                                     {{ client.website?.replace(/^https?:\/\//, '') || 'Not set' }}
@@ -385,7 +385,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                             <!-- Preview URL -->
                             <div class="flex items-center justify-between">
                                 <span
-                                    class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">Preview:</span>
+                                    class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">Preview:</span>
                                 <a v-if="client.preview_url" :href="client.preview_url" target="_blank"
                                     class="text-xs font-mono text-black dark:text-white hover:underline flex items-center group/link">
                                     Visit Preview
@@ -398,7 +398,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                             <!-- Brand Color -->
                             <div class="flex items-center justify-between">
                                 <span
-                                    class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">Brand
+                                    class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">Brand
                                     Color:</span>
                                 <button v-if="client.color_palette?.primary"
                                     @click="copyColor(client.color_palette.primary)"
@@ -448,13 +448,13 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <Building2 class="w-10 h-10 text-[#666666] dark:text-[#999999]" />
                     </div>
                     <h3
-                        class="text-xl font-semibold text-black dark:text-white mb-2 uppercase font-mono tracking-wider">
+                        class="text-sm font-semibold text-black dark:text-white mb-2 uppercase font-mono tracking-widest">
                         No clients found</h3>
                     <p class="text-[#666666] dark:text-[#999999] mb-6 max-w-md mx-auto">
                         {{ search ? 'Try adjusting your search terms' : 'Get started by adding your first client' }}
                     </p>
                     <button v-if="!search" @click="openCreateModal"
-                        class="inline-flex items-center px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors uppercase font-mono tracking-wider text-sm">
+                        class="inline-flex items-center px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors font-mono tracking-wide text-sm">
                         <CirclePlus class="w-5 h-5 mr-2" />
                         Add Your First Client
                     </button>
@@ -464,13 +464,13 @@ const totalClients = computed(() => clients.value?.total || 0);
                 <div v-if="clients?.links?.length > 3"
                     class="bg-white dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg p-6">
                     <div class="flex items-center justify-between">
-                        <div class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">
+                        <div class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">
                             Showing {{ clients.from }} to {{ clients.to }} of {{ clients.total }} clients
                         </div>
                         <div class="flex space-x-1">
                             <template v-for="link in clients.links" :key="link.label">
                                 <component :is="link.url ? 'a' : 'span'" v-html="link.label" :href="link.url"
-                                    class="px-3 py-2 text-xs rounded-full uppercase font-mono tracking-wider transition-all duration-200"
+                                    class="px-3 py-2 text-xs rounded-full font-mono tracking-wide transition-all duration-200"
                                     :class="{
                                         'bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white': link.active,
                                         'text-[#999999] cursor-not-allowed': !link.url,
@@ -485,16 +485,14 @@ const totalClients = computed(() => clients.value?.total || 0);
 
         <!-- Create Client Modal -->
         <div v-if="showCreateModal"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
             @click.self="closeCreateModal">
             <div
-                class="bg-white dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
+                class="bg-white dark:bg-[#111111] border-2 border-black dark:border-white rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
                 <!-- Modal Header -->
                 <div
-                    class="flex items-center justify-between p-6 border-b-2 border-[#E8E8E8] dark:border-[#222222] flex-shrink-0">
-                    <h2 class="text-xl font-bold text-black dark:text-white uppercase font-mono tracking-wider">Add New
-                        Client
-                    </h2>
+                    class="flex items-center justify-between p-4 border-b border-[#E8E8E8] dark:border-[#222222] flex-shrink-0">
+                    <h2 class="text-base font-semibold font-mono text-black dark:text-white">Add new client</h2>
                     <button @click="closeCreateModal"
                         class="p-2 text-[#666666] dark:text-[#999999] hover:text-black hover:dark:text-white hover:bg-[#F5F5F5] hover:dark:bg-[#111111] rounded-full transition-all duration-200">
                         <X class="w-5 h-5" />
@@ -507,7 +505,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <!-- Name -->
                         <div>
                             <label for="create-name"
-                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1">Name</label>
+                                class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-1">Name</label>
                             <input id="create-name" v-model="createForm.name" required type="text"
                                 placeholder="e.g. Acme Corp"
                                 class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors" />
@@ -516,7 +514,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <!-- Website -->
                         <div>
                             <label for="create-website"
-                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1">Website</label>
+                                class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-1">Website</label>
                             <input id="create-website" v-model="createForm.website" required type="url"
                                 placeholder="e.g. https://example.com"
                                 class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors" />
@@ -525,7 +523,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <!-- Preview URL -->
                         <div>
                             <label for="create-preview"
-                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1">Preview
+                                class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-1">Preview
                                 URL</label>
                             <input id="create-preview" v-model="createForm.preview_url" type="url"
                                 class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors" />
@@ -534,7 +532,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <!-- Brand Color -->
                         <div>
                             <label for="create-color"
-                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1">Brand
+                                class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-1">Brand
                                 Color</label>
                             <select id="create-color" v-model="createForm.color_palette_id"
                                 class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors"
@@ -548,7 +546,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                             <!-- Color Preview -->
                             <div v-if="createForm.color_palette_id" class="mt-2 flex items-center gap-2">
                                 <span
-                                    class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">Preview:</span>
+                                    class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">Preview:</span>
                                 <div v-if="colorPalettes.find(p => p.id == createForm.color_palette_id)"
                                     :style="{ backgroundColor: colorPalettes.find(p => p.id == createForm.color_palette_id)?.primary }"
                                     class="h-5 w-10 rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333]"></div>
@@ -561,7 +559,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <!-- Logo Upload -->
                         <div>
                             <label
-                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">Logo
+                                class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">Logo
                                 (Image)</label>
                             <FilePond name="logo" :files="createFilePondFiles" @updatefiles="handleCreateFilePondUpdate"
                                 :allowMultiple="false" :acceptedFileTypes="['image/*']"
@@ -572,12 +570,12 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <!-- Submit Buttons -->
                         <div class="flex space-x-4 pt-4">
                             <button type="button" @click="closeCreateModal"
-                                class="flex-1 rounded-full bg-[#D71921] hover:bg-red-700 px-6 py-3 text-white uppercase font-mono tracking-wider text-sm transition-colors">
+                                class="flex-1 rounded-full bg-[#D71921] hover:bg-red-700 px-6 py-3 text-white font-mono tracking-wide text-sm transition-colors">
                                 Cancel
                             </button>
                             <button type="submit"
                                 :disabled="!createForm.name || !createForm.website || !createForm.color_palette_id"
-                                class="flex-1 rounded-full bg-black dark:bg-white text-white dark:text-black px-6 py-3 hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white disabled:opacity-50 disabled:cursor-not-allowed uppercase font-mono tracking-wider text-sm transition-colors">
+                                class="flex-1 rounded-full bg-black dark:bg-white text-white dark:text-black px-6 py-3 hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white disabled:opacity-50 disabled:cursor-not-allowed font-mono tracking-wide text-sm transition-colors">
                                 Create Client
                             </button>
                         </div>
@@ -587,15 +585,14 @@ const totalClients = computed(() => clients.value?.total || 0);
         </div>
 
         <!-- Edit Client Modal -->
-        <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+        <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
             @click.self="closeEditModal">
             <div
-                class="bg-white dark:bg-black border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
+                class="bg-white dark:bg-[#111111] border-2 border-black dark:border-white rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
                 <!-- Modal Header -->
                 <div
-                    class="flex items-center justify-between p-6 border-b-2 border-[#E8E8E8] dark:border-[#222222] flex-shrink-0">
-                    <h2 class="text-xl font-bold text-black dark:text-white uppercase font-mono tracking-wider">Edit
-                        Client</h2>
+                    class="flex items-center justify-between p-4 border-b border-[#E8E8E8] dark:border-[#222222] flex-shrink-0">
+                    <h2 class="text-base font-semibold font-mono text-black dark:text-white">Edit client</h2>
                     <button @click="closeEditModal"
                         class="p-2 text-[#666666] dark:text-[#999999] hover:text-black hover:dark:text-white hover:bg-[#F5F5F5] hover:dark:bg-[#111111] rounded-full transition-all duration-200">
                         <X class="w-5 h-5" />
@@ -608,7 +605,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <!-- Name -->
                         <div>
                             <label for="edit-name"
-                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1">Name</label>
+                                class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-1">Name</label>
                             <input id="edit-name" v-model="editForm.name" required type="text"
                                 class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors" />
                         </div>
@@ -616,7 +613,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <!-- Website -->
                         <div>
                             <label for="edit-website"
-                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1">Website</label>
+                                class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-1">Website</label>
                             <input id="edit-website" v-model="editForm.website" required type="url"
                                 class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors" />
                         </div>
@@ -624,7 +621,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <!-- Preview URL -->
                         <div>
                             <label for="edit-preview"
-                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1">Preview
+                                class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-1">Preview
                                 URL</label>
                             <input id="edit-preview" v-model="editForm.preview_url" type="url"
                                 class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors" />
@@ -633,7 +630,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <!-- Brand Color -->
                         <div>
                             <label for="edit-color"
-                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1">Brand
+                                class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-1">Brand
                                 Color</label>
                             <select id="edit-color" v-model="editForm.color_palette_id"
                                 class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors">
@@ -646,7 +643,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                             <!-- Color Preview -->
                             <div v-if="editForm.color_palette_id" class="mt-2 flex items-center gap-2">
                                 <span
-                                    class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">Selected:</span>
+                                    class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">Selected:</span>
                                 <div v-if="colorPalettes.find(p => p.id == editForm.color_palette_id)"
                                     :style="{ backgroundColor: colorPalettes.find(p => p.id == editForm.color_palette_id)?.primary }"
                                     class="h-6 w-12 rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333]"></div>
@@ -659,7 +656,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <!-- Current Logo Display -->
                         <div v-if="logoPreview && !editForm.logo">
                             <label
-                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">Current
+                                class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">Current
                                 Logo</label>
                             <div class="mb-4">
                                 <img :src="logoPreview" alt="Current Logo"
@@ -670,7 +667,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <!-- Logo Upload -->
                         <div>
                             <label
-                                class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">
+                                class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">
                                 {{ logoPreview && !editForm.logo ? 'Upload New Logo' : 'Logo (Image)' }}
                             </label>
                             <FilePond name="logo" :files="editFilePondFiles" @updatefiles="handleEditFilePondUpdate"
@@ -682,11 +679,11 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <!-- Submit Buttons -->
                         <div class="flex space-x-4 pt-4">
                             <button type="button" @click="closeEditModal"
-                                class="flex-1 rounded-full bg-[#D71921] hover:bg-red-700 px-6 py-3 text-white uppercase font-mono tracking-wider text-sm transition-colors">
+                                class="flex-1 rounded-full bg-[#D71921] hover:bg-red-700 px-6 py-3 text-white font-mono tracking-wide text-sm transition-colors">
                                 Cancel
                             </button>
                             <button type="submit" :disabled="!editForm.name || !editForm.website"
-                                class="flex-1 rounded-full bg-black dark:bg-white text-white dark:text-black px-6 py-3 hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white disabled:opacity-50 disabled:cursor-not-allowed uppercase font-mono tracking-wider text-sm transition-colors">
+                                class="flex-1 rounded-full bg-black dark:bg-white text-white dark:text-black px-6 py-3 hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white disabled:opacity-50 disabled:cursor-not-allowed font-mono tracking-wide text-sm transition-colors">
                                 Update Client
                             </button>
                         </div>
@@ -696,7 +693,7 @@ const totalClients = computed(() => clients.value?.total || 0);
         </div>
 
         <!-- Image Viewer Modal -->
-        <div v-if="showImageModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-90 p-4"
+        <div v-if="showImageModal" class="fixed inset-0 flex items-center justify-center bg-black/90 p-4"
             style="z-index: 999;" @click.self="closeImageModal">
             <div class="relative max-w-4xl w-full max-h-[90vh]">
                 <button @click="closeImageModal"

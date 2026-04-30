@@ -1045,7 +1045,7 @@ const formatNumber = (num: number) => {
 
                                     <!-- Remove Button -->
                                     <button @click="removeTimezone(index)"
-                                        class="absolute -top-2 -right-2 p-1.5 bg-[#D71921] text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 z-20 shadow-lg hover:bg-[#B01519]"
+                                        class="absolute -top-2 -right-2 p-1.5 bg-[#D71921] text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 z-20 hover:bg-[#B01519]"
                                         title="Remove timezone">
                                         <X :size="14" />
                                     </button>

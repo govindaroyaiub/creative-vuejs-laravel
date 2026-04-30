@@ -2,7 +2,7 @@
 
     <Head title="Edit Bill" />
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="min-h-screen bg-white dark:bg-black">
+        <div class="min-h-screen bg-white dark:bg-black font-mono">
             <div class="p-4">
                 <div class="max-w-6xl mx-auto space-y-6">
                     <!-- Bill Form -->
@@ -12,33 +12,31 @@
                             class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#CCCCCC] dark:border-[#222222] p-6">
                             <div class="flex items-center mb-6">
                                 <FileText :stroke-width="1.5" class="w-5 h-5 text-black dark:text-white mr-2" />
-                                <h2 class="text-xs uppercase font-mono tracking-widest text-black dark:text-white">Edit
-                                    Bill Information
-                                </h2>
+                                <h2 class="text-sm font-semibold font-mono text-black dark:text-white">Edit bill information</h2>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
                                     <label
-                                        class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-2">
+                                        class="block text-xs font-mono tracking-wide text-black dark:text-white mb-2">
                                         Bill Name <span class="text-[#D71921]">*</span>
                                     </label>
                                     <input v-model="form.name" type="text" placeholder="Enter bill name..."
-                                        class="w-full px-4 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors duration-200"
+                                        class="w-full px-3 py-2 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors duration-200"
                                         required />
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-2">
+                                        class="block text-xs font-mono tracking-wide text-black dark:text-white mb-2">
                                         Client Name <span class="text-[#D71921]">*</span>
                                     </label>
                                     <input v-model="form.client" type="text" placeholder="Enter client name..."
-                                        class="w-full px-4 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors duration-200"
+                                        class="w-full px-3 py-2 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors duration-200"
                                         required />
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-2">
+                                        class="block text-xs font-mono tracking-wide text-black dark:text-white mb-2">
                                         Bill Date <span class="text-[#D71921]">*</span>
                                     </label>
                                     <div class="relative">
@@ -46,7 +44,7 @@
                                             class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#666666] dark:text-[#999999] pointer-events-none"
                                             :stroke-width="1.5" />
                                         <input v-model="form.bill_date" type="date"
-                                            class="w-full pl-10 pr-4 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors duration-200 [&::-webkit-calendar-picker-indicator]:dark:invert"
+                                            class="w-full pl-10 pr-3 py-2 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors duration-200 [&::-webkit-calendar-picker-indicator]:dark:invert"
                                             required />
                                     </div>
                                 </div>
@@ -60,9 +58,9 @@
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p
-                                            class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">
+                                            class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">
                                             Total Items</p>
-                                        <p class="text-2xl font-mono tabular-nums font-bold text-black dark:text-white">
+                                        <p class="text-lg font-mono tabular-nums font-bold text-black dark:text-white">
                                             {{ totalItems }}
                                         </p>
                                     </div>
@@ -78,10 +76,10 @@
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p
-                                            class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">
+                                            class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">
                                             Total Quantity
                                         </p>
-                                        <p class="text-2xl font-mono tabular-nums font-bold text-black dark:text-white">
+                                        <p class="text-lg font-mono tabular-nums font-bold text-black dark:text-white">
                                             {{
                                                 totalQuantity }}</p>
                                     </div>
@@ -96,9 +94,9 @@
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p
-                                            class="text-xs uppercase font-mono tracking-wider text-[#CCCCCC] dark:text-[#333333]">
+                                            class="text-xs font-mono tracking-wide text-[#CCCCCC] dark:text-[#333333]">
                                             Total Amount</p>
-                                        <p class="text-2xl font-mono tabular-nums font-bold text-white dark:text-black">
+                                        <p class="text-lg font-mono tabular-nums font-bold text-white dark:text-black">
                                             {{ formatCurrency(totalAmount) }}</p>
                                     </div>
                                     <div
@@ -109,7 +107,7 @@
                             </div>
                         </div>
 
-                        <!-- Bill Items -->
+                        <!-- Bill items -->
                         <div
                             class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#CCCCCC] dark:border-[#222222] overflow-hidden">
                             <div class="p-6 border-b-2 border-[#CCCCCC] dark:border-[#222222]">
@@ -118,13 +116,13 @@
                                         <Calculator :stroke-width="1.5"
                                             class="w-5 h-5 text-black dark:text-white mr-2" />
                                         <h2
-                                            class="text-xs uppercase font-mono tracking-widest text-black dark:text-white">
-                                            Bill Items</h2>
+                                            class="text-sm font-semibold font-mono text-black dark:text-white">
+                                            Bill items</h2>
                                     </div>
                                     <button type="button" @click="addRow"
                                         class="inline-flex items-center px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full border-2 border-black dark:border-white hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white transition-colors duration-200 group">
                                         <Plus :stroke-width="1.5" class="w-4 h-4 mr-2" />
-                                        <span class="text-xs uppercase font-mono tracking-wider">Add Item</span>
+                                        <span class="text-xs font-mono tracking-wide">Add Item</span>
                                     </button>
                                 </div>
                             </div>
@@ -135,23 +133,23 @@
                                     <thead class="bg-[#F5F5F5] dark:bg-[#0A0A0A]">
                                         <tr>
                                             <th
-                                                class="px-6 py-3 text-left text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                                class="px-4 py-3 text-left text-sm font-semibold font-mono text-black dark:text-white">
                                                 Item Description
                                             </th>
                                             <th
-                                                class="px-6 py-3 text-center text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                                class="px-4 py-3 text-center text-sm font-semibold font-mono text-black dark:text-white">
                                                 Quantity
                                             </th>
                                             <th
-                                                class="px-6 py-3 text-center text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                                class="px-4 py-3 text-center text-sm font-semibold font-mono text-black dark:text-white">
                                                 Unit Price
                                             </th>
                                             <th
-                                                class="px-6 py-3 text-right text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                                class="px-4 py-3 text-right text-sm font-semibold font-mono text-black dark:text-white">
                                                 Amount
                                             </th>
                                             <th
-                                                class="px-6 py-3 text-center text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                                class="px-4 py-3 text-center text-sm font-semibold font-mono text-black dark:text-white">
                                                 Action
                                             </th>
                                         </tr>
@@ -159,31 +157,31 @@
                                     <tbody class="divide-y divide-[#E8E8E8] dark:divide-[#222222]">
                                         <tr v-for="(row, index) in form.sub_bills" :key="row.id || index"
                                             class="hover:bg-[#F5F5F5] dark:hover:bg-[#0A0A0A] transition-colors duration-200">
-                                            <td class="px-6 py-4">
+                                            <td class="px-4 py-3">
                                                 <input v-model="row.item" type="text"
                                                     placeholder="Enter item description..."
                                                     class="w-full px-3 py-2 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors duration-200"
                                                     required />
                                             </td>
-                                            <td class="px-6 py-4 text-center">
+                                            <td class="px-4 py-3 text-center">
                                                 <input v-model.number="row.quantity" @input="calculateAmount(index)"
                                                     type="number" min="1"
                                                     class="w-20 px-3 py-2 text-center border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-black dark:text-white font-mono tabular-nums focus:outline-none focus:border-black dark:focus:border-white transition-colors duration-200"
                                                     required />
                                             </td>
-                                            <td class="px-6 py-4 text-center">
+                                            <td class="px-4 py-3 text-center">
                                                 <input v-model.number="row.unit_price" @input="calculateAmount(index)"
                                                     type="number" step="0.01" min="0" placeholder="0.00"
                                                     class="w-24 px-3 py-2 text-center border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-black dark:text-white placeholder-[#999999] font-mono tabular-nums focus:outline-none focus:border-black dark:focus:border-white transition-colors duration-200"
                                                     required />
                                             </td>
-                                            <td class="px-6 py-4 text-right">
+                                            <td class="px-4 py-3 text-right">
                                                 <span
-                                                    class="font-mono tabular-nums font-semibold text-lg text-black dark:text-white">
+                                                    class="font-mono tabular-nums font-semibold text-sm text-black dark:text-white">
                                                     {{ formatCurrency(row.amount) }}
                                                 </span>
                                             </td>
-                                            <td class="px-6 py-4 text-center">
+                                            <td class="px-4 py-3 text-center">
                                                 <button type="button" @click="removeRow(index)"
                                                     class="p-2 text-[#D71921] hover:bg-[#D71921] hover:text-white dark:hover:bg-[#D71921] border-2 border-[#D71921] rounded-full transition-all duration-200"
                                                     :class="{ 'opacity-50 cursor-not-allowed': form.sub_bills.length === 1 }">
@@ -201,7 +199,7 @@
                                     class="border-2 border-[#CCCCCC] dark:border-[#222222] rounded-lg p-4 space-y-4">
                                     <div class="flex items-center justify-between">
                                         <h3
-                                            class="text-xs uppercase font-mono tracking-wider text-black dark:text-white">
+                                            class="text-xs font-mono tracking-wide text-black dark:text-white">
                                             Item #{{ index + 1 }}</h3>
                                         <button type="button" @click="removeRow(index)"
                                             class="p-1.5 text-[#D71921] hover:bg-[#D71921] hover:text-white border-2 border-[#D71921] rounded-full transition-colors duration-200"
@@ -213,7 +211,7 @@
                                     <div class="space-y-3">
                                         <div>
                                             <label
-                                                class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-1">Item
+                                                class="block text-xs font-mono tracking-wide text-black dark:text-white mb-1">Item
                                                 Description</label>
                                             <input v-model="row.item" type="text"
                                                 placeholder="Enter item description..."
@@ -224,7 +222,7 @@
                                         <div class="grid grid-cols-2 gap-3">
                                             <div>
                                                 <label
-                                                    class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-1">Quantity</label>
+                                                    class="block text-xs font-mono tracking-wide text-black dark:text-white mb-1">Quantity</label>
                                                 <input v-model.number="row.quantity" @input="calculateAmount(index)"
                                                     type="number" min="1"
                                                     class="w-full px-3 py-2 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-black dark:text-white font-mono tabular-nums focus:outline-none focus:border-black dark:focus:border-white transition-colors duration-200"
@@ -232,7 +230,7 @@
                                             </div>
                                             <div>
                                                 <label
-                                                    class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-1">Unit
+                                                    class="block text-xs font-mono tracking-wide text-black dark:text-white mb-1">Unit
                                                     Price</label>
                                                 <input v-model.number="row.unit_price" @input="calculateAmount(index)"
                                                     type="number" step="0.01" min="0" placeholder="0.00"
@@ -243,10 +241,10 @@
 
                                         <div class="text-right">
                                             <span
-                                                class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">Amount:
+                                                class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">Amount:
                                             </span>
                                             <span
-                                                class="font-mono tabular-nums font-semibold text-lg text-black dark:text-white">
+                                                class="font-mono tabular-nums font-semibold text-sm text-black dark:text-white">
                                                 {{ formatCurrency(row.amount) }}
                                             </span>
                                         </div>
@@ -259,10 +257,10 @@
                         <div
                             class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#CCCCCC] dark:border-[#222222] p-6">
                             <div class="flex justify-between items-center">
-                                <div class="text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                <div class="text-sm font-semibold font-mono text-black dark:text-white">
                                     Grand Total:
                                 </div>
-                                <div class="text-3xl font-mono tabular-nums font-bold text-black dark:text-white">
+                                <div class="text-lg font-mono tabular-nums font-bold text-black dark:text-white">
                                     {{ formatCurrency(totalAmount) }}
                                 </div>
                             </div>
@@ -273,17 +271,17 @@
                             class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#CCCCCC] dark:border-[#222222] p-6">
                             <div class="flex items-center mb-4">
                                 <Upload :stroke-width="1.5" class="w-5 h-5 text-black dark:text-white mr-2" />
-                                <h2 class="text-xs uppercase font-mono tracking-widest text-black dark:text-white">
-                                    Supporting Documents
+                                <h2 class="text-sm font-semibold font-mono text-black dark:text-white">
+                                    Supporting documents
                                 </h2>
                                 <span
-                                    class="ml-2 text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">(Optional)</span>
+                                    class="ml-2 text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">(Optional)</span>
                             </div>
 
                             <div class="space-y-4">
                                 <!-- Existing Documents -->
                                 <div v-if="existingDocuments.length > 0" class="space-y-2">
-                                    <p class="text-xs uppercase font-mono tracking-wider text-black dark:text-white">
+                                    <p class="text-xs font-mono tracking-wide text-black dark:text-white">
                                         Existing Documents
                                         ({{ existingDocuments.length }})</p>
                                     <div class="space-y-2">
@@ -327,7 +325,7 @@
                                 <!-- File Upload Area -->
                                 <div>
                                     <p
-                                        class="text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-2">
+                                        class="text-xs font-mono tracking-wide text-black dark:text-white mb-2">
                                         Add New
                                         Documents</p>
                                     <div class="flex items-center justify-center w-full">
@@ -352,7 +350,7 @@
 
                                 <!-- New Files to Upload List -->
                                 <div v-if="documents.length > 0" class="space-y-2">
-                                    <p class="text-xs uppercase font-mono tracking-wider text-black dark:text-white">New
+                                    <p class="text-xs font-mono tracking-wide text-black dark:text-white">New
                                         Files to Upload
                                         ({{ documents.length }})</p>
                                     <div class="space-y-2">
@@ -385,7 +383,7 @@
                             <Link :href="route('bills')"
                                 class="inline-flex items-center justify-center px-6 py-3 border-2 border-[#D71921] text-[#D71921] bg-white dark:bg-black rounded-full hover:bg-[#D71921] hover:text-white dark:hover:bg-[#D71921] transition-colors duration-200">
                                 <ArrowLeft :stroke-width="1.5" class="w-4 h-4 mr-2" />
-                                <span class="text-xs uppercase font-mono tracking-wider">Back to Bills</span>
+                                <span class="text-xs font-mono tracking-wide">Back to Bills</span>
                             </Link>
                             <button type="submit" :disabled="isLoading || totalAmount <= 0"
                                 class="inline-flex items-center justify-center px-6 py-3 bg-black dark:bg-white text-white dark:text-black border-2 border-black dark:border-white rounded-full hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -393,7 +391,7 @@
                                     class="animate-spin rounded-full h-4 w-4 border-2 border-white dark:border-black border-t-transparent mr-2">
                                 </div>
                                 <Save v-else :stroke-width="1.5" class="w-4 h-4 mr-2" />
-                                <span class="text-xs uppercase font-mono tracking-wider">{{ isLoading ? 'Updating...' :
+                                <span class="text-xs font-mono tracking-wide">{{ isLoading ? 'Updating...' :
                                     'Update' }}</span>
                             </button>
                         </div>

@@ -145,7 +145,7 @@ const deleteBannerSize = async (id: number) => {
                     <input v-model="search" placeholder="Search..."
                         class="w-full sm:max-w-xs rounded-full border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-2 bg-white dark:bg-black text-[#1A1A1A] dark:text-[#E8E8E8] focus:border-black dark:focus:border-white focus:outline-none transition-colors" />
                     <button @click="startAdding"
-                        class="rounded-full bg-black dark:bg-white text-white dark:text-black px-4 py-2 hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white group whitespace-nowrap uppercase font-mono tracking-wider text-sm transition-colors">
+                        class="rounded-full bg-black dark:bg-white text-white dark:text-black px-4 py-2 hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white group whitespace-nowrap font-mono tracking-wide text-sm transition-colors">
                         <CirclePlus
                             class="mr-1 inline h-5 w-5 group-hover:rotate-90 transition-transform duration-200" />
                         Add Size
@@ -156,7 +156,7 @@ const deleteBannerSize = async (id: number) => {
                 <div class="hidden md:block overflow-x-auto rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222]">
                     <table class="w-full rounded bg-white dark:bg-[#111111]">
                         <thead class="bg-[#F5F5F5] dark:bg-[#0A0A0A] text-black dark:text-white">
-                            <tr class="text-center text-xs uppercase font-mono tracking-wider">
+                            <tr class="text-center text-xs font-mono tracking-wide">
                                 <th class="px-4 py-3">#</th>
                                 <th class="px-4 py-3">Name</th>
                                 <th class="px-4 py-3">Width</th>
@@ -183,9 +183,9 @@ const deleteBannerSize = async (id: number) => {
                                 </td>
                                 <td class="px-4 py-3 space-x-2">
                                     <button @click="cancelAdding"
-                                        class="rounded-full px-4 py-1 text-xs bg-[#D71921] hover:bg-red-700 text-white uppercase font-mono tracking-wider transition-colors">Cancel</button>
+                                        class="rounded-full px-4 py-1 text-xs bg-[#D71921] hover:bg-red-700 text-white font-mono tracking-wide transition-colors">Cancel</button>
                                     <button @click="saveNew"
-                                        class="rounded-full px-4 py-1 text-xs bg-black dark:bg-white text-white dark:text-black hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white uppercase font-mono tracking-wider transition-colors">Save</button>
+                                        class="rounded-full px-4 py-1 text-xs bg-black dark:bg-white text-white dark:text-black hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white font-mono tracking-wide transition-colors">Save</button>
                                 </td>
                             </tr>
 
@@ -216,9 +216,9 @@ const deleteBannerSize = async (id: number) => {
                                 <td class="space-x-2 px-4 py-3">
                                     <template v-if="editingId === size.id">
                                         <button @click="cancelEditing"
-                                            class="rounded-full px-4 py-1 text-xs bg-[#D71921] hover:bg-red-700 text-white uppercase font-mono tracking-wider transition-colors">Cancel</button>
+                                            class="rounded-full px-4 py-1 text-xs bg-[#D71921] hover:bg-red-700 text-white font-mono tracking-wide transition-colors">Cancel</button>
                                         <button @click="saveEdit(size.id)"
-                                            class="rounded-full px-4 py-1 text-xs bg-black dark:bg-white text-white dark:text-black hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white uppercase font-mono tracking-wider transition-colors">Update</button>
+                                            class="rounded-full px-4 py-1 text-xs bg-black dark:bg-white text-white dark:text-black hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white font-mono tracking-wide transition-colors">Update</button>
                                     </template>
                                     <template v-else>
                                         <button @click="startEditing(size)"
@@ -235,7 +235,7 @@ const deleteBannerSize = async (id: number) => {
 
                             <tr v-if="bannerSizes.data.length === 0 && !adding">
                                 <td colspan="5"
-                                    class="px-4 py-8 text-center text-[#666666] dark:text-[#999999] uppercase font-mono tracking-wider text-sm">
+                                    class="px-4 py-8 text-center text-[#666666] dark:text-[#999999] font-mono tracking-wide text-sm">
                                     No
                                     banner sizes found.</td>
                             </tr>
@@ -249,7 +249,7 @@ const deleteBannerSize = async (id: number) => {
                     <div v-if="adding"
                         class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-4">
                         <div class="flex items-center justify-between mb-3">
-                            <h3 class="font-semibold text-sm uppercase font-mono tracking-wider">New Banner Size</h3>
+                            <h3 class="font-semibold text-sm font-mono">New banner size</h3>
                             <button @click="cancelAdding"
                                 class="text-[#666666] dark:text-[#999999] hover:text-black hover:dark:text-white transition-colors">
                                 <X class="h-5 w-5" stroke-width="1.5" />
@@ -258,7 +258,7 @@ const deleteBannerSize = async (id: number) => {
                         <div class="space-y-3">
                             <div>
                                 <label
-                                    class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1 block">Name</label>
+                                    class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-1 block">Name</label>
                                 <div class="text-sm font-medium uppercase font-mono tabular-nums">{{ newForm.width }}x{{
                                     newForm.height
                                     }}</div>
@@ -266,24 +266,24 @@ const deleteBannerSize = async (id: number) => {
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label
-                                        class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1 block">Width</label>
+                                        class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-1 block">Width</label>
                                     <input v-model="newForm.width" type="number"
                                         class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 text-sm bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors tabular-nums" />
                                 </div>
                                 <div>
                                     <label
-                                        class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1 block">Height</label>
+                                        class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-1 block">Height</label>
                                     <input v-model="newForm.height" type="number"
                                         class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 text-sm bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors tabular-nums" />
                                 </div>
                             </div>
                             <div class="flex gap-2 pt-2">
                                 <button @click="cancelAdding"
-                                    class="flex-1 px-4 py-2 text-sm rounded-full bg-[#D71921] hover:bg-red-700 text-white uppercase font-mono tracking-wider transition-colors">
+                                    class="flex-1 px-4 py-2 text-sm rounded-full bg-[#D71921] hover:bg-red-700 text-white font-mono tracking-wide transition-colors">
                                     Cancel
                                 </button>
                                 <button @click="saveNew"
-                                    class="flex-1 px-4 py-2 text-sm rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white uppercase font-mono tracking-wider transition-colors">
+                                    class="flex-1 px-4 py-2 text-sm rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white font-mono tracking-wide transition-colors">
                                     Save
                                 </button>
                             </div>
@@ -315,31 +315,31 @@ const deleteBannerSize = async (id: number) => {
                             <div class="space-y-3">
                                 <div>
                                     <label
-                                        class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1 block">Name</label>
+                                        class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-1 block">Name</label>
                                     <div class="text-sm font-medium uppercase font-mono tabular-nums">{{ editForm.width
                                         }}x{{ editForm.height }}</div>
                                 </div>
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
                                         <label
-                                            class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1 block">Width</label>
+                                            class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-1 block">Width</label>
                                         <input v-model="editForm.width" type="number"
                                             class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 text-sm bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors tabular-nums" />
                                     </div>
                                     <div>
                                         <label
-                                            class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-1 block">Height</label>
+                                            class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-1 block">Height</label>
                                         <input v-model="editForm.height" type="number"
                                             class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 text-sm bg-white dark:bg-[#111111] text-black dark:text-white focus:border-black dark:focus:border-white focus:outline-none transition-colors tabular-nums" />
                                     </div>
                                 </div>
                                 <div class="flex gap-2 pt-2">
                                     <button @click="cancelEditing"
-                                        class="flex-1 px-4 py-2 text-sm rounded-full bg-[#D71921] hover:bg-red-700 text-white uppercase font-mono tracking-wider transition-colors">
+                                        class="flex-1 px-4 py-2 text-sm rounded-full bg-[#D71921] hover:bg-red-700 text-white font-mono tracking-wide transition-colors">
                                         Cancel
                                     </button>
                                     <button @click="saveEdit(size.id)"
-                                        class="flex-1 px-4 py-2 text-sm rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white uppercase font-mono tracking-wider transition-colors">
+                                        class="flex-1 px-4 py-2 text-sm rounded-full bg-black dark:bg-white text-white dark:text-black hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white font-mono tracking-wide transition-colors">
                                         Update
                                     </button>
                                 </div>
@@ -350,7 +350,7 @@ const deleteBannerSize = async (id: number) => {
                             <div class="space-y-2">
                                 <div>
                                     <div
-                                        class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">
+                                        class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">
                                         Name</div>
                                     <div class="text-sm font-semibold uppercase font-mono tabular-nums">{{ size.width
                                         }}x{{ size.height }}
@@ -359,13 +359,13 @@ const deleteBannerSize = async (id: number) => {
                                 <div class="grid grid-cols-2 gap-4 pt-2">
                                     <div>
                                         <div
-                                            class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">
+                                            class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">
                                             Width</div>
                                         <div class="text-sm font-medium tabular-nums">{{ size.width }}</div>
                                     </div>
                                     <div>
                                         <div
-                                            class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">
+                                            class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">
                                             Height</div>
                                         <div class="text-sm font-medium tabular-nums">{{ size.height }}</div>
                                     </div>
@@ -376,7 +376,7 @@ const deleteBannerSize = async (id: number) => {
 
                     <div v-if="bannerSizes.data.length === 0 && !adding"
                         class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-8 text-center">
-                        <p class="text-[#666666] dark:text-[#999999] uppercase font-mono tracking-wider text-sm">No
+                        <p class="text-[#666666] dark:text-[#999999] font-mono tracking-wide text-sm">No
                             banner sizes found.
                         </p>
                     </div>
@@ -389,7 +389,7 @@ const deleteBannerSize = async (id: number) => {
                     <div class="lg:hidden">
                         <!-- Results Info -->
                         <div
-                            class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] text-center mb-3">
+                            class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] text-center mb-3">
                             Showing <span class="tabular-nums">{{ bannerSizes.from }}</span> to <span
                                 class="tabular-nums">{{
                                 bannerSizes.to }}</span> of <span class="tabular-nums">{{ bannerSizes.total }}</span>
@@ -401,7 +401,7 @@ const deleteBannerSize = async (id: number) => {
                         <div class="flex items-center justify-between gap-4">
                             <button @click="changePage(bannerSizes.prev_page_url)"
                                 :disabled="!bannerSizes.prev_page_url"
-                                class="px-4 py-2 text-xs rounded-full transition-colors uppercase font-mono tracking-wider flex items-center gap-2"
+                                class="px-4 py-2 text-xs rounded-full transition-colors font-mono tracking-wide flex items-center gap-2"
                                 :class="bannerSizes.prev_page_url
                                     ? 'text-black dark:text-white hover:bg-black hover:dark:bg-white hover:text-white hover:dark:text-black border-2 border-black dark:border-white'
                                     : 'text-[#CCCCCC] dark:text-[#333333] cursor-not-allowed border-2 border-[#CCCCCC] dark:border-[#333333]'">
@@ -409,7 +409,7 @@ const deleteBannerSize = async (id: number) => {
                                 Previous
                             </button>
 
-                            <span class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">
+                            <span class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">
                                 Page <span class="tabular-nums">{{ bannerSizes.current_page }}</span> of <span
                                     class="tabular-nums">{{
                                     bannerSizes.last_page }}</span>
@@ -417,7 +417,7 @@ const deleteBannerSize = async (id: number) => {
 
                             <button @click="changePage(bannerSizes.next_page_url)"
                                 :disabled="!bannerSizes.next_page_url"
-                                class="px-4 py-2 text-xs rounded-full transition-colors uppercase font-mono tracking-wider flex items-center gap-2"
+                                class="px-4 py-2 text-xs rounded-full transition-colors font-mono tracking-wide flex items-center gap-2"
                                 :class="bannerSizes.next_page_url
                                     ? 'text-black dark:text-white hover:bg-black hover:dark:bg-white hover:text-white hover:dark:text-black border-2 border-black dark:border-white'
                                     : 'text-[#CCCCCC] dark:text-[#333333] cursor-not-allowed border-2 border-[#CCCCCC] dark:border-[#333333]'">
@@ -430,7 +430,7 @@ const deleteBannerSize = async (id: number) => {
                     <!-- Desktop pagination (full features) -->
                     <div class="hidden lg:flex items-center justify-between">
                         <!-- Results Info -->
-                        <div class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">
+                        <div class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">
                             Showing <span class="tabular-nums">{{ bannerSizes.from }}</span> to <span
                                 class="tabular-nums">{{
                                 bannerSizes.to }}</span> of <span class="tabular-nums">{{ bannerSizes.total }}</span>
@@ -443,7 +443,7 @@ const deleteBannerSize = async (id: number) => {
                             <!-- Previous Button -->
                             <button @click="changePage(bannerSizes.prev_page_url)"
                                 :disabled="!bannerSizes.prev_page_url"
-                                class="px-4 py-2 text-xs rounded-full transition-colors flex items-center uppercase font-mono tracking-wider"
+                                class="px-4 py-2 text-xs rounded-full transition-colors flex items-center font-mono tracking-wide"
                                 :class="bannerSizes.prev_page_url
                                     ? 'text-black dark:text-white hover:bg-black hover:dark:bg-white hover:text-white hover:dark:text-black border-2 border-black dark:border-white'
                                     : 'text-[#CCCCCC] dark:text-[#333333] cursor-not-allowed border-2 border-[#CCCCCC] dark:border-[#333333]'">
@@ -469,7 +469,7 @@ const deleteBannerSize = async (id: number) => {
                             <!-- Next Button -->
                             <button @click="changePage(bannerSizes.next_page_url)"
                                 :disabled="!bannerSizes.next_page_url"
-                                class="px-4 py-2 text-xs rounded-full transition-colors flex items-center uppercase font-mono tracking-wider"
+                                class="px-4 py-2 text-xs rounded-full transition-colors flex items-center font-mono tracking-wide"
                                 :class="bannerSizes.next_page_url
                                     ? 'text-black dark:text-white hover:bg-black hover:dark:bg-white hover:text-white hover:dark:text-black border-2 border-black dark:border-white'
                                     : 'text-[#CCCCCC] dark:text-[#333333] cursor-not-allowed border-2 border-[#CCCCCC] dark:border-[#333333]'">

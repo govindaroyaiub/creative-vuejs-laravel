@@ -87,7 +87,7 @@ const handleSubmit = async () => {
                 title: 'Validation Error',
                 text: `Please enter an item name for row ${i + 1}.`,
                 icon: 'error',
-                customClass: { popup: 'rounded-2xl' }
+                customClass: { popup: 'rounded-lg' }
             });
             return;
         }
@@ -98,7 +98,7 @@ const handleSubmit = async () => {
             title: 'Validation Error',
             text: 'Total amount must be greater than 0.',
             icon: 'error',
-            customClass: { popup: 'rounded-2xl' }
+            customClass: { popup: 'rounded-lg' }
         });
         return;
     }
@@ -144,7 +144,7 @@ const handleSubmit = async () => {
                 title: 'Error!',
                 text: 'Failed to create bill. Please check your input.',
                 icon: 'error',
-                customClass: { popup: 'rounded-2xl' }
+                customClass: { popup: 'rounded-lg' }
             });
         },
         onFinish: () => {
@@ -187,7 +187,7 @@ const formatFileSize = (bytes: number) => {
 
     <Head title="Create Bill" />
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="min-h-screen bg-white dark:bg-black">
+        <div class="min-h-screen bg-white dark:bg-black font-mono">
             <div class="p-4">
                 <div class="max-w-6xl mx-auto space-y-6">
                     <!-- Bill Form -->
@@ -195,25 +195,24 @@ const formatFileSize = (bytes: number) => {
                         <!-- Basic Information -->
                         <div
                             class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-4">
-                            <div class="flex items-center mb-2">
-                                <FileText class="w-5 h-5 mr-2" stroke-width="1.5" />
-                                <h2 class="text-lg font-semibold uppercase font-mono tracking-wider">Bill Information
-                                </h2>
+                            <div class="flex items-center mb-4">
+                                <FileText class="w-4 h-4 mr-2 text-black dark:text-white" stroke-width="1.5" />
+                                <h2 class="text-sm font-semibold font-mono text-black dark:text-white">Bill information</h2>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
                                     <label
-                                        class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">
+                                        class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">
                                         Bill Name <span class="text-[#D71921]">*</span>
                                     </label>
                                     <input v-model="form.name" type="text" placeholder="Enter bill name..."
-                                        class="w-full px-4 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                                        class="w-full px-3 py-2 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
                                         required />
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">
+                                        class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">
                                         Client Name <span class="text-[#D71921]">*</span>
                                     </label>
                                     <div class="relative">
@@ -221,13 +220,13 @@ const formatFileSize = (bytes: number) => {
                                             class="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#999999] w-4 h-4"
                                             stroke-width="1.5" />
                                         <input v-model="form.client" type="text" placeholder="Enter client name..."
-                                            class="w-full pl-10 pr-4 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                                            class="w-full pl-10 pr-3 py-2 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
                                             required />
                                     </div>
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999] mb-2">
+                                        class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">
                                         Bill Date <span class="text-[#D71921]">*</span>
                                     </label>
                                     <div class="relative">
@@ -235,7 +234,7 @@ const formatFileSize = (bytes: number) => {
                                             class="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#999999] w-4 h-4 pointer-events-none"
                                             stroke-width="1.5" />
                                         <input v-model="form.bill_date" type="date"
-                                            class="w-full pl-10 pr-4 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors [&::-webkit-calendar-picker-indicator]:dark:invert"
+                                            class="w-full pl-10 pr-3 py-2 border-2 border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors [&::-webkit-calendar-picker-indicator]:dark:invert"
                                             required />
                                     </div>
                                 </div>
@@ -249,9 +248,9 @@ const formatFileSize = (bytes: number) => {
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p
-                                            class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">
+                                            class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">
                                             Total Items</p>
-                                        <p class="text-2xl font-bold tabular-nums">{{ totalItems }}
+                                        <p class="text-lg font-mono font-bold tabular-nums text-black dark:text-white">{{ totalItems }}
                                         </p>
                                     </div>
                                     <div
@@ -266,10 +265,10 @@ const formatFileSize = (bytes: number) => {
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p
-                                            class="text-xs uppercase font-mono tracking-wider text-[#666666] dark:text-[#999999]">
+                                            class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999]">
                                             Total Quantity
                                         </p>
-                                        <p class="text-2xl font-bold tabular-nums">{{
+                                        <p class="text-lg font-mono font-bold tabular-nums text-black dark:text-white">{{
                                             totalQuantity }}</p>
                                     </div>
                                     <div
@@ -283,9 +282,9 @@ const formatFileSize = (bytes: number) => {
                                 class="bg-black dark:bg-white rounded-lg border-2 border-black dark:border-white p-4 text-white dark:text-black">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-xs uppercase font-mono tracking-wider opacity-80">Total Amount
+                                        <p class="text-xs font-mono tracking-wide opacity-80">Total Amount
                                         </p>
-                                        <p class="text-2xl font-bold tabular-nums">{{ formatCurrency(totalAmount) }}</p>
+                                        <p class="text-lg font-mono font-bold tabular-nums text-white dark:text-black">{{ formatCurrency(totalAmount) }}</p>
                                     </div>
                                     <div class="p-3 bg-white/20 dark:bg-black/20 rounded-lg">
                                         <Receipt class="w-5 h-5" stroke-width="1.5" />
@@ -294,18 +293,19 @@ const formatFileSize = (bytes: number) => {
                             </div>
                         </div>
 
-                        <!-- Bill Items -->
+                        <!-- Bill items -->
                         <div
                             class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] overflow-hidden">
                             <div class="p-4 border-b-2 border-[#E8E8E8] dark:border-[#222222]">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center">
-                                        <Calculator class="w-5 h-5 mr-2" stroke-width="1.5" />
-                                        <h2 class="text-lg font-semibold uppercase font-mono tracking-wider">Bill Items
-                                        </h2>
+                                        <Calculator class="w-4 h-4 mr-2 text-black dark:text-white" stroke-width="1.5" />
+                                        <h2
+                                            class="text-sm font-semibold font-mono text-black dark:text-white">
+                                            Bill items</h2>
                                     </div>
                                     <button type="button" @click="addRow"
-                                        class="inline-flex items-center px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors uppercase font-mono tracking-wider text-xs group">
+                                        class="inline-flex items-center px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors font-mono tracking-wide text-xs group">
                                         <Plus
                                             class="w-4 h-4 mr-2 group-hover:rotate-90 transition-transform duration-200"
                                             stroke-width="1.5" />
@@ -317,63 +317,62 @@ const formatFileSize = (bytes: number) => {
                             <!-- Desktop Table -->
                             <div class="hidden md:block overflow-x-auto">
                                 <table class="w-full">
-                                    <thead class="bg-gray-50 dark:bg-neutral-900">
+                                    <thead class="bg-[#F5F5F5] dark:bg-black">
                                         <tr>
                                             <th
-                                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                class="px-4 py-3 text-left text-[10px] font-mono tracking-widest uppercase text-[#666666] dark:text-[#999999] border-b border-[#E8E8E8] dark:border-[#222222]">
                                                 Item Description
                                             </th>
                                             <th
-                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                class="px-4 py-3 text-center text-[10px] font-mono tracking-widest uppercase text-[#666666] dark:text-[#999999] border-b border-[#E8E8E8] dark:border-[#222222]">
                                                 Quantity
                                             </th>
                                             <th
-                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                class="px-4 py-3 text-center text-[10px] font-mono tracking-widest uppercase text-[#666666] dark:text-[#999999] border-b border-[#E8E8E8] dark:border-[#222222]">
                                                 Unit Price
                                             </th>
                                             <th
-                                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                class="px-4 py-3 text-right text-[10px] font-mono tracking-widest uppercase text-[#666666] dark:text-[#999999] border-b border-[#E8E8E8] dark:border-[#222222]">
                                                 Amount
                                             </th>
                                             <th
-                                                class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                class="px-4 py-3 text-center text-[10px] font-mono tracking-widest uppercase text-[#666666] dark:text-[#999999] border-b border-[#E8E8E8] dark:border-[#222222]">
                                                 Action
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                                    <tbody class="divide-y divide-[#E8E8E8] dark:divide-[#222222]">
                                         <tr v-for="(row, index) in form.sub_bills" :key="index"
-                                            class="hover:bg-gray-50 dark:hover:bg-gray-950 transition-colors duration-200">
-                                            <td class="px-6 py-4">
+                                            class="hover:bg-[#F5F5F5] dark:hover:bg-black/40 transition-colors">
+                                            <td class="px-4 py-3">
                                                 <input v-model="row.item" type="text"
                                                     placeholder="Enter item description..."
-                                                    class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    class="w-full px-3 py-2 border border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-sm text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
                                                     required />
                                             </td>
-                                            <td class="px-6 py-4 text-center">
+                                            <td class="px-4 py-3 text-center">
                                                 <input v-model.number="row.quantity" @input="calculateAmount(index)"
                                                     type="number" min="1"
-                                                    class="w-20 px-3 py-2 text-center border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    class="w-20 px-3 py-2 text-center border border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-sm text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
                                                     required />
                                             </td>
-                                            <td class="px-6 py-4 text-center">
+                                            <td class="px-4 py-3 text-center">
                                                 <input v-model.number="row.unit_price" @input="calculateAmount(index)"
                                                     type="number" step="0.01" min="0" placeholder="0.00"
-                                                    class="w-24 px-3 py-2 text-center border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    class="w-24 px-3 py-2 text-center border border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-sm text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
                                                     required />
                                             </td>
-                                            <td class="px-6 py-4 text-right">
+                                            <td class="px-4 py-3 text-right">
                                                 <span
-                                                    class="font-mono font-semibold text-lg text-gray-900 dark:text-white">
+                                                    class="font-mono tabular-nums text-sm font-semibold text-black dark:text-white">
                                                     {{ formatCurrency(row.amount) }}
                                                 </span>
                                             </td>
-                                            <td class="px-6 py-4 text-center">
+                                            <td class="px-4 py-3 text-center">
                                                 <button type="button" @click="removeRow(index)"
-                                                    class="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-all duration-200 group/delete"
+                                                    class="p-2 text-[#D71921] hover:bg-[#D71921] hover:text-white rounded-full border border-[#D71921] transition-all"
                                                     :class="{ 'opacity-50 cursor-not-allowed': form.sub_bills.length === 1 }">
-                                                    <Trash2
-                                                        class="w-4 h-4 group-hover/delete:scale-110 transition-transform duration-200" />
+                                                    <Trash2 class="w-4 h-4" stroke-width="1.5" />
                                                 </button>
                                             </td>
                                         </tr>
@@ -384,50 +383,55 @@ const formatFileSize = (bytes: number) => {
                             <!-- Mobile Cards -->
                             <div class="md:hidden p-4 space-y-4">
                                 <div v-for="(row, index) in form.sub_bills" :key="index"
-                                    class="border border-gray-200 dark:border-neutral-700 rounded-xl p-4 space-y-4">
+                                    class="border border-[#E8E8E8] dark:border-[#222222] rounded-lg p-4 space-y-4 bg-white dark:bg-[#0A0A0A]">
                                     <div class="flex items-center justify-between">
-                                        <h3 class="font-medium text-gray-900 dark:text-white">Item #{{ index + 1 }}</h3>
+                                        <h3
+                                            class="text-sm font-semibold font-mono text-black dark:text-white">
+                                            Item #{{ index + 1 }}</h3>
                                         <button type="button" @click="removeRow(index)"
-                                            class="p-1 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/50 rounded"
+                                            class="p-1.5 text-[#D71921] hover:bg-[#D71921] hover:text-white rounded-full border border-[#D71921] transition-all"
                                             :class="{ 'opacity-50 cursor-not-allowed': form.sub_bills.length === 1 }">
-                                            <Trash2 class="w-4 h-4" />
+                                            <Trash2 class="w-4 h-4" stroke-width="1.5" />
                                         </button>
                                     </div>
 
                                     <div class="space-y-3">
                                         <div>
                                             <label
-                                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Item
+                                                class="block text-[10px] font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999] mb-1">Item
                                                 Description</label>
                                             <input v-model="row.item" type="text"
                                                 placeholder="Enter item description..."
-                                                class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                class="w-full px-3 py-2 border border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-sm text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
                                                 required />
                                         </div>
 
                                         <div class="grid grid-cols-2 gap-3">
                                             <div>
                                                 <label
-                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity</label>
+                                                    class="block text-[10px] font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999] mb-1">Quantity</label>
                                                 <input v-model.number="row.quantity" @input="calculateAmount(index)"
                                                     type="number" min="1"
-                                                    class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    class="w-full px-3 py-2 border border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-sm text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
                                                     required />
                                             </div>
                                             <div>
                                                 <label
-                                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit
+                                                    class="block text-[10px] font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999] mb-1">Unit
                                                     Price</label>
                                                 <input v-model.number="row.unit_price" @input="calculateAmount(index)"
                                                     type="number" step="0.01" min="0" placeholder="0.00"
-                                                    class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                    class="w-full px-3 py-2 border border-[#CCCCCC] dark:border-[#333333] rounded-lg bg-white dark:bg-black text-sm text-black dark:text-white placeholder-[#999999] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
                                                     required />
                                             </div>
                                         </div>
 
                                         <div class="text-right">
-                                            <span class="text-sm text-gray-500 dark:text-gray-400">Amount: </span>
-                                            <span class="font-mono font-semibold text-lg text-gray-900 dark:text-white">
+                                            <span
+                                                class="text-[10px] font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999]">Amount:
+                                            </span>
+                                            <span
+                                                class="font-mono tabular-nums text-sm font-semibold text-black dark:text-white">
                                                 {{ formatCurrency(row.amount) }}
                                             </span>
                                         </div>
@@ -438,12 +442,14 @@ const formatFileSize = (bytes: number) => {
 
                         <!-- Total Summary -->
                         <div
-                            class="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-neutral-950 dark:to-neutral-950 rounded-2xl p-4 border border-gray-200 dark:border-neutral-700">
+                            class="bg-black dark:bg-white rounded-lg border-2 border-black dark:border-white p-4">
                             <div class="flex justify-between items-center">
-                                <div class="text-lg font-medium text-gray-700 dark:text-gray-300 ">
-                                    Grand Total:
+                                <div
+                                    class="text-xs font-mono uppercase tracking-widest text-[#CCCCCC] dark:text-[#666666]">
+                                    Grand Total
                                 </div>
-                                <div class="text-3xl font-bold text-gray-900 dark:text-white">
+                                <div
+                                    class="text-lg font-mono tabular-nums font-bold text-white dark:text-black">
                                     {{ formatCurrency(totalAmount) }}
                                 </div>
                             </div>
@@ -451,26 +457,32 @@ const formatFileSize = (bytes: number) => {
 
                         <!-- Document Upload Section -->
                         <div
-                            class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 p-4">
+                            class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-4">
                             <div class="flex items-center mb-4">
-                                <Upload class="w-5 h-5 text-blue-600 mr-2" />
-                                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Supporting Documents
+                                <Upload class="w-4 h-4 mr-2 text-black dark:text-white" stroke-width="1.5" />
+                                <h2 class="text-sm font-semibold font-mono text-black dark:text-white">
+                                    Supporting documents
                                 </h2>
-                                <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">(Optional)</span>
+                                <span
+                                    class="ml-2 text-[10px] font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999]">(Optional)</span>
                             </div>
 
                             <div class="space-y-4">
                                 <!-- File Upload Area -->
                                 <div class="flex items-center justify-center w-full">
                                     <label
-                                        class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 dark:border-neutral-700 border-dashed rounded-xl cursor-pointer bg-gray-50 dark:bg-neutral-900 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors duration-200">
+                                        class="flex flex-col items-center justify-center w-full h-32 border-2 border-[#CCCCCC] dark:border-[#333333] border-dashed rounded-lg cursor-pointer bg-[#F5F5F5] dark:bg-[#0A0A0A] hover:border-black dark:hover:border-white transition-colors">
                                         <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                            <Upload class="w-8 h-8 mb-2 text-gray-500 dark:text-gray-400" />
-                                            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                                                <span class="font-semibold">Click to upload</span> or drag and drop
+                                            <Upload class="w-6 h-6 mb-2 text-[#666666] dark:text-[#999999]"
+                                                stroke-width="1.5" />
+                                            <p
+                                                class="mb-1 text-xs font-mono text-[#666666] dark:text-[#999999]">
+                                                <span class="font-semibold uppercase tracking-wider text-black dark:text-white">Click
+                                                    to upload</span> or drag and drop
                                             </p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                PDF, DOC, DOCX, XLS, XLSX, JPG, PNG (Max 10MB per file)
+                                            <p
+                                                class="text-[10px] font-mono uppercase tracking-widest text-[#999999]">
+                                                PDF, DOC, DOCX, XLS, XLSX, JPG, PNG · Max 10MB
                                             </p>
                                         </div>
                                         <input type="file" class="hidden" @change="handleFileUpload"
@@ -480,26 +492,29 @@ const formatFileSize = (bytes: number) => {
 
                                 <!-- Uploaded Files List -->
                                 <div v-if="documents.length > 0" class="space-y-2">
-                                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Uploaded Files ({{
-                                        documents.length }})</p>
+                                    <p
+                                        class="text-[10px] font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999]">
+                                        Uploaded Files ({{ documents.length }})</p>
                                     <div class="space-y-2">
                                         <div v-for="(file, index) in documents" :key="index"
-                                            class="flex items-center justify-between p-3 bg-gray-50 dark:bg-neutral-900 rounded-lg border border-gray-200 dark:border-neutral-700">
+                                            class="flex items-center justify-between p-3 bg-[#F5F5F5] dark:bg-[#0A0A0A] rounded-lg border border-[#E8E8E8] dark:border-[#222222]">
                                             <div class="flex items-center space-x-3 flex-1 min-w-0">
-                                                <FileText class="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                                <FileText class="w-4 h-4 text-black dark:text-white flex-shrink-0"
+                                                    stroke-width="1.5" />
                                                 <div class="flex-1 min-w-0">
                                                     <p
-                                                        class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                                        class="text-sm text-black dark:text-white truncate">
                                                         {{ file.name }}
                                                     </p>
-                                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                    <p
+                                                        class="text-[10px] font-mono text-[#666666] dark:text-[#999999] tabular-nums">
                                                         {{ formatFileSize(file.size) }}
                                                     </p>
                                                 </div>
                                             </div>
                                             <button type="button" @click="removeDocument(index)"
-                                                class="ml-3 p-1.5 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-all duration-200 flex-shrink-0">
-                                                <X class="w-4 h-4" />
+                                                class="ml-3 p-1.5 text-[#D71921] hover:bg-[#D71921] hover:text-white rounded-full border border-[#D71921] transition-all flex-shrink-0">
+                                                <X class="w-4 h-4" stroke-width="1.5" />
                                             </button>
                                         </div>
                                     </div>
@@ -508,17 +523,17 @@ const formatFileSize = (bytes: number) => {
                         </div>
 
                         <!-- Form Actions -->
-                        <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
+                        <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
                             <Link :href="route('bills')"
-                                class="inline-flex items-center justify-center px-6 py-3 border text-white bg-red-600 dark:bg-neutral-800 rounded-xl hover:bg-red-700 transition-all duration-200">
+                                class="inline-flex items-center justify-center px-6 py-2 rounded-full border border-[#CCCCCC] dark:border-[#333333] text-xs font-mono tracking-wide text-[#1A1A1A] dark:text-[#E8E8E8] bg-white dark:bg-[#111111] hover:border-black dark:hover:border-white transition-colors">
                                 Cancel
                             </Link>
                             <button type="submit" :disabled="isLoading || totalAmount <= 0"
-                                class="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+                                class="inline-flex items-center justify-center px-6 py-2 rounded-full border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black text-xs font-mono tracking-wide hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                 <div v-if="isLoading"
-                                    class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2">
+                                    class="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent mr-2">
                                 </div>
-                                <Save v-else class="w-4 h-4 mr-2" />
+                                <Save v-else class="w-4 h-4 mr-2" stroke-width="1.5" />
                                 {{ isLoading ? 'Saving...' : 'Save' }}
                             </button>
                         </div>

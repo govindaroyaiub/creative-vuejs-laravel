@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { CirclePlus, X, LayoutGrid, List, ListFilter } from 'lucide-vue-next';
+import { CirclePlus, X, LayoutGrid, List, ListFilter, Image as ImageIcon, Film, Share2, Sparkles, Check } from 'lucide-vue-next';
 import dayjs from 'dayjs'
 import Swal from 'sweetalert2';
 import { computed, ref, nextTick } from 'vue';
@@ -164,11 +164,66 @@ function switchTab(tab: 'grid' | 'table') {
     })
 }
 
-const getTypes = (preview: any) => {
-    const types = new Set();
-    preview.categories?.forEach((v: any) => types.add((v.type || '').toLowerCase()));
-    return Array.from(types).join(', ');
+// ---------------------------------------------------------------------
+// Per-row meta for the table view: type chips, totals, progress pct.
+// Same logic as PreviewGridCard but evaluated lazily here so the table
+// can render counts inline without giving every row its own component.
+// ---------------------------------------------------------------------
+type AssetKey = 'banner' | 'video' | 'social' | 'gif';
+const TYPE_META: Record<AssetKey, { icon: any; label: string }> = {
+    banner: { icon: ImageIcon, label: 'banners' },
+    video: { icon: Film, label: 'videos' },
+    social: { icon: Share2, label: 'posts' },
+    gif: { icon: Sparkles, label: 'gifs' },
 };
+const TYPE_ORDER: AssetKey[] = ['banner', 'video', 'social', 'gif'];
+
+function getTypeChips(preview: any) {
+    const counts: Record<AssetKey, number> = { banner: 0, video: 0, social: 0, gif: 0 };
+    for (const c of preview.categories || []) {
+        const t = (c.type || '').toLowerCase() as AssetKey;
+        if (!(t in counts)) continue;
+        let n = 0;
+        for (const f of c.feedbacks || []) {
+            for (const s of (f.feedback_sets || f.feedbackSets || [])) {
+                for (const v of s.versions || []) {
+                    n += v[`${t}s`]?.length || 0;
+                }
+            }
+        }
+        counts[t] += n;
+    }
+    return TYPE_ORDER
+        .filter(k => counts[k] > 0)
+        .map(k => ({ key: k, icon: TYPE_META[k].icon, label: TYPE_META[k].label, count: counts[k] }));
+}
+
+function getTotals(preview: any) {
+    let total = Number(preview.total_feedbacks ?? 0);
+    let approved = Number(preview.approved_feedbacks ?? 0);
+    if (!total && Array.isArray(preview.categories)) {
+        for (const c of preview.categories) {
+            for (const f of (c.feedbacks || [])) {
+                total += 1;
+                if (f.is_approved) approved += 1;
+            }
+        }
+    }
+    return { total, approved, pct: total ? Math.round((approved / total) * 100) : 0 };
+}
+
+function initials(name?: string) {
+    if (!name) return '?';
+    return name.split(/\s+/).filter(Boolean).slice(0, 2).map(s => s[0]).join('').toUpperCase();
+}
+
+function rowAccent(preview: any) {
+    return preview.color_palette?.primary || '#1A1A1A';
+}
+
+function openPreview(preview: any) {
+    router.visit(`/previews/update/${preview.id}`);
+}
 
 const closeModal = () => {
     showModal.value = false;
@@ -432,12 +487,12 @@ const groups = computed(() => {
 
                                         <div class="flex gap-2 pt-2">
                                             <button @click="applyFilters"
-                                                class="flex-1 px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-[#1A1A1A] dark:hover:bg-[#E8E8E8] transition uppercase font-mono text-xs tracking-wider">
-                                                APPLY
+                                                class="flex-1 px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-[#1A1A1A] dark:hover:bg-[#E8E8E8] transition font-mono text-xs tracking-wide">
+                                                Apply
                                             </button>
                                             <button @click="clearFilters"
-                                                class="px-4 py-2 border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] rounded-full hover:border-black dark:hover:border-white transition uppercase font-mono text-xs tracking-wider">
-                                                CLEAR
+                                                class="px-4 py-2 border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] rounded-full hover:border-black dark:hover:border-white transition font-mono text-xs tracking-wide">
+                                                Clear
                                             </button>
                                         </div>
                                     </div>
@@ -448,23 +503,23 @@ const groups = computed(() => {
                     <div class="flex items-center space-x-2">
                         <button @click="switchTab('grid')" :aria-pressed="activeTab === 'grid'"
                             :class="activeTab === 'grid' ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white' : 'text-[#666666] dark:text-[#999999] border-[#E8E8E8] dark:border-[#222222]'"
-                            class="px-3 py-2 rounded-full border flex items-center gap-2 transition-colors uppercase font-mono text-xs tracking-wider">
+                            class="px-3 py-2 rounded-full border flex items-center gap-2 transition-colors font-mono text-xs tracking-wide">
                             <LayoutGrid class="w-4 h-4" :stroke-width="1.5" />
-                            <span class="hidden sm:inline">GRID</span>
+                            <span class="hidden sm:inline">Grid</span>
                         </button>
                         <button @click="switchTab('table')" :aria-pressed="activeTab === 'table'"
                             :class="activeTab === 'table' ? 'bg-black dark:bg-white text-white dark:text-black border-black dark:border-white' : 'text-[#666666] dark:text-[#999999] border-[#E8E8E8] dark:border-[#222222]'"
-                            class="px-3 py-2 rounded-full border flex items-center gap-2 transition-colors uppercase font-mono text-xs tracking-wider">
+                            class="px-3 py-2 rounded-full border flex items-center gap-2 transition-colors font-mono text-xs tracking-wide">
                             <List class="w-4 h-4" :stroke-width="1.5" />
-                            <span class="hidden sm:inline">TABLE</span>
+                            <span class="hidden sm:inline">Table</span>
                         </button>
 
                         <button @click="showModal = true"
-                            class="ml-3 bg-black text-white border-2 border-black hover:bg-white hover:text-black dark:bg-white dark:text-black dark:border-white dark:hover:bg-black dark:hover:text-white rounded-full px-3 py-2 group flex items-center justify-center whitespace-nowrap uppercase text-xs tracking-wider transition-colors"
+                            class="ml-3 bg-black text-white border-2 border-black hover:bg-white hover:text-black dark:bg-white dark:text-black dark:border-white dark:hover:bg-black dark:hover:text-white rounded-full px-3 py-2 group flex items-center justify-center whitespace-nowrap text-xs font-mono tracking-wide transition-colors"
                             aria-label="Add Preview">
                             <CirclePlus class="w-4 h-4 mr-2 group-hover:rotate-90 transition-transform duration-200"
                                 :stroke-width="1.5" />
-                            <span class="hidden sm:inline">ADD</span>
+                            <span class="hidden sm:inline">Add</span>
                         </button>
                     </div>
                 </div>
@@ -474,139 +529,145 @@ const groups = computed(() => {
                     <div :key="activeTab">
                         <div v-if="activeTab === 'table'">
                             <!-- Desktop Table -->
-                            <div class="hidden lg:block overflow-x-auto rounded-lg">
-                                <table
-                                    class="w-full rounded-lg bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] table-fixed">
+                            <div
+                                class="hidden lg:block overflow-x-auto rounded-lg border border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-[#0A0A0A]">
+                                <table class="w-full">
                                     <thead
-                                        class="bg-[#F5F5F5] dark:bg-black text-xs uppercase font-mono tracking-widest">
+                                        class="bg-[#F5F5F5] dark:bg-black text-[10px] uppercase font-mono tracking-widest text-[#666666] dark:text-[#999999]">
                                         <tr>
-                                            <th
-                                                class="w-16 px-4 py-3 text-center border-b border-[#E8E8E8] dark:border-[#222222] text-[#666666] dark:text-[#999999]">
-                                                #</th>
-                                            <th
-                                                class="w-80 px-4 py-3 text-left border-b border-[#E8E8E8] dark:border-[#222222] text-[#666666] dark:text-[#999999]">
-                                                NAME & CLIENT</th>
-                                            <th
-                                                class="w-48 px-4 py-3 text-center border-b border-[#E8E8E8] dark:border-[#222222] text-[#666666] dark:text-[#999999]">
-                                                TEAM</th>
-                                            <th
-                                                class="w-36 px-4 py-3 text-center border-b border-[#E8E8E8] dark:border-[#222222] text-[#666666] dark:text-[#999999]">
-                                                UPLOADER</th>
-                                            <th
-                                                class="w-32 px-4 py-3 text-center border-b border-[#E8E8E8] dark:border-[#222222] text-[#666666] dark:text-[#999999]">
-                                                ACTIONS</th>
+                                            <th class="w-1.5 p-0" aria-hidden="true"></th>
+                                            <th class="w-12 px-3 py-3 text-center font-medium">#</th>
+                                            <th class="px-4 py-3 text-left font-medium">PREVIEW · CLIENT</th>
+                                            <th class="w-40 px-4 py-3 text-left font-medium">TYPES</th>
+                                            <th class="w-52 px-4 py-3 text-left font-medium">PROGRESS</th>
+                                            <th class="w-40 px-4 py-3 text-left font-medium">TEAM</th>
+                                            <th class="w-36 px-4 py-3 text-left font-medium">UPLOADED</th>
+                                            <th class="w-32 px-4 py-3 text-center font-medium">ACTIONS</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-[#E8E8E8] dark:divide-[#222222]">
                                         <tr v-for="(preview, index) in filteredPreviews" :key="preview.id"
-                                            class="hover:bg-[#F5F5F5] dark:hover:bg-black border-b border-[#E8E8E8] dark:border-[#222222] transition-colors">
-                                            <td
-                                                class="w-16 text-center px-4 py-3 font-mono border-b border-[#E8E8E8] dark:border-[#222222] text-[#1A1A1A] dark:text-[#E8E8E8]">
+                                            class="group cursor-pointer transition-colors hover:bg-[#F5F5F5] dark:hover:bg-black/40"
+                                            @click="openPreview(preview)">
+                                            <!-- color palette accent -->
+                                            <td class="p-0"
+                                                :style="{ backgroundColor: rowAccent(preview) }"
+                                                :title="`Brand colour: ${rowAccent(preview)}`"></td>
+
+                                            <td class="px-3 py-3 text-center font-mono text-xs tabular-nums text-[#666666] dark:text-[#999999]">
                                                 {{ ((previews.current_page - 1) * previews.per_page) + index + 1 }}
                                             </td>
-                                            <td
-                                                class="w-80 px-4 py-3 text-left border-b border-[#E8E8E8] dark:border-[#222222]">
-                                                <div class="font-medium capitalize break-words text-[#1A1A1A] dark:text-[#E8E8E8]"
+
+                                            <!-- Name + client -->
+                                            <td class="px-4 py-3 max-w-0">
+                                                <div class="truncate text-sm font-semibold text-[#1A1A1A] dark:text-[#E8E8E8]"
                                                     :title="preview.name">
-                                                    {{
-                                                        preview.name
-                                                    }}</div>
-                                                <div
-                                                    class="text-xs text-[#666666] dark:text-[#999999] flex gap-2 items-center font-mono uppercase tracking-wider mt-1">
-                                                    <div class="h-5 w-5 rounded-full border flex-shrink-0"
-                                                        :style="{ backgroundColor: preview.color_palette?.primary ?? 'red' }"
-                                                        title="Primary Color"></div>
-                                                    <span class="break-words">{{ preview.client?.name ?? '-' }}</span> -
-                                                    <div class="text-xs text-gray-400 break-words">{{ getTypes(preview)
-                                                        ||
-                                                        '-' }}
-                                                    </div>
+                                                    {{ preview.name || 'Untitled preview' }}
+                                                </div>
+                                                <div class="mt-0.5 truncate font-mono text-[10px] uppercase tracking-widest text-[#666666] dark:text-[#999999]"
+                                                    :title="preview.client?.name">
+                                                    {{ preview.client?.name || '— NO CLIENT' }}
                                                 </div>
                                             </td>
-                                            <td class="w-48 px-4 py-3 text-center border-b">
-                                                <div class="flex justify-center flex-wrap gap-1">
-                                                    <span v-for="u in preview.team_users" :key="u.id"
-                                                        class="inline-block rounded-full bg-white dark:bg-[#111111] border border-[#CCCCCC] dark:border-[#333333] px-2 py-0.5 text-xs text-[#1A1A1A] dark:text-[#E8E8E8] truncate uppercase font-mono tracking-wider">
-                                                        {{ u.name }}
+
+                                            <!-- Types -->
+                                            <td class="px-4 py-3">
+                                                <div v-if="getTypeChips(preview).length"
+                                                    class="flex flex-wrap items-center gap-1">
+                                                    <span v-for="t in getTypeChips(preview)" :key="t.key"
+                                                        class="inline-flex items-center gap-1 rounded-md border border-[#E8E8E8] bg-[#F5F5F5] px-1.5 py-0.5 font-mono text-[10px] tracking-wider text-[#1A1A1A] dark:border-[#222222] dark:bg-black dark:text-[#E8E8E8]"
+                                                        :title="`${t.count} ${t.label}`">
+                                                        <component :is="t.icon" class="h-3 w-3" :stroke-width="1.5" />
+                                                        {{ t.count }}
                                                     </span>
                                                 </div>
+                                                <span v-else
+                                                    class="font-mono text-[10px] uppercase tracking-widest text-[#999999]">—</span>
                                             </td>
-                                            <td class="w-36 px-4 py-3 text-center border-b">
-                                                <div class="text-sm truncate" :title="preview.uploader?.name">{{
-                                                    preview.uploader?.name
-                                                    ?? '-' }}</div>
-                                                <div class="text-xs text-gray-400">{{ new
-                                                    Date(preview.created_at).toLocaleDateString('en-GB', {
+
+                                            <!-- Progress -->
+                                            <td class="px-4 py-3">
+                                                <template v-if="getTotals(preview).total > 0">
+                                                    <div class="flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-[#666666] dark:text-[#999999]">
+                                                        <span class="inline-flex items-center gap-1">
+                                                            <Check
+                                                                v-if="getTotals(preview).approved >= getTotals(preview).total"
+                                                                class="h-3 w-3 text-black dark:text-white"
+                                                                :stroke-width="2" />
+                                                            FEEDBACK
+                                                        </span>
+                                                        <span class="tabular-nums text-[#1A1A1A] dark:text-[#E8E8E8]">
+                                                            {{ getTotals(preview).approved }}/{{ getTotals(preview).total }}
+                                                            <span class="text-[#999999]">· {{ getTotals(preview).pct }}%</span>
+                                                        </span>
+                                                    </div>
+                                                    <div class="mt-1 h-1 overflow-hidden rounded-full bg-[#E8E8E8] dark:bg-[#222222]">
+                                                        <div class="h-full rounded-full transition-all"
+                                                            :style="{ width: `${getTotals(preview).pct}%`, backgroundColor: rowAccent(preview) }" />
+                                                    </div>
+                                                </template>
+                                                <span v-else
+                                                    class="font-mono text-[10px] uppercase tracking-widest text-[#999999]">—
+                                                    NO FEEDBACK</span>
+                                            </td>
+
+                                            <!-- Team avatars -->
+                                            <td class="px-4 py-3">
+                                                <div v-if="preview.team_users?.length"
+                                                    class="flex items-center -space-x-1.5">
+                                                    <div v-for="u in preview.team_users.slice(0, 4)" :key="u.id"
+                                                        class="grid h-6 w-6 place-items-center rounded-full bg-black font-mono text-[9px] font-bold text-white ring-2 ring-white dark:bg-white dark:text-black dark:ring-[#0A0A0A]"
+                                                        :title="u.name">
+                                                        {{ initials(u.name) }}
+                                                    </div>
+                                                    <span v-if="preview.team_users.length > 4"
+                                                        class="grid h-6 w-6 place-items-center rounded-full bg-[#E8E8E8] font-mono text-[9px] font-bold text-[#1A1A1A] ring-2 ring-white dark:bg-[#222222] dark:text-[#E8E8E8] dark:ring-[#0A0A0A]">
+                                                        +{{ preview.team_users.length - 4 }}
+                                                    </span>
+                                                </div>
+                                                <span v-else
+                                                    class="font-mono text-[10px] uppercase tracking-widest text-[#999999]">—</span>
+                                            </td>
+
+                                            <!-- Uploader + date -->
+                                            <td class="px-4 py-3">
+                                                <div class="truncate text-xs text-[#1A1A1A] dark:text-[#E8E8E8]"
+                                                    :title="preview.uploader?.name">
+                                                    {{ preview.uploader?.name ?? '—' }}
+                                                </div>
+                                                <div class="font-mono text-[10px] text-[#999999]">
+                                                    {{ new Date(preview.created_at).toLocaleDateString('en-GB', {
                                                         day: '2-digit', month: 'short', year: 'numeric'
-                                                    }) }}</div>
+                                                    }) }}
+                                                </div>
                                             </td>
-                                            <td class="w-32 text-center px-4 py-3 border-b">
+
+                                            <td class="px-4 py-3 text-center" @click.stop>
                                                 <div class="flex justify-center">
-                                                    <PreviewActionButtons :preview="preview" size="sm" />
+                                                    <PreviewActionButtons :preview="preview" size="sm"
+                                                        :stop-propagation="true" />
                                                 </div>
                                             </td>
                                         </tr>
                                         <tr v-if="filteredPreviews.length === 0">
-                                            <td colspan="5"
-                                                class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
-                                                No
-                                                previews
-                                                found.</td>
+                                            <td colspan="8"
+                                                class="px-4 py-12 text-center font-mono text-[10px] uppercase tracking-widest text-[#999999]">
+                                                NO PREVIEWS FOUND
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
 
-                            <!-- Mobile/Tablet Cards (table view simplified) -->
-                            <div class="lg:hidden space-y-4">
-                                <div v-for="(preview, index) in filteredPreviews" :key="preview.id"
-                                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-4">
-
-                                    <div class="flex items-start justify-between mb-3">
-                                        <div class="flex-1 min-w-0">
-                                            <div class="flex items-center gap-2 mb-1">
-                                                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    #{{ ((previews.current_page - 1) * previews.per_page) + index + 1 }}
-                                                </span>
-                                                <div class="h-4 w-4 rounded-full border flex-shrink-0"
-                                                    :style="{ backgroundColor: preview.color_palette?.primary ?? '#ccc' }"
-                                                    title="Primary Color"></div>
-                                            </div>
-                                            <h3
-                                                class="font-semibold text-lg capitalize break-words text-gray-900 dark:text-white">
-                                                {{ preview.name }}
-                                            </h3>
-                                        </div>
-
-                                        <PreviewActionButtons :preview="preview" size="md" />
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <div class="text-sm text-gray-600 dark:text-gray-400">
-                                            <span class="font-medium">Client:</span> {{ preview.client?.name ?? 'No client'}}
-                                        </div>
-                                        <div class="text-sm text-gray-600 dark:text-gray-400" v-if="getTypes(preview)">
-                                            <span class="font-medium">Types:</span> {{ getTypes(preview) }}
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        class="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
-                                        <div>
-                                            <span class="font-medium">Uploader:</span> {{ preview.uploader?.name ??
-                                                'Unknown' }}
-                                        </div>
-                                        <div>
-                                            {{ new Date(preview.created_at).toLocaleDateString('en-GB', {
-                                                day: '2-digit', month: 'short', year: 'numeric'
-                                            }) }}
-                                        </div>
-                                    </div>
-                                </div>
-
+                            <!-- Mobile/Tablet: reuse the redesigned grid card in a single column -->
+                            <div class="lg:hidden grid grid-cols-1 gap-4">
+                                <PreviewGridCard v-for="preview in filteredPreviews" :key="preview.id"
+                                    :preview="preview" :status="getTotals(preview).total === 0
+                                        ? 'noFeedback'
+                                        : (getTotals(preview).approved >= getTotals(preview).total ? 'completed' : 'inProgress')" />
                                 <div v-if="filteredPreviews.length === 0"
-                                    class="bg-white dark:bg-neutral-800 rounded-2xl shadow border border-gray-200 dark:border-neutral-700 p-8 text-center">
-                                    <div class="text-gray-500 dark:text-gray-400">No previews found.</div>
+                                    class="rounded-lg border border-[#E8E8E8] bg-white p-8 text-center font-mono text-xs uppercase tracking-widest text-[#999999] dark:border-[#222222] dark:bg-[#0A0A0A]">
+                                    NO PREVIEWS FOUND
                                 </div>
                             </div>
                         </div>
@@ -633,19 +694,19 @@ const groups = computed(() => {
                                                 :key="p.id" :preview="p" status="inProgress" />
                                         </div>
                                         <div v-else
-                                            class="text-xs text-[#666666] dark:text-[#999999] font-mono uppercase tracking-wider">
+                                            class="text-xs text-[#666666] dark:text-[#999999] font-mono tracking-wide">
                                             NO PREVIEWS IN PROGRESS</div>
                                     </div>
                                     <div v-if="groups.inProgress.length > inProgressDefault" class="mt-4 text-center">
                                         <button v-if="inProgressLimit < groups.inProgress.length"
                                             @click="expandGroup('inProgress')"
-                                            class="px-4 py-2 text-xs font-mono uppercase tracking-wider border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] hover:border-black dark:hover:border-white rounded-full transition-colors">
-                                            SHOW {{ Math.min(6, groups.inProgress.length - inProgressLimit) }} MORE
+                                            class="px-4 py-2 text-xs font-mono tracking-wide border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] hover:border-black dark:hover:border-white rounded-full transition-colors">
+                                            Show {{ Math.min(6, groups.inProgress.length - inProgressLimit) }} more
                                         </button>
                                         <button v-else-if="inProgressLimit > inProgressDefault"
                                             @click="collapseTo('inProgress', inProgressContainer, inProgressDefault)"
-                                            class="px-4 py-2 text-xs font-mono uppercase tracking-wider border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] hover:border-black dark:hover:border-white rounded-full transition-colors">
-                                            SHOW LESS
+                                            class="px-4 py-2 text-xs font-mono tracking-wide border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] hover:border-black dark:hover:border-white rounded-full transition-colors">
+                                            Show less
                                         </button>
                                     </div>
                                 </section>
@@ -669,19 +730,19 @@ const groups = computed(() => {
                                                 :key="p.id" :preview="p" status="completed" />
                                         </div>
                                         <div v-else
-                                            class="text-xs text-[#666666] dark:text-[#999999] font-mono uppercase tracking-wider">
+                                            class="text-xs text-[#666666] dark:text-[#999999] font-mono tracking-wide">
                                             NO COMPLETED PREVIEWS</div>
                                     </div>
                                     <div v-if="groups.completed.length > completedDefault" class="mt-4 text-center">
                                         <button v-if="completedLimit < groups.completed.length"
                                             @click="expandGroup('completed')"
-                                            class="px-4 py-2 text-xs font-mono uppercase tracking-wider border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] hover:border-black dark:hover:border-white rounded-full transition-colors">
-                                            SHOW {{ Math.min(6, groups.completed.length - completedLimit) }} MORE
+                                            class="px-4 py-2 text-xs font-mono tracking-wide border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] hover:border-black dark:hover:border-white rounded-full transition-colors">
+                                            Show {{ Math.min(6, groups.completed.length - completedLimit) }} more
                                         </button>
                                         <button v-else-if="completedLimit > completedDefault"
                                             @click="collapseTo('completed', completedContainer, completedDefault)"
-                                            class="px-4 py-2 text-xs font-mono uppercase tracking-wider border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] hover:border-black dark:hover:border-white rounded-full transition-colors">
-                                            SHOW LESS
+                                            class="px-4 py-2 text-xs font-mono tracking-wide border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] hover:border-black dark:hover:border-white rounded-full transition-colors">
+                                            Show less
                                         </button>
                                     </div>
                                 </section>
@@ -705,19 +766,19 @@ const groups = computed(() => {
                                                 :key="p.id" :preview="p" status="noFeedback" />
                                         </div>
                                         <div v-else
-                                            class="text-xs text-[#666666] dark:text-[#999999] font-mono uppercase tracking-wider">
+                                            class="text-xs text-[#666666] dark:text-[#999999] font-mono tracking-wide">
                                             NO PREVIEWS WITHOUT FEEDBACK</div>
                                     </div>
                                     <div v-if="groups.noFeedback.length > noFeedbackDefault" class="mt-4 text-center">
                                         <button v-if="noFeedbackLimit < groups.noFeedback.length"
                                             @click="expandGroup('noFeedback')"
-                                            class="px-4 py-2 text-xs font-mono uppercase tracking-wider border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] hover:border-black dark:hover:border-white rounded-full transition-colors">
-                                            SHOW {{ Math.min(6, groups.noFeedback.length - noFeedbackLimit) }} MORE
+                                            class="px-4 py-2 text-xs font-mono tracking-wide border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] hover:border-black dark:hover:border-white rounded-full transition-colors">
+                                            Show {{ Math.min(6, groups.noFeedback.length - noFeedbackLimit) }} more
                                         </button>
                                         <button v-else-if="noFeedbackLimit > noFeedbackDefault"
                                             @click="collapseTo('noFeedback', noFeedbackContainer, noFeedbackDefault)"
-                                            class="px-4 py-2 text-xs font-mono uppercase tracking-wider border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] hover:border-black dark:hover:border-white rounded-full transition-colors">
-                                            SHOW LESS
+                                            class="px-4 py-2 text-xs font-mono tracking-wide border border-[#CCCCCC] dark:border-[#333333] text-[#1A1A1A] dark:text-[#E8E8E8] hover:border-black dark:hover:border-white rounded-full transition-colors">
+                                            Show less
                                         </button>
                                     </div>
                                 </section>
@@ -726,7 +787,7 @@ const groups = computed(() => {
                             <div v-else
                                 class="bg-white dark:bg-[#111111] rounded-lg p-8 text-center border border-[#E8E8E8] dark:border-[#222222]">
                                 <div
-                                    class="text-[#666666] dark:text-[#999999] font-mono uppercase tracking-wider text-sm">
+                                    class="text-[#666666] dark:text-[#999999] font-mono tracking-wide text-sm">
                                     NO PREVIEWS FOUND</div>
                             </div>
                         </div>
@@ -745,8 +806,7 @@ const groups = computed(() => {
                     class="bg-white dark:bg-[#111111] rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden border-2 border-black dark:border-white">
                     <!-- Modal Header -->
                     <div class="flex items-center justify-between p-4 border-b border-[#E8E8E8] dark:border-[#222222]">
-                        <h2 class="text-sm font-mono uppercase tracking-widest text-black dark:text-white">CREATE NEW
-                            PREVIEW</h2>
+                        <h2 class="text-base font-semibold font-mono text-black dark:text-white">Create new preview</h2>
                         <button @click="closeModal"
                             class="p-2 text-[#666666] dark:text-[#999999] hover:text-black dark:hover:text-white border border-transparent hover:border-[#CCCCCC] dark:hover:border-[#333333] rounded transition-colors">
                             <X class="w-4 h-4" :stroke-width="1.5" />

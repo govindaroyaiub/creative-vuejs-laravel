@@ -234,7 +234,7 @@ const getFileSize = (bytes: number) => {
 
                         <!-- Show all toggle -->
                         <button @click="toggleShowAll"
-                            class="ml-2 rounded-full bg-white dark:bg-black border-2 border-black dark:border-white px-3 py-2 text-xs uppercase font-mono tracking-wider text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors whitespace-nowrap">
+                            class="ml-2 rounded-full bg-white dark:bg-black border-2 border-black dark:border-white px-3 py-2 text-xs font-mono tracking-wide text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors whitespace-nowrap">
                             <span v-if="!showAll">Show all</span>
                             <span v-else>Paged</span>
                         </button>
@@ -242,28 +242,28 @@ const getFileSize = (bytes: number) => {
 
                     <div class="flex items-center gap-3">
                         <div v-if="selectedIds.length > 0" class="flex items-center space-x-3">
-                            <div class="text-xs uppercase font-mono tracking-wider text-black dark:text-white">Selected:
+                            <div class="text-xs font-mono tracking-wide text-black dark:text-white">Selected:
                                 <strong class="tabular-nums">{{ selectedIds.length }}</strong></div>
                             <button @click="bulkDelete"
-                                class="rounded-full bg-white dark:bg-black border-2 border-[#D71921] px-3 py-2 text-xs uppercase font-mono tracking-wider text-[#D71921] hover:bg-[#D71921] hover:text-white transition-colors">Delete
+                                class="rounded-full bg-white dark:bg-black border-2 border-[#D71921] px-3 py-2 text-xs font-mono tracking-wide text-[#D71921] hover:bg-[#D71921] hover:text-white transition-colors">Delete
                                 Selected</button>
                         </div>
 
                         <button @click="openUploadModal"
                             class="rounded-full bg-black dark:bg-white border-2 border-black dark:border-white px-4 py-2 text-white dark:text-black hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white flex items-center justify-center whitespace-nowrap transition-colors duration-200">
                             <Upload :stroke-width="1.5" class="mr-2 h-4 w-4" />
-                            <span class="text-xs uppercase font-mono tracking-wider">Upload</span>
+                            <span class="text-xs font-mono tracking-wide">Upload</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Desktop Table -->
-                <div class="hidden lg:block rounded-lg overflow-x-auto border-2 border-[#CCCCCC] dark:border-[#222222]">
+                <div class="hidden lg:block rounded-lg overflow-x-auto border border-[#E8E8E8] dark:border-[#222222]">
                     <table class="w-full bg-white dark:bg-[#111111]">
-                        <thead class="bg-[#F5F5F5] dark:bg-[#0A0A0A]">
+                        <thead class="bg-[#F5F5F5] dark:bg-black">
                             <tr>
                                 <th
-                                    class="border-b-2 border-[#CCCCCC] dark:border-[#222222] px-4 py-2 text-center text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                    class="border-b border-[#E8E8E8] dark:border-[#222222] px-4 py-2 text-center text-xs uppercase font-mono tracking-widest text-black dark:text-white">
                                     <input type="checkbox" class="form-checkbox" v-model="selectAllChecked"
                                         @change="toggleSelectAllPage" />
                                 </th>
@@ -291,7 +291,7 @@ const getFileSize = (bytes: number) => {
                                 <td class="px-4 py-2 text-center font-mono tabular-nums text-black dark:text-white">{{
                                     index + 1 }}</td>
                                 <td
-                                    class="px-4 py-2 text-center uppercase font-mono tracking-wider text-black dark:text-white">
+                                    class="px-4 py-2 text-center font-mono tracking-wide text-black dark:text-white">
                                     {{ media.name }}</td>
                                 <td class="px-4 py-2 text-center">
                                     <div class="text-black dark:text-white">{{ media.uploader?.name ?? 'N/A' }}</div>
@@ -346,7 +346,7 @@ const getFileSize = (bytes: number) => {
                                     #{{ index + 1 }}
                                 </div>
                                 <h3
-                                    class="text-sm uppercase font-mono tracking-wider break-words text-black dark:text-white">
+                                    class="text-sm font-mono tracking-wide break-words text-black dark:text-white">
                                     {{ media.name }}
                                 </h3>
                             </div>
@@ -424,7 +424,7 @@ const getFileSize = (bytes: number) => {
                         <div class="flex items-center justify-between gap-4">
                             <button @click="changePage(page.props.medias?.prev_page_url)"
                                 :disabled="!page.props.medias?.prev_page_url"
-                                class="px-4 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center gap-2 border-2"
+                                class="px-4 py-2 text-xs font-mono tracking-wide rounded-full transition-colors duration-200 flex items-center gap-2 border-2"
                                 :class="page.props.medias?.prev_page_url
                                     ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
                                     : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
@@ -438,7 +438,7 @@ const getFileSize = (bytes: number) => {
 
                             <button @click="changePage(page.props.medias?.next_page_url)"
                                 :disabled="!page.props.medias?.next_page_url"
-                                class="px-4 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center gap-2 border-2"
+                                class="px-4 py-2 text-xs font-mono tracking-wide rounded-full transition-colors duration-200 flex items-center gap-2 border-2"
                                 :class="page.props.medias?.next_page_url
                                     ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
                                     : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
@@ -462,7 +462,7 @@ const getFileSize = (bytes: number) => {
                             <!-- Previous Button -->
                             <button @click="changePage(page.props.medias?.prev_page_url)"
                                 :disabled="!page.props.medias?.prev_page_url"
-                                class="px-3 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center border-2"
+                                class="px-3 py-2 text-xs font-mono tracking-wide rounded-full transition-colors duration-200 flex items-center border-2"
                                 :class="page.props.medias?.prev_page_url
                                     ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
                                     : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
@@ -487,7 +487,7 @@ const getFileSize = (bytes: number) => {
                             <!-- Next Button -->
                             <button @click="changePage(page.props.medias?.next_page_url)"
                                 :disabled="!page.props.medias?.next_page_url"
-                                class="px-3 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center border-2"
+                                class="px-3 py-2 text-xs font-mono tracking-wide rounded-full transition-colors duration-200 flex items-center border-2"
                                 :class="page.props.medias?.next_page_url
                                     ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
                                     : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
@@ -500,12 +500,15 @@ const getFileSize = (bytes: number) => {
 
                 <!-- Upload Modal -->
                 <div v-if="modalVisible"
-                    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+                    class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
                     @click.self="modalVisible = false">
                     <div
-                        class="w-full max-w-md rounded-lg bg-white p-6 dark:bg-[#111111] border-2 border-[#CCCCCC] dark:border-[#222222]">
-                        <h2 class="text-xs uppercase font-mono tracking-widest mb-4 text-black dark:text-white">Upload
-                            Media</h2>
+                        class="w-full max-w-md rounded-lg bg-white dark:bg-[#111111] border-2 border-black dark:border-white overflow-hidden">
+                        <div
+                            class="flex items-center justify-between p-4 border-b border-[#E8E8E8] dark:border-[#222222]">
+                            <h2 class="text-base font-semibold font-mono text-black dark:text-white">Upload media</h2>
+                        </div>
+                        <div class="p-6">
 
                         <div class="space-y-4">
                             <!-- File Name Input -->
@@ -515,7 +518,7 @@ const getFileSize = (bytes: number) => {
                             <!-- FilePond Upload -->
                             <div>
                                 <label
-                                    class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-2">Upload
+                                    class="block text-xs font-mono tracking-wide text-black dark:text-white mb-2">Upload
                                     File</label>
                                 <FilePond name="file" :files="filePondFiles" @updatefiles="handleFilePondUpdate"
                                     :allowMultiple="false"
@@ -526,11 +529,11 @@ const getFileSize = (bytes: number) => {
                             <!-- Buttons -->
                             <div class="flex flex-col sm:flex-row justify-end gap-2 pt-4">
                                 <button @click="modalVisible = false"
-                                    class="px-4 py-2 rounded-full border-2 border-[#D71921] text-[#D71921] bg-white dark:bg-black hover:bg-[#D71921] hover:text-white transition-colors text-xs uppercase font-mono tracking-wider">
+                                    class="px-4 py-2 rounded-full border-2 border-[#D71921] text-[#D71921] bg-white dark:bg-black hover:bg-[#D71921] hover:text-white transition-colors text-xs font-mono tracking-wide">
                                     Cancel
                                 </button>
                                 <button @click="uploadFile" :disabled="uploading"
-                                    class="px-4 py-2 rounded-full bg-black dark:bg-white border-2 border-black dark:border-white text-white dark:text-black hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors text-xs uppercase font-mono tracking-wider">
+                                    class="px-4 py-2 rounded-full bg-black dark:bg-white border-2 border-black dark:border-white text-white dark:text-black hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors text-xs font-mono tracking-wide">
                                     <svg v-if="uploading" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                                             stroke-width="4" />
@@ -540,6 +543,7 @@ const getFileSize = (bytes: number) => {
                                     <span>{{ uploading ? 'Uploading...' : 'Upload' }}</span>
                                 </button>
                             </div>
+                        </div>
                         </div>
                     </div>
                 </div>

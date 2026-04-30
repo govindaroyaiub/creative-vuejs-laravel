@@ -156,7 +156,7 @@ function gotoLink(link: any) {
                             class="ml-3 rounded-full bg-black dark:bg-white px-4 py-2 text-white dark:text-black border-2 border-black dark:border-white hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white group flex items-center justify-center whitespace-nowrap transition-colors duration-200"
                             aria-label="Add Template">
                             <CirclePlus :stroke-width="1.5" class="w-4 h-4 mr-2" />
-                            <span class="hidden sm:inline text-xs uppercase font-mono tracking-wider">Add
+                            <span class="hidden sm:inline text-xs font-mono tracking-wide">Add
                                 Template</span>
                         </button>
                     </div>
@@ -242,7 +242,7 @@ function gotoLink(link: any) {
                                 <div class="text-xs font-mono text-[#666666] dark:text-[#999999]">#{{
                                     ((templates.current_page - 1) * templates.per_page) + idx + 1 }}</div>
                                 <h3
-                                    class="text-sm uppercase font-mono tracking-wider break-words text-black dark:text-white">
+                                    class="text-sm font-mono tracking-wide break-words text-black dark:text-white">
                                     {{
                                         tpl.name }}</h3>
                                 <div class="text-xs font-mono text-[#666666] dark:text-[#999999]">
@@ -313,7 +313,7 @@ function gotoLink(link: any) {
                         <!-- Simple prev/next navigation -->
                         <div class="flex items-center justify-between gap-4">
                             <button @click="changePage(templates.prev_page_url)" :disabled="!templates.prev_page_url"
-                                class="px-4 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center gap-2 border-2"
+                                class="px-4 py-2 text-xs font-mono tracking-wide rounded-full transition-colors duration-200 flex items-center gap-2 border-2"
                                 :class="templates.prev_page_url
                                     ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
                                     : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
@@ -326,7 +326,7 @@ function gotoLink(link: any) {
                             </span>
 
                             <button @click="changePage(templates.next_page_url)" :disabled="!templates.next_page_url"
-                                class="px-4 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center gap-2 border-2"
+                                class="px-4 py-2 text-xs font-mono tracking-wide rounded-full transition-colors duration-200 flex items-center gap-2 border-2"
                                 :class="templates.next_page_url
                                     ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
                                     : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
@@ -347,7 +347,7 @@ function gotoLink(link: any) {
                         <div class="flex items-center space-x-2">
                             <!-- Previous Button -->
                             <button @click="changePage(templates.prev_page_url)" :disabled="!templates.prev_page_url"
-                                class="px-3 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center border-2"
+                                class="px-3 py-2 text-xs font-mono tracking-wide rounded-full transition-colors duration-200 flex items-center border-2"
                                 :class="templates.prev_page_url
                                     ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
                                     : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
@@ -371,7 +371,7 @@ function gotoLink(link: any) {
 
                             <!-- Next Button -->
                             <button @click="changePage(templates.next_page_url)" :disabled="!templates.next_page_url"
-                                class="px-3 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center border-2"
+                                class="px-3 py-2 text-xs font-mono tracking-wide rounded-full transition-colors duration-200 flex items-center border-2"
                                 :class="templates.next_page_url
                                     ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
                                     : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
@@ -384,15 +384,14 @@ function gotoLink(link: any) {
 
                 <!-- Modal -->
                 <div v-if="showModal"
-                    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4"
+                    class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
                     style="margin-top: 0!important;" @click.self="closeModal">
                     <div
-                        class="mx-4 bg-white dark:bg-[#111111] rounded-lg w-full max-w-2xl overflow-hidden border-2 border-[#CCCCCC] dark:border-[#222222]">
+                        class="mx-4 bg-white dark:bg-[#111111] rounded-lg w-full max-w-2xl overflow-hidden border-2 border-black dark:border-white">
                         <div
-                            class="flex items-center justify-between p-4 border-b-2 border-[#CCCCCC] dark:border-[#222222]">
-                            <h2 class="text-xs uppercase font-mono tracking-widest text-black dark:text-white">{{
-                                isEditing ? 'EditTemplate' :
-                                'Add Template'
+                            class="flex items-center justify-between p-4 border-b border-[#E8E8E8] dark:border-[#222222]">
+                            <h2 class="text-base font-semibold font-mono text-black dark:text-white">{{
+                                isEditing ? 'Edit template' : 'Add template'
                                 }}</h2>
                             <button @click="closeModal"
                                 class="p-2 text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-2 border-black dark:border-white rounded-full transition-colors duration-200"><svg
@@ -405,21 +404,21 @@ function gotoLink(link: any) {
                         <div class="p-6">
                             <div class="mb-3">
                                 <label
-                                    class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-2">Name</label>
+                                    class="block text-xs font-mono tracking-wide text-black dark:text-white mb-2">Name</label>
                                 <input v-model="form.name"
                                     class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] bg-white dark:bg-black text-black dark:text-white px-4 py-2 focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
                             </div>
                             <div class="mb-3">
                                 <label
-                                    class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-2">Type</label>
+                                    class="block text-xs font-mono tracking-wide text-black dark:text-white mb-2">Type</label>
                                 <div class="flex items-center gap-4 mb-3">
                                     <label
-                                        class="inline-flex items-center cursor-pointer text-xs uppercase font-mono tracking-wider text-black dark:text-white">
+                                        class="inline-flex items-center cursor-pointer text-xs font-mono tracking-wide text-black dark:text-white">
                                         <input type="radio" v-model="mode" value="file" class="mr-2" />
                                         <span>Upload ZIP</span>
                                     </label>
                                     <label
-                                        class="inline-flex items-center cursor-pointer text-xs uppercase font-mono tracking-wider text-black dark:text-white">
+                                        class="inline-flex items-center cursor-pointer text-xs font-mono tracking-wide text-black dark:text-white">
                                         <input type="radio" v-model="mode" value="link" class="mr-2" />
                                         <span>External Link</span>
                                     </label>
@@ -427,7 +426,7 @@ function gotoLink(link: any) {
 
                                 <div v-if="mode === 'file'">
                                     <label
-                                        class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white">Zip
+                                        class="block text-xs font-mono tracking-wide text-black dark:text-white">Zip
                                         File</label>
                                     <FilePond name="file" :files="filePondFiles" @updatefiles="handleFilePondUpdate"
                                         :allowMultiple="false"
@@ -452,24 +451,24 @@ function gotoLink(link: any) {
                                             class="flex items-center justify-between p-2 bg-[#F5F5F5] dark:bg-[#0A0A0A] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222]">
                                             <span class="font-mono text-sm">{{ form.file_name }}</span>
                                             <a :href="route('templates.download', form.id)"
-                                                class="text-xs font-mono uppercase tracking-wider text-black dark:text-white underline hover:no-underline">Download</a>
+                                                class="text-xs font-mono tracking-wide text-black dark:text-white underline hover:no-underline">Download</a>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div v-else>
                                     <label
-                                        class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white">URL</label>
+                                        class="block text-xs font-mono tracking-wide text-black dark:text-white">URL</label>
                                     <input v-model="form.url" placeholder="https://example.com/template.zip"
                                         class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] bg-white dark:bg-black text-black dark:text-white px-4 py-2 focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
                                 </div>
                             </div>
                             <div class="flex space-x-4 pt-4">
                                 <button type="button" @click="closeModal"
-                                    class="flex-1 rounded-full bg-white dark:bg-black border-2 border-[#D71921] px-6 py-3 text-[#D71921] hover:bg-[#D71921] hover:text-white transition-colors text-xs uppercase font-mono tracking-wider">Cancel</button>
+                                    class="flex-1 rounded-full bg-white dark:bg-black border-2 border-[#D71921] px-6 py-3 text-[#D71921] hover:bg-[#D71921] hover:text-white transition-colors text-xs font-mono tracking-wide">Cancel</button>
                                 <button type="button" @click="submit"
                                     :disabled="(!isEditing && ((mode === 'file' && !form.file) || (mode === 'link' && !form.url)))"
-                                    class="flex-1 rounded-full bg-black dark:bg-white border-2 border-black dark:border-white px-6 py-3 text-white dark:text-black hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-xs uppercase font-mono tracking-wider">Save</button>
+                                    class="flex-1 rounded-full bg-black dark:bg-white border-2 border-black dark:border-white px-6 py-3 text-white dark:text-black hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-xs font-mono tracking-wide">Save</button>
                             </div>
                         </div>
                     </div>

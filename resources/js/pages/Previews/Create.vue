@@ -75,21 +75,23 @@ const submit = () => {
 
     <Head title="Create Preview" />
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div
-            class="mx-auto w-full max-w-4xl bg-[#F5F5F5] dark:bg-black rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-8 space-y-8">
-            <h2 class="text-2xl font-semibold text-black dark:text-white uppercase tracking-wide">CREATE PREVIEW</h2>
+        <div class="min-h-screen bg-[#FFFFFF] dark:bg-black font-mono py-8">
+            <div class="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8 space-y-6">
+                <h1 class="text-base font-semibold font-mono text-black dark:text-white">
+                    Create preview</h1>
 
-            <div class="space-y-6">
+                <div
+                    class="bg-white dark:bg-[#0A0A0A] rounded-lg border border-[#E8E8E8] dark:border-[#222222] p-6 space-y-6">
                 <div>
                     <label
-                        class="block text-sm font-medium text-[#666666] dark:text-[#999999] mb-1 uppercase tracking-widest font-mono">NAME</label>
+                        class="block text-xs font-medium text-[#666666] dark:text-[#999999] mb-1 uppercase tracking-widest font-mono">NAME</label>
                     <input v-model="form.name" type="text"
                         class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-2 text-sm bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
                 </div>
 
                 <div>
                     <label
-                        class="block text-sm font-medium text-[#666666] dark:text-[#999999] mb-1 uppercase tracking-widest font-mono">CLIENT</label>
+                        class="block text-xs font-medium text-[#666666] dark:text-[#999999] mb-1 uppercase tracking-widest font-mono">CLIENT</label>
                     <input v-model="clientSearch" @focus="showClientDropdown = true"
                         @blur="setTimeout(() => showClientDropdown = false, 150)" placeholder="SEARCH CLIENT..."
                         class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-2 text-sm bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
@@ -105,11 +107,11 @@ const submit = () => {
 
                 <div>
                     <label
-                        class="block text-sm font-medium text-[#666666] dark:text-[#999999] mb-1 uppercase tracking-widest font-mono">TEAM
+                        class="block text-xs font-medium text-[#666666] dark:text-[#999999] mb-1 uppercase tracking-widest font-mono">TEAM
                         MEMBERS</label>
                     <div class="flex flex-wrap gap-2 mb-2">
                         <span v-for="uid in form.team_members" :key="uid"
-                            class="flex items-center gap-1 rounded-full border-2 border-black dark:border-white text-black dark:text-white px-3 py-1 text-xs font-medium uppercase tracking-wider font-mono">
+                            class="flex items-center gap-1 rounded-full border-2 border-black dark:border-white text-black dark:text-white px-3 py-1 text-xs font-medium font-mono tracking-wide">
                             {{ resolveUserName(uid) }}
                             <button v-if="uid !== authUser.value?.id" @click="toggleUser(uid)"
                                 class="hover:text-[#D71921] transition-colors">
@@ -132,7 +134,7 @@ const submit = () => {
                             </span>
                         </div>
                         <div v-if="filteredUsers.length === 0"
-                            class="px-3 py-2 text-[#666666] dark:text-[#999999] text-sm uppercase tracking-wider font-mono">
+                            class="px-3 py-2 text-[#666666] dark:text-[#999999] text-sm font-mono tracking-wide">
                             NO USERS FOUND
                         </div>
                     </div>
@@ -140,7 +142,7 @@ const submit = () => {
 
                 <div>
                     <label
-                        class="block text-sm font-medium text-[#666666] dark:text-[#999999] mb-1 uppercase tracking-widest font-mono">THEME</label>
+                        class="block text-xs font-medium text-[#666666] dark:text-[#999999] mb-1 uppercase tracking-widest font-mono">THEME</label>
                     <input v-model="paletteSearch" @focus="showThemeDropdown = true"
                         @blur="setTimeout(() => showThemeDropdown = false, 150)" placeholder="SEARCH THEME..."
                         class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-2 text-sm bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
@@ -154,11 +156,12 @@ const submit = () => {
                     </div>
                 </div>
 
-                <div class="flex justify-end">
-                    <button @click="submit" :disabled="form.processing"
-                        class="inline-flex items-center gap-2 rounded-full bg-black text-white dark:bg-white dark:text-black px-6 py-2 uppercase tracking-widest font-mono text-sm hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white border-2 border-black dark:border-white transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                        CREATE
-                    </button>
+                    <div class="flex justify-end">
+                        <button @click="submit" :disabled="form.processing"
+                            class="inline-flex items-center gap-2 rounded-full bg-black text-white dark:bg-white dark:text-black px-6 py-2 uppercase tracking-widest font-mono text-sm hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white border-2 border-black dark:border-white transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                            CREATE
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

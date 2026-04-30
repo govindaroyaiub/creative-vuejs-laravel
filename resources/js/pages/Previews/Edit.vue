@@ -3,48 +3,33 @@
     <Head title="Edit Preview" />
     <AppLayout
         :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Edit Preview', 'href': '/previews-edit/' + preview.id }]">
-        <div class="min-h-screen py-8">
+        <div class="min-h-screen bg-[#FFFFFF] dark:bg-black font-mono py-8">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Header Section -->
-                <div class="mb-8">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h1 class="text-3xl font-bold text-black dark:text-white uppercase tracking-wide">EDIT
-                                PREVIEW</h1>
-                            <p
-                                class="mt-2 text-sm text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono">
-                                UPDATE YOUR PREVIEW SETTINGS AND CONFIGURATION
-                            </p>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <span
-                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border-2 border-black dark:border-white text-black dark:text-white uppercase tracking-wider font-mono">
-                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                                    <path fill-rule="evenodd"
-                                        d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                                PREVIEW ID: {{ preview.id }}
-                            </span>
-                        </div>
-                    </div>
+                <div class="mb-6 flex items-center justify-between gap-3">
+                    <h1 class="text-base font-semibold font-mono text-black dark:text-white">
+                        Edit preview
+                    </h1>
+                    <span
+                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-widest border border-[#666666] dark:border-[#999999] text-[#666666] dark:text-[#999999]">
+                        ID: {{ preview.id }}
+                    </span>
                 </div>
 
                 <!-- Main Form Card -->
                 <div
-                    class="bg-[#F5F5F5] dark:bg-black rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] overflow-hidden">
-                    <form @submit.prevent="submit" class="p-2 space-y-8">
+                    class="bg-white dark:bg-[#0A0A0A] rounded-lg border border-[#E8E8E8] dark:border-[#222222] overflow-hidden">
+                    <form @submit.prevent="submit" class="p-6 space-y-8">
                         <!-- Preview Name Section -->
                         <div class="space-y-2">
                             <div>
                                 <label for="preview-name"
-                                    class="block text-sm font-medium text-[#666666] dark:text-[#999999] mb-2 uppercase tracking-widest font-mono">
+                                    class="block text-xs font-medium text-[#666666] dark:text-[#999999] mb-2 uppercase tracking-widest font-mono">
                                     PREVIEW NAME *
                                 </label>
                                 <input id="preview-name" v-model="form.name" type="text"
-                                    placeholder="E.G. FACEBOOK AD CAMPAIGN - JUNE 2024"
-                                    class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-3 text-black dark:text-white bg-white dark:bg-[#111111] placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                                    placeholder="e.g. Facebook Ad Campaign - June 2024"
+                                    class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 text-black dark:text-white bg-white dark:bg-[#111111] placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
                                     :class="{ 'border-[#D71921] focus:border-[#D71921]': form.errors.name }" required />
                                 <p v-if="form.errors.name" class="mt-1 text-sm text-[#D71921]">
                                     {{ form.errors.name }}
@@ -59,15 +44,15 @@
                                 <!-- Client Dropdown -->
                                 <div>
                                     <label for="client-select"
-                                        class="block text-sm font-medium text-[#666666] dark:text-[#999999] mb-2 uppercase tracking-widest font-mono">
+                                        class="block text-xs font-medium text-[#666666] dark:text-[#999999] mb-2 uppercase tracking-widest font-mono">
                                         CLIENT *
                                     </label>
                                     <div class="relative">
                                         <select id="client-select" v-model="form.client_id"
-                                            class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-3 text-black dark:text-white bg-white dark:bg-[#111111] focus:outline-none focus:border-black dark:focus:border-white transition-colors appearance-none"
+                                            class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 text-black dark:text-white bg-white dark:bg-[#111111] focus:outline-none focus:border-black dark:focus:border-white transition-colors appearance-none"
                                             :class="{ 'border-[#D71921] focus:border-[#D71921]': form.errors.client_id }"
                                             required>
-                                            <option disabled value="">SELECT CLIENT</option>
+                                            <option disabled value="">Select client</option>
                                             <option v-for="client in clients" :key="client.id" :value="client.id">
                                                 {{ client.name }}
                                             </option>
@@ -89,15 +74,15 @@
                                 <!-- Header Logo Dropdown -->
                                 <div>
                                     <label for="header-logo-select"
-                                        class="block text-sm font-medium text-[#666666] dark:text-[#999999] mb-2 uppercase tracking-widest font-mono">
+                                        class="block text-xs font-medium text-[#666666] dark:text-[#999999] mb-2 uppercase tracking-widest font-mono">
                                         HEADER LOGO *
                                     </label>
                                     <div class="relative">
                                         <select id="header-logo-select" v-model="form.header_logo_id"
-                                            class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-3 text-black dark:text-white bg-white dark:bg-[#111111] focus:outline-none focus:border-black dark:focus:border-white transition-colors appearance-none"
+                                            class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 text-black dark:text-white bg-white dark:bg-[#111111] focus:outline-none focus:border-black dark:focus:border-white transition-colors appearance-none"
                                             :class="{ 'border-[#D71921] focus:border-[#D71921]': form.errors.header_logo_id }"
                                             required>
-                                            <option disabled value="">SELECT HEADER LOGO</option>
+                                            <option disabled value="">Select header logo</option>
                                             <option v-for="client in clients" :key="client.id" :value="client.id">
                                                 {{ client.name }}
                                             </option>
@@ -119,15 +104,15 @@
                                 <!-- Color Palette Dropdown -->
                                 <div>
                                     <label for="color-palette-select"
-                                        class="block text-sm font-medium text-[#666666] dark:text-[#999999] mb-2 uppercase tracking-widest font-mono">
+                                        class="block text-xs font-medium text-[#666666] dark:text-[#999999] mb-2 uppercase tracking-widest font-mono">
                                         THEME *
                                     </label>
                                     <div class="relative">
                                         <select id="color-palette-select" v-model="form.color_palette_id"
-                                            class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-3 text-black dark:text-white bg-white dark:bg-[#111111] focus:outline-none focus:border-black dark:focus:border-white transition-colors appearance-none"
+                                            class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 text-black dark:text-white bg-white dark:bg-[#111111] focus:outline-none focus:border-black dark:focus:border-white transition-colors appearance-none"
                                             :class="{ 'border-[#D71921] focus:border-[#D71921]': form.errors.color_palette_id }"
                                             required>
-                                            <option disabled value="">SELECT THEME</option>
+                                            <option disabled value="">Select theme</option>
                                             <option v-for="palette in colorPalettes" :key="palette.id"
                                                 :value="palette.id">
                                                 {{ palette.name }}
@@ -153,7 +138,7 @@
                         <div class="space-y-2">
                             <div>
                                 <label for="team-search"
-                                    class="block text-sm font-medium text-[#666666] dark:text-[#999999] mb-2 uppercase tracking-widest font-mono">
+                                    class="block text-xs font-medium text-[#666666] dark:text-[#999999] mb-2 uppercase tracking-widest font-mono">
                                     ADD TEAM MEMBERS *
                                 </label>
 
@@ -161,7 +146,7 @@
                                 <div v-if="selectedUsers.length > 0"
                                     class="flex flex-wrap gap-2 mb-4 p-4 bg-white dark:bg-[#111111] rounded-lg border border-[#E8E8E8] dark:border-[#222222]">
                                     <div v-for="user in selectedUsers" :key="user.id"
-                                        class="inline-flex items-center px-3 py-2 border-2 border-black dark:border-white text-black dark:text-white text-xs font-medium rounded-full uppercase tracking-wider font-mono transition-all duration-200">
+                                        class="inline-flex items-center px-3 py-2 border-2 border-black dark:border-white text-black dark:text-white text-xs font-medium rounded-full font-mono tracking-wide transition-all duration-200">
                                         <div class="flex items-center">
                                             <div
                                                 class="w-6 h-6 bg-black dark:bg-white rounded-full flex items-center justify-center mr-2">
@@ -187,28 +172,28 @@
                                 <div class="relative">
                                     <input id="team-search" v-model="userSearch" type="text"
                                         placeholder="SEARCH AND ADD TEAM MEMBERS..."
-                                        class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-4 py-3 text-black dark:text-white bg-white dark:bg-[#111111] placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                                        class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 text-black dark:text-white bg-white dark:bg-[#111111] placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
                                         :class="{ 'border-[#D71921] focus:border-[#D71921]': form.errors.team_ids }"
                                         autocomplete="off" />
 
                                     <!-- Search Results Dropdown -->
                                     <div v-if="userSearch.trim().length > 0 && filteredUsers.length > 0"
-                                        class="absolute z-10 w-full mt-2 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-neutral-700 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                                        class="absolute z-10 w-full mt-2 bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded-lg max-h-48 overflow-y-auto">
                                         <button v-for="user in filteredUsers" :key="user.id" type="button"
-                                            class="w-full text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 focus:bg-gray-100 dark:focus:bg-gray-700 focus:outline-none transition-colors duration-200 first:rounded-t-xl last:rounded-b-xl flex items-center"
+                                            class="w-full text-left px-3 py-2 hover:bg-[#F5F5F5] dark:hover:bg-black focus:bg-[#F5F5F5] dark:focus:bg-black focus:outline-none transition-colors duration-200 flex items-center"
                                             @click="addUser(user)">
                                             <div
-                                                class="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center mr-3">
-                                                <span class="text-sm font-bold text-white">{{
+                                                class="w-8 h-8 bg-black dark:bg-white rounded-full flex items-center justify-center mr-3">
+                                                <span class="text-sm font-mono font-bold text-white dark:text-black">{{
                                                     user.name.charAt(0).toUpperCase() }}</span>
                                             </div>
-                                            <span class="text-gray-900 dark:text-white">{{ user.name }}</span>
+                                            <span class="text-sm text-[#1A1A1A] dark:text-[#E8E8E8]">{{ user.name }}</span>
                                         </button>
                                     </div>
 
                                     <!-- No Results Message -->
                                     <div v-else-if="userSearch.trim().length > 0 && filteredUsers.length === 0"
-                                        class="absolute z-10 w-full mt-2 bg-white dark:bg-[#111111] border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg px-4 py-3 text-[#666666] dark:text-[#999999] text-sm uppercase tracking-wider font-mono">
+                                        class="absolute z-10 w-full mt-2 bg-white dark:bg-[#111111] border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg px-3 py-2 text-[#666666] dark:text-[#999999] text-sm font-mono tracking-wide">
                                         NO USERS FOUND MATCHING "{{ userSearch }}"
                                     </div>
                                 </div>
@@ -217,9 +202,9 @@
                                     {{ form.errors.team_ids }}
                                 </p>
                                 <p
-                                    class="mt-2 text-xs text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono">
-                                    {{ selectedUsers.length }} MEMBER{{ selectedUsers.length !== 1 ? 'S' : '' }}
-                                    SELECTED
+                                    class="mt-2 text-xs text-[#666666] dark:text-[#999999] font-mono tracking-wide">
+                                    {{ selectedUsers.length }} member{{ selectedUsers.length !== 1 ? 's' : '' }}
+                                    selected
                                 </p>
                             </div>
                         </div>
@@ -232,7 +217,7 @@
                                     <div class="flex items-center justify-between">
                                         <div class="flex-1">
                                             <label :for="`toggle-${toggle.model}`"
-                                                class="text-sm font-semibold text-black dark:text-white cursor-pointer uppercase tracking-wider font-mono">
+                                                class="text-xs font-semibold text-black dark:text-white cursor-pointer font-mono tracking-wide">
                                                 {{ toggle.label }}
                                             </label>
                                             <p class="text-xs text-[#666666] dark:text-[#999999] mt-1">
@@ -253,7 +238,7 @@
                                     <!-- Status Indicator -->
                                     <div class="mt-3 text-center">
                                         <span
-                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium uppercase tracking-wider font-mono"
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium font-mono tracking-wide"
                                             :class="form[toggle.model]
                                                 ? 'bg-black text-white dark:bg-white dark:text-black'
                                                 : 'bg-[#E8E8E8] text-[#666666] dark:bg-[#222222] dark:text-[#999999]'">
@@ -273,7 +258,7 @@
                         <div
                             class="flex flex-col sm:flex-row gap-4 pt-8 border-t border-[#E8E8E8] dark:border-[#222222]">
                             <Link :href="route('previews.update.all', preview.id)"
-                                class="w-full inline-flex items-center justify-center px-6 py-3 border-2 border-black dark:border-white text-base font-medium rounded-full text-black dark:text-white bg-white dark:bg-black hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition-all duration-200 uppercase tracking-wider font-mono">
+                                class="w-full inline-flex items-center justify-center px-6 py-2 border-2 border-black dark:border-white text-xs font-medium rounded-full text-black dark:text-white bg-white dark:bg-black hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition-all duration-200 font-mono tracking-wide">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                     stroke-width="1.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -283,7 +268,7 @@
                             </Link>
 
                             <button type="button" @click="confirmDelete" :disabled="deleting"
-                                class="w-full inline-flex items-center justify-center px-6 py-3 border-2 border-[#D71921] text-base font-medium rounded-full text-[#D71921] bg-white dark:bg-black hover:bg-[#D71921] hover:text-white dark:hover:bg-[#D71921] focus:outline-none focus:ring-2 focus:ring-[#D71921] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 uppercase tracking-wider font-mono">
+                                class="w-full inline-flex items-center justify-center px-6 py-2 border-2 border-[#D71921] text-xs font-medium rounded-full text-[#D71921] bg-white dark:bg-black hover:bg-[#D71921] hover:text-white dark:hover:bg-[#D71921] focus:outline-none focus:ring-2 focus:ring-[#D71921] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-mono tracking-wide">
                                 <svg v-if="deleting" class="animate-spin -ml-1 mr-3 h-5 w-5 text-current" fill="none"
                                     viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
@@ -301,7 +286,7 @@
                             </button>
 
                             <button type="submit" :disabled="form.processing"
-                                class="w-full inline-flex items-center justify-center px-6 py-3 border-2 border-transparent text-base font-medium rounded-full text-white bg-black dark:bg-white dark:text-black hover:bg-white hover:text-black hover:border-black dark:hover:bg-black dark:hover:text-white dark:hover:border-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 uppercase tracking-wider font-mono">
+                                class="w-full inline-flex items-center justify-center px-6 py-2 border-2 border-transparent text-xs font-medium rounded-full text-white bg-black dark:bg-white dark:text-black hover:bg-white hover:text-black hover:border-black dark:hover:bg-black dark:hover:text-white dark:hover:border-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-mono tracking-wide">
                                 <svg v-if="form.processing" class="animate-spin -ml-1 mr-3 h-5 w-5 text-current"
                                     fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"

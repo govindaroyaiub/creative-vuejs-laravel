@@ -364,7 +364,7 @@ const handleEditSubmit = () => {
 
                         <!-- Show all toggle -->
                         <button @click="toggleShowAll"
-                            class="ml-2 rounded-full bg-white dark:bg-black border-2 border-black dark:border-white px-3 py-2 text-xs uppercase font-mono tracking-wider text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors whitespace-nowrap">
+                            class="ml-2 rounded-full bg-white dark:bg-black border-2 border-black dark:border-white px-3 py-2 text-xs font-mono tracking-wide text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors whitespace-nowrap">
                             <span v-if="!showAllOnPage">Show all</span>
                             <span v-else>Paged</span>
                         </button>
@@ -372,18 +372,18 @@ const handleEditSubmit = () => {
 
                     <div class="flex items-center gap-3">
                         <div v-if="selectedCount > 0" class="flex items-center space-x-3">
-                            <div class="text-xs uppercase font-mono tracking-wider text-black dark:text-white">Selected:
+                            <div class="text-xs font-mono tracking-wide text-black dark:text-white">Selected:
                                 <strong class="tabular-nums">{{ selectedCount }}</strong>
                             </div>
                             <button @click="bulkDelete"
-                                class="rounded-full bg-white dark:bg-black border-2 border-[#D71921] px-3 py-2 text-xs uppercase font-mono tracking-wider text-[#D71921] hover:bg-[#D71921] hover:text-white transition-colors">Delete
+                                class="rounded-full bg-white dark:bg-black border-2 border-[#D71921] px-3 py-2 text-xs font-mono tracking-wide text-[#D71921] hover:bg-[#D71921] hover:text-white transition-colors">Delete
                                 Selected</button>
                         </div>
 
                         <button @click="openModal"
                             class="rounded-full bg-black dark:bg-white border-2 border-black dark:border-white px-4 py-2 text-white dark:text-black hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white flex items-center justify-center whitespace-nowrap transition-colors duration-200">
                             <CirclePlus :stroke-width="1.5" class="mr-2 h-4 w-4" />
-                            <span class="text-xs uppercase font-mono tracking-wider">Add Transfer</span>
+                            <span class="text-xs font-mono tracking-wide">Add Transfer</span>
                         </button>
                     </div>
                 </div>
@@ -429,9 +429,9 @@ const handleEditSubmit = () => {
                                 </td>
                                 <td class="px-4 py-2 font-mono tabular-nums text-black dark:text-white">{{ Number(index)
                                     + 1 }}</td>
-                                <td class="px-4 py-2 uppercase font-mono tracking-wider text-black dark:text-white">{{
+                                <td class="px-4 py-2 font-mono tracking-wide text-black dark:text-white">{{
                                     transfer.name }}</td>
-                                <td class="px-4 py-2 uppercase font-mono tracking-wider text-black dark:text-white">{{
+                                <td class="px-4 py-2 font-mono tracking-wide text-black dark:text-white">{{
                                     transfer.client }}</td>
                                 <td class="px-4 py-2">
                                     <div class="text-black dark:text-white">{{ transfer.user.name }}</div>
@@ -493,7 +493,7 @@ const handleEditSubmit = () => {
                                     #{{ Number(index) + 1 }}
                                 </div>
                                 <h3
-                                    class="text-sm uppercase font-mono tracking-wider break-words text-black dark:text-white">
+                                    class="text-sm font-mono tracking-wide break-words text-black dark:text-white">
                                     {{ transfer.name }}
                                 </h3>
                             </div>
@@ -575,7 +575,7 @@ const handleEditSubmit = () => {
                         <div class="flex items-center justify-between gap-4">
                             <button @click="changePage(fileTransfers.prev_page_url)"
                                 :disabled="!fileTransfers.prev_page_url"
-                                class="px-4 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center gap-2 border-2"
+                                class="px-4 py-2 text-xs font-mono tracking-wide rounded-full transition-colors duration-200 flex items-center gap-2 border-2"
                                 :class="fileTransfers.prev_page_url
                                     ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
                                     : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
@@ -589,7 +589,7 @@ const handleEditSubmit = () => {
 
                             <button @click="changePage(fileTransfers.next_page_url)"
                                 :disabled="!fileTransfers.next_page_url"
-                                class="px-4 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center gap-2 border-2"
+                                class="px-4 py-2 text-xs font-mono tracking-wide rounded-full transition-colors duration-200 flex items-center gap-2 border-2"
                                 :class="fileTransfers.next_page_url
                                     ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
                                     : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
@@ -612,7 +612,7 @@ const handleEditSubmit = () => {
                             <!-- Previous Button -->
                             <button @click="changePage(fileTransfers.prev_page_url)"
                                 :disabled="!fileTransfers.prev_page_url"
-                                class="px-3 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center border-2"
+                                class="px-3 py-2 text-xs font-mono tracking-wide rounded-full transition-colors duration-200 flex items-center border-2"
                                 :class="fileTransfers.prev_page_url
                                     ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
                                     : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
@@ -637,7 +637,7 @@ const handleEditSubmit = () => {
                             <!-- Next Button -->
                             <button @click="changePage(fileTransfers.next_page_url)"
                                 :disabled="!fileTransfers.next_page_url"
-                                class="px-3 py-2 text-xs uppercase font-mono tracking-wider rounded-full transition-colors duration-200 flex items-center border-2"
+                                class="px-3 py-2 text-xs font-mono tracking-wide rounded-full transition-colors duration-200 flex items-center border-2"
                                 :class="fileTransfers.next_page_url
                                     ? 'text-black dark:text-white border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black'
                                     : 'text-[#CCCCCC] cursor-not-allowed border-[#CCCCCC] dark:border-[#333333]'">
@@ -651,15 +651,14 @@ const handleEditSubmit = () => {
 
             <!-- Add Transfer Modal -->
             <div v-if="showModal"
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
                 @click.self="closeModal">
                 <div
-                    class="bg-white dark:bg-[#111111] rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden border-2 border-[#CCCCCC] dark:border-[#222222]">
+                    class="bg-white dark:bg-[#111111] rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden border-2 border-black dark:border-white">
                     <!-- Modal Header -->
                     <div
-                        class="flex items-center justify-between p-6 border-b-2 border-[#CCCCCC] dark:border-[#222222]">
-                        <h2 class="text-xs uppercase font-mono tracking-widest text-black dark:text-white">Add File
-                            Transfer</h2>
+                        class="flex items-center justify-between p-4 border-b border-[#E8E8E8] dark:border-[#222222]">
+                        <h2 class="text-base font-semibold font-mono text-black dark:text-white">Add file transfer</h2>
                         <button @click="closeModal"
                             class="p-2 text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-2 border-black dark:border-white rounded-full transition-colors duration-200">
                             <X :stroke-width="1.5" class="w-4 h-4" />
@@ -672,7 +671,7 @@ const handleEditSubmit = () => {
                             <!-- Name -->
                             <div>
                                 <label for="name"
-                                    class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-1">Name</label>
+                                    class="block text-xs font-mono tracking-wide text-black dark:text-white mb-1">Name</label>
                                 <input id="name" v-model="form.name" required type="text"
                                     class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
                             </div>
@@ -680,7 +679,7 @@ const handleEditSubmit = () => {
                             <!-- Client -->
                             <div>
                                 <label for="client"
-                                    class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-1">Client</label>
+                                    class="block text-xs font-mono tracking-wide text-black dark:text-white mb-1">Client</label>
                                 <input id="client" v-model="form.client" required type="text"
                                     class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
                             </div>
@@ -688,7 +687,7 @@ const handleEditSubmit = () => {
                             <!-- FilePond Upload -->
                             <div>
                                 <label
-                                    class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-1">Upload
+                                    class="block text-xs font-mono tracking-wide text-black dark:text-white mb-1">Upload
                                     ZIP
                                     Files</label>
                                 <FilePond name="files" :files="filePondFiles" @updatefiles="handleFilePondUpdate"
@@ -717,11 +716,11 @@ const handleEditSubmit = () => {
                             <!-- Submit Buttons -->
                             <div class="flex space-x-4 pt-4">
                                 <button type="button" @click="closeModal"
-                                    class="flex-1 rounded-full bg-white dark:bg-black border-2 border-[#D71921] px-6 py-3 text-[#D71921] hover:bg-[#D71921] hover:text-white transition-colors text-xs uppercase font-mono tracking-wider">
+                                    class="flex-1 rounded-full bg-white dark:bg-black border-2 border-[#D71921] px-6 py-3 text-[#D71921] hover:bg-[#D71921] hover:text-white transition-colors text-xs font-mono tracking-wide">
                                     Cancel
                                 </button>
                                 <button type="submit" :disabled="!form.name || !form.client || !form.files.length"
-                                    class="flex-1 rounded-full bg-black dark:bg-white border-2 border-black dark:border-white px-6 py-3 text-white dark:text-black hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-xs uppercase font-mono tracking-wider">
+                                    class="flex-1 rounded-full bg-black dark:bg-white border-2 border-black dark:border-white px-6 py-3 text-white dark:text-black hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-xs font-mono tracking-wide">
                                     Save
                                 </button>
                             </div>
@@ -732,15 +731,14 @@ const handleEditSubmit = () => {
 
             <!-- Edit Transfer Modal -->
             <div v-if="showEditModal"
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
                 @click.self="closeEditModal">
                 <div
-                    class="bg-white dark:bg-[#111111] rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden border-2 border-[#CCCCCC] dark:border-[#222222]">
+                    class="bg-white dark:bg-[#111111] rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden border-2 border-black dark:border-white">
                     <!-- Modal Header -->
                     <div
-                        class="flex items-center justify-between p-6 border-b-2 border-[#CCCCCC] dark:border-[#222222]">
-                        <h2 class="text-xs uppercase font-mono tracking-widest text-black dark:text-white">Edit File
-                            Transfer</h2>
+                        class="flex items-center justify-between p-4 border-b border-[#E8E8E8] dark:border-[#222222]">
+                        <h2 class="text-base font-semibold font-mono text-black dark:text-white">Edit file transfer</h2>
                         <button @click="closeEditModal"
                             class="p-2 text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-2 border-black dark:border-white rounded-full transition-colors duration-200">
                             <X :stroke-width="1.5" class="w-4 h-4" />
@@ -753,7 +751,7 @@ const handleEditSubmit = () => {
                             <!-- Name -->
                             <div>
                                 <label for="editName"
-                                    class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-1">Name</label>
+                                    class="block text-xs font-mono tracking-wide text-black dark:text-white mb-1">Name</label>
                                 <input id="editName" v-model="editForm.name" required type="text"
                                     class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
                             </div>
@@ -761,7 +759,7 @@ const handleEditSubmit = () => {
                             <!-- Client -->
                             <div>
                                 <label for="editClient"
-                                    class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-1">Client</label>
+                                    class="block text-xs font-mono tracking-wide text-black dark:text-white mb-1">Client</label>
                                 <input id="editClient" v-model="editForm.client" required type="text"
                                     class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors" />
                             </div>
@@ -769,7 +767,7 @@ const handleEditSubmit = () => {
                             <!-- Existing Files -->
                             <div>
                                 <label
-                                    class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-2">
+                                    class="block text-xs font-mono tracking-wide text-black dark:text-white mb-2">
                                     Existing Files
                                     <span v-if="editForm.file_paths && editForm.file_paths.length > 0"
                                         class="text-xs font-normal text-[#666666] dark:text-[#999999]">({{
@@ -800,7 +798,7 @@ const handleEditSubmit = () => {
                                         <a :href="`/Transfer Files/${file}`" download
                                             class="flex flex-shrink-0 items-center space-x-1 px-3 py-1 text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black border-2 border-black dark:border-white rounded-full transition-colors">
                                             <Download :stroke-width="1.5" class="h-4 w-4" />
-                                            <span class="text-xs uppercase font-mono tracking-wider">Download</span>
+                                            <span class="text-xs font-mono tracking-wide">Download</span>
                                         </a>
                                     </div>
                                 </div>
@@ -827,7 +825,7 @@ const handleEditSubmit = () => {
                             <!-- Upload New ZIP Files -->
                             <div>
                                 <label
-                                    class="block text-xs uppercase font-mono tracking-wider text-black dark:text-white mb-1">Upload
+                                    class="block text-xs font-mono tracking-wide text-black dark:text-white mb-1">Upload
                                     New
                                     ZIP
                                     Files</label>
@@ -858,11 +856,11 @@ const handleEditSubmit = () => {
                             <!-- Submit Buttons -->
                             <div class="flex space-x-4 pt-4">
                                 <button type="button" @click="closeEditModal"
-                                    class="flex-1 rounded-full bg-white dark:bg-black border-2 border-[#D71921] px-6 py-3 text-[#D71921] hover:bg-[#D71921] hover:text-white transition-colors text-xs uppercase font-mono tracking-wider">
+                                    class="flex-1 rounded-full bg-white dark:bg-black border-2 border-[#D71921] px-6 py-3 text-[#D71921] hover:bg-[#D71921] hover:text-white transition-colors text-xs font-mono tracking-wide">
                                     Cancel
                                 </button>
                                 <button type="submit" :disabled="!editForm.name || !editForm.client"
-                                    class="flex-1 rounded-full bg-black dark:bg-white border-2 border-black dark:border-white px-6 py-3 text-white dark:text-black hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-xs uppercase font-mono tracking-wider">
+                                    class="flex-1 rounded-full bg-black dark:bg-white border-2 border-black dark:border-white px-6 py-3 text-white dark:text-black hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-xs font-mono tracking-wide">
                                     Update
                                 </button>
                             </div>
