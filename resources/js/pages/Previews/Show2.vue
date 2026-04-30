@@ -315,7 +315,7 @@ const themeStyle = computed(() => ({
       @logout="onLogout"
     />
 
-    <div class="mx-auto flex w-full max-w-[1800px] gap-6 px-4 pb-24 pt-6 lg:px-8">
+    <div class="mx-auto flex w-full max-w-[2000px] gap-6 px-4 pb-24 pt-6 lg:px-8">
       <ProjectSidebar
         :categories="categories"
         :active-category="activeCategory"

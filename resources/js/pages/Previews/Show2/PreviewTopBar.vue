@@ -45,7 +45,7 @@ const isPlanetNineStaff = computed(() => props.authUserClientName === 'Planet Ni
         background: 'linear-gradient(90deg, var(--p2-accent) 0%, var(--p2-accent-2) 60%, var(--p2-accent) 100%)',
       }"
     />
-    <div class="mx-auto flex w-full max-w-[1800px] items-center gap-4 px-4 py-3 lg:px-8">
+    <div class="mx-auto flex w-full max-w-[2000px] items-center gap-4 px-4 py-3 lg:px-8">
       <!-- Mobile menu trigger -->
       <button
         type="button"

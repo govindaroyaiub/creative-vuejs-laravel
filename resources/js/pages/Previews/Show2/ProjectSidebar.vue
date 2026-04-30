@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { ImageIcon, Film, Share2, Sparkles, X, Folder } from 'lucide-vue-next'
+import { ImagePlay, Video, Image, GalleryThumbnails, X, Folder } from 'lucide-vue-next'
 
 const props = defineProps<{
   categories: any[]
@@ -23,13 +23,13 @@ const formatDate = (s: string) => {
 const typeIcon = (type: string) => {
   switch (type) {
     case 'banner':
-      return ImageIcon
+      return GalleryThumbnails
     case 'video':
-      return Film
+      return Video
     case 'social':
-      return Share2
+      return Image
     case 'gif':
-      return Sparkles
+      return ImagePlay
     default:
       return Folder
   }
