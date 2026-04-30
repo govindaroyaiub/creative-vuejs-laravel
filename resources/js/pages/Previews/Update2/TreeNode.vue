@@ -92,7 +92,7 @@ const label = computed(() => {
     }
     return props.node.name || `Asset #${props.node.id}`
   }
-  if (props.kind === 'set' && !props.node.name) return 'Concept'
+  if (props.kind === 'set' && !props.node.name) return 'Version'
   if (props.kind === 'version' && !props.node.name) return 'Set'
   return props.node.name || '(untitled)'
 })

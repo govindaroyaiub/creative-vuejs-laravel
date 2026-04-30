@@ -45,7 +45,7 @@ const isPlanetNineStaff = computed(() => props.authUserClientName === 'Planet Ni
         background: 'linear-gradient(90deg, var(--p2-accent) 0%, var(--p2-accent-2) 60%, var(--p2-accent) 100%)',
       }"
     />
-    <div class="mx-auto flex w-full max-w-[1600px] items-center gap-4 px-4 py-3 lg:px-8">
+    <div class="mx-auto flex w-full max-w-[1800px] items-center gap-4 px-4 py-3 lg:px-8">
       <!-- Mobile menu trigger -->
       <button
         type="button"
@@ -112,26 +112,28 @@ const isPlanetNineStaff = computed(() => props.authUserClientName === 'Planet Ni
           </div>
         </div>
 
-        <button
-          type="button"
-          class="grid h-9 w-9 place-items-center rounded-lg border border-zinc-200 bg-white text-zinc-600 transition hover:border-[var(--p2-accent)] hover:text-[var(--p2-accent)] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
-          :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-          :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-          @click="toggleDark"
-        >
-          <Sun v-if="isDark" class="h-4 w-4" />
-          <Moon v-else class="h-4 w-4" />
-        </button>
+        <div class="flex items-center gap-2" data-tour="theme">
+          <button
+            type="button"
+            class="grid h-9 w-9 place-items-center rounded-lg border border-zinc-200 bg-white text-zinc-600 transition hover:border-[var(--p2-accent)] hover:text-[var(--p2-accent)] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+            :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+            :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+            @click="toggleDark"
+          >
+            <Sun v-if="isDark" class="h-4 w-4" />
+            <Moon v-else class="h-4 w-4" />
+          </button>
 
-        <button
-          type="button"
-          class="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-[var(--p2-accent)] hover:text-[var(--p2-accent)] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
-          aria-label="Theme"
-          @click="$emit('open-palette')"
-        >
-          <Palette class="h-4 w-4" />
-          <span class="hidden sm:inline">Theme</span>
-        </button>
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-[var(--p2-accent)] hover:text-[var(--p2-accent)] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+            aria-label="Theme"
+            @click="$emit('open-palette')"
+          >
+            <Palette class="h-4 w-4" />
+            <span class="hidden sm:inline">Theme</span>
+          </button>
+        </div>
 
         <form
           v-if="preview?.requires_login"

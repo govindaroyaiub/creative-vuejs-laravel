@@ -59,7 +59,10 @@ const sorted = computed(() =>
 
 <template>
   <!-- Desktop -->
-  <aside class="sticky top-[80px] hidden h-[calc(100vh-100px)] w-72 shrink-0 lg:block">
+  <aside
+    class="sticky top-[80px] hidden h-[calc(100vh-100px)] w-72 shrink-0 lg:block"
+    data-tour="projects"
+  >
     <div class="h-full overflow-hidden rounded-2xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
       <div class="border-b border-zinc-100 px-5 py-4 dark:border-zinc-800">
         <div class="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-400">Creatives</div>

@@ -25,22 +25,22 @@ const addVersion = () => {
       <div class="min-w-0 flex-1">
         <div class="mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
           <Layers class="h-3 w-3" />
-          Concept
+          Version
         </div>
         <input
           :value="set.name"
-          class="w-full bg-transparent text-2xl font-semibold tracking-tight text-zinc-900 outline-none placeholder:text-zinc-400 dark:text-zinc-100 dark:placeholder:text-zinc-600"
-          placeholder="Concept name (optional)"
+          class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-2xl font-semibold tracking-tight text-zinc-900 outline-none transition placeholder:text-zinc-400 hover:border-zinc-300 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 dark:border-zinc-800 dark:bg-zinc-950/30 dark:text-zinc-100 dark:placeholder:text-zinc-600 dark:hover:border-zinc-700 dark:focus:border-zinc-600 dark:focus:ring-zinc-600"
+          placeholder="Version name (optional)"
           @input="onName"
         />
         <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-          A concept can hold multiple sets of assets — for example, "Holiday concept" with size variations inside it.
+          A version can hold multiple sets of assets — for example, "Holiday version" with size variations inside it.
         </p>
       </div>
       <button
         type="button"
         class="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-rose-200 text-rose-600 transition hover:bg-rose-50 dark:border-rose-900/50 dark:text-rose-400 dark:hover:bg-rose-950/30"
-        title="Delete concept"
+        title="Delete version"
         @click="$emit('delete')"
       >
         <Trash2 class="h-4 w-4" />
@@ -49,7 +49,7 @@ const addVersion = () => {
 
     <section>
       <div class="mb-3 flex items-center justify-between">
-        <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Sets in this concept</h3>
+        <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Sets in this version</h3>
         <button
           type="button"
           class="inline-flex items-center gap-1 rounded-md border border-zinc-200 px-2.5 py-1.5 text-[11px] font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-300 dark:hover:text-zinc-100"

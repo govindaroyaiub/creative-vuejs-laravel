@@ -87,6 +87,7 @@ const skeletonCount = computed(() => {
         v-if="!isLoading && hasNotes"
         type="button"
         class="notes-btn inline-flex items-center gap-2 rounded-lg border bg-white px-3.5 py-2 text-sm font-medium text-zinc-700 shadow-sm transition dark:bg-zinc-900 dark:text-zinc-200"
+        data-tour="notes"
         @click="$emit('open-notes')"
       >
         <MessageSquare class="h-4 w-4 transition" />
@@ -140,9 +141,13 @@ const skeletonCount = computed(() => {
       <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Your team is still working on this revision round.</p>
     </div>
 
-    <!-- Concepts (feedback sets) -->
+    <!-- Versions (feedback sets) -->
     <div v-else class="space-y-10">
-      <article v-for="(set, sIdx) in feedbackSets" :key="set.id">
+      <article
+        v-for="(set, sIdx) in feedbackSets"
+        :key="set.id"
+        :data-tour="sIdx === 0 ? 'version-set' : undefined"
+      >
         <header v-if="set.name" class="mb-4 flex items-center gap-3">
           <span
             class="grid h-8 w-8 place-items-center rounded-full text-xs font-semibold text-white shadow-sm"
@@ -154,14 +159,14 @@ const skeletonCount = computed(() => {
             <div
               class="text-[11px] font-semibold uppercase tracking-[0.12em]"
               :style="{ color: 'var(--p2-accent)' }"
-            >Concept</div>
+            >Version</div>
             <div class="text-base font-semibold text-zinc-900 dark:text-zinc-100">{{ set.name }}</div>
           </div>
           <div class="ml-auto h-px flex-1 bg-gradient-to-r from-[var(--p2-accent-soft)] to-transparent" />
         </header>
 
         <div class="space-y-6">
-          <section v-for="version in set.versions" :key="version.id">
+          <section v-for="(version, vIdx) in set.versions" :key="version.id">
             <h3
               v-if="version.name"
               class="mb-3 inline-flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300"
@@ -177,6 +182,7 @@ const skeletonCount = computed(() => {
             <div
               v-if="categoryType === 'banner'"
               class="flex flex-wrap items-start gap-5"
+              :data-tour="sIdx === 0 && vIdx === 0 ? 'assets' : undefined"
             >
               <BannerCard
                 v-for="(banner, bIdx) in version.assets"
@@ -190,6 +196,7 @@ const skeletonCount = computed(() => {
             <div
               v-else-if="categoryType === 'gif'"
               class="flex flex-wrap items-start gap-5"
+              :data-tour="sIdx === 0 && vIdx === 0 ? 'assets' : undefined"
             >
               <GifCard
                 v-for="gif in version.assets"
@@ -202,6 +209,7 @@ const skeletonCount = computed(() => {
             <div
               v-else-if="categoryType === 'video'"
               class="grid grid-cols-1 gap-6"
+              :data-tour="sIdx === 0 && vIdx === 0 ? 'assets' : undefined"
             >
               <VideoCard
                 v-for="video in version.assets"
@@ -214,6 +222,7 @@ const skeletonCount = computed(() => {
             <div
               v-else-if="categoryType === 'social'"
               class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3"
+              :data-tour="sIdx === 0 && vIdx === 0 ? 'assets' : undefined"
             >
               <SocialCard
                 v-for="social in version.assets"

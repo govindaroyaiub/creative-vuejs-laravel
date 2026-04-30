@@ -66,7 +66,7 @@ const disapprove = () => {
         </div>
         <input
           :value="feedback.name"
-          class="w-full bg-transparent text-2xl font-semibold uppercase tracking-tight text-zinc-900 outline-none placeholder:text-zinc-400 dark:text-zinc-100 dark:placeholder:text-zinc-600"
+          class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-2xl font-semibold uppercase tracking-tight text-zinc-900 outline-none transition placeholder:text-zinc-400 hover:border-zinc-300 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 dark:border-zinc-800 dark:bg-zinc-950/30 dark:text-zinc-100 dark:placeholder:text-zinc-600 dark:hover:border-zinc-700 dark:focus:border-zinc-600 dark:focus:ring-zinc-600"
           placeholder="ROUND 1"
           @input="onName"
         />
@@ -126,16 +126,16 @@ const disapprove = () => {
       </div>
     </section>
 
-    <!-- Concepts summary -->
+    <!-- Versions summary -->
     <section>
       <div class="mb-3 flex items-center justify-between">
-        <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Concepts</h3>
+        <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Versions</h3>
         <button
           type="button"
           class="inline-flex items-center gap-1 rounded-md border border-zinc-200 px-2.5 py-1.5 text-[11px] font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-300 dark:hover:text-zinc-100"
           @click="addSet"
         >
-          <Plus class="h-3 w-3" /> New concept
+          <Plus class="h-3 w-3" /> New version
         </button>
       </div>
       <ul v-if="feedback.feedback_sets.length" class="space-y-1.5">
@@ -149,13 +149,13 @@ const disapprove = () => {
             class="min-w-0 flex-1 truncate text-left text-zinc-800 transition hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-100"
             @click="tree.select({ kind: 'set', id: s.id }); tree.expandPathTo({ kind: 'set', id: s.id })"
           >
-            {{ s.name || 'Concept' }}
+            {{ s.name || 'Version' }}
           </button>
           <span class="text-[11px] text-zinc-400 dark:text-zinc-500">{{ s.versions?.length || 0 }} sets</span>
         </li>
       </ul>
       <p v-else class="rounded-lg border border-dashed border-zinc-200 px-4 py-6 text-center text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
-        No concepts yet.
+        No versions yet.
       </p>
     </section>
 

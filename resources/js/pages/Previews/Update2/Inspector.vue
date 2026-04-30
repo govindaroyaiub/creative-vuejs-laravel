@@ -23,7 +23,7 @@ const breadcrumb = computed(() => {
   const items: { label: string; kind?: string; id?: any }[] = []
   if (p.category) items.push({ label: p.category.name || '(untitled)', kind: 'category', id: p.category.id })
   if (p.feedback) items.push({ label: p.feedback.name || '(untitled)', kind: 'feedback', id: p.feedback.id })
-  if (p.set) items.push({ label: p.set.name || 'Concept', kind: 'set', id: p.set.id })
+  if (p.set) items.push({ label: p.set.name || 'Version', kind: 'set', id: p.set.id })
   if (p.version) items.push({ label: p.version.name || 'Set', kind: 'version', id: p.version.id })
   if (p.asset) items.push({ label: p.asset.name || `Asset #${p.asset.id}`, kind: 'asset' })
   return items
@@ -48,7 +48,7 @@ const requestDelete = () => {
   switch (sel.value.kind) {
     case 'category': label = `project "${p.category.name}"`; break
     case 'feedback': label = `revision round "${p.feedback.name}"`; break
-    case 'set':      label = `concept "${p.set.name || '(untitled)'}"`; break
+    case 'set':      label = `version "${p.set.name || '(untitled)'}"`; break
     case 'version':  label = `set "${p.version.name || '(untitled)'}"`; break
     case 'asset':    label = `${sel.value.assetType} asset`; break
   }
@@ -109,7 +109,7 @@ const performDelete = async () => {
         </div>
         <h2 class="mt-4 text-base font-semibold text-zinc-900 dark:text-zinc-100">Nothing selected</h2>
         <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Pick a project, revision, concept, set, or asset on the left to start editing.
+          Pick a category, revision, version, set, or asset on the left to start editing.
         </p>
       </div>
     </div>

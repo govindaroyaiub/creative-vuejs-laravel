@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, provide, ref } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
-import AppLayout from '@/layouts/AppLayout.vue'
+// import AppLayout from '@/layouts/AppLayout.vue'
 import Swal from 'sweetalert2'
 
 import TopBar from './Update2/TopBar.vue'
@@ -25,6 +25,20 @@ const tree = createPreviewTree(props.preview)
 provide('tree', tree)
 provide('bannerSizes', props.bannerSizes)
 provide('videoSizes', props.videoSizes)
+
+// Pick the active category (or first one as fallback). Used both on initial
+// mount and after Save All — the server flips is_active on create, so after
+// a save we want to land on whatever it just marked active.
+const selectActiveCategory = () => {
+  const cat =
+    tree.preview.categories?.find((c: any) => c.is_active) ||
+    tree.preview.categories?.[0]
+  if (cat) {
+    tree.select({ kind: 'category', id: cat.id })
+    tree.expandPathTo({ kind: 'category', id: cat.id })
+  }
+}
+selectActiveCategory()
 
 const showSidebar = ref(true)
 
@@ -108,6 +122,7 @@ const saveAll = () => {
   router.post(`/previews/${p.id}/bulk-edit`, fd, {
     forceFormData: true,
     preserveScroll: true,
+    preserveState: true,
     onSuccess: (page: any) => {
       // Swap local temp IDs for the server's real DB IDs so `hasUnsavedNew`
       // drops to 0. `clearDirty()` alone leaves new records counted as
@@ -115,6 +130,10 @@ const saveAll = () => {
       const fresh = page?.props?.preview
       if (fresh) tree.rehydrate(fresh)
       else tree.clearDirty()
+      // If rehydrate dropped the selection (its target no longer exists, e.g.
+      // a temp-id category that just got a real DB id), land back on the
+      // active category. Server marks newly created categories is_active=true.
+      if (!tree.selection.value) selectActiveCategory()
       pendingIdempotencyKey.value = null
       Swal.fire({
         icon: 'success',
@@ -198,6 +217,10 @@ const goToPreview2 = () => {
   window.open(`/previews/show2/${props.preview_slug || tree.preview.slug}`, '_blank')
 }
 
+const goToEditInfo = () => {
+  router.visit(`/previews-edit/${props.preview_id || tree.preview.id}`)
+}
+
 const goBack = () => {
   router.visit('/previews')
 }
@@ -242,6 +265,7 @@ onBeforeUnmount(() => {
         @save="saveAll"
         @preview="goToPreview"
         @preview2="goToPreview2"
+        @edit-info="goToEditInfo"
         @back="goBack"
         @toggle-sidebar="showSidebar = !showSidebar"
       />

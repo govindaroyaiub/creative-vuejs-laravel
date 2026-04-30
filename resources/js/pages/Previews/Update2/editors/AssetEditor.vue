@@ -60,7 +60,7 @@ const typeMeta = computed(() => {
     case 'banner': return { icon: ImageIcon, label: 'Banner', accept: '.zip,application/zip', hint: 'Upload a .zip containing an HTML5 banner with index.html.' }
     case 'video':  return { icon: Film,      label: 'Video',  accept: 'video/mp4,video/quicktime,video/x-msvideo,video/x-ms-wmv,video/x-matroska,.mp4,.mov,.avi,.wmv,.mkv', hint: 'MP4, MOV, AVI, WMV, or MKV.' }
     case 'social': return { icon: Share2,    label: 'Social', accept: 'image/jpeg,image/png,image/webp,image/svg+xml,.jpg,.jpeg,.png,.webp,.svg', hint: 'JPEG, PNG, WebP, or SVG.' }
-    case 'gif':    return { icon: Sparkles,  label: 'GIF',    accept: '.zip,application/zip', hint: 'Upload a .zip containing an animated GIF or HTML wrapper.' }
+    case 'gif':    return { icon: Sparkles,  label: 'GIF',    accept: '.gif,image/gif', hint: 'Upload an animated .gif file.' }
     default:       return { icon: ImageIcon, label: 'Asset',  accept: '*', hint: '' }
   }
 })
@@ -150,6 +150,14 @@ const sizeOptions = computed(() =>
 )
 const onSizeChange = (val: number | null) => {
   props.asset.size_id = val ?? null
+  // Keep the nested `size` object in sync so the preview iframe + header
+  // re-render at the newly picked dimensions instead of the stale ones.
+  if (val) {
+    const sz = sizes.value.find((x: any) => x.id === val)
+    if (sz) props.asset.size = { id: sz.id, width: Number(sz.width), height: Number(sz.height) }
+  } else {
+    props.asset.size = null
+  }
   markDirty()
 }
 
@@ -162,7 +170,7 @@ const formatBytes = (n: number) => {
   return `${(n / 1024 / 1024 / 1024).toFixed(2)} GB`
 }
 
-const isZipType = computed(() => props.assetType === 'banner' || props.assetType === 'gif')
+const isZipType = computed(() => props.assetType === 'banner')
 
 // Preview is shown when:
 // - a new file is picked (live blob URL preview, except for zips), OR
@@ -175,8 +183,19 @@ const hasNewPreview = computed(() => {
 const hasExistingPreview = computed(() => Boolean(existingPath.value && !newFileUrl.value))
 const showPreview = computed(() => hasNewPreview.value || hasExistingPreview.value || (newFileUrl.value && isZipType.value))
 
-const bannerWidth = computed(() => props.asset?.size?.width || 300)
-const bannerHeight = computed(() => props.asset?.size?.height || 250)
+// Resolve dimensions from `asset.size` first; if it's missing (older row,
+// or a freshly-picked size hasn't been mirrored yet) fall back to looking
+// up the size_id against the injected sizes list.
+const resolvedSize = computed(() => {
+  if (props.asset?.size?.width && props.asset?.size?.height) return props.asset.size
+  if (props.asset?.size_id) {
+    const sz = sizes.value.find((x: any) => x.id === props.asset.size_id)
+    if (sz) return { width: Number(sz.width), height: Number(sz.height) }
+  }
+  return null
+})
+const bannerWidth = computed(() => resolvedSize.value?.width || 300)
+const bannerHeight = computed(() => resolvedSize.value?.height || 250)
 </script>
 
 <template>
@@ -308,16 +327,16 @@ const bannerHeight = computed(() => props.asset?.size?.height || 250)
           </div>
         </template>
 
-        <!-- Gif: live iframe -->
-        <template v-else-if="assetType === 'gif' && existingPath && !newFileUrl">
+        <!-- Gif: <img> preview at the picked banner-size, works for both
+             freshly-picked files (blob URL) and saved files (server path). -->
+        <template v-else-if="assetType === 'gif' && (newFileUrl || existingPath)">
           <div class="flex justify-center overflow-auto p-3">
-            <iframe
-              :src="`/${existingPath}`"
+            <img
+              :src="newFileUrl || `/${existingPath}`"
+              :alt="asset.name || 'gif preview'"
               :width="bannerWidth"
               :height="bannerHeight"
-              frameborder="0"
-              scrolling="no"
-              class="border-0 bg-white"
+              class="block bg-white"
             />
           </div>
         </template>

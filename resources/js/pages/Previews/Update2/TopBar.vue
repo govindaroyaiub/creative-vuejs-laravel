@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { ArrowLeft, Save, ExternalLink, PanelLeft, Loader2, Copy, Check } from 'lucide-vue-next'
+import { ArrowLeft, Save, ExternalLink, PanelLeft, Loader2, Copy, Check, Pencil } from 'lucide-vue-next'
 import { ref } from 'vue'
 
 const props = defineProps<{
@@ -26,6 +26,7 @@ defineEmits<{
   (e: 'save'): void
   (e: 'preview'): void
   (e: 'preview2'): void
+  (e: 'edit-info'): void
   (e: 'back'): void
   (e: 'toggle-sidebar'): void
 }>()
@@ -106,6 +107,16 @@ const dirtyLabel = computed(() => {
           {{ dirtyLabel }}
         </span>
       </Transition>
+
+      <button
+        type="button"
+        class="hidden items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-700 dark:hover:text-zinc-100 md:inline-flex"
+        title="Edit preview info (name, client, palette, team)"
+        @click="$emit('edit-info')"
+      >
+        <Pencil class="h-3.5 w-3.5" />
+        Edit Info
+      </button>
 
       <button
         type="button"

@@ -10,6 +10,8 @@ import AssetCanvas from './Show2/AssetCanvas.vue'
 import NotesSheet from './Show2/NotesSheet.vue'
 import FileTransferDock from './Show2/FileTransferDock.vue'
 import PaletteSwitcher from './Show2/PaletteSwitcher.vue'
+import IntroOverlay from './Show2/IntroOverlay.vue'
+import IntroAssistant from './Show2/IntroAssistant.vue'
 
 type Palette = {
   id: number
@@ -97,7 +99,16 @@ const isAssetsLoading = ref(false)
 const isNotesOpen = ref(false)
 const isPaletteOpen = ref(false)
 const isSidebarOpen = ref(false) // mobile drawer
+const isIntroOpen = ref(false)
 const guestName = ref('')
+
+const introSeenKey = computed(() => `show2-intro-seen-${props.preview?.id ?? 'x'}`)
+const onIntroOpenChange = (v: boolean) => {
+  isIntroOpen.value = v
+  if (!v) {
+    try { localStorage.setItem(introSeenKey.value, '1') } catch { /* private mode, ignore */ }
+  }
+}
 
 const initGuestName = () => {
   let name = localStorage.getItem('guest_name')
@@ -229,6 +240,12 @@ onMounted(async () => {
     fetchViewers()
     viewerInterval = window.setInterval(fetchViewers, 10000)
   }
+  // First-visit intro. Wait a beat so the page paints first, then drift in.
+  try {
+    if (!localStorage.getItem(introSeenKey.value)) {
+      window.setTimeout(() => { isIntroOpen.value = true }, 350)
+    }
+  } catch { /* private mode, skip */ }
 })
 
 onUnmounted(() => {
@@ -272,7 +289,7 @@ const themeStyle = computed(() => ({
       @logout="onLogout"
     />
 
-    <div class="mx-auto flex w-full max-w-[1600px] gap-6 px-4 pb-24 pt-6 lg:px-8">
+    <div class="mx-auto flex w-full max-w-[1800px] gap-6 px-4 pb-24 pt-6 lg:px-8">
       <ProjectSidebar
         :categories="categories"
         :active-category="activeCategory"
@@ -287,6 +304,7 @@ const themeStyle = computed(() => ({
           :feedbacks="feedbacks"
           :active-feedback="activeFeedback"
           :is-loading="isInitialLoading"
+          data-tour="rounds"
           @select="onFeedbackSelect"
         />
 
@@ -308,6 +326,7 @@ const themeStyle = computed(() => ({
     <FileTransferDock
       v-if="fileTransfer"
       :file-transfer="fileTransfer"
+      data-tour="file-transfer"
     />
 
     <PaletteSwitcher
@@ -315,6 +334,18 @@ const themeStyle = computed(() => ({
       :all-colors="allColors"
       :current-id="palette?.id"
       @select="onThemeChange"
+    />
+
+    <IntroOverlay
+      :open="isIntroOpen"
+      :preview-name="preview?.name || ''"
+      :client-name="client?.name || ''"
+      @update:open="onIntroOpenChange"
+    />
+
+    <IntroAssistant
+      v-show="!isIntroOpen"
+      @start-tour="isIntroOpen = true"
     />
   </div>
 </template>
@@ -346,7 +377,7 @@ const themeStyle = computed(() => ({
     radial-gradient(60% 60% at 100% 100%, var(--p2-accent-glow) 0%, transparent 75%);
   opacity: 0.55;
 }
-.show2-root > :not(.show2-ambient) {
+.show2-root > :not(.show2-ambient):not(.fixed) {
   position: relative;
   z-index: 1;
 }
