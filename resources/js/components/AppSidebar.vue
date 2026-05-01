@@ -4,7 +4,7 @@ import NavMain from '@/components/NavMain.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { ChartNoAxesCombined, Link2, Clapperboard, MonitorCog, Megaphone, ReceiptText, LayoutTemplate, Users, Type, FileCode, Handshake, Paintbrush, ImagePlay, HardDriveIcon, Activity } from 'lucide-vue-next';
+import { ChartNoAxesCombined, Link2, Clapperboard, Ruler, Megaphone, ReceiptText, LayoutTemplate, Users, Type, FileCode, Handshake, Paintbrush, ImagePlay, HardDriveIcon, Activity, MonitorCog } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 import { computed } from 'vue'; // ✅ important to make reactive
@@ -19,8 +19,7 @@ const mainNavItems: NavItem[] = [
     { title: 'Previews', href: '/previews', icon: Megaphone },
     { title: 'Color Palettes', href: '/color-palettes', icon: Paintbrush },
     { title: 'Clients', href: '/clients', icon: Handshake },
-    { title: 'Banner Sizes', href: '/banner-sizes', icon: MonitorCog },
-    { title: 'Video Sizes', href: '/video-sizes', icon: Clapperboard },
+    { title: 'Creative Sizes', href: '/creative-sizes', icon: Ruler },
     { title: 'Bills', href: '/bills', icon: ReceiptText },
     { title: 'File Transfers', href: '/file-transfers', icon: Link2 },
     { title: 'Media Library', 'href': '/medias', icon: ImagePlay },

@@ -8,6 +8,7 @@ use App\Http\Middleware\CheckUserPermission;
 use App\Http\Controllers\FileTransferController;
 use App\Http\Controllers\BannerSizeController;
 use App\Http\Controllers\VideoSizeController;
+use App\Http\Controllers\CreativeSizeController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\SocialController;
 use App\Http\Controllers\ClientController;
@@ -85,19 +86,18 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::delete('/previews/companion-banner/delete/{id}', [NewVideoController::class, 'deleteCompanionBanner'])->name('previews.companion.banner.delete');
     //Preview Routes End
 
-    //Banner Sizes Routes Start
-    Route::get('/banner-sizes', [BannerSizeController::class, 'index'])->name('banner-sizes-index');
-    Route::post('/banner-sizes-create-post', [BannerSizeController::class, 'store'])->name('banner-sizes-create-post');
-    Route::put('/banner-sizes-edit/{id}', [BannerSizeController::class, 'update'])->name('banner-sizes-update');
-    Route::delete('/banner-sizes-delete/{id}', [BannerSizeController::class, 'destroy'])->name('banner-sizes-delete');
-    //Banner Sizes Routes End
+    //Creative Sizes Routes (unified Banner + Video sizes management)
+    Route::get('/creative-sizes', [CreativeSizeController::class, 'index'])->name('creative-sizes-index');
+    Route::post('/creative-sizes', [CreativeSizeController::class, 'store'])->name('creative-sizes-store');
+    Route::put('/creative-sizes/{id}', [CreativeSizeController::class, 'update'])->name('creative-sizes-update');
+    Route::delete('/creative-sizes/{id}', [CreativeSizeController::class, 'destroy'])->name('creative-sizes-delete');
 
-    //Video Sizes Routes Start
-    Route::get('/video-sizes', [VideoSizeController::class, 'index'])->name('video-sizes-index');
-    Route::post('/video-sizes-create-post', [VideoSizeController::class, 'store'])->name('video-sizes-create-post');
-    Route::put('/video-sizes-edit/{id}', [VideoSizeController::class, 'update'])->name('video-sizes-update');
-    Route::delete('/video-sizes-delete/{id}', [VideoSizeController::class, 'destroy'])->name('video-sizes-delete');
-    //Video Sizes Routes End
+    // Legacy redirects — old URLs and named routes forward to the unified
+    // page so external bookmarks and stale `route()` calls keep working.
+    Route::get('/banner-sizes', fn() => redirect()->route('creative-sizes-index'))
+        ->name('banner-sizes-index');
+    Route::get('/video-sizes', fn() => redirect()->route('creative-sizes-index', ['type' => 'video']))
+        ->name('video-sizes-index');
 
     //Social Routes Start
     Route::get('/socials', [SocialController::class, 'index'])->name('socials');
