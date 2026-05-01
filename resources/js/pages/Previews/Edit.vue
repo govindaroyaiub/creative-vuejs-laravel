@@ -3,11 +3,12 @@
     <Head title="Edit Preview" />
     <AppLayout
         :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Edit Preview', 'href': '/previews-edit/' + preview.id }]">
-        <div class="min-h-screen bg-[#FFFFFF] dark:bg-black font-mono py-8">
-            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Header Section -->
-                <div class="mb-6 flex items-center justify-between gap-3">
-                    <h1 class="text-base font-semibold font-mono text-black dark:text-white">
+        <form @submit.prevent="submit"
+            class="bg-[#FFFFFF] dark:bg-black font-mono p-4 max-w-7xl mx-auto w-full flex flex-col h-[calc(100vh-4rem)]">
+            <!-- Top bar: title + ID + actions -->
+            <div class="mb-3 flex flex-wrap items-center justify-between gap-2 shrink-0">
+                <div class="flex items-center gap-2 min-w-0">
+                    <h1 class="text-base font-semibold font-mono text-black dark:text-white truncate">
                         Edit preview
                     </h1>
                     <span
@@ -15,298 +16,193 @@
                         ID: {{ preview.id }}
                     </span>
                 </div>
-
-                <!-- Main Form Card -->
-                <div
-                    class="bg-white dark:bg-[#0A0A0A] rounded-lg border border-[#E8E8E8] dark:border-[#222222] overflow-hidden">
-                    <form @submit.prevent="submit" class="p-6 space-y-8">
-                        <!-- Preview Name Section -->
-                        <div class="space-y-2">
-                            <div>
-                                <label for="preview-name"
-                                    class="block text-xs font-medium text-[#666666] dark:text-[#999999] mb-2 uppercase tracking-widest font-mono">
-                                    PREVIEW NAME *
-                                </label>
-                                <input id="preview-name" v-model="form.name" type="text"
-                                    placeholder="e.g. Facebook Ad Campaign - June 2024"
-                                    class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 text-black dark:text-white bg-white dark:bg-[#111111] placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
-                                    :class="{ 'border-[#D71921] focus:border-[#D71921]': form.errors.name }" required />
-                                <p v-if="form.errors.name" class="mt-1 text-sm text-[#D71921]">
-                                    {{ form.errors.name }}
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Configuration Section -->
-                        <div class="space-y-2">
-                            <!-- Client, Header Logo, and Color Palette -->
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <!-- Client Dropdown -->
-                                <div>
-                                    <label for="client-select"
-                                        class="block text-xs font-medium text-[#666666] dark:text-[#999999] mb-2 uppercase tracking-widest font-mono">
-                                        CLIENT *
-                                    </label>
-                                    <div class="relative">
-                                        <select id="client-select" v-model="form.client_id"
-                                            class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 text-black dark:text-white bg-white dark:bg-[#111111] focus:outline-none focus:border-black dark:focus:border-white transition-colors appearance-none"
-                                            :class="{ 'border-[#D71921] focus:border-[#D71921]': form.errors.client_id }"
-                                            required>
-                                            <option disabled value="">Select client</option>
-                                            <option v-for="client in clients" :key="client.id" :value="client.id">
-                                                {{ client.name }}
-                                            </option>
-                                        </select>
-                                        <div
-                                            class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                            <svg class="w-4 h-4 text-[#666666] dark:text-[#999999]" fill="none"
-                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <p v-if="form.errors.client_id" class="mt-1 text-sm text-[#D71921]">
-                                        {{ form.errors.client_id }}
-                                    </p>
-                                </div>
-
-                                <!-- Header Logo Dropdown -->
-                                <div>
-                                    <label for="header-logo-select"
-                                        class="block text-xs font-medium text-[#666666] dark:text-[#999999] mb-2 uppercase tracking-widest font-mono">
-                                        HEADER LOGO *
-                                    </label>
-                                    <div class="relative">
-                                        <select id="header-logo-select" v-model="form.header_logo_id"
-                                            class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 text-black dark:text-white bg-white dark:bg-[#111111] focus:outline-none focus:border-black dark:focus:border-white transition-colors appearance-none"
-                                            :class="{ 'border-[#D71921] focus:border-[#D71921]': form.errors.header_logo_id }"
-                                            required>
-                                            <option disabled value="">Select header logo</option>
-                                            <option v-for="client in clients" :key="client.id" :value="client.id">
-                                                {{ client.name }}
-                                            </option>
-                                        </select>
-                                        <div
-                                            class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                            <svg class="w-4 h-4 text-[#666666] dark:text-[#999999]" fill="none"
-                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <p v-if="form.errors.header_logo_id" class="mt-1 text-sm text-[#D71921]">
-                                        {{ form.errors.header_logo_id }}
-                                    </p>
-                                </div>
-
-                                <!-- Color Palette Dropdown -->
-                                <div>
-                                    <label for="color-palette-select"
-                                        class="block text-xs font-medium text-[#666666] dark:text-[#999999] mb-2 uppercase tracking-widest font-mono">
-                                        THEME *
-                                    </label>
-                                    <div class="relative">
-                                        <select id="color-palette-select" v-model="form.color_palette_id"
-                                            class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 text-black dark:text-white bg-white dark:bg-[#111111] focus:outline-none focus:border-black dark:focus:border-white transition-colors appearance-none"
-                                            :class="{ 'border-[#D71921] focus:border-[#D71921]': form.errors.color_palette_id }"
-                                            required>
-                                            <option disabled value="">Select theme</option>
-                                            <option v-for="palette in colorPalettes" :key="palette.id"
-                                                :value="palette.id">
-                                                {{ palette.name }}
-                                            </option>
-                                        </select>
-                                        <div
-                                            class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                            <svg class="w-4 h-4 text-[#666666] dark:text-[#999999]" fill="none"
-                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <p v-if="form.errors.color_palette_id" class="mt-1 text-sm text-[#D71921]">
-                                        {{ form.errors.color_palette_id }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Team Members Section -->
-                        <div class="space-y-2">
-                            <div>
-                                <label for="team-search"
-                                    class="block text-xs font-medium text-[#666666] dark:text-[#999999] mb-2 uppercase tracking-widest font-mono">
-                                    ADD TEAM MEMBERS *
-                                </label>
-
-                                <!-- Selected Users Display -->
-                                <div v-if="selectedUsers.length > 0"
-                                    class="flex flex-wrap gap-2 mb-4 p-4 bg-white dark:bg-[#111111] rounded-lg border border-[#E8E8E8] dark:border-[#222222]">
-                                    <div v-for="user in selectedUsers" :key="user.id"
-                                        class="inline-flex items-center px-3 py-2 border-2 border-black dark:border-white text-black dark:text-white text-xs font-medium rounded-full font-mono tracking-wide transition-all duration-200">
-                                        <div class="flex items-center">
-                                            <div
-                                                class="w-6 h-6 bg-black dark:bg-white rounded-full flex items-center justify-center mr-2">
-                                                <span class="text-xs font-bold text-white dark:text-black">{{
-                                                    user.name.charAt(0).toUpperCase() }}</span>
-                                            </div>
-                                            <span>{{ user.name }}</span>
-                                            <button v-if="user.id !== authUser.id" @click="removeUser(user.id)"
-                                                type="button"
-                                                class="ml-2 text-black dark:text-white hover:text-[#D71921] dark:hover:text-[#D71921] focus:outline-none transition-colors duration-200"
-                                                :aria-label="`Remove ${user.name} from team`">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd"
-                                                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- User Search -->
-                                <div class="relative">
-                                    <input id="team-search" v-model="userSearch" type="text"
-                                        placeholder="SEARCH AND ADD TEAM MEMBERS..."
-                                        class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 text-black dark:text-white bg-white dark:bg-[#111111] placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
-                                        :class="{ 'border-[#D71921] focus:border-[#D71921]': form.errors.team_ids }"
-                                        autocomplete="off" />
-
-                                    <!-- Search Results Dropdown -->
-                                    <div v-if="userSearch.trim().length > 0 && filteredUsers.length > 0"
-                                        class="absolute z-10 w-full mt-2 bg-white dark:bg-[#111111] border border-[#E8E8E8] dark:border-[#222222] rounded-lg max-h-48 overflow-y-auto">
-                                        <button v-for="user in filteredUsers" :key="user.id" type="button"
-                                            class="w-full text-left px-3 py-2 hover:bg-[#F5F5F5] dark:hover:bg-black focus:bg-[#F5F5F5] dark:focus:bg-black focus:outline-none transition-colors duration-200 flex items-center"
-                                            @click="addUser(user)">
-                                            <div
-                                                class="w-8 h-8 bg-black dark:bg-white rounded-full flex items-center justify-center mr-3">
-                                                <span class="text-sm font-mono font-bold text-white dark:text-black">{{
-                                                    user.name.charAt(0).toUpperCase() }}</span>
-                                            </div>
-                                            <span class="text-sm text-[#1A1A1A] dark:text-[#E8E8E8]">{{ user.name }}</span>
-                                        </button>
-                                    </div>
-
-                                    <!-- No Results Message -->
-                                    <div v-else-if="userSearch.trim().length > 0 && filteredUsers.length === 0"
-                                        class="absolute z-10 w-full mt-2 bg-white dark:bg-[#111111] border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg px-3 py-2 text-[#666666] dark:text-[#999999] text-sm font-mono tracking-wide">
-                                        NO USERS FOUND MATCHING "{{ userSearch }}"
-                                    </div>
-                                </div>
-
-                                <p v-if="form.errors.team_ids" class="mt-2 text-sm text-[#D71921]">
-                                    {{ form.errors.team_ids }}
-                                </p>
-                                <p
-                                    class="mt-2 text-xs text-[#666666] dark:text-[#999999] font-mono tracking-wide">
-                                    {{ selectedUsers.length }} member{{ selectedUsers.length !== 1 ? 's' : '' }}
-                                    selected
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Preview Settings Section -->
-                        <div class="space-y-2">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div v-for="toggle in toggleConfigs" :key="toggle.model"
-                                    class="bg-white dark:bg-[#111111] rounded-lg p-6 border-2 border-[#E8E8E8] dark:border-[#222222] transition-all duration-200 hover:border-black dark:hover:border-white">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex-1">
-                                            <label :for="`toggle-${toggle.model}`"
-                                                class="text-xs font-semibold text-black dark:text-white cursor-pointer font-mono tracking-wide">
-                                                {{ toggle.label }}
-                                            </label>
-                                            <p class="text-xs text-[#666666] dark:text-[#999999] mt-1">
-                                                {{ toggle.description }}
-                                            </p>
-                                        </div>
-
-                                        <!-- Toggle Switch -->
-                                        <label class="relative inline-flex items-center cursor-pointer ml-4">
-                                            <input :id="`toggle-${toggle.model}`" type="checkbox"
-                                                v-model="form[toggle.model]" class="sr-only peer" />
-                                            <div
-                                                class="w-11 h-6 bg-[#E8E8E8] dark:bg-[#222222] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-black dark:peer-focus:ring-white rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#CCCCCC] after:border dark:after:bg-black after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black dark:peer-checked:bg-white">
-                                            </div>
-                                        </label>
-                                    </div>
-
-                                    <!-- Status Indicator -->
-                                    <div class="mt-3 text-center">
-                                        <span
-                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium font-mono tracking-wide"
-                                            :class="form[toggle.model]
-                                                ? 'bg-black text-white dark:bg-white dark:text-black'
-                                                : 'bg-[#E8E8E8] text-[#666666] dark:bg-[#222222] dark:text-[#999999]'">
-                                            <svg class="w-3 h-3 mr-1"
-                                                :class="form[toggle.model] ? 'text-white dark:text-black' : 'text-[#666666] dark:text-[#999999]'"
-                                                fill="currentColor" viewBox="0 0 8 8">
-                                                <circle cx="4" cy="4" r="3" />
-                                            </svg>
-                                            {{ form[toggle.model] ? 'ENABLED' : 'DISABLED' }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div
-                            class="flex flex-col sm:flex-row gap-4 pt-8 border-t border-[#E8E8E8] dark:border-[#222222]">
-                            <Link :href="route('previews.update.all', preview.id)"
-                                class="w-full inline-flex items-center justify-center px-6 py-2 border-2 border-black dark:border-white text-xs font-medium rounded-full text-black dark:text-white bg-white dark:bg-black hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition-all duration-200 font-mono tracking-wide">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    stroke-width="1.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                                </svg>
-                                BACK TO PREVIEW
-                            </Link>
-
-                            <button type="button" @click="confirmDelete" :disabled="deleting"
-                                class="w-full inline-flex items-center justify-center px-6 py-2 border-2 border-[#D71921] text-xs font-medium rounded-full text-[#D71921] bg-white dark:bg-black hover:bg-[#D71921] hover:text-white dark:hover:bg-[#D71921] focus:outline-none focus:ring-2 focus:ring-[#D71921] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-mono tracking-wide">
-                                <svg v-if="deleting" class="animate-spin -ml-1 mr-3 h-5 w-5 text-current" fill="none"
-                                    viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                        stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                    </path>
-                                </svg>
-                                <svg v-else class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    stroke-width="1.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                                {{ deleting ? 'DELETING...' : 'DELETE PREVIEW' }}
-                            </button>
-
-                            <button type="submit" :disabled="form.processing"
-                                class="w-full inline-flex items-center justify-center px-6 py-2 border-2 border-transparent text-xs font-medium rounded-full text-white bg-black dark:bg-white dark:text-black hover:bg-white hover:text-black hover:border-black dark:hover:bg-black dark:hover:text-white dark:hover:border-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-mono tracking-wide">
-                                <svg v-if="form.processing" class="animate-spin -ml-1 mr-3 h-5 w-5 text-current"
-                                    fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                        stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                    </path>
-                                </svg>
-                                <svg v-else class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                    stroke-width="1.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 13l4 4L19 7" />
-                                </svg>
-                                {{ form.processing ? 'UPDATING...' : 'UPDATE PREVIEW' }}
-                            </button>
-                        </div>
-                    </form>
+                <div class="flex items-center gap-2">
+                    <Link :href="route('previews.update.all', preview.id)"
+                        class="inline-flex items-center gap-1.5 px-2 py-2 rounded-full border border-[#CCCCCC] dark:border-[#333333] text-xs font-mono tracking-wide text-[#1A1A1A] dark:text-[#E8E8E8] bg-white dark:bg-[#111111] hover:border-black dark:hover:border-white transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Back
+                    </Link>
+                    <button type="button" @click="confirmDelete" :disabled="deleting"
+                        class="inline-flex items-center gap-1.5 px-2 py-2 rounded-full border border-[#D71921] text-xs font-mono tracking-wide text-[#D71921] bg-white dark:bg-black hover:bg-[#D71921] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg v-if="deleting" class="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        {{ deleting ? 'Deleting...' : 'Delete' }}
+                    </button>
+                    <button type="submit" :disabled="form.processing"
+                        class="inline-flex items-center gap-1.5 px-2 py-2 rounded-full border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black text-xs font-mono tracking-wide hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg v-if="form.processing" class="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {{ form.processing ? 'Updating...' : 'Update preview' }}
+                    </button>
                 </div>
             </div>
-        </div>
+
+            <!-- Main grid: identification (left) + settings (right) -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 flex-1 min-h-0">
+                <!-- Left column: identification (2/3 width) -->
+                <div
+                    class="lg:col-span-2 bg-white dark:bg-[#0A0A0A] rounded-lg border border-[#E8E8E8] dark:border-[#222222] p-3 flex flex-col gap-3 min-h-0">
+                    <!-- Name -->
+                    <div>
+                        <label for="preview-name"
+                            class="block text-[10px] font-medium text-[#666666] dark:text-[#999999] mb-1 uppercase tracking-widest font-mono">
+                            Preview name *
+                        </label>
+                        <input id="preview-name" v-model="form.name" type="text"
+                            placeholder="e.g. Facebook Ad Campaign - June 2024"
+                            class="w-full rounded-lg border border-[#CCCCCC] dark:border-[#333333] px-2 py-2 text-sm text-black dark:text-white bg-white dark:bg-[#111111] placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                            :class="{ 'border-[#D71921] focus:border-[#D71921]': form.errors.name }" required />
+                        <p v-if="form.errors.name" class="mt-1 text-xs text-[#D71921]">{{ form.errors.name }}</p>
+                    </div>
+
+                    <!-- Client / Logo / Theme -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                            <label for="client-select"
+                                class="block text-[10px] font-medium text-[#666666] dark:text-[#999999] mb-1 uppercase tracking-widest font-mono">
+                                Client *
+                            </label>
+                            <select id="client-select" v-model="form.client_id"
+                                class="w-full rounded-lg border border-[#CCCCCC] dark:border-[#333333] px-2 py-2 text-sm text-black dark:text-white bg-white dark:bg-[#111111] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                                :class="{ 'border-[#D71921] focus:border-[#D71921]': form.errors.client_id }" required>
+                                <option disabled value="">Select client</option>
+                                <option v-for="client in clients" :key="client.id" :value="client.id">{{ client.name }}
+                                </option>
+                            </select>
+                            <p v-if="form.errors.client_id" class="mt-1 text-xs text-[#D71921]">{{ form.errors.client_id }}</p>
+                        </div>
+                        <div>
+                            <label for="header-logo-select"
+                                class="block text-[10px] font-medium text-[#666666] dark:text-[#999999] mb-1 uppercase tracking-widest font-mono">
+                                Header logo *
+                            </label>
+                            <select id="header-logo-select" v-model="form.header_logo_id"
+                                class="w-full rounded-lg border border-[#CCCCCC] dark:border-[#333333] px-2 py-2 text-sm text-black dark:text-white bg-white dark:bg-[#111111] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                                :class="{ 'border-[#D71921] focus:border-[#D71921]': form.errors.header_logo_id }"
+                                required>
+                                <option disabled value="">Select header logo</option>
+                                <option v-for="client in clients" :key="client.id" :value="client.id">{{ client.name }}
+                                </option>
+                            </select>
+                            <p v-if="form.errors.header_logo_id" class="mt-1 text-xs text-[#D71921]">{{ form.errors.header_logo_id }}</p>
+                        </div>
+                        <div>
+                            <label for="color-palette-select"
+                                class="block text-[10px] font-medium text-[#666666] dark:text-[#999999] mb-1 uppercase tracking-widest font-mono">
+                                Theme *
+                            </label>
+                            <select id="color-palette-select" v-model="form.color_palette_id"
+                                class="w-full rounded-lg border border-[#CCCCCC] dark:border-[#333333] px-2 py-2 text-sm text-black dark:text-white bg-white dark:bg-[#111111] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                                :class="{ 'border-[#D71921] focus:border-[#D71921]': form.errors.color_palette_id }"
+                                required>
+                                <option disabled value="">Select theme</option>
+                                <option v-for="palette in colorPalettes" :key="palette.id" :value="palette.id">{{
+                                    palette.name }}</option>
+                            </select>
+                            <p v-if="form.errors.color_palette_id" class="mt-1 text-xs text-[#D71921]">{{ form.errors.color_palette_id }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Team Members (fills remaining vertical space) -->
+                    <div class="flex-1 min-h-0 flex flex-col">
+                        <div class="flex items-center justify-between mb-1">
+                            <label for="team-search"
+                                class="text-[10px] font-medium text-[#666666] dark:text-[#999999] uppercase tracking-widest font-mono">
+                                Team members *
+                            </label>
+                            <span
+                                class="text-[10px] font-mono text-[#999999]">{{ selectedUsers.length }} selected</span>
+                        </div>
+                        <input id="team-search" v-model="userSearch" type="text"
+                            placeholder="Search team members..."
+                            class="w-full rounded-lg border border-[#CCCCCC] dark:border-[#333333] px-2 py-2 text-sm text-black dark:text-white bg-white dark:bg-[#111111] placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors mb-1.5"
+                            :class="{ 'border-[#D71921] focus:border-[#D71921]': form.errors.team_ids }"
+                            autocomplete="off" />
+
+                        <!-- Always-visible user list, scroll inside -->
+                        <div
+                            class="flex-1 min-h-0 overflow-y-auto rounded-lg border border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-[#111111] divide-y divide-[#E8E8E8] dark:divide-[#222222]">
+                            <button v-for="user in displayUsers" :key="user.id" type="button"
+                                @click="toggleUser(user)" :disabled="user.id === authUser.id"
+                                class="w-full text-left px-2 py-2 transition-colors flex items-center gap-2 hover:bg-[#F5F5F5] dark:hover:bg-black focus:bg-[#F5F5F5] dark:focus:bg-black focus:outline-none disabled:cursor-not-allowed">
+                                <span
+                                    class="w-6 h-6 rounded-full grid place-items-center text-[10px] font-bold flex-shrink-0"
+                                    :class="form.team_ids.includes(user.id)
+                                        ? 'bg-black dark:bg-white text-white dark:text-black'
+                                        : 'bg-[#F5F5F5] dark:bg-black text-[#666666] dark:text-[#999999] border border-[#E8E8E8] dark:border-[#222222]'">
+                                    {{ user.name.charAt(0).toUpperCase() }}
+                                </span>
+                                <span class="text-sm flex-1 truncate"
+                                    :class="form.team_ids.includes(user.id) ? 'text-black dark:text-white font-semibold' : 'text-[#666666] dark:text-[#999999]'">
+                                    {{ user.name }}
+                                </span>
+                                <span v-if="user.id === authUser.id"
+                                    class="text-[9px] font-mono uppercase tracking-widest text-[#999999]">You</span>
+                                <span v-else-if="form.team_ids.includes(user.id)"
+                                    class="text-black dark:text-white">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </span>
+                            </button>
+                            <div v-if="displayUsers.length === 0"
+                                class="px-2 py-4 text-center text-xs font-mono text-[#999999]">
+                                No users found
+                            </div>
+                        </div>
+                        <p v-if="form.errors.team_ids" class="mt-1 text-xs text-[#D71921]">{{ form.errors.team_ids }}</p>
+                    </div>
+                </div>
+
+                <!-- Right column: settings toggles (1/3 width, stacked, fills height) -->
+                <div
+                    class="bg-white dark:bg-[#0A0A0A] rounded-lg border border-[#E8E8E8] dark:border-[#222222] p-3 flex flex-col">
+                    <h2
+                        class="text-[10px] font-medium text-[#666666] dark:text-[#999999] uppercase tracking-widest font-mono mb-2">
+                        Settings
+                    </h2>
+                    <div class="flex-1 flex flex-col justify-around">
+                        <div v-for="toggle in toggleConfigs" :key="toggle.model"
+                            class="flex items-center justify-between gap-3 py-2 border-b border-[#E8E8E8] dark:border-[#222222] last:border-b-0">
+                            <div class="min-w-0">
+                                <label :for="`toggle-${toggle.model}`"
+                                    class="block text-xs font-semibold text-black dark:text-white cursor-pointer font-mono">
+                                    {{ toggle.label }}
+                                </label>
+                                <p class="text-[10px] text-[#666666] dark:text-[#999999]">
+                                    {{ toggle.description }}
+                                </p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                                <input :id="`toggle-${toggle.model}`" type="checkbox" v-model="form[toggle.model]"
+                                    class="sr-only peer" />
+                                <div
+                                    class="w-9 h-5 bg-[#E8E8E8] dark:bg-[#222222] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#CCCCCC] after:border dark:after:bg-black after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-black dark:peer-checked:bg-white">
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
     </AppLayout>
 </template>
 
@@ -368,27 +264,29 @@ const selectedUsers = computed(() =>
     users.value.filter((u) => form.team_ids.includes(u.id))
 );
 
-const filteredUsers = computed(() => {
+// All users (filtered by search query if any), with selected ones first
+const displayUsers = computed(() => {
+    const all: any[] = (users.value as any[]) || [];
     const query = userSearch.value.toLowerCase().trim();
-    if (!query) return [];
-
-    return users.value
-        .filter((u) => !form.team_ids.includes(u.id))
-        .filter((u) => u.name.toLowerCase().includes(query))
-        .slice(0, 5); // Limit results for performance
+    const list: any[] = query
+        ? all.filter((u: any) => u.name.toLowerCase().includes(query))
+        : all.slice();
+    return list.sort((a: any, b: any) => {
+        const aSel = form.team_ids.includes(a.id) ? 0 : 1;
+        const bSel = form.team_ids.includes(b.id) ? 0 : 1;
+        if (aSel !== bSel) return aSel - bSel;
+        return a.name.localeCompare(b.name);
+    });
 });
 
 // Methods
-const addUser = (user: any) => {
-    if (!form.team_ids.includes(user.id)) {
+const toggleUser = (user: any) => {
+    if (user.id === authUser.value.id) return;
+    if (form.team_ids.includes(user.id)) {
+        form.team_ids = form.team_ids.filter((uid: number) => uid !== user.id);
+    } else {
         form.team_ids.push(user.id);
     }
-    userSearch.value = '';
-};
-
-const removeUser = (id: number) => {
-    if (id === authUser.value.id) return;
-    form.team_ids = form.team_ids.filter((uid: number) => uid !== id);
 };
 
 const submit = () => {

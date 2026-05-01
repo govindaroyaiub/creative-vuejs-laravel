@@ -1,184 +1,168 @@
 <template>
-  <div class="space-y-4">
-    <!-- Preview Name -->
-    <div>
-      <label for="preview-name"
-        class="block mb-1 text-xs font-medium text-[#666666] dark:text-[#999999] uppercase tracking-widest font-mono">PREVIEW
-        NAME *</label>
-      <input id="preview-name" :value="form.name"
-        @input="emit('updateForm', 'name', ($event.target as HTMLInputElement).value)" type="text"
-        placeholder="e.g. Facebook Ad - June"
-        class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-2 py-2 bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
-        required maxlength="255" :class="{ 'border-[#D71921] focus:border-[#D71921]': formErrors.name }" />
-      <p v-if="formErrors.name" class="text-[#D71921] text-xs mt-1">{{ formErrors.name }}</p>
-    </div>
-
-    <!-- Client, Header Logo, and Color Palette row -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <!-- Client Dropdown -->
-      <div>
-        <label for="client-select"
-          class="block mb-1 text-xs font-medium text-[#666666] dark:text-[#999999] uppercase tracking-widest font-mono">CLIENT
-          *</label>
-        <select id="client-select" :value="form.client_id"
-          @change="emit('updateForm', 'client_id', ($event.target as HTMLSelectElement).value)"
-          class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-2 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
-          required :class="{ 'border-[#D71921] focus:border-[#D71921]': formErrors.client_id }">
-          <option disabled value="">Select client</option>
-          <option v-for="client in clients" :key="client.id" :value="client.id">
-            {{ client.name }}
-          </option>
-        </select>
-        <p v-if="formErrors.client_id" class="text-[#D71921] text-xs mt-1">{{ formErrors.client_id }}</p>
-      </div>
-
-      <!-- Header Logo Dropdown (showing clients data) -->
-      <div>
-        <label for="header-logo-select"
-          class="block mb-1 text-xs font-medium text-[#666666] dark:text-[#999999] uppercase tracking-widest font-mono">HEADER
-          LOGO *</label>
-        <select id="header-logo-select" :value="form.header_logo_id"
-          @change="emit('updateForm', 'header_logo_id', ($event.target as HTMLSelectElement).value)"
-          class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-2 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
-          required :class="{ 'border-[#D71921] focus:border-[#D71921]': formErrors.header_logo_id }">
-          <option disabled value="">Select header logo</option>
-          <option v-for="client in clients" :key="client.id" :value="client.id">
-            {{ client.name }}
-          </option>
-        </select>
-        <p v-if="formErrors.header_logo_id" class="text-[#D71921] text-xs mt-1">{{ formErrors.header_logo_id }}</p>
-      </div>
-
-      <!-- Color Palette Dropdown -->
-      <div>
-        <label for="theme-select"
-          class="block mb-1 text-xs font-medium text-[#666666] dark:text-[#999999] uppercase tracking-widest font-mono">THEME
-          *</label>
-        <select id="theme-select" :value="form.color_palette_id"
-          @change="emit('updateForm', 'color_palette_id', ($event.target as HTMLSelectElement).value)"
-          class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-2 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
-          required :class="{ 'border-[#D71921] focus:border-[#D71921]': formErrors.color_palette_id }">
-          <option disabled value="">Select theme</option>
-          <option v-for="palette in colorPalettes" :key="palette.id" :value="palette.id">
-            {{ palette.name }}
-          </option>
-        </select>
-        <p v-if="formErrors.color_palette_id" class="text-[#D71921] text-xs mt-1">{{ formErrors.color_palette_id }}</p>
+  <div class="flex h-full flex-col">
+    <!-- Header bar: title + actions + close -->
+    <div
+      class="flex items-center justify-between gap-2 border-b border-[#E8E8E8] dark:border-[#222222] px-3 py-2 shrink-0">
+      <h2 class="text-base font-semibold font-mono text-black dark:text-white truncate">Create new preview</h2>
+      <div class="flex items-center gap-2">
+        <button type="button" @click="emit('close')"
+          class="inline-flex items-center px-2 py-2 rounded-full border border-[#CCCCCC] dark:border-[#333333] text-xs font-mono tracking-wide text-[#1A1A1A] dark:text-[#E8E8E8] bg-white dark:bg-[#111111] hover:border-black dark:hover:border-white transition-colors">
+          Cancel
+        </button>
+        <button type="button" @click="handleSubmit" :disabled="!isFormValid || isSubmitting"
+          class="inline-flex items-center gap-1.5 px-2 py-2 rounded-full border-2 border-black dark:border-white bg-black dark:bg-white text-white dark:text-black text-xs font-mono tracking-wide hover:bg-white hover:text-black dark:hover:bg-black dark:hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg v-if="isSubmitting" class="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          {{ isSubmitting ? 'Creating...' : 'Create preview' }}
+        </button>
+        <button type="button" @click="emit('close')"
+          class="p-1.5 text-[#666666] dark:text-[#999999] hover:text-black dark:hover:text-white border border-transparent hover:border-[#CCCCCC] dark:hover:border-[#333333] rounded transition-colors"
+          aria-label="Close">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
     </div>
 
-    <!-- Team Members -->
-    <div>
-      <label for="user-search"
-        class="block mb-1 text-xs font-medium text-[#666666] dark:text-[#999999] uppercase tracking-widest font-mono">TEAM
-        MEMBERS *</label>
-      <div class="flex flex-wrap gap-2 mb-2" v-if="selectedUsers.length > 0">
-        <span v-for="user in selectedUsers" :key="user.id"
-          class="inline-flex items-center border-2 border-black dark:border-white text-black dark:text-white text-xs px-2 py-2 rounded-full font-mono tracking-wide transition-colors">
-          {{ user.name }}
-          <button v-if="user.id !== authUser.id" @click="removeUser(user.id)"
-            class="ml-2 text-black dark:text-white hover:text-[#D71921] dark:hover:text-[#D71921] focus:outline-none transition-colors"
-            type="button" :aria-label="`Remove ${user.name} from team`">
-            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                clip-rule="evenodd"></path>
-            </svg>
-          </button>
-        </span>
-      </div>
-
-      <div class="relative">
-        <input id="user-search" v-model="userSearch" type="text" placeholder="Search and add team members..."
-          class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-2 py-2 bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
-          :class="{ 'border-[#D71921] focus:border-[#D71921]': formErrors.team_ids }" autocomplete="off" />
-
-        <!-- User Search Results -->
-        <div v-if="userSearch.trim().length > 0 && filteredUsers.length > 0"
-          class="absolute z-10 w-full mt-1 bg-white dark:bg-[#111111] border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg max-h-40 overflow-y-auto">
-          <button v-for="user in filteredUsers" :key="user.id" type="button"
-            class="w-full text-left px-2 py-2 hover:bg-[#F5F5F5] dark:hover:bg-black focus:bg-[#F5F5F5] dark:focus:bg-black focus:outline-none transition-colors first:rounded-t-lg last:rounded-b-lg"
-            @click="addUser(user)">
-            {{ user.name }}
-          </button>
+    <!-- Body: 2-col grid -->
+    <div class="grid flex-1 min-h-0 grid-cols-1 gap-3 p-3 lg:grid-cols-3">
+      <!-- Left column: identification (2/3 width) -->
+      <div
+        class="lg:col-span-2 flex min-h-0 flex-col gap-3 rounded-lg border border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-[#0A0A0A] p-3">
+        <!-- Name -->
+        <div>
+          <label for="preview-name"
+            class="mb-1 block text-[10px] font-medium uppercase tracking-widest font-mono text-[#666666] dark:text-[#999999]">
+            Preview name *
+          </label>
+          <input id="preview-name" :value="form.name"
+            @input="emit('updateForm', 'name', ($event.target as HTMLInputElement).value)" type="text"
+            placeholder="e.g. Facebook Ad - June"
+            class="w-full rounded-lg border border-[#CCCCCC] dark:border-[#333333] px-2 py-2 text-sm bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+            :class="{ 'border-[#D71921] focus:border-[#D71921]': formErrors.name }" required maxlength="255" />
+          <p v-if="formErrors.name" class="mt-1 text-xs text-[#D71921]">{{ formErrors.name }}</p>
         </div>
 
-        <!-- No results message -->
-        <div v-else-if="userSearch.trim().length > 0 && filteredUsers.length === 0"
-          class="absolute z-10 w-full mt-1 bg-white dark:bg-[#111111] border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg px-2 py-2 text-[#666666] dark:text-[#999999] text-sm font-mono tracking-wide">
-          No users found matching "{{ userSearch }}"
-        </div>
-      </div>
-
-      <p v-if="formErrors.team_ids" class="text-[#D71921] text-xs mt-1">{{ formErrors.team_ids }}</p>
-      <p class="text-xs text-[#666666] dark:text-[#999999] mt-1 font-mono tracking-wide">
-        {{ selectedUsers.length }} member{{ selectedUsers.length !== 1 ? "s" : "" }} selected
-      </p>
-    </div>
-
-    <!-- Toggle Configuration Section -->
-    <div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div v-for="toggle in toggleConfigs" :key="toggle.model"
-          class="bg-white dark:bg-[#111111] rounded-lg p-4 border-2 border-[#E8E8E8] dark:border-[#222222] hover:border-black dark:hover:border-white transition-colors">
-          <!-- Toggle Header -->
-          <div class="text-center mb-3">
-            <label :for="`toggle-${toggle.model}`"
-              class="text-sm font-semibold text-black dark:text-white block mb-1 cursor-pointer font-mono tracking-wide">
-              {{ toggle.label }}
-            </label>
+        <!-- Client / Header Logo / Theme -->
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+          <div>
+            <label for="client-select"
+              class="mb-1 block text-[10px] font-medium uppercase tracking-widest font-mono text-[#666666] dark:text-[#999999]">Client
+              *</label>
+            <select id="client-select" :value="form.client_id"
+              @change="emit('updateForm', 'client_id', ($event.target as HTMLSelectElement).value)"
+              class="w-full rounded-lg border border-[#CCCCCC] dark:border-[#333333] px-2 py-2 text-sm bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+              :class="{ 'border-[#D71921] focus:border-[#D71921]': formErrors.client_id }" required>
+              <option disabled value="">Select client</option>
+              <option v-for="client in clients" :key="client.id" :value="client.id">{{ client.name }}</option>
+            </select>
+            <p v-if="formErrors.client_id" class="mt-1 text-xs text-[#D71921]">{{ formErrors.client_id }}</p>
           </div>
+          <div>
+            <label for="header-logo-select"
+              class="mb-1 block text-[10px] font-medium uppercase tracking-widest font-mono text-[#666666] dark:text-[#999999]">Header
+              logo *</label>
+            <select id="header-logo-select" :value="form.header_logo_id"
+              @change="emit('updateForm', 'header_logo_id', ($event.target as HTMLSelectElement).value)"
+              class="w-full rounded-lg border border-[#CCCCCC] dark:border-[#333333] px-2 py-2 text-sm bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+              :class="{ 'border-[#D71921] focus:border-[#D71921]': formErrors.header_logo_id }" required>
+              <option disabled value="">Select header logo</option>
+              <option v-for="client in clients" :key="client.id" :value="client.id">{{ client.name }}</option>
+            </select>
+            <p v-if="formErrors.header_logo_id" class="mt-1 text-xs text-[#D71921]">{{ formErrors.header_logo_id }}</p>
+          </div>
+          <div>
+            <label for="theme-select"
+              class="mb-1 block text-[10px] font-medium uppercase tracking-widest font-mono text-[#666666] dark:text-[#999999]">Theme
+              *</label>
+            <select id="theme-select" :value="form.color_palette_id"
+              @change="emit('updateForm', 'color_palette_id', ($event.target as HTMLSelectElement).value)"
+              class="w-full rounded-lg border border-[#CCCCCC] dark:border-[#333333] px-2 py-2 text-sm bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+              :class="{ 'border-[#D71921] focus:border-[#D71921]': formErrors.color_palette_id }" required>
+              <option disabled value="">Select theme</option>
+              <option v-for="palette in colorPalettes" :key="palette.id" :value="palette.id">{{ palette.name }}</option>
+            </select>
+            <p v-if="formErrors.color_palette_id" class="mt-1 text-xs text-[#D71921]">{{ formErrors.color_palette_id }}</p>
+          </div>
+        </div>
 
-          <!-- Toggle Switch -->
-          <div class="flex justify-center mb-3">
-            <label class="relative inline-flex items-center cursor-pointer">
+        <!-- Team Members (fills remaining vertical space) -->
+        <div class="flex flex-1 min-h-0 flex-col">
+          <div class="mb-1 flex items-center justify-between">
+            <label for="team-search"
+              class="text-[10px] font-medium uppercase tracking-widest font-mono text-[#666666] dark:text-[#999999]">Team
+              members *</label>
+            <span class="text-[10px] font-mono text-[#999999]">{{ selectedUsers.length }} selected</span>
+          </div>
+          <input id="team-search" v-model="userSearch" type="text" placeholder="Search team members..."
+            class="mb-1.5 w-full rounded-lg border border-[#CCCCCC] dark:border-[#333333] px-2 py-2 text-sm bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+            :class="{ 'border-[#D71921] focus:border-[#D71921]': formErrors.team_ids }" autocomplete="off" />
+
+          <div
+            class="flex-1 min-h-0 overflow-y-auto rounded-lg border border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-[#111111] divide-y divide-[#E8E8E8] dark:divide-[#222222]">
+            <button v-for="user in displayUsers" :key="user.id" type="button" @click="toggleUser(user)"
+              :disabled="user.id === authUser.id"
+              class="w-full text-left px-2 py-2 transition-colors flex items-center gap-2 hover:bg-[#F5F5F5] dark:hover:bg-black focus:bg-[#F5F5F5] dark:focus:bg-black focus:outline-none disabled:cursor-not-allowed">
+              <span
+                class="w-6 h-6 flex-shrink-0 rounded-full grid place-items-center text-[10px] font-bold"
+                :class="form.team_ids.includes(user.id)
+                  ? 'bg-black dark:bg-white text-white dark:text-black'
+                  : 'bg-[#F5F5F5] dark:bg-black text-[#666666] dark:text-[#999999] border border-[#E8E8E8] dark:border-[#222222]'">
+                {{ user.name.charAt(0).toUpperCase() }}
+              </span>
+              <span class="flex-1 truncate text-sm"
+                :class="form.team_ids.includes(user.id) ? 'text-black dark:text-white font-semibold' : 'text-[#666666] dark:text-[#999999]'">
+                {{ user.name }}
+              </span>
+              <span v-if="user.id === authUser.id"
+                class="text-[9px] font-mono uppercase tracking-widest text-[#999999]">You</span>
+              <span v-else-if="form.team_ids.includes(user.id)" class="text-black dark:text-white">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </span>
+            </button>
+            <div v-if="displayUsers.length === 0" class="px-2 py-4 text-center text-xs font-mono text-[#999999]">
+              No users found
+            </div>
+          </div>
+          <p v-if="formErrors.team_ids" class="mt-1 text-xs text-[#D71921]">{{ formErrors.team_ids }}</p>
+        </div>
+      </div>
+
+      <!-- Right column: settings (1/3 width) -->
+      <div
+        class="flex flex-col rounded-lg border border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-[#0A0A0A] p-3">
+        <h2
+          class="mb-2 text-[10px] font-medium uppercase tracking-widest font-mono text-[#666666] dark:text-[#999999]">
+          Settings
+        </h2>
+        <div class="flex flex-1 flex-col justify-around">
+          <div v-for="toggle in toggleConfigs" :key="toggle.model"
+            class="flex items-center justify-between gap-3 border-b border-[#E8E8E8] dark:border-[#222222] py-2 last:border-b-0">
+            <div class="min-w-0">
+              <label :for="`toggle-${toggle.model}`"
+                class="block text-xs font-semibold font-mono text-black dark:text-white cursor-pointer">{{ toggle.label
+                }}</label>
+              <p class="text-[10px] text-[#666666] dark:text-[#999999]">{{ toggle.description }}</p>
+            </div>
+            <label class="relative inline-flex flex-shrink-0 cursor-pointer items-center">
               <input :id="`toggle-${toggle.model}`" type="checkbox" :checked="Boolean(form[toggle.model])"
                 @change="emit('updateForm', toggle.model, ($event.target as HTMLInputElement).checked)"
                 class="sr-only peer" />
               <div
-                class="w-11 h-6 bg-[#E8E8E8] dark:bg-[#222222] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-black dark:peer-focus:ring-white rounded-full peer peer-checked:bg-black dark:peer-checked:bg-white transition-all duration-200">
-              </div>
-              <div
-                class="absolute w-5 h-5 bg-white dark:bg-black peer-checked:bg-white dark:peer-checked:bg-black rounded-full left-0.5 top-0.5 peer-checked:translate-x-full transition-transform duration-200">
+                class="w-9 h-5 bg-[#E8E8E8] dark:bg-[#222222] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#CCCCCC] after:border dark:after:bg-black after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-black dark:peer-checked:bg-white">
               </div>
             </label>
           </div>
-
-          <!-- Status Indicator -->
-          <div class="text-center">
-            <span class="text-[10px] font-medium px-2 py-2.5 rounded-full uppercase font-mono tracking-widest" :class="form[toggle.model]
-              ? 'text-white bg-black dark:text-black dark:bg-white'
-              : 'text-[#666666] bg-[#E8E8E8] dark:text-[#999999] dark:bg-[#222222]'">
-              {{ form[toggle.model] ? 'Enabled' : 'Disabled' }}
-            </span>
-          </div>
         </div>
       </div>
-    </div>
-
-    <!-- Submit Button -->
-    <div class="flex justify-between items-center pt-4 border-t border-[#E8E8E8] dark:border-[#222222]">
-      <div v-if="!isFormValid" class="text-sm text-[#666666] dark:text-[#999999] font-mono tracking-wide">
-        Please fill all required fields
-      </div>
-      <div v-else class="text-sm text-black dark:text-white font-mono tracking-wide">
-        ✓ Form is ready to submit
-      </div>
-
-      <button type="button"
-        class="bg-black hover:bg-white hover:text-black dark:bg-white dark:hover:bg-black dark:hover:text-white disabled:bg-[#CCCCCC] disabled:text-[#999999] disabled:cursor-not-allowed text-white dark:text-black px-2 py-2 rounded-full font-medium font-mono tracking-wide transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white border-2 border-black dark:border-white"
-        :disabled="!isFormValid" @click="handleSubmit">
-        <span v-if="!isSubmitting">Save</span>
-        <span v-else class="flex items-center">
-          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-current" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-            </path>
-          </svg>
-          Processing...
-        </span>
-      </button>
     </div>
   </div>
 </template>
@@ -186,7 +170,6 @@
 <script setup lang="ts">
 import { computed, ref, reactive, watch } from 'vue';
 
-// TypeScript interfaces
 interface FormData {
   name: string;
   client_id: string | number;
@@ -199,222 +182,108 @@ interface FormData {
   show_footer: boolean;
 }
 
-interface User {
-  id: number;
-  name: string;
-  email?: string;
-}
+interface User { id: number; name: string; email?: string; }
+interface Client { id: number; name: string; }
+interface ColorPalette { id: number; name: string; }
 
-interface Client {
-  id: number;
-  name: string;
-}
-
-interface ColorPalette {
-  id: number;
-  name: string;
-}
-
-// Props - headerLogos can be omitted since we're using clients data
 const props = defineProps<{
   form: FormData;
-  users: User[];
-  clients: Client[];
-  colorPalettes: ColorPalette[];
-  headerLogos?: Client[]; // Optional since we use clients data
-  authUser: User;
+  users: any;
+  clients: any;
+  colorPalettes: any;
+  headerLogos?: any;
+  authUser: any;
 }>();
 
-// Emit declaration
 const emit = defineEmits<{
   submit: [];
+  close: [];
   updateForm: [key: string, value: any];
 }>();
 
-// Reactive data
 const userSearch = ref('');
 const isSubmitting = ref(false);
 
-// Form alias for template usage
-const form = computed(() => props.form);
-
-// Form validation errors
 const formErrors = reactive({
   name: '',
   client_id: '',
   color_palette_id: '',
   header_logo_id: '',
-  team_ids: ''
+  team_ids: '',
 });
 
-// Toggle configuration
 const toggleConfigs = [
-  {
-    label: 'Requires Login?',
-    model: 'requires_login' as keyof FormData,
-    description: 'User authentication required'
-  },
-  {
-    label: 'Show Header Logo?',
-    model: 'show_planetnine_logo' as keyof FormData,
-    description: 'Display Planet Nine logo'
-  },
-  {
-    label: 'Show Sidebar Logo?',
-    model: 'show_sidebar_logo' as keyof FormData,
-    description: 'Logo in navigation'
-  },
-  {
-    label: 'Show Footer?',
-    model: 'show_footer' as keyof FormData,
-    description: 'Display page footer'
-  },
+  { label: 'Requires login?', model: 'requires_login' as keyof FormData, description: 'Auth required to view' },
+  { label: 'Show header logo?', model: 'show_planetnine_logo' as keyof FormData, description: 'Display Planet Nine logo' },
+  { label: 'Show sidebar logo?', model: 'show_sidebar_logo' as keyof FormData, description: 'Logo in navigation' },
+  { label: 'Show footer in preview?', model: 'show_footer' as keyof FormData, description: 'Display page footer' },
 ] as const;
 
-// Computed properties
 const selectedUsers = computed(() =>
-  props.users.filter((u) => props.form.team_ids.includes(u.id))
+  ((props.users as any[]) || []).filter((u: any) => props.form.team_ids.includes(u.id))
 );
 
-const filteredUsers = computed(() => {
+// All users (filtered by search query if any), with selected ones first
+const displayUsers = computed(() => {
+  const all: any[] = (props.users as any[]) || [];
   const query = userSearch.value.toLowerCase().trim();
-  if (!query) return [];
-
-  return props.users
-    .filter((u) => !props.form.team_ids.includes(u.id))
-    .filter((u) => u.name.toLowerCase().includes(query))
-    .slice(0, 5); // Limit results for performance
+  const list: any[] = query
+    ? all.filter((u: any) => u.name.toLowerCase().includes(query))
+    : all.slice();
+  return list.sort((a: any, b: any) => {
+    const aSel = props.form.team_ids.includes(a.id) ? 0 : 1;
+    const bSel = props.form.team_ids.includes(b.id) ? 0 : 1;
+    if (aSel !== bSel) return aSel - bSel;
+    return a.name.localeCompare(b.name);
+  });
 });
 
-const selectedClient = computed(() => {
-  return props.clients.find(client => client.id == props.form.client_id);
-});
-
-const isPlanetNineSelected = computed(() => {
-  return selectedClient.value?.name === 'Planet Nine';
-});
-
-// Automatically control show_sidebar_logo based on client selection
-watch(isPlanetNineSelected, (newValue) => {
-  if (newValue) {
-    // Turn OFF when Planet Nine is selected
-    emit('updateForm', 'show_sidebar_logo', false);
+const toggleUser = (user: any) => {
+  if (user.id === props.authUser.id) return;
+  if (props.form.team_ids.includes(user.id)) {
+    const next = props.form.team_ids.filter((uid: number) => uid !== user.id);
+    emit('updateForm', 'team_ids', next);
   } else {
-    // Turn ON when any other client is selected
-    emit('updateForm', 'show_sidebar_logo', true);
+    emit('updateForm', 'team_ids', [...props.form.team_ids, user.id]);
   }
-}, { immediate: true }); const isFormValid = computed(() => {
-  const isValid = (
+};
+
+const selectedClient = computed(() => ((props.clients as any[]) || []).find((c: any) => c.id == props.form.client_id));
+const isPlanetNineSelected = computed(() => selectedClient.value?.name === 'Planet Nine');
+
+// Auto-toggle sidebar logo when Planet Nine is selected
+watch(isPlanetNineSelected, (newValue) => {
+  emit('updateForm', 'show_sidebar_logo', !newValue);
+}, { immediate: true });
+
+const isFormValid = computed(() => {
+  return (
     props.form.name.trim() !== '' &&
     props.form.client_id !== '' &&
     props.form.color_palette_id !== '' &&
     props.form.header_logo_id !== '' &&
     props.form.team_ids.length > 0
   );
-
-  // Clear errors if form becomes valid
-  if (isValid) {
-    clearErrors();
-  }
-
-  return isValid;
 });
 
-// Methods
-const addUser = (user: User) => {
-  if (!props.form.team_ids.includes(user.id)) {
-    const newTeamIds = [...props.form.team_ids, user.id];
-    emit('updateForm', 'team_ids', newTeamIds);
-    formErrors.team_ids = '';
-  }
-  userSearch.value = '';
-};
-
-const removeUser = (id: number) => {
-  // Prevent removing the authenticated user
-  if (id === props.authUser.id) return;
-
-  const newTeamIds = props.form.team_ids.filter((uid: number) => uid !== id);
-  emit('updateForm', 'team_ids', newTeamIds);
-};
-
-const clearErrors = () => {
-  Object.keys(formErrors).forEach(key => {
-    formErrors[key as keyof typeof formErrors] = '';
-  });
-};
-
 const validateForm = (): boolean => {
-  clearErrors();
-  let isValid = true;
-
-  if (!props.form.name.trim()) {
-    formErrors.name = 'Preview name is required';
-    isValid = false;
-  }
-
-  if (!props.form.client_id) {
-    formErrors.client_id = 'Please select a client';
-    isValid = false;
-  }
-
-  if (!props.form.color_palette_id) {
-    formErrors.color_palette_id = 'Please select a theme';
-    isValid = false;
-  }
-
-  if (!props.form.header_logo_id) {
-    formErrors.header_logo_id = 'Please select a header logo';
-    isValid = false;
-  }
-
-  if (props.form.team_ids.length === 0) {
-    formErrors.team_ids = 'Please add at least one team member';
-    isValid = false;
-  }
-
-  return isValid;
+  let ok = true;
+  formErrors.name = props.form.name.trim() ? '' : 'Preview name is required';
+  formErrors.client_id = props.form.client_id ? '' : 'Please select a client';
+  formErrors.color_palette_id = props.form.color_palette_id ? '' : 'Please select a theme';
+  formErrors.header_logo_id = props.form.header_logo_id ? '' : 'Please select a header logo';
+  formErrors.team_ids = props.form.team_ids.length > 0 ? '' : 'Please add at least one team member';
+  Object.values(formErrors).forEach((v) => { if (v) ok = false; });
+  return ok;
 };
 
 const handleSubmit = async () => {
   if (!validateForm()) return;
-
   try {
     isSubmitting.value = true;
     emit('submit');
-  } catch (error) {
-    console.error('Submit error:', error);
   } finally {
     isSubmitting.value = false;
   }
 };
-
-// Clear search when clicking outside
-const handleClickOutside = (event: Event) => {
-  const target = event.target as HTMLElement;
-  if (!target.closest('#user-search') && !target.closest('.absolute')) {
-    userSearch.value = '';
-  }
-};
-
-// Auto-focus search when typing
-const handleKeydown = (event: KeyboardEvent) => {
-  if (event.key === '/' && event.target !== document.getElementById('user-search')) {
-    event.preventDefault();
-    document.getElementById('user-search')?.focus();
-  }
-};
-
-// Lifecycle hooks
-import { onMounted, onUnmounted } from 'vue';
-
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside);
-  document.addEventListener('keydown', handleKeydown);
-});
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside);
-  document.removeEventListener('keydown', handleKeydown);
-});
 </script>

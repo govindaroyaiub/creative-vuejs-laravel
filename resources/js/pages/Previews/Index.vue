@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { CirclePlus, X, LayoutGrid, List, ListFilter, Image as ImageIcon, Film, Share2, Sparkles } from 'lucide-vue-next';
+import { CirclePlus, LayoutGrid, List, ListFilter, Image as ImageIcon, Film, Share2, Sparkles } from 'lucide-vue-next';
 import dayjs from 'dayjs'
 import Swal from 'sweetalert2';
 import { computed, ref, nextTick } from 'vue';
@@ -772,26 +772,14 @@ const groups = computed(() => {
                     :on-page-change="changePage" />
             </div>
 
-            <!-- Modal -->
+            <!-- Modal (partial owns its own header bar) -->
             <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
                 @click.self="closeModal">
                 <div
-                    class="bg-white dark:bg-[#111111] rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden border-2 border-black dark:border-white p-2">
-                    <!-- Modal Header -->
-                    <div class="flex items-center justify-between px-2 py-2 border-b border-[#E8E8E8] dark:border-[#222222]">
-                        <h2 class="text-base font-semibold font-mono text-black dark:text-white">Create new preview</h2>
-                        <button @click="closeModal"
-                            class="p-2 text-[#666666] dark:text-[#999999] hover:text-black dark:hover:text-white border border-transparent hover:border-[#CCCCCC] dark:hover:border-[#333333] rounded transition-colors">
-                            <X class="w-4 h-4" :stroke-width="1.5" />
-                        </button>
-                    </div>
-
-                    <!-- Modal Content -->
-                    <div class="px-2 py-2 overflow-y-auto max-h-[calc(90vh-80px)]">
-                        <PreviewStepBasicInfo :form="formData" :users="users" :clients="clients"
-                            :colorPalettes="colorPalettes" :authUser="authUser" @submit="submitForm" @close="closeModal"
-                            @updateForm="updateFormData" />
-                    </div>
+                    class="bg-white dark:bg-[#111111] rounded-lg w-full max-w-6xl h-[85vh] overflow-hidden border-2 border-black dark:border-white">
+                    <PreviewStepBasicInfo :form="formData" :users="users" :clients="clients"
+                        :colorPalettes="colorPalettes" :authUser="authUser" @submit="submitForm" @close="closeModal"
+                        @updateForm="updateFormData" />
                 </div>
             </div>
         </div>
