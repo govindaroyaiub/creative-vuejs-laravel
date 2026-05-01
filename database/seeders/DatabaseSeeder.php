@@ -439,11 +439,6 @@ class DatabaseSeeder extends Seeder
                 'height' => '1350',
             ],
             [
-                'name' => '1080x1920',
-                'width' => '1080',
-                'height' => '1920',
-            ],
-            [
                 'name' => '1080x1536',
                 'width' => '1080',
                 'height' => '1536',
