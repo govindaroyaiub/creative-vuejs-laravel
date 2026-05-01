@@ -6,8 +6,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\CheckUserPermission;
 use App\Http\Controllers\FileTransferController;
-use App\Http\Controllers\BannerSizeController;
-use App\Http\Controllers\VideoSizeController;
 use App\Http\Controllers\CreativeSizeController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\SocialController;
@@ -65,6 +63,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/previews/update/{id}', [NewPreviewController::class, 'updatePreview'])->name('previews.update.all');
     Route::get('/previews/update2/{id}', [NewPreviewController::class, 'updatePreview2'])->name('previews.update2.all');
     Route::post('/previews/{id}/bulk-edit', [NewPreviewController::class, 'bulkEdit'])->name('previews.bulkEdit');
+    Route::get('/previews/{id}/activity', [NewPreviewController::class, 'activityLog'])->name('previews.activity-log');
 
     Route::delete('/previews/category/delete/{id}', [NewCategoryController::class, 'destroy'])->name('previews.category.delete');
     Route::put('/previews/feedback/approve/{id}', [NewFeedbackController::class, 'approve'])->name('previews.feedback.approve');

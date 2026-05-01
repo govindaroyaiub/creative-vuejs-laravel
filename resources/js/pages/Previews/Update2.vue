@@ -8,6 +8,7 @@ import TopBar from './Update2/TopBar.vue'
 import Tree from './Update2/Tree.vue'
 import Inspector from './Update2/Inspector.vue'
 import NewCategoryModal from './Update2/modals/NewCategoryModal.vue'
+import ChangesSidebar from './Update2/ChangesSidebar.vue'
 import { createPreviewTree, isDbId, type AssetType } from './Update2/usePreviewTree'
 
 const props = defineProps<{
@@ -41,6 +42,7 @@ const selectActiveCategory = () => {
 selectActiveCategory()
 
 const showSidebar = ref(true)
+const showChanges = ref(false)
 
 // ----- Save All ----------------------------------------------------------
 const saveStartedAt = ref(0)
@@ -258,7 +260,7 @@ onBeforeUnmount(() => {
         :preview-name="preview_name"
         :client-name="client_name"
         :preview-slug="preview_slug || tree.preview.slug"
-        :dirty-count="tree.dirtyCount.value + tree.hasUnsavedNew.value"
+        :dirty-count="tree.unsavedCount.value"
         :is-saving="tree.isSaving.value"
         :elapsed-seconds="elapsedSeconds"
         :sidebar-open="showSidebar"
@@ -268,7 +270,10 @@ onBeforeUnmount(() => {
         @edit-info="goToEditInfo"
         @back="goBack"
         @toggle-sidebar="showSidebar = !showSidebar"
+        @view-changes="showChanges = true"
       />
+
+      <ChangesSidebar :open="showChanges" @close="showChanges = false" />
 
       <div class="flex min-h-0 flex-1">
         <Tree

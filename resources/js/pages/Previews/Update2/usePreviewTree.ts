@@ -101,6 +101,46 @@ export function createPreviewTree(initialPreview: any) {
     return n
   })
 
+  /**
+   * Deduped count of unsaved changes for the TopBar badge. A new (temp-id)
+   * node and a `markDirty()` for the same node both represent ONE unsaved
+   * change — naively summing `hasUnsavedNew + dirtyCount` double-counts that
+   * case. Walk the tree once, count temp-id nodes, then add dirty keys that
+   * weren't already counted.
+   */
+  const unsavedCount = computed(() => {
+    let count = 0
+    const seen = new Set<string>()
+
+    const visitNew = (sel: SelectionKey) => {
+      seen.add(keyOf(sel))
+      count++
+    }
+
+    for (const c of preview.categories || []) {
+      if (!isDbId(c.id)) visitNew({ kind: 'category', id: c.id })
+      for (const f of c.feedbacks) {
+        if (!isDbId(f.id)) visitNew({ kind: 'feedback', id: f.id })
+        for (const s of f.feedback_sets) {
+          if (!isDbId(s.id)) visitNew({ kind: 'set', id: s.id })
+          for (const v of s.versions) {
+            if (!isDbId(v.id)) visitNew({ kind: 'version', id: v.id })
+            for (const a of v.banners) if (!isDbId(a.id)) visitNew({ kind: 'asset', id: a.id, assetType: 'banner' })
+            for (const a of v.videos) if (!isDbId(a.id)) visitNew({ kind: 'asset', id: a.id, assetType: 'video' })
+            for (const a of v.socials) if (!isDbId(a.id)) visitNew({ kind: 'asset', id: a.id, assetType: 'social' })
+            for (const a of v.gifs) if (!isDbId(a.id)) visitNew({ kind: 'asset', id: a.id, assetType: 'gif' })
+          }
+        }
+      }
+    }
+
+    for (const k of dirtyKeys.value) {
+      if (!seen.has(k)) count++
+    }
+
+    return count
+  })
+
   const isExpanded = (key: string) => expanded.value.has(key)
   const toggleExpand = (key: string) => {
     const next = new Set(expanded.value)
@@ -384,6 +424,7 @@ export function createPreviewTree(initialPreview: any) {
     dirtyKeys,
     dirtyCount,
     hasUnsavedNew,
+    unsavedCount,
     markDirty,
     clearDirty,
     isDirty,

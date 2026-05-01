@@ -665,6 +665,11 @@ class NewPreviewController extends Controller
             \App\Services\NotificationService::beginBatch($preview->id, Auth::id());
         }
 
+        // Group every activity-log entry written during this bulkEdit under a
+        // single batch_uuid so the History sidebar can collapse them as one
+        // "save event" instead of N individual rows.
+        \Spatie\Activitylog\Facades\LogBatch::startBatch();
+
         DB::transaction(function () use ($validated, $preview) {
             $submittedCategoryIds = [];
             $submittedFeedbackIds = [];
@@ -1131,7 +1136,83 @@ class NewPreviewController extends Controller
             \App\Services\NotificationService::endBatch();
         }
 
+        \Spatie\Activitylog\Facades\LogBatch::endBatch();
+
         return redirect()->route('previews.update.all', $preview->id)
             ->with('success', 'Bulk update successful.');
+    }
+
+    /**
+     * Activity log for one preview, scoped to the preview itself plus all of
+     * its current children (categories → feedbacks → sets → versions →
+     * banners/videos/socials/gifs). Each row already includes Spatie's
+     * `batch_uuid`, which the front-end uses to group rows that came from a
+     * single Save All into one collapsible event.
+     *
+     * Note: hard-deleted children fall out of this scope because we walk the
+     * live tree to gather IDs. That's acceptable for now — the common case
+     * (created / updated children that still exist) is fully covered.
+     */
+    public function activityLog(Request $request, $id)
+    {
+        $preview = newPreview::with([
+            'categories:id,preview_id',
+            'categories.feedbacks:id,category_id',
+            'categories.feedbacks.feedbackSets:id,feedback_id',
+            'categories.feedbacks.feedbackSets.versions:id,feedback_set_id',
+            'categories.feedbacks.feedbackSets.versions.banners:id,version_id',
+            'categories.feedbacks.feedbackSets.versions.videos:id,version_id',
+            'categories.feedbacks.feedbackSets.versions.socials:id,version_id',
+            'categories.feedbacks.feedbackSets.versions.gifs:id,version_id',
+        ])->findOrFail($id);
+
+        // Bucket child IDs by model class so we can do one IN() per type
+        // instead of a giant OR-of-pairs.
+        $buckets = [
+            \App\Models\newPreview::class => [$preview->id],
+            \App\Models\newCategory::class => [],
+            \App\Models\newFeedback::class => [],
+            \App\Models\newFeedbackSet::class => [],
+            \App\Models\newVersion::class => [],
+            \App\Models\newBanner::class => [],
+            \App\Models\newVideo::class => [],
+            \App\Models\newSocial::class => [],
+            \App\Models\newGif::class => [],
+        ];
+
+        foreach ($preview->categories as $c) {
+            $buckets[\App\Models\newCategory::class][] = $c->id;
+            foreach ($c->feedbacks as $f) {
+                $buckets[\App\Models\newFeedback::class][] = $f->id;
+                foreach ($f->feedbackSets as $s) {
+                    $buckets[\App\Models\newFeedbackSet::class][] = $s->id;
+                    foreach ($s->versions as $v) {
+                        $buckets[\App\Models\newVersion::class][] = $v->id;
+                        foreach ($v->banners as $b) $buckets[\App\Models\newBanner::class][] = $b->id;
+                        foreach ($v->videos as $b)  $buckets[\App\Models\newVideo::class][]  = $b->id;
+                        foreach ($v->socials as $b) $buckets[\App\Models\newSocial::class][] = $b->id;
+                        foreach ($v->gifs as $b)    $buckets[\App\Models\newGif::class][]    = $b->id;
+                    }
+                }
+            }
+        }
+
+        $perPage = (int) ($request->query('per_page', 25));
+        if ($perPage <= 0 || $perPage > 200) $perPage = 25;
+
+        $logs = \Spatie\Activitylog\Models\Activity::query()
+            ->with('causer:id,name')
+            ->where(function ($q) use ($buckets) {
+                foreach ($buckets as $type => $ids) {
+                    if (empty($ids)) continue;
+                    $q->orWhere(function ($qq) use ($type, $ids) {
+                        $qq->where('subject_type', $type)->whereIn('subject_id', $ids);
+                    });
+                }
+            })
+            ->orderByDesc('id')
+            ->paginate($perPage);
+
+        return response()->json($logs);
     }
 }
