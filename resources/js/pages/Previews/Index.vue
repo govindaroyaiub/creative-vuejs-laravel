@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { CirclePlus, X, LayoutGrid, List, ListFilter, Image as ImageIcon, Film, Share2, Sparkles, Check } from 'lucide-vue-next';
+import { CirclePlus, X, LayoutGrid, List, ListFilter, Image as ImageIcon, Film, Share2, Sparkles } from 'lucide-vue-next';
 import dayjs from 'dayjs'
 import Swal from 'sweetalert2';
 import { computed, ref, nextTick } from 'vue';
@@ -536,13 +536,12 @@ const groups = computed(() => {
                                         class="bg-[#F5F5F5] dark:bg-black text-[10px] uppercase font-mono tracking-widest text-[#666666] dark:text-[#999999]">
                                         <tr>
                                             <th class="w-1.5 p-0" aria-hidden="true"></th>
-                                            <th class="w-12 px-3 py-3 text-center font-medium">#</th>
-                                            <th class="px-4 py-3 text-left font-medium">PREVIEW · CLIENT</th>
-                                            <th class="w-40 px-4 py-3 text-left font-medium">TYPES</th>
-                                            <th class="w-52 px-4 py-3 text-left font-medium">PROGRESS</th>
-                                            <th class="w-40 px-4 py-3 text-left font-medium">TEAM</th>
-                                            <th class="w-36 px-4 py-3 text-left font-medium">UPLOADED</th>
-                                            <th class="w-32 px-4 py-3 text-center font-medium">ACTIONS</th>
+                                            <th class="w-12 px-2 py-2 text-center font-medium">#</th>
+                                            <th class="px-2 py-2 text-left font-medium">PREVIEW · CLIENT</th>
+                                            <th class="w-40 px-2 py-2 text-left font-medium">TYPES</th>
+                                            <th class="w-40 px-2 py-2 text-left font-medium">TEAM</th>
+                                            <th class="w-36 px-2 py-2 text-left font-medium">UPLOADED</th>
+                                            <th class="w-32 px-2 py-2 text-center font-medium">ACTIONS</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-[#E8E8E8] dark:divide-[#222222]">
@@ -554,12 +553,12 @@ const groups = computed(() => {
                                                 :style="{ backgroundColor: rowAccent(preview) }"
                                                 :title="`Brand colour: ${rowAccent(preview)}`"></td>
 
-                                            <td class="px-3 py-3 text-center font-mono text-xs tabular-nums text-[#666666] dark:text-[#999999]">
+                                            <td class="px-2 py-2 text-center font-mono text-xs tabular-nums text-[#666666] dark:text-[#999999]">
                                                 {{ ((previews.current_page - 1) * previews.per_page) + index + 1 }}
                                             </td>
 
                                             <!-- Name + client -->
-                                            <td class="px-4 py-3 max-w-0">
+                                            <td class="px-2 py-2 max-w-0">
                                                 <div class="truncate text-sm font-semibold text-[#1A1A1A] dark:text-[#E8E8E8]"
                                                     :title="preview.name">
                                                     {{ preview.name || 'Untitled preview' }}
@@ -571,7 +570,7 @@ const groups = computed(() => {
                                             </td>
 
                                             <!-- Types -->
-                                            <td class="px-4 py-3">
+                                            <td class="px-2 py-2">
                                                 <div v-if="getTypeChips(preview).length"
                                                     class="flex flex-wrap items-center gap-1">
                                                     <span v-for="t in getTypeChips(preview)" :key="t.key"
@@ -585,34 +584,8 @@ const groups = computed(() => {
                                                     class="font-mono text-[10px] uppercase tracking-widest text-[#999999]">—</span>
                                             </td>
 
-                                            <!-- Progress -->
-                                            <td class="px-4 py-3">
-                                                <template v-if="getTotals(preview).total > 0">
-                                                    <div class="flex items-center justify-between font-mono text-[10px] uppercase tracking-widest text-[#666666] dark:text-[#999999]">
-                                                        <span class="inline-flex items-center gap-1">
-                                                            <Check
-                                                                v-if="getTotals(preview).approved >= getTotals(preview).total"
-                                                                class="h-3 w-3 text-black dark:text-white"
-                                                                :stroke-width="2" />
-                                                            FEEDBACK
-                                                        </span>
-                                                        <span class="tabular-nums text-[#1A1A1A] dark:text-[#E8E8E8]">
-                                                            {{ getTotals(preview).approved }}/{{ getTotals(preview).total }}
-                                                            <span class="text-[#999999]">· {{ getTotals(preview).pct }}%</span>
-                                                        </span>
-                                                    </div>
-                                                    <div class="mt-1 h-1 overflow-hidden rounded-full bg-[#E8E8E8] dark:bg-[#222222]">
-                                                        <div class="h-full rounded-full transition-all"
-                                                            :style="{ width: `${getTotals(preview).pct}%`, backgroundColor: rowAccent(preview) }" />
-                                                    </div>
-                                                </template>
-                                                <span v-else
-                                                    class="font-mono text-[10px] uppercase tracking-widest text-[#999999]">—
-                                                    NO FEEDBACK</span>
-                                            </td>
-
                                             <!-- Team avatars -->
-                                            <td class="px-4 py-3">
+                                            <td class="px-2 py-2">
                                                 <div v-if="preview.team_users?.length"
                                                     class="flex items-center -space-x-1.5">
                                                     <div v-for="u in preview.team_users.slice(0, 4)" :key="u.id"
@@ -630,7 +603,7 @@ const groups = computed(() => {
                                             </td>
 
                                             <!-- Uploader + date -->
-                                            <td class="px-4 py-3">
+                                            <td class="px-2 py-2">
                                                 <div class="truncate text-xs text-[#1A1A1A] dark:text-[#E8E8E8]"
                                                     :title="preview.uploader?.name">
                                                     {{ preview.uploader?.name ?? '—' }}
@@ -642,7 +615,7 @@ const groups = computed(() => {
                                                 </div>
                                             </td>
 
-                                            <td class="px-4 py-3 text-center" @click.stop>
+                                            <td class="px-2 py-2 text-center" @click.stop>
                                                 <div class="flex justify-center">
                                                     <PreviewActionButtons :preview="preview" size="sm"
                                                         :stop-propagation="true" />
@@ -650,7 +623,7 @@ const groups = computed(() => {
                                             </td>
                                         </tr>
                                         <tr v-if="filteredPreviews.length === 0">
-                                            <td colspan="8"
+                                            <td colspan="7"
                                                 class="px-4 py-12 text-center font-mono text-[10px] uppercase tracking-widest text-[#999999]">
                                                 NO PREVIEWS FOUND
                                             </td>
@@ -803,9 +776,9 @@ const groups = computed(() => {
             <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
                 @click.self="closeModal">
                 <div
-                    class="bg-white dark:bg-[#111111] rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden border-2 border-black dark:border-white">
+                    class="bg-white dark:bg-[#111111] rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden border-2 border-black dark:border-white p-2">
                     <!-- Modal Header -->
-                    <div class="flex items-center justify-between p-4 border-b border-[#E8E8E8] dark:border-[#222222]">
+                    <div class="flex items-center justify-between px-2 py-2 border-b border-[#E8E8E8] dark:border-[#222222]">
                         <h2 class="text-base font-semibold font-mono text-black dark:text-white">Create new preview</h2>
                         <button @click="closeModal"
                             class="p-2 text-[#666666] dark:text-[#999999] hover:text-black dark:hover:text-white border border-transparent hover:border-[#CCCCCC] dark:hover:border-[#333333] rounded transition-colors">
@@ -814,7 +787,7 @@ const groups = computed(() => {
                     </div>
 
                     <!-- Modal Content -->
-                    <div class="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+                    <div class="px-2 py-2 overflow-y-auto max-h-[calc(90vh-80px)]">
                         <PreviewStepBasicInfo :form="formData" :users="users" :clients="clients"
                             :colorPalettes="colorPalettes" :authUser="authUser" @submit="submitForm" @close="closeModal"
                             @updateForm="updateFormData" />

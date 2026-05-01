@@ -3,12 +3,12 @@
     <!-- Preview Name -->
     <div>
       <label for="preview-name"
-        class="block mb-1 text-sm font-medium text-[#666666] dark:text-[#999999] uppercase tracking-widest font-mono">PREVIEW
+        class="block mb-1 text-xs font-medium text-[#666666] dark:text-[#999999] uppercase tracking-widest font-mono">PREVIEW
         NAME *</label>
       <input id="preview-name" :value="form.name"
         @input="emit('updateForm', 'name', ($event.target as HTMLInputElement).value)" type="text"
-        placeholder="E.G. FACEBOOK AD - JUNE"
-        class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+        placeholder="e.g. Facebook Ad - June"
+        class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-2 py-2 bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
         required maxlength="255" :class="{ 'border-[#D71921] focus:border-[#D71921]': formErrors.name }" />
       <p v-if="formErrors.name" class="text-[#D71921] text-xs mt-1">{{ formErrors.name }}</p>
     </div>
@@ -18,13 +18,13 @@
       <!-- Client Dropdown -->
       <div>
         <label for="client-select"
-          class="block mb-1 text-sm font-medium text-[#666666] dark:text-[#999999] uppercase tracking-widest font-mono">CLIENT
+          class="block mb-1 text-xs font-medium text-[#666666] dark:text-[#999999] uppercase tracking-widest font-mono">CLIENT
           *</label>
         <select id="client-select" :value="form.client_id"
           @change="emit('updateForm', 'client_id', ($event.target as HTMLSelectElement).value)"
-          class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+          class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-2 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
           required :class="{ 'border-[#D71921] focus:border-[#D71921]': formErrors.client_id }">
-          <option disabled value="">SELECT CLIENT</option>
+          <option disabled value="">Select client</option>
           <option v-for="client in clients" :key="client.id" :value="client.id">
             {{ client.name }}
           </option>
@@ -35,13 +35,13 @@
       <!-- Header Logo Dropdown (showing clients data) -->
       <div>
         <label for="header-logo-select"
-          class="block mb-1 text-sm font-medium text-[#666666] dark:text-[#999999] uppercase tracking-widest font-mono">HEADER
+          class="block mb-1 text-xs font-medium text-[#666666] dark:text-[#999999] uppercase tracking-widest font-mono">HEADER
           LOGO *</label>
         <select id="header-logo-select" :value="form.header_logo_id"
           @change="emit('updateForm', 'header_logo_id', ($event.target as HTMLSelectElement).value)"
-          class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+          class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-2 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
           required :class="{ 'border-[#D71921] focus:border-[#D71921]': formErrors.header_logo_id }">
-          <option disabled value="">SELECT HEADER LOGO</option>
+          <option disabled value="">Select header logo</option>
           <option v-for="client in clients" :key="client.id" :value="client.id">
             {{ client.name }}
           </option>
@@ -52,13 +52,13 @@
       <!-- Color Palette Dropdown -->
       <div>
         <label for="theme-select"
-          class="block mb-1 text-sm font-medium text-[#666666] dark:text-[#999999] uppercase tracking-widest font-mono">THEME
+          class="block mb-1 text-xs font-medium text-[#666666] dark:text-[#999999] uppercase tracking-widest font-mono">THEME
           *</label>
         <select id="theme-select" :value="form.color_palette_id"
           @change="emit('updateForm', 'color_palette_id', ($event.target as HTMLSelectElement).value)"
-          class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+          class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-2 py-2 bg-white dark:bg-[#111111] text-black dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors"
           required :class="{ 'border-[#D71921] focus:border-[#D71921]': formErrors.color_palette_id }">
-          <option disabled value="">SELECT THEME</option>
+          <option disabled value="">Select theme</option>
           <option v-for="palette in colorPalettes" :key="palette.id" :value="palette.id">
             {{ palette.name }}
           </option>
@@ -70,11 +70,11 @@
     <!-- Team Members -->
     <div>
       <label for="user-search"
-        class="block mb-1 text-sm font-medium text-[#666666] dark:text-[#999999] uppercase tracking-widest font-mono">TEAM
+        class="block mb-1 text-xs font-medium text-[#666666] dark:text-[#999999] uppercase tracking-widest font-mono">TEAM
         MEMBERS *</label>
       <div class="flex flex-wrap gap-2 mb-2" v-if="selectedUsers.length > 0">
         <span v-for="user in selectedUsers" :key="user.id"
-          class="inline-flex items-center border-2 border-black dark:border-white text-black dark:text-white text-xs px-3 py-1 rounded-full uppercase tracking-wider font-mono transition-colors">
+          class="inline-flex items-center border-2 border-black dark:border-white text-black dark:text-white text-xs px-2 py-2 rounded-full font-mono tracking-wide transition-colors">
           {{ user.name }}
           <button v-if="user.id !== authUser.id" @click="removeUser(user.id)"
             class="ml-2 text-black dark:text-white hover:text-[#D71921] dark:hover:text-[#D71921] focus:outline-none transition-colors"
@@ -89,15 +89,15 @@
       </div>
 
       <div class="relative">
-        <input id="user-search" v-model="userSearch" type="text" placeholder="SEARCH AND ADD TEAM MEMBERS..."
-          class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-3 py-2 bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+        <input id="user-search" v-model="userSearch" type="text" placeholder="Search and add team members..."
+          class="w-full rounded-lg border-2 border-[#CCCCCC] dark:border-[#333333] px-2 py-2 bg-white dark:bg-[#111111] text-black dark:text-white placeholder-[#999999] dark:placeholder-[#666666] focus:outline-none focus:border-black dark:focus:border-white transition-colors"
           :class="{ 'border-[#D71921] focus:border-[#D71921]': formErrors.team_ids }" autocomplete="off" />
 
         <!-- User Search Results -->
         <div v-if="userSearch.trim().length > 0 && filteredUsers.length > 0"
           class="absolute z-10 w-full mt-1 bg-white dark:bg-[#111111] border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg max-h-40 overflow-y-auto">
           <button v-for="user in filteredUsers" :key="user.id" type="button"
-            class="w-full text-left px-3 py-2 hover:bg-[#F5F5F5] dark:hover:bg-black focus:bg-[#F5F5F5] dark:focus:bg-black focus:outline-none transition-colors first:rounded-t-lg last:rounded-b-lg"
+            class="w-full text-left px-2 py-2 hover:bg-[#F5F5F5] dark:hover:bg-black focus:bg-[#F5F5F5] dark:focus:bg-black focus:outline-none transition-colors first:rounded-t-lg last:rounded-b-lg"
             @click="addUser(user)">
             {{ user.name }}
           </button>
@@ -105,14 +105,14 @@
 
         <!-- No results message -->
         <div v-else-if="userSearch.trim().length > 0 && filteredUsers.length === 0"
-          class="absolute z-10 w-full mt-1 bg-white dark:bg-[#111111] border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg px-3 py-2 text-[#666666] dark:text-[#999999] text-sm uppercase tracking-wider font-mono">
-          NO USERS FOUND MATCHING "{{ userSearch }}"
+          class="absolute z-10 w-full mt-1 bg-white dark:bg-[#111111] border-2 border-[#E8E8E8] dark:border-[#222222] rounded-lg px-2 py-2 text-[#666666] dark:text-[#999999] text-sm font-mono tracking-wide">
+          No users found matching "{{ userSearch }}"
         </div>
       </div>
 
       <p v-if="formErrors.team_ids" class="text-[#D71921] text-xs mt-1">{{ formErrors.team_ids }}</p>
-      <p class="text-xs text-[#666666] dark:text-[#999999] mt-1 uppercase tracking-wider font-mono">
-        {{ selectedUsers.length }} MEMBER{{ selectedUsers.length !== 1 ? 'S' : '' }} SELECTED
+      <p class="text-xs text-[#666666] dark:text-[#999999] mt-1 font-mono tracking-wide">
+        {{ selectedUsers.length }} member{{ selectedUsers.length !== 1 ? "s" : "" }} selected
       </p>
     </div>
 
@@ -124,12 +124,9 @@
           <!-- Toggle Header -->
           <div class="text-center mb-3">
             <label :for="`toggle-${toggle.model}`"
-              class="text-sm font-semibold text-black dark:text-white block mb-1 cursor-pointer uppercase tracking-wider font-mono">
+              class="text-sm font-semibold text-black dark:text-white block mb-1 cursor-pointer font-mono tracking-wide">
               {{ toggle.label }}
             </label>
-            <p class="text-xs text-[#666666] dark:text-[#999999]">
-              {{ toggle.description }}
-            </p>
           </div>
 
           <!-- Toggle Switch -->
@@ -149,10 +146,10 @@
 
           <!-- Status Indicator -->
           <div class="text-center">
-            <span class="text-xs font-medium px-2 py-1 rounded-full uppercase tracking-wider font-mono" :class="form[toggle.model]
+            <span class="text-[10px] font-medium px-2 py-2.5 rounded-full uppercase font-mono tracking-widest" :class="form[toggle.model]
               ? 'text-white bg-black dark:text-black dark:bg-white'
               : 'text-[#666666] bg-[#E8E8E8] dark:text-[#999999] dark:bg-[#222222]'">
-              {{ form[toggle.model] ? 'ENABLED' : 'DISABLED' }}
+              {{ form[toggle.model] ? 'Enabled' : 'Disabled' }}
             </span>
           </div>
         </div>
@@ -161,17 +158,17 @@
 
     <!-- Submit Button -->
     <div class="flex justify-between items-center pt-4 border-t border-[#E8E8E8] dark:border-[#222222]">
-      <div v-if="!isFormValid" class="text-sm text-[#666666] dark:text-[#999999] uppercase tracking-wider font-mono">
-        PLEASE FILL ALL REQUIRED FIELDS
+      <div v-if="!isFormValid" class="text-sm text-[#666666] dark:text-[#999999] font-mono tracking-wide">
+        Please fill all required fields
       </div>
-      <div v-else class="text-sm text-black dark:text-white uppercase tracking-wider font-mono">
-        ✓ FORM IS READY TO SUBMIT
+      <div v-else class="text-sm text-black dark:text-white font-mono tracking-wide">
+        ✓ Form is ready to submit
       </div>
 
       <button type="button"
-        class="bg-black hover:bg-white hover:text-black dark:bg-white dark:hover:bg-black dark:hover:text-white disabled:bg-[#CCCCCC] disabled:text-[#999999] disabled:cursor-not-allowed text-white dark:text-black px-6 py-2 rounded-full font-medium uppercase tracking-wider font-mono transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white border-2 border-black dark:border-white"
+        class="bg-black hover:bg-white hover:text-black dark:bg-white dark:hover:bg-black dark:hover:text-white disabled:bg-[#CCCCCC] disabled:text-[#999999] disabled:cursor-not-allowed text-white dark:text-black px-2 py-2 rounded-full font-medium font-mono tracking-wide transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white border-2 border-black dark:border-white"
         :disabled="!isFormValid" @click="handleSubmit">
-        <span v-if="!isSubmitting">SAVE</span>
+        <span v-if="!isSubmitting">Save</span>
         <span v-else class="flex items-center">
           <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-current" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -179,7 +176,7 @@
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
             </path>
           </svg>
-          PROCESSING...
+          Processing...
         </span>
       </button>
     </div>
@@ -268,7 +265,7 @@ const toggleConfigs = [
     description: 'Logo in navigation'
   },
   {
-    label: 'Show Footer in Preview?',
+    label: 'Show Footer?',
     model: 'show_footer' as keyof FormData,
     description: 'Display page footer'
   },

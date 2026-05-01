@@ -263,7 +263,7 @@ const getFileSize = (bytes: number) => {
                         <thead class="bg-[#F5F5F5] dark:bg-black">
                             <tr>
                                 <th
-                                    class="border-b border-[#E8E8E8] dark:border-[#222222] px-4 py-2 text-center text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                    class="border-b-2 border-[#CCCCCC] dark:border-[#222222] px-4 py-2 text-center text-xs uppercase font-mono tracking-widest text-black dark:text-white">
                                     <input type="checkbox" class="form-checkbox" v-model="selectAllChecked"
                                         @change="toggleSelectAllPage" />
                                 </th>
