@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('version_id')->constrained('new_versions')->cascadeOnDelete();
             $table->string('name');
             $table->string('path');
-            $table->foreignId('size_id')->constrained('banner_sizes')->cascadeOnDelete();
+            $table->foreignId('size_id')->constrained('video_sizes')->cascadeOnDelete();
             $table->string('codec')->nullable();
             $table->string('aspect_ratio')->nullable();
             $table->string('fps')->nullable();
