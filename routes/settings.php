@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Settings\PasswordController;
 use App\Http\Controllers\Settings\ProfileController;
+use App\Http\Controllers\Settings\SidebarController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -18,4 +19,9 @@ Route::middleware('auth')->group(function () {
     Route::get('settings/appearance', function () {
         return Inertia::render('settings/Appearance');
     })->name('appearance');
+
+    // Per-user sidebar customisation — order + visibility of items.
+    Route::get('settings/sidebar', [SidebarController::class, 'edit'])->name('sidebar.edit');
+    Route::put('settings/sidebar', [SidebarController::class, 'update'])->name('sidebar.update');
+    Route::delete('settings/sidebar', [SidebarController::class, 'destroy'])->name('sidebar.reset');
 });

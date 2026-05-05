@@ -21,6 +21,7 @@ class User extends Authenticatable
         'permissions',  // ✅ added
         'client_id',  // ✅ added
         'timezone_preferences',  // ✅ added
+        'nav_preferences', // per-user sidebar order + visibility
     ];
 
     protected $hidden = [
@@ -35,6 +36,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'permissions' => 'array', // ✅ important!
             'timezone_preferences' => 'array', // ✅ important!
+            'nav_preferences' => 'array',
         ];
     }
 

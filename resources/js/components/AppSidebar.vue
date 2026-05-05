@@ -2,45 +2,38 @@
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem, type SharedData } from '@/types';
+import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { ChartNoAxesCombined, Link2, Clapperboard, Ruler, Megaphone, ReceiptText, LayoutTemplate, Users, Type, FileCode, Handshake, Paintbrush, ImagePlay, HardDriveIcon, Activity, MonitorCog } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
-
-import { computed } from 'vue'; // ✅ important to make reactive
+import { computed } from 'vue';
+import {
+    MAIN_NAV_ITEMS,
+    FOOTER_NAV_ITEMS,
+    applyNavPreferences,
+} from '@/lib/sidebar-nav';
 
 const page = usePage<SharedData>();
 
 // Make user reactive
 const user = computed(() => page.props.auth.user);
 
-const mainNavItems: NavItem[] = [
-    { title: 'Dashboard', href: '/dashboard', icon: ChartNoAxesCombined },
-    { title: 'Previews', href: '/previews', icon: Megaphone },
-    { title: 'Color Palettes', href: '/color-palettes', icon: Paintbrush },
-    { title: 'Clients', href: '/clients', icon: Handshake },
-    { title: 'Creative Sizes', href: '/creative-sizes', icon: Ruler },
-    { title: 'Bills', href: '/bills', icon: ReceiptText },
-    { title: 'File Transfers', href: '/file-transfers', icon: Link2 },
-    { title: 'Media Library', 'href': '/medias', icon: ImagePlay },
-    { title: 'Tetris', href: '/play/tetris', icon: Type },
-    { title: 'Templates', href: '/templates', icon: LayoutTemplate },
-];
+// User's saved sidebar customisation, shared from HandleInertiaRequests.
+// `null` / undefined means "use the canonical order with everything visible".
+const navPrefs = computed(() => (user.value as any)?.nav_preferences ?? null);
 
-const footerNavItems: NavItem[] = [
-    { title: 'Access Manager', href: '/user-managements/designations', icon: Users },
-    { title: 'Cache Management', href: '/cache-management', icon: HardDriveIcon },
-    { title: 'Documentations', href: '/documentations', icon: FileCode },
-    { title: 'Pulse', href: '/pulse', icon: Activity, external: true },
-];
+const visibleMainItems = computed(() =>
+    applyNavPreferences(MAIN_NAV_ITEMS, navPrefs.value?.main).filter(hasPermission),
+);
+const visibleFooterItems = computed(() =>
+    applyNavPreferences(FOOTER_NAV_ITEMS, navPrefs.value?.footer).filter(hasPermission),
+);
 
-// Permission check function
-function hasPermission(href: string) {
+// Permission check — preserved verbatim from the previous version so
+// existing role grants keep working.
+function hasPermission(item: { href: string }) {
     if (!user.value?.permissions) return false;
     if (user.value.permissions.includes('*')) return true;
-
-    // ✅ Allow if any parent path matches
-    return user.value.permissions.some(permission => href.startsWith(permission));
+    return user.value.permissions.some((permission: string) => item.href.startsWith(permission));
 }
 </script>
 
@@ -59,11 +52,11 @@ function hasPermission(href: string) {
         </SidebarHeader>
 
         <SidebarContent>
-            <NavMain :items="mainNavItems.filter(item => hasPermission(item.href))" />
+            <NavMain :items="visibleMainItems" />
         </SidebarContent>
 
         <SidebarFooter>
-            <NavFooter :items="footerNavItems.filter(item => hasPermission(item.href))" />
+            <NavFooter :items="visibleFooterItems" />
         </SidebarFooter>
     </Sidebar>
     <slot />
