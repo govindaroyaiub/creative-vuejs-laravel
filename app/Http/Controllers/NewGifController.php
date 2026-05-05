@@ -7,6 +7,7 @@ use App\Models\newFeedbackSet;
 use App\Models\newFeedback;
 use App\Models\newBanner;
 use App\Models\newVideo;
+use App\Http\Concerns\AuthorizesPreviewAccess;
 use App\Models\newGif;
 use App\Models\newSocial;
 use Illuminate\Http\Request;
@@ -19,6 +20,8 @@ use ZipArchive;
 
 class NewGifController extends Controller
 {
+    use AuthorizesPreviewAccess;
+
     /**
      * Display a listing of the resource.
      */
@@ -64,9 +67,19 @@ class NewGifController extends Controller
      */
     public function update(Request $request, newGif $newGif, $id)
     {
+        // Strict GIF-only validation. Extension is derived from the
+        // validated MIME, not the client filename — uploads claiming
+        // `.php`/`.phtml`/etc. simply won't land in `public/uploads/`.
+        $request->validate([
+            'file'     => 'nullable|file|mimes:gif|max:20480',
+            'size_id'  => 'nullable|integer|exists:banner_sizes,id',
+            'position' => 'nullable|integer',
+        ]);
+
         DB::beginTransaction();
         try {
             $gif = $newGif->findOrFail($id);
+            $this->authorizeGif($gif);
 
             // Delete previous image file
             if ($gif->path) {
@@ -84,10 +97,10 @@ class NewGifController extends Controller
                 $file = $request->file('file');
                 // Get preview name from related version
                 $previewName = $gif->version->feedbackSet->feedback->category->preview->name ?? 'gif';
-                $safeName = Str::slug($previewName) . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $safeName = Str::slug($previewName) . '_' . uniqid() . '.gif';
                 $uploadDir = public_path('uploads/gifs');
                 if (!is_dir($uploadDir)) {
-                    mkdir($uploadDir, 0777, true);
+                    mkdir($uploadDir, 0755, true);
                 }
                 $file->move($uploadDir, $safeName);
 
@@ -125,6 +138,7 @@ class NewGifController extends Controller
         DB::beginTransaction();
         try {
             $gif = $newGif->findOrFail($id);
+            $this->authorizeGif($gif);
 
             // Delete the file from the path
             if ($gif->path) {

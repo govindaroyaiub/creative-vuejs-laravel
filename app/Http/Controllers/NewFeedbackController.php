@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\newPreview;
+use App\Http\Concerns\AuthorizesPreviewAccess;
 use Illuminate\Http\Request;
 use ZipArchive;
 use Inertia\Inertia;
@@ -27,6 +28,8 @@ use Illuminate\Support\Facades\Session;
 
 class NewFeedbackController extends Controller
 {
+    use AuthorizesPreviewAccess;
+
     /**
      * Display a listing of the resource.
      */
@@ -75,6 +78,7 @@ class NewFeedbackController extends Controller
         try {
             // Get the feedback to delete
             $feedback = $newFeedback->findOrFail($id);
+            $this->authorizeFeedback($feedback);
 
             // Get the category type for folder deletion
             $category = $feedback->category;
@@ -208,6 +212,7 @@ class NewFeedbackController extends Controller
         try {
             // Get the feedback to approve
             $feedback = $newFeedback->findOrFail($id);
+            $this->authorizeFeedback($feedback);
             $previewId = $feedback->category->preview->id;
             $category = $feedback->category;
 
@@ -301,6 +306,7 @@ class NewFeedbackController extends Controller
         try {
             // Get the feedback to disapprove
             $feedback = $newFeedback->findOrFail($id);
+            $this->authorizeFeedback($feedback);
             $category = $feedback->category;
 
             $fileTransferId = $category->file_transfer_id;

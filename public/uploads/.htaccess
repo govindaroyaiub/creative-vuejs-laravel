@@ -1,0 +1,30 @@
+# Defense-in-depth against script execution in user-uploaded folders.
+# Even if an attacker manages to drop a .php / .phtml / .phar file
+# here (e.g. via a future upload-validation gap), Apache will refuse
+# to hand it to the PHP handler.
+<FilesMatch "\.(php|php3|php4|php5|php7|php8|phps|phtml|pht|phar|cgi|pl|py|sh)$">
+    Require all denied
+</FilesMatch>
+
+# Strip PHP handler entirely from this tree; redundant with the above
+# but covers servers where mod_authz_core isn't loaded.
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+RemoveHandler .php .phtml .phar .cgi
+RemoveType .php .phtml .phar
+
+# Force browsers to download SVGs (and not render inline JS), even
+# though we now reject SVG uploads at the validator. Belt-and-braces.
+<FilesMatch "\.svg$">
+    Header set Content-Disposition "attachment"
+    Header set Content-Security-Policy "default-src 'none'; sandbox"
+</FilesMatch>
+
+Options -Indexes -ExecCGI

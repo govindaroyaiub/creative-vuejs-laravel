@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\newPreview;
 use Illuminate\Http\Request;
 use ZipArchive;
+use App\Support\SafeZip;
 use Inertia\Inertia;
 use getID3;
 use App\Models\Client;
@@ -30,9 +31,12 @@ use App\Models\newSocial;
 use App\Models\FileTransfer;
 use App\Models\TourGuide;
 use Illuminate\Validation\Rule;
+use App\Http\Concerns\AuthorizesPreviewAccess;
 
 class NewPreviewController extends Controller
 {
+    use AuthorizesPreviewAccess;
+
     /**
      * Display a listing of previews
      * 
@@ -390,6 +394,7 @@ class NewPreviewController extends Controller
      */
     public function edit(newPreview $newPreview)
     {
+        $this->authorizePreview($newPreview);
         $teamIds = $newPreview->team_members ?? []; // already an array if casted
 
         $teamUsers = User::whereIn('id', $teamIds)->get(['id', 'name']);
@@ -409,6 +414,7 @@ class NewPreviewController extends Controller
      */
     public function update(Request $request, newPreview $newPreview)
     {
+        $this->authorizePreview($newPreview);
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'client_id' => ['required', 'exists:clients,id'],
@@ -444,6 +450,7 @@ class NewPreviewController extends Controller
      */
     public function destroy(newPreview $newPreview)
     {
+        $this->authorizePreview($newPreview);
         DB::transaction(function () use ($newPreview) {
             $preview = newPreview::findorFail($newPreview->id);
 
@@ -529,6 +536,7 @@ class NewPreviewController extends Controller
             'categories.feedbacks.feedbackSets.versions.socials',
             'categories.feedbacks.feedbackSets.versions.gifs',
         ])->findOrFail($id);
+        $this->authorizePreview($preview);
 
         $preview_id = $preview->id;
         // Attach file transfer slug to each category (if present) so frontend can link to transfers
@@ -545,15 +553,30 @@ class NewPreviewController extends Controller
         $client = Client::select(['id', 'name', 'logo'])->find($preview->client_id);
         $client_name = $client->name;
 
+        // Color palette — same shape as Show2 sends, so the editor can
+        // theme its accent (--p2-accent) to match the live preview.
+        $palette = ColorPalette::find($preview->color_palette_id);
+
         return Inertia::render('Previews/Update2', [
             'preview' => $preview,
             'preview_id' => $preview_id,
             // per-category transfer slugs are attached on the preview.categories items
             'preview_name' => $preview_name,
+            'preview_slug' => $preview->slug,
             'client_name' => $client_name,
             'bannerSizes' => BannerSize::orderBy('width')->orderBy('height')->get(),
             'videoSizes' => VideoSize::orderBy('width')->orderBy('height')->get(),
-            // Add other needed data here
+            'palette' => $palette ? [
+                'id'         => $palette->id,
+                'name'       => $palette->name,
+                'primary'    => $palette->primary,
+                'secondary'  => $palette->secondary,
+                'tertiary'   => $palette->tertiary,
+                'quaternary' => $palette->quaternary,
+                'quinary'    => $palette->quinary,
+                'senary'     => $palette->senary,
+                'septenary'  => $palette->septenary,
+            ] : null,
         ]);
     }
 
@@ -565,6 +588,7 @@ class NewPreviewController extends Controller
             'categories.feedbacks.feedbackSets.versions.socials',
             'categories.feedbacks.feedbackSets.versions.gifs.size',
         ])->findOrFail($id);
+        $this->authorizePreview($preview);
 
         foreach ($preview->categories as $category) {
             $category->file_transfer_slug = null;
@@ -577,6 +601,7 @@ class NewPreviewController extends Controller
         }
 
         $client = Client::select(['id', 'name', 'logo'])->find($preview->client_id);
+        $palette = ColorPalette::find($preview->color_palette_id);
 
         return Inertia::render('Previews/Update2', [
             'preview'      => $preview,
@@ -586,11 +611,24 @@ class NewPreviewController extends Controller
             'client_name'  => $client?->name,
             'bannerSizes'  => BannerSize::orderBy('width')->orderBy('height')->get(),
             'videoSizes'   => VideoSize::orderBy('width')->orderBy('height')->get(),
+            'palette'      => $palette ? [
+                'id'         => $palette->id,
+                'name'       => $palette->name,
+                'primary'    => $palette->primary,
+                'secondary'  => $palette->secondary,
+                'tertiary'   => $palette->tertiary,
+                'quaternary' => $palette->quaternary,
+                'quinary'    => $palette->quinary,
+                'senary'     => $palette->senary,
+                'septenary'  => $palette->septenary,
+            ] : null,
         ]);
     }
 
     public function bulkEdit(Request $request, $id)
     {
+        $this->authorizePreviewById((int) $id);
+
         // Idempotency: if the client sent an `idempotency_key`, refuse to
         // process the same key twice. Cache::add returns false if the key
         // already exists, which means the original request already landed.
@@ -631,7 +669,10 @@ class NewPreviewController extends Controller
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.id' => 'nullable|integer',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.name' => 'nullable|string|max:255',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.position' => 'required|integer',
-            'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.file' => 'nullable|file|mimes:jpeg,png,webp,bmp,svg,jpg',
+            // SVG dropped on purpose: SVGs can carry inline <script>
+            // tags and execute as JS when served from the same origin
+            // as the app — that's a stored-XSS primitive.
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.file' => 'nullable|file|mimes:jpeg,png,webp,bmp,jpg|max:51200',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.gifs' => 'array',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.gifs.*.id' => 'nullable|integer',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.gifs.*.name' => 'nullable|string|max:255',
@@ -646,7 +687,7 @@ class NewPreviewController extends Controller
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.size_id' => 'required_if:categories.*.type,video|exists:video_sizes,id',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.position' => 'required|integer',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.file' => 'nullable|file|mimes:mp4,mov,avi,wmv,mkv',
-            'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.companion_banner' => 'nullable|file|mimes:jpeg,png,webp,bmp,svg,gif,jpg',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.companion_banner' => 'nullable|file|mimes:jpeg,png,webp,bmp,gif,jpg|max:20480',
             // Add similar validation for socials, videos, gifs if needed
         ]);
 
@@ -803,14 +844,12 @@ class NewPreviewController extends Controller
                                                     : round($zipSizeBytes / 1048576, 2) . ' MB';
 
                                                 $extractDir = $uploadDir . '/' . $previewName . $uniqueSuffix;
-                                                if (!is_dir($extractDir)) {
-                                                    mkdir($extractDir, 0777, true);
-                                                }
-                                                $zip = new \ZipArchive;
-                                                if ($zip->open($zipPath) === TRUE) {
-                                                    $zip->extractTo($extractDir);
-                                                    $zip->close();
-                                                    unlink($zipPath);
+                                                try {
+                                                    SafeZip::extract($zipPath, $extractDir);
+                                                } finally {
+                                                    if (is_file($zipPath)) {
+                                                        @unlink($zipPath);
+                                                    }
                                                 }
 
                                                 $banner->update([
@@ -836,14 +875,12 @@ class NewPreviewController extends Controller
                                                     : round($zipSizeBytes / 1048576, 2) . ' MB';
 
                                                 $extractDir = $uploadDir . '/' . $previewName . $uniqueSuffix;
-                                                if (!is_dir($extractDir)) {
-                                                    mkdir($extractDir, 0777, true);
-                                                }
-                                                $zip = new \ZipArchive;
-                                                if ($zip->open($zipPath) === TRUE) {
-                                                    $zip->extractTo($extractDir);
-                                                    $zip->close();
-                                                    unlink($zipPath);
+                                                try {
+                                                    SafeZip::extract($zipPath, $extractDir);
+                                                } finally {
+                                                    if (is_file($zipPath)) {
+                                                        @unlink($zipPath);
+                                                    }
                                                 }
 
                                                 $banner = newBanner::create([
@@ -1165,6 +1202,7 @@ class NewPreviewController extends Controller
             'categories.feedbacks.feedbackSets.versions.socials:id,version_id',
             'categories.feedbacks.feedbackSets.versions.gifs:id,version_id',
         ])->findOrFail($id);
+        $this->authorizePreview($preview);
 
         // Bucket child IDs by model class so we can do one IN() per type
         // instead of a giant OR-of-pairs.

@@ -7,6 +7,7 @@ use App\Models\newFeedbackSet;
 use App\Models\newFeedback;
 use App\Models\newBanner;
 use App\Models\newVideo;
+use App\Http\Concerns\AuthorizesPreviewAccess;
 use App\Models\newGif;
 use App\Models\newSocial;
 use Illuminate\Http\Request;
@@ -19,6 +20,8 @@ use ZipArchive;
 
 class NewSocialController extends Controller
 {
+    use AuthorizesPreviewAccess;
+
     /**
      * Display a listing of the resource.
      */
@@ -64,9 +67,19 @@ class NewSocialController extends Controller
      */
     public function update(Request $request, newSocial $newSocial, $id)
     {
+        // Image-only — SVG explicitly excluded (it can carry inline
+        // <script>). Extension is then derived from the validated
+        // MIME, never from the client-supplied filename, so a payload
+        // disguised as `evil.php` cannot land on disk as `.php`.
+        $request->validate([
+            'file'     => 'nullable|file|mimes:jpeg,png,webp,bmp,jpg|max:51200',
+            'position' => 'nullable|integer',
+        ]);
+
         DB::beginTransaction();
         try {
             $social = $newSocial->findOrFail($id);
+            $this->authorizeSocial($social);
 
             // Delete previous image file
             if ($social->path) {
@@ -84,10 +97,11 @@ class NewSocialController extends Controller
                 $file = $request->file('file');
                 // Get preview name from related version
                 $previewName = $social->version->feedbackSet->feedback->category->preview->name ?? 'social';
-                $safeName = Str::slug($previewName) . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $extension = $file->extension() ?: 'jpg';
+                $safeName = Str::slug($previewName) . '_' . uniqid() . '.' . $extension;
                 $uploadDir = public_path('uploads/socials');
                 if (!is_dir($uploadDir)) {
-                    mkdir($uploadDir, 0777, true);
+                    mkdir($uploadDir, 0755, true);
                 }
                 $file->move($uploadDir, $safeName);
 
@@ -116,6 +130,7 @@ class NewSocialController extends Controller
         DB::beginTransaction();
         try {
             $social = $newSocial->findOrFail($id);
+            $this->authorizeSocial($social);
 
             // Delete the file from the path
             if ($social->path) {

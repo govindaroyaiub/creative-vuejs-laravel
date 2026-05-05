@@ -141,7 +141,12 @@ class UserManagementController extends Controller
             'email' => $data['email'],
             'role' => $data['role'],
             'client_id' => $data['client_id'] ?? null,
-            'password' => bcrypt('password'), // temporary
+            // Strong random placeholder. The user is expected to set a
+            // real password through the welcome-link flow (which holds
+            // the `/welcome-to-planetnine/register` permission until
+            // they do). Using a literal "password" here historically
+            // meant any guessed-email account was takeable.
+            'password' => bcrypt(Str::random(40)),
             'designation' => $data['send_mail'] ? null : 7, // if no mail, assign client designation
             'permissions' => $permissions,
         ]);
@@ -290,6 +295,15 @@ class UserManagementController extends Controller
 
         $user = User::findOrFail($data['user_id']);
 
+        // Re-check the same permission gate the GET form enforces. The
+        // permission is granted by createUser() and consumed below (it
+        // is removed once the password is set), so a user who has
+        // already completed registration cannot have their password
+        // re-set through this endpoint by an id-enumeration attacker.
+        if (!in_array('/welcome-to-planetnine/register', $user->permissions ?? [], true)) {
+            abort(403, 'Registration link is no longer valid.');
+        }
+
         // ✅ Update user information
         $user->update([
             'designation' => $data['designation'],
@@ -332,12 +346,24 @@ class UserManagementController extends Controller
 
     public function changePasswordPost(Request $request)
     {
+        // Authenticated route — the user_id is the session's, NOT a
+        // value taken from the request body (which previously let any
+        // logged-in user re-set any other user's password by id).
+        $user = $request->user();
+        if (!$user) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        // Mirror the GET form's permission gate so this endpoint only
+        // applies during the forced-reset flow, not as a generic
+        // password-change endpoint.
+        if (!in_array('/change-password', $user->permissions ?? [], true)) {
+            abort(403, 'Unauthorized access.');
+        }
+
         $data = $request->validate([
-            'user_id' => 'required|exists:users,id',
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
-
-        $user = User::findOrFail($data['user_id']);
 
         $user->update([
             'password' => bcrypt($data['password']),

@@ -54,9 +54,19 @@ class CheckUserPermission
             return $next($request);
         }
 
-        // ✅ 6. Allow if any permission is a prefix of the current route
+        // ✅ 6. Allow if any permission matches the current route
+        //    EXACT match  ('/previews' matches '/previews')   OR
+        //    SEGMENT-BOUNDED prefix ('/previews' matches '/previews/edit/1')
+        // The previous version used `str_starts_with` alone, which
+        // over-granted: a user with `/previews` was implicitly granted
+        // `/previews-delete/{id}`, `/previews-edit/{id}`, etc., because
+        // they share the same string prefix. Anchoring the prefix to a
+        // `/` boundary closes that.
         foreach ($user->permissions as $permission) {
-            if (str_starts_with($currentRoute, $permission)) {
+            if ($currentRoute === $permission) {
+                return $next($request);
+            }
+            if (str_starts_with($currentRoute, rtrim($permission, '/') . '/')) {
                 return $next($request);
             }
         }

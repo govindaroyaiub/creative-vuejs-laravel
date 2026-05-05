@@ -8,6 +8,7 @@ use App\Models\newBanner;
 use App\Models\newVideo;
 use App\Models\newSocial;
 use App\Models\newGif;
+use App\Http\Concerns\AuthorizesPreviewAccess;
 use Illuminate\Http\Request;
 use App\Models\BannerSize;
 use Inertia\Inertia;
@@ -18,6 +19,8 @@ use ZipArchive;
 
 class NewFeedbackSetController extends Controller
 {
+    use AuthorizesPreviewAccess;
+
     /**
      * Display a listing of the resource.
      */
@@ -66,6 +69,7 @@ class NewFeedbackSetController extends Controller
         try {
             // Get the set to delete
             $set = $newFeedbackSet->findOrFail($id);
+            $this->authorizeFeedbackSet($set);
 
             // Get the category type for folder/file deletion
             $category = $set->feedback->category;

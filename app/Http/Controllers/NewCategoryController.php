@@ -12,6 +12,7 @@ use App\Models\newFeedbackSet;
 use App\Models\newVersion;
 use App\Models\newPreview;
 use App\Models\newBanner;
+use App\Http\Concerns\AuthorizesPreviewAccess;
 use App\Models\BannerSize;
 use App\Models\VideoSize;
 use App\Models\FileTransfer;
@@ -22,6 +23,8 @@ use Illuminate\Support\Facades\File;
 
 class NewCategoryController extends Controller
 {
+    use AuthorizesPreviewAccess;
+
     /**
      * Display a listing of the resource.
      */
@@ -65,6 +68,7 @@ class NewCategoryController extends Controller
         try {
             // Get the category to delete
             $category = $newCategory->findOrFail($id);
+            $this->authorizeCategory($category);
 
             $fileTransfer = FileTransfer::find($category->file_transfer_id);
             if ($fileTransfer) {

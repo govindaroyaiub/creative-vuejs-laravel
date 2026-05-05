@@ -115,7 +115,13 @@ return [
         'x_content_type_options' => 'nosniff',
         'x_xss_protection' => '1; mode=block',
         'strict_transport_security' => 'max-age=31536000; includeSubDomains',
-        'content_security_policy' => "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'",
+        // `unsafe-eval` removed: it lets new Function()/eval() build
+        // arbitrary JS at runtime, which defeats most XSS protections.
+        // Inertia + Vue 3 production builds don't require it. Inline
+        // scripts/styles are still allowed because the app injects
+        // theme color styles via inline attributes; tightening that
+        // further would need nonces or hashes.
+        'content_security_policy' => "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data: https:; connect-src 'self' https: wss:; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'",
         'referrer_policy' => 'strict-origin-when-cross-origin',
         'permissions_policy' => 'camera=(), microphone=(), geolocation=()',
     ],

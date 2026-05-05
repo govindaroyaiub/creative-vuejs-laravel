@@ -9,6 +9,7 @@ use App\Models\newBanner;
 use App\Models\newVideo;
 use App\Models\newGif;
 use App\Models\newSocial;
+use App\Http\Concerns\AuthorizesPreviewAccess;
 use Illuminate\Http\Request;
 use App\Models\BannerSize;
 use Inertia\Inertia;
@@ -19,6 +20,8 @@ use ZipArchive;
 
 class NewVersionController extends Controller
 {
+    use AuthorizesPreviewAccess;
+
     /**
      * Display a listing of the resource.
      */
@@ -73,6 +76,7 @@ class NewVersionController extends Controller
         try {
             // Get the version to delete
             $version = $newVersion->findOrFail($id);
+            $this->authorizeVersion($version);
 
             // Get the category type for folder/file deletion
             $category = $version->feedbackSet->feedback->category;

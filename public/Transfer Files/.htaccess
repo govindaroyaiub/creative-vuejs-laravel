@@ -1,0 +1,23 @@
+# Defense-in-depth against script execution in user-uploaded folders.
+<FilesMatch "\.(php|php3|php4|php5|php7|php8|phps|phtml|pht|phar|cgi|pl|py|sh)$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+RemoveHandler .php .phtml .phar .cgi
+RemoveType .php .phtml .phar
+
+<FilesMatch "\.svg$">
+    Header set Content-Disposition "attachment"
+    Header set Content-Security-Policy "default-src 'none'; sandbox"
+</FilesMatch>
+
+Options -Indexes -ExecCGI

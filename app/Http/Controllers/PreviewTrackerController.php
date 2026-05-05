@@ -10,16 +10,53 @@ use Inertia\Inertia;
 
 class PreviewTrackerController extends Controller
 {
+    /**
+     * Gate the viewer-tracking endpoints by the preview's
+     * `requires_login` flag — without this, a login-gated preview's
+     * "currently viewing" data was reachable / pollutable by anyone
+     * who could guess a numeric preview id, and the cache could be
+     * stuffed with attacker-controlled `guest_name` values.
+     *
+     * Returns the resolved preview, or null if no such preview exists.
+     */
+    private function authorizeTrackerAccess($pageId): ?\App\Models\newPreview
+    {
+        $preview = \App\Models\newPreview::find($pageId);
+        if (!$preview) {
+            return null;
+        }
+        if ($preview->requires_login && !Auth::check()) {
+            abort(403, 'This preview requires you to be logged in.');
+        }
+        return $preview;
+    }
+
     public function trackViewers(Request $request)
     {
-        $pageId = $request->input('page_id');
+        $request->validate([
+            'page_id'    => 'required|integer',
+            'guest_name' => 'nullable|string|max:60|regex:/^[\pL\pN\s\-_.]+$/u',
+        ]);
+
+        $pageId = (int) $request->input('page_id');
+        $preview = $this->authorizeTrackerAccess($pageId);
+        if (!$preview) {
+            return response()->json(['status' => 'ok']); // silent no-op
+        }
+
         $cacheKey = 'viewers:preview:' . $pageId;
 
         $viewerName = Auth::check()
             ? Auth::user()->name
-            : $request->input('guest_name', 'Guest');
+            : (string) ($request->input('guest_name') ?: 'Guest');
 
         $viewers = Cache::get($cacheKey, []);
+        // Cap the cached map size so an attacker can't fill the cache
+        // with synthetic viewers. 50 unique names per preview is a
+        // generous ceiling for a real audience.
+        if (!isset($viewers[$viewerName]) && count($viewers) >= 50) {
+            return response()->json(['status' => 'ok']);
+        }
         $viewers[$viewerName] = now()->timestamp;
 
         Cache::put($cacheKey, $viewers, now()->addMinutes(5));
@@ -29,6 +66,11 @@ class PreviewTrackerController extends Controller
 
     public function getViewers($pageId)
     {
+        $preview = $this->authorizeTrackerAccess($pageId);
+        if (!$preview) {
+            return response()->json([]);
+        }
+
         $cacheKey = 'viewers:preview:' . $pageId;
         $viewers = Cache::get($cacheKey, []);
 

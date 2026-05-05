@@ -6,6 +6,8 @@
 /public/uploads/socials
 /public/uploads/videos
 /public/uploads/gifs
+# Track only the deny-PHP .htaccess; ignore everything else uploaded.
+!/public/uploads/.htaccess
 storage/*.key
 .env
 .env.backup
@@ -21,7 +23,11 @@ yarn-error.log
 auth.json
 laravel.log
 storage/logs/*.log
-public/Transfer Files/
+# Excluding all transfer payloads but keeping the deny-PHP .htaccess.
+# `Transfer Files/*` (rather than the directory itself) lets git
+# descend in and apply the negation rule to the .htaccess file.
+public/Transfer Files/*
+!public/Transfer Files/.htaccess
 .DS_Store
 
 # Ignore Vite dev server marker file

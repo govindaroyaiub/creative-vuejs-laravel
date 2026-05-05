@@ -15,10 +15,14 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use App\Support\SafeZip;
+use App\Http\Concerns\AuthorizesPreviewAccess;
 use ZipArchive;
 
 class NewBannerController extends Controller
 {
+    use AuthorizesPreviewAccess;
+
     /**
      * Display a listing of the resource.
      */
@@ -61,9 +65,19 @@ class NewBannerController extends Controller
      */
     public function update(Request $request, newBanner $newBanner, $id)
     {
+        // The previous version of this method had no validate() call,
+        // so any extension/MIME could be uploaded and renamed to .zip.
+        // Locking it down to actual ZIPs (and capping size) keeps the
+        // extractor from being handed arbitrary attacker bytes.
+        $request->validate([
+            'size_id' => 'nullable|integer|exists:banner_sizes,id',
+            'file'    => 'nullable|file|mimes:zip|max:51200', // 50 MB
+        ]);
+
         DB::beginTransaction();
         try {
             $banner = $newBanner->findOrFail($id);
+            $this->authorizeBanner($banner);
 
             // Update name, size, position if provided
             $banner->update([
@@ -97,16 +111,16 @@ class NewBannerController extends Controller
                     ? round($zipSizeBytes / 1024, 2) . ' KB'
                     : round($zipSizeBytes / 1048576, 2) . ' MB';
 
-                // Extract zip
+                // Extract zip — SafeZip walks the entry table and
+                // refuses any name containing `..`, an absolute path,
+                // or a Windows drive prefix (ZIP-slip protection).
                 $extractDir = $uploadDir . '/' . $previewName . $uniqueSuffix;
-                if (!is_dir($extractDir)) {
-                    mkdir($extractDir, 0777, true);
-                }
-                $zip = new ZipArchive;
-                if ($zip->open($zipPath) === TRUE) {
-                    $zip->extractTo($extractDir);
-                    $zip->close();
-                    unlink($zipPath); // Delete zip after extraction
+                try {
+                    SafeZip::extract($zipPath, $extractDir);
+                } finally {
+                    if (is_file($zipPath)) {
+                        @unlink($zipPath);
+                    }
                 }
 
                 $banner->update([
@@ -132,6 +146,7 @@ class NewBannerController extends Controller
         DB::beginTransaction();
         try {
             $banner = $newBanner->findOrFail($id);
+            $this->authorizeBanner($banner);
 
             // Delete the folder from the path
             if ($banner->path) {
@@ -155,6 +170,7 @@ class NewBannerController extends Controller
     function download($id)
     {
         $banner = newBanner::findOrFail($id);
+        $this->authorizeBanner($banner);
         $folderPath = public_path($banner->path);
 
         // Ensure trailing slash

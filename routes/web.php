@@ -210,34 +210,63 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
 Route::get('/previews/show/{slug}', [newPreviewController::class, 'show'])->name('previews-show');
 Route::get('/previews/show2/{slug}', [newPreviewController::class, 'show2'])->name('previews-show-2');
 
-//preview axios get requests start
+// Preview-tree XHR endpoints used by Show2/Show. Each method gates
+// access by the preview's own `requires_login` flag, mirroring the
+// page-route check. Reads stay GET; state changes are POST so the
+// CSRF middleware applies (a previous version was all-GET, which
+// allowed cross-site triggering via image/iframe tags).
 
 Route::get('/preview/renderCategories/{id}', [newPreviewApiController::class, 'renderCategories']);
-Route::get('/preview/updateActiveCategory/{id}', [newPreviewApiController::class, 'updateActiveCategory']);
-Route::get('/preview/updateActiveFeedback/{feedback_id}', [newPreviewApiController::class, 'updateActiveFeedback']);
 Route::get('/preview/renderVersions/{feedbackSet_id}', [newPreviewApiController::class, 'renderVersions']);
 Route::get('/preview/renderBanners/{version_id}', [newPreviewApiController::class, 'renderBanners']);
 Route::get('/preview/renderGifs/{version_id}', [newPreviewApiController::class, 'renderGifs']);
 Route::get('/preview/renderSocials/{version_id}', [newPreviewApiController::class, 'renderSocials']);
 Route::get('/preview/renderVideos/{version_id}', [newPreviewApiController::class, 'renderVideos']);
-Route::get('/preview/{preview_id}/change/theme/{color_id}', [newPreviewApiController::class, 'changeTheme']);
 
-//preview axios get requests end
+Route::post('/preview/updateActiveCategory/{id}', [newPreviewApiController::class, 'updateActiveCategory']);
+Route::post('/preview/updateActiveFeedback/{feedback_id}', [newPreviewApiController::class, 'updateActiveFeedback']);
+Route::post('/preview/{preview_id}/change/theme/{color_id}', [newPreviewApiController::class, 'changeTheme']);
 
-Route::get('/file-transfers-view/{slug}', [FileTransferController::class, 'show'])->name('file-transfers-view');
+//preview axios requests end
 
+// Public file-transfer viewer. Slug is a UUID (high entropy), but the
+// throttle keeps brute-force enumeration bounded if a slug ever leaks
+// the lower bits of its randomness.
+Route::get('/file-transfers-view/{slug}', [FileTransferController::class, 'show'])
+    ->middleware('throttle:60,1')
+    ->name('file-transfers-view');
+
+// First-registration flow. The GET form is reachable via the welcome
+// link; the POST is throttled (5 attempts / 5 minutes / IP) and the
+// controller re-verifies the target user still holds the
+// `/welcome-to-planetnine/register` permission before applying the
+// password — once that permission is consumed, repeat submissions
+// are no-ops, which closes the prior takeover-by-id-enumeration hole.
 Route::prefix('welcome-to-planetnine')->group(function () {
     Route::get('/register', [UserManagementController::class, 'register'])->name('welcome-to-planetnine-register');
-    Route::post('/register-post', [UserManagementController::class, 'registerPost'])->name('welcome-to-planetnine-register-post');
+    Route::post('/register-post', [UserManagementController::class, 'registerPost'])
+        ->middleware('throttle:5,5')
+        ->name('welcome-to-planetnine-register-post');
 });
 
-Route::get('/change-password', [UserManagementController::class, 'changePassword'])->name('change-password');
-Route::post('/change-password-post', [UserManagementController::class, 'changePasswordPost'])->name('change-password-post');
+// Forced-reset flow. Both endpoints require an authenticated session;
+// changePasswordPost uses Auth::id() server-side rather than trusting
+// the request body's user_id, so a logged-in user can only change
+// their own password.
+Route::middleware('auth')->group(function () {
+    Route::get('/change-password', [UserManagementController::class, 'changePassword'])->name('change-password');
+    Route::post('/change-password-post', [UserManagementController::class, 'changePasswordPost'])->name('change-password-post');
+});
 
-//Preview tracker routes start
-Route::get('/get-viewers/{page_id}', [PreviewTrackerController::class, 'getViewers']);
-Route::post('/track-viewer', [PreviewTrackerController::class, 'trackViewers']);
-//Preview tracker routes end
+// Preview-viewer presence pings. Both endpoints are throttled (the
+// trackViewers endpoint formerly accepted unbounded `guest_name`
+// values that an attacker could spam into the live-viewers list)
+// and the controller gates each call by the preview's requires_login
+// flag.
+Route::get('/get-viewers/{page_id}', [PreviewTrackerController::class, 'getViewers'])
+    ->middleware('throttle:120,1');
+Route::post('/track-viewer', [PreviewTrackerController::class, 'trackViewers'])
+    ->middleware('throttle:60,1');
 
 Route::post('/preview-login', function (Request $request) {
     $credentials = $request->validate([
@@ -245,17 +274,39 @@ Route::post('/preview-login', function (Request $request) {
         'password' => ['required'],
     ]);
 
+    // Throttle by `email|ip` — the previous `throttle:5,1` middleware
+    // was keyed by route+IP, which let an attacker credential-stuff
+    // an unlimited number of emails from a single IP. This mirrors
+    // Laravel's standard LoginRequest behavior. 5 attempts / minute
+    // per (email, IP) pair, with a Lockout event raised on exceed.
+    $key = \Illuminate\Support\Str::transliterate(
+        \Illuminate\Support\Str::lower((string) $request->input('email')).'|'.$request->ip()
+    );
+
+    if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($key, 5)) {
+        $seconds = \Illuminate\Support\Facades\RateLimiter::availableIn($key);
+        event(new \Illuminate\Auth\Events\Lockout($request));
+        return response()->json([
+            'message' => trans('auth.throttle', [
+                'seconds' => $seconds,
+                'minutes' => ceil($seconds / 60),
+            ]),
+        ], 429);
+    }
+
     if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        \Illuminate\Support\Facades\RateLimiter::clear($key);
         $request->session()->regenerate();
         return response()->json([
             'redirect_to' => session()->pull('preview_redirect_after_login', '/'),
         ]);
     }
 
+    \Illuminate\Support\Facades\RateLimiter::hit($key, 60);
     return response()->json([
         'message' => 'Invalid credentials.',
     ], 422);
-})->middleware('throttle:5,1')->name('preview-login');
+})->name('preview-login');
 
 Route::post('/logout-preview', function (Request $request) {
     $previewId = $request->input('preview_id');

@@ -2083,7 +2083,10 @@ function saveAll() {
                 Swal.fire({
                     icon: 'error',
                     title: 'Validation Error',
-                    html: `<pre style="text-align:left;">${JSON.stringify(err.response.data.errors, null, 2)}</pre>`,
+                    // text: instead of html: — the JSON-stringified
+                    // payload echoes user input back, so rendering it
+                    // as HTML lets `<script>` in a field execute.
+                    text: JSON.stringify(err.response.data.errors, null, 2),
                     width: 600
                 });
             } else {

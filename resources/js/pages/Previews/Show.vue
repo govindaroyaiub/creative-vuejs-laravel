@@ -277,7 +277,7 @@ const {
 )
 
 const changeTheme = (colorId) => {
-  axios.get(`/preview/${props.previewId}/change/theme/${colorId}`)
+  axios.post(`/preview/${props.previewId}/change/theme/${colorId}`)
     .then(response => {
       if (response.data.success) {
         location.reload()
@@ -334,7 +334,7 @@ const renderCategories = () => {
 }
 
 const updateActiveCategory = (categoryId) => {
-  axios.get(`/preview/updateActiveCategory/${categoryId}`)
+  axios.post(`/preview/updateActiveCategory/${categoryId}`)
     .then(_response => {
       renderCategories()
     })
@@ -345,7 +345,7 @@ const updateActiveCategory = (categoryId) => {
 
 // Feedbacks
 const updateActiveFeedback = (feedbackId) => {
-  axios.get(`/preview/updateActiveFeedback/${feedbackId}`)
+  axios.post(`/preview/updateActiveFeedback/${feedbackId}`)
     .then(response => {
       renderFeedbacks(response)
     })
@@ -630,6 +630,11 @@ const loadBanner = (bannerId) => {
   iframe.scrolling = 'no'
   iframe.id = 'rel' + bannerId
   iframe.loading = 'lazy'
+  // Same sandbox profile as the static iframes — banners may run JS,
+  // may pop new windows for clickTags, but cannot read parent cookies
+  // or call same-origin endpoints.
+  iframe.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox')
+  iframe.setAttribute('referrerpolicy', 'no-referrer')
 
   iframe.onload = () => {
     placeholder.style.display = 'none'
@@ -1246,6 +1251,8 @@ onUnmounted(() => {
                             </div>
                             <iframe v-if="index < 3" class="iframe-banners" :src="`/${banner.path}/index.html`"
                               :width="banner.size.width" :height="banner.size.height" frameBorder="0" scrolling="no"
+                              sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
+                              referrerpolicy="no-referrer"
                               :id="`rel${banner.id}`" loading="eager"></iframe>
                             <div v-else class="banner-placeholder" :data-banner-path="`/${banner.path}/index.html`"
                               :data-banner-id="banner.id" :data-width="banner.size.width"
@@ -1377,6 +1384,8 @@ onUnmounted(() => {
                             </div>
                             <iframe class="iframe-banners" style="margin-top: 2px;" :src="`/${gif.path}`"
                               :width="gif.size.width" :height="gif.size.height" frameBorder="0" scrolling="no"
+                              sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
+                              referrerpolicy="no-referrer"
                               :id="`rel${gif.id}`"></iframe>
                             <ul style="display: flex; flex-direction: row;" class="previewIcons">
                               <li>
@@ -1420,8 +1429,15 @@ onUnmounted(() => {
           </div>
         </div>
         <div id="feedbackDescriptionLowerPart">
-          <div id="feedbackMessage" v-html="feedbackMessage || 'No feedback description available.'">
-          </div>
+          <!-- Rendered as text, NOT v-html. The feedback editor is a
+               plain textarea, so the content is plain text — using
+               v-html previously let a teammate inject script tags
+               (or `<img onerror>`) that executed in any client's
+               browser when they viewed this preview. -->
+          <div
+            id="feedbackMessage"
+            style="white-space: pre-wrap; word-break: break-word;"
+          >{{ feedbackMessage || 'No feedback description available.' }}</div>
         </div>
       </div>
     </section>

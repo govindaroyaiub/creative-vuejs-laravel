@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\newPreview;
+use App\Http\Concerns\AuthorizesPreviewAccess;
 use Illuminate\Http\Request;
 use ZipArchive;
 use Inertia\Inertia;
@@ -30,6 +31,8 @@ use Illuminate\Validation\Rule;
 
 class NewVideoController extends Controller
 {
+    use AuthorizesPreviewAccess;
+
     /**
      * Display a listing of the resource.
      */
@@ -76,6 +79,7 @@ class NewVideoController extends Controller
     public function update(Request $request, newVideo $newVideo, $id)
     {
         $video = $newVideo->findOrFail($id);
+        $this->authorizeVideo($video);
 
         $request->validate([
             'size_id' => 'nullable|exists:video_sizes,id',
@@ -159,6 +163,7 @@ class NewVideoController extends Controller
     public function destroy(newVideo $newVideo, $id)
     {
         $video = $newVideo->findOrFail($id);
+        $this->authorizeVideo($video);
 
         // Delete video file
         if ($video->path) {
@@ -185,6 +190,7 @@ class NewVideoController extends Controller
     public function deleteCompanionBanner(Request $request, newVideo $newVideo, $id)
     {
         $video = $newVideo->findOrFail($id);
+        $this->authorizeVideo($video);
 
         // Delete companion banner file
         if ($video->companion_banner_path) {
