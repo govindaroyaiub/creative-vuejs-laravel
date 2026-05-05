@@ -50,10 +50,14 @@ const dirtyLabel = computed(() => {
 </script>
 
 <template>
-  <header class="flex shrink-0 items-center gap-3 border-b border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
+  <header
+    class="flex shrink-0 items-center gap-3 border-b px-4 py-3"
+    :style="{ borderColor: 'var(--p2-hairline)', background: 'var(--p2-surface)' }"
+  >
     <button
       type="button"
-      class="grid h-9 w-9 place-items-center rounded-lg border border-zinc-200 text-zinc-600 transition hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-800 dark:text-zinc-300 dark:hover:border-zinc-700 dark:hover:text-zinc-100"
+      class="grid h-9 w-9 place-items-center rounded-full border text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)]"
+      :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
       title="Back to previews"
       aria-label="Back"
       @click="$emit('back')"
@@ -63,12 +67,10 @@ const dirtyLabel = computed(() => {
 
     <button
       type="button"
-      :class="[
-        'grid h-9 w-9 place-items-center rounded-lg border transition',
-        sidebarOpen
-          ? 'border-zinc-300 bg-zinc-100 text-zinc-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100'
-          : 'border-zinc-200 text-zinc-600 hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-800 dark:text-zinc-300 dark:hover:border-zinc-700 dark:hover:text-zinc-100',
-      ]"
+      class="grid h-9 w-9 place-items-center rounded-full border transition-colors duration-300 ease-[var(--p2-ease-expo)]"
+      :style="sidebarOpen
+        ? { borderColor: 'var(--p2-accent-muted)', background: 'var(--p2-accent-soft)', color: 'var(--p2-accent)' }
+        : { borderColor: 'var(--p2-border)', background: 'var(--p2-surface)', color: 'var(--p2-text-muted)' }"
       title="Toggle sidebar"
       aria-label="Toggle sidebar"
       @click="$emit('toggle-sidebar')"
@@ -76,18 +78,19 @@ const dirtyLabel = computed(() => {
       <PanelLeft class="h-4 w-4" />
     </button>
 
-    <div class="hidden h-7 w-px bg-zinc-200 dark:bg-zinc-800 sm:block" />
+    <div class="hidden h-7 w-px sm:block" :style="{ background: 'var(--p2-border)' }" />
 
     <div class="min-w-0 flex-1">
-      <h1 class="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100 sm:text-base">
+      <p class="p2-label">Editing</p>
+      <h1 class="mt-0.5 truncate text-sm font-semibold tracking-tight text-[var(--p2-text)] sm:text-base">
         {{ previewName }}
       </h1>
-      <div class="mt-0.5 flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+      <div class="mt-0.5 flex items-center gap-2 text-xs text-[var(--p2-text-muted)]">
         <span class="truncate">{{ clientName }}</span>
-        <span class="hidden h-1 w-1 rounded-full bg-zinc-300 dark:bg-zinc-700 sm:inline-block" />
+        <span class="hidden h-1 w-1 rounded-full sm:inline-block" :style="{ background: 'var(--p2-border-strong)' }" />
         <button
           type="button"
-          class="hidden items-center gap-1 truncate font-mono text-[11px] tracking-tight transition hover:text-zinc-700 dark:hover:text-zinc-200 sm:inline-flex"
+          class="p2-mono hidden items-center gap-1 truncate text-[11px] tracking-tight transition-colors duration-200 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)] sm:inline-flex"
           :title="`Copy slug: ${previewSlug}`"
           @click="copy"
         >
@@ -102,7 +105,8 @@ const dirtyLabel = computed(() => {
       <Transition name="fade">
         <span
           v-if="dirtyCount"
-          class="hidden items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-700 ring-1 ring-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:ring-amber-900/50 sm:inline-flex"
+          class="hidden items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium text-amber-700 ring-1 ring-amber-500/30 sm:inline-flex"
+          style="background: rgba(245, 158, 11, 0.10);"
         >
           <span class="h-1.5 w-1.5 rounded-full bg-amber-500" />
           {{ dirtyLabel }}
@@ -115,7 +119,8 @@ const dirtyLabel = computed(() => {
         type="button"
         @click="$emit('view-changes')"
         title="View saved-changes history"
-        class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-700 dark:hover:text-zinc-100"
+        class="inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+        :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
       >
         <History class="h-3.5 w-3.5" />
         <span class="hidden md:inline">History</span>
@@ -123,7 +128,8 @@ const dirtyLabel = computed(() => {
 
       <button
         type="button"
-        class="hidden items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-700 dark:hover:text-zinc-100 md:inline-flex"
+        class="hidden h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)] md:inline-flex"
+        :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
         title="Edit preview info (name, client, palette, team)"
         @click="$emit('edit-info')"
       >
@@ -133,7 +139,8 @@ const dirtyLabel = computed(() => {
 
       <button
         type="button"
-        class="hidden items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-700 dark:hover:text-zinc-100 md:inline-flex"
+        class="hidden h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)] md:inline-flex"
+        :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
         title="Open preview in new tab"
         @click="$emit('preview')"
       >
@@ -143,7 +150,8 @@ const dirtyLabel = computed(() => {
 
       <button
         type="button"
-        class="hidden items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-700 dark:hover:text-zinc-100 md:inline-flex"
+        class="hidden h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)] md:inline-flex"
+        :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
         title="Open new preview UI"
         @click="$emit('preview2')"
       >
@@ -154,7 +162,8 @@ const dirtyLabel = computed(() => {
       <button
         type="button"
         :disabled="isSaving"
-        class="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-zinc-800 disabled:cursor-wait disabled:opacity-70 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+        class="inline-flex h-9 items-center gap-1.5 rounded-full px-4 text-xs font-semibold text-white shadow-sm transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-70 disabled:hover:translate-y-0"
+        :style="{ background: 'linear-gradient(135deg, var(--p2-accent) 0%, var(--p2-accent-2) 100%)' }"
         @click="$emit('save')"
       >
         <Loader2 v-if="isSaving" class="h-3.5 w-3.5 animate-spin" />

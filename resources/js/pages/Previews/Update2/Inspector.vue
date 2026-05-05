@@ -104,11 +104,15 @@ const performDelete = async () => {
   <main class="min-w-0 flex-1 overflow-y-auto">
     <div v-if="!sel" class="grid h-full place-items-center px-6 text-center">
       <div class="max-w-sm">
-        <div class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-zinc-100 text-zinc-400 dark:bg-zinc-800/60 dark:text-zinc-500">
+        <div
+          class="mx-auto grid h-14 w-14 place-items-center rounded-2xl text-[var(--p2-accent)]"
+          :style="{ background: 'var(--p2-accent-soft)' }"
+        >
           <MousePointer2 class="h-6 w-6" />
         </div>
-        <h2 class="mt-4 text-base font-semibold text-zinc-900 dark:text-zinc-100">Nothing selected</h2>
-        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p class="p2-label mt-5">Inspector</p>
+        <h2 class="mt-1 text-base font-semibold tracking-tight text-[var(--p2-text)]">Nothing selected</h2>
+        <p class="mt-2 text-sm text-[var(--p2-text-muted)]">
           Pick a category, revision, version, set, or asset on the left to start editing.
         </p>
       </div>
@@ -116,14 +120,14 @@ const performDelete = async () => {
 
     <div v-else class="mx-auto flex min-h-full max-w-6xl flex-col px-6 py-5">
       <!-- Breadcrumb -->
-      <nav class="mb-4 flex flex-wrap items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
+      <nav class="mb-4 flex flex-wrap items-center gap-1 text-xs text-[var(--p2-text-muted)]">
         <template v-for="(c, idx) in breadcrumb" :key="idx">
-          <ChevronRight v-if="idx > 0" class="h-3 w-3 shrink-0 text-zinc-300 dark:text-zinc-600" />
+          <ChevronRight v-if="idx > 0" class="h-3 w-3 shrink-0 text-[var(--p2-text-subtle)]" />
           <button
             type="button"
             :disabled="c.kind === 'asset'"
-            class="truncate transition hover:text-zinc-900 disabled:cursor-default disabled:hover:text-current dark:hover:text-zinc-200"
-            :class="idx === breadcrumb.length - 1 ? 'font-semibold text-zinc-800 dark:text-zinc-200' : ''"
+            class="truncate transition-colors duration-200 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)] disabled:cursor-default disabled:hover:text-current"
+            :class="idx === breadcrumb.length - 1 ? 'font-semibold text-[var(--p2-text)]' : ''"
             @click="onCrumbClick(c)"
           >{{ c.label }}</button>
         </template>

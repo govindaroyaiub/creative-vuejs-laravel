@@ -21,6 +21,11 @@ const theme = inject<{ isDark: Ref<boolean>; toggleDark: () => void }>('show2The
 const isDark = computed(() => theme.isDark.value)
 const toggleDark = () => theme.toggleDark()
 
+// When the user scrolls past the topbar, the logo fades out here and
+// fades into the top of the sticky sidebar (handled in ProjectSidebar).
+// The container keeps its lg:w-72 width so the layout doesn't shift.
+const isScrolled = inject<Ref<boolean>>('show2Scrolled')
+
 const formatDate = (s: string) => {
   if (!s) return ''
   const d = new Date(s)
@@ -36,53 +41,76 @@ const isPlanetNineStaff = computed(() => props.authUserClientName === 'Planet Ni
 </script>
 
 <template>
-  <header class="sticky top-0 z-30 border-b border-zinc-200/70 bg-white/85 backdrop-blur-md dark:border-zinc-800/80 dark:bg-zinc-950/85">
-    <!-- Accent gradient stripe -->
+  <header
+    class="sticky top-0 z-30 border-b backdrop-blur-xl"
+    :style="{ borderColor: 'var(--p2-hairline)', background: 'color-mix(in srgb, var(--p2-bg) 75%, transparent)' }"
+  >
+    <!-- Accent hairline — 1px gradient stroke marking the boundary
+         between the chrome and the canvas. Subtle in light mode,
+         glowing in dark. -->
     <div
       aria-hidden="true"
-      class="pointer-events-none absolute inset-x-0 bottom-0 h-[2px]"
+      class="pointer-events-none absolute inset-x-0 bottom-0 h-px opacity-70"
       :style="{
-        background: 'linear-gradient(90deg, var(--p2-accent) 0%, var(--p2-accent-2) 60%, var(--p2-accent) 100%)',
+        background: 'linear-gradient(90deg, transparent 0%, var(--p2-accent) 35%, var(--p2-accent-2) 65%, transparent 100%)',
       }"
     />
-    <div class="mx-auto flex w-full max-w-[2000px] items-center gap-4 px-4 py-3 lg:px-8">
+    <div class="mx-auto flex w-full max-w-[2000px] items-center gap-4 px-4 py-3 lg:gap-6 lg:px-8">
       <!-- Mobile menu trigger -->
       <button
         type="button"
-        class="rounded-lg border border-zinc-200 bg-white p-2 text-zinc-600 transition hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-700 dark:hover:text-zinc-100 lg:hidden"
+        class="grid h-9 w-9 place-items-center rounded-full border bg-[var(--p2-surface-muted)] text-[var(--p2-text-muted)] backdrop-blur-md transition-colors duration-200 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)] lg:hidden"
+        :style="{ borderColor: 'var(--p2-border)' }"
         aria-label="Open projects"
         @click="$emit('open-sidebar')"
       >
-        <Menu class="h-5 w-5" />
+        <Menu class="h-4 w-4" />
       </button>
 
-      <!-- Brand block -->
-      <div class="flex min-w-0 items-center gap-3">
-        <img
-          v-if="showPlanetNineLogo"
-          :src="`/logos/${headerLogo.logo}`"
-          alt="logo"
-          class="h-12 w-auto shrink-0 rounded"
-        />
-        <img
-          v-else-if="showSidebarLogo"
-          :src="`/logos/${client.logo}`"
-          alt="logo"
-          class="h-9 w-auto shrink-0 rounded"
-        />
-        <div class="hidden h-8 w-px bg-zinc-200 dark:bg-zinc-800 sm:block" />
-        <div class="min-w-0">
-          <h1 class="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100 sm:text-base">
-            {{ preview.name }}
-          </h1>
-          <div class="mt-0.5 flex items-center gap-x-3 gap-y-0.5 text-xs text-zinc-500 dark:text-zinc-400 flex-wrap">
-            <span v-if="client?.name" class="truncate">{{ client.name }}</span>
-            <span v-if="client?.name" class="hidden h-1 w-1 rounded-full bg-zinc-300 dark:bg-zinc-700 sm:inline-block" />
-            <span class="hidden items-center gap-1 sm:inline-flex">
-              <Calendar class="h-3 w-3" />
-              {{ formatDate(preview.created_at) }}
-            </span>
-          </div>
+      <!-- Logo column — on desktop sits over the sidebar (matches its
+           w-72), with the logo centered inside it. Fades + lifts away
+           when scrolled, so the logo can re-appear inside the sticky
+           sidebar; the container keeps its width either way to avoid
+           layout shift. -->
+      <div class="flex shrink-0 items-center justify-center lg:w-72">
+        <div
+          class="transition-all duration-500 ease-[var(--p2-ease-cinema)]"
+          :class="isScrolled
+            ? 'opacity-0 -translate-y-1.5 pointer-events-none'
+            : 'opacity-100 translate-y-0'"
+        >
+          <img
+            v-if="showPlanetNineLogo"
+            :src="`/logos/${headerLogo.logo}`"
+            alt="logo"
+            class="h-11 w-auto rounded"
+          />
+          <img
+            v-else-if="showSidebarLogo"
+            :src="`/logos/${client.logo}`"
+            alt="logo"
+            class="h-9 w-auto rounded"
+          />
+        </div>
+      </div>
+
+      <!-- Preview info — sits in the same column as the main content. -->
+      <div class="min-w-0 flex-1">
+        <p class="p2-label">Preview</p>
+        <h1 class="mt-1 truncate text-sm font-semibold tracking-tight text-[var(--p2-text)] sm:text-base">
+          {{ preview.name }}
+        </h1>
+        <div class="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-[var(--p2-text-muted)]">
+          <span v-if="client?.name" class="truncate">{{ client.name }}</span>
+          <span
+            v-if="client?.name"
+            class="hidden h-1 w-1 rounded-full sm:inline-block"
+            :style="{ background: 'var(--p2-border-strong)' }"
+          />
+          <span class="p2-mono hidden items-center gap-1.5 text-[11px] tracking-wide sm:inline-flex">
+            <Calendar class="h-3 w-3" />
+            {{ formatDate(preview.created_at) }}
+          </span>
         </div>
       </div>
 
@@ -90,22 +118,24 @@ const isPlanetNineStaff = computed(() => props.authUserClientName === 'Planet Ni
         <!-- Viewer badges (Planet Nine staff only) -->
         <div
           v-if="isPlanetNineStaff && viewers.length"
-          class="hidden items-center gap-1 rounded-full border border-zinc-200 bg-white px-2 py-1 dark:border-zinc-800 dark:bg-zinc-900 sm:flex"
+          class="hidden items-center gap-2 rounded-full border bg-[var(--p2-surface-muted)] px-2.5 py-1 backdrop-blur-md sm:flex"
+          :style="{ borderColor: 'var(--p2-border)' }"
         >
-          <Users class="h-3.5 w-3.5 text-zinc-400 dark:text-zinc-500" />
+          <Users class="h-3.5 w-3.5 text-[var(--p2-text-subtle)]" />
           <div class="flex -space-x-1.5">
             <span
               v-for="(v, i) in viewers.slice(0, 4)"
               :key="i"
-              class="flex h-6 w-6 items-center justify-center rounded-full border-2 border-white text-[10px] font-semibold text-white dark:border-zinc-900"
-              :style="{ background: `var(--p2-accent)` }"
+              class="flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-semibold text-white"
+              :style="{ background: 'var(--p2-accent)', boxShadow: '0 0 0 2px var(--p2-bg)' }"
               :title="v"
             >
               {{ initials(v) }}
             </span>
             <span
               v-if="viewers.length > 4"
-              class="flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-zinc-200 text-[10px] font-semibold text-zinc-600 dark:border-zinc-900 dark:bg-zinc-800 dark:text-zinc-300"
+              class="flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-semibold text-[var(--p2-text-muted)]"
+              :style="{ background: 'var(--p2-surface)', boxShadow: '0 0 0 2px var(--p2-bg)' }"
             >
               +{{ viewers.length - 4 }}
             </span>
@@ -115,7 +145,8 @@ const isPlanetNineStaff = computed(() => props.authUserClientName === 'Planet Ni
         <div class="flex items-center gap-2" data-tour="theme">
           <button
             type="button"
-            class="grid h-9 w-9 place-items-center rounded-lg border border-zinc-200 bg-white text-zinc-600 transition hover:border-[var(--p2-accent)] hover:text-[var(--p2-accent)] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+            class="grid h-9 w-9 place-items-center rounded-full border bg-[var(--p2-surface-muted)] text-[var(--p2-text-muted)] backdrop-blur-md transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+            :style="{ borderColor: 'var(--p2-border)' }"
             :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
             :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
             @click="toggleDark"
@@ -126,7 +157,8 @@ const isPlanetNineStaff = computed(() => props.authUserClientName === 'Planet Ni
 
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-[var(--p2-accent)] hover:text-[var(--p2-accent)] dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+            class="inline-flex h-9 items-center gap-2 rounded-full border bg-[var(--p2-surface-muted)] px-4 text-sm font-medium text-[var(--p2-text-muted)] backdrop-blur-md transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+            :style="{ borderColor: 'var(--p2-border)' }"
             aria-label="Theme"
             @click="$emit('open-palette')"
           >
@@ -144,7 +176,7 @@ const isPlanetNineStaff = computed(() => props.authUserClientName === 'Planet Ni
           <input type="hidden" name="preview_id" :value="preview.id" />
           <button
             type="submit"
-            class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-700"
+            class="inline-flex h-9 items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-4 text-sm font-medium text-red-500 backdrop-blur-md transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:border-red-500/50 hover:bg-red-500/15"
           >
             <LogOut class="h-4 w-4" />
             <span class="hidden sm:inline">Logout</span>

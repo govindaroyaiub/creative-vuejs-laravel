@@ -19,12 +19,14 @@ const toggle = () => { isOpen.value = !isOpen.value }
     <Transition name="assistant-panel">
       <div
         v-if="isOpen"
-        class="mb-3 origin-bottom-right overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl shadow-zinc-900/15 dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-black/40"
+        class="mb-3 origin-bottom-right overflow-hidden rounded-3xl border shadow-2xl backdrop-blur-xl"
+        :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface-muted)' }"
       >
         <!-- Header -->
         <div
-          class="flex items-center gap-3 border-b border-zinc-100 px-4 py-3 dark:border-zinc-800"
+          class="flex items-center gap-3 border-b px-4 py-3"
           :style="{
+            borderColor: 'var(--p2-hairline)',
             background:
               'linear-gradient(135deg, color-mix(in srgb, var(--p2-accent) 9%, transparent) 0%, color-mix(in srgb, var(--p2-accent-2) 7%, transparent) 100%)',
           }"
@@ -41,12 +43,13 @@ const toggle = () => { isOpen.value = !isOpen.value }
             <Sparkle class="h-4 w-4" />
           </div>
           <div class="min-w-0 flex-1">
-            <div class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Preview Assistant</div>
-            <div class="text-[11px] text-zinc-500 dark:text-zinc-400">Here whenever you need a hand.</div>
+            <p class="p2-label">Assistant</p>
+            <div class="mt-0.5 text-sm font-semibold tracking-tight text-[var(--p2-text)]">Preview Assistant</div>
+            <div class="text-[11px] text-[var(--p2-text-muted)]">Here whenever you need a hand.</div>
           </div>
           <button
             type="button"
-            class="grid h-7 w-7 shrink-0 place-items-center rounded-md text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+            class="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)]"
             aria-label="Close assistant"
             @click="close"
           >
@@ -56,14 +59,18 @@ const toggle = () => { isOpen.value = !isOpen.value }
 
         <!-- Messages -->
         <div class="space-y-3 p-4">
-          <div class="max-w-[85%] rounded-2xl rounded-bl-md bg-zinc-100 px-3.5 py-2.5 text-sm text-zinc-800 dark:bg-zinc-800 dark:text-zinc-100">
+          <div
+            class="max-w-[85%] rounded-2xl rounded-bl-md px-3.5 py-2.5 text-sm text-[var(--p2-text)]"
+            :style="{ background: 'var(--p2-surface)' }"
+          >
             How can I help?
           </div>
 
           <div class="flex flex-col gap-2 pt-1">
             <button
               type="button"
-              class="group flex items-center gap-2.5 rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-left text-sm font-medium text-zinc-800 transition hover:border-[var(--p2-accent)] hover:bg-[color-mix(in_srgb,var(--p2-accent)_5%,transparent)] hover:text-[var(--p2-accent)] dark:border-zinc-700 dark:bg-zinc-800/40 dark:text-zinc-100"
+              class="group flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-sm font-medium text-[var(--p2-text)] transition-all duration-300 ease-[var(--p2-ease-expo)] hover:border-[var(--p2-accent)] hover:bg-[var(--p2-accent-soft)] hover:text-[var(--p2-accent)]"
+              :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
               @click="$emit('start-tour'); close()"
             >
               <Compass class="h-4 w-4" :style="{ color: 'var(--p2-accent)' }" />
@@ -73,7 +80,8 @@ const toggle = () => { isOpen.value = !isOpen.value }
             <button
               v-if="!showContactReply"
               type="button"
-              class="group flex items-center gap-2.5 rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-left text-sm font-medium text-zinc-800 transition hover:border-[var(--p2-accent)] hover:bg-[color-mix(in_srgb,var(--p2-accent)_5%,transparent)] hover:text-[var(--p2-accent)] dark:border-zinc-700 dark:bg-zinc-800/40 dark:text-zinc-100"
+              class="group flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-sm font-medium text-[var(--p2-text)] transition-all duration-300 ease-[var(--p2-ease-expo)] hover:border-[var(--p2-accent)] hover:bg-[var(--p2-accent-soft)] hover:text-[var(--p2-accent)]"
+              :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
               @click="showContactReply = true"
             >
               <Mail class="h-4 w-4" :style="{ color: 'var(--p2-accent)' }" />
@@ -83,7 +91,8 @@ const toggle = () => { isOpen.value = !isOpen.value }
             <Transition name="contact-reveal">
               <div
                 v-if="showContactReply"
-                class="max-w-[85%] rounded-2xl rounded-bl-md bg-zinc-100 px-3.5 py-2.5 text-sm leading-relaxed text-zinc-800 dark:bg-zinc-800 dark:text-zinc-100"
+                class="max-w-[85%] rounded-2xl rounded-bl-md px-3.5 py-2.5 text-sm leading-relaxed text-[var(--p2-text)]"
+                :style="{ background: 'var(--p2-surface)' }"
               >
                 Drop us a line at
                 <a

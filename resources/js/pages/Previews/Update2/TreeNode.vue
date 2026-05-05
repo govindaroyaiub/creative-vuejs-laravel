@@ -126,13 +126,15 @@ const childAssetType = computed<AssetType | undefined>(() =>
   <div>
     <button
       type="button"
-      :class="[
-        'group relative flex w-full items-center gap-1.5 rounded-md py-1.5 pr-2 text-left text-[13px] transition',
-        isSelected
-          ? 'bg-zinc-900 text-white shadow-sm dark:bg-zinc-100 dark:text-zinc-900'
-          : 'text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800/70',
-      ]"
-      :style="{ paddingLeft: depth * 16 + 8 + 'px' }"
+      class="group relative flex w-full items-center gap-1.5 rounded-md py-1.5 pr-2 text-left text-[13px] transition-all duration-200 ease-[var(--p2-ease-expo)]"
+      :style="{
+        paddingLeft: depth * 16 + 8 + 'px',
+        ...(isSelected
+          ? { background: 'linear-gradient(135deg, var(--p2-accent) 0%, var(--p2-accent-2) 100%)', color: 'white' }
+          : { color: 'var(--p2-text)' }),
+      }"
+      :class="!isSelected && 'hover:bg-[var(--p2-accent-soft)]'"
+      :data-selected="isSelected"
       @click="onSelect"
     >
       <!-- Expand chevron (or spacer for assets) -->
@@ -155,7 +157,8 @@ const childAssetType = computed<AssetType | undefined>(() =>
       <!-- Status badges -->
       <CheckCircle2
         v-if="kind === 'feedback' && node.is_approved === 1"
-        class="h-3 w-3 shrink-0 text-emerald-500"
+        class="h-3 w-3 shrink-0"
+        :class="isSelected ? 'text-white/90' : 'text-emerald-500'"
       />
       <span
         v-if="isUnsaved"
@@ -164,7 +167,8 @@ const childAssetType = computed<AssetType | undefined>(() =>
       />
       <span
         v-if="!isSelected && kind !== 'asset' && childCount > 0"
-        class="shrink-0 rounded-md bg-zinc-100 px-1 text-[10px] font-mono tabular-nums text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
+        class="p2-mono shrink-0 rounded-md px-1 text-[10px] tabular-nums text-[var(--p2-text-muted)]"
+        :style="{ background: 'var(--p2-accent-soft)' }"
       >
         {{ childCount }}
       </span>

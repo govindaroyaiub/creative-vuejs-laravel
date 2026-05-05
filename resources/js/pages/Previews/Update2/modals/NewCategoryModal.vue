@@ -62,31 +62,38 @@ const types: { value: AssetType; icon: any; label: string; hint: string }[] = [
 <template>
   <Teleport to="body">
     <Transition name="fade">
-      <div v-if="open" class="fixed inset-0 z-[80] bg-zinc-900/40 backdrop-blur-sm" @click="close" />
+      <div
+        v-if="open"
+        class="fixed inset-0 z-[80] backdrop-blur-md"
+        style="background: rgba(11, 11, 16, 0.55);"
+        @click="close"
+      />
     </Transition>
     <Transition name="pop">
       <div v-if="open" class="fixed inset-0 z-[80] flex items-center justify-center p-4" @click="close">
         <div
-          class="w-full max-w-lg overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-900"
+          class="update2-root w-full max-w-lg overflow-hidden rounded-3xl border shadow-2xl"
+          :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-bg)' }"
           @click.stop @keydown.enter="submit">
           <!-- Header -->
           <header
-            class="flex items-start justify-between gap-3 border-b border-zinc-100 px-6 py-4 dark:border-zinc-800">
+            class="flex items-start justify-between gap-3 border-b px-6 py-4"
+            :style="{ borderColor: 'var(--p2-hairline)' }">
             <div>
-              <div
-                class="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+              <div class="p2-label inline-flex items-center gap-1.5">
                 <FolderPlus class="h-3 w-3" />
                 New category
               </div>
-              <h3 class="mt-1 text-lg font-semibold text-zinc-900 dark:text-zinc-100">Create a new category</h3>
-              <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+              <h3 class="mt-1 text-lg font-semibold tracking-tight text-[var(--p2-text)]">Create a new category</h3>
+              <p class="mt-0.5 text-xs text-[var(--p2-text-muted)]">
                 A category groups related assets within the preview.
               </p>
             </div>
             <button type="button"
-              class="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+              class="grid h-8 w-8 place-items-center rounded-full text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)]"
+              :style="{ background: 'var(--p2-surface-muted)' }"
               aria-label="Close" @click="close">
-              <X class="h-5 w-5" />
+              <X class="h-4 w-4" />
             </button>
           </header>
 
@@ -94,47 +101,45 @@ const types: { value: AssetType; icon: any; label: string; hint: string }[] = [
           <div class="space-y-5 px-6 py-5">
             <!-- Name -->
             <div>
-              <label class="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+              <label class="p2-label mb-1.5 block">
                 Category name <span class="text-rose-500">*</span>
               </label>
               <input ref="nameInput" v-model="name" type="text" placeholder="e.g. Holiday Campaign Banners"
-                class="w-full rounded-lg border bg-white px-3 py-2 text-sm text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:ring-1 dark:bg-zinc-950/30 dark:text-zinc-200 dark:placeholder:text-zinc-500"
-                :class="error
-                  ? 'border-rose-300 focus:border-rose-400 focus:ring-rose-400 dark:border-rose-900/60'
-                  : 'border-zinc-200 focus:border-zinc-400 focus:ring-zinc-400 dark:border-zinc-800'"
+                class="w-full rounded-xl border px-3 py-2 text-sm text-[var(--p2-text)] placeholder:text-[var(--p2-text-subtle)] focus:outline-none"
+                :style="{
+                  borderColor: error ? 'rgba(244, 63, 94, 0.4)' : 'var(--p2-border)',
+                  background: 'var(--p2-surface)',
+                }"
                 @input="error = ''" />
               <p v-if="error" class="mt-1 text-xs font-medium text-rose-500">{{ error }}</p>
             </div>
 
             <!-- Type picker -->
             <div>
-              <label class="mb-2 block text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
-                Type
-              </label>
+              <label class="p2-label mb-2 block">Type</label>
               <div class="grid grid-cols-2 gap-2">
-                <button v-for="t in types" :key="t.value" type="button" :class="[
-                  'group relative flex items-start gap-2.5 rounded-lg border-2 px-3 py-2.5 text-left transition',
-                  type === t.value
-                    ? 'border-zinc-900 bg-zinc-50 dark:border-zinc-100 dark:bg-zinc-800'
-                    : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-800 dark:hover:border-zinc-700',
-                ]" @click="type = t.value">
-                  <span :class="[
-                    'grid h-7 w-7 shrink-0 place-items-center rounded-md transition',
-                    type === t.value
-                      ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
-                      : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300',
-                  ]">
+                <button v-for="t in types" :key="t.value" type="button"
+                  class="group relative flex items-start gap-2.5 rounded-xl border-2 px-3 py-2.5 text-left transition-all duration-300 ease-[var(--p2-ease-expo)]"
+                  :style="type === t.value
+                    ? { borderColor: 'var(--p2-accent)', background: 'var(--p2-accent-soft)' }
+                    : { borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
+                  @click="type = t.value">
+                  <span class="grid h-7 w-7 shrink-0 place-items-center rounded-md transition-colors duration-300 ease-[var(--p2-ease-expo)]"
+                    :style="type === t.value
+                      ? { background: 'var(--p2-accent)', color: 'white' }
+                      : { background: 'var(--p2-accent-soft)', color: 'var(--p2-accent)' }">
                     <component :is="t.icon" class="h-3.5 w-3.5" />
                   </span>
                   <span class="min-w-0 flex-1">
-                    <span class="block text-sm font-semibold text-zinc-900 dark:text-zinc-100">{{ t.label }}</span>
-                    <span class="block text-[11px] text-zinc-500 dark:text-zinc-400">{{ t.hint }}</span>
+                    <span class="block text-sm font-semibold text-[var(--p2-text)]">{{ t.label }}</span>
+                    <span class="block text-[11px] text-[var(--p2-text-muted)]">{{ t.hint }}</span>
                   </span>
                   <Check v-if="type === t.value"
-                    class="absolute right-2 top-2 h-3.5 w-3.5 text-zinc-900 dark:text-zinc-100" />
+                    class="absolute right-2 top-2 h-3.5 w-3.5"
+                    :style="{ color: 'var(--p2-accent)' }" />
                 </button>
               </div>
-              <p class="mt-2 text-[11px] text-zinc-400 dark:text-zinc-500">
+              <p class="mt-2 text-[11px] text-[var(--p2-text-subtle)]">
                 The type can't be changed after creation.
               </p>
             </div>
@@ -142,14 +147,21 @@ const types: { value: AssetType; icon: any; label: string; hint: string }[] = [
 
           <!-- Footer -->
           <footer
-            class="flex justify-end gap-2 border-t border-zinc-100 bg-zinc-50/50 px-6 py-3 dark:border-zinc-800 dark:bg-zinc-950/30">
+            class="flex justify-end gap-2 border-t px-6 py-3"
+            :style="{ borderColor: 'var(--p2-hairline)', background: 'var(--p2-surface-muted)' }">
             <button type="button"
-              class="rounded-lg border border-zinc-200 px-3.5 py-2 text-xs font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-300 dark:hover:text-zinc-100"
+              class="inline-flex h-9 items-center rounded-full border px-4 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)]"
+              :style="{ borderColor: 'var(--p2-border)' }"
               @click="close">
               Cancel
             </button>
+            <!-- High-contrast neutral CTA. Using the dynamic accent
+                 gradient here meant pale palettes (yellow, mint, etc.)
+                 left the white label illegible. The neutral pattern
+                 reads cleanly in both modes regardless of palette. -->
             <button type="button"
-              class="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+              class="inline-flex h-9 items-center gap-1.5 rounded-full px-4 text-xs font-semibold shadow-sm transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5"
+              :style="{ background: 'var(--p2-text)', color: 'var(--p2-bg)' }"
               @click="submit">
               <FolderPlus class="h-3.5 w-3.5" />
               Create Category

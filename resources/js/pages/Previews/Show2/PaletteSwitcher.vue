@@ -33,7 +33,8 @@ watch(
     <Transition name="fade">
       <div
         v-if="open"
-        class="fixed inset-0 z-50 bg-zinc-900/30 backdrop-blur-sm"
+        class="fixed inset-0 z-50 backdrop-blur-md"
+        style="background: rgba(11, 11, 16, 0.55);"
         @click="close"
       />
     </Transition>
@@ -44,21 +45,29 @@ watch(
         @click="close"
       >
         <div
-          class="w-full max-w-2xl overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-900"
+          class="show2-root w-full max-w-2xl overflow-hidden rounded-3xl border shadow-2xl"
+          :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-bg)' }"
           @click.stop
         >
-          <header class="flex items-center justify-between border-b border-zinc-100 px-6 py-4 dark:border-zinc-800">
+          <header
+            class="flex items-center justify-between border-b px-6 py-4"
+            :style="{ borderColor: 'var(--p2-hairline)' }"
+          >
             <div class="flex items-center gap-2">
-              <PaletteIcon class="h-4 w-4 text-zinc-500 dark:text-zinc-400" />
-              <h2 class="text-base font-semibold text-zinc-900 dark:text-zinc-100">Choose a theme</h2>
+              <PaletteIcon class="h-4 w-4 text-[var(--p2-text-muted)]" />
+              <div>
+                <p class="p2-label">Theme</p>
+                <h2 class="text-base font-semibold tracking-tight text-[var(--p2-text)]">Choose a palette</h2>
+              </div>
             </div>
             <button
               type="button"
-              class="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+              class="grid h-8 w-8 place-items-center rounded-full text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)]"
+              :style="{ background: 'var(--p2-surface-muted)' }"
               aria-label="Close"
               @click="close"
             >
-              <X class="h-5 w-5" />
+              <X class="h-4 w-4" />
             </button>
           </header>
 
@@ -68,11 +77,14 @@ watch(
               :key="c.id"
               type="button"
               :class="[
-                'group relative overflow-hidden rounded-xl border-2 p-3 text-left transition',
-                c.id === currentId
-                  ? 'border-zinc-900 shadow-md dark:border-zinc-100'
-                  : 'border-zinc-200 hover:border-zinc-300 hover:shadow-md dark:border-zinc-700 dark:hover:border-zinc-600',
+                'group relative overflow-hidden rounded-2xl border p-3 text-left transition-all duration-300 ease-[var(--p2-ease-expo)]',
+                c.id === currentId ? 'shadow-md' : 'hover:-translate-y-0.5',
               ]"
+              :style="{
+                borderColor: c.id === currentId ? 'var(--p2-text)' : 'var(--p2-border)',
+                borderWidth: c.id === currentId ? '2px' : '1px',
+                background: 'var(--p2-surface)',
+              }"
               @click="emit('select', c.id)"
             >
               <!-- Color swatches stack -->
@@ -87,7 +99,7 @@ watch(
                 </div>
               </div>
               <div class="mt-2 flex items-center justify-between gap-1">
-                <span class="truncate text-xs font-medium text-zinc-700 dark:text-zinc-300">{{ c.name }}</span>
+                <span class="truncate text-xs font-medium text-[var(--p2-text)]">{{ c.name }}</span>
                 <span
                   v-if="c.id === currentId"
                   class="grid h-5 w-5 shrink-0 place-items-center rounded-full text-white"
@@ -99,8 +111,11 @@ watch(
             </button>
           </div>
 
-          <footer class="border-t border-zinc-100 bg-zinc-50 px-6 py-3 text-center text-[11px] text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950/40 dark:text-zinc-400">
-            Selecting a theme will refresh the page with new colors.
+          <footer
+            class="border-t px-6 py-3 text-center"
+            :style="{ borderColor: 'var(--p2-hairline)', background: 'var(--p2-surface-muted)' }"
+          >
+            <span class="p2-label">Selecting a theme refreshes the canvas with new colors</span>
           </footer>
         </div>
       </div>

@@ -30,21 +30,28 @@ const reload = () => {
 
 <template>
   <div
-    class="group flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white transition hover:border-zinc-300 hover:shadow-md hover:shadow-zinc-900/5 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
-    :style="wrapperStyle"
+    class="group flex flex-col overflow-hidden rounded-2xl border bg-[var(--p2-surface)] transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5"
+    :style="{ ...wrapperStyle, borderColor: 'var(--p2-border)' }"
   >
-    <div class="flex items-center justify-between gap-2 border-b border-zinc-100 px-3 py-2 dark:border-zinc-800">
-      <div class="flex items-center gap-2">
-        <span class="font-mono text-[11px] font-semibold tabular-nums text-zinc-700 dark:text-zinc-200">
-          {{ width }}<span class="text-zinc-400 dark:text-zinc-500">×</span>{{ height }}
-        </span>
-      </div>
-      <span v-if="gif.file_size" class="font-mono text-[11px] tabular-nums text-zinc-500 dark:text-zinc-400">
+    <div
+      class="flex items-center justify-between gap-2 border-b px-3 py-2"
+      :style="{ borderColor: 'var(--p2-hairline)' }"
+    >
+      <span
+        class="p2-mono inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11px] font-semibold tabular-nums text-[var(--p2-text)]"
+        :style="{ background: 'var(--p2-accent-soft)' }"
+      >
+        {{ width }}<span class="text-[var(--p2-text-subtle)]">×</span>{{ height }}
+      </span>
+      <span
+        v-if="gif.file_size"
+        class="p2-mono text-[11px] tabular-nums text-[var(--p2-text-muted)]"
+      >
         {{ gif.file_size }}
       </span>
     </div>
 
-    <div class="relative bg-zinc-50 dark:bg-zinc-950">
+    <div class="relative" :style="{ background: 'var(--p2-bg)' }">
       <div class="mx-auto overflow-hidden" :style="frameStyle">
         <iframe
           ref="iframeEl"
@@ -53,14 +60,17 @@ const reload = () => {
           :height="height"
           frameborder="0"
           scrolling="no"
+          sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
+          referrerpolicy="no-referrer"
           class="block border-0"
         />
       </div>
 
-      <div class="pointer-events-none absolute right-2 bottom-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+      <div class="pointer-events-none absolute right-2 bottom-2 flex gap-1 opacity-0 transition-opacity duration-300 ease-[var(--p2-ease-expo)] group-hover:opacity-100">
         <button
           type="button"
-          class="pointer-events-auto grid h-7 w-7 place-items-center rounded-md bg-white/90 text-zinc-700 shadow-sm ring-1 ring-zinc-200 backdrop-blur transition hover:bg-white hover:text-[var(--p2-accent)] dark:bg-zinc-900/90 dark:text-zinc-300 dark:ring-zinc-700 dark:hover:bg-zinc-900"
+          class="pointer-events-auto grid h-7 w-7 place-items-center rounded-full border text-[var(--p2-text-muted)] backdrop-blur transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+          :style="{ background: 'var(--p2-surface-muted)', borderColor: 'var(--p2-border)' }"
           aria-label="Reload gif"
           @click="reload"
         >
@@ -70,7 +80,8 @@ const reload = () => {
           v-if="isPlanetNine"
           :href="`/${gif.path}`"
           :download="gif.name"
-          class="pointer-events-auto grid h-7 w-7 place-items-center rounded-md bg-white/90 text-zinc-700 shadow-sm ring-1 ring-zinc-200 backdrop-blur transition hover:bg-white hover:text-[var(--p2-accent)] dark:bg-zinc-900/90 dark:text-zinc-300 dark:ring-zinc-700 dark:hover:bg-zinc-900"
+          class="pointer-events-auto grid h-7 w-7 place-items-center rounded-full border text-[var(--p2-text-muted)] backdrop-blur transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+          :style="{ background: 'var(--p2-surface-muted)', borderColor: 'var(--p2-border)' }"
           aria-label="Download gif"
         >
           <Download class="h-3.5 w-3.5" />

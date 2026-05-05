@@ -159,7 +159,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <figure class="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white transition hover:border-zinc-300 hover:shadow-lg hover:shadow-zinc-900/5 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700">
+  <figure
+    class="group relative overflow-hidden rounded-3xl border bg-[var(--p2-surface)] transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5"
+    :style="{ borderColor: 'var(--p2-border)' }"
+  >
     <button
       type="button"
       class="block w-full"
@@ -169,15 +172,15 @@ onUnmounted(() => {
       <img
         :src="`/${social.path}`"
         :alt="social.name"
-        class="block w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+        class="block w-full object-cover transition-transform duration-500 ease-[var(--p2-ease-cinema)] group-hover:scale-[1.02]"
         loading="lazy"
       />
 
       <!-- Hover scrim -->
-      <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-zinc-900/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-zinc-900/65 via-transparent to-transparent opacity-0 transition-opacity duration-300 ease-[var(--p2-ease-cinema)] group-hover:opacity-100" />
 
       <!-- Hover label -->
-      <div class="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 px-4 py-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+      <div class="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 px-4 py-3 opacity-0 transition-opacity duration-300 ease-[var(--p2-ease-cinema)] group-hover:opacity-100">
         <span class="truncate text-sm font-medium text-white">{{ social.name }}</span>
         <ZoomIn class="h-4 w-4 shrink-0 text-white/90" />
       </div>
@@ -187,7 +190,8 @@ onUnmounted(() => {
       v-if="isPlanetNine"
       :href="`/${social.path}`"
       :download="`${social.name}.jpg`"
-      class="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-md bg-white/90 text-zinc-700 opacity-0 shadow-sm ring-1 ring-zinc-200 backdrop-blur transition hover:bg-white hover:text-[var(--p2-accent)] dark:bg-zinc-900/90 dark:text-zinc-300 dark:ring-zinc-700 group-hover:opacity-100"
+      class="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full border text-[var(--p2-text-muted)] opacity-0 backdrop-blur transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)] group-hover:opacity-100"
+      :style="{ background: 'var(--p2-surface-muted)', borderColor: 'var(--p2-border)' }"
       aria-label="Download"
       @click.stop
     >

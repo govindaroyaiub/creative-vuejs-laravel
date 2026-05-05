@@ -67,21 +67,29 @@ const filtered = computed(() => {
 </script>
 
 <template>
-  <aside class="hidden w-80 shrink-0 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:flex">
+  <aside
+    class="hidden w-80 shrink-0 flex-col border-r lg:flex"
+    :style="{ borderColor: 'var(--p2-hairline)', background: 'var(--p2-surface)' }"
+  >
     <!-- Search + add -->
-    <div class="flex items-center gap-2 border-b border-zinc-100 px-3 py-3 dark:border-zinc-800">
+    <div
+      class="flex items-center gap-2 border-b px-3 py-3"
+      :style="{ borderColor: 'var(--p2-hairline)' }"
+    >
       <div class="relative flex-1">
-        <Search class="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400" />
+        <Search class="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--p2-text-subtle)]" />
         <input
           v-model="tree.search.value"
           type="text"
           placeholder="Search…"
-          class="w-full rounded-lg border border-zinc-200 bg-white py-1.5 pl-8 pr-2 text-sm text-zinc-700 placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400 dark:border-zinc-700 dark:bg-zinc-950/50 dark:text-zinc-200 dark:placeholder:text-zinc-500"
+          class="w-full rounded-full border py-1.5 pl-8 pr-3 text-sm text-[var(--p2-text)] placeholder:text-[var(--p2-text-subtle)] transition-colors duration-200 ease-[var(--p2-ease-expo)] focus:outline-none"
+          :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
         />
       </div>
       <button
         type="button"
-        class="grid h-8 w-8 place-items-center rounded-lg bg-indigo-600 text-white shadow-sm transition hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+        class="grid h-8 w-8 place-items-center rounded-full text-white shadow-sm transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5"
+        :style="{ background: 'linear-gradient(135deg, var(--p2-accent) 0%, var(--p2-accent-2) 100%)' }"
         title="New project"
         aria-label="Add category"
         @click="$emit('add-category')"
@@ -103,23 +111,28 @@ const filtered = computed(() => {
       </template>
       <div
         v-else-if="tree.search.value"
-        class="px-3 py-6 text-center text-xs text-zinc-500 dark:text-zinc-400"
+        class="px-3 py-6 text-center text-xs text-[var(--p2-text-muted)]"
       >
         No matches.
       </div>
       <div
         v-else
-        class="px-3 py-8 text-center text-xs text-zinc-500 dark:text-zinc-400"
+        class="px-3 py-8 text-center text-xs text-[var(--p2-text-muted)]"
       >
         No projects yet.<br />
-        Click <span class="font-semibold">+</span> to create one.
+        Click <span class="font-semibold text-[var(--p2-accent)]">+</span> to create one.
       </div>
     </div>
 
     <!-- Footer summary -->
-    <div class="border-t border-zinc-100 px-4 py-2 text-[11px] text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
-      {{ tree.preview.categories.length }}
-      {{ tree.preview.categories.length === 1 ? 'project' : 'projects' }}
+    <div
+      class="border-t px-4 py-2"
+      :style="{ borderColor: 'var(--p2-hairline)' }"
+    >
+      <span class="p2-mono text-[11px] text-[var(--p2-text-muted)]">
+        {{ tree.preview.categories.length }}
+        {{ tree.preview.categories.length === 1 ? 'project' : 'projects' }}
+      </span>
     </div>
   </aside>
 </template>

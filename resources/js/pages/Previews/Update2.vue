@@ -11,6 +11,18 @@ import NewCategoryModal from './Update2/modals/NewCategoryModal.vue'
 import ChangesSidebar from './Update2/ChangesSidebar.vue'
 import { createPreviewTree, isDbId, type AssetType } from './Update2/usePreviewTree'
 
+type Palette = {
+  id: number
+  name: string
+  primary: string
+  secondary: string
+  tertiary: string
+  quaternary: string
+  quinary: string
+  senary: string
+  septenary: string
+}
+
 const props = defineProps<{
   preview: any
   preview_id: number
@@ -19,7 +31,39 @@ const props = defineProps<{
   client_name: string
   bannerSizes: any[]
   videoSizes: any[]
+  palette?: Palette | null
 }>()
+
+// Mirror the preview's color palette into the editor's --p2-accent
+// token system so the Save button, "+ New X" CTAs, selected tree
+// nodes, etc. all match the live preview's hue. Falls back to the
+// Planet Nine launch-blue gradient when no palette is set.
+const DEFAULT_PALETTE_ACCENT = '#3B82F6'
+const DEFAULT_PALETTE_ACCENT_2 = '#6366F1'
+const DEFAULT_PALETTE_ACCENT_3 = '#1D4ED8'
+
+const accent = computed(() => props.palette?.primary || DEFAULT_PALETTE_ACCENT)
+// Tertiary in this color system tends to be a deeper / accent-paired
+// hue — same role as Show2's `--p2-accent-2`. Fall back to the second
+// gradient stop if the palette doesn't supply one.
+const accent2 = computed(() => props.palette?.tertiary || DEFAULT_PALETTE_ACCENT_2)
+const accent3 = computed(() => props.palette?.senary || DEFAULT_PALETTE_ACCENT_3)
+const accentSoft  = computed(() => `${accent.value}1a`)   // ~10% alpha
+const accentMuted = computed(() => `${accent.value}38`)   // ~22% alpha
+const accentGlow  = computed(() => `${accent.value}66`)   // ~40% alpha
+const accent2Soft = computed(() => `${accent2.value}14`)  //  ~8% alpha
+const accent2Glow = computed(() => `${accent2.value}59`)  // ~35% alpha
+
+const themeStyle = computed(() => ({
+  '--p2-accent':        accent.value,
+  '--p2-accent-2':      accent2.value,
+  '--p2-accent-3':      accent3.value,
+  '--p2-accent-soft':   accentSoft.value,
+  '--p2-accent-muted':  accentMuted.value,
+  '--p2-accent-glow':   accentGlow.value,
+  '--p2-accent-2-soft': accent2Soft.value,
+  '--p2-accent-2-glow': accent2Glow.value,
+} as any))
 
 const tree = createPreviewTree(props.preview)
 
@@ -157,7 +201,11 @@ const saveAll = () => {
       Swal.fire({
         icon: 'error',
         title: 'Validation error',
-        html: `<pre style="text-align:left">${JSON.stringify(errs, null, 2)}</pre>`,
+        // Use `text:` (not `html:`) so the JSON-stringified error
+        // payload — which echoes back the user's own input — can't be
+        // interpreted as HTML and turn into a self-XSS the moment the
+        // user pastes anything containing `<script>` into a field.
+        text: JSON.stringify(errs, null, 2),
         width: 600,
       })
     },
@@ -255,7 +303,14 @@ onBeforeUnmount(() => {
   <Head :title="`Edit · ${preview_name}`" />
 
   <AppLayout>
-    <div class="flex h-[calc(100vh-4rem)] flex-col bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+    <div class="update2-root relative flex h-[calc(100vh-4rem)] flex-col" :style="themeStyle">
+      <!-- Decorative ambient color wash. Light mode is asset-first
+           (very subtle); dark mode opens up into a cinematic Planet
+           Nine backdrop with a starfield + aurora glow — same identity
+           as the public Show2 viewer. -->
+      <div aria-hidden="true" class="update2-ambient" />
+      <div aria-hidden="true" class="update2-stars" />
+
       <TopBar
         :preview-name="preview_name"
         :client-name="client_name"
@@ -288,3 +343,139 @@ onBeforeUnmount(() => {
     </div>
   </AppLayout>
 </template>
+
+<style>
+/* Planet Nine — calm editor variant. Same token system as the public
+   Show2 viewer, but with a fixed launch-blue accent and no starfield /
+   aurora bloom. Editors are work surfaces; the cinematic chrome is
+   reserved for the public-facing pages. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+.update2-root {
+  /* --p2-accent / --p2-accent-2 / --p2-accent-soft / --p2-accent-muted /
+     --p2-accent-glow / --p2-accent-2-soft / --p2-accent-2-glow are set
+     dynamically via `:style="themeStyle"` from the loaded color palette.
+     This block only owns the surface + motion tokens, which never vary
+     per preview. */
+
+  --p2-bg:            #fafafa;
+  --p2-surface:       #ffffff;
+  --p2-surface-muted: rgba(255, 255, 255, 0.85);
+  --p2-text:          #18181b;
+  --p2-text-muted:    #71717a;
+  --p2-text-subtle:   #a1a1aa;
+  --p2-border:        rgba(15, 15, 20, 0.08);
+  --p2-border-strong: rgba(15, 15, 20, 0.16);
+  --p2-hairline:      rgba(15, 15, 20, 0.06);
+
+  --p2-ease-expo:   cubic-bezier(0.16, 1, 0.3, 1);
+  --p2-ease-cinema: cubic-bezier(0.22, 1, 0.36, 1);
+
+  background-color: var(--p2-bg);
+  color: var(--p2-text);
+  font-family: 'Inter', 'Montserrat', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-feature-settings: 'cv11', 'ss01', 'tnum';
+}
+
+.dark .update2-root {
+  --p2-bg:            #0B0B10;
+  --p2-surface:       #1E1E23;
+  --p2-surface-muted: rgba(30, 30, 35, 0.45);
+  --p2-text:          #F8FAFC;
+  --p2-text-muted:    #94A3B8;
+  --p2-text-subtle:   #71717a;
+  --p2-border:        rgba(255, 255, 255, 0.10);
+  --p2-border-strong: rgba(255, 255, 255, 0.22);
+  --p2-hairline:      rgba(255, 255, 255, 0.06);
+}
+
+/* Reusable Planet Nine primitives, scoped to the editor root. */
+.update2-root .p2-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--p2-text-muted);
+}
+.update2-root .p2-mono {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+}
+.update2-root .p2-glass {
+  background: var(--p2-surface-muted);
+  border: 1px solid var(--p2-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.update2-root .p2-hairline { border-color: var(--p2-hairline); }
+
+/* Focus rings — accent-colored, 2px ring on every interactive surface. */
+.update2-root :focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--p2-bg), 0 0 0 4px var(--p2-accent);
+  border-radius: inherit;
+}
+
+/* ---------- Ambient backdrop (mirrors Show2) ---------- */
+
+/* Light-mode ambient: kept extremely soft so it doesn't compete with
+   the editor surface. */
+.update2-ambient {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(55% 45% at 0% 0%, var(--p2-accent-soft) 0%, transparent 70%),
+    radial-gradient(40% 40% at 100% 0%, var(--p2-accent-2-soft) 0%, transparent 75%);
+  opacity: 0.5;
+}
+
+/* Dark-mode ambient: full Planet Nine aurora bloom. */
+.dark .update2-ambient {
+  background:
+    radial-gradient(70% 55% at 5% 0%, var(--p2-accent-glow) 0%, transparent 65%),
+    radial-gradient(60% 55% at 100% 25%, var(--p2-accent-2-glow) 0%, transparent 70%),
+    radial-gradient(60% 60% at 100% 100%, var(--p2-accent-glow) 0%, transparent 75%);
+  opacity: 0.55;
+}
+
+/* Three-depth starfield. Hidden in light mode (would distract from
+   the editor); visible in dark, with subtle parallax twinkle. */
+.update2-stars {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 600ms var(--p2-ease-cinema);
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.85), transparent 50%),
+    radial-gradient(1px 1px at 60% 70%, rgba(255,255,255,0.7),  transparent 50%),
+    radial-gradient(1.5px 1.5px at 80% 20%, rgba(255,255,255,0.6), transparent 50%),
+    radial-gradient(1px 1px at 35% 85%, rgba(255,255,255,0.5), transparent 50%),
+    radial-gradient(1px 1px at 90% 50%, rgba(255,255,255,0.65), transparent 50%);
+  background-size: 1200px 800px;
+}
+.dark .update2-stars { opacity: 0.55; animation: u2-twinkle 6s ease-in-out infinite; }
+@keyframes u2-twinkle {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 0.65; }
+}
+
+/* All editor children sit above the ambient + stars layers. */
+.update2-root > :not(.update2-ambient):not(.update2-stars) {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .update2-root *,
+  .update2-root *::before,
+  .update2-root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .update2-stars { animation: none; }
+}
+</style>

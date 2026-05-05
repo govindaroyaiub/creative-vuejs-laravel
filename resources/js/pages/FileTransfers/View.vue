@@ -590,8 +590,8 @@ const copyLink = async () => {
                             :class="['ob-track', { 'ob-track-active': activeIdx === i || hoveredIdx === i }]" />
                     </g>
 
-                    <!-- Ping wave -->
-                    <circle class="ob-ping-wave" cx="0" cy="0" r="40" fill="none" stroke="#7dd3fc" stroke-width="2"
+                    <!-- Ping wave — accent-colored aurora pulse -->
+                    <circle class="ob-ping-wave" cx="0" cy="0" r="40" fill="none" stroke="#A967F0" stroke-width="2"
                         opacity="0" />
 
                     <!-- Primary star (the transfer itself) -->
@@ -741,34 +741,55 @@ const copyLink = async () => {
 body {
     margin: 0;
     padding: 0;
-    background: #050614;
+    background: #0B0B10;
 }
 </style>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
+/* Planet Nine identity — Inter + JetBrains Mono, same stack as the
+   marketing site and the show2/update2 surfaces. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700;800&display=swap');
 
 .ob {
-    --bg: #050614;
-    --bg-2: #07091e;
-    --ink: #e8eaf3;
-    --ink-soft: #b9bdd0;
-    --muted: #6b6f87;
-    --line: #1a1d33;
-    --line-soft: #14162a;
+    /* Surface tokens — mirror the Planet Nine site's space-tech dark
+       palette (#0B0B10 canvas, #1E1E23 cards, #F8FAFC ink). */
+    --bg: #0B0B10;
+    --bg-2: #1E1E23;
+    --ink: #F8FAFC;
+    --ink-soft: #B9BDD0;
+    --muted: #71717A;
+    --line: rgba(255, 255, 255, 0.10);
+    --line-soft: rgba(255, 255, 255, 0.06);
+
+    /* Accents — violet aurora + brand teal, matching the website's
+       brand palette. The central "primary star" stays warm (amber)
+       because it represents the system's sun and reads best against
+       the cool aurora hues. */
     --primary-glow: #ffd97a;
-    --accent: #7dd3fc;
-    --accent-2: #f472b6;
+    --accent: #A967F0;          /* aurora violet (planet aurora hue) */
+    --accent-2: #7ED4CD;        /* brand teal */
+    --accent-warm: #E55D2C;     /* brand orange (used sparingly) */
+    --accent-rgb: 169, 103, 240;
     --ok: #4ade80;
     --warn: #fbbf24;
 
+    /* Motion — Planet Nine cinema easings. */
+    --p2-ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --p2-ease-cinema: cubic-bezier(0.22, 1, 0.36, 1);
+
     position: relative;
     min-height: 100vh;
+    /* Aurora-bloomed deep-space backdrop — three radial washes
+       layered on the base. Mirrors show2's dark-mode ambient. */
     background:
-        radial-gradient(ellipse at 50% 30%, #0e1235 0%, var(--bg) 60%),
+        radial-gradient(70% 55% at 5% 0%, rgba(var(--accent-rgb), 0.24) 0%, transparent 65%),
+        radial-gradient(60% 55% at 100% 25%, rgba(126, 212, 205, 0.16) 0%, transparent 70%),
+        radial-gradient(60% 60% at 100% 100%, rgba(var(--accent-rgb), 0.18) 0%, transparent 75%),
+        radial-gradient(ellipse at 50% 30%, #14102a 0%, var(--bg) 60%),
         var(--bg);
     color: var(--ink);
-    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-feature-settings: 'cv11', 'ss01', 'tnum';
     overflow-x: hidden;
 }
 
@@ -798,7 +819,7 @@ body {
     align-items: center;
     gap: 0.6rem;
     padding: 0.6rem 1rem;
-    background: rgba(125, 211, 252, 0.08);
+    background: rgba(var(--accent-rgb), 0.10);
     border-right: 1px solid var(--line);
     color: var(--accent);
 }
@@ -864,7 +885,7 @@ body {
 }
 
 .ob-system-name {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-weight: 800;
     font-size: clamp(2.4rem, 7vw, 5rem);
     line-height: 0.95;
@@ -997,7 +1018,7 @@ body {
 
 .ob-orbit {
     fill: none;
-    stroke: rgba(125, 211, 252, 0.42);
+    stroke: rgba(var(--accent-rgb), 0.42);
     stroke-width: 1;
     stroke-dasharray: 2 4;
     vector-effect: non-scaling-stroke;
@@ -1005,7 +1026,7 @@ body {
 }
 
 .ob-orbit-hover {
-    stroke: rgba(125, 211, 252, 0.85);
+    stroke: rgba(var(--accent-rgb), 0.85);
     stroke-width: 1.4;
     stroke-dasharray: 0;
 }
@@ -1014,7 +1035,7 @@ body {
     stroke: var(--accent);
     stroke-width: 1.8;
     stroke-dasharray: 0;
-    filter: drop-shadow(0 0 6px rgba(125, 211, 252, 0.6));
+    filter: drop-shadow(0 0 6px rgba(var(--accent-rgb), 0.65));
 }
 
 .ob-track {
@@ -1094,7 +1115,7 @@ body {
 }
 
 .ob-label-active {
-    box-shadow: 0 0 0 1px var(--accent), 0 0 20px rgba(125, 211, 252, 0.25);
+    box-shadow: 0 0 0 1px var(--accent), 0 0 20px rgba(var(--accent-rgb), 0.30);
 }
 
 .ob-label-num {
@@ -1131,7 +1152,7 @@ body {
 }
 
 .ob-primary-name {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-weight: 800;
     font-size: clamp(0.85rem, 1.4vw, 1.05rem);
     color: var(--ink);
@@ -1260,7 +1281,7 @@ body {
 }
 
 .ob-empty h2 {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.02em;
@@ -1327,7 +1348,7 @@ body {
 .ob-fl-mini:hover:not(:disabled) {
     background: var(--accent);
     border-color: var(--accent);
-    color: #051022;
+    color: var(--bg);
     transform: translateY(-1px);
 }
 
@@ -1343,7 +1364,7 @@ body {
 }
 
 .ob-fl-mini-ghost:hover {
-    background: rgba(125, 211, 252, 0.08);
+    background: rgba(var(--accent-rgb), 0.10);
     color: var(--accent);
     border-color: var(--accent);
 }
@@ -1396,11 +1417,11 @@ body {
 }
 
 .ob-fl-row:hover {
-    background: rgba(125, 211, 252, 0.05);
+    background: rgba(var(--accent-rgb), 0.06);
 }
 
 .ob-fl-row-active {
-    background: rgba(125, 211, 252, 0.08);
+    background: rgba(var(--accent-rgb), 0.10);
     box-shadow: inset 2px 0 0 var(--accent);
 }
 
@@ -1410,12 +1431,12 @@ body {
 
 @keyframes ob-row-flash {
     0% {
-        background: rgba(125, 211, 252, 0.32);
-        box-shadow: inset 2px 0 0 var(--accent), 0 0 0 1px rgba(125, 211, 252, 0.6);
+        background: rgba(var(--accent-rgb), 0.36);
+        box-shadow: inset 2px 0 0 var(--accent), 0 0 0 1px rgba(var(--accent-rgb), 0.6);
     }
 
     100% {
-        background: rgba(125, 211, 252, 0.08);
+        background: rgba(var(--accent-rgb), 0.10);
         box-shadow: inset 2px 0 0 var(--accent);
     }
 }
@@ -1436,7 +1457,7 @@ body {
 }
 
 .ob-fl-name {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 0.92rem;
     font-weight: 700;
     color: var(--ink);
@@ -1490,7 +1511,7 @@ body {
 
 .ob-fl-row:hover .ob-fl-btn {
     background: var(--accent);
-    color: #051022;
+    color: var(--bg);
 }
 
 .ob-fl-btn:hover {
@@ -1549,7 +1570,7 @@ body {
 }
 
 .ob-foot-val {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-weight: 700;
     font-size: 0.95rem;
     letter-spacing: 0.02em;

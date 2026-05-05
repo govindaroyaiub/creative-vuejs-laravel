@@ -105,6 +105,13 @@ const isSidebarOpen = ref(false) // mobile drawer
 const isIntroOpen = ref(false)
 const guestName = ref('')
 
+// True once the user has scrolled past the topbar. Used to fade the
+// header logo out and slide a copy into the top of the sticky sidebar
+// — the logo "transfers" between zones as you scroll. Threshold is
+// generous so the transfer feels intentional, not a flicker.
+const isScrolled = ref(false)
+provide('show2Scrolled', readonly(isScrolled))
+
 const introSeenKey = computed(() => `show2-intro-seen-${props.preview?.id ?? 'x'}`)
 const onIntroOpenChange = (v: boolean) => {
   isIntroOpen.value = v
@@ -213,7 +220,7 @@ const onCategorySelect = async (categoryId: number) => {
   isAssetsLoading.value = true
   isSidebarOpen.value = false
   try {
-    const res = await axios.get(`/preview/updateActiveCategory/${categoryId}`)
+    const res = await axios.post(`/preview/updateActiveCategory/${categoryId}`)
     if (epoch !== activeEpoch) return
     applyAjaxPayload(res.data)
     await loadVersionsAndAssets(epoch)
@@ -229,7 +236,7 @@ const onFeedbackSelect = async (feedbackId: number) => {
   const epoch = ++activeEpoch
   isAssetsLoading.value = true
   try {
-    const res = await axios.get(`/preview/updateActiveFeedback/${feedbackId}`)
+    const res = await axios.post(`/preview/updateActiveFeedback/${feedbackId}`)
     if (epoch !== activeEpoch) return
     applyAjaxPayload(res.data)
     await loadVersionsAndAssets(epoch)
@@ -245,7 +252,7 @@ const onThemeChange = (colorId: number) => {
   const next = props.allColors.find((p) => p.id === colorId)
   if (next) currentPalette.value = next
   isPaletteOpen.value = false
-  axios.get(`/preview/${props.previewId}/change/theme/${colorId}`).catch((err) => {
+  axios.post(`/preview/${props.previewId}/change/theme/${colorId}`).catch((err) => {
     console.error('Failed to persist theme change', err)
   })
 }
@@ -257,6 +264,9 @@ const onLogout = (e: Event) => {
 
 let viewerInterval: number | null = null
 let trackingInterval: number | null = null
+
+// Scroll watch — drives the logo transfer between topbar and sidebar.
+const onScroll = () => { isScrolled.value = window.scrollY > 32 }
 
 onMounted(async () => {
   initGuestName()
@@ -272,11 +282,14 @@ onMounted(async () => {
       window.setTimeout(() => { isIntroOpen.value = true }, 350)
     }
   } catch { /* private mode, skip */ }
+  onScroll()
+  window.addEventListener('scroll', onScroll, { passive: true })
 })
 
 onUnmounted(() => {
   if (viewerInterval) clearInterval(viewerInterval)
   if (trackingInterval) clearInterval(trackingInterval)
+  window.removeEventListener('scroll', onScroll)
   // Restore the admin's global appearance so leaving Show2 doesn't keep
   // the page-scoped dark mode applied across the rest of the app.
   if (typeof document !== 'undefined') {
@@ -300,8 +313,11 @@ const themeStyle = computed(() => ({
   <Head :title="`Creative · ${preview.name}`" />
 
   <div class="show2-root min-h-screen text-zinc-900 antialiased dark:text-zinc-100" :style="themeStyle">
-    <!-- Decorative ambient color wash -->
+    <!-- Decorative ambient color wash. Light mode is asset-first
+         (very subtle); dark mode opens up into a cinematic Planet Nine
+         backdrop with a starfield + aurora glow. -->
     <div aria-hidden="true" class="show2-ambient" />
+    <div aria-hidden="true" class="show2-stars" />
 
     <PreviewTopBar
       :preview="preview"
@@ -321,6 +337,9 @@ const themeStyle = computed(() => ({
         :active-category="activeCategory"
         :is-loading="isInitialLoading"
         :is-mobile-open="isSidebarOpen"
+        :preview="preview"
+        :client="client"
+        :header-logo="headerLogo"
         @select="onCategorySelect"
         @close="isSidebarOpen = false"
       />
@@ -380,25 +399,69 @@ const themeStyle = computed(() => ({
 </template>
 
 <style>
+/* Planet Nine cinematic typeface stack — Inter for everything,
+   JetBrains Mono for tags / timestamps / numerics. Loaded once
+   per page via @import to avoid the global CSS pulling in fonts
+   the rest of the app does not need. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
 .show2-root {
-  position: relative;
-  background-color: #fafafa;
-  font-family: 'Inter', 'Montserrat', system-ui, -apple-system, sans-serif;
+  /* No `position` here on purpose — modals/sheets that re-use this
+     class for token cascade (NotesSheet, PaletteSwitcher) need to
+     keep their own `fixed`/`absolute` positioning. The page root
+     creates a stacking context indirectly: every direct child gets
+     `position: relative` via the descendant rule below, which is
+     enough to layer above the fixed-position ambient + stars. */
+  /* ---------- Surface tokens (asset-first, low distraction) ---------- */
+  --p2-bg: #fafafa;
+  --p2-surface: #ffffff;
+  --p2-surface-muted: rgba(255, 255, 255, 0.85);
+  --p2-text: #18181b;
+  --p2-text-muted: #71717a;
+  --p2-text-subtle: #a1a1aa;
+  --p2-border: rgba(15, 15, 20, 0.08);
+  --p2-border-strong: rgba(15, 15, 20, 0.16);
+  --p2-hairline: rgba(15, 15, 20, 0.06);
+  /* ---------- Motion tokens (Planet Nine cinema easings) ---------- */
+  --p2-ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --p2-ease-cinema: cubic-bezier(0.22, 1, 0.36, 1);
+
+  background-color: var(--p2-bg);
+  color: var(--p2-text);
+  font-family: 'Inter', 'Montserrat', ui-sans-serif, system-ui, -apple-system, sans-serif;
   font-feature-settings: 'cv11', 'ss01', 'tnum';
 }
+
 .dark .show2-root {
-  background-color: #0a0a0d;
+  /* Cinematic space-tech surface in dark mode. Background lifts
+     a touch from the website's #0B0B10 because Show2 mounts cards
+     directly on top — pure black makes glass cards feel detached. */
+  --p2-bg: #0B0B10;
+  --p2-surface: #1E1E23;
+  --p2-surface-muted: rgba(30, 30, 35, 0.45);
+  --p2-text: #F8FAFC;
+  --p2-text-muted: #94A3B8;
+  --p2-text-subtle: #71717a;
+  --p2-border: rgba(255, 255, 255, 0.10);
+  --p2-border-strong: rgba(255, 255, 255, 0.22);
+  --p2-hairline: rgba(255, 255, 255, 0.06);
 }
+
+/* Light-mode ambient: kept extremely soft. The accent washes hint
+   at the active palette without competing with banner / video /
+   gif assets in the canvas. */
 .show2-ambient {
   pointer-events: none;
   position: fixed;
   inset: 0;
   z-index: 0;
   background:
-    radial-gradient(60% 50% at 0% 0%, var(--p2-accent-soft) 0%, transparent 60%),
-    radial-gradient(45% 45% at 100% 0%, var(--p2-accent-2-soft) 0%, transparent 65%),
-    radial-gradient(40% 40% at 100% 100%, var(--p2-accent-soft) 0%, transparent 70%);
+    radial-gradient(55% 45% at 0% 0%, var(--p2-accent-soft) 0%, transparent 70%),
+    radial-gradient(40% 40% at 100% 0%, var(--p2-accent-2-soft) 0%, transparent 75%);
+  opacity: 0.5;
 }
+
+/* Dark-mode ambient: full Planet Nine aurora bloom. */
 .dark .show2-ambient {
   background:
     radial-gradient(70% 55% at 5% 0%, var(--p2-accent-glow) 0%, transparent 65%),
@@ -406,8 +469,113 @@ const themeStyle = computed(() => ({
     radial-gradient(60% 60% at 100% 100%, var(--p2-accent-glow) 0%, transparent 75%);
   opacity: 0.55;
 }
-.show2-root > :not(.show2-ambient):not(.fixed) {
+
+/* Three-depth starfield. Hidden in light mode (would distract
+   from assets); visible in dark, with subtle parallax twinkle. */
+.show2-stars {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 600ms var(--p2-ease-cinema);
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.85), transparent 50%),
+    radial-gradient(1px 1px at 60% 70%, rgba(255,255,255,0.7), transparent 50%),
+    radial-gradient(1.5px 1.5px at 80% 20%, rgba(255,255,255,0.6), transparent 50%),
+    radial-gradient(1px 1px at 35% 85%, rgba(255,255,255,0.5), transparent 50%),
+    radial-gradient(1px 1px at 90% 50%, rgba(255,255,255,0.65), transparent 50%);
+  background-size: 1200px 800px;
+}
+.dark .show2-stars { opacity: 0.55; animation: p2-twinkle 6s ease-in-out infinite; }
+@keyframes p2-twinkle {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 0.65; }
+}
+
+.show2-root > :not(.show2-ambient):not(.show2-stars):not(.fixed) {
   position: relative;
   z-index: 1;
+}
+
+/* ---------- Reusable Planet Nine primitives ---------- */
+
+/* Label-overline: 11–12px uppercase tracked label. Used for
+   section labels ("Revision Round", "Surface · 01"). */
+.p2-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--p2-text-muted);
+}
+
+.p2-mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace; }
+
+/* Glass surface — used for cards over the ambient backdrop. */
+.p2-glass {
+  background: var(--p2-surface-muted);
+  border: 1px solid var(--p2-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Hairline divider — 1px, almost invisible, just enough to give
+   structure without weight. */
+.p2-hairline { border-color: var(--p2-hairline); }
+
+/* Pill primary CTA — white-on-light, accent-on-dark, used for
+   "Plan a 15-min intro"-style calls-to-action and submit buttons. */
+.p2-pill-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  height: 2.5rem;
+  padding: 0 1.25rem;
+  border-radius: 9999px;
+  background: var(--p2-text);
+  color: var(--p2-bg);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: transform 200ms var(--p2-ease-expo), background 200ms var(--p2-ease-expo);
+}
+.p2-pill-primary:hover { transform: translateY(-1px); }
+
+/* Pill ghost CTA — outlined, glass-blurred. For secondary actions. */
+.p2-pill-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.5rem;
+  padding: 0 1rem;
+  border-radius: 9999px;
+  border: 1px solid var(--p2-border);
+  background: var(--p2-surface-muted);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--p2-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: border-color 200ms var(--p2-ease-expo), background 200ms var(--p2-ease-expo);
+}
+.p2-pill-ghost:hover { border-color: var(--p2-border-strong); }
+
+/* Focus rings — 2px accent ring on every interactive surface. */
+.show2-root :focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--p2-bg), 0 0 0 4px var(--p2-accent);
+  border-radius: inherit;
+}
+
+/* Reduced motion — kill all but fades, in line with the website. */
+@media (prefers-reduced-motion: reduce) {
+  .show2-root *,
+  .show2-root *::before,
+  .show2-root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .show2-stars { animation: none; }
 }
 </style>

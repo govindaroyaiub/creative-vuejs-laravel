@@ -202,13 +202,13 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
   <div class="space-y-6">
     <header class="flex items-start justify-between gap-4">
       <div class="min-w-0 flex-1">
-        <div class="mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+        <div class="p2-label mb-1 inline-flex items-center gap-1.5">
           <component :is="typeMeta.icon" class="h-3 w-3" />
           {{ typeMeta.label }} asset
         </div>
-        <h2 class="truncate text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+        <h2 class="truncate text-2xl font-semibold tracking-tight text-[var(--p2-text)]">
           <template v-if="(assetType === 'banner' || assetType === 'gif') && asset.size?.width">
-            {{ asset.size.width }}<span class="text-zinc-400 dark:text-zinc-500">×</span>{{ asset.size.height }}
+            <span class="p2-mono">{{ asset.size.width }}<span class="text-[var(--p2-text-subtle)]">×</span>{{ asset.size.height }}</span>
           </template>
           <template v-else-if="asset.name">{{ asset.name }}</template>
           <template v-else>New {{ typeMeta.label.toLowerCase() }}</template>
@@ -216,18 +216,19 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
         <button
           v-if="positionLabel"
           type="button"
-          class="mt-2 inline-flex items-center gap-1.5 rounded-full bg-zinc-100 px-2.5 py-0.5 text-[11px] font-medium text-zinc-600 transition hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+          class="mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-0.5 text-[11px] font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+          :style="{ background: 'var(--p2-accent-soft)' }"
           title="Open the parent set to drag-reorder"
           @click="goToVersion"
         >
           {{ positionLabel }}
-          <span class="text-zinc-400 dark:text-zinc-500">·</span>
+          <span class="text-[var(--p2-text-subtle)]">·</span>
           <span class="underline-offset-2 hover:underline">Reorder</span>
         </button>
       </div>
       <button
         type="button"
-        class="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-rose-200 text-rose-600 transition hover:bg-rose-50 dark:border-rose-900/50 dark:text-rose-400 dark:hover:bg-rose-950/30"
+        class="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-rose-500/30 text-rose-500 transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:border-rose-500/50 hover:bg-rose-500/10"
         title="Delete asset"
         @click="$emit('delete')"
       >
@@ -237,35 +238,34 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
 
     <!-- File drop zone -->
     <section>
-      <label class="mb-2 block text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+      <label class="p2-label mb-2 block">
         Source file
       </label>
       <div
-        :class="[
-          'group relative flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-8 text-center transition',
-          dragActive
-            ? 'border-zinc-400 bg-zinc-50 dark:border-zinc-500 dark:bg-zinc-900'
-            : 'border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900',
-        ]"
+        class="group relative flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 text-center transition-all duration-300 ease-[var(--p2-ease-expo)]"
+        :style="dragActive
+          ? { borderColor: 'var(--p2-accent)', background: 'var(--p2-accent-soft)' }
+          : { borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
         @dragover.prevent="dragActive = true"
         @dragleave.prevent="dragActive = false"
         @drop.prevent="onDrop"
       >
         <input ref="fileInput" type="file" class="hidden" :accept="typeMeta.accept" @change="onFile" />
-        <Upload class="h-6 w-6 text-zinc-400 dark:text-zinc-500" />
-        <div class="text-sm font-medium text-zinc-700 dark:text-zinc-200">
-          <template v-if="newFileName">Replace: <span class="font-mono">{{ newFileName }}</span></template>
+        <Upload class="h-6 w-6 text-[var(--p2-text-subtle)]" />
+        <div class="text-sm font-medium text-[var(--p2-text)]">
+          <template v-if="newFileName">Replace: <span class="p2-mono">{{ newFileName }}</span></template>
           <template v-else-if="existingPath">Replace existing file</template>
           <template v-else>Drop a file here</template>
         </div>
         <button
           type="button"
-          class="text-xs font-medium text-zinc-600 underline decoration-zinc-300 underline-offset-2 transition hover:text-zinc-900 hover:decoration-zinc-500 dark:text-zinc-300 dark:decoration-zinc-700 dark:hover:text-zinc-100"
+          class="text-xs font-medium underline underline-offset-2 transition-colors duration-200 ease-[var(--p2-ease-expo)]"
+          :style="{ color: 'var(--p2-accent)' }"
           @click="onPickFile"
         >
           or browse
         </button>
-        <p class="text-[11px] text-zinc-400 dark:text-zinc-500">{{ typeMeta.hint }}</p>
+        <p class="text-[11px] text-[var(--p2-text-subtle)]">{{ typeMeta.hint }}</p>
       </div>
 
       <a
@@ -273,7 +273,7 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
         :href="`/${existingPath}`"
         target="_blank"
         rel="noopener noreferrer"
-        class="mt-2 inline-flex items-center gap-1 text-xs font-medium text-zinc-500 transition hover:text-zinc-900 dark:hover:text-zinc-100"
+        class="mt-2 inline-flex items-center gap-1 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
       >
         <Download class="h-3 w-3" />
         Current: {{ existingPath.split('/').pop() }}
@@ -282,18 +282,22 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
 
     <!-- Preview -->
     <section v-if="showPreview">
-      <label class="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+      <label class="p2-label mb-2 flex items-center gap-1.5">
         <Eye class="h-3 w-3" />
         Preview
         <span
           v-if="hasNewPreview || (newFileUrl && isZipType)"
-          class="ml-1 rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-bold tracking-wider text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
+          class="ml-1 rounded-full px-2 py-0.5 text-[9px] font-bold tracking-wider text-amber-600"
+          style="background: rgba(245, 158, 11, 0.12); letter-spacing: 0.08em;"
         >
           NEW
         </span>
       </label>
 
-      <div class="overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950/40">
+      <div
+        class="overflow-hidden rounded-2xl border"
+        :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface-muted)' }"
+      >
         <!-- Social: image -->
         <template v-if="assetType === 'social'">
           <img
@@ -322,6 +326,8 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
               :height="bannerHeight"
               frameborder="0"
               scrolling="no"
+              sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
+              referrerpolicy="no-referrer"
               class="border-0 bg-white"
             />
           </div>
@@ -344,16 +350,19 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
         <!-- New zip pick (banner/gif): can't preview without unzipping, just show metadata -->
         <template v-else-if="newFileUrl && isZipType">
           <div class="flex items-center gap-3 px-4 py-5">
-            <span class="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
+            <span
+              class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-amber-600"
+              style="background: rgba(245, 158, 11, 0.12);"
+            >
               <FileArchive class="h-5 w-5" />
             </span>
             <div class="min-w-0 flex-1">
-              <div class="truncate font-mono text-sm font-medium text-zinc-800 dark:text-zinc-200">
+              <div class="p2-mono truncate text-sm font-medium text-[var(--p2-text)]">
                 {{ newFileName }}
               </div>
-              <div class="mt-0.5 font-mono text-[11px] tabular-nums text-zinc-500 dark:text-zinc-400">
+              <div class="p2-mono mt-0.5 text-[11px] tabular-nums text-[var(--p2-text-muted)]">
                 {{ formatBytes(newFileSize) }}
-                <span class="ml-2 text-zinc-400 dark:text-zinc-500">·</span>
+                <span class="ml-2 text-[var(--p2-text-subtle)]">·</span>
                 <span class="ml-1">Zip will be extracted on save</span>
               </div>
             </div>
@@ -363,7 +372,7 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
 
       <p
         v-if="hasNewPreview && (assetType === 'video' || assetType === 'social')"
-        class="mt-1.5 font-mono text-[11px] tabular-nums text-zinc-400 dark:text-zinc-500"
+        class="p2-mono mt-1.5 text-[11px] tabular-nums text-[var(--p2-text-subtle)]"
       >
         {{ newFileName }} · {{ formatBytes(newFileSize) }}
       </p>
@@ -373,19 +382,20 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
     <section class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <!-- Name (banner / social / gif) -->
       <div v-if="assetType !== 'video'" class="sm:col-span-2">
-        <label class="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">Name</label>
+        <label class="p2-label mb-1.5 block">Name</label>
         <input
           :value="asset.name"
           type="text"
           placeholder="Asset name"
-          class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-800 placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400 dark:border-zinc-800 dark:bg-zinc-950/30 dark:text-zinc-200 dark:placeholder:text-zinc-500"
+          class="w-full rounded-xl border px-3 py-2 text-sm text-[var(--p2-text)] placeholder:text-[var(--p2-text-subtle)] focus:outline-none"
+          :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
           @input="(e) => onField('name', e)"
         />
       </div>
 
       <!-- Size (banner / video / gif) — searchable -->
       <div v-if="assetType !== 'social'" class="sm:col-span-2">
-        <label class="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">Size</label>
+        <label class="p2-label mb-1.5 block">Size</label>
         <v-select
           :model-value="asset.size_id || null"
           :options="sizeOptions"
@@ -401,53 +411,60 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
       <!-- Video metadata -->
       <template v-if="assetType === 'video'">
         <div>
-          <label class="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">Codec</label>
+          <label class="p2-label mb-1.5 block">Codec</label>
           <input
             :value="asset.codec"
             type="text"
             placeholder="e.g. h264"
-            class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-800 focus:border-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400 dark:border-zinc-800 dark:bg-zinc-950/30 dark:text-zinc-200"
+            class="w-full rounded-xl border px-3 py-2 text-sm text-[var(--p2-text)] placeholder:text-[var(--p2-text-subtle)] focus:outline-none"
+            :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
             @input="(e) => onField('codec', e)"
           />
         </div>
         <div>
-          <label class="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">FPS</label>
+          <label class="p2-label mb-1.5 block">FPS</label>
           <input
             :value="asset.fps"
             type="text"
             placeholder="30"
-            class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-800 focus:border-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400 dark:border-zinc-800 dark:bg-zinc-950/30 dark:text-zinc-200"
+            class="w-full rounded-xl border px-3 py-2 text-sm text-[var(--p2-text)] placeholder:text-[var(--p2-text-subtle)] focus:outline-none"
+            :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
             @input="(e) => onField('fps', e)"
           />
         </div>
         <div class="sm:col-span-2">
-          <label class="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">Aspect ratio</label>
+          <label class="p2-label mb-1.5 block">Aspect ratio</label>
           <input
             :value="asset.aspect_ratio"
             type="text"
             placeholder="16:9"
-            class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-800 focus:border-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400 dark:border-zinc-800 dark:bg-zinc-950/30 dark:text-zinc-200"
+            class="w-full rounded-xl border px-3 py-2 text-sm text-[var(--p2-text)] placeholder:text-[var(--p2-text-subtle)] focus:outline-none"
+            :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
             @input="(e) => onField('aspect_ratio', e)"
           />
         </div>
 
         <!-- Companion banner -->
         <div class="sm:col-span-2">
-          <label class="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+          <label class="p2-label mb-1.5 block">
             Companion banner (optional)
           </label>
-          <div class="rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900">
+          <div
+            class="rounded-2xl border p-3"
+            :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
+          >
             <div class="flex items-center gap-3">
               <input ref="companionInput" type="file" accept="image/*" class="hidden" @change="onCompanion" />
               <button
                 type="button"
-                class="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 px-2.5 py-1.5 text-xs font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900 dark:border-zinc-700 dark:text-zinc-300 dark:hover:text-zinc-100"
+                class="inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+                :style="{ borderColor: 'var(--p2-border)' }"
                 @click="companionInput?.click()"
               >
                 <Upload class="h-3 w-3" />
                 {{ companionName ? 'Replace' : 'Choose image' }}
               </button>
-              <span v-if="companionName" class="truncate font-mono text-[11px] text-zinc-500 dark:text-zinc-400">
+              <span v-if="companionName" class="p2-mono truncate text-[11px] text-[var(--p2-text-muted)]">
                 {{ companionName }}
               </span>
               <a
@@ -455,7 +472,7 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
                 :href="`/${asset.companion_banner_path}`"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="truncate text-[11px] text-zinc-500 underline-offset-2 hover:underline dark:text-zinc-400"
+                class="truncate text-[11px] text-[var(--p2-text-muted)] underline-offset-2 hover:underline"
               >
                 Current: {{ asset.companion_banner_path.split('/').pop() }}
               </a>
@@ -466,7 +483,8 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
               <img
                 :src="companionFileUrl || `/${asset.companion_banner_path}`"
                 alt="companion banner"
-                class="mx-auto block max-h-48 w-auto rounded-md border border-zinc-200 bg-zinc-50 object-contain dark:border-zinc-700 dark:bg-zinc-950/40"
+                class="mx-auto block max-h-48 w-auto rounded-xl border object-contain"
+                :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface-muted)' }"
               />
             </div>
           </div>
@@ -475,7 +493,7 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
     </section>
 
     <!-- Footer hint -->
-    <p class="text-[11px] text-zinc-400 dark:text-zinc-500">
+    <p class="text-[11px] text-[var(--p2-text-subtle)]">
       Changes apply on Save All. Adding new files uploads them with the next save.
     </p>
   </div>

@@ -242,45 +242,47 @@ const isBannerOrGif = computed(() => assetType.value === 'banner' || assetType.v
   <div class="space-y-6">
     <header class="flex items-start justify-between gap-4">
       <div class="min-w-0 flex-1">
-        <div class="mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+        <div class="p2-label mb-1 inline-flex items-center gap-1.5">
           <GitBranch class="h-3 w-3" />
           Set
         </div>
         <input :value="version.name"
-          class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-2xl font-semibold tracking-tight text-zinc-900 outline-none transition placeholder:text-zinc-400 hover:border-zinc-300 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 dark:border-zinc-800 dark:bg-zinc-950/30 dark:text-zinc-100 dark:placeholder:text-zinc-600 dark:hover:border-zinc-700 dark:focus:border-zinc-600 dark:focus:ring-zinc-600"
+          class="w-full rounded-xl border px-3 py-2 text-2xl font-semibold tracking-tight text-[var(--p2-text)] outline-none transition-colors duration-200 ease-[var(--p2-ease-expo)] placeholder:text-[var(--p2-text-subtle)]"
+          :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
           placeholder="Set name (optional)" @input="onName" />
       </div>
       <button type="button"
-        class="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-rose-200 text-rose-600 transition hover:bg-rose-50 dark:border-rose-900/50 dark:text-rose-400 dark:hover:bg-rose-950/30"
+        class="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-rose-500/30 text-rose-500 transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:border-rose-500/50 hover:bg-rose-500/10"
         title="Delete set" @click="$emit('delete')">
         <Trash2 class="h-4 w-4" />
       </button>
     </header>
 
     <!-- Section title with count -->
-    <div class="flex items-center gap-1.5 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-      <component :is="typeMeta!.icon" class="h-3.5 w-3.5" />
+    <div class="flex items-center gap-1.5 text-sm font-semibold tracking-tight text-[var(--p2-text)]">
+      <component :is="typeMeta!.icon" class="h-3.5 w-3.5" :style="{ color: 'var(--p2-accent)' }" />
       {{ typeMeta!.label }}
-      <span class="text-xs font-normal text-zinc-500 dark:text-zinc-400">({{ assets.length }})</span>
+      <span class="p2-mono text-xs font-normal text-[var(--p2-text-subtle)]">({{ assets.length }})</span>
     </div>
 
     <!-- Multi-file drop zone -->
     <section>
       <div :class="[
-        'group relative flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed text-center transition',
-        dragActive
-          ? 'border-zinc-400 bg-zinc-50 dark:border-zinc-500 dark:bg-zinc-900'
-          : 'border-zinc-200 bg-white hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900',
-        assets.length ? 'px-4 py-5' : 'px-4 py-12',
-      ]" @click="triggerPick" @dragover.prevent="dragActive = true" @dragleave.prevent="dragActive = false"
+          'group relative flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl border-2 border-dashed text-center transition-all duration-300 ease-[var(--p2-ease-expo)]',
+          assets.length ? 'px-4 py-5' : 'px-4 py-12',
+        ]"
+        :style="dragActive
+          ? { borderColor: 'var(--p2-accent)', background: 'var(--p2-accent-soft)' }
+          : { borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
+        @click="triggerPick" @dragover.prevent="dragActive = true" @dragleave.prevent="dragActive = false"
         @drop.prevent="onDrop">
         <input ref="fileInput" type="file" multiple :accept="typeMeta!.accept" class="hidden" @change="onPick" />
-        <Upload class="h-5 w-5 text-zinc-400 dark:text-zinc-500" />
-        <div class="text-sm font-medium text-zinc-700 dark:text-zinc-200">
+        <Upload class="h-5 w-5 text-[var(--p2-text-subtle)]" />
+        <div class="text-sm font-medium text-[var(--p2-text)]">
           Drop {{ typeMeta!.singular }}{{ typeMeta!.singular.endsWith('s') ? 'es' : 's' }} here, or
-          <span class="underline decoration-zinc-300 underline-offset-2 dark:decoration-zinc-700">click to browse</span>
+          <span class="underline underline-offset-2" :style="{ color: 'var(--p2-accent)' }">click to browse</span>
         </div>
-        <p class="text-[11px] text-zinc-400 dark:text-zinc-500">
+        <p class="text-[11px] text-[var(--p2-text-subtle)]">
           {{ typeMeta!.hint }} · Multiple files supported.
         </p>
       </div>
@@ -288,7 +290,7 @@ const isBannerOrGif = computed(() => assetType.value === 'banner' || assetType.v
 
     <!-- Draggable asset list -->
     <section v-if="assets.length">
-      <p v-if="assets.length > 1" class="mb-2 text-[11px] text-zinc-500 dark:text-zinc-400">
+      <p v-if="assets.length > 1" class="mb-2 text-[11px] text-[var(--p2-text-muted)]">
         Drag
         <GripVertical class="inline h-3 w-3 -translate-y-px" /> to reorder. Click an item to edit details.
       </p>
@@ -296,26 +298,31 @@ const isBannerOrGif = computed(() => assetType.value === 'banner' || assetType.v
         class="space-y-1.5" @end="onReorder">
         <template #item="{ element: a, index: i }">
           <div
-            class="group flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-2 py-2 text-sm transition dark:border-zinc-800 dark:bg-zinc-900"
-            :class="isBannerOrGif && !a.size_id ? 'border-amber-300 dark:border-amber-700/60' : ''">
+            class="group flex items-center gap-2 rounded-xl border px-2 py-2 text-sm transition-colors duration-300 ease-[var(--p2-ease-expo)]"
+            :style="{
+              borderColor: isBannerOrGif && !a.size_id ? 'rgba(245, 158, 11, 0.45)' : 'var(--p2-border)',
+              background: 'var(--p2-surface)',
+            }">
             <span
-              class="drag-handle grid h-7 w-5 shrink-0 cursor-grab place-items-center text-zinc-300 transition hover:text-zinc-600 active:cursor-grabbing dark:text-zinc-600 dark:hover:text-zinc-300"
+              class="drag-handle grid h-7 w-5 shrink-0 cursor-grab place-items-center text-[var(--p2-text-subtle)] transition-colors duration-200 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)] active:cursor-grabbing"
               title="Drag to reorder">
               <GripVertical class="h-3.5 w-3.5" />
             </span>
             <span
-              class="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-zinc-100 font-mono text-[11px] font-semibold tabular-nums text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+              class="p2-mono grid h-6 w-6 shrink-0 place-items-center rounded-md text-[11px] font-semibold tabular-nums text-[var(--p2-text-muted)]"
+              :style="{ background: 'var(--p2-accent-soft)' }">
               {{ i + 1 }}
             </span>
             <button type="button"
-              class="min-w-0 flex-1 truncate text-left font-mono text-zinc-800 transition hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-100"
+              class="p2-mono min-w-0 flex-1 truncate text-left text-[var(--p2-text)] transition-colors duration-200 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
               @click="tree.select({ kind: 'asset', id: a.id, assetType }); tree.expandPathTo({ kind: 'asset', id: a.id, assetType })">
               {{ assetLabel(a) }}
             </button>
 
             <!-- Size pill (banners + gifs, when size is set) -->
             <span v-if="isBannerOrGif && sizeChip(a)"
-              class="shrink-0 rounded-md bg-zinc-100 px-1.5 py-0.5 font-mono text-[11px] font-semibold tabular-nums text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+              class="p2-mono shrink-0 rounded-md px-1.5 py-0.5 text-[11px] font-semibold tabular-nums text-[var(--p2-text)]"
+              :style="{ background: 'var(--p2-accent-soft)' }">
               {{ sizeChip(a) }}
             </span>
 
@@ -327,18 +334,19 @@ const isBannerOrGif = computed(() => assetType.value === 'banner' || assetType.v
             </div>
 
             <span v-if="!isDbId(a.id)"
-              class="shrink-0 rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
+              class="shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold tracking-wider text-amber-600"
+              style="background: rgba(245, 158, 11, 0.12);"
               title="Unsaved — will be uploaded on Save All">
               NEW
             </span>
             <span v-else-if="a.file_size"
-              class="shrink-0 font-mono text-[11px] tabular-nums text-zinc-400 dark:text-zinc-500">
+              class="p2-mono shrink-0 text-[11px] tabular-nums text-[var(--p2-text-subtle)]">
               {{ a.file_size }}
             </span>
 
             <button
               type="button"
-              class="grid h-7 w-7 shrink-0 place-items-center rounded-md text-zinc-400 transition hover:bg-rose-50 hover:text-rose-600 dark:text-zinc-500 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
+              class="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[var(--p2-text-subtle)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:bg-rose-500/10 hover:text-rose-500"
               :title="isDbId(a.id) ? 'Delete asset' : 'Remove'"
               :aria-label="isDbId(a.id) ? 'Delete asset' : 'Remove asset'"
               @click.stop="removeAsset(a)"

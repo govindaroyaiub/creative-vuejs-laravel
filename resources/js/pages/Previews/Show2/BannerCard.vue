@@ -91,25 +91,39 @@ const wrapperStyle = computed(() => ({
 <template>
   <div
     ref="containerEl"
-    class="group flex flex-col overflow-hidden border border-zinc-200 bg-white transition hover:border-zinc-300 hover:shadow-md hover:shadow-zinc-900/5 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
-    :style="wrapperStyle"
+    class="group flex flex-col overflow-hidden border bg-[var(--p2-surface)] transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5"
+    :style="{ ...wrapperStyle, borderColor: 'var(--p2-border)', boxShadow: '0 1px 0 var(--p2-hairline)' }"
   >
-    <!-- Header -->
-    <div class="flex items-center justify-between gap-2 border-b border-zinc-100 px-3 py-2 dark:border-zinc-800">
-      <span class="inline-flex items-center gap-1.5 rounded-md bg-zinc-100 px-2 py-0.5 font-mono text-[11px] font-semibold tabular-nums text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
-        {{ width }}<span class="text-zinc-400 dark:text-zinc-500">×</span>{{ height }}
+    <!-- Header — dimensions + filesize, mono. -->
+    <div
+      class="flex items-center justify-between gap-2 border-b px-3 py-2"
+      :style="{ borderColor: 'var(--p2-hairline)' }"
+    >
+      <span
+        class="p2-mono inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11px] font-semibold tabular-nums text-[var(--p2-text)]"
+        :style="{ background: 'var(--p2-accent-soft)' }"
+      >
+        {{ width }}<span class="text-[var(--p2-text-subtle)]">×</span>{{ height }}
       </span>
-      <span v-if="fileSize" class="font-mono text-[11px] tabular-nums text-zinc-500 dark:text-zinc-400">
+      <span
+        v-if="fileSize"
+        class="p2-mono text-[11px] tabular-nums text-[var(--p2-text-muted)]"
+      >
         {{ fileSize }}
       </span>
     </div>
 
     <!-- Iframe stage -->
-    <div class="relative bg-zinc-50 dark:bg-zinc-950">
+    <div class="relative" :style="{ background: 'var(--p2-bg)' }">
       <div
         class="relative mx-auto overflow-hidden"
         :style="frameStyle"
       >
+        <!-- sandbox: allow-scripts (banners are HTML5 + JS) and
+             allow-popups (so clickTag links can open in a new tab),
+             but explicitly NOT allow-same-origin — that's the bit
+             that previously let a malicious banner read app cookies
+             and call authenticated endpoints in the parent's origin. -->
         <iframe
           v-if="isLoading || isLoaded"
           ref="iframeEl"
@@ -119,6 +133,8 @@ const wrapperStyle = computed(() => ({
           frameborder="0"
           scrolling="no"
           loading="lazy"
+          sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
+          referrerpolicy="no-referrer"
           class="block border-0"
           @load="onIframeLoad"
           @error="onIframeError"
@@ -128,42 +144,49 @@ const wrapperStyle = computed(() => ({
         <button
           v-if="!isLoaded && !isLoading"
           type="button"
-          class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-zinc-50 text-zinc-500 transition hover:bg-zinc-100 dark:bg-zinc-950 dark:text-zinc-400 dark:hover:bg-zinc-900"
+          class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)]"
+          :style="{ background: 'var(--p2-bg)' }"
           :aria-label="`Load banner ${width}x${height}`"
           @click="loadIframe"
         >
-          <span class="grid h-10 w-10 place-items-center rounded-full bg-white shadow-sm ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-700">
+          <span
+            class="grid h-10 w-10 place-items-center rounded-full border"
+            :style="{ background: 'var(--p2-surface)', borderColor: 'var(--p2-border)' }"
+          >
             <Play class="h-4 w-4 translate-x-[1px]" :style="{ color: 'var(--p2-accent)' }" />
           </span>
-          <span class="text-xs font-medium">Click to load</span>
+          <span class="p2-label text-[10px]">Click to load</span>
         </button>
 
         <!-- Loading -->
         <div
           v-if="isLoading && !isLoaded"
-          class="pointer-events-none absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-zinc-950/60"
+          class="pointer-events-none absolute inset-0 flex items-center justify-center"
+          :style="{ background: 'color-mix(in srgb, var(--p2-bg) 60%, transparent)' }"
         >
           <div
-            class="h-5 w-5 animate-spin rounded-full border-2 border-zinc-200 dark:border-zinc-700"
-            :style="{ borderTopColor: 'var(--p2-accent)' }"
+            class="h-5 w-5 animate-spin rounded-full border-2"
+            :style="{ borderColor: 'var(--p2-border)', borderTopColor: 'var(--p2-accent)' }"
           />
         </div>
 
         <!-- Error -->
         <div
           v-if="hasError"
-          class="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400"
+          class="absolute inset-0 flex flex-col items-center justify-center gap-1 text-rose-500"
+          style="background: rgba(244, 63, 94, 0.06);"
         >
-          <span class="text-xs font-semibold">Failed to load</span>
+          <span class="p2-label text-rose-500">Failed to load</span>
           <button type="button" class="text-[11px] underline" @click="reload">Retry</button>
         </div>
       </div>
 
       <!-- Hover action cluster -->
-      <div class="pointer-events-none absolute right-2 bottom-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+      <div class="pointer-events-none absolute right-2 bottom-2 flex gap-1 opacity-0 transition-opacity duration-300 ease-[var(--p2-ease-expo)] group-hover:opacity-100">
         <button
           type="button"
-          class="pointer-events-auto grid h-7 w-7 place-items-center rounded-md bg-white/90 text-zinc-700 shadow-sm ring-1 ring-zinc-200 backdrop-blur transition hover:bg-white hover:text-[var(--p2-accent)] dark:bg-zinc-900/90 dark:text-zinc-300 dark:ring-zinc-700 dark:hover:bg-zinc-900"
+          class="pointer-events-auto grid h-7 w-7 place-items-center rounded-full border text-[var(--p2-text-muted)] backdrop-blur transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+          :style="{ background: 'var(--p2-surface-muted)', borderColor: 'var(--p2-border)' }"
           aria-label="Reload banner"
           @click.stop="reload"
         >
@@ -172,7 +195,8 @@ const wrapperStyle = computed(() => ({
         <a
           v-if="isPlanetNine"
           :href="`/previews/banner/download/${banner.id}`"
-          class="pointer-events-auto grid h-7 w-7 place-items-center rounded-md bg-white/90 text-zinc-700 shadow-sm ring-1 ring-zinc-200 backdrop-blur transition hover:bg-white hover:text-[var(--p2-accent)] dark:bg-zinc-900/90 dark:text-zinc-300 dark:ring-zinc-700 dark:hover:bg-zinc-900"
+          class="pointer-events-auto grid h-7 w-7 place-items-center rounded-full border text-[var(--p2-text-muted)] backdrop-blur transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+          :style="{ background: 'var(--p2-surface-muted)', borderColor: 'var(--p2-border)' }"
           aria-label="Download banner"
         >
           <Download class="h-3.5 w-3.5" />

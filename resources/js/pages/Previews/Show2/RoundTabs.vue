@@ -46,17 +46,12 @@ watch(
 
 <template>
   <section class="mb-6">
-    <div class="flex items-center justify-between gap-3 mb-3">
+    <div class="mb-3 flex items-center justify-between gap-3">
       <div>
-        <h2
-          class="text-xs font-semibold uppercase tracking-[0.12em]"
-          :style="{ color: 'var(--p2-accent)' }"
-        >
-          Revision Round
-        </h2>
-        <p v-if="!isLoading && feedbacks.length" class="mt-0.5 text-sm text-zinc-700 dark:text-zinc-300">
+        <p class="p2-label" :style="{ color: 'var(--p2-accent)' }">Revision Round</p>
+        <p v-if="!isLoading && feedbacks.length" class="mt-1 text-sm text-[var(--p2-text)]">
           <span class="font-medium">{{ activeFeedback?.name || '—' }}</span>
-          <span class="text-zinc-400 dark:text-zinc-500"> · {{ activeIndex + 1 }} of {{ feedbacks.length }}</span>
+          <span class="p2-mono text-[var(--p2-text-subtle)]"> · {{ activeIndex + 1 }} / {{ feedbacks.length }}</span>
         </p>
       </div>
 
@@ -64,7 +59,8 @@ watch(
         <button
           type="button"
           :disabled="activeIndex <= 0"
-          class="grid h-8 w-8 place-items-center rounded-lg border border-zinc-200 bg-white text-zinc-600 transition hover:border-[var(--p2-accent)] hover:text-[var(--p2-accent)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-zinc-200 disabled:hover:text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:disabled:hover:border-zinc-800 dark:disabled:hover:text-zinc-300"
+          class="grid h-8 w-8 place-items-center rounded-full border bg-[var(--p2-surface-muted)] text-[var(--p2-text-muted)] backdrop-blur-md transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-[var(--p2-text-muted)]"
+          :style="{ borderColor: 'var(--p2-border)' }"
           aria-label="Previous round"
           @click="goPrev"
         >
@@ -73,7 +69,8 @@ watch(
         <button
           type="button"
           :disabled="activeIndex >= feedbacks.length - 1"
-          class="grid h-8 w-8 place-items-center rounded-lg border border-zinc-200 bg-white text-zinc-600 transition hover:border-[var(--p2-accent)] hover:text-[var(--p2-accent)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-zinc-200 disabled:hover:text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:disabled:hover:border-zinc-800 dark:disabled:hover:text-zinc-300"
+          class="grid h-8 w-8 place-items-center rounded-full border bg-[var(--p2-surface-muted)] text-[var(--p2-text-muted)] backdrop-blur-md transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-[var(--p2-text-muted)]"
+          :style="{ borderColor: 'var(--p2-border)' }"
           aria-label="Next round"
           @click="goNext"
         >
@@ -83,7 +80,12 @@ watch(
     </div>
 
     <div v-if="isLoading" class="flex gap-2">
-      <div v-for="n in 3" :key="n" class="h-10 w-32 animate-pulse rounded-full bg-zinc-100 dark:bg-zinc-800" />
+      <div
+        v-for="n in 3"
+        :key="n"
+        class="h-10 w-32 animate-pulse rounded-full"
+        :style="{ background: 'var(--p2-hairline)' }"
+      />
     </div>
 
     <div
@@ -97,15 +99,15 @@ watch(
         type="button"
         :data-active="f.id === activeFeedback?.id"
         :class="[
-          'group relative shrink-0 snap-start rounded-full border px-4 py-2 text-sm font-medium transition',
+          'group relative shrink-0 snap-start rounded-full border px-4 py-2 text-sm font-medium backdrop-blur-md transition-all duration-300 ease-[var(--p2-ease-expo)]',
           f.id === activeFeedback?.id
             ? 'border-transparent text-white shadow-sm'
-            : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-700 dark:hover:bg-zinc-800',
+            : 'text-[var(--p2-text-muted)] hover:text-[var(--p2-text)]',
         ]"
         :style="
           f.id === activeFeedback?.id
             ? { background: 'linear-gradient(135deg, var(--p2-accent) 0%, var(--p2-accent-2) 100%)' }
-            : undefined
+            : { background: 'var(--p2-surface-muted)', borderColor: 'var(--p2-border)' }
         "
         @click="$emit('select', f.id)"
       >
@@ -120,7 +122,11 @@ watch(
       </button>
     </div>
 
-    <div v-else class="rounded-xl border border-dashed border-zinc-200 bg-white px-4 py-6 text-center text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
+    <div
+      v-else
+      class="rounded-2xl border border-dashed px-4 py-6 text-center text-sm text-[var(--p2-text-muted)]"
+      :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface-muted)' }"
+    >
       No revision rounds yet.
     </div>
   </section>

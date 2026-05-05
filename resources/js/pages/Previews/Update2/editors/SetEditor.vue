@@ -23,23 +23,24 @@ const addVersion = () => {
   <div class="space-y-6">
     <header class="flex items-start justify-between gap-4">
       <div class="min-w-0 flex-1">
-        <div class="mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+        <div class="p2-label mb-1 inline-flex items-center gap-1.5">
           <Layers class="h-3 w-3" />
           Version
         </div>
         <input
           :value="set.name"
-          class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-2xl font-semibold tracking-tight text-zinc-900 outline-none transition placeholder:text-zinc-400 hover:border-zinc-300 focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 dark:border-zinc-800 dark:bg-zinc-950/30 dark:text-zinc-100 dark:placeholder:text-zinc-600 dark:hover:border-zinc-700 dark:focus:border-zinc-600 dark:focus:ring-zinc-600"
+          class="w-full rounded-xl border px-3 py-2 text-2xl font-semibold tracking-tight text-[var(--p2-text)] outline-none transition-colors duration-200 ease-[var(--p2-ease-expo)] placeholder:text-[var(--p2-text-subtle)]"
+          :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
           placeholder="Version name (optional)"
           @input="onName"
         />
-        <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+        <p class="mt-1 text-xs text-[var(--p2-text-muted)]">
           A version can hold multiple sets of assets — for example, "Holiday version" with size variations inside it.
         </p>
       </div>
       <button
         type="button"
-        class="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-rose-200 text-rose-600 transition hover:bg-rose-50 dark:border-rose-900/50 dark:text-rose-400 dark:hover:bg-rose-950/30"
+        class="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-rose-500/30 text-rose-500 transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:border-rose-500/50 hover:bg-rose-500/10"
         title="Delete version"
         @click="$emit('delete')"
       >
@@ -49,10 +50,11 @@ const addVersion = () => {
 
     <section>
       <div class="mb-3 flex items-center justify-between">
-        <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Sets in this version</h3>
+        <h3 class="text-sm font-semibold tracking-tight text-[var(--p2-text)]">Sets in this version</h3>
         <button
           type="button"
-          class="inline-flex items-center gap-1 rounded-md bg-indigo-50 px-2.5 py-1.5 text-[11px] font-semibold text-indigo-700 ring-1 ring-inset ring-indigo-200 transition hover:bg-indigo-100 dark:bg-indigo-500/15 dark:text-indigo-300 dark:ring-indigo-500/30 dark:hover:bg-indigo-500/25"
+          class="inline-flex h-8 items-center gap-1 rounded-full px-3 text-[11px] font-semibold text-white transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5"
+          :style="{ background: 'linear-gradient(135deg, var(--p2-accent) 0%, var(--p2-accent-2) 100%)' }"
           @click="addVersion"
         >
           <Plus class="h-3 w-3" /> New set
@@ -62,21 +64,26 @@ const addVersion = () => {
         <li
           v-for="v in set.versions"
           :key="v.id"
-          class="flex items-center justify-between rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-800 dark:bg-zinc-900"
+          class="flex items-center justify-between rounded-xl border px-3 py-2 text-sm transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:border-[var(--p2-accent-muted)]"
+          :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
         >
           <button
             type="button"
-            class="min-w-0 flex-1 truncate text-left text-zinc-800 transition hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-100"
+            class="min-w-0 flex-1 truncate text-left text-[var(--p2-text)] transition-colors duration-200 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
             @click="tree.select({ kind: 'version', id: v.id }); tree.expandPathTo({ kind: 'version', id: v.id })"
           >
             {{ v.name || 'Set' }}
           </button>
-          <span class="text-[11px] text-zinc-400 dark:text-zinc-500">
+          <span class="p2-mono text-[11px] text-[var(--p2-text-subtle)]">
             {{ (v.banners?.length || 0) + (v.videos?.length || 0) + (v.socials?.length || 0) + (v.gifs?.length || 0) }} assets
           </span>
         </li>
       </ul>
-      <p v-else class="rounded-lg border border-dashed border-zinc-200 px-4 py-6 text-center text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+      <p
+        v-else
+        class="rounded-2xl border border-dashed px-4 py-6 text-center text-xs text-[var(--p2-text-muted)]"
+        :style="{ borderColor: 'var(--p2-border)' }"
+      >
         No sets yet.
       </p>
     </section>

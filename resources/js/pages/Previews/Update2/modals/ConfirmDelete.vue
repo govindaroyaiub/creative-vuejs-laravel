@@ -31,28 +31,36 @@ watch(() => props.open, (v) => {
 <template>
   <Teleport to="body">
     <Transition name="fade">
-      <div v-if="open" class="fixed inset-0 z-[80] bg-zinc-900/40 backdrop-blur-sm" @click="close" />
+      <div
+        v-if="open"
+        class="fixed inset-0 z-[80] backdrop-blur-md"
+        style="background: rgba(11, 11, 16, 0.55);"
+        @click="close"
+      />
     </Transition>
     <Transition name="pop">
       <div v-if="open" class="fixed inset-0 z-[80] flex items-center justify-center p-4" @click="close">
         <div
-          class="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-5 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900"
+          class="update2-root w-full max-w-md rounded-3xl border p-5 shadow-2xl"
+          :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-bg)' }"
           @click.stop
         >
           <div class="flex gap-3">
-            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-rose-100 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400">
+            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-rose-500/10 text-rose-500">
               <AlertTriangle class="h-5 w-5" />
             </span>
             <div class="min-w-0 flex-1">
-              <h3 class="text-base font-semibold text-zinc-900 dark:text-zinc-100">Confirm delete</h3>
-              <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-300">{{ message }}</p>
+              <p class="p2-label">Confirm</p>
+              <h3 class="mt-1 text-base font-semibold tracking-tight text-[var(--p2-text)]">Confirm delete</h3>
+              <p class="mt-1 text-sm text-[var(--p2-text-muted)]">{{ message }}</p>
             </div>
           </div>
           <div class="mt-5 flex justify-end gap-2">
             <button
               type="button"
               :disabled="isLoading"
-              class="rounded-lg border border-zinc-200 px-3.5 py-2 text-xs font-medium text-zinc-700 transition hover:border-zinc-300 hover:text-zinc-900 disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:text-zinc-100"
+              class="inline-flex h-9 items-center rounded-full border px-4 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)] disabled:opacity-50"
+              :style="{ borderColor: 'var(--p2-border)' }"
               @click="close"
             >
               Cancel
@@ -60,7 +68,7 @@ watch(() => props.open, (v) => {
             <button
               type="button"
               :disabled="isLoading"
-              class="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-rose-700 disabled:opacity-70"
+              class="inline-flex h-9 items-center gap-1.5 rounded-full bg-rose-600 px-4 text-xs font-semibold text-white shadow-sm transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5 hover:bg-rose-500 disabled:opacity-70 disabled:hover:translate-y-0"
               @click="$emit('confirm')"
             >
               <Loader2 v-if="isLoading" class="h-3.5 w-3.5 animate-spin" />
