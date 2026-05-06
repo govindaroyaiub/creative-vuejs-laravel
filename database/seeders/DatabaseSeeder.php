@@ -337,6 +337,7 @@ class DatabaseSeeder extends Seeder
             ['title' => 'Media Library', 'href' => '/medias'],
             ['title' => 'Tetris', 'href' => '/play/tetris'],
             ['title' => 'Templates', 'href' => '/templates'],
+            ['title' => 'Generate Reports', 'href' => '/generate/reports'],
             ['title' => 'Access Manager', 'href' => '/user-managements'],
             ['title' => 'Change Password', 'href' => '/change-password'],
             ['title' => 'Activity Logs', 'href' => '/activity-logs'],
@@ -506,5 +507,8 @@ class DatabaseSeeder extends Seeder
         foreach ($socials as $social) {
             Social::create($social);
         }
+
+        // Generate Reports — registered ad-network sources (parsing config).
+        $this->call(ReportSourceSeeder::class);
     }
 }

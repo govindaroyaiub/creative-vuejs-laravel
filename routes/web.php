@@ -30,6 +30,7 @@ use App\Http\Controllers\TetrisController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\CacheManagementController;
 use App\Http\Controllers\PreviewTourGuideController;
+use App\Http\Controllers\ReportController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -205,6 +206,12 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::put('/support-tickets/{ticket}/priority', [App\Http\Controllers\SupportTicketController::class, 'updatePriority'])->name('support-tickets.update-priority');
     Route::delete('/support-tickets/{ticket}', [App\Http\Controllers\SupportTicketController::class, 'destroy'])->name('support-tickets.destroy');
     //Support Ticket Routes End
+
+    //Generate Reports Routes Start
+    Route::get('/generate/reports', [ReportController::class, 'index'])->name('generate-reports.index');
+    Route::post('/generate/reports/upload', [ReportController::class, 'upload'])->name('generate-reports.upload');
+    Route::get('/generate/reports/export', [ReportController::class, 'export'])->name('generate-reports.export');
+    //Generate Reports Routes End
 });
 
 Route::get('/previews/show/{slug}', [newPreviewController::class, 'show'])->name('previews-show');

@@ -16,6 +16,7 @@
 import {
     Activity,
     ChartNoAxesCombined,
+    FileBarChart2,
     FileCode,
     Handshake,
     HardDriveIcon,
@@ -44,6 +45,7 @@ export const MAIN_NAV_ITEMS: NavItem[] = [
     { title: 'Media Library', href: '/medias', icon: ImagePlay },
     { title: 'Tetris', href: '/play/tetris', icon: Type },
     { title: 'Templates', href: '/templates', icon: LayoutTemplate },
+    { title: 'Generate Reports', href: '/generate/reports', icon: FileBarChart2 },
 ];
 
 export const FOOTER_NAV_ITEMS: NavItem[] = [
