@@ -33,6 +33,11 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // One-shot flag picked up by AppLayout to render the welcome banner
+        // on the first authenticated page after login. The flash auto-clears
+        // on the next request so the banner only fires per-login, not per-visit.
+        $request->session()->flash('welcome_back', true);
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
