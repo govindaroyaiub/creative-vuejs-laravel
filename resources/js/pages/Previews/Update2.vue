@@ -373,7 +373,7 @@ onBeforeUnmount(() => {
 
   background-color: var(--p2-bg);
   color: var(--p2-text);
-  font-family: 'Inter', 'Montserrat', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-feature-settings: 'cv11', 'ss01', 'tnum';
 }
 
