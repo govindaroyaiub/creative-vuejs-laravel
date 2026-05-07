@@ -23,6 +23,9 @@ const frameStyle = computed(() => ({
   height: height.value + 'px',
 }))
 
+// Same responsive hook as BannerCard — see preview-banner-responsive.css.
+const bannerAreaClass = computed(() => `banner-area-${width.value}-${height.value}`)
+
 const reload = () => {
   if (iframeEl.value) iframeEl.value.src = iframeEl.value.src
 }
@@ -30,7 +33,7 @@ const reload = () => {
 
 <template>
   <div
-    class="group flex flex-col overflow-hidden rounded-2xl border bg-[var(--p2-surface)] transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5"
+    :class="['group flex flex-col overflow-hidden rounded-2xl border bg-[var(--p2-surface)] transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5', bannerAreaClass]"
     :style="{ ...wrapperStyle, borderColor: 'var(--p2-border)' }"
   >
     <div
@@ -52,7 +55,7 @@ const reload = () => {
     </div>
 
     <div class="relative" :style="{ background: 'var(--p2-bg)' }">
-      <div class="mx-auto overflow-hidden" :style="frameStyle">
+      <div class="banner-card-frame mx-auto overflow-hidden" :style="frameStyle">
         <iframe
           ref="iframeEl"
           :src="`/${gif.path}`"

@@ -86,12 +86,18 @@ const wrapperStyle = computed(() => ({
   width: width.value + 'px',
   maxWidth: '100%',
 }))
+
+// Hooks the responsive scaling rules in `preview-banner-responsive.css`.
+// At narrow viewports the matching `.banner-area-W-H` rule shrinks the
+// outer wrapper + inner frame and applies `transform: scale()` to the
+// iframe so wide banners fit without horizontal overflow.
+const bannerAreaClass = computed(() => `banner-area-${width.value}-${height.value}`)
 </script>
 
 <template>
   <div
     ref="containerEl"
-    class="group flex flex-col overflow-hidden border bg-[var(--p2-surface)] transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5"
+    :class="['group flex flex-col overflow-hidden border bg-[var(--p2-surface)] transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5', bannerAreaClass]"
     :style="{ ...wrapperStyle, borderColor: 'var(--p2-border)', boxShadow: '0 1px 0 var(--p2-hairline)' }"
   >
     <!-- Header — dimensions + filesize, mono. -->
@@ -116,7 +122,7 @@ const wrapperStyle = computed(() => ({
     <!-- Iframe stage -->
     <div class="relative" :style="{ background: 'var(--p2-bg)' }">
       <div
-        class="relative mx-auto overflow-hidden"
+        class="banner-card-frame relative mx-auto overflow-hidden"
         :style="frameStyle"
       >
         <!-- sandbox: allow-scripts (banners are HTML5 + JS) and

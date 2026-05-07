@@ -13,6 +13,11 @@ import PaletteSwitcher from './Show2/PaletteSwitcher.vue'
 import IntroOverlay from './Show2/IntroOverlay.vue'
 import IntroAssistant from './Show2/IntroAssistant.vue'
 
+// Responsive scaling rules for BannerCard / GifCard at narrow viewports.
+// The cards bind `banner-area-{W}-{H}` on their outer wrapper and the
+// stylesheet shrinks + transform-scales matching widths. See file header.
+import '../../../css/preview-banner-responsive.css'
+
 type Palette = {
   id: number
   name: string
