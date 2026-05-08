@@ -23,7 +23,6 @@ return [
         '/medias',
         '/play/tetris',
         '/templates',
-        '/reports/checks',
     ],
 
     'footer' => [

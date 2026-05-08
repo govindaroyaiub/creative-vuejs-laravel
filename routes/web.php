@@ -206,14 +206,6 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::delete('/support-tickets/{ticket}', [App\Http\Controllers\SupportTicketController::class, 'destroy'])->name('support-tickets.destroy');
     //Support Ticket Routes End
 
-    //Report Checks Routes Start
-    Route::get('/reports/checks', [App\Http\Controllers\ReportCheckController::class, 'index'])->name('report-checks.index');
-    Route::get('/reports/checks/create', [App\Http\Controllers\ReportCheckController::class, 'create'])->name('report-checks.create');
-    Route::post('/reports/checks', [App\Http\Controllers\ReportCheckController::class, 'store'])->name('report-checks.store');
-    Route::get('/reports/checks/{check}', [App\Http\Controllers\ReportCheckController::class, 'show'])->name('report-checks.show');
-    Route::delete('/reports/checks/{check}', [App\Http\Controllers\ReportCheckController::class, 'destroy'])->name('report-checks.destroy');
-    //Report Checks Routes End
-
 });
 
 Route::get('/previews/show/{slug}', [newPreviewController::class, 'show'])->name('previews-show');
