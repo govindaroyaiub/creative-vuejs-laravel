@@ -167,6 +167,70 @@ class NewBannerController extends Controller
         }
     }
 
+    /**
+     * Public JS tag endpoint. Embedded on third-party sites or in
+     * ad platforms (CM360, etc.) via:
+     *
+     *   <script src="https://APP_URL/tag/banner/{id}.js" async></script>
+     *
+     * The script injects an iframe sized from `banner_sizes` and pointed
+     * at the banner's stored `index.html`. No auth — banner assets at
+     * `/uploads/banners/...` are already publicly served, so the tag
+     * adds no extra exposure.
+     */
+    public function tag($id)
+    {
+        $banner = newBanner::with('size')->find($id);
+
+        if (! $banner || ! $banner->size) {
+            return response("/* banner {$id} not found */", 404)
+                ->header('Content-Type', 'application/javascript');
+        }
+
+        // The tag is a no-op unless an active Orbit embed exists for
+        // this banner. Returning empty JS keeps third-party pages
+        // clean (no console errors, no rogue iframe) when toggled off.
+        $embed = \App\Models\OrbitEmbed::where('banner_id', $banner->id)->first();
+        if (! $embed || ! $embed->is_active) {
+            return response("/* orbit embed inactive */", 200)
+                ->header('Content-Type', 'application/javascript; charset=utf-8')
+                ->header('Cache-Control', 'no-store')
+                ->header('Access-Control-Allow-Origin', '*');
+        }
+
+        // Iframe loads the Orbit wrapper (not the raw index.html) so we
+        // can inject a click tracker. The preview page still uses the
+        // direct /uploads/... URL, keeping its metrics separate.
+        $iframeSrc = route('orbit.serve-banner', ['id' => $banner->id]);
+        $width  = (int) $banner->size->width;
+        $height = (int) $banner->size->height;
+
+        $trackUrl = route('orbit.track.view', ['id' => $banner->id]);
+
+        $payload = [
+            'src'    => $iframeSrc,
+            'width'  => $width,
+            'height' => $height,
+            'track'  => $trackUrl,
+        ];
+
+        $js = "(function(){var d=" . json_encode($payload, JSON_UNESCAPED_SLASHES) . ";"
+            . "var s=document.currentScript;"
+            . "var f=document.createElement('iframe');"
+            . "f.src=d.src;f.width=d.width;f.height=d.height;"
+            . "f.setAttribute('frameborder','0');f.setAttribute('scrolling','no');"
+            . "f.style.cssText='border:0;display:block;width:'+d.width+'px;height:'+d.height+'px;';"
+            . "if(s&&s.parentNode){s.parentNode.insertBefore(f,s);}else{document.body.appendChild(f);}"
+            . "try{if(navigator.sendBeacon){navigator.sendBeacon(d.track);}"
+            . "else{fetch(d.track,{method:'POST',mode:'no-cors',keepalive:true});}}catch(e){}"
+            . "})();";
+
+        return response($js, 200)
+            ->header('Content-Type', 'application/javascript; charset=utf-8')
+            ->header('Cache-Control', 'no-store')
+            ->header('Access-Control-Allow-Origin', '*');
+    }
+
     function download($id)
     {
         $banner = newBanner::findOrFail($id);
