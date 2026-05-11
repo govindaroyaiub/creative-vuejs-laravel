@@ -41,6 +41,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'enhanced.throttle' => EnhancedRateLimit::class,
         ]);
+
+        // Public tracking beacons hit cross-origin from third-party pages
+        // via sendBeacon, which can't carry a CSRF token.
+        $middleware->validateCsrfTokens(except: [
+            'track/orbit/*',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
