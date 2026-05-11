@@ -30,6 +30,7 @@ use App\Http\Controllers\TetrisController;
 use App\Http\Controllers\TemplateController;
 use App\Http\Controllers\CacheManagementController;
 use App\Http\Controllers\PreviewTourGuideController;
+use App\Http\Controllers\OrbitController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -206,7 +207,45 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::delete('/support-tickets/{ticket}', [App\Http\Controllers\SupportTicketController::class, 'destroy'])->name('support-tickets.destroy');
     //Support Ticket Routes End
 
+    //Orbit Routes Start
+    Route::get('/orbit', [OrbitController::class, 'index'])->name('orbit.index');
+    Route::get('/orbit/available-previews', [OrbitController::class, 'availablePreviews'])->name('orbit.available-previews');
+    Route::get('/orbit/available-banners/{preview}', [OrbitController::class, 'availableBannersForPreview'])
+        ->where('preview', '[0-9]+')
+        ->name('orbit.available-banners');
+    Route::post('/orbit', [OrbitController::class, 'store'])->name('orbit.store');
+    Route::post('/orbit/{id}/toggle', [OrbitController::class, 'toggle'])->name('orbit.toggle');
+    Route::delete('/orbit/{id}', [OrbitController::class, 'destroy'])->name('orbit.destroy');
+    //Orbit Routes End
+
 });
+
+// Public banner tag — embedded on third-party sites / ad platforms.
+// Throttled to keep the endpoint from being trivially abused as a
+// reflective amplifier; banner asset URLs are already publicly served.
+Route::get('/tag/banner/{id}.js', [NewBannerController::class, 'tag'])
+    ->where('id', '[0-9]+')
+    ->middleware('throttle:120,1')
+    ->name('orbit.banner-tag');
+
+// Public view-tracking beacon. CSRF-exempt (see bootstrap/app.php)
+// because it's hit cross-origin from sendBeacon on third-party pages.
+Route::post('/track/orbit/banner/{id}/view', [OrbitController::class, 'trackView'])
+    ->where('id', '[0-9]+')
+    ->middleware('throttle:600,1')
+    ->name('orbit.track.view');
+
+Route::post('/track/orbit/banner/{id}/click', [OrbitController::class, 'trackClick'])
+    ->where('id', '[0-9]+')
+    ->middleware('throttle:600,1')
+    ->name('orbit.track.click');
+
+// Iframe wrapper for the Orbit tag — serves index.html with an
+// injected <base> + click listener. The preview page is unaffected.
+Route::get('/orbit/serve/banner/{id}', [OrbitController::class, 'serveBanner'])
+    ->where('id', '[0-9]+')
+    ->middleware('throttle:300,1')
+    ->name('orbit.serve-banner');
 
 Route::get('/previews/show/{slug}', [newPreviewController::class, 'show'])->name('previews-show');
 Route::get('/previews/show2/{slug}', [newPreviewController::class, 'show2'])->name('previews-show-2');
