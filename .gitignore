@@ -35,3 +35,7 @@ public/Transfer Files/*
 
 # Ignore generated Laravel config caches
 /bootstrap/cache/*.php
+
+# dev-local artifacts
+/f1maximaal_creative
+/database/seeders/index.html

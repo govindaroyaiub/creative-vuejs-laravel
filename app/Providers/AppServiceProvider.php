@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
 use App\Models\newCategory;
 use App\Models\newFeedback;
 use App\Models\newFeedbackSet;
@@ -28,6 +29,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Force HTTPS scheme in production so url()/route() emit https://
+        // even when behind a proxy that forwards as http.
+        if (app()->environment('production')) {
+            URL::forceScheme('https');
+        }
+
         // Register model observers for notifications
         newCategory::observe(CategoryObserver::class);
         newFeedback::observe(FeedbackObserver::class);
