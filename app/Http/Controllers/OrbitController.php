@@ -52,7 +52,10 @@ class OrbitController extends Controller
                 'height'            => $banner?->size?->height,
                 'tag_url'           => $banner ? url("/tag/banner/{$banner->id}.js") : null,
                 'snippet'           => $banner
-                    ? '<script src="' . url("/tag/banner/{$banner->id}.js") . '" async></script>'
+                    ? '<ins style="display:inline-block;width:' . (int) ($banner->size?->width ?? 0)
+                        . 'px;height:' . (int) ($banner->size?->height ?? 0) . 'px">'
+                        . '<script src="' . url("/tag/banner/{$banner->id}.js") . '" async></script>'
+                        . '</ins>'
                     : null,
                 'impressions_count' => (int) ($embed->impressions_count ?? 0),
                 'clicks_count'      => (int) ($embed->clicks_count ?? 0),
