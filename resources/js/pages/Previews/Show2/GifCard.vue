@@ -37,7 +37,7 @@ const reload = () => {
     :style="{ ...wrapperStyle, borderColor: 'var(--p2-border)' }"
   >
     <div
-      class="flex items-center justify-between gap-2 border-b px-3 py-2"
+      class="flex items-center justify-between gap-2 border-b px-1 py-2"
       :style="{ borderColor: 'var(--p2-hairline)' }"
     >
       <span
