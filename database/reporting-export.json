@@ -1,0 +1,2087 @@
+{
+    "exported_at": "2026-06-26 02:23:45",
+    "settings": {
+        "oguryRate": 0.85,
+        "last_run": {
+            "at": "2026-06-26 02:23:45",
+            "missing": [
+                "Adform",
+                "GAM",
+                "GAM F1M",
+                "Ogury",
+                "Showheroes",
+                "Analytics",
+                "Adhese (F1)",
+                "Adhese (TopGear)",
+                "Adhese (Festileaks)"
+            ]
+        },
+        "synced_at": "2026-06-26 02:23:45"
+    },
+    "days": [
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-01",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 14.200000000000001,
+                "teads": 3.94,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 15834,
+                "teads": 4590,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 20424
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-02",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 10.21,
+                "teads": 3.36,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 12330,
+                "teads": 4214,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 16544
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-03",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 16.38,
+                "teads": 5.37,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 16752,
+                "teads": 6163,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 22915
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-04",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 20.17,
+                "teads": 10.22,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 28879,
+                "teads": 11800,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 40679
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-05",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 41.06,
+                "teads": 24.83,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 64465,
+                "teads": 29538,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 94003
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-06",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 48.13,
+                "teads": 33.1,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 80404,
+                "teads": 35760,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 116164
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-07",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 82.38,
+                "teads": 40.57,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 113897,
+                "teads": 42790,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 156687
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-08",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 67.28999999999999,
+                "teads": 38.29,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 118528,
+                "teads": 44182,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 162710
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-09",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 53.4,
+                "teads": 21.58,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 81766,
+                "teads": 24693,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 106459
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-10",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 54.61,
+                "teads": 21.44,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 82622,
+                "teads": 24990,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 107612
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-11",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 37.519999999999996,
+                "teads": 10.13,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 60755,
+                "teads": 18547,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 79302
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-12",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 35.04,
+                "teads": 7.94,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 57333,
+                "teads": 16022,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 73355
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-13",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 68,
+                "teads": 27.86,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 100461,
+                "teads": 35943,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 136404
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-14",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 32.17,
+                "teads": 25.73,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 66222,
+                "teads": 27279,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 93501
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-15",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 33.39,
+                "teads": 21.45,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 73229,
+                "teads": 27972,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 101201
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-16",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 39.629999999999995,
+                "teads": 12.49,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 64263,
+                "teads": 21338,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 85601
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-17",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 54.48,
+                "teads": 20.48,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 73902,
+                "teads": 28556,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 102458
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-18",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 39.019999999999996,
+                "teads": 19.64,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 53968,
+                "teads": 21952,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 75920
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-19",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 24.4,
+                "teads": 11.08,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 37226,
+                "teads": 17132,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 54358
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-20",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 16.37,
+                "teads": 4.77,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 23367,
+                "teads": 8228,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 31595
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-21",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 25.78,
+                "teads": 7.52,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 36165,
+                "teads": 14283,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 50448
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-22",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 22.68,
+                "teads": 7.06,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 27947,
+                "teads": 12927,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 40874
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-23",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 16.57,
+                "teads": 6.17,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 20675,
+                "teads": 10597,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 31272
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-06-24",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 18.689999999999998,
+                "teads": 4.26,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "seedtag": 23734,
+                "teads": 8258,
+                "showheroes": 0,
+                "gam": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "adhese": null,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 31992
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-01",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 2.45,
+                "teads": 0,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-02",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 3.1399999999999997,
+                "teads": 0,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-03",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 5.42,
+                "teads": 0,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-04",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 4.18,
+                "teads": 0,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-05",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 6.51,
+                "teads": 0,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-06",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 5.01,
+                "teads": 0,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-07",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 4.51,
+                "teads": 0,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-08",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 8.68,
+                "teads": 0.73,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-09",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 5.73,
+                "teads": 1.42,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-10",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 5.16,
+                "teads": 1.05,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-11",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 5.5600000000000005,
+                "teads": 1.01,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-12",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 7.52,
+                "teads": 1.29,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-13",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 7.6899999999999995,
+                "teads": 1.06,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-14",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 6.74,
+                "teads": 1.42,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-15",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 5.92,
+                "teads": 1.38,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-16",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 4.9,
+                "teads": 1.37,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-17",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 11.5,
+                "teads": 1.41,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-18",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 10.23,
+                "teads": 1.23,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-19",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 13.87,
+                "teads": 1.18,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-20",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 10.14,
+                "teads": 1.05,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-21",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 11.059999999999999,
+                "teads": 1.27,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-22",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 8.75,
+                "teads": 1.39,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-23",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 11.18,
+                "teads": 1.98,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-06-24",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 6.3,
+                "teads": 1.31,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-01",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 0.77,
+                "teads": 0.24,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-02",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 0.78,
+                "teads": 0.12,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-03",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 0.79,
+                "teads": 0.27,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-04",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 1.14,
+                "teads": 0.32,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-05",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 1.5,
+                "teads": 0.37,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-06",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 1.58,
+                "teads": 0.38,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-07",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 1.21,
+                "teads": 0.29,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-08",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 0.8200000000000001,
+                "teads": 0.2,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-09",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 1.28,
+                "teads": 0.11,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-10",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 1.4300000000000002,
+                "teads": 0.24,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-11",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 1.05,
+                "teads": 0.42,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-12",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 1.25,
+                "teads": 0.2,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-13",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 1.09,
+                "teads": 0.11,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-14",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 0.97,
+                "teads": 0.22,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-15",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 0.66,
+                "teads": 0.09,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-16",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 0.64,
+                "teads": 0.29,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-17",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 0.84,
+                "teads": 0.25,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-18",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 1.03,
+                "teads": 0,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-19",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 2.04,
+                "teads": 0.01,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-20",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 1.2999999999999998,
+                "teads": 0.01,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-21",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 1.58,
+                "teads": 0,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-22",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 1.3399999999999999,
+                "teads": 0.01,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-23",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 0.93,
+                "teads": 0,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "horses",
+            "date": "2026-06-24",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 1.73,
+                "teads": 0.01,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-01",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 8.73,
+                "teads": 0.13,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-02",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 8.440000000000001,
+                "teads": 0.23,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-03",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 52.24,
+                "teads": 0.41,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-04",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 28.45,
+                "teads": 0.12,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-05",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 15.760000000000002,
+                "teads": 0.28,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-06",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 11.35,
+                "teads": 0.22,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-07",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 10.17,
+                "teads": 0.18,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-08",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 9.18,
+                "teads": 0.16,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-09",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 11.93,
+                "teads": 0.17,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-10",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 11.299999999999999,
+                "teads": 0.18,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-11",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 9.91,
+                "teads": 0.16,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-12",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 8.57,
+                "teads": 0.12,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-13",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 8.129999999999999,
+                "teads": 0.15,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-14",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 9.08,
+                "teads": 0.36,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-15",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 6.81,
+                "teads": 0.24,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-16",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 5.51,
+                "teads": 0.1,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-17",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 4.83,
+                "teads": 0.05,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-18",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 5.17,
+                "teads": 0.06,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-19",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 5.18,
+                "teads": 0.06,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-20",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 4.71,
+                "teads": 0.05,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-21",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 5.92,
+                "teads": 0.17,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-22",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 7.83,
+                "teads": 0.17,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-23",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 5.26,
+                "teads": 0.1,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        },
+        {
+            "site": "topgear",
+            "date": "2026-06-24",
+            "revenue": {
+                "adhese": 0,
+                "gam": 0,
+                "seedtag": 6.83,
+                "teads": 0.06,
+                "showheroes": 0,
+                "adform": 0,
+                "ogury": 0,
+                "outbrain": 0,
+                "preferredDeals": 0
+            },
+            "impressions": null,
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 0
+        }
+    ]
+}

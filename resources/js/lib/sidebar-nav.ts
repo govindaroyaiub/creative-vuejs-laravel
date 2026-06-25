@@ -15,6 +15,7 @@
  */
 import {
     Activity,
+    BarChart3,
     ChartNoAxesCombined,
     FileCode,
     Handshake,
@@ -36,6 +37,7 @@ export type SidebarSection = 'main' | 'footer';
 
 export const MAIN_NAV_ITEMS: NavItem[] = [
     { title: 'Dashboard', href: '/dashboard', icon: ChartNoAxesCombined },
+    { title: 'Reporting', href: '/reporting', icon: BarChart3 },
     { title: 'Previews', href: '/previews', icon: Megaphone },
     { title: 'Color Palettes', href: '/color-palettes', icon: Paintbrush },
     { title: 'Clients', href: '/clients', icon: Handshake },
@@ -137,5 +139,50 @@ export function preferencesForEditor(
         }
     }
 
+    return rows;
+}
+
+// ─── Cross-section support ─────────────────────────────────────────────────────
+// Items may be moved between Workspace (main) and Footer tools, so rendering and
+// the editor resolve hrefs against the union of all items, and place each item in
+// whichever section the user's saved prefs put it (falling back to its default).
+
+export const ALL_NAV_ITEMS: NavItem[] = [...MAIN_NAV_ITEMS, ...FOOTER_NAV_ITEMS];
+
+const DEFAULT_SECTION: Record<string, SidebarSection> = (() => {
+    const m: Record<string, SidebarSection> = {};
+    for (const it of MAIN_NAV_ITEMS) m[it.href] = 'main';
+    for (const it of FOOTER_NAV_ITEMS) m[it.href] = 'footer';
+    return m;
+})();
+
+/** Visible items to RENDER in a section (honours cross-section moves + hidden). */
+export function navItemsForSection(section: SidebarSection, prefs: NavPreferences | null | undefined): NavItem[] {
+    const byHref = new Map(ALL_NAV_ITEMS.map((it) => [it.href, it]));
+    const saved = prefs?.[section] ?? [];
+    const seen = new Set<string>([...(prefs?.main ?? []), ...(prefs?.footer ?? [])].map((p) => p.href));
+    const ordered = saved
+        .filter((p) => p.visible && byHref.has(p.href))
+        .map((p) => byHref.get(p.href)!);
+    const newcomers = ALL_NAV_ITEMS.filter((it) => !seen.has(it.href) && DEFAULT_SECTION[it.href] === section);
+    return [...ordered, ...newcomers];
+}
+
+/** Editor rows for a section (includes hidden), honouring cross-section moves. */
+export function editorRowsForSection(
+    section: SidebarSection,
+    prefs: NavPreferences | null | undefined,
+): Array<NavItem & { visible: boolean }> {
+    const byHref = new Map(ALL_NAV_ITEMS.map((it) => [it.href, it]));
+    const saved = prefs?.[section] ?? [];
+    const seen = new Set<string>([...(prefs?.main ?? []), ...(prefs?.footer ?? [])].map((p) => p.href));
+    const rows: Array<NavItem & { visible: boolean }> = [];
+    for (const p of saved) {
+        const it = byHref.get(p.href);
+        if (it) rows.push({ ...it, visible: p.visible });
+    }
+    for (const it of ALL_NAV_ITEMS) {
+        if (!seen.has(it.href) && DEFAULT_SECTION[it.href] === section) rows.push({ ...it, visible: true });
+    }
     return rows;
 }

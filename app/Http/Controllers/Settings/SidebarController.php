@@ -48,17 +48,19 @@ class SidebarController extends Controller
      */
     public function update(Request $request): RedirectResponse
     {
-        $allowed = [
-            'main'   => config('sidebar.main', []),
-            'footer' => config('sidebar.footer', []),
-        ];
+        // Items may be moved between sections, so any known href is valid in
+        // either section — validate against the union of both lists.
+        $allowed = array_values(array_unique(array_merge(
+            config('sidebar.main', []),
+            config('sidebar.footer', []),
+        )));
 
         $validated = $request->validate([
             'main'             => ['present', 'array'],
-            'main.*.href'      => ['required', 'string', Rule::in($allowed['main'])],
+            'main.*.href'      => ['required', 'string', Rule::in($allowed)],
             'main.*.visible'   => ['required', 'boolean'],
             'footer'           => ['present', 'array'],
-            'footer.*.href'    => ['required', 'string', Rule::in($allowed['footer'])],
+            'footer.*.href'    => ['required', 'string', Rule::in($allowed)],
             'footer.*.visible' => ['required', 'boolean'],
         ]);
 
