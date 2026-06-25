@@ -8,6 +8,7 @@ use App\Http\Middleware\CheckUserPermission;
 use App\Http\Controllers\FileTransferController;
 use App\Http\Controllers\CreativeSizeController;
 use App\Http\Controllers\BillController;
+use App\Http\Controllers\ReportingController;
 use App\Http\Controllers\SocialController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\UserManagementController;
@@ -105,6 +106,20 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::put('/socials-edit/{id}', [SocialController::class, 'update'])->name('socials-update');
     Route::delete('/socials-delete/{id}', [SocialController::class, 'destroy'])->name('socials-delete');
     //Social Routes End
+
+    //Reporting Routes Start
+    Route::get('/reporting', [ReportingController::class, 'index'])->name('reporting');
+    Route::post('/reporting/process', [ReportingController::class, 'process'])->name('reporting-process');
+    Route::post('/reporting/save-adhese', [ReportingController::class, 'saveAdhese'])->name('reporting-save-adhese');
+    Route::post('/reporting/verify', [ReportingController::class, 'verify'])->name('reporting-verify');
+    Route::post('/reporting/verify-weekly', [ReportingController::class, 'verifyWeekly'])->name('reporting-verify-weekly');
+    Route::post('/reporting/config', [ReportingController::class, 'config'])->name('reporting-config');
+    Route::post('/reporting/links', [ReportingController::class, 'links'])->name('reporting-links');
+    Route::post('/reporting/sync', [ReportingController::class, 'sync'])->name('reporting-sync');
+    Route::get('/reporting/upload-files', [ReportingController::class, 'uploadFiles'])->name('reporting-upload-files');
+    Route::get('/reporting/download', [ReportingController::class, 'download'])->name('reporting-download');
+    Route::delete('/reporting/{siteId}/{dateKey}', [ReportingController::class, 'destroy'])->name('reporting-destroy');
+    //Reporting Routes End
 
     //Bills Routes Start
     Route::get('/bills', [BillController::class, 'index'])->name('bills');

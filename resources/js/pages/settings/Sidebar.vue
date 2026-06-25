@@ -11,9 +11,7 @@ import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 
 import {
-    MAIN_NAV_ITEMS,
-    FOOTER_NAV_ITEMS,
-    preferencesForEditor,
+    editorRowsForSection,
     type NavPreferenceEntry,
 } from '@/lib/sidebar-nav';
 
@@ -33,10 +31,10 @@ const page = usePage<SharedData>();
  * visible" rule for entries the user hasn't seen yet.
  */
 const initialMain = computed(() =>
-    preferencesForEditor(MAIN_NAV_ITEMS, (page.props.auth.user as any)?.nav_preferences?.main),
+    editorRowsForSection('main', (page.props.auth.user as any)?.nav_preferences),
 );
 const initialFooter = computed(() =>
-    preferencesForEditor(FOOTER_NAV_ITEMS, (page.props.auth.user as any)?.nav_preferences?.footer),
+    editorRowsForSection('footer', (page.props.auth.user as any)?.nav_preferences),
 );
 
 // Working copies the user is editing. Cloned from the initial state so
@@ -110,9 +108,10 @@ const justReset = computed(() => (page.props as any).status === 'sidebar-reset')
                     description="Reorder the sidebar items by dragging, or hide ones you don't use. Changes apply to your account on every device."
                 />
 
-                <form @submit.prevent="submit" class="space-y-8">
+                <form @submit.prevent="submit" class="space-y-6">
+                    <div class="grid gap-6 md:grid-cols-2 md:items-stretch">
                     <!-- ============ MAIN NAV ============ -->
-                    <section class="space-y-3">
+                    <section class="flex flex-col gap-3">
                         <header class="flex items-center justify-between">
                             <h3 class="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
                                 Workspace tools
@@ -124,11 +123,13 @@ const justReset = computed(() => (page.props as any).status === 'sidebar-reset')
 
                         <draggable
                             v-model="mainRows"
+                            :group="{ name: 'nav' }"
                             item-key="href"
                             handle=".sb-drag"
                             ghost-class="sb-ghost"
                             animation="180"
-                            class="space-y-1.5"
+                            class="flex-1 space-y-1.5 rounded-lg border border-dashed border-transparent transition-colors [&:empty]:border-[#CCCCCC] dark:[&:empty]:border-[#222222]"
+                            style="min-height: 12rem"
                         >
                             <template #item="{ element: row }">
                                 <div
@@ -169,7 +170,7 @@ const justReset = computed(() => (page.props as any).status === 'sidebar-reset')
                     </section>
 
                     <!-- ============ FOOTER NAV ============ -->
-                    <section class="space-y-3">
+                    <section class="flex flex-col gap-3">
                         <header class="flex items-center justify-between">
                             <h3 class="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
                                 Footer tools
@@ -181,11 +182,13 @@ const justReset = computed(() => (page.props as any).status === 'sidebar-reset')
 
                         <draggable
                             v-model="footerRows"
+                            :group="{ name: 'nav' }"
                             item-key="href"
                             handle=".sb-drag"
                             ghost-class="sb-ghost"
                             animation="180"
-                            class="space-y-1.5"
+                            class="flex-1 space-y-1.5 rounded-lg border border-dashed border-transparent transition-colors [&:empty]:border-[#CCCCCC] dark:[&:empty]:border-[#222222]"
+                            style="min-height: 12rem"
                         >
                             <template #item="{ element: row }">
                                 <div
@@ -217,6 +220,7 @@ const justReset = computed(() => (page.props as any).status === 'sidebar-reset')
                             </template>
                         </draggable>
                     </section>
+                    </div>
 
                     <!-- ============ ACTIONS ============ -->
                     <div class="flex flex-wrap items-center justify-between gap-3 border-t-2 border-[#CCCCCC] dark:border-[#222222] pt-4">

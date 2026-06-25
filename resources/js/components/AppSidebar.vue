@@ -6,11 +6,7 @@ import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import AppLogo from './AppLogo.vue';
 import { computed } from 'vue';
-import {
-    MAIN_NAV_ITEMS,
-    FOOTER_NAV_ITEMS,
-    applyNavPreferences,
-} from '@/lib/sidebar-nav';
+import { navItemsForSection } from '@/lib/sidebar-nav';
 
 const page = usePage<SharedData>();
 
@@ -22,10 +18,10 @@ const user = computed(() => page.props.auth.user);
 const navPrefs = computed(() => (user.value as any)?.nav_preferences ?? null);
 
 const visibleMainItems = computed(() =>
-    applyNavPreferences(MAIN_NAV_ITEMS, navPrefs.value?.main).filter(hasPermission),
+    navItemsForSection('main', navPrefs.value).filter(hasPermission),
 );
 const visibleFooterItems = computed(() =>
-    applyNavPreferences(FOOTER_NAV_ITEMS, navPrefs.value?.footer).filter(hasPermission),
+    navItemsForSection('footer', navPrefs.value).filter(hasPermission),
 );
 
 // Permission check — preserved verbatim from the previous version so

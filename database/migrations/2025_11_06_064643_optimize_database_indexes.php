@@ -135,8 +135,14 @@ return new class extends Migration
      */
     private function indexExists(string $table, string $indexName): bool
     {
-        $indexes = DB::select("SHOW INDEX FROM {$table} WHERE Key_name = ?", [$indexName]);
-        return !empty($indexes);
+        // Cross-driver index lookup (raw "SHOW INDEX" is MySQL-only and breaks the
+        // sqlite test database). Schema::getIndexes works on mysql and sqlite alike.
+        foreach (Schema::getIndexes($table) as $index) {
+            if (strtolower((string) ($index['name'] ?? '')) === strtolower($indexName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
