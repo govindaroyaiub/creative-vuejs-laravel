@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/compon
 import UserMenuContent from '@/components/UserMenuContent.vue';
 import { useInitials } from '@/composables/useInitials';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Upload, Download, AlertTriangle, CheckCircle2, XCircle, Loader2, CalendarDays, Coins, Eye, TrendingUp, Award, CalendarCheck, X, FileText, ArrowLeft, ExternalLink, Plus, Link2, Mail, Copy, Trash2, RefreshCw } from 'lucide-vue-next';
+import { Upload, Download, AlertTriangle, CheckCircle2, XCircle, Loader2, CalendarDays, Coins, Eye, TrendingUp, Award, CalendarCheck, X, FileText, ArrowLeft, ExternalLink, Plus, Link2, Mail, Copy, Trash2, RefreshCw, Circle, Settings, Minus } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, onMounted } from 'vue';
 import { Line, Doughnut } from 'vue-chartjs';
@@ -68,6 +68,36 @@ function checkForData() {
 }
 // Silent check on load — if the pulled snapshot is newer, ask before importing.
 onMounted(() => { if (sync.value.available) confirmSync(); });
+
+// ─── Deliverables reminder (configurable day; minimizable, never closable) ──────
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const reminderDay = computed<number>(() => (page.props.reminderDay ?? 3) as number);
+const reminderDayName = computed(() => DAY_NAMES[reminderDay.value] ?? 'Wednesday');
+const isReminderDay = computed(() => new Date().getDay() === reminderDay.value);
+const wnMinimized = ref(false);
+const wnKey = () => 'wn-min-' + new Date().toISOString().slice(0, 10);
+function minimizeWednesday() {
+    wnMinimized.value = true;
+    try { localStorage.setItem(wnKey(), '1'); } catch { /* ignore */ }
+}
+function expandWednesday() {
+    wnMinimized.value = false;
+    try { localStorage.removeItem(wnKey()); } catch { /* ignore */ }
+}
+onMounted(() => {
+    try { wnMinimized.value = !!localStorage.getItem(wnKey()); } catch { /* ignore */ }
+});
+
+// ─── Settings modal (Ogury rate + reminder day) ────────────────────────────────
+const showSettings = ref(false);
+const settingsDay = ref(reminderDay.value);
+function openSettings() { settingsDay.value = reminderDay.value; showSettings.value = true; }
+function saveSettings() {
+    router.post('/reporting/config', { oguryRate: oguryRate.value, reminderDay: settingsDay.value }, {
+        preserveScroll: true, preserveState: true,
+        onSuccess: () => { showSettings.value = false; Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Settings saved', timer: 1300, showConfirmButton: false }); },
+    });
+}
 
 // ─── Report-source links (where each partner report is downloaded from) ────────
 const reportLinks = ref<{ label: string; url: string }[]>([...((page.props.reportLinks as any[]) ?? [])]);
@@ -185,7 +215,8 @@ const selectedSite = ref('f1maximaal');
 const activeTab = ref<'summary' | 'table' | 'verify' | 'email'>('summary');
 const oguryRate = ref<number>(store.value?.config?.oguryRate ?? 0.85);
 const processing = ref(false);
-const pond = ref<any>(null);
+const fileInput = ref<HTMLInputElement | null>(null);
+const dragging = ref(false);
 const selectedUploadFiles = ref<File[]>([]);
 
 // Date-range filter. Defaults to the current month (preset applied below).
@@ -358,28 +389,52 @@ const REQUIRED: { key: string; label: string }[] = [
     { key: 'adhese_f1', label: 'Adhese (F1)' }, { key: 'adhese_tg', label: 'Adhese (TopGear)' }, { key: 'adhese_fl', label: 'Adhese (Festileaks)' },
 ];
 
-const missingFiles = computed<string[]>(() => {
-    if (!selectedUploadFiles.value.length) return [];
-    const uploaded = new Set<string>();
+// Live checklist: each required file is checked once a matching dropped file is
+// detected; unchecked items are the ones still missing.
+const checklist = computed(() => {
+    const detected = new Set<string>();
     const adhese = new Set<string>();
+    const fileFor: Record<string, string> = {};
     for (const f of selectedUploadFiles.value) {
         const t = detectType(f.name);
-        uploaded.add(t);
         if (t === 'adhese') {
             const n = f.name.toLowerCase();
-            if (n.includes('adhese tg') || n.includes('adhese topgear')) adhese.add('adhese_tg');
-            else if (n.includes('adhese fl') || n.includes('adhese festileaks')) adhese.add('adhese_fl');
-            else adhese.add('adhese_f1');
+            let k = 'adhese_f1';
+            if (n.includes('adhese tg') || n.includes('adhese topgear')) k = 'adhese_tg';
+            else if (n.includes('adhese fl') || n.includes('adhese festileaks')) k = 'adhese_fl';
+            adhese.add(k);
+            if (!fileFor[k]) fileFor[k] = f.name;
+        } else {
+            detected.add(t);
+            if (!fileFor[t]) fileFor[t] = f.name;
         }
     }
-    const present = (k: string) => (k.startsWith('adhese_') ? adhese.has(k) : uploaded.has(k));
-    return REQUIRED.filter((r) => !present(r.key)).map((r) => r.label);
+    return REQUIRED.map((r) => {
+        const checked = r.key.startsWith('adhese_') ? adhese.has(r.key) : detected.has(r.key);
+        return { ...r, checked, file: checked ? fileFor[r.key] : null };
+    });
 });
+const checkedCount = computed(() => checklist.value.filter((c) => c.checked).length);
+// Dropped files that don't map to a required slot (Outbrain, Preferred Deals, unknown).
+const extraFiles = computed(() => selectedUploadFiles.value.filter((f) => {
+    const t = detectType(f.name);
+    return !REQUIRED.some((r) => (r.key.startsWith('adhese_') ? t === 'adhese' : r.key === t));
+}));
 
-// FilePond fires this on every add/remove — keep our file list in sync so the
-// missing-files alert updates live the moment files are dropped.
-function onUpdateFiles(items: any[]) {
-    selectedUploadFiles.value = items.map((it) => it.file as File);
+function addFiles(list: FileList | null) {
+    if (!list) return;
+    selectedUploadFiles.value = [...selectedUploadFiles.value, ...Array.from(list)];
+}
+function onFilesChosen(e: Event) {
+    addFiles((e.target as HTMLInputElement).files);
+    (e.target as HTMLInputElement).value = '';
+}
+function onDrop(e: DragEvent) {
+    dragging.value = false;
+    addFiles(e.dataTransfer?.files ?? null);
+}
+function removeFile(f: File) {
+    selectedUploadFiles.value = selectedUploadFiles.value.filter((x) => x !== f);
 }
 
 // ─── Upload / process ──────────────────────────────────────────────────────────
@@ -392,18 +447,10 @@ function processFiles() {
         onStart: () => (processing.value = true),
         onFinish: () => (processing.value = false),
         onSuccess: () => {
-            pond.value?.removeFiles?.();
             selectedUploadFiles.value = [];
             Swal.fire({ icon: 'success', title: 'Processed', timer: 1400, showConfirmButton: false });
         },
         onError: (errors: any) => Swal.fire('Upload failed', (Object.values(errors)[0] as string) ?? 'Error', 'error'),
-    });
-}
-
-function saveOguryRate() {
-    router.post('/reporting/config', { oguryRate: oguryRate.value }, {
-        preserveScroll: true, preserveState: true,
-        onSuccess: () => Swal.fire({ icon: 'success', title: 'Ogury rate saved', timer: 1100, showConfirmButton: false }),
     });
 }
 
@@ -541,15 +588,12 @@ const tabs = [
                     <p class="text-sm text-muted-foreground">Ad-partner impressions & revenue across the four sites.</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <label class="flex items-center gap-2 text-sm">
-                        <span class="text-muted-foreground">Ogury €</span>
-                        <Input v-model.number="oguryRate" type="number" step="0.001" class="w-24" @change="saveOguryRate" />
-                    </label>
                     <Button variant="outline" :disabled="syncing" @click="checkForData">
                         <RefreshCw class="mr-2 h-4 w-4" :class="{ 'animate-spin': syncing }" /> Check for data
                     </Button>
                     <Button variant="outline" @click="showLinks = true"><Link2 class="mr-2 h-4 w-4" /> Report links</Button>
                     <Button variant="outline" @click="openDownload"><Download class="mr-2 h-4 w-4" /> Download</Button>
+                    <Button variant="outline" @click="openSettings"><Settings class="mr-2 h-4 w-4" /> Settings</Button>
                 </div>
             </div>
 
@@ -559,35 +603,55 @@ const tabs = [
                 <div><span class="font-medium">New data found — migration in progress.</span> Please wait…</div>
             </div>
 
-            <!-- Upload card -->
+            <!-- Upload card: checklist drop zone -->
             <Card>
-                <CardHeader class="flex flex-row items-center gap-2 pb-2">
-                    <Upload class="h-5 w-5 text-[#e2483d]" />
-                    <span class="font-medium">Upload partner files</span>
+                <CardHeader class="flex flex-row items-center justify-between gap-2 pb-2">
+                    <div class="flex items-center gap-2">
+                        <Upload class="h-5 w-5 text-[#e2483d]" />
+                        <span class="font-medium">Upload partner files</span>
+                    </div>
+                    <span class="rounded-full px-2.5 py-0.5 text-xs font-medium tabular-nums"
+                        :class="checkedCount === checklist.length ? 'bg-emerald-500/15 text-emerald-600' : 'bg-muted text-muted-foreground'">
+                        {{ checkedCount }}/{{ checklist.length }} ready
+                    </span>
                 </CardHeader>
                 <CardContent class="flex flex-col gap-3">
-                    <FilePond ref="pond" :allow-multiple="true" :instant-upload="false"
-                        label-idle="Drop partner reports here or <span class='filepond--label-action'>browse</span>"
-                        @updatefiles="onUpdateFiles" />
-                    <div v-if="selectedUploadFiles.length">
+                    <input ref="fileInput" type="file" multiple class="hidden" @change="onFilesChosen" />
+                    <div class="rounded-xl border-2 border-dashed p-4 transition"
+                        :class="dragging ? 'border-[#e2483d] bg-[#e2483d]/5' : 'border-muted-foreground/25'"
+                        @dragover.prevent="dragging = true" @dragleave.prevent="dragging = false" @drop.prevent="onDrop">
+                        <p class="mb-3 text-center text-sm text-muted-foreground">
+                            Drag &amp; drop reports here, or
+                            <button type="button" class="font-medium text-[#e2483d] hover:underline" @click="fileInput?.click()">browse</button>
+                            — checked = received, unchecked = still missing.
+                        </p>
+                        <div class="grid gap-1.5 sm:grid-cols-2">
+                            <div v-for="item in checklist" :key="item.key"
+                                class="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition"
+                                :class="item.checked ? 'bg-emerald-500/10' : 'bg-muted/40'">
+                                <CheckCircle2 v-if="item.checked" class="h-4 w-4 shrink-0 text-emerald-500" />
+                                <Circle v-else class="h-4 w-4 shrink-0 text-muted-foreground/40" />
+                                <span :class="item.checked ? 'font-medium' : 'text-muted-foreground'">{{ item.label }}</span>
+                                <span v-if="item.file" class="ml-auto max-w-[45%] truncate text-[11px] text-muted-foreground">{{ item.file }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Extra/optional files dropped that aren't in the checklist -->
+                    <div v-if="extraFiles.length" class="flex flex-wrap gap-1.5">
+                        <span v-for="(f, i) in extraFiles" :key="i" class="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-xs">
+                            <FileText class="h-3 w-3 text-muted-foreground" /> {{ f.name }}
+                            <button class="text-muted-foreground hover:text-red-500" @click="removeFile(f)"><X class="h-3 w-3" /></button>
+                        </span>
+                    </div>
+
+                    <div v-if="selectedUploadFiles.length" class="flex items-center gap-3">
                         <Button :disabled="processing" @click="processFiles">
                             <Loader2 v-if="processing" class="mr-2 h-4 w-4 animate-spin" />
                             Process {{ selectedUploadFiles.length }} file{{ selectedUploadFiles.length === 1 ? '' : 's' }}
                         </Button>
+                        <button class="text-xs text-muted-foreground hover:underline" @click="selectedUploadFiles = []">Clear</button>
                     </div>
-                </CardContent>
-            </Card>
-
-            <!-- Missing files alert (computed live from the dropped files) -->
-            <Card v-if="missingFiles.length" class="border-amber-500/50 bg-amber-500/5">
-                <CardContent class="flex flex-col gap-2 pt-6 text-sm">
-                    <div class="flex items-center gap-2 font-medium text-amber-600">
-                        <AlertTriangle class="h-5 w-5 shrink-0" />
-                        Missing files ({{ missingFiles.length }})
-                    </div>
-                    <ul class="flex flex-col gap-1 pl-7">
-                        <li v-for="m in missingFiles" :key="m" class="list-disc text-muted-foreground">{{ m }}</li>
-                    </ul>
                 </CardContent>
             </Card>
 
@@ -629,8 +693,8 @@ const tabs = [
                 </div>
             </div>
 
-            <!-- Anomalies (zero/missing partners for the selected range) -->
-            <Card v-if="anomalies.length" class="border-amber-500/40">
+            <!-- Anomalies (zero/missing partners for the selected range) — Summary tab only -->
+            <Card v-if="anomalies.length && activeTab === 'summary'" class="border-amber-500/40">
                 <CardHeader class="flex flex-row items-center gap-2 pb-2">
                     <AlertTriangle class="h-5 w-5 text-amber-500" />
                     <span class="font-medium">Anomalies <span class="text-muted-foreground">({{ anomalies.length }})</span></span>
@@ -964,6 +1028,62 @@ const tabs = [
                         </div>
                     </CardContent>
                 </Card>
+            </div>
+
+            <!-- Settings modal -->
+            <div v-if="showSettings" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="showSettings = false">
+                <Card class="w-full max-w-sm">
+                    <CardHeader class="flex flex-row items-center justify-between gap-2 pb-2">
+                        <span class="flex items-center gap-2 font-medium"><Settings class="h-5 w-5 text-[#e2483d]" /> Settings</span>
+                        <button class="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground" @click="showSettings = false"><X class="h-4 w-4" /></button>
+                    </CardHeader>
+                    <CardContent class="flex flex-col gap-4">
+                        <label class="flex flex-col gap-1">
+                            <span class="text-xs font-medium uppercase tracking-wide text-muted-foreground">Ogury € rate</span>
+                            <Input v-model.number="oguryRate" type="number" step="0.001" />
+                        </label>
+                        <label class="flex flex-col gap-1">
+                            <span class="text-xs font-medium uppercase tracking-wide text-muted-foreground">Deliverables reminder day</span>
+                            <select v-model.number="settingsDay" class="rounded-md border bg-background px-2 py-2 text-sm outline-none focus:ring-2 focus:ring-[#e2483d]/40">
+                                <option v-for="(d, i) in DAY_NAMES" :key="i" :value="i">{{ d }}</option>
+                            </select>
+                            <span class="text-[11px] text-muted-foreground">The weekly deliverables reminder appears on this day.</span>
+                        </label>
+                        <div class="flex justify-end border-t pt-3">
+                            <Button @click="saveSettings">Save</Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <!-- Deliverables reminder (configured day only; minimizable, never closable) -->
+            <!-- minimized pill -->
+            <button v-if="isReminderDay && wnMinimized"
+                class="fixed bottom-6 right-6 z-40 inline-flex items-center gap-2 rounded-full border border-l-4 border-l-[#e2483d] bg-card px-4 py-2 text-xs font-semibold shadow-2xl transition hover:bg-muted"
+                @click="expandWednesday">
+                <CalendarDays class="h-4 w-4 text-[#e2483d]" /> {{ reminderDayName }} deliverables
+            </button>
+            <!-- full card -->
+            <div v-if="isReminderDay && !wnMinimized" class="fixed bottom-6 right-6 z-40 w-80 rounded-xl border border-l-4 border-l-[#e2483d] bg-card p-4 shadow-2xl">
+                <div class="mb-1 flex items-center justify-between">
+                    <div class="flex items-center gap-2 text-sm font-bold"><CalendarDays class="h-4 w-4" /> {{ reminderDayName }} Deliverables — Week {{ weekNumber }}</div>
+                    <button class="text-muted-foreground hover:text-foreground" aria-label="Minimize" title="Minimize" @click="minimizeWednesday"><Minus class="h-4 w-4" /></button>
+                </div>
+                <p class="mb-3 text-xs text-muted-foreground">The following weekly reports are due today:</p>
+                <ol class="flex flex-col gap-2.5">
+                    <li class="flex flex-col gap-0.5 border-l-2 pl-3">
+                        <span class="text-xs font-semibold">Top Gear Weekly Report — Week {{ weekNumber }}</span>
+                        <span class="font-mono text-[11px] text-muted-foreground">TG-revenue-report-week{{ weekNumber }}</span>
+                    </li>
+                    <li class="flex flex-col gap-0.5 border-l-2 pl-3">
+                        <span class="text-xs font-semibold">Horses Weekly Report — Week {{ weekNumber }}</span>
+                        <span class="font-mono text-[11px] text-muted-foreground">Horses-revenue-report-week{{ weekNumber }}</span>
+                    </li>
+                    <li class="flex flex-col gap-0.5 border-l-2 pl-3">
+                        <span class="text-xs font-semibold">Festileaks Weekly Report — Week {{ weekNumber - 1 }} <span class="font-normal text-muted-foreground">(previous week)</span></span>
+                        <span class="font-mono text-[11px] text-muted-foreground">Festileaks-revenue-report-week{{ weekNumber - 1 }}</span>
+                    </li>
+                </ol>
             </div>
         </div>
     </div>

@@ -46,6 +46,7 @@ class ReportingController extends Controller
             'sites' => collect(Reporting::SITES)->map(fn ($cfg, $id) => ['id' => $id, 'name' => $cfg['name']])->values(),
             'uploadFiles' => ZipBuilder::availableFiles($this->uploadsDir()),
             'reportLinks' => ReportSetting::get('report_links', self::DEFAULT_LINKS),
+            'reminderDay' => (int) ReportSetting::get('reminder_day', 3),
             'sync' => $this->syncInfo(),
         ];
     }
@@ -263,9 +264,15 @@ class ReportingController extends Controller
     /** Update config (e.g. oguryRate). */
     public function config(Request $request)
     {
-        $data = $request->validate(['oguryRate' => 'nullable|numeric']);
+        $data = $request->validate([
+            'oguryRate' => 'nullable|numeric',
+            'reminderDay' => 'nullable|integer|between:0,6',
+        ]);
         if (array_key_exists('oguryRate', $data) && $data['oguryRate'] !== null) {
             ReportSetting::put('oguryRate', (float) $data['oguryRate']);
+        }
+        if (array_key_exists('reminderDay', $data) && $data['reminderDay'] !== null) {
+            ReportSetting::put('reminder_day', (int) $data['reminderDay']);
         }
 
         return redirect()->route('reporting')->with('success', 'Settings saved');
