@@ -118,21 +118,6 @@ function removeLink(i: number) {
     reportLinks.value.splice(i, 1);
     saveLinks();
 }
-// Auto-match: a source is "added" once a file of its partner is in the dropzone.
-const LABEL_TO_TYPE: Record<string, string> = {
-    seedtag: 'seedtag', teads: 'teads', showheroes: 'showheroes', gam: 'gam',
-    adform: 'adform', ogury: 'ogury', outbrain: 'outbrain', analytics: 'analytics',
-};
-const selectedTypes = computed(() => new Set(selectedUploadFiles.value.map((f) => detectType(f.name))));
-function linkType(label: string): string | null {
-    return LABEL_TO_TYPE[label.toLowerCase().replace(/\s+/g, '')] ?? null;
-}
-function linkDone(l: { label: string }): boolean {
-    const t = linkType(l.label);
-    return !!t && selectedTypes.value.has(t);
-}
-const matchedFetched = computed(() => reportLinks.value.filter(linkDone).length);
-const matchedTotal = computed(() => reportLinks.value.filter((l) => linkType(l.label)).length);
 
 // ─── Email report (per-site recipients + week-numbered subject) ─────────────────
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -941,15 +926,11 @@ const tabs = [
                         </div>
                     </CardHeader>
                     <CardContent class="flex flex-col gap-3">
-                        <div class="flex items-center justify-between text-xs text-muted-foreground">
-                            <span>Open a partner's page to download its file — it checks off once you add it below.</span>
-                            <span v-if="matchedTotal" class="shrink-0 rounded-full bg-muted px-2 py-0.5 font-medium tabular-nums">{{ matchedFetched }}/{{ matchedTotal }} added</span>
-                        </div>
+                        <p class="text-xs text-muted-foreground">Open a partner's page in a new tab to download its report.</p>
 
                         <div class="flex max-h-80 flex-col gap-2 overflow-y-auto">
                             <div v-for="(l, i) in reportLinks" :key="i"
-                                class="group flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition"
-                                :class="linkDone(l) ? 'border-emerald-500/40 bg-emerald-500/5' : 'hover:bg-muted/40'">
+                                class="group flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition hover:bg-muted/40">
                                 <a :href="l.url" target="_blank" rel="noopener noreferrer" class="flex min-w-0 flex-1 items-center gap-2">
                                     <ExternalLink class="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                                     <span class="min-w-0">
@@ -957,9 +938,6 @@ const tabs = [
                                         <span class="block truncate text-[11px] text-muted-foreground">{{ l.url }}</span>
                                     </span>
                                 </a>
-                                <span v-if="linkDone(l)" class="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-emerald-600">
-                                    <CheckCircle2 class="h-4 w-4" /> Added
-                                </span>
                                 <button class="text-muted-foreground opacity-0 transition hover:text-red-500 group-hover:opacity-100"
                                     title="Remove" @click="removeLink(i)"><X class="h-4 w-4" /></button>
                             </div>

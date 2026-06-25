@@ -2,18 +2,28 @@ import { onMounted, ref } from 'vue';
 
 type Appearance = 'light' | 'dark' | 'system';
 
-export function updateTheme(value: Appearance) {
+export function updateTheme(value: Appearance, animate = false) {
     if (typeof window === 'undefined') {
         return;
     }
 
-    if (value === 'system') {
-        const mediaQueryList = window.matchMedia('(prefers-color-scheme: dark)');
-        const systemTheme = mediaQueryList.matches ? 'dark' : 'light';
+    const apply = () => {
+        if (value === 'system') {
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.documentElement.classList.toggle('dark', systemTheme === 'dark');
+        } else {
+            document.documentElement.classList.toggle('dark', value === 'dark');
+        }
+    };
 
-        document.documentElement.classList.toggle('dark', systemTheme === 'dark');
+    // Animate the switch with a circular reveal (View Transitions API) when the
+    // user toggles it; init/system changes apply instantly.
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const startViewTransition = (document as Document & { startViewTransition?: (cb: () => void) => void }).startViewTransition;
+    if (animate && !reduced && typeof startViewTransition === 'function') {
+        startViewTransition.call(document, apply);
     } else {
-        document.documentElement.classList.toggle('dark', value === 'dark');
+        apply();
     }
 }
 
@@ -84,7 +94,7 @@ export function useAppearance() {
         // Store in cookie for SSR...
         setCookie('appearance', value);
 
-        updateTheme(value);
+        updateTheme(value, true);
     }
 
     return {
