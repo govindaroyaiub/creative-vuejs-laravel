@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/compon
 import UserMenuContent from '@/components/UserMenuContent.vue';
 import { useInitials } from '@/composables/useInitials';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Upload, Download, AlertTriangle, CheckCircle2, XCircle, Loader2, CalendarDays, Coins, Eye, TrendingUp, Award, CalendarCheck, X, FileText, ArrowLeft, ExternalLink, Plus, Link2, Mail, Copy, Trash2, RefreshCw, Circle, Settings, Minus } from 'lucide-vue-next';
+import { Upload, Download, AlertTriangle, CheckCircle2, XCircle, Loader2, CalendarDays, Coins, Eye, TrendingUp, Award, CalendarCheck, X, FileText, ArrowLeft, ExternalLink, Plus, Link2, Mail, Copy, Trash2, RefreshCw, Circle, Settings, Minus, ChevronDown } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, onMounted } from 'vue';
 import { Line, Doughnut } from 'vue-chartjs';
@@ -334,6 +334,7 @@ const doughnutOptions = {
 };
 
 // ─── Anomalies (zero/missing only) ─────────────────────────────────────────────
+const anomaliesOpen = ref(false);
 const anomalies = computed(() => {
     const arr = days.value; const n = arr.length; const out: any[] = [];
     for (const p of PARTNERS) {
@@ -531,7 +532,7 @@ const tabs = [
 
 <template>
     <Head title="Reporting" />
-    <div class="min-h-screen bg-background text-foreground">
+    <div class="min-h-screen bg-background font-mono text-foreground">
         <!-- Standalone top bar (no app sidebar) with a way back -->
         <header class="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
             <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
@@ -678,13 +679,14 @@ const tabs = [
                 </div>
             </div>
 
-            <!-- Anomalies (zero/missing partners for the selected range) — Summary tab only -->
+            <!-- Anomalies (zero/missing partners for the selected range) — Summary tab only, collapsed by default -->
             <Card v-if="anomalies.length && activeTab === 'summary'" class="border-amber-500/40">
-                <CardHeader class="flex flex-row items-center gap-2 pb-2">
-                    <AlertTriangle class="h-5 w-5 text-amber-500" />
+                <button class="flex w-full items-center gap-2 px-6 py-4 text-left" @click="anomaliesOpen = !anomaliesOpen">
+                    <AlertTriangle class="h-5 w-5 shrink-0 text-amber-500" />
                     <span class="font-medium">Anomalies <span class="text-muted-foreground">({{ anomalies.length }})</span></span>
-                </CardHeader>
-                <CardContent>
+                    <ChevronDown class="ml-auto h-4 w-4 text-muted-foreground transition-transform" :class="{ 'rotate-180': anomaliesOpen }" />
+                </button>
+                <CardContent v-show="anomaliesOpen" class="pt-0">
                     <ul class="flex flex-col gap-1 text-sm">
                         <li v-for="(a, i) in anomalies.slice(0, 60)" :key="i" class="flex items-center gap-2">
                             <span class="rounded bg-amber-500/15 px-1.5 py-0.5 text-xs font-medium tabular-nums">{{ a.dateKey }}</span>
