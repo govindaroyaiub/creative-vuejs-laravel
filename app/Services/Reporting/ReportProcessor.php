@@ -32,7 +32,7 @@ class ReportProcessor
             $fileTypes[$file['name']] = $type;
             try {
                 if ($type === 'adhese') {
-                    $adheseRows = array_merge($adheseRows, Extractors::adhese(file_get_contents($file['path']), $file['name']));
+                    $adheseRows = array_merge($adheseRows, Extractors::adhese($file['path'], $file['name']));
                 } else {
                     $pathByType[$type] = $file['path'];
                     $origByType[$type] = $file['name'];

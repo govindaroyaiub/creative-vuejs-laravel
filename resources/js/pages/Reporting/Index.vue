@@ -34,11 +34,15 @@ const { getInitials } = useInitials();
 const sync = computed<any>(() => (page.props.sync as any) ?? { available: false });
 const syncing = ref(false);
 function performSync() {
+    const prevF1Keys = new Set(Object.keys(store.value?.sites?.f1maximaal?.days ?? {}));
     router.post('/reporting/sync', {}, {
         preserveScroll: true, preserveState: true,
         onStart: () => (syncing.value = true),
         onFinish: () => (syncing.value = false),
-        onSuccess: () => Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Reporting data updated', timer: 1500, showConfirmButton: false }),
+        onSuccess: () => {
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Reporting data updated', timer: 1500, showConfirmButton: false });
+            checkNewAdhesDates(prevF1Keys);
+        },
     });
 }
 function confirmSync() {
@@ -187,12 +191,12 @@ function copy(text: string) {
     Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Copied', timer: 1000, showConfirmButton: false });
 }
 
-const PARTNERS = [
+const PARTNERS: { key: string; label: string; lines?: [string, string] }[] = [
     { key: 'adhese', label: 'Adhese' }, { key: 'gam', label: 'GAM' },
     { key: 'seedtag', label: 'SeedTag' }, { key: 'teads', label: 'Teads' },
     { key: 'showheroes', label: 'Showheroes' }, { key: 'adform', label: 'Adform' },
     { key: 'ogury', label: 'Ogury' }, { key: 'outbrain', label: 'Outbrain' },
-    { key: 'preferredDeals', label: 'Preferred Deals' },
+    { key: 'preferredDeals', label: 'Preferred Deals', lines: ['Preferred', 'Deals'] },
 ];
 const COLORS = ['#e2483d', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#a3a3a3', '#6366f1'];
 
@@ -200,6 +204,9 @@ const selectedSite = ref('f1maximaal');
 const activeTab = ref<'summary' | 'table' | 'verify' | 'email'>('summary');
 const oguryRate = ref<number>(store.value?.config?.oguryRate ?? 0.85);
 const processing = ref(false);
+const showAdheseModal = ref(false);
+const adheseEntries = ref<{ dateKey: string; adhese: number | null }[]>([]);
+const adheseSaving = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
 const dragging = ref(false);
 const selectedUploadFiles = ref<File[]>([]);
@@ -423,9 +430,34 @@ function removeFile(f: File) {
     selectedUploadFiles.value = selectedUploadFiles.value.filter((x) => x !== f);
 }
 
+// ─── Adhese batch entry ────────────────────────────────────────────────────────
+function checkNewAdhesDates(prevKeys: Set<string>) {
+    const newDays = store.value?.sites?.f1maximaal?.days ?? {};
+    const toFill = Object.keys(newDays)
+        .filter((dk) => !prevKeys.has(dk) && newDays[dk]?.impressions?.adhese == null)
+        .sort();
+    if (toFill.length > 0) {
+        adheseEntries.value = toFill.map((dk) => ({ dateKey: dk, adhese: null }));
+        showAdheseModal.value = true;
+    }
+}
+
+function saveAdheseBatch() {
+    adheseSaving.value = true;
+    router.post('/reporting/save-adhese-batch', { entries: adheseEntries.value }, {
+        preserveScroll: true, preserveState: true,
+        onFinish: () => { adheseSaving.value = false; },
+        onSuccess: () => {
+            showAdheseModal.value = false;
+            Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Adhese impressions saved', timer: 1300, showConfirmButton: false });
+        },
+    });
+}
+
 // ─── Upload / process ──────────────────────────────────────────────────────────
 function processFiles() {
     if (!selectedUploadFiles.value.length) { Swal.fire('No files', 'Add the partner files first.', 'info'); return; }
+    const prevF1Keys = new Set(Object.keys(store.value?.sites?.f1maximaal?.days ?? {}));
     const fd = new FormData();
     selectedUploadFiles.value.forEach((f) => fd.append('files[]', f, f.name));
     router.post('/reporting/process', fd, {
@@ -434,7 +466,10 @@ function processFiles() {
         onFinish: () => (processing.value = false),
         onSuccess: () => {
             selectedUploadFiles.value = [];
-            Swal.fire({ icon: 'success', title: 'Processed', timer: 1400, showConfirmButton: false });
+            checkNewAdhesDates(prevF1Keys);
+            if (!showAdheseModal.value) {
+                Swal.fire({ icon: 'success', title: 'Processed', timer: 1400, showConfirmButton: false });
+            }
         },
         onError: (errors: any) => Swal.fire('Upload failed', (Object.values(errors)[0] as string) ?? 'Error', 'error'),
     });
@@ -535,11 +570,11 @@ const tabs = [
     <div class="min-h-screen bg-background font-mono text-foreground">
         <!-- Standalone top bar (no app sidebar) with a way back -->
         <header class="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
-            <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
+            <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
                 <div class="flex items-center gap-3">
                     <Link href="/dashboard"
                         class="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground">
-                        <ArrowLeft class="h-4 w-4" /> Back to app
+                        <ArrowLeft class="h-4 w-4" /> Back
                     </Link>
                     <!-- <span class="text-sm font-semibold">Reporting</span> -->
                 </div>
@@ -563,7 +598,7 @@ const tabs = [
             </div>
         </header>
 
-        <div class="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4">
+        <div class="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4">
             <!-- Header -->
             <div class="flex flex-wrap items-center justify-between gap-4">
                 <div>
@@ -782,11 +817,16 @@ const tabs = [
                         <thead>
                             <tr class="border-b text-left text-muted-foreground">
                                 <th class="px-1.5 py-2">Date</th>
-                                <th v-for="p in PARTNERS" :key="p.key" class="px-1.5 py-2 text-right">{{ p.label }}</th>
+                                <th v-for="p in PARTNERS" :key="p.key" class="px-1.5 py-2 text-right leading-tight">
+                                    <template v-if="p.lines">
+                                        {{ p.lines[0] }}<br>{{ p.lines[1] }}
+                                    </template>
+                                    <template v-else>{{ p.label }}</template>
+                                </th>
                                 <th class="px-1.5 py-2 text-right">Total</th>
-                                <th v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-2 text-right">Adhese impr.</th>
-                                <th v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-2 text-right">Impr. sold</th>
-                                <th v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-2 text-right">Ad requests</th>
+                                <th v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-2 text-right leading-tight">Adhese<br>impr.</th>
+                                <th v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-2 text-right leading-tight">Impr.<br>sold</th>
+                                <th v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-2 text-right leading-tight">Ad<br>requests</th>
                                 <th class="px-1.5 py-2"></th>
                             </tr>
                         </thead>
@@ -807,6 +847,18 @@ const tabs = [
                                 <td class="px-1.5 py-1 text-right">
                                     <button class="text-muted-foreground transition hover:text-red-500" title="Delete day" @click="deleteDay(d)"><Trash2 class="h-3.5 w-3.5" /></button>
                                 </td>
+                            </tr>
+                            <!-- Totals row -->
+                            <tr v-if="days.length" class="border-t-2 bg-muted/30 font-semibold">
+                                <td class="px-1.5 py-1.5 text-xs uppercase tracking-wide text-muted-foreground">Total</td>
+                                <td v-for="p in PARTNERS" :key="p.key" class="px-1.5 py-1.5 text-right">
+                                    {{ partnerTotals.totals[p.key].toFixed(2) }}
+                                </td>
+                                <td class="px-1.5 py-1.5 text-right">{{ partnerTotals.grand.toFixed(2) }}</td>
+                                <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1.5 text-right">—</td>
+                                <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1.5 text-right">{{ num(days.reduce((t, d) => t + (d.impressionsSold || 0), 0)) }}</td>
+                                <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1.5 text-right">{{ num(days.reduce((t, d) => t + (d.totalAdRequests || 0), 0)) }}</td>
+                                <td></td>
                             </tr>
                         </tbody>
                     </table>
@@ -1031,6 +1083,33 @@ const tabs = [
                         </label>
                         <div class="flex justify-end border-t pt-3">
                             <Button @click="saveSettings">Save</Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <!-- Adhese impressions batch modal — fires after process/sync when new F1 dates appear -->
+            <div v-if="showAdheseModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                <Card class="w-full max-w-md">
+                    <CardHeader class="flex flex-row items-center justify-between gap-2 pb-2">
+                        <span class="font-medium">Adhese impressions</span>
+                        <button class="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground" @click="showAdheseModal = false"><X class="h-4 w-4" /></button>
+                    </CardHeader>
+                    <CardContent class="flex flex-col gap-3">
+                        <p class="text-sm text-muted-foreground">
+                            {{ adheseEntries.length }} new day{{ adheseEntries.length === 1 ? '' : 's' }} added — enter the Adhese impression counts for F1Maximaal.
+                        </p>
+                        <div class="flex max-h-64 flex-col gap-2 overflow-y-auto">
+                            <div v-for="entry in adheseEntries" :key="entry.dateKey" class="flex items-center gap-3">
+                                <span class="w-24 shrink-0 font-mono text-sm">{{ entry.dateKey }}</span>
+                                <Input v-model.number="entry.adhese" type="number" placeholder="0" class="flex-1" />
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between border-t pt-3">
+                            <button class="text-sm text-muted-foreground hover:underline" @click="showAdheseModal = false">Skip</button>
+                            <Button :disabled="adheseSaving" @click="saveAdheseBatch">
+                                <Loader2 v-if="adheseSaving" class="mr-2 h-4 w-4 animate-spin" /> Save impressions
+                            </Button>
                         </div>
                     </CardContent>
                 </Card>

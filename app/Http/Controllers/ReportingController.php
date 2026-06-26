@@ -230,6 +230,33 @@ class ReportingController extends Controller
         return redirect()->route('reporting');
     }
 
+    /** Batch-set Adhese impressions for multiple F1Maximaal days at once. */
+    public function saveAdheseBatch(Request $request)
+    {
+        $data = $request->validate([
+            'entries'             => 'required|array',
+            'entries.*.dateKey'   => 'required|string',
+            'entries.*.adhese'    => 'nullable',
+        ]);
+
+        foreach ($data['entries'] as $entry) {
+            $row = ReportDay::firstWhere(['site' => 'f1maximaal', 'date' => $entry['dateKey']]);
+            if (! $row) continue;
+
+            $imp    = $row->impressions ?? [];
+            $adhese = $entry['adhese'];
+            $imp['adhese'] = ($adhese === null || $adhese === '') ? null : (int) $adhese;
+
+            $sum = 0;
+            foreach (['seedtag', 'teads', 'showheroes', 'gam', 'adform', 'ogury', 'outbrain', 'adhese', 'preferredDeals'] as $p) {
+                $sum += (int) ($imp[$p] ?? 0);
+            }
+            $row->update(['impressions' => $imp, 'impressions_sold' => $sum]);
+        }
+
+        return redirect()->route('reporting');
+    }
+
     /** Verify the F1Maximaal monthly Planetnine report. */
     public function verify(Request $request)
     {

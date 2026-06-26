@@ -111,6 +111,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/reporting', [ReportingController::class, 'index'])->name('reporting');
     Route::post('/reporting/process', [ReportingController::class, 'process'])->name('reporting-process');
     Route::post('/reporting/save-adhese', [ReportingController::class, 'saveAdhese'])->name('reporting-save-adhese');
+    Route::post('/reporting/save-adhese-batch', [ReportingController::class, 'saveAdheseBatch'])->name('reporting-save-adhese-batch');
     Route::post('/reporting/verify', [ReportingController::class, 'verify'])->name('reporting-verify');
     Route::post('/reporting/verify-weekly', [ReportingController::class, 'verifyWeekly'])->name('reporting-verify-weekly');
     Route::post('/reporting/config', [ReportingController::class, 'config'])->name('reporting-config');

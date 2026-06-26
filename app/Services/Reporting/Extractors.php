@@ -10,24 +10,43 @@ namespace App\Services\Reporting;
  */
 class Extractors
 {
-    public static function adhese(string $csv, string $filename): array
+    /**
+     * @param string $path     Absolute path to the file (CSV or XLSX both work).
+     * @param string $filename Original filename — used to infer the site fallback.
+     */
+    public static function adhese(string $path, string $filename): array
     {
         $fname = mb_strtolower($filename);
-        $fallbackSite = '';
-        // Check TopGear patterns FIRST — the F1 "Adhese Gateway Report" file also
-        // matches 'adhese gateway', so a TopGear file must be caught before it.
-        if (str_contains($fname, 'adhese tg') || str_contains($fname, 'adhese topgear')) $fallbackSite = 'topgear.nl';
-        elseif (str_contains($fname, 'adhese fl') || str_contains($fname, 'adhese festileaks')) $fallbackSite = 'festileaks.com';
-        elseif (str_contains($fname, 'adhese gateway') || str_contains($fname, 'adhese f1')) $fallbackSite = 'f1maximaal.nl';
+
+        // TG / FL are checked first because some F1 filenames also contain 'adhese
+        // gateway'. Anything that isn't explicitly TG or FL defaults to F1Maximaal
+        // so a plainly-named file like "Adhese.csv" still routes correctly.
+        if (str_contains($fname, 'adhese tg') || str_contains($fname, 'adhese topgear')) {
+            $fallbackSite = 'topgear.nl';
+        } elseif (str_contains($fname, 'adhese fl') || str_contains($fname, 'adhese festileaks')) {
+            $fallbackSite = 'festileaks.com';
+        } else {
+            $fallbackSite = 'f1maximaal.nl';
+        }
+
+        // SpreadsheetReader::rows() uses PhpSpreadsheet's IOFactory, which handles
+        // both CSV and XLSX transparently — fixing the silent failure when the
+        // Adhese platform exports XLSX instead of CSV.
+        $rows = SpreadsheetReader::rows($path);
 
         $out = [];
-        foreach (SpreadsheetReader::csvRows($csv) as $r) {
-            $date = Reporting::parseDate($r['date'] ?? '');
+        foreach ($rows as $r) {
+            // pick() is case-insensitive and strips trailing "(EUR)"-style qualifiers.
+            $date = Reporting::parseDate(Reporting::pick($r, 'date') ?? '');
             if (! $date) continue;
+
+            // Try several common column names the Adhese platform uses for the site.
+            $siteRaw = Reporting::pick($r, 'site', 'domain', 'publisher', 'website') ?? '';
+
             $out[] = [
-                'date' => $date,
-                'site' => mb_strtolower((string) ($r['site'] ?? '')) ?: $fallbackSite,
-                'revenue' => Reporting::stripNum(Reporting::pick($r, 'Paid Revenue')),
+                'date'    => $date,
+                'site'    => mb_strtolower((string) $siteRaw) ?: $fallbackSite,
+                'revenue' => Reporting::stripNum(Reporting::pick($r, 'Paid Revenue', 'Revenue', 'Paid revenue')),
             ];
         }
 
