@@ -376,11 +376,12 @@ function detectType(filename: string): string {
     return 'unknown';
 }
 
-const REQUIRED: { key: string; label: string }[] = [
+const REQUIRED: { key: string; label: string; optional?: boolean }[] = [
     { key: 'adform', label: 'Adform' }, { key: 'gam', label: 'GAM' }, { key: 'gam_f1m', label: 'GAM F1M' },
     { key: 'ogury', label: 'Ogury' }, { key: 'seedtag', label: 'SeedTag' }, { key: 'showheroes', label: 'Showheroes' },
     { key: 'teads', label: 'Teads' }, { key: 'analytics', label: 'Analytics' },
     { key: 'adhese_f1', label: 'Adhese (F1)' }, { key: 'adhese_tg', label: 'Adhese (TopGear)' }, { key: 'adhese_fl', label: 'Adhese (Festileaks)' },
+    { key: 'outbrain', label: 'Outbrain', optional: true }, { key: 'preferreddeals', label: 'Preferred Deals', optional: true },
 ];
 
 // Live checklist: each required file is checked once a matching dropped file is
@@ -408,7 +409,8 @@ const checklist = computed(() => {
         return { ...r, checked, file: checked ? fileFor[r.key] : null };
     });
 });
-const checkedCount = computed(() => checklist.value.filter((c) => c.checked).length);
+const requiredCount = computed(() => checklist.value.filter((c) => !c.optional).length);
+const checkedCount = computed(() => checklist.value.filter((c) => !c.optional && c.checked).length);
 // Dropped files that don't map to a required slot (Outbrain, Preferred Deals, unknown).
 const extraFiles = computed(() => selectedUploadFiles.value.filter((f) => {
     const t = detectType(f.name);
@@ -633,8 +635,8 @@ const tabs = [
                         <span class="font-medium">Upload partner files</span>
                     </div>
                     <span class="rounded-full px-2.5 py-0.5 text-xs font-medium tabular-nums"
-                        :class="checkedCount === checklist.length ? 'bg-emerald-500/15 text-emerald-600' : 'bg-muted text-muted-foreground'">
-                        {{ checkedCount }}/{{ checklist.length }} ready
+                        :class="checkedCount === requiredCount ? 'bg-emerald-500/15 text-emerald-600' : 'bg-muted text-muted-foreground'">
+                        {{ checkedCount }}/{{ requiredCount }} ready
                     </span>
                 </CardHeader>
                 <CardContent class="flex flex-col gap-3">
