@@ -176,8 +176,11 @@ class ReportingController extends Controller
         ]);
 
         // Refresh the committed snapshot so the new data is ready to commit + sync
-        // to other machines (also re-stamps synced_at for this machine).
-        Artisan::call('reporting:export');
+        // to other machines (also re-stamps synced_at for this machine). Skipped in
+        // tests so the suite never overwrites the real committed data file.
+        if (! app()->runningUnitTests()) {
+            Artisan::call('reporting:export');
+        }
 
         return redirect()->route('reporting');
     }

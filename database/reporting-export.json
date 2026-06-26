@@ -1,20 +1,12 @@
 {
-    "exported_at": "2026-06-26 10:46:00",
+    "exported_at": "2026-06-26 21:10:33",
     "settings": {
         "oguryRate": 0.85,
         "last_run": {
-            "at": "2026-06-26 10:46:00",
-            "missing": [
-                "Adform",
-                "GAM",
-                "GAM F1M",
-                "Ogury",
-                "SeedTag",
-                "Showheroes",
-                "Teads",
-                "Analytics"
-            ]
+            "at": "2026-06-26 21:10:33",
+            "missing": []
         },
+        "synced_at": "2026-06-26 21:10:33",
         "report_links": [
             {
                 "url": "https://publishers.seedtag.com/revenue",
@@ -57,7 +49,6 @@
                 "label": "Planetnine"
             }
         ],
-        "synced_at": "2026-06-26 10:46:00",
         "reminder_day": 3
     },
     "days": [
@@ -2123,13 +2114,13 @@
             },
             "total_ad_requests": 494942,
             "analytics": {
-                "views": 54911,
+                "views": 54930,
                 "keyEvents": 0,
-                "eventCount": 122624,
-                "activeUsers": 15527,
+                "eventCount": 122670,
+                "activeUsers": 15535,
                 "totalRevenue": 0,
-                "viewsPerUser": 3.5364848328717717,
-                "avgEngagement": 36.51954659625169
+                "viewsPerUser": 3.5358867074348246,
+                "avgEngagement": 36.50820727389765
             },
             "impressions_sold": 229179
         },

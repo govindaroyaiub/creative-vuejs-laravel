@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import UserMenuContent from '@/components/UserMenuContent.vue';
+import DateRangePicker from '@/components/DateRangePicker.vue';
 import { useInitials } from '@/composables/useInitials';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { Upload, Download, AlertTriangle, CheckCircle2, XCircle, Loader2, CalendarDays, Coins, Eye, TrendingUp, Award, CalendarCheck, X, FileText, ArrowLeft, ExternalLink, Plus, Link2, Mail, Copy, Trash2, RefreshCw, Circle, Settings, Minus, ChevronDown } from 'lucide-vue-next';
@@ -702,15 +703,10 @@ const tabs = [
                         @click="applyPreset(p)">{{ p }}</button>
                 </div>
 
-                <!-- custom range + count -->
+                <!-- range picker + count -->
                 <div class="flex items-center gap-2">
-                    <CalendarDays class="h-4 w-4 text-muted-foreground" />
-                    <input v-model="from" type="date" @change="activePreset = ''"
-                        class="rounded-md border bg-background px-2 py-1.5 text-xs outline-none focus:ring-2 focus:ring-[#e2483d]/40" />
-                    <span class="text-muted-foreground">–</span>
-                    <input v-model="to" type="date" @change="activePreset = ''"
-                        class="rounded-md border bg-background px-2 py-1.5 text-xs outline-none focus:ring-2 focus:ring-[#e2483d]/40" />
-                    <span class="ml-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium">{{ days.length }} days</span>
+                    <DateRangePicker v-model:from="from" v-model:to="to" @change="activePreset = ''" />
+                    <span class="rounded-full bg-muted px-2.5 py-1 text-xs font-medium">{{ days.length }} days</span>
                 </div>
             </div>
 
@@ -1045,12 +1041,7 @@ const tabs = [
                                     <button v-for="p in DL_PRESETS" :key="p"
                                         class="rounded-md border px-2.5 py-1 text-xs transition hover:bg-muted" @click="dlPreset(p)">{{ p }}</button>
                                 </div>
-                                <label class="mt-1 flex flex-col gap-1 text-xs text-muted-foreground">From
-                                    <input v-model="dlFrom" type="date" class="rounded-md border bg-background px-2 py-1.5 text-foreground outline-none focus:ring-2 focus:ring-[#e2483d]/40" />
-                                </label>
-                                <label class="flex flex-col gap-1 text-xs text-muted-foreground">To
-                                    <input v-model="dlTo" type="date" class="rounded-md border bg-background px-2 py-1.5 text-foreground outline-none focus:ring-2 focus:ring-[#e2483d]/40" />
-                                </label>
+                                <DateRangePicker v-model:from="dlFrom" v-model:to="dlTo" class="mt-1" />
                             </div>
                         </div>
 

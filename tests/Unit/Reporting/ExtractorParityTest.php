@@ -75,7 +75,7 @@ it('matches JS output for adhese (grouped per site)', function () use ($expected
     $got = [];
     foreach (scandir($uploads) as $f) {
         if (Reporting::detectFileType($f) !== 'adhese') continue;
-        foreach (Extractors::adhese(file_get_contents("$uploads/$f"), $f) as $row) {
+        foreach (Extractors::adhese("$uploads/$f", $f) as $row) {
             $id = $domainToId[$row['site']] ?? null;
             if (! $id) continue;
             $k = Reporting::dateKey($row['date']);
