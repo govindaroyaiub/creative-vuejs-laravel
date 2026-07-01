@@ -141,13 +141,22 @@ function ordinalSuffix(n: number): string {
     return { 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] ?? 'th';
 }
 const weekNumber = computed(() => isoWeekNumber(new Date()));
-function subjectContext() {
+type SubjectCtx = { dateStr: string; week: number; monthName: string; monthYear: number };
+function subjectContext(): SubjectCtx {
     const now = new Date();
     const day = now.getDate();
-    return { dateStr: `${MONTH_NAMES[now.getMonth()]} ${day}${ordinalSuffix(day)} ${now.getFullYear()}`, week: isoWeekNumber(now) };
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    return {
+        dateStr: `${MONTH_NAMES[now.getMonth()]} ${day}${ordinalSuffix(day)} ${now.getFullYear()}`,
+        week: isoWeekNumber(now),
+        monthName: MONTH_NAMES[lastMonth.getMonth()] ?? '',
+        monthYear: lastMonth.getFullYear(),
+    };
 }
 
-type EmailCfg = { to: { name: string; email: string }[]; cc?: { name: string; email: string }[]; body: string; subject: (c: { dateStr: string; week: number }) => string };
+// The report file to attach for each site (matches what's downloaded to
+// Downloads/reports), so the exact filename can be copied when composing the email.
+type EmailCfg = { to: { name: string; email: string }[]; cc?: { name: string; email: string }[]; body: string; subject: (c: SubjectCtx) => string; attachment: (c: SubjectCtx) => string };
 const SITE_EMAILS: Record<string, EmailCfg> = {
     f1maximaal: {
         to: [
@@ -157,6 +166,7 @@ const SITE_EMAILS: Record<string, EmailCfg> = {
         cc: [{ name: 'Chris Beijer', email: 'chris@planetnine.com' }, { name: 'Taco Stomps', email: 'taco@planetnine.com' }],
         body: `Hi everyone,\n\nPlease find the attached performance report for F1Maximaal.\n\nBest regards,`,
         subject: (c) => `F1Maximaal Revenue Report - ${c.dateStr}`,
+        attachment: (c) => `Planetnine-Report-f1maximaal.nl-${c.monthName}-${c.monthYear}.xlsx`,
     },
     topgear: {
         to: [
@@ -167,6 +177,7 @@ const SITE_EMAILS: Record<string, EmailCfg> = {
         cc: [{ name: 'Chris Beijer', email: 'chris@planetnine.com' }, { name: 'Taco Stomps', email: 'taco@planetnine.com' }],
         body: `Dear Martijn, Robert and Roland,\n\nHope you are doing well!\n\nPlease find this week's revenue reports for TopGear attached. If you have any questions, please reach out.\n\nBest regards`,
         subject: (c) => `Top Gear Ad Revenue Reports - Week ${c.week}`,
+        attachment: (c) => `TG-revenue-report-week${c.week}.xlsx`,
     },
     horses: {
         to: [
@@ -176,17 +187,20 @@ const SITE_EMAILS: Record<string, EmailCfg> = {
         cc: [{ name: 'Chris Beijer', email: 'chris@planetnine.com' }, { name: 'Taco Stomps', email: 'taco@planetnine.com' }],
         body: `Dear All,\n\nHope you are doing well!\n\nPlease find this week's revenue reports for Horses.nl attached. Should you have any questions, please reach out.\n\nBest regards`,
         subject: (c) => `Horses.nl - Ad Revenue Reports - Week ${c.week}`,
+        attachment: (c) => `Horses-revenue-report-week${c.week}.xlsx`,
     },
     festileaks: {
         to: [{ name: '', email: 'finance@festileaks.com' }, { name: 'Jos Willemsen', email: 'jos@festileaks.com' }],
         cc: [{ name: 'Chris Beijer', email: 'chris@planetnine.com' }, { name: 'Taco Stomps', email: 'taco@planetnine.com' }],
         body: `Dear Jos,\n\nHope you are doing well!\n\nPlease find this week's Festileaks revenue reports attached. Should you have any questions, please reach out.\n\nBest regards`,
         subject: (c) => `Festileaks Ad Revenue Reports - Week ${c.week - 1}`,
+        attachment: (c) => `Festileaks-revenue-report-week${c.week - 1}.xlsx`,
     },
 };
 
 const emailCfg = computed<EmailCfg | null>(() => SITE_EMAILS[selectedSite.value] ?? null);
 const emailSubject = computed(() => (emailCfg.value ? emailCfg.value.subject(subjectContext()) : ''));
+const emailAttachment = computed(() => (emailCfg.value ? emailCfg.value.attachment(subjectContext()) : ''));
 function copy(text: string) {
     navigator.clipboard?.writeText(text);
     Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Copied', timer: 1000, showConfirmButton: false });
@@ -955,6 +969,19 @@ const tabs = [
                             <button class="text-xs text-[#e2483d] hover:underline" @click="copy(emailSubject)">Copy</button>
                         </div>
                         <div class="rounded-md border px-3 py-2">{{ emailSubject }}</div>
+                    </div>
+                    <!-- Attachment -->
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-medium uppercase tracking-wide text-muted-foreground">Attachment</span>
+                            <button class="text-xs text-[#e2483d] hover:underline" @click="copy(emailAttachment)">Copy</button>
+                        </div>
+                        <button type="button"
+                            class="flex items-center gap-2 rounded-md border px-3 py-2 text-left font-mono text-xs transition hover:bg-[#e2483d]/10 hover:text-[#e2483d]"
+                            :title="`Copy ${emailAttachment}`" @click="copy(emailAttachment)">
+                            <FileText class="h-4 w-4 shrink-0 opacity-60" />
+                            <span class="min-w-0 break-all">{{ emailAttachment }}</span>
+                        </button>
                     </div>
                     <!-- Message -->
                     <div class="flex flex-col gap-1">
