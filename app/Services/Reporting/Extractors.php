@@ -175,11 +175,18 @@ class Extractors
     public static function ogury(string $path, string $siteId, float $rate = 0.85): array
     {
         $assetMatch = mb_strtolower(Reporting::SITES[$siteId]['oguryAsset']);
+        // New "Full Report" export: one row per ad unit, dated by "UTC Date", with
+        // the publisher in "App bundle". Older exports used a "Statistics 1" sheet
+        // keyed by "Asset"/"Date"; pick() tolerates either naming so both parse.
+        // The selector still targets "statistics" (old data sheet) and otherwise
+        // falls through to the new export's sole "Full Report" sheet — crucially
+        // NOT matching the old format's "Report" metadata sheet.
         $rows = SpreadsheetReader::rows($path, ['contains' => 'statistics', 'fallbackIndex' => 1]);
         $byDate = [];
         foreach ($rows as $r) {
-            if (! str_contains(mb_strtolower((string) ($r['Asset'] ?? '')), $assetMatch)) continue;
-            $d = Reporting::parseDate($r['Date'] ?? ''); if (! $d) continue;
+            $publisher = (string) (Reporting::pick($r, 'App bundle', 'Asset name', 'Asset') ?? '');
+            if (! str_contains(mb_strtolower($publisher), $assetMatch)) continue;
+            $d = Reporting::parseDate(Reporting::pick($r, 'UTC Date', 'Date') ?? ''); if (! $d) continue;
             $k = Reporting::dateKey($d);
             $byDate[$k] ??= ['date' => $d, 'impressions' => 0.0, 'revenue' => 0.0];
             $byDate[$k]['impressions'] += Reporting::stripNum(Reporting::pick($r, 'Impressions'));

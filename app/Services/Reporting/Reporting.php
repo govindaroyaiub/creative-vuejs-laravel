@@ -49,7 +49,7 @@ class Reporting
         if (str_contains($name, 'pages_and_screens') || str_contains($name, 'content_group')) return 'analytics';
         if (preg_match('/^tg[\s_]\d/', $name) || str_starts_with($name, 'tg 2')) return 'adform';
         if (str_contains($name, 'copy of general data download')) return 'gam';
-        if (str_starts_with($name, 'export-ad-units')) return 'ogury';
+        if (str_starts_with($name, 'export-ad-units') || str_starts_with($name, 'ogury')) return 'ogury';
         if (str_starts_with($name, 'revenue-export')) return 'seedtag';
         if (str_starts_with($name, 'topgear-')) return 'showheroes';
         if (str_starts_with($name, 'report_finance')) return 'teads';
