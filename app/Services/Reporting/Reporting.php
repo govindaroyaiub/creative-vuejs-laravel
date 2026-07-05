@@ -40,25 +40,60 @@ class Reporting
 
     public const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-    /** Map an uploaded filename to its partner/report type. Order is significant. */
-    public static function detectFileType(string $filename): string
+    /**
+     * Default upload-recognition patterns per partner. A file is recognised when
+     * its (lowercased) name CONTAINS any of the comma-separated needles. These are
+     * user-overridable in Settings (report_settings 'file_patterns'), so a partner
+     * renaming its export is fixed in the UI rather than in code.
+     */
+    public const DEFAULT_FILE_PATTERNS = [
+        'teads' => 'report_finance',
+        'ogury' => 'ogury, export-ad-units',
+        'gam' => 'copy of general data download',
+        'seedtag' => 'revenue-export',
+        'adform' => 'tg 2, tg_2',
+        'showheroes' => 'topgear-',
+        'analytics' => 'pages_and_screens, content_group',
+        'adhese' => 'adhese',
+        'outbrain' => 'current-view, all publishers',
+        'preferreddeals' => 'preferred deal',
+        'gam_f1m' => 'copy of f1max',
+    ];
+
+    /**
+     * Map an uploaded filename to its partner/report type. Order is significant.
+     * $patterns overrides DEFAULT_FILE_PATTERNS for the configurable partners.
+     *
+     * @param array<string,string> $patterns
+     */
+    public static function detectFileType(string $filename, array $patterns = []): string
     {
         $name = mb_strtolower($filename);
+        $patterns = array_merge(self::DEFAULT_FILE_PATTERNS, array_filter(
+            $patterns, fn ($v) => is_string($v) && trim($v) !== ''
+        ));
+        $matches = function (string $type) use ($name, $patterns): bool {
+            foreach (explode(',', (string) ($patterns[$type] ?? '')) as $needle) {
+                $needle = trim(mb_strtolower($needle));
+                if ($needle !== '' && str_contains($name, $needle)) return true;
+            }
+            return false;
+        };
 
-        if (str_contains($name, 'adhese gateway') || str_starts_with($name, 'adhese')) return 'adhese';
-        if (str_contains($name, 'pages_and_screens') || str_contains($name, 'content_group')) return 'analytics';
-        if (preg_match('/^tg[\s_]\d/', $name) || str_starts_with($name, 'tg 2')) return 'adform';
-        if (str_contains($name, 'copy of general data download')) return 'gam';
-        if (str_starts_with($name, 'export-ad-units') || str_starts_with($name, 'ogury')) return 'ogury';
-        if (str_starts_with($name, 'revenue-export')) return 'seedtag';
-        if (str_starts_with($name, 'topgear-')) return 'showheroes';
-        if (str_starts_with($name, 'report_finance')) return 'teads';
-        if (str_contains($name, 'current-view') || str_contains($name, 'all publishers')) return 'outbrain';
-        // F1 impressions master sheet — supplies Adhese impression counts.
+        if ($matches('adhese')) return 'adhese';
+        if ($matches('analytics')) return 'analytics';
+        if ($matches('adform')) return 'adform';
+        if ($matches('gam')) return 'gam';
+        if ($matches('ogury')) return 'ogury';
+        if ($matches('seedtag')) return 'seedtag';
+        if ($matches('showheroes')) return 'showheroes';
+        if ($matches('teads')) return 'teads';
+        if ($matches('outbrain')) return 'outbrain';
+        // F1 impressions master sheet — supplies Adhese impression counts (compound rule, not configurable).
         if (str_starts_with($name, 'impressions') && str_contains($name, 'f1')) return 'impressions_f1';
-        // Must precede the gam_f1m rule below — this filename also contains "f1max".
-        if (str_contains($name, 'preferred') && str_contains($name, 'deal')) return 'preferreddeals';
-        if (preg_match('/copy.*f1max/', $name) || str_contains($name, 'copy of f1maximaal')) return 'gam_f1m';
+        // Preferred Deals must precede gam_f1m — that filename also contains "f1max".
+        if ($matches('preferreddeals')) return 'preferreddeals';
+        if ($matches('gam_f1m')) return 'gam_f1m';
         if (str_starts_with($name, 'planetnine-report-')) return 'planetnine';
         if (str_starts_with($name, 'tg-revenue-report-')) return 'report_topgear';
         if (str_starts_with($name, 'horses-revenue-report-')) return 'report_horses';

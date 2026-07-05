@@ -93,12 +93,25 @@ onMounted(() => {
     try { wnMinimized.value = !!localStorage.getItem(wnKey()); } catch { /* ignore */ }
 });
 
-// ─── Settings modal (Ogury rate + reminder day) ────────────────────────────────
+// ─── Settings modal (Ogury rate + reminder day + upload file names) ─────────────
 const showSettings = ref(false);
 const settingsDay = ref(reminderDay.value);
-function openSettings() { settingsDay.value = reminderDay.value; showSettings.value = true; }
+// Editable upload-recognition patterns per partner (comma-separated substrings).
+const FILE_PATTERN_FIELDS = [
+    { key: 'teads', label: 'Teads' }, { key: 'ogury', label: 'Ogury' }, { key: 'gam', label: 'GAM' },
+    { key: 'seedtag', label: 'SeedTag' }, { key: 'adform', label: 'Adform' },
+    { key: 'showheroes', label: 'Showheroes' }, { key: 'analytics', label: 'Analytics' },
+    { key: 'adhese', label: 'Adhese' }, { key: 'outbrain', label: 'Outbrain' },
+    { key: 'preferreddeals', label: 'Preferred Deals' }, { key: 'gam_f1m', label: 'GAM F1M' },
+];
+const filePatterns = ref<Record<string, string>>({ ...((page.props.filePatterns as Record<string, string>) ?? {}) });
+function openSettings() {
+    settingsDay.value = reminderDay.value;
+    filePatterns.value = { ...((page.props.filePatterns as Record<string, string>) ?? {}) };
+    showSettings.value = true;
+}
 function saveSettings() {
-    router.post('/reporting/config', { oguryRate: oguryRate.value, reminderDay: settingsDay.value }, {
+    router.post('/reporting/config', { oguryRate: oguryRate.value, reminderDay: settingsDay.value, filePatterns: filePatterns.value }, {
         preserveScroll: true, preserveState: true,
         onSuccess: () => { showSettings.value = false; Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Settings saved', timer: 1300, showConfirmButton: false }); },
     });
@@ -373,20 +386,26 @@ const anomalies = computed(() => {
 // ─── File selection + client-side missing-files detection ──────────────────────
 // Mirrors the server's detectFileType so we can tell which required reports are
 // missing the moment files are dropped — before any processing.
+// A file matches a partner when its name contains any of the (comma-separated,
+// user-editable) needles configured for that partner in Settings.
+function matchesPattern(name: string, csv: string | undefined): boolean {
+    return (csv ?? '').split(',').map((s) => s.trim().toLowerCase()).some((nd) => nd !== '' && name.includes(nd));
+}
 function detectType(filename: string): string {
     const n = filename.toLowerCase();
-    if (n.includes('adhese gateway') || n.startsWith('adhese')) return 'adhese';
-    if (n.includes('pages_and_screens') || n.includes('content_group')) return 'analytics';
-    if (/^tg[\s_]\d/.test(n) || n.startsWith('tg 2')) return 'adform';
-    if (n.includes('copy of general data download')) return 'gam';
-    if (n.startsWith('export-ad-units')) return 'ogury';
-    if (n.startsWith('revenue-export')) return 'seedtag';
-    if (n.startsWith('topgear-')) return 'showheroes';
-    if (n.startsWith('report_finance')) return 'teads';
-    if (n.includes('current-view') || n.includes('all publishers')) return 'outbrain';
+    const p = filePatterns.value;
+    if (matchesPattern(n, p.adhese)) return 'adhese';
+    if (matchesPattern(n, p.analytics)) return 'analytics';
+    if (matchesPattern(n, p.adform)) return 'adform';
+    if (matchesPattern(n, p.gam)) return 'gam';
+    if (matchesPattern(n, p.ogury)) return 'ogury';
+    if (matchesPattern(n, p.seedtag)) return 'seedtag';
+    if (matchesPattern(n, p.showheroes)) return 'showheroes';
+    if (matchesPattern(n, p.teads)) return 'teads';
+    if (matchesPattern(n, p.outbrain)) return 'outbrain';
     if (n.startsWith('impressions') && n.includes('f1')) return 'impressions_f1';
-    if (n.includes('preferred') && n.includes('deal')) return 'preferreddeals';
-    if (/copy.*f1max/.test(n) || n.includes('copy of f1maximaal')) return 'gam_f1m';
+    if (matchesPattern(n, p.preferreddeals)) return 'preferreddeals';
+    if (matchesPattern(n, p.gam_f1m)) return 'gam_f1m';
     return 'unknown';
 }
 
@@ -1084,27 +1103,53 @@ const tabs = [
 
             <!-- Settings modal -->
             <div v-if="showSettings" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="showSettings = false">
-                <Card class="w-full max-w-sm">
-                    <CardHeader class="flex flex-row items-center justify-between gap-2 pb-2">
+                <Card class="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden p-0">
+                    <div class="flex items-center justify-between gap-2 border-b px-6 py-4">
                         <span class="flex items-center gap-2 font-medium"><Settings class="h-5 w-5 text-[#e2483d]" /> Settings</span>
                         <button class="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground" @click="showSettings = false"><X class="h-4 w-4" /></button>
-                    </CardHeader>
-                    <CardContent class="flex flex-col gap-4">
-                        <label class="flex flex-col gap-1">
-                            <span class="text-xs font-medium uppercase tracking-wide text-muted-foreground">Ogury € rate</span>
-                            <Input v-model.number="oguryRate" type="number" step="0.001" />
-                        </label>
-                        <label class="flex flex-col gap-1">
-                            <span class="text-xs font-medium uppercase tracking-wide text-muted-foreground">Deliverables reminder day</span>
-                            <select v-model.number="settingsDay" class="rounded-md border bg-background px-2 py-2 text-sm outline-none focus:ring-2 focus:ring-[#e2483d]/40">
-                                <option v-for="(d, i) in DAY_NAMES" :key="i" :value="i">{{ d }}</option>
-                            </select>
-                            <span class="text-[11px] text-muted-foreground">The weekly deliverables reminder appears on this day.</span>
-                        </label>
-                        <div class="flex justify-end border-t pt-3">
-                            <Button @click="saveSettings">Save</Button>
-                        </div>
-                    </CardContent>
+                    </div>
+
+                    <div class="flex flex-1 flex-col gap-6 overflow-y-auto px-6 py-5">
+                        <!-- General -->
+                        <section class="flex flex-col gap-3">
+                            <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">General</h3>
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <label class="flex flex-col gap-1">
+                                    <span class="text-sm font-medium">Ogury € rate</span>
+                                    <Input v-model.number="oguryRate" type="number" step="0.001" />
+                                </label>
+                                <label class="flex flex-col gap-1">
+                                    <span class="text-sm font-medium">Deliverables reminder day</span>
+                                    <select v-model.number="settingsDay" class="rounded-md border bg-background px-2 py-2 text-sm outline-none focus:ring-2 focus:ring-[#e2483d]/40">
+                                        <option v-for="(d, i) in DAY_NAMES" :key="i" :value="i">{{ d }}</option>
+                                    </select>
+                                </label>
+                            </div>
+                            <p class="text-[11px] text-muted-foreground">The weekly deliverables reminder appears on the selected day.</p>
+                        </section>
+
+                        <!-- Upload file names -->
+                        <section class="flex flex-col gap-3 border-t pt-5">
+                            <div>
+                                <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Upload file names</h3>
+                                <p class="mt-1 text-[11px] text-muted-foreground">
+                                    A dropped file is recognised when its name contains any of these values (comma-separated for alternatives).
+                                    Update one if a partner renames its export. Leave blank to use the built-in default.
+                                </p>
+                            </div>
+                            <div class="grid gap-x-4 gap-y-3 sm:grid-cols-2">
+                                <label v-for="f in FILE_PATTERN_FIELDS" :key="f.key" class="flex flex-col gap-1">
+                                    <span class="text-xs font-medium text-muted-foreground">{{ f.label }}</span>
+                                    <Input v-model="filePatterns[f.key]" spellcheck="false" class="font-mono text-xs" placeholder="e.g. report_finance" />
+                                </label>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 border-t px-6 py-4">
+                        <button class="text-sm text-muted-foreground hover:underline" @click="showSettings = false">Cancel</button>
+                        <Button @click="saveSettings">Save changes</Button>
+                    </div>
                 </Card>
             </div>
 

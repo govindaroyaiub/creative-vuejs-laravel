@@ -21,6 +21,7 @@ class ReportProcessor
 
         $store = ReportStore::load();
         $oguryRate = $store['config']['oguryRate'] ?? ReportStore::DEFAULT_OGURY_RATE;
+        $filePatterns = (array) \App\Models\ReportSetting::get('file_patterns', []);
 
         $fileTypes = [];
         $pathByType = [];      // type => temp path of the uploaded file
@@ -28,7 +29,7 @@ class ReportProcessor
         $adheseRows = [];
 
         foreach ($files as $file) {
-            $type = Reporting::detectFileType($file['name']);
+            $type = Reporting::detectFileType($file['name'], $filePatterns);
             $fileTypes[$file['name']] = $type;
             try {
                 if ($type === 'adhese') {
