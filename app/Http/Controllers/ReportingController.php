@@ -231,6 +231,12 @@ class ReportingController extends Controller
         }
         $row->update(['impressions' => $imp, 'impressions_sold' => $sum]);
 
+        // Refresh the committed snapshot so the entered impressions land in the JSON
+        // (and sync to other machines), mirroring the upload flow. Skipped in tests.
+        if (! app()->runningUnitTests()) {
+            Artisan::call('reporting:export');
+        }
+
         return redirect()->route('reporting');
     }
 
@@ -256,6 +262,12 @@ class ReportingController extends Controller
                 $sum += (int) ($imp[$p] ?? 0);
             }
             $row->update(['impressions' => $imp, 'impressions_sold' => $sum]);
+        }
+
+        // Refresh the committed snapshot so the entered impressions land in the JSON
+        // (and sync to other machines), mirroring the upload flow. Skipped in tests.
+        if (! app()->runningUnitTests()) {
+            Artisan::call('reporting:export');
         }
 
         return redirect()->route('reporting');

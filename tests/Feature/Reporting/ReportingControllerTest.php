@@ -2,6 +2,7 @@
 
 use App\Models\ReportDay;
 use App\Models\ReportSetting;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\UploadedFile;
 
 /**
@@ -12,6 +13,10 @@ use Illuminate\Http\UploadedFile;
 $fixtures = __DIR__ . '/../../Fixtures/Reporting';
 
 beforeEach(function () {
+    // Pin "now" inside the June-2026 fixture window. ReportProcessor strips any row
+    // outside the current month + last 7 days, so without this the June fixtures get
+    // wiped once the real clock moves past that window and the assertions see 0 rows.
+    $this->travelTo(CarbonImmutable::create(2026, 6, 25));
     createAuthenticatedUser(['permissions' => ['*'], 'email_verified_at' => now()]);
 });
 
