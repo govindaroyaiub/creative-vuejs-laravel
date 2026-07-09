@@ -35,14 +35,14 @@ const { getInitials } = useInitials();
 const sync = computed<any>(() => (page.props.sync as any) ?? { available: false });
 const syncing = ref(false);
 function performSync() {
-    const prevF1Keys = new Set(Object.keys(store.value?.sites?.f1maximaal?.days ?? {}));
     router.post('/reporting/sync', {}, {
         preserveScroll: true, preserveState: true,
         onStart: () => (syncing.value = true),
         onFinish: () => (syncing.value = false),
         onSuccess: () => {
             Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Reporting data updated', timer: 1500, showConfirmButton: false });
-            checkNewAdhesDates(prevF1Keys);
+            // Prompt for any imported day left with Adhese revenue but no impressions.
+            promptMissingAdhese();
         },
     });
 }
@@ -72,7 +72,12 @@ function checkForData() {
     });
 }
 // Silent check on load — if the pulled snapshot is newer, ask before importing.
-onMounted(() => { if (sync.value.available) confirmSync(); });
+onMounted(() => {
+    // A pending sync takes priority (its own modal); otherwise surface any day
+    // that has Adhese revenue but no impressions yet so it can be filled in.
+    if (sync.value.available) confirmSync();
+    else promptMissingAdhese();
+});
 
 // ─── Deliverables reminder (configurable day; minimizable, never closable) ──────
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -466,17 +471,25 @@ function removeFile(f: File) {
     selectedUploadFiles.value = selectedUploadFiles.value.filter((x) => x !== f);
 }
 
-// ─── Adhese batch entry ────────────────────────────────────────────────────────
-function checkNewAdhesDates(prevKeys: Set<string>) {
-    const newDays = store.value?.sites?.f1maximaal?.days ?? {};
-    const toFill = Object.keys(newDays)
-        .filter((dk) => !prevKeys.has(dk) && newDays[dk]?.impressions?.adhese == null)
-        .sort();
-    if (toFill.length > 0) {
-        adheseEntries.value = toFill.map((dk) => ({ dateKey: dk, adhese: null }));
-        showAdheseModal.value = true;
-    }
+// ─── Adhese impressions gaps ─────────────────────────────────────────────────
+// Adhese impressions are entered by hand (never read from a file), so a day can
+// end up with Adhese *revenue* but no impressions — e.g. the day already existed
+// (from another partner or a sync) when its Adhese revenue arrived, so the old
+// new-dates-only prompt never fired for it. Surface EVERY such gap, not just
+// brand-new dates, so days like these can't silently stay blank.
+const missingAdhese = computed<any[]>(() =>
+    selectedSite.value === 'f1maximaal'
+        ? days.value.filter((d: any) => (d.revenue?.adhese ?? 0) > 0 && d.impressions?.adhese == null)
+        : []);
+
+function promptMissingAdhese(): boolean {
+    if (!missingAdhese.value.length) return false;
+    adheseEntries.value = missingAdhese.value.map((d: any) => ({ dateKey: d.dateKey, adhese: null }));
+    showAdheseModal.value = true;
+    return true;
 }
+// Manual entry point behind the "Fill now" banner button.
+const openAdheseGaps = promptMissingAdhese;
 
 function saveAdheseBatch() {
     adheseSaving.value = true;
@@ -493,7 +506,6 @@ function saveAdheseBatch() {
 // ─── Upload / process ──────────────────────────────────────────────────────────
 function processFiles() {
     if (!selectedUploadFiles.value.length) { Swal.fire('No files', 'Add the partner files first.', 'info'); return; }
-    const prevF1Keys = new Set(Object.keys(store.value?.sites?.f1maximaal?.days ?? {}));
     const fd = new FormData();
     selectedUploadFiles.value.forEach((f) => fd.append('files[]', f, f.name));
     router.post('/reporting/process', fd, {
@@ -502,7 +514,9 @@ function processFiles() {
         onFinish: () => (processing.value = false),
         onSuccess: () => {
             selectedUploadFiles.value = [];
-            checkNewAdhesDates(prevF1Keys);
+            // Prompt for any day left with Adhese revenue but no impressions —
+            // covers brand-new dates and any that slipped through earlier.
+            promptMissingAdhese();
             if (!showAdheseModal.value) {
                 Swal.fire({ icon: 'success', title: 'Processed', timer: 1400, showConfirmButton: false });
             }
@@ -844,6 +858,12 @@ const tabs = [
             <!-- TABLE -->
             <Card v-show="activeTab === 'table'">
                 <CardContent class="overflow-x-auto pt-6">
+                    <!-- Surfaces days that have Adhese revenue but no impressions yet
+                         (impressions are entered by hand) so a gap can't stay silent. -->
+                    <div v-if="missingAdhese.length" class="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-200">
+                        <span>{{ missingAdhese.length }} day{{ missingAdhese.length === 1 ? '' : 's' }} in this range {{ missingAdhese.length === 1 ? 'has' : 'have' }} Adhese revenue but no impressions: {{ missingAdhese.map((d) => d.dateKey).join(', ') }}.</span>
+                        <button class="shrink-0 rounded-md border border-amber-400 px-2 py-1 font-medium transition hover:bg-amber-100 dark:hover:bg-amber-900/40" @click="openAdheseGaps">Fill now</button>
+                    </div>
                     <table class="w-full whitespace-nowrap text-xs">
                         <thead>
                             <tr class="border-b text-left text-muted-foreground">
@@ -871,7 +891,7 @@ const tabs = [
                                     {{ PARTNERS.reduce((t, p) => t + (d.revenue?.[p.key] ?? 0), 0).toFixed(2) }}
                                 </td>
                                 <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1 text-right">
-                                    <Input v-model.number="d.impressions.adhese" type="number" class="ml-auto h-7 w-24 px-1.5 text-right text-[11px] leading-none" @change="saveAdhese(d)" />
+                                    <Input v-model.number="d.impressions.adhese" type="number" :class="['ml-auto h-7 w-24 px-1.5 text-right text-[11px] leading-none', (d.revenue?.adhese ?? 0) > 0 && d.impressions?.adhese == null ? 'ring-1 ring-amber-400 focus-visible:ring-amber-400' : '']" @change="saveAdhese(d)" />
                                 </td>
                                 <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1 text-right">{{ num(d.impressionsSold || 0) }}</td>
                                 <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1 text-right">{{ num(d.totalAdRequests || 0) }}</td>
