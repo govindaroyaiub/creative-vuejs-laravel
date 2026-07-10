@@ -49,7 +49,7 @@ const toggle = () => { isOpen.value = !isOpen.value }
           </div>
           <button
             type="button"
-            class="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)]"
+            class="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-text)]"
             aria-label="Close assistant"
             @click="close"
           >
@@ -69,7 +69,7 @@ const toggle = () => { isOpen.value = !isOpen.value }
           <div class="flex flex-col gap-2 pt-1">
             <button
               type="button"
-              class="group flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-sm font-medium text-[var(--p2-text)] transition-all duration-300 ease-[var(--p2-ease-expo)] hover:border-[var(--p2-accent)] hover:bg-[var(--p2-accent-soft)] hover:text-[var(--p2-accent)]"
+              class="group flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-sm font-medium text-[var(--p2-text)] transition-all duration-300 ease-p2-expo hover:border-[var(--p2-accent)] hover:bg-[var(--p2-accent-soft)] hover:text-[var(--p2-accent)]"
               :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
               @click="$emit('start-tour'); close()"
             >
@@ -80,7 +80,7 @@ const toggle = () => { isOpen.value = !isOpen.value }
             <button
               v-if="!showContactReply"
               type="button"
-              class="group flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-sm font-medium text-[var(--p2-text)] transition-all duration-300 ease-[var(--p2-ease-expo)] hover:border-[var(--p2-accent)] hover:bg-[var(--p2-accent-soft)] hover:text-[var(--p2-accent)]"
+              class="group flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-sm font-medium text-[var(--p2-text)] transition-all duration-300 ease-p2-expo hover:border-[var(--p2-accent)] hover:bg-[var(--p2-accent-soft)] hover:text-[var(--p2-accent)]"
               :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
               @click="showContactReply = true"
             >

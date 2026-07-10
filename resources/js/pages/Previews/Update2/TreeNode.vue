@@ -126,7 +126,7 @@ const childAssetType = computed<AssetType | undefined>(() =>
   <div>
     <button
       type="button"
-      class="group relative flex w-full items-center gap-1.5 rounded-md py-1.5 pr-2 text-left text-[13px] transition-all duration-200 ease-[var(--p2-ease-expo)]"
+      class="group relative flex w-full items-center gap-1.5 rounded-md py-1.5 pr-2 text-left text-[13px] transition-all duration-200 ease-p2-expo"
       :style="{
         paddingLeft: depth * 16 + 8 + 'px',
         ...(isSelected

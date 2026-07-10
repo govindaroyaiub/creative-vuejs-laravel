@@ -86,7 +86,7 @@ const sorted = computed(() =>
            smoothly instead of jumping. -->
       <div
         v-if="hasAnyLogo"
-        class="overflow-hidden border-b transition-all duration-500 ease-[var(--p2-ease-cinema)]"
+        class="overflow-hidden border-b transition-all duration-500 ease-p2-cinema"
         :class="isScrolled ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0 border-b-transparent'"
         :style="{ borderColor: isScrolled ? 'var(--p2-hairline)' : 'transparent' }"
       >
@@ -139,7 +139,7 @@ const sorted = computed(() =>
               :key="cat.id"
               type="button"
               :class="[
-                'group relative w-full rounded-xl px-3 py-2.5 text-left transition-all duration-300 ease-[var(--p2-ease-expo)]',
+                'group relative w-full rounded-xl px-3 py-2.5 text-left transition-all duration-300 ease-p2-expo',
                 cat.is_active === 1
                   ? 'text-white shadow-sm'
                   : 'text-[var(--p2-text)] hover:bg-[var(--p2-accent-soft)]',
@@ -210,7 +210,7 @@ const sorted = computed(() =>
         </div>
         <button
           type="button"
-          class="grid h-8 w-8 place-items-center rounded-full text-[var(--p2-text-muted)] transition-colors duration-200 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)]"
+          class="grid h-8 w-8 place-items-center rounded-full text-[var(--p2-text-muted)] transition-colors duration-200 ease-p2-expo hover:text-[var(--p2-text)]"
           :style="{ background: 'var(--p2-surface-muted)', borderColor: 'var(--p2-border)' }"
           aria-label="Close"
           @click="$emit('close')"
@@ -225,7 +225,7 @@ const sorted = computed(() =>
             :key="cat.id"
             type="button"
             :class="[
-              'group relative w-full rounded-xl px-3 py-2.5 text-left transition-all duration-300 ease-[var(--p2-ease-expo)]',
+              'group relative w-full rounded-xl px-3 py-2.5 text-left transition-all duration-300 ease-p2-expo',
               cat.is_active === 1
                 ? 'bg-[var(--p2-accent-soft)] text-[var(--p2-text)]'
                 : 'text-[var(--p2-text)] hover:bg-[var(--p2-accent-soft)]',

@@ -59,7 +59,7 @@ watch(
         <button
           type="button"
           :disabled="activeIndex <= 0"
-          class="grid h-8 w-8 place-items-center rounded-full border bg-[var(--p2-surface-muted)] text-[var(--p2-text-muted)] backdrop-blur-md transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-[var(--p2-text-muted)]"
+          class="grid h-8 w-8 place-items-center rounded-full border bg-[var(--p2-surface-muted)] text-[var(--p2-text-muted)] backdrop-blur-md transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-[var(--p2-text-muted)]"
           :style="{ borderColor: 'var(--p2-border)' }"
           aria-label="Previous round"
           @click="goPrev"
@@ -69,7 +69,7 @@ watch(
         <button
           type="button"
           :disabled="activeIndex >= feedbacks.length - 1"
-          class="grid h-8 w-8 place-items-center rounded-full border bg-[var(--p2-surface-muted)] text-[var(--p2-text-muted)] backdrop-blur-md transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-[var(--p2-text-muted)]"
+          class="grid h-8 w-8 place-items-center rounded-full border bg-[var(--p2-surface-muted)] text-[var(--p2-text-muted)] backdrop-blur-md transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-[var(--p2-text-muted)]"
           :style="{ borderColor: 'var(--p2-border)' }"
           aria-label="Next round"
           @click="goNext"
@@ -99,7 +99,7 @@ watch(
         type="button"
         :data-active="f.id === activeFeedback?.id"
         :class="[
-          'group relative shrink-0 snap-start rounded-full border px-4 py-2 text-sm font-medium backdrop-blur-md transition-all duration-300 ease-[var(--p2-ease-expo)]',
+          'group relative shrink-0 snap-start rounded-full border px-4 py-2 text-sm font-medium backdrop-blur-md transition-all duration-300 ease-p2-expo',
           f.id === activeFeedback?.id
             ? 'border-transparent text-white shadow-sm'
             : 'text-[var(--p2-text-muted)] hover:text-[var(--p2-text)]',

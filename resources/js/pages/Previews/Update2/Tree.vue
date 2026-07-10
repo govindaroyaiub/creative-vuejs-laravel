@@ -82,13 +82,13 @@ const filtered = computed(() => {
           v-model="tree.search.value"
           type="text"
           placeholder="Search…"
-          class="w-full rounded-full border py-1.5 pl-8 pr-3 text-sm text-[var(--p2-text)] placeholder:text-[var(--p2-text-subtle)] transition-colors duration-200 ease-[var(--p2-ease-expo)] focus:outline-none"
+          class="w-full rounded-full border py-1.5 pl-8 pr-3 text-sm text-[var(--p2-text)] placeholder:text-[var(--p2-text-subtle)] transition-colors duration-200 ease-p2-expo focus:outline-none"
           :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
         />
       </div>
       <button
         type="button"
-        class="grid h-8 w-8 place-items-center rounded-full text-white shadow-sm transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5"
+        class="grid h-8 w-8 place-items-center rounded-full text-white shadow-sm transition-all duration-300 ease-p2-expo hover:-translate-y-0.5"
         :style="{ background: 'linear-gradient(135deg, var(--p2-accent) 0%, var(--p2-accent-2) 100%)' }"
         title="New project"
         aria-label="Add category"

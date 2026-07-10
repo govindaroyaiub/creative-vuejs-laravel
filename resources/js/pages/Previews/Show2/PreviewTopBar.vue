@@ -59,7 +59,7 @@ const isPlanetNineStaff = computed(() => props.authUserClientName === 'Planet Ni
       <!-- Mobile menu trigger -->
       <button
         type="button"
-        class="grid h-9 w-9 place-items-center rounded-full border bg-[var(--p2-surface-muted)] text-[var(--p2-text-muted)] backdrop-blur-md transition-colors duration-200 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)] lg:hidden"
+        class="grid h-9 w-9 place-items-center rounded-full border bg-[var(--p2-surface-muted)] text-[var(--p2-text-muted)] backdrop-blur-md transition-colors duration-200 ease-p2-expo hover:text-[var(--p2-text)] lg:hidden"
         :style="{ borderColor: 'var(--p2-border)' }"
         aria-label="Open projects"
         @click="$emit('open-sidebar')"
@@ -74,7 +74,7 @@ const isPlanetNineStaff = computed(() => props.authUserClientName === 'Planet Ni
            layout shift. -->
       <div class="flex shrink-0 items-center justify-center lg:w-72">
         <div
-          class="transition-all duration-500 ease-[var(--p2-ease-cinema)]"
+          class="transition-all duration-500 ease-p2-cinema"
           :class="isScrolled
             ? 'opacity-0 -translate-y-1.5 pointer-events-none'
             : 'opacity-100 translate-y-0'"
@@ -145,7 +145,7 @@ const isPlanetNineStaff = computed(() => props.authUserClientName === 'Planet Ni
         <div class="flex items-center gap-2" data-tour="theme">
           <button
             type="button"
-            class="grid h-9 w-9 place-items-center rounded-full border bg-[var(--p2-surface-muted)] text-[var(--p2-text-muted)] backdrop-blur-md transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+            class="grid h-9 w-9 place-items-center rounded-full border bg-[var(--p2-surface-muted)] text-[var(--p2-text-muted)] backdrop-blur-md transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)]"
             :style="{ borderColor: 'var(--p2-border)' }"
             :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
             :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
@@ -157,7 +157,7 @@ const isPlanetNineStaff = computed(() => props.authUserClientName === 'Planet Ni
 
           <button
             type="button"
-            class="inline-flex h-9 items-center gap-2 rounded-full border bg-[var(--p2-surface-muted)] px-4 text-sm font-medium text-[var(--p2-text-muted)] backdrop-blur-md transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+            class="inline-flex h-9 items-center gap-2 rounded-full border bg-[var(--p2-surface-muted)] px-4 text-sm font-medium text-[var(--p2-text-muted)] backdrop-blur-md transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)]"
             :style="{ borderColor: 'var(--p2-border)' }"
             aria-label="Theme"
             @click="$emit('open-palette')"
@@ -176,7 +176,7 @@ const isPlanetNineStaff = computed(() => props.authUserClientName === 'Planet Ni
           <input type="hidden" name="preview_id" :value="preview.id" />
           <button
             type="submit"
-            class="inline-flex h-9 items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-4 text-sm font-medium text-red-500 backdrop-blur-md transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:border-red-500/50 hover:bg-red-500/15"
+            class="inline-flex h-9 items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-4 text-sm font-medium text-red-500 backdrop-blur-md transition-colors duration-300 ease-p2-expo hover:border-red-500/50 hover:bg-red-500/15"
           >
             <LogOut class="h-4 w-4" />
             <span class="hidden sm:inline">Logout</span>

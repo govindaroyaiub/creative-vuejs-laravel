@@ -160,7 +160,7 @@ onUnmounted(() => {
 
 <template>
   <figure
-    class="group relative overflow-hidden rounded-3xl border bg-[var(--p2-surface)] transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5"
+    class="group relative overflow-hidden rounded-3xl border bg-[var(--p2-surface)] transition-all duration-300 ease-p2-expo hover:-translate-y-0.5"
     :style="{ borderColor: 'var(--p2-border)' }"
   >
     <button
@@ -172,15 +172,15 @@ onUnmounted(() => {
       <img
         :src="`/${social.path}`"
         :alt="social.name"
-        class="block w-full object-cover transition-transform duration-500 ease-[var(--p2-ease-cinema)] group-hover:scale-[1.02]"
+        class="block w-full object-cover transition-transform duration-500 ease-p2-cinema group-hover:scale-[1.02]"
         loading="lazy"
       />
 
       <!-- Hover scrim -->
-      <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-zinc-900/65 via-transparent to-transparent opacity-0 transition-opacity duration-300 ease-[var(--p2-ease-cinema)] group-hover:opacity-100" />
+      <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-zinc-900/65 via-transparent to-transparent opacity-0 transition-opacity duration-300 ease-p2-cinema group-hover:opacity-100" />
 
       <!-- Hover label -->
-      <div class="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 px-4 py-3 opacity-0 transition-opacity duration-300 ease-[var(--p2-ease-cinema)] group-hover:opacity-100">
+      <div class="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 px-4 py-3 opacity-0 transition-opacity duration-300 ease-p2-cinema group-hover:opacity-100">
         <span class="truncate text-sm font-medium text-white">{{ social.name }}</span>
         <ZoomIn class="h-4 w-4 shrink-0 text-white/90" />
       </div>
@@ -190,7 +190,7 @@ onUnmounted(() => {
       v-if="isPlanetNine"
       :href="`/${social.path}`"
       :download="`${social.name}.jpg`"
-      class="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full border text-[var(--p2-text-muted)] opacity-0 backdrop-blur transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)] group-hover:opacity-100"
+      class="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full border text-[var(--p2-text-muted)] opacity-0 backdrop-blur transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)] group-hover:opacity-100"
       :style="{ background: 'var(--p2-surface-muted)', borderColor: 'var(--p2-border)' }"
       aria-label="Download"
       @click.stop

@@ -256,12 +256,12 @@ const relTime = (iso: string) => {
         </div>
         <div class="flex items-center gap-1">
           <button type="button" @click="refresh" :disabled="loading"
-            class="grid h-8 w-8 place-items-center rounded-full text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)] disabled:opacity-50"
+            class="grid h-8 w-8 place-items-center rounded-full text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)] disabled:opacity-50"
             title="Refresh">
             <RefreshCw class="w-4 h-4" :class="loading ? 'animate-spin' : ''" :stroke-width="1.5" />
           </button>
           <button type="button" @click="emit('close')"
-            class="grid h-8 w-8 place-items-center rounded-full text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)]"
+            class="grid h-8 w-8 place-items-center rounded-full text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-text)]"
             aria-label="Close">
             <X class="w-4 h-4" :stroke-width="1.5" />
           </button>
@@ -279,7 +279,7 @@ const relTime = (iso: string) => {
         <div>
           <p class="text-sm text-rose-500">{{ error }}</p>
           <button type="button" @click="refresh"
-            class="mt-2 inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+            class="mt-2 inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)]"
             :style="{ borderColor: 'var(--p2-border)' }">
             Try again
           </button>
@@ -298,7 +298,7 @@ const relTime = (iso: string) => {
           <li v-for="g in groups" :key="g.key" class="px-3 py-2 [&+&]:border-t" :style="{ borderColor: 'var(--p2-hairline)' }">
             <!-- Group header (or single row) -->
             <button v-if="g.rows.length > 1" type="button" @click="toggleGroup(g.key)"
-              class="-mx-3 flex w-full items-start gap-2 rounded px-3 py-1 text-left transition-colors duration-200 ease-[var(--p2-ease-expo)] hover:bg-[var(--p2-accent-soft)]">
+              class="-mx-3 flex w-full items-start gap-2 rounded px-3 py-1 text-left transition-colors duration-200 ease-p2-expo hover:bg-[var(--p2-accent-soft)]">
               <span
                 class="p2-mono mt-0.5 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-[var(--p2-text-muted)]"
                 :style="{ background: 'var(--p2-accent-soft)' }"
@@ -323,7 +323,7 @@ const relTime = (iso: string) => {
               <div class="flex-1 min-w-0">
                 <p class="text-sm text-[var(--p2-text)]">
                   <span class="font-semibold">{{ g.causerName }}</span>&nbsp;<span :class="verbColor(firstRow(g).description)">{{ verb(firstRow(g).description) }}</span>&nbsp;<span class="text-[var(--p2-text-muted)]">{{ subjectKind(firstRow(g)).toLowerCase() }}</span>&nbsp;<button type="button" @click.stop="onRowClick(firstRow(g))"
-                    class="underline underline-offset-2 transition-colors duration-200 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]">{{ subjectLabel(firstRow(g)) }}</button>
+                    class="underline underline-offset-2 transition-colors duration-200 ease-p2-expo hover:text-[var(--p2-accent)]">{{ subjectLabel(firstRow(g)) }}</button>
                 </p>
                 <p class="text-[11px] text-[var(--p2-text-subtle)]" :title="firstRow(g).created_at">
                   {{ relTime(firstRow(g).created_at) }}
@@ -351,7 +351,7 @@ const relTime = (iso: string) => {
                     <span :class="verbColor(r.description)">{{ verb(r.description) }}</span>
                     <span class="text-[var(--p2-text-muted)]"> {{ subjectKind(r).toLowerCase() }}</span>
                     <button type="button" @click.stop="onRowClick(r)"
-                      class="ml-1 underline underline-offset-2 transition-colors duration-200 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]">{{ subjectLabel(r) }}</button>
+                      class="ml-1 underline underline-offset-2 transition-colors duration-200 ease-p2-expo hover:text-[var(--p2-accent)]">{{ subjectLabel(r) }}</button>
                   </p>
                   <ul v-if="fieldDiffs(r).length" class="mt-0.5 space-y-0.5">
                     <li v-for="f in fieldDiffs(r)" :key="f.name"
@@ -371,7 +371,7 @@ const relTime = (iso: string) => {
         <!-- Load more -->
         <div v-if="meta && meta.current_page < meta.last_page" class="p-3 text-center">
           <button type="button" @click="loadMore" :disabled="loading"
-            class="p2-mono inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium tracking-wide text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)] disabled:opacity-50"
+            class="p2-mono inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium tracking-wide text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)] disabled:opacity-50"
             :style="{ borderColor: 'var(--p2-border)' }">
             <Loader2 v-if="loading" class="w-3.5 h-3.5 animate-spin" />
             Load more

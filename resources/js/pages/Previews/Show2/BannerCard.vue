@@ -97,7 +97,7 @@ const bannerAreaClass = computed(() => `banner-area-${width.value}-${height.valu
 <template>
   <div
     ref="containerEl"
-    :class="['group flex flex-col overflow-hidden border bg-[var(--p2-surface)] transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5', bannerAreaClass]"
+    :class="['group flex flex-col overflow-hidden border bg-[var(--p2-surface)] transition-all duration-300 ease-p2-expo hover:-translate-y-0.5', bannerAreaClass]"
     :style="{ ...wrapperStyle, borderColor: 'var(--p2-border)', boxShadow: '0 1px 0 var(--p2-hairline)' }"
   >
     <!-- Header — dimensions + filesize, mono. -->
@@ -150,7 +150,7 @@ const bannerAreaClass = computed(() => `banner-area-${width.value}-${height.valu
         <button
           v-if="!isLoaded && !isLoading"
           type="button"
-          class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)]"
+          class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-text)]"
           :style="{ background: 'var(--p2-bg)' }"
           :aria-label="`Load banner ${width}x${height}`"
           @click="loadIframe"
@@ -188,10 +188,10 @@ const bannerAreaClass = computed(() => `banner-area-${width.value}-${height.valu
       </div>
 
       <!-- Hover action cluster -->
-      <div class="pointer-events-none absolute right-2 bottom-2 flex gap-1 opacity-0 transition-opacity duration-300 ease-[var(--p2-ease-expo)] group-hover:opacity-100">
+      <div class="pointer-events-none absolute right-2 bottom-2 flex gap-1 opacity-0 transition-opacity duration-300 ease-p2-expo group-hover:opacity-100">
         <button
           type="button"
-          class="pointer-events-auto grid h-7 w-7 place-items-center rounded-full border text-[var(--p2-text-muted)] backdrop-blur transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+          class="pointer-events-auto grid h-7 w-7 place-items-center rounded-full border text-[var(--p2-text-muted)] backdrop-blur transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)]"
           :style="{ background: 'var(--p2-surface-muted)', borderColor: 'var(--p2-border)' }"
           aria-label="Reload banner"
           @click.stop="reload"
@@ -201,7 +201,7 @@ const bannerAreaClass = computed(() => `banner-area-${width.value}-${height.valu
         <a
           v-if="isPlanetNine"
           :href="`/previews/banner/download/${banner.id}`"
-          class="pointer-events-auto grid h-7 w-7 place-items-center rounded-full border text-[var(--p2-text-muted)] backdrop-blur transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+          class="pointer-events-auto grid h-7 w-7 place-items-center rounded-full border text-[var(--p2-text-muted)] backdrop-blur transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)]"
           :style="{ background: 'var(--p2-surface-muted)', borderColor: 'var(--p2-border)' }"
           aria-label="Download banner"
         >

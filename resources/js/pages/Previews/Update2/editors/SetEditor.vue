@@ -29,7 +29,7 @@ const addVersion = () => {
         </div>
         <input
           :value="set.name"
-          class="w-full rounded-xl border px-3 py-2 text-2xl font-semibold tracking-tight text-[var(--p2-text)] outline-none transition-colors duration-200 ease-[var(--p2-ease-expo)] placeholder:text-[var(--p2-text-subtle)]"
+          class="w-full rounded-xl border px-3 py-2 text-2xl font-semibold tracking-tight text-[var(--p2-text)] outline-none transition-colors duration-200 ease-p2-expo placeholder:text-[var(--p2-text-subtle)]"
           :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
           placeholder="Version name (optional)"
           @input="onName"
@@ -40,7 +40,7 @@ const addVersion = () => {
       </div>
       <button
         type="button"
-        class="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-rose-500/30 text-rose-500 transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:border-rose-500/50 hover:bg-rose-500/10"
+        class="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-rose-500/30 text-rose-500 transition-colors duration-300 ease-p2-expo hover:border-rose-500/50 hover:bg-rose-500/10"
         title="Delete version"
         @click="$emit('delete')"
       >
@@ -53,7 +53,7 @@ const addVersion = () => {
         <h3 class="text-sm font-semibold tracking-tight text-[var(--p2-text)]">Sets in this version</h3>
         <button
           type="button"
-          class="inline-flex h-8 items-center gap-1 rounded-full px-3 text-[11px] font-semibold text-white transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5"
+          class="inline-flex h-8 items-center gap-1 rounded-full px-3 text-[11px] font-semibold text-white transition-all duration-300 ease-p2-expo hover:-translate-y-0.5"
           :style="{ background: 'linear-gradient(135deg, var(--p2-accent) 0%, var(--p2-accent-2) 100%)' }"
           @click="addVersion"
         >
@@ -64,12 +64,12 @@ const addVersion = () => {
         <li
           v-for="v in set.versions"
           :key="v.id"
-          class="flex items-center justify-between rounded-xl border px-3 py-2 text-sm transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:border-[var(--p2-accent-muted)]"
+          class="flex items-center justify-between rounded-xl border px-3 py-2 text-sm transition-colors duration-300 ease-p2-expo hover:border-[var(--p2-accent-muted)]"
           :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
         >
           <button
             type="button"
-            class="min-w-0 flex-1 truncate text-left text-[var(--p2-text)] transition-colors duration-200 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+            class="min-w-0 flex-1 truncate text-left text-[var(--p2-text)] transition-colors duration-200 ease-p2-expo hover:text-[var(--p2-accent)]"
             @click="tree.select({ kind: 'version', id: v.id }); tree.expandPathTo({ kind: 'version', id: v.id })"
           >
             {{ v.name || 'Set' }}

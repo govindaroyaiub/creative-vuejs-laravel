@@ -14,6 +14,10 @@ export default {
             fontFamily: {
                 sans: ['Instrument Sans', ...defaultTheme.fontFamily.sans],
             },
+            transitionTimingFunction: {
+                'p2-expo': 'var(--p2-ease-expo)',
+                'p2-cinema': 'var(--p2-ease-cinema)',
+            },
             borderRadius: {
                 lg: 'var(--radius)',
                 md: 'calc(var(--radius) - 2px)',

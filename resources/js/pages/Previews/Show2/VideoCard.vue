@@ -27,7 +27,7 @@ const meta = computed(() =>
 
 <template>
   <div
-    class="overflow-hidden rounded-3xl border bg-[var(--p2-surface)] transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5"
+    class="overflow-hidden rounded-3xl border bg-[var(--p2-surface)] transition-all duration-300 ease-p2-expo hover:-translate-y-0.5"
     :style="{ borderColor: 'var(--p2-border)' }"
   >
     <!-- Player -->
@@ -62,7 +62,7 @@ const meta = computed(() =>
         v-if="isPlanetNine"
         :href="`/${video.path}`"
         download
-        class="ml-auto inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-[11px] font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+        class="ml-auto inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-[11px] font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)]"
         :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface-muted)' }"
       >
         <Download class="h-3 w-3" />
@@ -88,7 +88,7 @@ const meta = computed(() =>
           v-if="isPlanetNine"
           :href="`/${video.companion_banner_path}`"
           download
-          class="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+          class="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)]"
         >
           <Download class="h-3 w-3" />
           Download companion

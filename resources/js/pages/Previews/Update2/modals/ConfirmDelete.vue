@@ -59,7 +59,7 @@ watch(() => props.open, (v) => {
             <button
               type="button"
               :disabled="isLoading"
-              class="inline-flex h-9 items-center rounded-full border px-4 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)] disabled:opacity-50"
+              class="inline-flex h-9 items-center rounded-full border px-4 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-text)] disabled:opacity-50"
               :style="{ borderColor: 'var(--p2-border)' }"
               @click="close"
             >
@@ -68,7 +68,7 @@ watch(() => props.open, (v) => {
             <button
               type="button"
               :disabled="isLoading"
-              class="inline-flex h-9 items-center gap-1.5 rounded-full bg-rose-600 px-4 text-xs font-semibold text-white shadow-sm transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5 hover:bg-rose-500 disabled:opacity-70 disabled:hover:translate-y-0"
+              class="inline-flex h-9 items-center gap-1.5 rounded-full bg-rose-600 px-4 text-xs font-semibold text-white shadow-sm transition-all duration-300 ease-p2-expo hover:-translate-y-0.5 hover:bg-rose-500 disabled:opacity-70 disabled:hover:translate-y-0"
               @click="$emit('confirm')"
             >
               <Loader2 v-if="isLoading" class="h-3.5 w-3.5 animate-spin" />

@@ -216,7 +216,7 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
         <button
           v-if="positionLabel"
           type="button"
-          class="mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-0.5 text-[11px] font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+          class="mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-0.5 text-[11px] font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)]"
           :style="{ background: 'var(--p2-accent-soft)' }"
           title="Open the parent set to drag-reorder"
           @click="goToVersion"
@@ -228,7 +228,7 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
       </div>
       <button
         type="button"
-        class="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-rose-500/30 text-rose-500 transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:border-rose-500/50 hover:bg-rose-500/10"
+        class="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-rose-500/30 text-rose-500 transition-colors duration-300 ease-p2-expo hover:border-rose-500/50 hover:bg-rose-500/10"
         title="Delete asset"
         @click="$emit('delete')"
       >
@@ -242,7 +242,7 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
         Source file
       </label>
       <div
-        class="group relative flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 text-center transition-all duration-300 ease-[var(--p2-ease-expo)]"
+        class="group relative flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 text-center transition-all duration-300 ease-p2-expo"
         :style="dragActive
           ? { borderColor: 'var(--p2-accent)', background: 'var(--p2-accent-soft)' }
           : { borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
@@ -259,7 +259,7 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
         </div>
         <button
           type="button"
-          class="text-xs font-medium underline underline-offset-2 transition-colors duration-200 ease-[var(--p2-ease-expo)]"
+          class="text-xs font-medium underline underline-offset-2 transition-colors duration-200 ease-p2-expo"
           :style="{ color: 'var(--p2-accent)' }"
           @click="onPickFile"
         >
@@ -273,7 +273,7 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
         :href="`/${existingPath}`"
         target="_blank"
         rel="noopener noreferrer"
-        class="mt-2 inline-flex items-center gap-1 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+        class="mt-2 inline-flex items-center gap-1 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)]"
       >
         <Download class="h-3 w-3" />
         Current: {{ existingPath.split('/').pop() }}
@@ -457,7 +457,7 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
               <input ref="companionInput" type="file" accept="image/*" class="hidden" @change="onCompanion" />
               <button
                 type="button"
-                class="inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+                class="inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)]"
                 :style="{ borderColor: 'var(--p2-border)' }"
                 @click="companionInput?.click()"
               >

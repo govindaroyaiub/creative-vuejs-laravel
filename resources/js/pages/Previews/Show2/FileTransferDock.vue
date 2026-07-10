@@ -24,19 +24,19 @@ const isMinimized = ref(false)
           <div class="truncate text-xs text-[var(--p2-text-muted)]">Download package available</div>
         </div>
         <a :href="`/file-transfers-view/${fileTransfer.slug}`" target="_blank" rel="noopener noreferrer"
-          class="inline-flex h-9 shrink-0 items-center gap-1 rounded-full px-4 text-xs font-semibold text-white transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5"
+          class="inline-flex h-9 shrink-0 items-center gap-1 rounded-full px-4 text-xs font-semibold text-white transition-all duration-300 ease-p2-expo hover:-translate-y-0.5"
           :style="{ background: 'var(--p2-accent)' }">
           Get
           <ArrowRight class="h-3 w-3" />
         </a>
         <button type="button"
-          class="ml-1 grid h-7 w-7 shrink-0 place-items-center rounded-full text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)]"
+          class="ml-1 grid h-7 w-7 shrink-0 place-items-center rounded-full text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-text)]"
           aria-label="Minimize" @click="isMinimized = true">
           <ChevronDown class="h-4 w-4" />
         </button>
       </div>
       <button v-else type="button"
-        class="inline-flex h-10 items-center gap-2 rounded-full border px-4 shadow-xl backdrop-blur-md transition-colors duration-300 ease-[var(--p2-ease-expo)]"
+        class="inline-flex h-10 items-center gap-2 rounded-full border px-4 shadow-xl backdrop-blur-md transition-colors duration-300 ease-p2-expo"
         :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface-muted)' }"
         aria-label="Show file transfer" @click="isMinimized = false">
         <Download class="h-4 w-4" :style="{ color: 'var(--p2-accent)' }" />

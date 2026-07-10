@@ -86,7 +86,7 @@ const skeletonCount = computed(() => {
       <button
         v-if="!isLoading && hasNotes"
         type="button"
-        class="notes-btn inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-medium text-[var(--p2-text)] backdrop-blur-md transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+        class="notes-btn inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-medium text-[var(--p2-text)] backdrop-blur-md transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)]"
         :style="{ background: 'var(--p2-surface-muted)' }"
         data-tour="notes"
         @click="$emit('open-notes')"

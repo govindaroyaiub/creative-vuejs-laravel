@@ -56,7 +56,7 @@ const dirtyLabel = computed(() => {
   >
     <button
       type="button"
-      class="grid h-9 w-9 place-items-center rounded-full border text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)]"
+      class="grid h-9 w-9 place-items-center rounded-full border text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-text)]"
       :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
       title="Back to previews"
       aria-label="Back"
@@ -67,7 +67,7 @@ const dirtyLabel = computed(() => {
 
     <button
       type="button"
-      class="grid h-9 w-9 place-items-center rounded-full border transition-colors duration-300 ease-[var(--p2-ease-expo)]"
+      class="grid h-9 w-9 place-items-center rounded-full border transition-colors duration-300 ease-p2-expo"
       :style="sidebarOpen
         ? { borderColor: 'var(--p2-accent-muted)', background: 'var(--p2-accent-soft)', color: 'var(--p2-accent)' }
         : { borderColor: 'var(--p2-border)', background: 'var(--p2-surface)', color: 'var(--p2-text-muted)' }"
@@ -90,7 +90,7 @@ const dirtyLabel = computed(() => {
         <span class="hidden h-1 w-1 rounded-full sm:inline-block" :style="{ background: 'var(--p2-border-strong)' }" />
         <button
           type="button"
-          class="p2-mono hidden items-center gap-1 truncate text-[11px] tracking-tight transition-colors duration-200 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)] sm:inline-flex"
+          class="p2-mono hidden items-center gap-1 truncate text-[11px] tracking-tight transition-colors duration-200 ease-p2-expo hover:text-[var(--p2-text)] sm:inline-flex"
           :title="`Copy slug: ${previewSlug}`"
           @click="copy"
         >
@@ -119,7 +119,7 @@ const dirtyLabel = computed(() => {
         type="button"
         @click="$emit('view-changes')"
         title="View saved-changes history"
-        class="inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+        class="inline-flex h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)]"
         :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
       >
         <History class="h-3.5 w-3.5" />
@@ -128,7 +128,7 @@ const dirtyLabel = computed(() => {
 
       <button
         type="button"
-        class="hidden h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)] md:inline-flex"
+        class="hidden h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)] md:inline-flex"
         :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
         title="Edit preview info (name, client, palette, team)"
         @click="$emit('edit-info')"
@@ -139,7 +139,7 @@ const dirtyLabel = computed(() => {
 
       <button
         type="button"
-        class="hidden h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)] md:inline-flex"
+        class="hidden h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)] md:inline-flex"
         :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
         title="Open preview in new tab"
         @click="$emit('preview')"
@@ -150,7 +150,7 @@ const dirtyLabel = computed(() => {
 
       <button
         type="button"
-        class="hidden h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)] md:inline-flex"
+        class="hidden h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)] md:inline-flex"
         :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
         title="Open new preview UI"
         @click="$emit('preview2')"
@@ -162,7 +162,7 @@ const dirtyLabel = computed(() => {
       <button
         type="button"
         :disabled="isSaving"
-        class="inline-flex h-9 items-center gap-1.5 rounded-full px-4 text-xs font-semibold text-white shadow-sm transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-70 disabled:hover:translate-y-0"
+        class="inline-flex h-9 items-center gap-1.5 rounded-full px-4 text-xs font-semibold text-white shadow-sm transition-all duration-300 ease-p2-expo hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-70 disabled:hover:translate-y-0"
         :style="{ background: 'linear-gradient(135deg, var(--p2-accent) 0%, var(--p2-accent-2) 100%)' }"
         @click="$emit('save')"
       >

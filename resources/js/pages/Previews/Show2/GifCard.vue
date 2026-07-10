@@ -33,7 +33,7 @@ const reload = () => {
 
 <template>
   <div
-    :class="['group flex flex-col overflow-hidden rounded-2xl border bg-[var(--p2-surface)] transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5', bannerAreaClass]"
+    :class="['group flex flex-col overflow-hidden rounded-2xl border bg-[var(--p2-surface)] transition-all duration-300 ease-p2-expo hover:-translate-y-0.5', bannerAreaClass]"
     :style="{ ...wrapperStyle, borderColor: 'var(--p2-border)' }"
   >
     <div
@@ -69,10 +69,10 @@ const reload = () => {
         />
       </div>
 
-      <div class="pointer-events-none absolute right-2 bottom-2 flex gap-1 opacity-0 transition-opacity duration-300 ease-[var(--p2-ease-expo)] group-hover:opacity-100">
+      <div class="pointer-events-none absolute right-2 bottom-2 flex gap-1 opacity-0 transition-opacity duration-300 ease-p2-expo group-hover:opacity-100">
         <button
           type="button"
-          class="pointer-events-auto grid h-7 w-7 place-items-center rounded-full border text-[var(--p2-text-muted)] backdrop-blur transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+          class="pointer-events-auto grid h-7 w-7 place-items-center rounded-full border text-[var(--p2-text-muted)] backdrop-blur transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)]"
           :style="{ background: 'var(--p2-surface-muted)', borderColor: 'var(--p2-border)' }"
           aria-label="Reload gif"
           @click="reload"
@@ -83,7 +83,7 @@ const reload = () => {
           v-if="isPlanetNine"
           :href="`/${gif.path}`"
           :download="gif.name"
-          class="pointer-events-auto grid h-7 w-7 place-items-center rounded-full border text-[var(--p2-text-muted)] backdrop-blur transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+          class="pointer-events-auto grid h-7 w-7 place-items-center rounded-full border text-[var(--p2-text-muted)] backdrop-blur transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)]"
           :style="{ background: 'var(--p2-surface-muted)', borderColor: 'var(--p2-border)' }"
           aria-label="Download gif"
         >

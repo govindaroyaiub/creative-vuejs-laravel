@@ -247,12 +247,12 @@ const isBannerOrGif = computed(() => assetType.value === 'banner' || assetType.v
           Set
         </div>
         <input :value="version.name"
-          class="w-full rounded-xl border px-3 py-2 text-2xl font-semibold tracking-tight text-[var(--p2-text)] outline-none transition-colors duration-200 ease-[var(--p2-ease-expo)] placeholder:text-[var(--p2-text-subtle)]"
+          class="w-full rounded-xl border px-3 py-2 text-2xl font-semibold tracking-tight text-[var(--p2-text)] outline-none transition-colors duration-200 ease-p2-expo placeholder:text-[var(--p2-text-subtle)]"
           :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
           placeholder="Set name (optional)" @input="onName" />
       </div>
       <button type="button"
-        class="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-rose-500/30 text-rose-500 transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:border-rose-500/50 hover:bg-rose-500/10"
+        class="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-rose-500/30 text-rose-500 transition-colors duration-300 ease-p2-expo hover:border-rose-500/50 hover:bg-rose-500/10"
         title="Delete set" @click="$emit('delete')">
         <Trash2 class="h-4 w-4" />
       </button>
@@ -268,7 +268,7 @@ const isBannerOrGif = computed(() => assetType.value === 'banner' || assetType.v
     <!-- Multi-file drop zone -->
     <section>
       <div :class="[
-          'group relative flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl border-2 border-dashed text-center transition-all duration-300 ease-[var(--p2-ease-expo)]',
+          'group relative flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl border-2 border-dashed text-center transition-all duration-300 ease-p2-expo',
           assets.length ? 'px-4 py-5' : 'px-4 py-12',
         ]"
         :style="dragActive
@@ -298,13 +298,13 @@ const isBannerOrGif = computed(() => assetType.value === 'banner' || assetType.v
         class="space-y-1.5" @end="onReorder">
         <template #item="{ element: a, index: i }">
           <div
-            class="group flex items-center gap-2 rounded-xl border px-2 py-2 text-sm transition-colors duration-300 ease-[var(--p2-ease-expo)]"
+            class="group flex items-center gap-2 rounded-xl border px-2 py-2 text-sm transition-colors duration-300 ease-p2-expo"
             :style="{
               borderColor: isBannerOrGif && !a.size_id ? 'rgba(245, 158, 11, 0.45)' : 'var(--p2-border)',
               background: 'var(--p2-surface)',
             }">
             <span
-              class="drag-handle grid h-7 w-5 shrink-0 cursor-grab place-items-center text-[var(--p2-text-subtle)] transition-colors duration-200 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)] active:cursor-grabbing"
+              class="drag-handle grid h-7 w-5 shrink-0 cursor-grab place-items-center text-[var(--p2-text-subtle)] transition-colors duration-200 ease-p2-expo hover:text-[var(--p2-text)] active:cursor-grabbing"
               title="Drag to reorder">
               <GripVertical class="h-3.5 w-3.5" />
             </span>
@@ -314,7 +314,7 @@ const isBannerOrGif = computed(() => assetType.value === 'banner' || assetType.v
               {{ i + 1 }}
             </span>
             <button type="button"
-              class="p2-mono min-w-0 flex-1 truncate text-left text-[var(--p2-text)] transition-colors duration-200 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)]"
+              class="p2-mono min-w-0 flex-1 truncate text-left text-[var(--p2-text)] transition-colors duration-200 ease-p2-expo hover:text-[var(--p2-accent)]"
               @click="tree.select({ kind: 'asset', id: a.id, assetType }); tree.expandPathTo({ kind: 'asset', id: a.id, assetType })">
               {{ assetLabel(a) }}
             </button>
@@ -346,7 +346,7 @@ const isBannerOrGif = computed(() => assetType.value === 'banner' || assetType.v
 
             <button
               type="button"
-              class="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[var(--p2-text-subtle)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:bg-rose-500/10 hover:text-rose-500"
+              class="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[var(--p2-text-subtle)] transition-colors duration-300 ease-p2-expo hover:bg-rose-500/10 hover:text-rose-500"
               :title="isDbId(a.id) ? 'Delete asset' : 'Remove'"
               :aria-label="isDbId(a.id) ? 'Delete asset' : 'Remove asset'"
               @click.stop="removeAsset(a)"

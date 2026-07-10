@@ -90,7 +90,7 @@ const types: { value: AssetType; icon: any; label: string; hint: string }[] = [
               </p>
             </div>
             <button type="button"
-              class="grid h-8 w-8 place-items-center rounded-full text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)]"
+              class="grid h-8 w-8 place-items-center rounded-full text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-text)]"
               :style="{ background: 'var(--p2-surface-muted)' }"
               aria-label="Close" @click="close">
               <X class="h-4 w-4" />
@@ -119,12 +119,12 @@ const types: { value: AssetType; icon: any; label: string; hint: string }[] = [
               <label class="p2-label mb-2 block">Type</label>
               <div class="grid grid-cols-2 gap-2">
                 <button v-for="t in types" :key="t.value" type="button"
-                  class="group relative flex items-start gap-2.5 rounded-xl border-2 px-3 py-2.5 text-left transition-all duration-300 ease-[var(--p2-ease-expo)]"
+                  class="group relative flex items-start gap-2.5 rounded-xl border-2 px-3 py-2.5 text-left transition-all duration-300 ease-p2-expo"
                   :style="type === t.value
                     ? { borderColor: 'var(--p2-accent)', background: 'var(--p2-accent-soft)' }
                     : { borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
                   @click="type = t.value">
-                  <span class="grid h-7 w-7 shrink-0 place-items-center rounded-md transition-colors duration-300 ease-[var(--p2-ease-expo)]"
+                  <span class="grid h-7 w-7 shrink-0 place-items-center rounded-md transition-colors duration-300 ease-p2-expo"
                     :style="type === t.value
                       ? { background: 'var(--p2-accent)', color: 'white' }
                       : { background: 'var(--p2-accent-soft)', color: 'var(--p2-accent)' }">
@@ -150,7 +150,7 @@ const types: { value: AssetType; icon: any; label: string; hint: string }[] = [
             class="flex justify-end gap-2 border-t px-6 py-3"
             :style="{ borderColor: 'var(--p2-hairline)', background: 'var(--p2-surface-muted)' }">
             <button type="button"
-              class="inline-flex h-9 items-center rounded-full border px-4 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)]"
+              class="inline-flex h-9 items-center rounded-full border px-4 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-text)]"
               :style="{ borderColor: 'var(--p2-border)' }"
               @click="close">
               Cancel
@@ -160,7 +160,7 @@ const types: { value: AssetType; icon: any; label: string; hint: string }[] = [
                  left the white label illegible. The neutral pattern
                  reads cleanly in both modes regardless of palette. -->
             <button type="button"
-              class="inline-flex h-9 items-center gap-1.5 rounded-full px-4 text-xs font-semibold shadow-sm transition-all duration-300 ease-[var(--p2-ease-expo)] hover:-translate-y-0.5"
+              class="inline-flex h-9 items-center gap-1.5 rounded-full px-4 text-xs font-semibold shadow-sm transition-all duration-300 ease-p2-expo hover:-translate-y-0.5"
               :style="{ background: 'var(--p2-text)', color: 'var(--p2-bg)' }"
               @click="submit">
               <FolderPlus class="h-3.5 w-3.5" />

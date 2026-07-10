@@ -126,7 +126,7 @@ const performDelete = async () => {
           <button
             type="button"
             :disabled="c.kind === 'asset'"
-            class="truncate transition-colors duration-200 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-accent)] disabled:cursor-default disabled:hover:text-current"
+            class="truncate transition-colors duration-200 ease-p2-expo hover:text-[var(--p2-accent)] disabled:cursor-default disabled:hover:text-current"
             :class="idx === breadcrumb.length - 1 ? 'font-semibold text-[var(--p2-text)]' : ''"
             @click="onCrumbClick(c)"
           >{{ c.label }}</button>

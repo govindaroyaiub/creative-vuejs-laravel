@@ -62,7 +62,7 @@ watch(
             </div>
             <button
               type="button"
-              class="grid h-8 w-8 place-items-center rounded-full text-[var(--p2-text-muted)] transition-colors duration-300 ease-[var(--p2-ease-expo)] hover:text-[var(--p2-text)]"
+              class="grid h-8 w-8 place-items-center rounded-full text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-text)]"
               :style="{ background: 'var(--p2-surface-muted)' }"
               aria-label="Close"
               @click="close"
@@ -77,7 +77,7 @@ watch(
               :key="c.id"
               type="button"
               :class="[
-                'group relative overflow-hidden rounded-2xl border p-3 text-left transition-all duration-300 ease-[var(--p2-ease-expo)]',
+                'group relative overflow-hidden rounded-2xl border p-3 text-left transition-all duration-300 ease-p2-expo',
                 c.id === currentId ? 'shadow-md' : 'hover:-translate-y-0.5',
               ]"
               :style="{
