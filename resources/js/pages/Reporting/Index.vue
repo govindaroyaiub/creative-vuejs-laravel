@@ -677,7 +677,7 @@ const tabs = [
                         <RefreshCw class="mr-2 h-4 w-4" :class="{ 'animate-spin': syncing }" /> Check for data
                     </Button>
                     <Button variant="outline" @click="showLinks = true"><Link2 class="mr-2 h-4 w-4" /> Report links</Button>
-                    <Button variant="outline" @click="openDownload"><Download class="mr-2 h-4 w-4" /> Download</Button>
+                    <Button variant="outline" @click="openDownload"><Download class="mr-2 h-4 w-4" /> Download Reports</Button>
                     <Button variant="outline" @click="openSettings"><Settings class="mr-2 h-4 w-4" /> Settings</Button>
                 </div>
             </div>
