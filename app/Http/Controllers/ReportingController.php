@@ -7,6 +7,7 @@ use App\Models\ReportSetting;
 use App\Services\Reporting\ReportProcessor;
 use App\Services\Reporting\ReportStore;
 use App\Services\Reporting\Reporting;
+use App\Services\Reporting\TableExporter;
 use App\Services\Reporting\Verifier;
 use App\Services\Reporting\ZipBuilder;
 use Illuminate\Http\Request;
@@ -358,6 +359,35 @@ class ReportingController extends Controller
         return response($buf)
             ->header('Content-Type', 'application/zip')
             ->header('Content-Disposition', 'attachment; filename="F1Maximaal Reports.zip"');
+    }
+
+    /** Export the dashboard table (per-day revenue + impressions) as csv/xlsx/json. */
+    public function exportTable(Request $request)
+    {
+        $data = $request->validate([
+            'site' => ['required', 'string'],
+            'format' => ['required', 'in:csv,xlsx,json'],
+            'from' => ['nullable', 'date_format:Y-m-d'],
+            'to' => ['nullable', 'date_format:Y-m-d'],
+        ]);
+        if (! isset(Reporting::SITES[$data['site']])) {
+            return response()->json(['error' => 'Unknown site'], 404);
+        }
+
+        $export = TableExporter::data(ReportStore::load(), $data['site'], $data['from'] ?? null, $data['to'] ?? null);
+
+        $range = ($data['from'] ?? 'all') . '_' . ($data['to'] ?? 'all');
+        $base = str_replace(' ', '_', $export['siteName']) . " reporting {$range}";
+
+        [$body, $mime, $ext] = match ($data['format']) {
+            'csv' => [TableExporter::csv($export), 'text/csv', 'csv'],
+            'json' => [TableExporter::json($export), 'application/json', 'json'],
+            'xlsx' => [TableExporter::xlsx($export), 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'xlsx'],
+        };
+
+        return response($body)
+            ->header('Content-Type', $mime)
+            ->header('Content-Disposition', "attachment; filename=\"{$base}.{$ext}\"");
     }
 
     /** Delete a single stored day. */

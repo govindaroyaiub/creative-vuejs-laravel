@@ -237,7 +237,7 @@ const PARTNERS: { key: string; label: string; lines?: [string, string] }[] = [
 const COLORS = ['#e2483d', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#a3a3a3', '#6366f1'];
 
 const selectedSite = ref('f1maximaal');
-const activeTab = ref<'summary' | 'table' | 'verify' | 'email'>('summary');
+const activeTab = ref<'summary' | 'table' | 'verify' | 'email'>('table');
 const oguryRate = ref<number>(store.value?.config?.oguryRate ?? 0.85);
 const processing = ref(false);
 const showAdheseModal = ref(false);
@@ -565,6 +565,17 @@ function confirmDownload() {
     window.location.href = '/reporting/download?' + params.toString();
     showDownload.value = false;
 }
+// Export the dashboard table itself (current site + date range) as csv/xlsx/json.
+// Distinct from the file download above — this is the computed daily figures.
+const showExportMenu = ref(false);
+function exportTable(format: 'csv' | 'xlsx' | 'json') {
+    showExportMenu.value = false;
+    const params = new URLSearchParams({ site: selectedSite.value, format });
+    if (from.value) params.set('from', from.value);
+    if (to.value) params.set('to', to.value);
+    window.location.href = '/reporting/export-table?' + params.toString();
+}
+
 const allFilesSelected = computed(() => uploadFiles.value.length > 0 && selectedFiles.value.length === uploadFiles.value.length);
 function toggleAllFiles() {
     selectedFiles.value = allFilesSelected.value ? [] : [...uploadFiles.value];
@@ -861,6 +872,25 @@ const tabs = [
             <!-- TABLE -->
             <Card v-show="activeTab === 'table'">
                 <CardContent class="overflow-x-auto pt-6">
+                    <!-- Export the table data itself (current site + date range).
+                         Separate from the file "Download" — this is the computed figures. -->
+                    <div class="mb-3 flex items-center justify-between gap-2">
+                        <div class="text-xs text-muted-foreground">
+                            {{ days.length }} day{{ days.length === 1 ? '' : 's' }}<span v-if="from || to"> · {{ from || '…' }} → {{ to || '…' }}</span>
+                        </div>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger as-child>
+                                <Button variant="outline" size="sm" :disabled="!days.length">
+                                    <Download class="mr-2 h-4 w-4" /> Export <ChevronDown class="ml-1 h-3.5 w-3.5" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" class="min-w-44">
+                                <button class="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition hover:bg-muted" @click="exportTable('xlsx')"><FileText class="h-4 w-4 text-[#e2483d]" /> Excel (.xlsx)</button>
+                                <button class="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition hover:bg-muted" @click="exportTable('csv')"><FileText class="h-4 w-4 text-[#e2483d]" /> CSV (.csv)</button>
+                                <button class="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition hover:bg-muted" @click="exportTable('json')"><FileText class="h-4 w-4 text-[#e2483d]" /> JSON (.json)</button>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                     <!-- Surfaces days that have Adhese revenue but no impressions yet
                          (impressions are entered by hand) so a gap can't stay silent. -->
                     <div v-if="missingAdhese.length" class="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-200">

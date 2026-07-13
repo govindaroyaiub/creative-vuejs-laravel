@@ -119,6 +119,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::post('/reporting/sync', [ReportingController::class, 'sync'])->name('reporting-sync');
     Route::get('/reporting/upload-files', [ReportingController::class, 'uploadFiles'])->name('reporting-upload-files');
     Route::get('/reporting/download', [ReportingController::class, 'download'])->name('reporting-download');
+    Route::get('/reporting/export-table', [ReportingController::class, 'exportTable'])->name('reporting-export-table');
     Route::delete('/reporting/{siteId}/{dateKey}', [ReportingController::class, 'destroy'])->name('reporting-destroy');
     //Reporting Routes End
 
