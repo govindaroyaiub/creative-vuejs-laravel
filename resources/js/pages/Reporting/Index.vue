@@ -8,7 +8,7 @@ import UserMenuContent from '@/components/UserMenuContent.vue';
 import DateRangePicker from '@/components/DateRangePicker.vue';
 import { useInitials } from '@/composables/useInitials';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Upload, Download, AlertTriangle, CheckCircle2, XCircle, Loader2, CalendarDays, Coins, Eye, TrendingUp, Award, CalendarCheck, X, FileText, ArrowLeft, ExternalLink, Plus, Link2, Mail, Copy, Trash2, RefreshCw, Circle, Settings, Minus, ChevronDown } from 'lucide-vue-next';
+import { Upload, Download, AlertTriangle, CheckCircle2, XCircle, Loader2, CalendarDays, Coins, Eye, TrendingUp, Award, CalendarCheck, X, FileText, FileSpreadsheet, FileJson, ArrowLeft, ExternalLink, Plus, Link2, Mail, Copy, Trash2, RefreshCw, Circle, Settings, Minus, ChevronDown } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, onMounted } from 'vue';
 import { Line, Doughnut } from 'vue-chartjs';
@@ -885,9 +885,9 @@ const tabs = [
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" class="min-w-44">
-                                <button class="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition hover:bg-muted" @click="exportTable('xlsx')"><FileText class="h-4 w-4 text-[#e2483d]" /> Excel (.xlsx)</button>
-                                <button class="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition hover:bg-muted" @click="exportTable('csv')"><FileText class="h-4 w-4 text-[#e2483d]" /> CSV (.csv)</button>
-                                <button class="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition hover:bg-muted" @click="exportTable('json')"><FileText class="h-4 w-4 text-[#e2483d]" /> JSON (.json)</button>
+                                <button class="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition hover:bg-muted" @click="exportTable('xlsx')"><FileSpreadsheet class="h-4 w-4 text-emerald-600" /> Excel (.xlsx)</button>
+                                <button class="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition hover:bg-muted" @click="exportTable('csv')"><FileText class="h-4 w-4 text-blue-600" /> CSV (.csv)</button>
+                                <button class="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition hover:bg-muted" @click="exportTable('json')"><FileJson class="h-4 w-4 text-amber-600" /> JSON (.json)</button>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
