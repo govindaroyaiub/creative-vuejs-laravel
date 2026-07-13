@@ -110,13 +110,16 @@ const FILE_PATTERN_FIELDS = [
     { key: 'preferreddeals', label: 'Preferred Deals' }, { key: 'gam_f1m', label: 'GAM F1M' },
 ];
 const filePatterns = ref<Record<string, string>>({ ...((page.props.filePatterns as Record<string, string>) ?? {}) });
+// When on, the Ogury export is converted to the legacy Report/Statistics layout in the ZIP download.
+const oguryOldFormat = ref<boolean>(!!(page.props.oguryOldFormat as boolean));
 function openSettings() {
     settingsDay.value = reminderDay.value;
     filePatterns.value = { ...((page.props.filePatterns as Record<string, string>) ?? {}) };
+    oguryOldFormat.value = !!(page.props.oguryOldFormat as boolean);
     showSettings.value = true;
 }
 function saveSettings() {
-    router.post('/reporting/config', { oguryRate: oguryRate.value, reminderDay: settingsDay.value, filePatterns: filePatterns.value }, {
+    router.post('/reporting/config', { oguryRate: oguryRate.value, reminderDay: settingsDay.value, oguryOldFormat: oguryOldFormat.value, filePatterns: filePatterns.value }, {
         preserveScroll: true, preserveState: true,
         onSuccess: () => { showSettings.value = false; Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Settings saved', timer: 1300, showConfirmButton: false }); },
     });
@@ -1146,6 +1149,13 @@ const tabs = [
                                 </label>
                             </div>
                             <p class="text-[11px] text-muted-foreground">The weekly deliverables reminder appears on the selected day.</p>
+                            <label class="mt-1 flex items-start justify-between gap-3 rounded-md border p-3">
+                                <span class="flex flex-col gap-0.5">
+                                    <span class="text-sm font-medium">Convert Ogury report to old format?</span>
+                                    <span class="text-[11px] text-muted-foreground">When on, the Ogury file in the download is converted to the legacy “Report / Statistics” layout. Off keeps the current export.</span>
+                                </span>
+                                <input v-model="oguryOldFormat" type="checkbox" class="mt-0.5 h-4 w-4 shrink-0 accent-[#e2483d]" />
+                            </label>
                         </section>
 
                         <!-- Upload file names -->

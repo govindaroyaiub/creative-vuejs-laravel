@@ -47,6 +47,7 @@ class ReportingController extends Controller
             'uploadFiles' => ZipBuilder::availableFiles($this->uploadsDir()),
             'reportLinks' => ReportSetting::get('report_links', self::DEFAULT_LINKS),
             'reminderDay' => (int) ReportSetting::get('reminder_day', 3),
+            'oguryOldFormat' => (bool) ReportSetting::get('ogury_old_format', false),
             'filePatterns' => array_merge(Reporting::DEFAULT_FILE_PATTERNS, (array) ReportSetting::get('file_patterns', [])),
             'sync' => $this->syncInfo(),
         ];
@@ -310,6 +311,7 @@ class ReportingController extends Controller
         $data = $request->validate([
             'oguryRate' => 'nullable|numeric',
             'reminderDay' => 'nullable|integer|between:0,6',
+            'oguryOldFormat' => 'nullable|boolean',
             'filePatterns' => 'nullable|array',
             'filePatterns.*' => 'nullable|string|max:255',
         ]);
@@ -318,6 +320,9 @@ class ReportingController extends Controller
         }
         if (array_key_exists('reminderDay', $data) && $data['reminderDay'] !== null) {
             ReportSetting::put('reminder_day', (int) $data['reminderDay']);
+        }
+        if (array_key_exists('oguryOldFormat', $data) && $data['oguryOldFormat'] !== null) {
+            ReportSetting::put('ogury_old_format', (bool) $data['oguryOldFormat']);
         }
         if (array_key_exists('filePatterns', $data) && is_array($data['filePatterns'])) {
             // Persist only the known configurable partner keys, trimmed.
@@ -344,6 +349,7 @@ class ReportingController extends Controller
                 $requested,
                 $request->query('from'),
                 $request->query('to'),
+                (bool) ReportSetting::get('ogury_old_format', false),
             );
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 404);

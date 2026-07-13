@@ -13,7 +13,7 @@ use ZipArchive;
  */
 class ZipBuilder
 {
-    public static function build(array $store, string $uploadsDir, ?array $requested = null, ?string $from = null, ?string $to = null): string
+    public static function build(array $store, string $uploadsDir, ?array $requested = null, ?string $from = null, ?string $to = null, bool $oguryOldFormat = false): string
     {
         $exclude = fn (string $name) => str_starts_with(mb_strtolower($name), 'planetnine-report-');
 
@@ -40,6 +40,10 @@ class ZipBuilder
             };
             if ($generated !== null) {
                 $zip->addFromString($f, $generated);
+            } elseif ($oguryOldFormat && self::isOguryXlsx($f) && ($converted = OguryConverter::convert($uploadsDir . '/' . $f)) !== null) {
+                // "Convert to old format" is on: ship the Ogury export in the legacy
+                // Report/Statistics layout. Falls back to the original if unconvertible.
+                $zip->addFromString($f, $converted);
             } else {
                 $zip->addFile($uploadsDir . '/' . $f, $f);
             }
@@ -50,6 +54,14 @@ class ZipBuilder
         @unlink($tmp);
 
         return $buf;
+    }
+
+    /** The canonical re-saved Ogury export (only xlsx can be reformatted). */
+    private static function isOguryXlsx(string $name): bool
+    {
+        $n = mb_strtolower($name);
+
+        return str_starts_with($n, 'ogury.') && str_ends_with($n, '.xlsx');
     }
 
     /** Files currently available for download (for the ZIP modal checklist). */
