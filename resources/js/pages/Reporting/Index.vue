@@ -250,7 +250,7 @@ const selectedUploadFiles = ref<File[]>([]);
 // Date-range filter. Defaults to the current month (preset applied below).
 const from = ref('');
 const to = ref('');
-const PRESETS = ['Yesterday', 'Last 7 days', 'This month', 'Last month', 'All'] as const;
+const PRESETS = ['Last 7 days', 'This month', 'Last month', 'All'] as const;
 const activePreset = ref<string>('This month');
 
 const days = computed<any[]>(() => {
