@@ -82,6 +82,12 @@ it('updates the ogury rate', function () {
     expect((float) ReportSetting::get('oguryRate'))->toEqual(0.9);
 });
 
+it('updates the RPM anomaly thresholds', function () {
+    $this->post('/reporting/config', ['rpmAmber' => 7, 'rpmRed' => 9])->assertRedirect(route('reporting'));
+    expect((float) ReportSetting::get('rpm_amber'))->toEqual(7.0);
+    expect((float) ReportSetting::get('rpm_red'))->toEqual(9.0);
+});
+
 it('saves manual adhese impressions and recomputes impressions sold', function () use ($partnerFiles) {
     $this->post('/reporting/process', ['files' => $partnerFiles()])->assertRedirect();
 

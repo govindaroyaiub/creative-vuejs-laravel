@@ -116,10 +116,12 @@ function openSettings() {
     settingsDay.value = reminderDay.value;
     filePatterns.value = { ...((page.props.filePatterns as Record<string, string>) ?? {}) };
     oguryOldFormat.value = !!(page.props.oguryOldFormat as boolean);
+    rpmAmber.value = (page.props.rpmAmber as number) ?? 7.5;
+    rpmRed.value = (page.props.rpmRed as number) ?? 8;
     showSettings.value = true;
 }
 function saveSettings() {
-    router.post('/reporting/config', { oguryRate: oguryRate.value, reminderDay: settingsDay.value, oguryOldFormat: oguryOldFormat.value, filePatterns: filePatterns.value }, {
+    router.post('/reporting/config', { oguryRate: oguryRate.value, reminderDay: settingsDay.value, rpmAmber: rpmAmber.value, rpmRed: rpmRed.value, oguryOldFormat: oguryOldFormat.value, filePatterns: filePatterns.value }, {
         preserveScroll: true, preserveState: true,
         onSuccess: () => { showSettings.value = false; Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Settings saved', timer: 1300, showConfirmButton: false }); },
     });
@@ -293,8 +295,10 @@ const partnerTotals = computed(() => {
 // RPM (revenue per 1000 pageviews). A high RPM means analytics pageviews are
 // under-reported (incomplete/late-finalized GA4 data) — the day's analytics file
 // likely needs re-uploading. F1Maximaal only; other sites carry no pageviews.
-const RPM_AMBER = 7.5;
-const RPM_RED = 8;
+// Editable in Settings; default to amber >=7.5, red >=8. Reactive so the table
+// re-tints immediately after the thresholds are saved.
+const rpmAmber = ref<number>((page.props.rpmAmber as number) ?? 7.5);
+const rpmRed = ref<number>((page.props.rpmRed as number) ?? 8);
 const dayRevenue = (d: any) => PARTNERS.reduce((t, p) => t + (d.revenue?.[p.key] ?? 0), 0);
 const rpmFor = (d: any): number | null => {
     const views = d.analytics?.views ?? 0;
@@ -305,8 +309,8 @@ const rpmTier = (d: any): 'red' | 'amber' | null => {
     // Missing/zero pageviews on a day that has revenue is itself the "re-upload
     // analytics" signal (RPM is effectively infinite) — flag red.
     if (rpm === null) return dayRevenue(d) > 0 ? 'red' : null;
-    if (rpm >= RPM_RED) return 'red';
-    if (rpm >= RPM_AMBER) return 'amber';
+    if (rpm >= rpmRed.value) return 'red';
+    if (rpm >= rpmAmber.value) return 'amber';
     return null;
 };
 const rpmRowClass = (d: any) => {
@@ -1212,6 +1216,17 @@ const tabs = [
                                 </label>
                             </div>
                             <p class="text-[11px] text-muted-foreground">The weekly deliverables reminder appears on the selected day.</p>
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <label class="flex flex-col gap-1">
+                                    <span class="text-sm font-medium">RPM warning — min (amber)</span>
+                                    <Input v-model.number="rpmAmber" type="number" step="0.1" min="0" />
+                                </label>
+                                <label class="flex flex-col gap-1">
+                                    <span class="text-sm font-medium">RPM alert — max (red)</span>
+                                    <Input v-model.number="rpmRed" type="number" step="0.1" min="0" />
+                                </label>
+                            </div>
+                            <p class="text-[11px] text-muted-foreground">A F1Maximaal day's row turns amber at or above the min and red at or above the max. A high RPM means analytics pageviews are under-reported — re-upload that day's analytics file.</p>
                             <label class="mt-1 flex items-start justify-between gap-3 rounded-md border p-3">
                                 <span class="flex flex-col gap-0.5">
                                     <span class="text-sm font-medium">Convert Ogury report to old format?</span>

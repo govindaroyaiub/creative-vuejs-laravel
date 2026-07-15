@@ -28,22 +28,33 @@ codifies that manual check.
 
 - **Presentation**: an **RPM column** in the F1Maximaal per-day table, with the
   whole table **row tinted** by RPM tier. Not a popup/banner.
-- **Thresholds** (two tiers, hard-coded constants):
-  - `RPM ≥ 8` → **red** row (`RPM_RED = 8`)
-  - `7.5 ≤ RPM < 8` → **amber** row (`RPM_AMBER = 7.5`)
-  - `RPM < 7.5` → no tint
+- **Thresholds** (two tiers, editable in Settings — see §4):
+  - `RPM ≥ red`   → **red** row (default `8`, `report_settings.rpm_red`)
+  - `amber ≤ RPM < red` → **amber** row (default `7.5`, `report_settings.rpm_amber`)
+  - `RPM < amber` → no tint
 - **Site scope**: F1Maximaal only. RPM needs pageviews, and analytics/pageviews
   exist only for `f1maximaal`. The column is not rendered for other sites.
-- Configurable-threshold settings UI is explicitly **out of scope** (YAGNI). The
-  two thresholds live as constants at the top of the component so they are easy to
-  change in code.
+- The two thresholds are **user-editable** in the reporting Settings modal (min =
+  amber, max = red), persisted like `oguryRate`/`reminder_day`, so the band can be
+  retuned without a code change.
 
 ## 4. Architecture
 
-Frontend-only. All inputs are already present in the `store` prop rendered by
-`Index.vue`: each day object `d` carries `d.revenue` (all partner keys) and, for
-F1Maximaal, `d.analytics.views`. No backend, controller, service, DB, migration,
+Coloring/computation is frontend-only. All inputs are already present in the
+`store` prop rendered by `Index.vue`: each day object `d` carries `d.revenue` (all
+partner keys) and, for F1Maximaal, `d.analytics.views`. No service, DB, migration,
 or `TableExporter` changes.
+
+The two thresholds are stored in the existing generic `report_settings` table
+(keys `rpm_amber` / `rpm_red`) and flow through the same path as the other
+reporting settings:
+- `ReportingController::baseProps()` exposes `rpmAmber` (default 7.5) and `rpmRed`
+  (default 8) as page props.
+- `ReportingController::config()` validates them (`nullable|numeric|min:0`) and
+  persists via `ReportSetting::put()`, alongside `oguryRate`/`reminder_day`.
+- `Index.vue` reads them into reactive refs used by the tier logic and bound to two
+  number inputs in the Settings modal; `saveSettings()` posts them to
+  `/reporting/config`.
 
 ## 5. Behavior
 
@@ -108,7 +119,6 @@ Vitest), so verification is by running the app:
 
 ## 8. Out of Scope
 
-- Settings UI to edit the thresholds.
 - Applying RPM to non-F1Maximaal sites.
 - Any backend/export/DB change (RPM does not need to appear in CSV/XLSX exports).
 - The originally-discussed post-upload warning banner.
