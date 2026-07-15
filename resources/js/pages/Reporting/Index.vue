@@ -290,6 +290,34 @@ const partnerTotals = computed(() => {
     return { totals, grand };
 });
 
+// RPM (revenue per 1000 pageviews). A high RPM means analytics pageviews are
+// under-reported (incomplete/late-finalized GA4 data) — the day's analytics file
+// likely needs re-uploading. F1Maximaal only; other sites carry no pageviews.
+const RPM_AMBER = 7.5;
+const RPM_RED = 8;
+const dayRevenue = (d: any) => PARTNERS.reduce((t, p) => t + (d.revenue?.[p.key] ?? 0), 0);
+const rpmFor = (d: any): number | null => {
+    const views = d.analytics?.views ?? 0;
+    return views > 0 ? (dayRevenue(d) / views) * 1000 : null;
+};
+const rpmTier = (d: any): 'red' | 'amber' | null => {
+    const rpm = rpmFor(d);
+    // Missing/zero pageviews on a day that has revenue is itself the "re-upload
+    // analytics" signal (RPM is effectively infinite) — flag red.
+    if (rpm === null) return dayRevenue(d) > 0 ? 'red' : null;
+    if (rpm >= RPM_RED) return 'red';
+    if (rpm >= RPM_AMBER) return 'amber';
+    return null;
+};
+const rpmRowClass = (d: any) => {
+    const t = rpmTier(d);
+    return t === 'red' ? 'bg-red-500/10' : t === 'amber' ? 'bg-amber-400/10' : '';
+};
+const blendedRpm = computed<number | null>(() => {
+    const views = days.value.reduce((t, d) => t + (d.analytics?.views ?? 0), 0);
+    return views > 0 ? (partnerTotals.value.grand / views) * 1000 : null;
+});
+
 const impressionsSoldTotal = computed(() =>
     days.value.reduce((t, d) => t + (d.impressionsSold || 0), 0));
 
@@ -908,6 +936,7 @@ const tabs = [
                                     <template v-else>{{ p.label }}</template>
                                 </th>
                                 <th class="px-1.5 py-2 text-right">Total</th>
+                                <th v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-2 text-right">RPM</th>
                                 <th v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-2 text-right leading-tight">Adhese<br>impr.</th>
                                 <th v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-2 text-right leading-tight">Impr.<br>sold</th>
                                 <th v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-2 text-right leading-tight">Ad<br>requests</th>
@@ -915,13 +944,16 @@ const tabs = [
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="d in days" :key="d.dateKey" class="border-b last:border-0">
+                            <tr v-for="d in days" :key="d.dateKey" class="border-b last:border-0" :class="rpmRowClass(d)">
                                 <td class="px-1.5 py-1 font-medium">{{ d.dateKey }}</td>
                                 <td v-for="p in PARTNERS" :key="p.key" class="px-1.5 py-1 text-right" :class="{ 'text-muted-foreground': !(d.revenue?.[p.key]) }">
                                     {{ (d.revenue?.[p.key] ?? 0).toFixed(2) }}
                                 </td>
                                 <td class="px-1.5 py-1 text-right font-semibold">
                                     {{ PARTNERS.reduce((t, p) => t + (d.revenue?.[p.key] ?? 0), 0).toFixed(2) }}
+                                </td>
+                                <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1 text-right tabular-nums">
+                                    {{ rpmFor(d) === null ? '—' : rpmFor(d)!.toFixed(2) }}
                                 </td>
                                 <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1 text-right">
                                     <Input v-model.number="d.impressions.adhese" type="number" :class="['ml-auto h-7 w-24 px-1.5 text-right text-[11px] leading-none', (d.revenue?.adhese ?? 0) > 0 && d.impressions?.adhese == null ? 'ring-1 ring-amber-400 focus-visible:ring-amber-400' : '']" @change="saveAdhese(d)" />
@@ -939,6 +971,7 @@ const tabs = [
                                     {{ partnerTotals.totals[p.key].toFixed(2) }}
                                 </td>
                                 <td class="px-1.5 py-1.5 text-right">{{ partnerTotals.grand.toFixed(2) }}</td>
+                                <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1.5 text-right tabular-nums">{{ blendedRpm === null ? '—' : blendedRpm.toFixed(2) }}</td>
                                 <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1.5 text-right">—</td>
                                 <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1.5 text-right">{{ num(days.reduce((t, d) => t + (d.impressionsSold || 0), 0)) }}</td>
                                 <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1.5 text-right">{{ num(days.reduce((t, d) => t + (d.totalAdRequests || 0), 0)) }}</td>
