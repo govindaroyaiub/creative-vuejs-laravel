@@ -1,5 +1,5 @@
 {
-    "exported_at": "2026-07-15 21:24:00",
+    "exported_at": "2026-07-15 22:21:42",
     "settings": {
         "oguryRate": 0.878,
         "last_run": {
@@ -17,7 +17,7 @@
                 "Adhese (Festileaks)"
             ]
         },
-        "synced_at": "2026-07-15 21:24:00",
+        "synced_at": "2026-07-15 22:21:42",
         "report_links": [
             {
                 "url": "https://publishers.seedtag.com/revenue",
@@ -74,7 +74,9 @@
             "analytics": "pages_and_screens, content_group",
             "showheroes": "topgear-",
             "preferreddeals": "preferred deal"
-        }
+        },
+        "rpm_amber": 7.5,
+        "rpm_red": 8
     },
     "days": [
         {

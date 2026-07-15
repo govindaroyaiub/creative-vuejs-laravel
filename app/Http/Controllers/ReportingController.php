@@ -150,6 +150,11 @@ class ReportingController extends Controller
 
         ReportSetting::put('report_links', array_values($data['links']));
 
+        // Keep the committed snapshot in sync with link changes too (skipped in tests).
+        if (! app()->runningUnitTests()) {
+            Artisan::call('reporting:export');
+        }
+
         return redirect()->route('reporting');
     }
 
@@ -344,6 +349,13 @@ class ReportingController extends Controller
                 }
             }
             ReportSetting::put('file_patterns', $clean);
+        }
+
+        // Refresh the committed snapshot so setting changes (rpm thresholds, ogury
+        // rate, file patterns, …) land in the JSON and sync to other machines,
+        // mirroring the upload flow. Skipped in tests.
+        if (! app()->runningUnitTests()) {
+            Artisan::call('reporting:export');
         }
 
         return redirect()->route('reporting')->with('success', 'Settings saved');
