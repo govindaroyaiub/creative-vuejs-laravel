@@ -8,9 +8,9 @@ import UserMenuContent from '@/components/UserMenuContent.vue';
 import DateRangePicker from '@/components/DateRangePicker.vue';
 import { useInitials } from '@/composables/useInitials';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Upload, Download, AlertTriangle, CheckCircle2, XCircle, Loader2, CalendarDays, Coins, Eye, TrendingUp, Award, CalendarCheck, X, FileText, FileSpreadsheet, FileJson, ArrowLeft, ExternalLink, Plus, Link2, Mail, Copy, Trash2, RefreshCw, Circle, Settings, Minus, ChevronDown } from 'lucide-vue-next';
+import { Upload, Download, AlertTriangle, CheckCircle2, XCircle, Loader2, CalendarDays, Coins, Eye, TrendingUp, Award, CalendarCheck, X, FileText, FileSpreadsheet, FileJson, ArrowLeft, ExternalLink, Plus, Link2, Mail, Copy, Trash2, RefreshCw, Circle, Settings, Minus, ChevronDown, Gauge } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { Line, Doughnut } from 'vue-chartjs';
 import {
     Chart as ChartJS, Title, Tooltip, Legend, Filler,
@@ -239,7 +239,14 @@ const PARTNERS: { key: string; label: string; lines?: [string, string] }[] = [
 const COLORS = ['#e2483d', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#a3a3a3', '#6366f1'];
 
 const selectedSite = ref('f1maximaal');
-const activeTab = ref<'summary' | 'table' | 'verify' | 'email'>('table');
+// "Days" is the simplified per-day card view — F1Maximaal only (the fields it
+// shows don't exist for other sites) and the default tab on load.
+const activeTab = ref<'days' | 'summary' | 'table' | 'verify' | 'email'>('days');
+watch(selectedSite, (s) => {
+    // F1Maximaal always lands on Days; other sites can't show it, fall to Table.
+    if (s === 'f1maximaal') activeTab.value = 'days';
+    else if (activeTab.value === 'days') activeTab.value = 'table';
+});
 const oguryRate = ref<number>(store.value?.config?.oguryRate ?? 0.85);
 const processing = ref(false);
 const showAdheseModal = ref(false);
@@ -305,6 +312,9 @@ const rpmFor = (d: any): number | null => {
     return views > 0 ? (dayRevenue(d) / views) * 1000 : null;
 };
 const rpmTier = (d: any): 'red' | 'amber' | null => {
+    // Only F1Maximaal carries pageviews; on other sites "revenue but no views"
+    // is the normal state, not an anomaly — never tint their rows.
+    if (selectedSite.value !== 'f1maximaal') return null;
     const rpm = rpmFor(d);
     // Missing/zero pageviews on a day that has revenue is itself the "re-upload
     // analytics" signal (RPM is effectively infinite) — flag red.
@@ -317,9 +327,28 @@ const rpmRowClass = (d: any) => {
     const t = rpmTier(d);
     return t === 'red' ? 'bg-red-500/10' : t === 'amber' ? 'bg-amber-400/10' : '';
 };
+// Same banding for the Days cards (border + soft fill so anomalies pop in a grid).
+const rpmCardClass = (d: any) => {
+    const t = rpmTier(d);
+    return t === 'red' ? 'border-red-500/40 bg-red-500/5' : t === 'amber' ? 'border-amber-400/40 bg-amber-400/5' : '';
+};
+const rpmBadgeClass = (d: any) => {
+    const t = rpmTier(d);
+    return t === 'red' ? 'bg-red-500/15 text-red-600' : t === 'amber' ? 'bg-amber-400/20 text-amber-600' : 'bg-muted text-muted-foreground';
+};
+// Cards read newest-first: recent days are the ones being checked/filled.
+const daysDesc = computed<any[]>(() => [...days.value].reverse());
 const blendedRpm = computed<number | null>(() => {
     const views = days.value.reduce((t, d) => t + (d.analytics?.views ?? 0), 0);
     return views > 0 ? (partnerTotals.value.grand / views) * 1000 : null;
+});
+// Same amber/red banding as the table rows, applied to the range-wide blended
+// RPM so the Summary KPI card signals when the period as a whole looks off.
+const blendedRpmTier = computed<'red' | 'amber' | null>(() => {
+    if (blendedRpm.value === null) return null;
+    if (blendedRpm.value >= rpmRed.value) return 'red';
+    if (blendedRpm.value >= rpmAmber.value) return 'amber';
+    return null;
 });
 
 const impressionsSoldTotal = computed(() =>
@@ -390,6 +419,9 @@ const tip = {
 };
 const chartOptions = {
     responsive: true, maintainAspectRatio: false,
+    // No draw-in animation: charts live under v-show, so Chart.js would replay
+    // its entry animation every time the Summary tab is revealed.
+    animation: false as const,
     interaction: { mode: 'index' as const, intersect: false },
     plugins: {
         legend: { display: false },
@@ -402,6 +434,7 @@ const chartOptions = {
 };
 const doughnutOptions = {
     responsive: true, maintainAspectRatio: false, cutout: '70%',
+    animation: false as const,
     plugins: {
         legend: { display: false },
         tooltip: { ...tip, callbacks: { label: (c: any) => c.label + ': €' + c.parsed.toLocaleString('en-US', { maximumFractionDigits: 0 }) } },
@@ -655,10 +688,11 @@ function runVerify() {
     });
 }
 
-const tabs = [
+const tabs = computed(() => [
+    ...(selectedSite.value === 'f1maximaal' ? [{ id: 'days', label: 'Days' }] : []),
     { id: 'summary', label: 'Summary' }, { id: 'table', label: 'Table' },
     { id: 'verify', label: 'Verify' }, { id: 'email', label: 'Email' },
-] as const;
+]);
 </script>
 
 <template>
@@ -831,6 +865,59 @@ const tabs = [
                 </button>
             </div>
 
+            <!-- DAYS (simplified per-day cards — F1Maximaal only) -->
+            <!-- v-if, not v-show: cards must unmount for other sites — their days carry no
+                 impressions object, so a hidden-but-mounted card grid would crash the render. -->
+            <div v-if="activeTab === 'days' && selectedSite === 'f1maximaal'" class="flex flex-col gap-3">
+                <div class="flex items-center justify-between gap-2">
+                    <div class="text-xs text-muted-foreground">
+                        {{ days.length }} day{{ days.length === 1 ? '' : 's' }}<span v-if="from || to"> · {{ from || '…' }} → {{ to || '…' }}</span>
+                    </div>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger as-child>
+                            <Button variant="outline" size="sm" :disabled="!days.length">
+                                <Download class="mr-2 h-4 w-4" /> Export <ChevronDown class="ml-1 h-3.5 w-3.5" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" class="min-w-44">
+                            <button class="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition hover:bg-muted" @click="exportTable('xlsx')"><FileSpreadsheet class="h-4 w-4 text-emerald-600" /> Excel (.xlsx)</button>
+                            <button class="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition hover:bg-muted" @click="exportTable('csv')"><FileText class="h-4 w-4 text-blue-600" /> CSV (.csv)</button>
+                            <button class="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition hover:bg-muted" @click="exportTable('json')"><FileJson class="h-4 w-4 text-amber-600" /> JSON (.json)</button>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+                <div v-if="missingAdhese.length" class="flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-200">
+                    <span>{{ missingAdhese.length }} day{{ missingAdhese.length === 1 ? '' : 's' }} in this range {{ missingAdhese.length === 1 ? 'has' : 'have' }} Adhese revenue but no impressions: {{ missingAdhese.map((d) => d.dateKey).join(', ') }}.</span>
+                    <button class="shrink-0 rounded-md border border-amber-400 px-2 py-1 font-medium transition hover:bg-amber-100 dark:hover:bg-amber-900/40" @click="openAdheseGaps">Fill now</button>
+                </div>
+                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    <Card v-for="d in daysDesc" :key="d.dateKey" :class="rpmCardClass(d)">
+                        <CardContent class="flex flex-col gap-2 pt-4">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-semibold tabular-nums">{{ d.dateKey }}</span>
+                                <span class="rounded-full px-2 py-0.5 text-[10px] font-medium tabular-nums" :class="rpmBadgeClass(d)">
+                                    RPM {{ rpmFor(d) === null ? '—' : rpmFor(d)!.toFixed(2) }}
+                                </span>
+                                <button class="ml-auto text-muted-foreground transition hover:text-red-500" title="Delete day" @click="deleteDay(d)"><Trash2 class="h-3.5 w-3.5" /></button>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 text-xs">
+                                <span class="text-muted-foreground">Adhese impr.</span>
+                                <Input v-model.number="d.impressions.adhese" type="number" :class="['h-7 w-24 px-1.5 text-right text-[11px] leading-none', (d.revenue?.adhese ?? 0) > 0 && d.impressions?.adhese == null ? 'ring-1 ring-amber-400 focus-visible:ring-amber-400' : '']" @change="saveAdhese(d)" />
+                            </div>
+                            <div class="flex items-center justify-between gap-2 text-xs">
+                                <span class="text-muted-foreground">Impr. sold</span>
+                                <span class="font-medium tabular-nums">{{ num(d.impressionsSold || 0) }}</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 text-xs">
+                                <span class="text-muted-foreground">Ad requests</span>
+                                <span class="font-medium tabular-nums">{{ num(d.totalAdRequests || 0) }}</span>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+                <p v-if="!days.length" class="py-6 text-center text-muted-foreground">No data yet — upload partner files above.</p>
+            </div>
+
             <!-- SUMMARY -->
             <div v-show="activeTab === 'summary'" class="flex flex-col gap-4">
                 <!-- KPI cards (single row) -->
@@ -845,6 +932,19 @@ const tabs = [
                         <CardContent class="flex items-center gap-2.5 pt-5">
                             <div class="shrink-0 rounded-lg bg-blue-500/10 p-2 text-blue-500"><Eye class="h-5 w-5" /></div>
                             <div class="min-w-0"><div class="text-xs text-muted-foreground">Impressions</div><div class="truncate text-base font-semibold tracking-tight">{{ num(impressionsSoldTotal) }}</div></div>
+                        </CardContent>
+                    </Card>
+                    <Card v-if="selectedSite === 'f1maximaal'" class="min-w-0 flex-1">
+                        <CardContent class="flex items-center gap-2.5 pt-5">
+                            <div class="shrink-0 rounded-lg p-2"
+                                :class="blendedRpmTier === 'red' ? 'bg-red-500/10 text-red-500' : blendedRpmTier === 'amber' ? 'bg-amber-500/10 text-amber-500' : 'bg-cyan-500/10 text-cyan-500'">
+                                <Gauge class="h-5 w-5" />
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-xs text-muted-foreground">RPM</div>
+                                <div class="truncate text-base font-semibold tracking-tight">{{ blendedRpm === null ? '—' : blendedRpm.toFixed(2) }}</div>
+                                <div class="truncate text-[11px] text-muted-foreground">€ / 1k pageviews</div>
+                            </div>
                         </CardContent>
                     </Card>
                     <Card class="min-w-0 flex-1">
