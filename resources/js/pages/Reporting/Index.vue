@@ -246,6 +246,10 @@ watch(selectedSite, (s) => {
     // F1Maximaal always lands on Days; other sites can't show it, fall to Table.
     if (s === 'f1maximaal') activeTab.value = 'days';
     else if (activeTab.value === 'days') activeTab.value = 'table';
+    // Verify is per-site — clear the staged file + widget so a report uploaded
+    // for one site doesn't linger when switching to another.
+    verifyFile.value = null;
+    verifyPond.value?.removeFiles();
 });
 const oguryRate = ref<number>(store.value?.config?.oguryRate ?? 0.85);
 const processing = ref(false);
