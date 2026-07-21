@@ -64,11 +64,16 @@ it('downloads a ZIP after processing', function () use ($partnerFiles) {
 it('verifies the monthly Planetnine report', function () use ($partnerFiles, $uploadFile, $fixtures) {
     $this->post('/reporting/process', ['files' => $partnerFiles()])->assertRedirect();
 
+    // Rendered inline (not a redirect) so the client stays on the same Inertia
+    // visit and doesn't lose local UI state like the active tab.
+    $result = null;
     $this->post('/reporting/verify', [
         'file' => $uploadFile("$fixtures/Planetnine-Report.xlsx", 'Planetnine-Report.xlsx'),
-    ])->assertRedirect(route('reporting'))->assertSessionHas('verifyResult');
+    ])->assertOk()->assertInertia(function (\Inertia\Testing\AssertableInertia $p) use (&$result) {
+        $p->component('Reporting/Index')->has('verifyResult.rows');
+        $result = $p->toArray()['props']['verifyResult'];
+    });
 
-    $result = session('verifyResult');
     expect($result['rows'])->not->toBeEmpty();
 
     // A day's Showheroes check should now reconcile (pn ≈ us) since the port matches.

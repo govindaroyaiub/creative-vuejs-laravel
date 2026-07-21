@@ -50,7 +50,7 @@ class Reporting
         'teads' => 'report_finance',
         'ogury' => 'ogury, export-ad-units',
         'gam' => 'copy of general data download',
-        'seedtag' => 'revenue-export',
+        'seedtag' => 'daily_report_from, revenue-export',
         'adform' => 'tg 2, tg_2',
         'showheroes' => 'topgear-',
         'analytics' => 'pages_and_screens, content_group',

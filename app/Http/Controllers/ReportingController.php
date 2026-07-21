@@ -18,7 +18,7 @@ class ReportingController extends Controller
 {
     /** Where each partner report is downloaded from (defaults; user-editable). */
     private const DEFAULT_LINKS = [
-        ['label' => 'SeedTag', 'url' => 'https://publishers.seedtag.com/revenue'],
+        ['label' => 'SeedTag', 'url' => 'https://publisher-panel.seedtag.com/'],
         ['label' => 'Teads', 'url' => 'https://login.teads.tv/login'],
         ['label' => 'Showheroes', 'url' => 'https://platform.showheroes.com/app/user/10360/'],
         ['label' => 'GAM', 'url' => 'https://admanager.google.com/21759686865#reports/interactive/list?redirected=true'],
@@ -289,11 +289,11 @@ class ReportingController extends Controller
         try {
             $rows = Verifier::monthly(ReportStore::load(), $request->file('file')->getRealPath());
 
-            return redirect()->route('reporting')->with('verifyResult', [
+            return $this->renderWithVerify([
                 'rows' => $rows, 'site' => 'f1maximaal', 'siteName' => Reporting::SITES['f1maximaal']['name'],
-            ]);
+            ], null);
         } catch (\Throwable $e) {
-            return redirect()->route('reporting')->with('verifyError', $e->getMessage());
+            return $this->renderWithVerify(null, $e->getMessage());
         }
     }
 
@@ -302,15 +302,31 @@ class ReportingController extends Controller
     {
         $request->validate(['file' => 'required|file', 'site' => 'required|string']);
         $siteId = $request->input('site');
-        if (! isset(Reporting::SITES[$siteId])) return redirect()->route('reporting')->with('verifyError', 'Unknown site');
+        if (! isset(Reporting::SITES[$siteId])) return $this->renderWithVerify(null, 'Unknown site');
 
         try {
             $result = Verifier::weekly(ReportStore::load(), $request->file('file')->getRealPath(), $siteId);
 
-            return redirect()->route('reporting')->with('verifyResult', array_merge(['site' => $siteId], $result));
+            return $this->renderWithVerify(array_merge(['site' => $siteId], $result), null);
         } catch (\Throwable $e) {
-            return redirect()->route('reporting')->with('verifyError', $e->getMessage());
+            return $this->renderWithVerify(null, $e->getMessage());
         }
+    }
+
+    /**
+     * Render the reporting page directly with a verify outcome, instead of
+     * redirect()->with() + a follow-up GET. That extra round trip remounts the
+     * Vue page component, wiping local UI state (e.g. resets the active tab back
+     * to "Days") — rendering inline keeps the user right where they were, on the
+     * Verify tab, looking at the comparison they just ran.
+     */
+    private function renderWithVerify(?array $verifyResult, ?string $verifyError)
+    {
+        return Inertia::render('Reporting/Index', array_merge($this->baseProps(), [
+            'lastRun' => ReportSetting::get('last_run'),
+            'verifyResult' => $verifyResult,
+            'verifyError' => $verifyError,
+        ]));
     }
 
     /** Update config (e.g. oguryRate). */

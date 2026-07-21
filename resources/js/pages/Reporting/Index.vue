@@ -8,7 +8,7 @@ import UserMenuContent from '@/components/UserMenuContent.vue';
 import DateRangePicker from '@/components/DateRangePicker.vue';
 import { useInitials } from '@/composables/useInitials';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Upload, Download, AlertTriangle, CheckCircle2, XCircle, Loader2, CalendarDays, Coins, Eye, TrendingUp, Award, CalendarCheck, X, FileText, FileSpreadsheet, FileJson, ArrowLeft, ExternalLink, Plus, Link2, Mail, Copy, Trash2, RefreshCw, Circle, Settings, Minus, ChevronDown, Gauge } from 'lucide-vue-next';
+import { Upload, Download, AlertTriangle, CheckCircle2, XCircle, Loader2, CalendarDays, Coins, Eye, TrendingUp, Award, CalendarCheck, X, FileText, FileSpreadsheet, FileJson, ArrowLeft, ExternalLink, Plus, Link2, Mail, Copy, Trash2, RefreshCw, Circle, Settings, Minus, ChevronDown, Gauge, FileArchive, PackageCheck } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, onMounted, watch } from 'vue';
 import { Line, Doughnut } from 'vue-chartjs';
@@ -624,15 +624,90 @@ function openDownload() {
     selectedFiles.value = [...uploadFiles.value];
     dlFrom.value = from.value;   // pre-fill with the current dashboard range
     dlTo.value = to.value;
+    dlState.value = 'idle';
     showDownload.value = true;
 }
-function confirmDownload() {
+// Zip-preparing state: fetch+stream (instead of a bare location.href) so we can show
+// real progress once bytes start arriving, and an honest "still working" animation
+// for the server-side build time before the first byte shows up.
+const dlState = ref<'idle' | 'working' | 'done' | 'error'>('idle');
+const dlProgress = ref(0);       // 0-100, only meaningful once dlKnownSize is true
+const dlKnownSize = ref(false);
+const dlPhase = ref('');
+const dlError = ref('');
+let dlAbort: AbortController | null = null;
+let dlPhaseTimer: ReturnType<typeof setInterval> | null = null;
+const DL_PHASES = ['Gathering files…', 'Compressing…', 'Packaging zip…', 'Almost done…'];
+
+function stopPhaseTimer() {
+    if (dlPhaseTimer) { clearInterval(dlPhaseTimer); dlPhaseTimer = null; }
+}
+function cancelDownload() {
+    dlAbort?.abort();
+}
+async function confirmDownload() {
     const params = new URLSearchParams();
     if (dlFrom.value) params.set('from', dlFrom.value);
     if (dlTo.value) params.set('to', dlTo.value);
     if (selectedFiles.value.length) params.set('files', selectedFiles.value.join(','));
-    window.location.href = '/reporting/download?' + params.toString();
-    showDownload.value = false;
+
+    dlState.value = 'working';
+    dlProgress.value = 0;
+    dlKnownSize.value = false;
+    let phaseIdx = 0;
+    dlPhase.value = DL_PHASES[0] ?? '';
+    stopPhaseTimer();
+    dlPhaseTimer = setInterval(() => {
+        phaseIdx = Math.min(phaseIdx + 1, DL_PHASES.length - 1);
+        dlPhase.value = DL_PHASES[phaseIdx] ?? dlPhase.value;
+    }, 900);
+
+    dlAbort = new AbortController();
+    try {
+        const res = await fetch('/reporting/download?' + params.toString(), { signal: dlAbort.signal });
+        if (!res.ok) {
+            const body = await res.json().catch(() => null);
+            throw new Error(body?.error ?? 'Could not build the zip.');
+        }
+
+        const total = Number(res.headers.get('Content-Length')) || 0;
+        dlKnownSize.value = total > 0;
+        const reader = res.body?.getReader();
+        const chunks: BlobPart[] = [];
+        let received = 0;
+        if (reader) {
+            stopPhaseTimer();
+            dlPhase.value = 'Downloading…';
+            for (;;) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                chunks.push(value);
+                received += value.length;
+                if (total > 0) dlProgress.value = Math.min(100, Math.round((received / total) * 100));
+            }
+        }
+        stopPhaseTimer();
+        dlProgress.value = 100;
+        dlPhase.value = 'Ready!';
+
+        const blob = new Blob(chunks, { type: 'application/zip' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'F1Maximaal Reports.zip';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+
+        dlState.value = 'done';
+        setTimeout(() => { showDownload.value = false; dlState.value = 'idle'; }, 900);
+    } catch (e: any) {
+        stopPhaseTimer();
+        if (e?.name === 'AbortError') { dlState.value = 'idle'; return; }
+        dlState.value = 'error';
+        dlError.value = e?.message ?? 'Something went wrong building the zip.';
+    }
 }
 // Export the dashboard table itself (current site + date range) as csv/xlsx/json.
 // Distinct from the file download above — this is the computed daily figures.
@@ -1249,13 +1324,47 @@ const tabs = computed(() => [
             </div>
 
             <!-- Download modal -->
-            <div v-if="showDownload" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="showDownload = false">
+            <div v-if="showDownload" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                @click.self="dlState !== 'working' && (showDownload = false)">
                 <Card class="w-full max-w-2xl">
                     <CardHeader class="flex flex-row items-center justify-between gap-2 pb-3">
                         <span class="flex items-center gap-2 font-medium"><Download class="h-5 w-5 text-[#e2483d]" /> Download reports</span>
-                        <button class="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground" title="Close" @click="showDownload = false"><X class="h-4 w-4" /></button>
+                        <button v-if="dlState !== 'working'" class="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground" title="Close" @click="showDownload = false"><X class="h-4 w-4" /></button>
                     </CardHeader>
-                    <CardContent class="flex flex-col gap-4">
+
+                    <!-- Zip build/download in flight, or its outcome -->
+                    <CardContent v-if="dlState !== 'idle'" class="flex flex-col items-center gap-5 py-10 text-center">
+                        <template v-if="dlState === 'working'">
+                            <div class="relative flex h-16 w-16 items-center justify-center">
+                                <span class="absolute inset-0 rounded-full bg-[#e2483d]/15 zip-ping"></span>
+                                <FileArchive class="relative h-9 w-9 text-[#e2483d] zip-bob" />
+                            </div>
+                            <Transition name="zip-phase" mode="out-in">
+                                <p :key="dlPhase" class="text-sm font-medium">{{ dlPhase }}</p>
+                            </Transition>
+                            <div class="h-2 w-full max-w-xs overflow-hidden rounded-full bg-muted">
+                                <div v-if="dlKnownSize" class="h-full rounded-full bg-[#e2483d] transition-[width] duration-200 ease-out"
+                                    :style="{ width: dlProgress + '%' }"></div>
+                                <div v-else class="h-full w-full rounded-full zip-stripes"></div>
+                            </div>
+                            <span v-if="dlKnownSize" class="-mt-3 text-xs tabular-nums text-muted-foreground">{{ dlProgress }}%</span>
+                            <button class="text-xs text-muted-foreground hover:text-foreground hover:underline" @click="cancelDownload">Cancel</button>
+                        </template>
+
+                        <template v-else-if="dlState === 'done'">
+                            <PackageCheck class="h-14 w-14 text-emerald-500 zip-pop" />
+                            <p class="text-sm font-medium">Zip ready — download started.</p>
+                        </template>
+
+                        <template v-else>
+                            <AlertTriangle class="h-14 w-14 text-red-500" />
+                            <p class="max-w-sm text-sm font-medium">{{ dlError }}</p>
+                            <Button variant="outline" @click="dlState = 'idle'">Try again</Button>
+                        </template>
+                    </CardContent>
+
+                    <!-- File + date-range picker -->
+                    <CardContent v-else class="flex flex-col gap-4">
                         <div class="grid gap-5 sm:grid-cols-2">
                             <!-- Left: files -->
                             <div class="flex flex-col gap-2">
@@ -1424,3 +1533,38 @@ const tabs = computed(() => [
         </div>
     </div>
 </template>
+
+<style scoped>
+/* Zip-download progress animations (Download modal "working" state). */
+@keyframes zip-ping {
+    0% { transform: scale(0.85); opacity: 0.9; }
+    70%, 100% { transform: scale(1.55); opacity: 0; }
+}
+.zip-ping { animation: zip-ping 1.4s cubic-bezier(0, 0, 0.2, 1) infinite; }
+
+@keyframes zip-bob {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-3px) rotate(-4deg); }
+}
+.zip-bob { animation: zip-bob 1.1s ease-in-out infinite; }
+
+@keyframes zip-stripes {
+    to { background-position: 28px 0; }
+}
+.zip-stripes {
+    background-image: repeating-linear-gradient(45deg, #e2483d 0 10px, rgba(226, 72, 61, 0.45) 10px 20px);
+    background-size: 28px 28px;
+    animation: zip-stripes 0.75s linear infinite;
+}
+
+@keyframes zip-pop {
+    0% { transform: scale(0.4); opacity: 0; }
+    65% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); }
+}
+.zip-pop { animation: zip-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+.zip-phase-enter-active, .zip-phase-leave-active { transition: all 0.25s ease; }
+.zip-phase-enter-from { opacity: 0; transform: translateY(4px); }
+.zip-phase-leave-to { opacity: 0; transform: translateY(-4px); }
+</style>
