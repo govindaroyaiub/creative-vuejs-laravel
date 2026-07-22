@@ -114,10 +114,18 @@ class NewPreviewController extends Controller
                 });
             }
 
-            $previews = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString()->through(function ($preview) {
-                $preview->team_users = User::whereIn('id', $preview->team_members)->get(['id', 'name']);
-                return $preview;
-            });
+            $previews = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
+
+            // Batch the team-member lookup: one query for the whole page instead of one per preview.
+            $usersById = User::whereIn('id',
+                collect($previews->items())->flatMap(fn($p) => $p->team_members ?? [])->unique()
+            )->get(['id', 'name'])->keyBy('id');
+
+            $previews->through(fn($preview) => tap($preview, fn($preview) =>
+                $preview->team_users = collect($preview->team_members ?? [])
+                    ->map(fn($id) => $usersById->get($id))
+                    ->filter()->values()
+            ));
 
             return Inertia::render('Previews/Index', [
                 'previews' => $previews,
@@ -163,10 +171,18 @@ class NewPreviewController extends Controller
                 });
             }
 
-            $previews = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString()->through(function ($preview) {
-                $preview->team_users = User::whereIn('id', $preview->team_members)->get(['id', 'name']);
-                return $preview;
-            });
+            $previews = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
+
+            // Batch the team-member lookup: one query for the whole page instead of one per preview.
+            $usersById = User::whereIn('id',
+                collect($previews->items())->flatMap(fn($p) => $p->team_members ?? [])->unique()
+            )->get(['id', 'name'])->keyBy('id');
+
+            $previews->through(fn($preview) => tap($preview, fn($preview) =>
+                $preview->team_users = collect($preview->team_members ?? [])
+                    ->map(fn($id) => $usersById->get($id))
+                    ->filter()->values()
+            ));
 
             return Inertia::render('Previews/GuestIndex', [
                 'previews' => $previews,
@@ -452,7 +468,19 @@ class NewPreviewController extends Controller
     {
         $this->authorizePreview($newPreview);
         DB::transaction(function () use ($newPreview) {
-            $preview = newPreview::findorFail($newPreview->id);
+            // Eager-load the whole subtree once so the cascade below doesn't lazy-load
+            // a query at every level (categories -> feedbacks -> ... -> assets).
+            $preview = newPreview::with([
+                'categories.feedbacks.feedbackSets.versions.banners',
+                'categories.feedbacks.feedbackSets.versions.videos',
+                'categories.feedbacks.feedbackSets.versions.socials',
+                'categories.feedbacks.feedbackSets.versions.gifs',
+            ])->findOrFail($newPreview->id);
+
+            // Batch the file-transfer lookup across all categories (was one query per category).
+            $transfers = FileTransfer::whereIn('id',
+                $preview->categories->pluck('file_transfer_id')->filter()->unique()
+            )->get()->keyBy('id');
 
             foreach ($preview->categories as $category) {
                 foreach ($category->feedbacks as $feedback) {
@@ -482,8 +510,7 @@ class NewPreviewController extends Controller
                     }
                     $feedback->delete();
                 }
-                $fileTransferId = $category->file_transfer_id;
-                $fileTransfer = FileTransfer::find($fileTransferId);
+                $fileTransfer = $transfers->get($category->file_transfer_id);
                 if ($fileTransfer) {
                     // Check if file_path is not null or empty
                     if ($fileTransfer->file_path) {
@@ -531,23 +558,21 @@ class NewPreviewController extends Controller
     public function updatePreview($id)
     {
         $preview = newPreview::with([
-            'categories.feedbacks.feedbackSets.versions.banners',
-            'categories.feedbacks.feedbackSets.versions.videos',
+            'categories.feedbacks.feedbackSets.versions.banners.size',
+            'categories.feedbacks.feedbackSets.versions.videos.size',
             'categories.feedbacks.feedbackSets.versions.socials',
-            'categories.feedbacks.feedbackSets.versions.gifs',
+            'categories.feedbacks.feedbackSets.versions.gifs.size',
         ])->findOrFail($id);
         $this->authorizePreview($preview);
 
         $preview_id = $preview->id;
-        // Attach file transfer slug to each category (if present) so frontend can link to transfers
+        // Attach file transfer slug to each category (if present) so frontend can link to transfers.
+        // Batch the lookup: one query for all categories instead of one per category.
+        $slugById = FileTransfer::whereIn('id',
+            $preview->categories->pluck('file_transfer_id')->filter()->unique()
+        )->pluck('slug', 'id');
         foreach ($preview->categories as $category) {
-            $category->file_transfer_slug = null;
-            if (!empty($category->file_transfer_id)) {
-                $ft = FileTransfer::find($category->file_transfer_id);
-                if ($ft) {
-                    $category->file_transfer_slug = $ft->slug;
-                }
-            }
+            $category->file_transfer_slug = $slugById->get($category->file_transfer_id);
         }
         $preview_name = $preview->name;
         $client = Client::select(['id', 'name', 'logo'])->find($preview->client_id);
@@ -590,14 +615,12 @@ class NewPreviewController extends Controller
         ])->findOrFail($id);
         $this->authorizePreview($preview);
 
+        // Batch the lookup: one query for all categories instead of one per category.
+        $slugById = FileTransfer::whereIn('id',
+            $preview->categories->pluck('file_transfer_id')->filter()->unique()
+        )->pluck('slug', 'id');
         foreach ($preview->categories as $category) {
-            $category->file_transfer_slug = null;
-            if (!empty($category->file_transfer_id)) {
-                $ft = FileTransfer::find($category->file_transfer_id);
-                if ($ft) {
-                    $category->file_transfer_slug = $ft->slug;
-                }
-            }
+            $category->file_transfer_slug = $slugById->get($category->file_transfer_id);
         }
 
         $client = Client::select(['id', 'name', 'logo'])->find($preview->client_id);

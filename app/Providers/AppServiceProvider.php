@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
@@ -34,6 +35,10 @@ class AppServiceProvider extends ServiceProvider
         if (app()->environment('production')) {
             URL::forceScheme('https');
         }
+
+        // Surface N+1s during development: throw the moment an unloaded relation
+        // is lazy-loaded, so missing eager loads are caught before production.
+        Model::preventLazyLoading(! app()->isProduction());
 
         // Register model observers for notifications
         newCategory::observe(CategoryObserver::class);

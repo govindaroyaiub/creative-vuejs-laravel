@@ -60,19 +60,30 @@ class ReportStore
             ReportSetting::put('oguryRate', $store['config']['oguryRate']);
         }
 
+        // Build every day-row first, then persist in a single upsert instead of
+        // one SELECT+UPSERT round-trip per day. upsert() bypasses attribute casting,
+        // so the JSON columns must be encoded here; timestamps are handled by Eloquent.
+        $rows = [];
         foreach ($store['sites'] as $site => $siteStore) {
             foreach ($siteStore['days'] ?? [] as $k => $day) {
-                ReportDay::updateOrCreate(
-                    ['site' => $site, 'date' => $k],
-                    [
-                        'revenue' => $day['revenue'] ?? [],
-                        'impressions' => $day['impressions'] ?? null,
-                        'analytics' => $day['analytics'] ?? null,
-                        'total_ad_requests' => (int) round($day['totalAdRequests'] ?? 0),
-                        'impressions_sold' => (int) round($day['impressionsSold'] ?? 0),
-                    ],
-                );
+                $rows[] = [
+                    'site' => $site,
+                    'date' => $k,
+                    'revenue' => json_encode($day['revenue'] ?? []),
+                    'impressions' => isset($day['impressions']) ? json_encode($day['impressions']) : null,
+                    'analytics' => isset($day['analytics']) ? json_encode($day['analytics']) : null,
+                    'total_ad_requests' => (int) round($day['totalAdRequests'] ?? 0),
+                    'impressions_sold' => (int) round($day['impressionsSold'] ?? 0),
+                ];
             }
+        }
+
+        if ($rows) {
+            ReportDay::upsert(
+                $rows,
+                ['site', 'date'], // unique key that decides insert vs. update
+                ['revenue', 'impressions', 'analytics', 'total_ad_requests', 'impressions_sold'],
+            );
         }
     }
 }

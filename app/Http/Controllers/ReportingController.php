@@ -42,16 +42,23 @@ class ReportingController extends Controller
     /** Base props shared by the page render. */
     private function baseProps(): array
     {
+        // Load all page settings in one query, then read from the map (each setting
+        // was previously its own SELECT).
+        $settings = ReportSetting::whereIn('key', [
+            'report_links', 'reminder_day', 'rpm_amber', 'rpm_red', 'ogury_old_format', 'file_patterns',
+        ])->get()->keyBy('key');
+        $setting = fn (string $key, $default = null) => $settings->has($key) ? $settings->get($key)->value : $default;
+
         return [
             'store' => ReportStore::load(),
             'sites' => collect(Reporting::SITES)->map(fn ($cfg, $id) => ['id' => $id, 'name' => $cfg['name']])->values(),
             'uploadFiles' => ZipBuilder::availableFiles($this->uploadsDir()),
-            'reportLinks' => ReportSetting::get('report_links', self::DEFAULT_LINKS),
-            'reminderDay' => (int) ReportSetting::get('reminder_day', 3),
-            'rpmAmber' => (float) ReportSetting::get('rpm_amber', 7.5),
-            'rpmRed' => (float) ReportSetting::get('rpm_red', 8),
-            'oguryOldFormat' => (bool) ReportSetting::get('ogury_old_format', false),
-            'filePatterns' => array_merge(Reporting::DEFAULT_FILE_PATTERNS, (array) ReportSetting::get('file_patterns', [])),
+            'reportLinks' => $setting('report_links', self::DEFAULT_LINKS),
+            'reminderDay' => (int) $setting('reminder_day', 3),
+            'rpmAmber' => (float) $setting('rpm_amber', 7.5),
+            'rpmRed' => (float) $setting('rpm_red', 8),
+            'oguryOldFormat' => (bool) $setting('ogury_old_format', false),
+            'filePatterns' => array_merge(Reporting::DEFAULT_FILE_PATTERNS, (array) $setting('file_patterns', [])),
             'sync' => $this->syncInfo(),
         ];
     }
@@ -258,8 +265,15 @@ class ReportingController extends Controller
             'entries.*.adhese'    => 'nullable',
         ]);
 
+        // Fetch every affected day in one query, keyed by date, instead of a
+        // SELECT per entry.
+        $rowsByDate = ReportDay::where('site', 'f1maximaal')
+            ->whereIn('date', array_column($data['entries'], 'dateKey'))
+            ->get()
+            ->keyBy(fn ($r) => $r->date->format('Y-m-d'));
+
         foreach ($data['entries'] as $entry) {
-            $row = ReportDay::firstWhere(['site' => 'f1maximaal', 'date' => $entry['dateKey']]);
+            $row = $rowsByDate->get($entry['dateKey']);
             if (! $row) continue;
 
             $imp    = $row->impressions ?? [];

@@ -33,22 +33,25 @@ class DashboardController extends Controller
         ];
 
         $monthlyPreviewStats = $this->getMonthlyPreviewCount(newPreview::class, $year);
+        $monthlyBillTotals = $this->getMonthlyBillTotals($year);
 
         $clientIdOfLoggedInUser = Auth::user()->client_id;
         $client = Client::find($clientIdOfLoggedInUser);
 
         if ($client['name'] == 'Planet Nine') {
+            // Yearly totals are just the sum of the monthly buckets already fetched
+            // above — derive them in PHP instead of re-querying each table.
             return Inertia::render('Dashboard', [
                 'userCount' => User::count(),
-                'previewCount' => newPreview::whereYear('created_at', $year)->count(),
-                'bannerCount' => newBanner::whereYear('created_at', $year)->count(),
-                'videoCount' => newVideo::whereYear('created_at', $year)->count(),
-                'gifCount' => newGif::whereYear('created_at', $year)->count(),
-                'socialCount' => newSocial::whereYear('created_at', $year)->count(),
+                'previewCount' => array_sum($monthlyPreviewStats),
+                'bannerCount' => array_sum($monthlyStats['banners']),
+                'videoCount' => array_sum($monthlyStats['videos']),
+                'gifCount' => array_sum($monthlyStats['gifs']),
+                'socialCount' => array_sum($monthlyStats['socials']),
                 'fileTransferCount' => FileTransfer::whereYear('created_at', $year)->count(),
-                'totalBill' => Bill::whereYear('created_at', $year)->sum('total_amount'),
+                'totalBill' => array_sum($monthlyBillTotals),
                 'monthlyStats' => $monthlyStats,
-                'monthlyBillTotals' => $this->getMonthlyBillTotals($year),
+                'monthlyBillTotals' => $monthlyBillTotals,
                 'monthlyPreviewStats' => $monthlyPreviewStats,
                 'timezonePreferences' => Auth::user()->timezone_preferences ?? [],
             ]);
