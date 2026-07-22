@@ -179,7 +179,7 @@ function subjectContext(): SubjectCtx {
 
 // The report file to attach for each site (matches what's downloaded to
 // Downloads/reports), so the exact filename can be copied when composing the email.
-type EmailCfg = { to: { name: string; email: string }[]; cc?: { name: string; email: string }[]; body: string; subject: (c: SubjectCtx) => string; attachment: (c: SubjectCtx) => string };
+type EmailCfg = { to: { name: string; email: string }[]; cc?: { name: string; email: string }[]; body: string; bodyHtml?: string; subject: (c: SubjectCtx) => string; attachment: (c: SubjectCtx) => string };
 const SITE_EMAILS: Record<string, EmailCfg> = {
     f1maximaal: {
         to: [
@@ -215,7 +215,8 @@ const SITE_EMAILS: Record<string, EmailCfg> = {
     festileaks: {
         to: [{ name: '', email: 'finance@festileaks.com' }, { name: 'Jos Willemsen', email: 'jos@festileaks.com' }],
         cc: [{ name: 'Chris Beijer', email: 'chris@planetnine.com' }, { name: 'Taco Stomps', email: 'taco@planetnine.com' }],
-        body: `Dear Jos,\n\nHope you are doing well!\n\nPlease find this week's Festileaks revenue reports attached. Should you have any questions, please reach out.\n\nBest regards`,
+        body: `Dear Jos,\n\nHope you are doing well!\n\nPlease find this week's Festileaks revenue reports attached. Should you have any questions, please reach out.\n\nThe files are also uploaded to this drive link: https://drive.google.com/drive/folders/1Nqwyg5jnMT986bmUewcyQMGsJIAjWEOE?usp=drive_link\n\nBest regards`,
+        bodyHtml: `<p>Dear Jos,</p><p>Hope you are doing well!</p><p>Please find this week's Festileaks revenue reports attached. Should you have any questions, please reach out.</p><p>The files are also uploaded to this drive link: <a href="https://drive.google.com/drive/folders/1Nqwyg5jnMT986bmUewcyQMGsJIAjWEOE?usp=drive_link">Link Here</a></p><p>Best regards</p>`,
         subject: (c) => `Festileaks Ad Revenue Reports - Week ${c.week - 1}`,
         attachment: (c) => `Festileaks-revenue-report-week${c.week - 1}.xlsx`,
     },
@@ -227,6 +228,28 @@ const emailAttachment = computed(() => (emailCfg.value ? emailCfg.value.attachme
 function copy(text: string) {
     navigator.clipboard?.writeText(text);
     Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Copied', timer: 1000, showConfirmButton: false });
+}
+
+// Copy the message with both plain-text and rich-HTML flavours. When pasted
+// into Gmail (rich compose) the HTML wins so "Link Here" stays clickable;
+// plain-text targets fall back to the bare URL, which Gmail auto-links anyway.
+async function copyBody(cfg: EmailCfg) {
+    const done = () => Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Copied', timer: 1000, showConfirmButton: false });
+    const html = cfg.bodyHtml;
+    if (html && typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
+        try {
+            await navigator.clipboard.write([new ClipboardItem({
+                'text/html': new Blob([html], { type: 'text/html' }),
+                'text/plain': new Blob([cfg.body], { type: 'text/plain' }),
+            })]);
+            done();
+            return;
+        } catch {
+            // fall through to plain-text copy below
+        }
+    }
+    navigator.clipboard?.writeText(cfg.body);
+    done();
 }
 
 const PARTNERS: { key: string; label: string; lines?: [string, string] }[] = [
@@ -1275,7 +1298,7 @@ const tabs = computed(() => [
                     <div class="flex flex-col gap-1">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-medium uppercase tracking-wide text-muted-foreground">Message</span>
-                            <button class="text-xs text-[#e2483d] hover:underline" @click="copy(emailCfg.body)">Copy</button>
+                            <button class="text-xs text-[#e2483d] hover:underline" @click="copyBody(emailCfg)">Copy</button>
                         </div>
                         <pre class="whitespace-pre-wrap rounded-md border px-3 py-2 font-sans text-sm">{{ emailCfg.body }}</pre>
                     </div>
