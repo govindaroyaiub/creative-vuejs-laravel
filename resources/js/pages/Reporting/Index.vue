@@ -10,7 +10,7 @@ import { useInitials } from '@/composables/useInitials';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { Upload, Download, AlertTriangle, CheckCircle2, XCircle, Loader2, CalendarDays, Coins, Eye, TrendingUp, Award, CalendarCheck, X, FileText, FileSpreadsheet, FileJson, ArrowLeft, ExternalLink, Plus, Link2, Mail, Copy, Trash2, RefreshCw, Circle, Settings, Minus, ChevronDown, Gauge, FileArchive, PackageCheck } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
-import { computed, ref, onMounted, watch } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { Line, Doughnut } from 'vue-chartjs';
 import {
     Chart as ChartJS, Title, Tooltip, Legend, Filler,
@@ -30,6 +30,37 @@ const store = computed<any>(() => page.props.store);
 const sites = computed<any[]>(() => (page.props.sites as any[]) ?? []);
 const authUser = computed<any>(() => (page.props.auth as any)?.user ?? null);
 const { getInitials } = useInitials();
+
+// ─── Welcome splash ("Loading the reports…") — every page load, capped at 5s,
+// dismissible by click/keypress/Esc. Purely cosmetic, no data dependency. ────
+const SPLASH_STATUS_LINES = ['Fetching Adhese…', 'Crunching RPM…', 'Stacking partners…', 'Polishing pixels…'];
+const showSplash = ref(true);
+const splashStatusIndex = ref(0);
+let splashTimeout: ReturnType<typeof setTimeout> | null = null;
+let splashStatusInterval: ReturnType<typeof setInterval> | null = null;
+function dismissSplash() {
+    if (!showSplash.value) return;
+    showSplash.value = false;
+    if (splashTimeout) clearTimeout(splashTimeout);
+    if (splashStatusInterval) clearInterval(splashStatusInterval);
+    window.removeEventListener('keydown', onSplashKeydown);
+}
+function onSplashKeydown(e: KeyboardEvent) {
+    dismissSplash();
+    void e;
+}
+onMounted(() => {
+    splashTimeout = setTimeout(dismissSplash, 5000);
+    splashStatusInterval = setInterval(() => {
+        splashStatusIndex.value = (splashStatusIndex.value + 1) % SPLASH_STATUS_LINES.length;
+    }, 900);
+    window.addEventListener('keydown', onSplashKeydown);
+});
+onBeforeUnmount(() => {
+    if (splashTimeout) clearTimeout(splashTimeout);
+    if (splashStatusInterval) clearInterval(splashStatusInterval);
+    window.removeEventListener('keydown', onSplashKeydown);
+});
 
 // ─── Data sync (import the committed JSON snapshot into this machine's DB) ──────
 const sync = computed<any>(() => (page.props.sync as any) ?? { available: false });
@@ -262,13 +293,8 @@ const PARTNERS: { key: string; label: string; lines?: [string, string] }[] = [
 const COLORS = ['#e2483d', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#a3a3a3', '#6366f1'];
 
 const selectedSite = ref('f1maximaal');
-// "Days" is the simplified per-day card view — F1Maximaal only (the fields it
-// shows don't exist for other sites) and the default tab on load.
-const activeTab = ref<'days' | 'summary' | 'table' | 'verify' | 'email'>('days');
-watch(selectedSite, (s) => {
-    // F1Maximaal always lands on Days; other sites can't show it, fall to Table.
-    if (s === 'f1maximaal') activeTab.value = 'days';
-    else if (activeTab.value === 'days') activeTab.value = 'table';
+const activeTab = ref<'summary' | 'table' | 'verify' | 'email'>('summary');
+watch(selectedSite, () => {
     // Verify is per-site — clear the staged file + widget so a report uploaded
     // for one site doesn't linger when switching to another.
     verifyFile.value = null;
@@ -350,21 +376,25 @@ const rpmTier = (d: any): 'red' | 'amber' | null => {
     if (rpm >= rpmAmber.value) return 'amber';
     return null;
 };
+// Click-to-highlight on the Table tab — purely visual, no selection semantics
+// elsewhere on the page. Re-clicking the same row clears it.
+const selectedRow = ref<string | null>(null);
+function toggleRow(dateKey: string) {
+    selectedRow.value = selectedRow.value === dateKey ? null : dateKey;
+}
 const rpmRowClass = (d: any) => {
     const t = rpmTier(d);
     return t === 'red' ? 'bg-red-500/10' : t === 'amber' ? 'bg-amber-400/10' : '';
 };
-// Same banding for the Days cards (border + soft fill so anomalies pop in a grid).
+// Same banding as the table rows (border + soft fill) — used on the Summary
+// tab's "Latest day" block so anomalies stand out there too.
 const rpmCardClass = (d: any) => {
     const t = rpmTier(d);
     return t === 'red' ? 'border-red-500/40 bg-red-500/5' : t === 'amber' ? 'border-amber-400/40 bg-amber-400/5' : '';
 };
-const rpmBadgeClass = (d: any) => {
-    const t = rpmTier(d);
-    return t === 'red' ? 'bg-red-500/15 text-red-600' : t === 'amber' ? 'bg-amber-400/20 text-amber-600' : 'bg-muted text-muted-foreground';
-};
-// Cards read newest-first: recent days are the ones being checked/filled.
-const daysDesc = computed<any[]>(() => [...days.value].reverse());
+// Most recent day in the active date-range filter — backs the Summary tab's
+// "Latest day" block (F1Maximaal only; same fields Days used to show).
+const latestDay = computed<any | null>(() => days.value[days.value.length - 1] ?? null);
 const blendedRpm = computed<number | null>(() => {
     const views = days.value.reduce((t, d) => t + (d.analytics?.views ?? 0), 0);
     return views > 0 ? (partnerTotals.value.grand / views) * 1000 : null;
@@ -787,26 +817,54 @@ function runVerify() {
         forceFormData: true, preserveScroll: true, preserveState: true,
         onStart: () => (verifying.value = true),
         onFinish: () => (verifying.value = false),
+        onSuccess: () => {
+            // Rendered inline (preserveState — no remount, no splash replay, no
+            // tab change), but Inertia points the address bar at this POST-only
+            // URL. Fix it up in place so a refresh hits GET /reporting instead
+            // of 405ing on /reporting/verify(-weekly).
+            window.history.replaceState(window.history.state, '', '/reporting');
+        },
     });
 }
 
-const tabs = computed(() => [
-    ...(selectedSite.value === 'f1maximaal' ? [{ id: 'days', label: 'Days' }] : []),
+const tabs = [
     { id: 'summary', label: 'Summary' }, { id: 'table', label: 'Table' },
     { id: 'verify', label: 'Verify' }, { id: 'email', label: 'Email' },
-]);
+];
 </script>
 
 <template>
     <Head title="Reporting" />
-    <div class="min-h-screen bg-background font-mono text-foreground">
+    <div class="rpt-root relative min-h-screen">
+        <!-- Welcome splash — cosmetic only, dismiss on click/key/5s timeout. -->
+        <Transition name="rpt-splash-fade">
+            <div v-if="showSplash" class="rpt-splash" @click="dismissSplash">
+                <div aria-hidden="true" class="rpt-ambient" />
+                <div aria-hidden="true" class="rpt-stars rpt-stars--always" />
+                <div class="rpt-splash-content">
+                    <div class="rpt-splash-mark">
+                        <span class="rpt-splash-ring" />
+                        <span class="rpt-splash-mark-text">P9</span>
+                    </div>
+                    <h1 class="rpt-splash-title">Loading the reports<span class="rpt-splash-dots"><span>.</span><span>.</span><span>.</span></span></h1>
+                    <p class="rpt-splash-status">{{ SPLASH_STATUS_LINES[splashStatusIndex] }}</p>
+                    <div class="rpt-splash-bar"><div class="rpt-splash-bar-fill" /></div>
+                    <button type="button" class="rpt-splash-skip" @click.stop="dismissSplash">Skip →</button>
+                </div>
+            </div>
+        </Transition>
+
+        <!-- Decorative ambient color wash + starfield (dark mode only), same
+             technique as the Previews/Update2 editor's chrome. -->
+        <div aria-hidden="true" class="rpt-ambient" />
+        <div aria-hidden="true" class="rpt-stars" />
         <!-- Standalone top bar (no app sidebar) with a way back -->
-        <header class="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
-            <div class="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
+        <header class="sticky top-0 z-40 border-b border-[var(--rpt-hairline)] bg-[var(--rpt-surface-muted)] backdrop-blur">
+            <div class="flex items-center justify-between gap-3 px-6 py-3">
                 <div class="flex items-center gap-3">
-                    <Link href="/dashboard"
-                        class="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground">
-                        <ArrowLeft class="h-4 w-4" /> Back
+                    <Link href="/dashboard" title="Back to dashboard" aria-label="Back"
+                        class="grid h-9 w-9 place-items-center rounded-full border border-[var(--rpt-border)] text-muted-foreground transition hover:text-foreground">
+                        <ArrowLeft class="h-4 w-4" />
                     </Link>
                     <!-- <span class="text-sm font-semibold">Reporting</span> -->
                 </div>
@@ -830,7 +888,7 @@ const tabs = computed(() => [
             </div>
         </header>
 
-        <div class="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4">
+        <div class="relative z-[1] flex w-full flex-col gap-6 p-6">
             <!-- Header -->
             <div class="flex flex-wrap items-center justify-between gap-4">
                 <div>
@@ -840,13 +898,13 @@ const tabs = computed(() => [
                     </div>
                     <p class="text-sm text-muted-foreground">Ad-partner impressions & revenue across the four sites.</p>
                 </div>
-                <div class="flex items-center gap-3">
-                    <Button variant="outline" :disabled="syncing" @click="checkForData">
+                <div class="flex flex-wrap items-center gap-3">
+                    <Button class="rounded-full" variant="outline" :disabled="syncing" @click="checkForData">
                         <RefreshCw class="mr-2 h-4 w-4" :class="{ 'animate-spin': syncing }" /> Check for data
                     </Button>
-                    <Button variant="outline" @click="showLinks = true"><Link2 class="mr-2 h-4 w-4" /> Report links</Button>
-                    <Button variant="outline" @click="openDownload"><Download class="mr-2 h-4 w-4" /> Download Reports</Button>
-                    <Button variant="outline" @click="openSettings"><Settings class="mr-2 h-4 w-4" /> Settings</Button>
+                    <Button class="rounded-full" variant="outline" @click="showLinks = true"><Link2 class="mr-2 h-4 w-4" /> Report links</Button>
+                    <Button class="rounded-full" variant="outline" @click="openDownload"><Download class="mr-2 h-4 w-4" /> Download Reports</Button>
+                    <Button class="rounded-full" variant="outline" @click="openSettings"><Settings class="mr-2 h-4 w-4" /> Settings</Button>
                 </div>
             </div>
 
@@ -857,7 +915,7 @@ const tabs = computed(() => [
             </div>
 
             <!-- Upload card: checklist drop zone -->
-            <Card>
+            <Card class="rpt-glass">
                 <CardHeader class="flex flex-row items-center justify-between gap-2 pb-2">
                     <div class="flex items-center gap-2">
                         <Upload class="h-5 w-5 text-[#e2483d]" />
@@ -899,7 +957,7 @@ const tabs = computed(() => [
                     </div>
 
                     <div v-if="selectedUploadFiles.length" class="flex items-center gap-3">
-                        <Button :disabled="processing" @click="processFiles">
+                        <Button class="rounded-full" :disabled="processing" @click="processFiles">
                             <Loader2 v-if="processing" class="mr-2 h-4 w-4 animate-spin" />
                             Process {{ selectedUploadFiles.length }} file{{ selectedUploadFiles.length === 1 ? '' : 's' }}
                         </Button>
@@ -910,15 +968,15 @@ const tabs = computed(() => [
 
             <!-- Site selector + tabs -->
             <div class="flex flex-wrap items-center justify-between gap-3">
-                <div class="flex gap-1 rounded-lg border p-1">
+                <div class="flex gap-1 rounded-full border p-1">
                     <button v-for="s in sites" :key="s.id"
-                        class="rounded-md px-3 py-1.5 text-sm transition"
+                        class="rounded-full px-3 py-1.5 text-sm transition"
                         :class="selectedSite === s.id ? 'bg-[#e2483d] text-white' : 'hover:bg-muted'"
                         @click="selectedSite = s.id">{{ s.name }}</button>
                 </div>
-                <div class="flex gap-1 rounded-lg border p-1">
+                <div class="flex gap-1 rounded-full border p-1">
                     <button v-for="t in tabs" :key="t.id"
-                        class="rounded-md px-3 py-1.5 text-sm transition"
+                        class="rounded-full px-3 py-1.5 text-sm transition"
                         :class="activeTab === t.id ? 'bg-foreground text-background' : 'hover:bg-muted'"
                         @click="activeTab = t.id">{{ t.label }}</button>
                 </div>
@@ -927,9 +985,9 @@ const tabs = computed(() => [
             <!-- Date range filter -->
             <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 rounded-xl border bg-card p-2">
                 <!-- preset pills -->
-                <div class="flex flex-wrap items-center gap-1 rounded-lg bg-muted/50 p-1">
+                <div class="flex flex-wrap items-center gap-1 rounded-full bg-muted/50 p-1">
                     <button v-for="p in PRESETS" :key="p"
-                        class="rounded-md px-3 py-1.5 text-xs font-medium transition"
+                        class="rounded-full px-3 py-1.5 text-xs font-medium transition"
                         :class="activePreset === p ? 'bg-[#e2483d] text-white shadow-sm' : 'text-muted-foreground hover:bg-background hover:text-foreground'"
                         @click="applyPreset(p)">{{ p }}</button>
                 </div>
@@ -942,7 +1000,7 @@ const tabs = computed(() => [
             </div>
 
             <!-- Anomalies (zero/missing partners for the selected range) — Summary tab only, collapsed by default -->
-            <Card v-if="anomalies.length && activeTab === 'summary'" class="border-amber-500/40">
+            <Card v-if="anomalies.length && activeTab === 'summary'" class="rpt-glass border-amber-500/40">
                 <button class="flex w-full items-center gap-2 px-6 py-4 text-left" @click="anomaliesOpen = !anomaliesOpen">
                     <AlertTriangle class="h-5 w-5 shrink-0 text-amber-500" />
                     <span class="font-medium">Anomalies <span class="text-muted-foreground">({{ anomalies.length }})</span></span>
@@ -960,114 +1018,84 @@ const tabs = computed(() => [
 
             <!-- Snapshot / sync footer -->
             <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 pt-2 text-center text-xs text-muted-foreground">
-                <span v-if="sync.syncedAt">Data snapshot: {{ sync.syncedAt }}</span>
-                <span v-else>No data snapshot imported yet.</span>
+                <span v-if="sync.syncedAt" class="rounded-full bg-[#e2483d]/10 px-2.5 py-1 font-semibold text-[#e2483d]">Data snapshot: {{ sync.syncedAt }}</span>
+                <span v-else class="rounded-full bg-[#e2483d]/10 px-2.5 py-1 font-semibold text-[#e2483d]">No data snapshot imported yet.</span>
                 <button v-if="sync.available" class="rounded-full bg-[#e2483d]/10 px-2 py-0.5 font-medium text-[#e2483d] hover:bg-[#e2483d]/20" @click="confirmSync">
                     {{ sync.pending }} day{{ sync.pending === 1 ? '' : 's' }} ready to sync
                 </button>
             </div>
 
-            <!-- DAYS (simplified per-day cards — F1Maximaal only) -->
-            <!-- v-if, not v-show: cards must unmount for other sites — their days carry no
-                 impressions object, so a hidden-but-mounted card grid would crash the render. -->
-            <div v-if="activeTab === 'days' && selectedSite === 'f1maximaal'" class="flex flex-col gap-3">
-                <div class="flex items-center justify-between gap-2">
-                    <div class="text-xs text-muted-foreground">
-                        {{ days.length }} day{{ days.length === 1 ? '' : 's' }}<span v-if="from || to"> · {{ from || '…' }} → {{ to || '…' }}</span>
-                    </div>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger as-child>
-                            <Button variant="outline" size="sm" :disabled="!days.length">
-                                <Download class="mr-2 h-4 w-4" /> Export <ChevronDown class="ml-1 h-3.5 w-3.5" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" class="min-w-44">
-                            <button class="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition hover:bg-muted" @click="exportTable('xlsx')"><FileSpreadsheet class="h-4 w-4 text-emerald-600" /> Excel (.xlsx)</button>
-                            <button class="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition hover:bg-muted" @click="exportTable('csv')"><FileText class="h-4 w-4 text-blue-600" /> CSV (.csv)</button>
-                            <button class="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition hover:bg-muted" @click="exportTable('json')"><FileJson class="h-4 w-4 text-amber-600" /> JSON (.json)</button>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-                <div v-if="missingAdhese.length" class="flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-200">
-                    <span>{{ missingAdhese.length }} day{{ missingAdhese.length === 1 ? '' : 's' }} in this range {{ missingAdhese.length === 1 ? 'has' : 'have' }} Adhese revenue but no impressions: {{ missingAdhese.map((d) => d.dateKey).join(', ') }}.</span>
-                    <button class="shrink-0 rounded-md border border-amber-400 px-2 py-1 font-medium transition hover:bg-amber-100 dark:hover:bg-amber-900/40" @click="openAdheseGaps">Fill now</button>
-                </div>
-                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    <Card v-for="d in daysDesc" :key="d.dateKey" :class="rpmCardClass(d)">
-                        <CardContent class="flex flex-col gap-2 pt-4">
-                            <div class="flex items-center gap-2">
-                                <span class="text-sm font-semibold tabular-nums">{{ d.dateKey }}</span>
-                                <span class="rounded-full px-2 py-0.5 text-[10px] font-medium tabular-nums" :class="rpmBadgeClass(d)">
-                                    RPM {{ rpmFor(d) === null ? '—' : rpmFor(d)!.toFixed(2) }}
-                                </span>
-                                <button class="ml-auto text-muted-foreground transition hover:text-red-500" title="Delete day" @click="deleteDay(d)"><Trash2 class="h-3.5 w-3.5" /></button>
-                            </div>
-                            <div class="flex items-center justify-between gap-2 text-xs">
-                                <span class="text-muted-foreground">Adhese impr.</span>
-                                <Input v-model.number="d.impressions.adhese" type="number" :class="['h-7 w-24 px-1.5 text-right text-[11px] leading-none', (d.revenue?.adhese ?? 0) > 0 && d.impressions?.adhese == null ? 'ring-1 ring-amber-400 focus-visible:ring-amber-400' : '']" @change="saveAdhese(d)" />
-                            </div>
-                            <div class="flex items-center justify-between gap-2 text-xs">
-                                <span class="text-muted-foreground">Impr. sold</span>
-                                <span class="font-medium tabular-nums">{{ num(d.impressionsSold || 0) }}</span>
-                            </div>
-                            <div class="flex items-center justify-between gap-2 text-xs">
-                                <span class="text-muted-foreground">Ad requests</span>
-                                <span class="font-medium tabular-nums">{{ num(d.totalAdRequests || 0) }}</span>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-                <p v-if="!days.length" class="py-6 text-center text-muted-foreground">No data yet — upload partner files above.</p>
-            </div>
-
             <!-- SUMMARY -->
             <div v-show="activeTab === 'summary'" class="flex flex-col gap-4">
-                <!-- KPI cards (single row) -->
-                <div class="flex flex-col gap-4 md:flex-row">
-                    <Card class="min-w-0 flex-1">
+                <!-- KPI cards. Grid (not flex-row) so cards wrap cleanly at every
+                     width instead of being squeezed into one non-wrapping row. -->
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <Card class="rpt-glass">
                         <CardContent class="flex items-center gap-2.5 pt-5">
                             <div class="shrink-0 rounded-lg bg-[#e2483d]/10 p-2 text-[#e2483d]"><Coins class="h-5 w-5" /></div>
-                            <div class="min-w-0"><div class="text-xs text-muted-foreground">Total revenue</div><div class="truncate text-base font-semibold tracking-tight">{{ eur(partnerTotals.grand) }}</div></div>
+                            <div class="min-w-0"><div class="rpt-label">Total revenue</div><div class="truncate text-base font-semibold tracking-tight">{{ eur(partnerTotals.grand) }}</div></div>
                         </CardContent>
                     </Card>
-                    <Card v-if="selectedSite === 'f1maximaal'" class="min-w-0 flex-1">
+                    <Card v-if="selectedSite === 'f1maximaal'" class="rpt-glass">
                         <CardContent class="flex items-center gap-2.5 pt-5">
                             <div class="shrink-0 rounded-lg bg-blue-500/10 p-2 text-blue-500"><Eye class="h-5 w-5" /></div>
-                            <div class="min-w-0"><div class="text-xs text-muted-foreground">Impressions</div><div class="truncate text-base font-semibold tracking-tight">{{ num(impressionsSoldTotal) }}</div></div>
+                            <div class="min-w-0"><div class="rpt-label">Impressions</div><div class="truncate text-base font-semibold tracking-tight">{{ num(impressionsSoldTotal) }}</div></div>
                         </CardContent>
                     </Card>
-                    <Card v-if="selectedSite === 'f1maximaal'" class="min-w-0 flex-1">
+                    <Card v-if="selectedSite === 'f1maximaal'" class="rpt-glass">
                         <CardContent class="flex items-center gap-2.5 pt-5">
                             <div class="shrink-0 rounded-lg p-2"
                                 :class="blendedRpmTier === 'red' ? 'bg-red-500/10 text-red-500' : blendedRpmTier === 'amber' ? 'bg-amber-500/10 text-amber-500' : 'bg-cyan-500/10 text-cyan-500'">
                                 <Gauge class="h-5 w-5" />
                             </div>
                             <div class="min-w-0">
-                                <div class="text-xs text-muted-foreground">RPM</div>
+                                <div class="rpt-label">RPM</div>
                                 <div class="truncate text-base font-semibold tracking-tight">{{ blendedRpm === null ? '—' : blendedRpm.toFixed(2) }}</div>
                                 <div class="truncate text-[11px] text-muted-foreground">€ / 1k pageviews</div>
                             </div>
                         </CardContent>
                     </Card>
-                    <Card class="min-w-0 flex-1">
+                    <Card class="rpt-glass">
                         <CardContent class="flex items-center gap-2.5 pt-5">
                             <div class="shrink-0 rounded-lg bg-emerald-500/10 p-2 text-emerald-500"><TrendingUp class="h-5 w-5" /></div>
-                            <div class="min-w-0"><div class="text-xs text-muted-foreground">Avg / day</div><div class="truncate text-base font-semibold tracking-tight">{{ eur(avgDaily) }}</div></div>
+                            <div class="min-w-0"><div class="rpt-label">Avg / day</div><div class="truncate text-base font-semibold tracking-tight">{{ eur(avgDaily) }}</div></div>
                         </CardContent>
                     </Card>
-                    <Card class="min-w-0 flex-1">
+                    <Card class="rpt-glass">
                         <CardContent class="flex items-center gap-2.5 pt-5">
                             <div class="shrink-0 rounded-lg bg-amber-500/10 p-2 text-amber-500"><Award class="h-5 w-5" /></div>
-                            <div class="min-w-0"><div class="text-xs text-muted-foreground">Top partner</div><div class="truncate text-base font-semibold tracking-tight">{{ topPartner?.label ?? '—' }}</div></div>
+                            <div class="min-w-0"><div class="rpt-label">Top partner</div><div class="truncate text-base font-semibold tracking-tight">{{ topPartner?.label ?? '—' }}</div></div>
                         </CardContent>
                     </Card>
-                    <Card class="min-w-0 flex-1">
+                    <Card class="rpt-glass">
                         <CardContent class="flex items-center gap-2.5 pt-5">
                             <div class="shrink-0 rounded-lg bg-violet-500/10 p-2 text-violet-500"><CalendarCheck class="h-5 w-5" /></div>
                             <div class="min-w-0">
-                                <div class="text-xs text-muted-foreground">Best day</div>
+                                <div class="rpt-label">Best day</div>
                                 <div class="truncate text-base font-semibold tracking-tight">{{ bestDay ? eur(bestDay.total) : '—' }}</div>
                                 <div v-if="bestDay" class="truncate text-[11px] text-muted-foreground">{{ bestDay.dateKey }} · {{ bestDay.partner }}</div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <!-- Latest day — carried over from the old Days tab. F1Maximaal only
+                         (Adhese impressions / Impr. sold / Ad requests don't exist for other
+                         sites); moves with the active date-range preset like the rest of Summary. -->
+                    <Card v-if="selectedSite === 'f1maximaal' && latestDay" class="rpt-glass sm:col-span-2" :class="rpmCardClass(latestDay)">
+                        <CardContent class="flex flex-col gap-2 pt-5">
+                            <div class="rpt-label">Latest day · {{ latestDay.dateKey }}</div>
+                            <div class="flex items-center justify-between gap-2 text-xs">
+                                <span class="text-muted-foreground">Adhese impr.</span>
+                                <Input v-model.number="latestDay.impressions.adhese" type="number"
+                                    :class="['h-7 w-24 px-1.5 text-right text-[11px] leading-none', (latestDay.revenue?.adhese ?? 0) > 0 && latestDay.impressions?.adhese == null ? 'ring-1 ring-amber-400 focus-visible:ring-amber-400' : '']"
+                                    @change="saveAdhese(latestDay)" />
+                            </div>
+                            <div class="flex items-center justify-between gap-2 text-xs">
+                                <span class="text-muted-foreground">Impr. sold</span>
+                                <span class="font-medium tabular-nums">{{ num(latestDay.impressionsSold || 0) }}</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 text-xs">
+                                <span class="text-muted-foreground">Ad requests</span>
+                                <span class="font-medium tabular-nums">{{ num(latestDay.totalAdRequests || 0) }}</span>
                             </div>
                         </CardContent>
                     </Card>
@@ -1075,11 +1103,11 @@ const tabs = computed(() => [
 
                 <!-- Charts -->
                 <div class="grid gap-4 lg:grid-cols-3">
-                    <Card class="lg:col-span-2">
+                    <Card class="rpt-glass lg:col-span-2">
                         <CardHeader class="pb-2 font-medium">Revenue trend</CardHeader>
                         <CardContent><div class="h-72"><Line :data="revenueChart" :options="chartOptions" /></div></CardContent>
                     </Card>
-                    <Card>
+                    <Card class="rpt-glass">
                         <CardHeader class="pb-2 font-medium">Revenue by partner</CardHeader>
                         <CardContent class="flex flex-col gap-4">
                             <div class="relative mx-auto h-44 w-44">
@@ -1104,7 +1132,7 @@ const tabs = computed(() => [
             </div>
 
             <!-- TABLE -->
-            <Card v-show="activeTab === 'table'">
+            <Card class="rpt-glass" v-show="activeTab === 'table'">
                 <CardContent class="overflow-x-auto pt-6">
                     <!-- Export the table data itself (current site + date range).
                          Separate from the file "Download" — this is the computed figures. -->
@@ -1114,7 +1142,7 @@ const tabs = computed(() => [
                         </div>
                         <DropdownMenu>
                             <DropdownMenuTrigger as-child>
-                                <Button variant="outline" size="sm" :disabled="!days.length">
+                                <Button class="rounded-full" variant="outline" size="sm" :disabled="!days.length">
                                     <Download class="mr-2 h-4 w-4" /> Export <ChevronDown class="ml-1 h-3.5 w-3.5" />
                                 </Button>
                             </DropdownMenuTrigger>
@@ -1133,7 +1161,7 @@ const tabs = computed(() => [
                     </div>
                     <table class="w-full whitespace-nowrap text-xs">
                         <thead>
-                            <tr class="border-b text-left text-muted-foreground">
+                            <tr class="rpt-label border-b text-left">
                                 <th class="px-1.5 py-2">Date</th>
                                 <th v-for="p in PARTNERS" :key="p.key" class="px-1.5 py-2 text-right leading-tight">
                                     <template v-if="p.lines">
@@ -1150,7 +1178,9 @@ const tabs = computed(() => [
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="d in days" :key="d.dateKey" class="border-b last:border-0" :class="rpmRowClass(d)">
+                            <tr v-for="d in days" :key="d.dateKey" class="cursor-pointer border-b last:border-0"
+                                :class="[rpmRowClass(d), selectedRow === d.dateKey ? 'rpt-row-selected' : '']"
+                                @click="toggleRow(d.dateKey)">
                                 <td class="px-1.5 py-1 font-medium">{{ d.dateKey }}</td>
                                 <td v-for="p in PARTNERS" :key="p.key" class="px-1.5 py-1 text-right" :class="{ 'text-muted-foreground': !(d.revenue?.[p.key]) }">
                                     {{ (d.revenue?.[p.key] ?? 0).toFixed(2) }}
@@ -1167,7 +1197,7 @@ const tabs = computed(() => [
                                 <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1 text-right">{{ num(d.impressionsSold || 0) }}</td>
                                 <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1 text-right">{{ num(d.totalAdRequests || 0) }}</td>
                                 <td class="px-1.5 py-1 text-right">
-                                    <button class="text-muted-foreground transition hover:text-red-500" title="Delete day" @click="deleteDay(d)"><Trash2 class="h-3.5 w-3.5" /></button>
+                                    <button class="text-muted-foreground transition hover:text-red-500" title="Delete day" @click.stop="deleteDay(d)"><Trash2 class="h-3.5 w-3.5" /></button>
                                 </td>
                             </tr>
                             <!-- Totals row -->
@@ -1190,14 +1220,14 @@ const tabs = computed(() => [
             </Card>
 
             <!-- VERIFY -->
-            <Card v-show="activeTab === 'verify'">
+            <Card class="rpt-glass" v-show="activeTab === 'verify'">
                 <CardHeader class="pb-2 font-medium">
                     Verify {{ selectedSite === 'f1maximaal' ? 'monthly' : 'weekly' }} report — {{ sites.find((s) => s.id === selectedSite)?.name }}
                 </CardHeader>
                 <CardContent class="flex flex-col gap-3">
                     <FilePond ref="verifyPond" :allow-multiple="false" :instant-upload="false" label-idle="Drop the Planetnine report here" @updatefiles="onVerifyUpdate" />
                     <div v-if="verifyFile">
-                        <Button :disabled="verifying" @click="runVerify"><Loader2 v-if="verifying" class="mr-2 h-4 w-4 animate-spin" /> Run verification</Button>
+                        <Button class="rounded-full" :disabled="verifying" @click="runVerify"><Loader2 v-if="verifying" class="mr-2 h-4 w-4 animate-spin" /> Run verification</Button>
                     </div>
                     <p v-if="verifyError" class="text-sm text-red-500">{{ verifyError }}</p>
 
@@ -1219,7 +1249,7 @@ const tabs = computed(() => [
                             <div class="overflow-x-auto rounded-lg border">
                                 <table class="w-full text-sm">
                                     <thead>
-                                        <tr class="border-b bg-muted/40 text-left text-xs text-muted-foreground">
+                                        <tr class="rpt-label border-b bg-muted/40 text-left">
                                             <th class="px-3 py-2 font-medium">Date</th>
                                             <th class="px-3 py-2 font-medium">Check</th>
                                             <th class="px-3 py-2 text-right font-medium">Ours</th>
@@ -1246,7 +1276,7 @@ const tabs = computed(() => [
             </Card>
 
             <!-- EMAIL -->
-            <Card v-show="activeTab === 'email'">
+            <Card class="rpt-glass" v-show="activeTab === 'email'">
                 <CardHeader class="flex flex-row items-center gap-2 pb-2 font-medium">
                     <Mail class="h-5 w-5 text-[#e2483d]" /> Email report — {{ sites.find((s) => s.id === selectedSite)?.name }}
                 </CardHeader>
@@ -1307,11 +1337,11 @@ const tabs = computed(() => [
 
             <!-- Report links modal -->
             <div v-if="showLinks" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="showLinks = false">
-                <Card class="w-full max-w-lg">
+                <Card class="rpt-glass w-full max-w-lg">
                     <CardHeader class="flex flex-row items-center justify-between gap-2 pb-2">
                         <div class="flex items-center gap-2"><Link2 class="h-5 w-5 text-[#e2483d]" /><span class="font-medium">Report sources</span></div>
                         <div class="flex items-center gap-2">
-                            <Button variant="outline" size="sm" @click="showAddLink = !showAddLink"><Plus class="mr-1 h-4 w-4" /> Add</Button>
+                            <Button class="rounded-full" variant="outline" size="sm" @click="showAddLink = !showAddLink"><Plus class="mr-1 h-4 w-4" /> Add</Button>
                             <button class="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground" title="Close" @click="showLinks = false"><X class="h-4 w-4" /></button>
                         </div>
                     </CardHeader>
@@ -1338,8 +1368,8 @@ const tabs = computed(() => [
                             <Input v-model="newLink.label" placeholder="Name (e.g. SeedTag)" />
                             <Input v-model="newLink.url" placeholder="https://…" @keyup.enter="addLink" />
                             <div class="flex gap-2">
-                                <Button size="sm" @click="addLink">Add</Button>
-                                <Button size="sm" variant="ghost" @click="showAddLink = false">Cancel</Button>
+                                <Button class="rounded-full" size="sm" @click="addLink">Add</Button>
+                                <Button class="rounded-full" size="sm" variant="ghost" @click="showAddLink = false">Cancel</Button>
                             </div>
                         </div>
                     </CardContent>
@@ -1349,7 +1379,7 @@ const tabs = computed(() => [
             <!-- Download modal -->
             <div v-if="showDownload" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
                 @click.self="dlState !== 'working' && (showDownload = false)">
-                <Card class="w-full max-w-2xl">
+                <Card class="rpt-glass w-full max-w-2xl">
                     <CardHeader class="flex flex-row items-center justify-between gap-2 pb-3">
                         <span class="flex items-center gap-2 font-medium"><Download class="h-5 w-5 text-[#e2483d]" /> Download reports</span>
                         <button v-if="dlState !== 'working'" class="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground" title="Close" @click="showDownload = false"><X class="h-4 w-4" /></button>
@@ -1382,7 +1412,7 @@ const tabs = computed(() => [
                         <template v-else>
                             <AlertTriangle class="h-14 w-14 text-red-500" />
                             <p class="max-w-sm text-sm font-medium">{{ dlError }}</p>
-                            <Button variant="outline" @click="dlState = 'idle'">Try again</Button>
+                            <Button class="rounded-full" variant="outline" @click="dlState = 'idle'">Try again</Button>
                         </template>
                     </CardContent>
 
@@ -1413,7 +1443,7 @@ const tabs = computed(() => [
                                 <span class="text-xs font-medium uppercase tracking-wide text-muted-foreground">Date range</span>
                                 <div class="flex flex-wrap gap-1.5">
                                     <button v-for="p in DL_PRESETS" :key="p"
-                                        class="rounded-md border px-2.5 py-1 text-xs transition hover:bg-muted" @click="dlPreset(p)">{{ p }}</button>
+                                        class="rounded-full border px-2.5 py-1 text-xs transition hover:bg-muted" @click="dlPreset(p)">{{ p }}</button>
                                 </div>
                                 <DateRangePicker v-model:from="dlFrom" v-model:to="dlTo" class="mt-1" />
                             </div>
@@ -1421,7 +1451,7 @@ const tabs = computed(() => [
 
                         <div class="flex items-center justify-between border-t pt-3">
                             <span class="text-xs text-muted-foreground">{{ selectedFiles.length }} of {{ uploadFiles.length }} file(s) selected</span>
-                            <Button :disabled="!selectedFiles.length" @click="confirmDownload"><Download class="mr-2 h-4 w-4" /> Download</Button>
+                            <Button class="rounded-full" :disabled="!selectedFiles.length" @click="confirmDownload"><Download class="mr-2 h-4 w-4" /> Download</Button>
                         </div>
                     </CardContent>
                 </Card>
@@ -1429,7 +1459,7 @@ const tabs = computed(() => [
 
             <!-- Settings modal -->
             <div v-if="showSettings" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="showSettings = false">
-                <Card class="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden p-0">
+                <Card class="rpt-glass flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden p-0">
                     <div class="flex items-center justify-between gap-2 border-b px-6 py-4">
                         <span class="flex items-center gap-2 font-medium"><Settings class="h-5 w-5 text-[#e2483d]" /> Settings</span>
                         <button class="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground" @click="showSettings = false"><X class="h-4 w-4" /></button>
@@ -1492,14 +1522,14 @@ const tabs = computed(() => [
 
                     <div class="flex items-center justify-end gap-3 border-t px-6 py-4">
                         <button class="text-sm text-muted-foreground hover:underline" @click="showSettings = false">Cancel</button>
-                        <Button @click="saveSettings">Save changes</Button>
+                        <Button class="rounded-full" @click="saveSettings">Save changes</Button>
                     </div>
                 </Card>
             </div>
 
             <!-- Adhese impressions batch modal — fires after process/sync when new F1 dates appear -->
             <div v-if="showAdheseModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                <Card class="w-full max-w-md">
+                <Card class="rpt-glass w-full max-w-md">
                     <CardHeader class="flex flex-row items-center justify-between gap-2 pb-2">
                         <span class="font-medium">Adhese impressions</span>
                         <button class="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground" @click="showAdheseModal = false"><X class="h-4 w-4" /></button>
@@ -1516,7 +1546,7 @@ const tabs = computed(() => [
                         </div>
                         <div class="flex items-center justify-between border-t pt-3">
                             <button class="text-sm text-muted-foreground hover:underline" @click="showAdheseModal = false">Skip</button>
-                            <Button :disabled="adheseSaving" @click="saveAdheseBatch">
+                            <Button class="rounded-full" :disabled="adheseSaving" @click="saveAdheseBatch">
                                 <Loader2 v-if="adheseSaving" class="mr-2 h-4 w-4 animate-spin" /> Save impressions
                             </Button>
                         </div>
@@ -1558,6 +1588,232 @@ const tabs = computed(() => [
 </template>
 
 <style scoped>
+/* ---------- Reporting chrome (mirrors Previews/Update2's visual language:
+   JetBrains Mono, glass surfaces, ambient accent glow, dark-mode starfield)
+   with a fixed accent instead of a per-item color palette. ---------- */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+.rpt-root {
+    --rpt-accent:        #e2483d;
+    --rpt-accent-2:      #f59e0b;
+    --rpt-accent-soft:   #e2483d1a;
+    --rpt-accent-muted:  #e2483d38;
+    --rpt-accent-glow:   #e2483d66;
+    --rpt-accent-2-soft: #f59e0b14;
+    --rpt-accent-2-glow: #f59e0b59;
+
+    --rpt-bg:            #fafafa;
+    --rpt-surface:       #ffffff;
+    --rpt-surface-muted: rgba(255, 255, 255, 0.85);
+    --rpt-text:          #18181b;
+    --rpt-text-muted:    #71717a;
+    --rpt-border:        rgba(15, 15, 20, 0.08);
+    --rpt-hairline:      rgba(15, 15, 20, 0.06);
+
+    background-color: var(--rpt-bg);
+    color: var(--rpt-text);
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-feature-settings: 'cv11', 'ss01', 'tnum';
+}
+.dark .rpt-root {
+    --rpt-bg:            #0B0B10;
+    --rpt-surface:       #1E1E23;
+    --rpt-surface-muted: rgba(30, 30, 35, 0.45);
+    --rpt-text:          #F8FAFC;
+    --rpt-text-muted:    #94A3B8;
+    --rpt-border:        rgba(255, 255, 255, 0.10);
+    --rpt-hairline:      rgba(255, 255, 255, 0.06);
+}
+
+.rpt-root :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--rpt-bg), 0 0 0 4px var(--rpt-accent);
+    border-radius: inherit;
+}
+
+.rpt-glass {
+    background: var(--rpt-surface-muted);
+    border: 1px solid var(--rpt-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.rpt-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--rpt-text-muted);
+}
+
+/* Click-to-highlight table row (Table tab). */
+.rpt-row-selected {
+    background: var(--rpt-accent-soft) !important;
+    box-shadow: inset 3px 0 0 0 var(--rpt-accent);
+}
+
+/* ---------- Welcome splash ---------- */
+.rpt-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: var(--rpt-bg);
+    overflow: hidden;
+}
+.rpt-splash .rpt-ambient,
+.rpt-splash .rpt-stars { opacity: 0.7; }
+.rpt-stars--always { opacity: 0.55 !important; animation: rpt-twinkle 6s ease-in-out infinite; }
+
+.rpt-splash-fade-enter-active,
+.rpt-splash-fade-leave-active { transition: opacity 400ms cubic-bezier(0.22, 1, 0.36, 1); }
+.rpt-splash-fade-enter-from,
+.rpt-splash-fade-leave-to { opacity: 0; }
+
+.rpt-splash-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+    padding: 24px;
+}
+
+.rpt-splash-mark {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 72px;
+    height: 72px;
+    margin-bottom: 8px;
+}
+.rpt-splash-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid var(--rpt-accent-muted);
+    border-top-color: var(--rpt-accent);
+    animation: rpt-splash-spin 1s linear infinite;
+}
+.rpt-splash-mark-text {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--rpt-accent);
+}
+@keyframes rpt-splash-spin { to { transform: rotate(360deg); } }
+
+.rpt-splash-title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--rpt-text);
+}
+.rpt-splash-dots span {
+    animation: rpt-splash-dot 1.2s ease-in-out infinite;
+    opacity: 0.2;
+}
+.rpt-splash-dots span:nth-child(2) { animation-delay: 0.2s; }
+.rpt-splash-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes rpt-splash-dot { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+
+.rpt-splash-status {
+    font-size: 12px;
+    color: var(--rpt-text-muted);
+    min-height: 1.2em;
+}
+
+.rpt-splash-bar {
+    width: 180px;
+    height: 3px;
+    border-radius: 999px;
+    background: var(--rpt-border);
+    overflow: hidden;
+    margin-top: 4px;
+}
+.rpt-splash-bar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--rpt-accent), var(--rpt-accent-2));
+    animation: rpt-splash-fill 5s linear forwards;
+}
+@keyframes rpt-splash-fill { to { width: 100%; } }
+
+.rpt-splash-skip {
+    margin-top: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--rpt-text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 200ms;
+}
+.rpt-splash-skip:hover { color: var(--rpt-accent); }
+
+@media (prefers-reduced-motion: reduce) {
+    .rpt-splash-ring, .rpt-splash-dots span, .rpt-splash-bar-fill, .rpt-stars--always {
+        animation: none !important;
+    }
+    .rpt-splash-bar-fill { width: 100%; }
+}
+
+/* ---------- Ambient backdrop ---------- */
+.rpt-ambient {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+        radial-gradient(55% 45% at 0% 0%, var(--rpt-accent-soft) 0%, transparent 70%),
+        radial-gradient(40% 40% at 100% 0%, var(--rpt-accent-2-soft) 0%, transparent 75%);
+    opacity: 0.5;
+}
+.dark .rpt-ambient {
+    background:
+        radial-gradient(70% 55% at 5% 0%, var(--rpt-accent-glow) 0%, transparent 65%),
+        radial-gradient(60% 55% at 100% 25%, var(--rpt-accent-2-glow) 0%, transparent 70%),
+        radial-gradient(60% 60% at 100% 100%, var(--rpt-accent-glow) 0%, transparent 75%);
+    opacity: 0.55;
+}
+
+.rpt-stars {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1);
+    background-image:
+        radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.85), transparent 50%),
+        radial-gradient(1px 1px at 60% 70%, rgba(255,255,255,0.7),  transparent 50%),
+        radial-gradient(1.5px 1.5px at 80% 20%, rgba(255,255,255,0.6), transparent 50%),
+        radial-gradient(1px 1px at 35% 85%, rgba(255,255,255,0.5), transparent 50%),
+        radial-gradient(1px 1px at 90% 50%, rgba(255,255,255,0.65), transparent 50%);
+    background-size: 1200px 800px;
+}
+.dark .rpt-stars { opacity: 0.55; animation: rpt-twinkle 6s ease-in-out infinite; }
+@keyframes rpt-twinkle {
+    0%, 100% { opacity: 0.4; }
+    50%      { opacity: 0.65; }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .rpt-root *, .rpt-root *::before, .rpt-root *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    .rpt-stars { animation: none; }
+}
+
 /* Zip-download progress animations (Download modal "working" state). */
 @keyframes zip-ping {
     0% { transform: scale(0.85); opacity: 0.9; }

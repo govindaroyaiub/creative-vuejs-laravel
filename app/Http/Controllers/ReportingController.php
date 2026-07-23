@@ -329,10 +329,11 @@ class ReportingController extends Controller
 
     /**
      * Render the reporting page directly with a verify outcome, instead of
-     * redirect()->with() + a follow-up GET. That extra round trip remounts the
-     * Vue page component, wiping local UI state (e.g. resets the active tab back
-     * to "Days") — rendering inline keeps the user right where they were, on the
-     * Verify tab, looking at the comparison they just ran.
+     * redirect()->with() + a follow-up GET. A redirect remounts the Vue page
+     * component — replaying the welcome splash and losing the active tab —
+     * just to fix up the address bar. Rendering inline avoids all of that;
+     * the frontend corrects the address bar itself via history.replaceState
+     * once the response lands (see runVerify()'s onSuccess in Index.vue).
      */
     private function renderWithVerify(?array $verifyResult, ?string $verifyError)
     {
