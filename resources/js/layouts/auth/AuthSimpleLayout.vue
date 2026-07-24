@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
+import ThemeBackdrop from '@/components/ThemeBackdrop.vue';
 import { Link } from '@inertiajs/vue3';
 
 defineProps<{
@@ -9,8 +10,9 @@ defineProps<{
 </script>
 
 <template>
-    <div class="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
-        <div class="w-full max-w-sm">
+    <div class="p9-theme relative flex min-h-svh flex-col items-center justify-center gap-6 overflow-hidden p-6 md:p-10">
+        <ThemeBackdrop />
+        <div class="relative z-[1] w-full max-w-sm">
             <div class="flex flex-col gap-8">
                 <div class="flex flex-col items-center gap-4">
                     <!-- <Link :href="route('home')" class="flex flex-col items-center gap-2 font-medium">

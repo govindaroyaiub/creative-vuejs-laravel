@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Zalando+Sans+Expanded:ital,wght@0,200..900;1,200..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=JetBrains+Mono:wght@400;500;600&family=Zalando+Sans+Expanded:ital,wght@0,200..900;1,200..900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -143,4 +143,113 @@ html {
     ::view-transition-new(app-sidebar) {
         animation: none;
     }
+}
+
+/* ─── P9 shared theme ──────────────────────────────────────────────────────
+   Extracted from Reporting/Index.vue (which mirrors Previews/Update2 chrome):
+   JetBrains Mono, glass surfaces, ambient accent glow, dark-mode starfield,
+   fixed red/amber accent. Applied app-wide via the `.p9-theme` wrapper in
+   AppLayout + AuthSimpleLayout. Previews/Update.vue opts out (:themed=false),
+   as it is the origin of the theme settings. */
+.p9-theme {
+    --p9-accent:        #e2483d;
+    --p9-accent-2:      #f59e0b;
+    --p9-accent-soft:   #e2483d1a;
+    --p9-accent-muted:  #e2483d38;
+    --p9-accent-glow:   #e2483d66;
+    --p9-accent-2-soft: #f59e0b14;
+    --p9-accent-2-glow: #f59e0b59;
+
+    --p9-bg:            #fafafa;
+    --p9-surface:       #ffffff;
+    --p9-surface-muted: rgba(255, 255, 255, 0.85);
+    --p9-text:          #18181b;
+    --p9-text-muted:    #71717a;
+    --p9-border:        rgba(15, 15, 20, 0.08);
+    --p9-hairline:      rgba(15, 15, 20, 0.06);
+
+    background-color: var(--p9-bg);
+    color: var(--p9-text);
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-feature-settings: 'cv11', 'ss01', 'tnum';
+}
+.dark .p9-theme {
+    --p9-bg:            #0B0B10;
+    --p9-surface:       #1E1E23;
+    --p9-surface-muted: rgba(30, 30, 35, 0.45);
+    --p9-text:          #F8FAFC;
+    --p9-text-muted:    #94A3B8;
+    --p9-border:        rgba(255, 255, 255, 0.10);
+    --p9-hairline:      rgba(255, 255, 255, 0.06);
+}
+
+.p9-theme :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--p9-bg), 0 0 0 4px var(--p9-accent);
+    border-radius: inherit;
+}
+
+.p9-glass {
+    background: var(--p9-surface-muted);
+    border: 1px solid var(--p9-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.p9-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--p9-text-muted);
+}
+
+/* Ambient accent wash */
+.p9-ambient {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+        radial-gradient(55% 45% at 0% 0%, var(--p9-accent-soft) 0%, transparent 70%),
+        radial-gradient(40% 40% at 100% 0%, var(--p9-accent-2-soft) 0%, transparent 75%);
+    opacity: 0.5;
+}
+.dark .p9-ambient {
+    background:
+        radial-gradient(70% 55% at 5% 0%, var(--p9-accent-glow) 0%, transparent 65%),
+        radial-gradient(60% 55% at 100% 25%, var(--p9-accent-2-glow) 0%, transparent 70%),
+        radial-gradient(60% 60% at 100% 100%, var(--p9-accent-glow) 0%, transparent 75%);
+    opacity: 0.55;
+}
+
+/* Dark-mode starfield */
+.p9-stars {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1);
+    background-image:
+        radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.85), transparent 50%),
+        radial-gradient(1px 1px at 60% 70%, rgba(255,255,255,0.7),  transparent 50%),
+        radial-gradient(1.5px 1.5px at 80% 20%, rgba(255,255,255,0.6), transparent 50%),
+        radial-gradient(1px 1px at 35% 85%, rgba(255,255,255,0.5), transparent 50%),
+        radial-gradient(1px 1px at 90% 50%, rgba(255,255,255,0.65), transparent 50%);
+    background-size: 1200px 800px;
+}
+.dark .p9-stars { opacity: 0.55; animation: p9-twinkle 6s ease-in-out infinite; }
+@keyframes p9-twinkle {
+    0%, 100% { opacity: 0.4; }
+    50%      { opacity: 0.65; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .p9-theme *, .p9-theme *::before, .p9-theme *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    .p9-stars { animation: none; }
 }

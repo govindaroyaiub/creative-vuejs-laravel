@@ -2,6 +2,7 @@
 
     <Head title="Batch Update" />
     <AppLayout
+        :themed="false"
         :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Batch Update', href: '/previews/batch-update' }]">
         <div class="max-w-8xl py-4 px-4">
             <div v-if="preview">

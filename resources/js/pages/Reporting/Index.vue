@@ -1337,7 +1337,7 @@ const tabs = [
 
             <!-- Report links modal -->
             <div v-if="showLinks" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="showLinks = false">
-                <Card class="rpt-glass w-full max-w-lg">
+                <Card class="rpt-glass rpt-modal w-full max-w-lg">
                     <CardHeader class="flex flex-row items-center justify-between gap-2 pb-2">
                         <div class="flex items-center gap-2"><Link2 class="h-5 w-5 text-[#e2483d]" /><span class="font-medium">Report sources</span></div>
                         <div class="flex items-center gap-2">
@@ -1379,7 +1379,7 @@ const tabs = [
             <!-- Download modal -->
             <div v-if="showDownload" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
                 @click.self="dlState !== 'working' && (showDownload = false)">
-                <Card class="rpt-glass w-full max-w-2xl">
+                <Card class="rpt-glass rpt-modal w-full max-w-2xl">
                     <CardHeader class="flex flex-row items-center justify-between gap-2 pb-3">
                         <span class="flex items-center gap-2 font-medium"><Download class="h-5 w-5 text-[#e2483d]" /> Download reports</span>
                         <button v-if="dlState !== 'working'" class="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground" title="Close" @click="showDownload = false"><X class="h-4 w-4" /></button>
@@ -1459,7 +1459,7 @@ const tabs = [
 
             <!-- Settings modal -->
             <div v-if="showSettings" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="showSettings = false">
-                <Card class="rpt-glass flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden p-0">
+                <Card class="rpt-glass rpt-modal flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden p-0">
                     <div class="flex items-center justify-between gap-2 border-b px-6 py-4">
                         <span class="flex items-center gap-2 font-medium"><Settings class="h-5 w-5 text-[#e2483d]" /> Settings</span>
                         <button class="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground" @click="showSettings = false"><X class="h-4 w-4" /></button>
@@ -1529,7 +1529,7 @@ const tabs = [
 
             <!-- Adhese impressions batch modal — fires after process/sync when new F1 dates appear -->
             <div v-if="showAdheseModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                <Card class="rpt-glass w-full max-w-md">
+                <Card class="rpt-glass rpt-modal w-full max-w-md">
                     <CardHeader class="flex flex-row items-center justify-between gap-2 pb-2">
                         <span class="font-medium">Adhese impressions</span>
                         <button class="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground" @click="showAdheseModal = false"><X class="h-4 w-4" /></button>
@@ -1636,6 +1636,24 @@ const tabs = [
     border: 1px solid var(--rpt-border);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+}
+
+/* Modal dialogs sit on a dark overlay, so they must be SOLID — the translucent
+   glass surface let the page bleed through and washed out low-opacity hover
+   fills (they blended into the background). Opaque surface + shadow fixes it. */
+.rpt-modal {
+    background: var(--rpt-surface);
+    border: 1px solid var(--rpt-border);
+    box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.35);
+}
+.dark .rpt-modal {
+    box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.65);
+}
+/* Give hover fills a visible, accent-tinted state on the solid surface so they
+   read clearly instead of dissolving into the panel. */
+.rpt-modal .hover\:bg-muted:hover,
+.rpt-modal [class*="hover:bg-muted"]:hover {
+    background-color: var(--rpt-accent-soft) !important;
 }
 
 .rpt-label {
