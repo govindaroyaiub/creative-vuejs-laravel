@@ -1,12 +1,23 @@
 {
-    "exported_at": "2026-07-27 13:58:59",
+    "exported_at": "2026-07-27 21:06:59",
     "settings": {
         "oguryRate": 0.878,
         "last_run": {
-            "at": "2026-07-27 13:58:29",
-            "missing": []
+            "at": "2026-07-27 21:06:59",
+            "missing": [
+                "Adform",
+                "GAM",
+                "GAM F1M",
+                "Ogury",
+                "SeedTag",
+                "Showheroes",
+                "Teads",
+                "Adhese (F1)",
+                "Adhese (TopGear)",
+                "Adhese (Festileaks)"
+            ]
         },
-        "synced_at": "2026-07-27 13:58:59",
+        "synced_at": "2026-07-27 21:06:59",
         "report_links": [
             {
                 "url": "https://publisher-panel.seedtag.com/",
