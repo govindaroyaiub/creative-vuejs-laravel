@@ -1,23 +1,12 @@
 {
-    "exported_at": "2026-07-29 13:00:40",
+    "exported_at": "2026-07-29 21:01:24",
     "settings": {
         "oguryRate": 0.878,
         "last_run": {
-            "at": "2026-07-29 13:00:40",
-            "missing": [
-                "Adform",
-                "GAM",
-                "GAM F1M",
-                "Ogury",
-                "SeedTag",
-                "Showheroes",
-                "Analytics",
-                "Adhese (F1)",
-                "Adhese (TopGear)",
-                "Adhese (Festileaks)"
-            ]
+            "at": "2026-07-29 21:01:24",
+            "missing": []
         },
-        "synced_at": "2026-07-29 13:00:40",
+        "synced_at": "2026-07-29 21:01:24",
         "report_links": [
             {
                 "url": "https://publisher-panel.seedtag.com/",
@@ -3362,13 +3351,13 @@
             },
             "total_ad_requests": 1428076,
             "analytics": {
-                "views": 121850,
+                "views": 121865,
                 "keyEvents": 0,
-                "eventCount": 289752,
-                "activeUsers": 42535,
+                "eventCount": 289792,
+                "activeUsers": 42533,
                 "totalRevenue": 0,
-                "viewsPerUser": 2.864699659104267,
-                "avgEngagement": 47.48256729751969
+                "viewsPerUser": 2.8651870312463266,
+                "avgEngagement": 47.4869865751299
             },
             "impressions_sold": 603847
         },
