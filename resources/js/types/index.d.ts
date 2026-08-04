@@ -22,7 +22,7 @@ export interface NavItem {
 export interface Notification {
     id: number;
     user_id: number;
-    type: 'category_created' | 'feedback_created' | 'feedback_set_created' | 'version_created' | 'asset_created' | 'task_assigned' | 'task_left';
+    type: 'category_created' | 'feedback_created' | 'feedback_set_created' | 'version_created' | 'asset_created' | 'task_assigned' | 'task_left' | 'board_shared' | 'board_left';
     title: string;
     message: string | null;
     data: Record<string, any> | null;

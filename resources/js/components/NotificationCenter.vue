@@ -9,7 +9,7 @@ import {
     DropdownMenuContent,
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Bell, Trash2, Loader2, Inbox, Sparkles, Folder, MessageSquare, Package, Image, CheckCircle, XCircle, ListChecks, UserMinus } from 'lucide-vue-next';
+import { Bell, Trash2, Loader2, Inbox, Sparkles, Folder, MessageSquare, Package, Image, CheckCircle, XCircle, ListChecks, UserMinus, LayoutGrid } from 'lucide-vue-next';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 const page = usePage<SharedData>();
@@ -116,6 +116,10 @@ const getNotificationStyle = (type: string) => {
             return { icon: ListChecks, color: 'text-black dark:text-white', bgColor: 'bg-white dark:bg-black border border-[#CCCCCC] dark:border-[#333333]', borderColor: 'border-l-black dark:border-l-white', label: 'Task' };
         case 'task_left':
             return { icon: UserMinus, color: 'text-black dark:text-white', bgColor: 'bg-white dark:bg-black border border-[#CCCCCC] dark:border-[#333333]', borderColor: 'border-l-black dark:border-l-white', label: 'Left' };
+        case 'board_shared':
+            return { icon: LayoutGrid, color: 'text-black dark:text-white', bgColor: 'bg-white dark:bg-black border border-[#CCCCCC] dark:border-[#333333]', borderColor: 'border-l-black dark:border-l-white', label: 'Board' };
+        case 'board_left':
+            return { icon: UserMinus, color: 'text-black dark:text-white', bgColor: 'bg-white dark:bg-black border border-[#CCCCCC] dark:border-[#333333]', borderColor: 'border-l-black dark:border-l-white', label: 'Board' };
         default:
             return { icon: Bell, color: 'text-black dark:text-white', bgColor: 'bg-white dark:bg-black border border-[#CCCCCC] dark:border-[#333333]', borderColor: 'border-l-black dark:border-l-white', label: 'Update' };
     }

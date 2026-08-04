@@ -61,15 +61,39 @@ The core of the platform. Branded, shareable portals where clients review creati
 
 ### Tasks — `/tasks`
 
-A kanban board, private to each user.
+A Trello-style kanban workspace.
 
-- Three columns: **To Do / In Progress / Done**, drag and drop between them
-- Per-user ordering — everyone arranges their own board independently
-- Fields: title, description, priority (low / medium / high / urgent), due date
-- Overdue highlighting, open / total / overdue counters
-- Search and priority filtering
-- **Joint tasks** — share a task with any number of teammates. It stays on your board *and* appears on theirs, with shared status. Everyone added gets a notification.
-- Only the creator can delete a shared task for everyone; other participants **leave** it instead, which notifies the creator
+**Boards → Lists → Cards.** A board holds user-created lists; lists hold cards.
+
+- **Multiple boards** with a switcher in the board bar; shared boards are marked
+- Every new board starts with **Today · Tomorrow · This week · Later** — plain names, nothing re-buckets on its own. Rename inline, delete, reorder by dragging, or add your own with **Add list**
+- The list strip **scrolls horizontally**; each list scrolls vertically on its own
+- The four default lists are **protected**: renameable and reorderable around, but never deletable and never draggable themselves. Enforced by an `is_protected` column and refused server-side, so a rename can't defeat it
+- **One-input card composer**, like Trello: type a title, Enter, card exists. Stays open so you can add several in a row
+- **Card detail panel** for everything else — description, due date, who created it
+- Cards drag by a grip handle within a list or across lists; custom lists drag to reorder. Both persist immediately
+- Due-date badges, red when overdue
+
+**Completion is an archive.** Completing a card removes it from its list rather than striking it through, which keeps long lists readable.
+
+- One-click tick on the card (appears on hover), or a **Complete** button in the card detail panel
+- Completed cards keep their list and position, so **Restore** puts them back exactly where they were
+- A stale board cannot drag a completed card back — the reorder endpoint filters them out
+
+**Bottom dock.** A floating pill, centred at the bottom of the board, holds everything that is about the board rather than a card:
+
+- **Completed** — the current board's archive, newest first, each entry showing its list, completion date, and author, with restore and permanent delete
+- **Boards** — board switcher, members, and board actions (new, rename, delete or leave). Labelled with the current board name
+- The board has no top bar at all; the lists start at the top of the page for maximum vertical room
+
+**Sharing is board-level.** Invite people to a board and they see all its lists and cards, in the same order as everyone else.
+
+- Board members are managed by the owner only — being invited doesn't let you remove whoever invited you
+- **Card members** are assignees, chosen from the board's members. Assigning notifies them
+- Removing someone from a board also unassigns them from that board's cards
+- The board owner deletes a board; invited members **leave** it, which notifies the owner
+- A card's creator deletes it; an assignee **leaves** it, which notifies the creator
+- Deleting a list deletes its cards, after a confirmation naming the count
 
 ### Reporting — `/reporting`
 

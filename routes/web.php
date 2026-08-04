@@ -225,18 +225,53 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     //Support Ticket Routes End
 
     //Task Routes Start
-    Route::get('/tasks', [App\Http\Controllers\TaskController::class, 'index'])->name('tasks.index');
-    Route::post('/tasks', [App\Http\Controllers\TaskController::class, 'store'])->name('tasks.store');
-    Route::post('/tasks/reorder', [App\Http\Controllers\TaskController::class, 'reorder'])->name('tasks.reorder');
-    Route::put('/tasks/{task}', [App\Http\Controllers\TaskController::class, 'update'])
+    // Boards
+    Route::get('/tasks', [App\Http\Controllers\BoardController::class, 'index'])->name('tasks.index');
+    Route::get('/tasks/board/{board}', [App\Http\Controllers\BoardController::class, 'index'])
+        ->where('board', '[0-9]+')
+        ->name('tasks.board');
+    Route::post('/tasks/boards', [App\Http\Controllers\BoardController::class, 'store'])->name('tasks.boards.store');
+    Route::put('/tasks/boards/{board}', [App\Http\Controllers\BoardController::class, 'update'])
+        ->where('board', '[0-9]+')
+        ->name('tasks.boards.update');
+    Route::put('/tasks/boards/{board}/members', [App\Http\Controllers\BoardController::class, 'updateMembers'])
+        ->where('board', '[0-9]+')
+        ->name('tasks.boards.members');
+    Route::delete('/tasks/boards/{board}', [App\Http\Controllers\BoardController::class, 'destroy'])
+        ->where('board', '[0-9]+')
+        ->name('tasks.boards.destroy');
+
+    // Lists
+    Route::post('/tasks/boards/{board}/lists', [App\Http\Controllers\BoardController::class, 'storeList'])
+        ->where('board', '[0-9]+')
+        ->name('tasks.lists.store');
+    Route::post('/tasks/boards/{board}/lists/reorder', [App\Http\Controllers\BoardController::class, 'reorderLists'])
+        ->where('board', '[0-9]+')
+        ->name('tasks.lists.reorder');
+    Route::put('/tasks/lists/{list}', [App\Http\Controllers\BoardController::class, 'updateList'])
+        ->where('list', '[0-9]+')
+        ->name('tasks.lists.update');
+    Route::delete('/tasks/lists/{list}', [App\Http\Controllers\BoardController::class, 'destroyList'])
+        ->where('list', '[0-9]+')
+        ->name('tasks.lists.destroy');
+
+    // Cards
+    Route::post('/tasks/lists/{list}/cards', [App\Http\Controllers\TaskController::class, 'store'])
+        ->where('list', '[0-9]+')
+        ->name('tasks.cards.store');
+    Route::post('/tasks/cards/reorder', [App\Http\Controllers\TaskController::class, 'reorder'])->name('tasks.cards.reorder');
+    Route::put('/tasks/cards/{task}', [App\Http\Controllers\TaskController::class, 'update'])
         ->where('task', '[0-9]+')
-        ->name('tasks.update');
-    Route::put('/tasks/{task}/status', [App\Http\Controllers\TaskController::class, 'updateStatus'])
+        ->name('tasks.cards.update');
+    Route::put('/tasks/cards/{task}/rename', [App\Http\Controllers\TaskController::class, 'rename'])
         ->where('task', '[0-9]+')
-        ->name('tasks.update-status');
-    Route::delete('/tasks/{task}', [App\Http\Controllers\TaskController::class, 'destroy'])
+        ->name('tasks.cards.rename');
+    Route::put('/tasks/cards/{task}/complete', [App\Http\Controllers\TaskController::class, 'toggleComplete'])
         ->where('task', '[0-9]+')
-        ->name('tasks.destroy');
+        ->name('tasks.cards.complete');
+    Route::delete('/tasks/cards/{task}', [App\Http\Controllers\TaskController::class, 'destroy'])
+        ->where('task', '[0-9]+')
+        ->name('tasks.cards.destroy');
     //Task Routes End
 
     //Orbit Routes Start

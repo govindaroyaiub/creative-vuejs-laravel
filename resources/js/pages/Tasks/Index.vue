@@ -1,29 +1,32 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, router, useForm, usePage } from '@inertiajs/vue3';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import dayjs from 'dayjs';
 import {
     CalendarDays,
-    CheckCircle2,
-    Circle,
-    CirclePlus,
+    Check,
+    CheckCheck,
     GripVertical,
+    LayoutGrid,
     LogOut,
     Pencil,
-    Search,
-    Timer,
+    Plus,
+    RotateCcw,
     Trash2,
-    UserRound,
+    UserPlus,
     Users,
     X,
 } from 'lucide-vue-next';
+import type { SweetAlertOptions } from 'sweetalert2';
 import Swal from 'sweetalert2';
-import { computed, nextTick, onUnmounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import draggable from 'vuedraggable';
 
-type TaskStatus = 'todo' | 'in_progress' | 'done';
-type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
+/** Focus an element as soon as it renders — used by the inline list rename. */
+const vFocus = {
+    mounted: (el: HTMLElement) => el.focus(),
+};
 
 interface UserOption {
     id: number;
@@ -31,24 +34,50 @@ interface UserOption {
     email: string;
 }
 
-interface TaskItem {
+interface Card {
     id: number;
+    list_id: number;
     created_by: number;
     title: string;
     description: string | null;
-    status: TaskStatus;
-    priority: TaskPriority;
     due_date: string | null;
     position: number;
     completed_at: string | null;
     created_at: string;
+    members?: UserOption[];
     creator?: UserOption;
-    // Everyone the task is shared with, including the current user.
-    participants?: UserOption[];
+}
+
+interface BoardList {
+    id: number;
+    board_id: number;
+    name: string;
+    position: number;
+    // Seeded backbone lists — renameable and reorderable, but not deletable.
+    is_protected: boolean;
+    tasks: Card[];
+}
+
+interface BoardSummary {
+    id: number;
+    name: string;
+    user_id: number;
+}
+
+interface BoardDetail extends BoardSummary {
+    lists: BoardList[];
+    members: UserOption[];
+}
+
+/** An archived card. Carries the list it will be restored into. */
+interface CompletedCard extends Card {
+    list_name: string;
 }
 
 const props = defineProps<{
-    tasks: TaskItem[];
+    boards: BoardSummary[];
+    board: BoardDetail;
+    completedCards: CompletedCard[];
     users: UserOption[];
 }>();
 
@@ -57,313 +86,433 @@ const authUserId = computed(() => page.props.auth.user.id);
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Tasks', href: '/tasks' }];
 
-// Result notices are non-blocking, so they go to the top-right as toasts.
-// The delete confirmation stays a centered modal — it needs a real decision.
-const toast = Swal.mixin({
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: 2600,
-    timerProgressBar: true,
-    didOpen: (popup) => {
-        popup.addEventListener('mouseenter', Swal.stopTimer);
-        popup.addEventListener('mouseleave', Swal.resumeTimer);
-    },
-});
+/**
+ * Top-right toast for non-blocking notices. Confirmations stay centred and go
+ * through `Swal.fire` directly.
+ *
+ * Deliberately NOT `Swal.mixin`: app.ts replaces the static `Swal.fire` with a
+ * theme-injecting wrapper that delegates to a copy bound to `Swal` itself. A
+ * mixin subclass inherits that wrapper, so its merged params never reach the
+ * dialog and every "toast" renders as a centred modal. Passing the options to
+ * `Swal.fire` in one call goes through the wrapper intact.
+ */
+const toast = {
+    fire: (options: SweetAlertOptions) =>
+        Swal.fire({
+            ...options,
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2400,
+            timerProgressBar: true,
+            didOpen: (popup) => {
+                popup.addEventListener('mouseenter', Swal.stopTimer);
+                popup.addEventListener('mouseleave', Swal.resumeTimer);
 
-interface ColumnDef {
-    key: TaskStatus;
-    label: string;
-    icon: typeof Circle;
-    // Accent rail across the top of the column — the only colour carrying
-    // meaning here, so each column stays identifiable at a glance.
-    rail: string;
-    dot: string;
+                // Swal renders its container on <body>, so it knows nothing
+                // about the app header. Without this the toast lands on top of
+                // the notification bell and user menu.
+                const container = popup.closest('.swal2-container') as HTMLElement | null;
+                if (container) {
+                    container.style.paddingTop = '4.5rem';
+                    container.style.paddingRight = '1rem';
+                }
+            },
+        }),
+};
+
+const isOwner = computed(() => props.board.user_id === authUserId.value);
+
+// ─── Local board state ────────────────────────────────────────────────────
+// Mirrored locally so drags land instantly; the server is still the truth and
+// every prop change rebuilds from it.
+const lists = ref<BoardList[]>([]);
+
+function buildLists(source: BoardList[]) {
+    lists.value = source
+        .slice()
+        .sort((a, b) => a.position - b.position)
+        .map((list) => ({
+            ...list,
+            tasks: (list.tasks ?? []).slice().sort((a, b) => a.position - b.position),
+        }));
 }
 
-const COLUMNS: ColumnDef[] = [
-    { key: 'todo', label: 'To Do', icon: Circle, rail: 'bg-zinc-400/70', dot: 'bg-zinc-400' },
-    { key: 'in_progress', label: 'In Progress', icon: Timer, rail: 'bg-amber-500/70', dot: 'bg-amber-500' },
-    { key: 'done', label: 'Done', icon: CheckCircle2, rail: 'bg-emerald-500/70', dot: 'bg-emerald-500' },
-];
+buildLists(props.board.lists);
+watch(
+    () => props.board,
+    (board) => buildLists(board.lists),
+    { deep: true },
+);
 
-const PRIORITIES: TaskPriority[] = ['low', 'medium', 'high', 'urgent'];
-const PRIORITY_FILTERS: (TaskPriority | 'all')[] = ['all', 'low', 'medium', 'high', 'urgent'];
-
-// Board state is local so drag-and-drop feels instant; the server is the
-// source of truth and every prop change rebuilds it.
-const board = ref<Record<TaskStatus, TaskItem[]>>({ todo: [], in_progress: [], done: [] });
-
-function buildBoard(tasks: TaskItem[]) {
-    const next: Record<TaskStatus, TaskItem[]> = { todo: [], in_progress: [], done: [] };
-    for (const task of tasks) {
-        (next[task.status] ?? next.todo).push(task);
-    }
-    for (const key of Object.keys(next) as TaskStatus[]) {
-        next[key].sort((a, b) => a.position - b.position);
-    }
-    board.value = next;
-}
-
-buildBoard(props.tasks);
-watch(() => props.tasks, buildBoard, { deep: true });
-
-// ─── Filtering ────────────────────────────────────────────────────────────
-// Dragging writes positions for every visible card, so it is disabled while a
-// filter hides part of a column — otherwise hidden cards would get stale
-// positions written over them.
-const search = ref('');
-const priorityFilter = ref<TaskPriority | 'all'>('all');
-const isFiltering = computed(() => search.value.trim() !== '' || priorityFilter.value !== 'all');
-
-function visibleIn(status: TaskStatus): TaskItem[] {
-    const term = search.value.trim().toLowerCase();
-    return board.value[status].filter((task) => {
-        if (priorityFilter.value !== 'all' && task.priority !== priorityFilter.value) return false;
-        if (!term) return true;
-        return task.title.toLowerCase().includes(term) || (task.description ?? '').toLowerCase().includes(term);
-    });
-}
-
-const totalCount = computed(() => props.tasks.length);
-const openCount = computed(() => props.tasks.filter((t) => t.status !== 'done').length);
-const overdueCount = computed(() => props.tasks.filter((t) => isOverdue(t)).length);
+const cardCount = computed(() => lists.value.reduce((total, list) => total + list.tasks.length, 0));
 
 // ─── Drag persistence ─────────────────────────────────────────────────────
-const dragging = ref(false);
+// An empty list collapses to nothing so there is no dead space above "Add a
+// card". While a card is in flight it opens up into a visible drop target,
+// otherwise there would be nothing to aim at.
+const draggingCard = ref(false);
 
-function persistOrder() {
-    dragging.value = false;
+function persistCards() {
+    draggingCard.value = false;
 
-    const payload = (Object.keys(board.value) as TaskStatus[]).flatMap((status) =>
-        board.value[status].map((task, index) => ({
-            id: task.id,
-            status,
-            position: index,
-        })),
-    );
+    const cards = lists.value.flatMap((list) => list.tasks.map((card, index) => ({ id: card.id, list_id: list.id, position: index })));
+
+    if (!cards.length) return;
 
     router.post(
-        route('tasks.reorder'),
-        { tasks: payload },
+        route('tasks.cards.reorder'),
+        { cards },
         {
             preserveScroll: true,
             preserveState: true,
             onError: () => {
-                toast.fire({ icon: 'error', title: 'Failed to save the new order' });
-                router.reload({ only: ['tasks'] });
+                toast.fire({ icon: 'error', title: 'Failed to save card order' });
+                router.reload();
             },
         },
     );
 }
 
-// ─── Create / edit modal ──────────────────────────────────────────────────
-const showModal = ref(false);
-const editingId = ref<number | null>(null);
-
-// `participants` holds the *other* people the task is shared with. You are
-// always a participant of your own tasks, so you never appear in the list.
-const form = useForm({
-    title: '',
-    description: '',
-    status: 'todo' as TaskStatus,
-    priority: 'medium' as TaskPriority,
-    due_date: '',
-    participants: [] as number[],
-});
-
-function openCreate(status: TaskStatus = 'todo') {
-    editingId.value = null;
-    form.clearErrors();
-    form.defaults({
-        title: '',
-        description: '',
-        status,
-        priority: 'medium',
-        due_date: '',
-        participants: [],
-    });
-    form.reset();
-    showModal.value = true;
+function persistLists() {
+    router.post(
+        route('tasks.lists.reorder', props.board.id),
+        { lists: lists.value.map((list, index) => ({ id: list.id, position: index })) },
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onError: () => {
+                toast.fire({ icon: 'error', title: 'Failed to save list order' });
+                router.reload();
+            },
+        },
+    );
 }
 
-function openEdit(task: TaskItem) {
-    editingId.value = task.id;
-    form.clearErrors();
-    form.defaults({
-        title: task.title,
-        description: task.description ?? '',
-        status: task.status,
-        priority: task.priority,
-        due_date: task.due_date ?? '',
-        participants: othersOf(task).map((u) => u.id),
-    });
-    form.reset();
-    showModal.value = true;
+// ─── Card composer: one input, Trello style ───────────────────────────────
+const composingListId = ref<number | null>(null);
+const composerTitle = ref('');
+const composerInput = ref<HTMLTextAreaElement | null>(null);
+
+function openComposer(listId: number) {
+    composingListId.value = listId;
+    composerTitle.value = '';
+    nextTick(() => composerInput.value?.focus());
 }
 
-function toggleParticipant(userId: number) {
-    const next = new Set(form.participants);
-    if (next.has(userId)) {
-        next.delete(userId);
-    } else {
-        next.add(userId);
-    }
-    form.participants = [...next];
+function closeComposer() {
+    composingListId.value = null;
+    composerTitle.value = '';
 }
 
-// ─── Modal behaviour ──────────────────────────────────────────────────────
-const titleInput = ref<HTMLInputElement | null>(null);
-const participantSearch = ref('');
-
-const filteredUsers = computed(() => {
-    const term = participantSearch.value.trim().toLowerCase();
-    if (!term) return props.users;
-    return props.users.filter((user) => user.name.toLowerCase().includes(term) || user.email.toLowerCase().includes(term));
-});
-
-const selectedUsers = computed(() => props.users.filter((user) => form.participants.includes(user.id)));
-
-function onModalKeydown(event: KeyboardEvent) {
-    if (event.key === 'Escape') {
-        event.preventDefault();
-        closeModal();
+function submitComposer(listId: number) {
+    const title = composerTitle.value.trim();
+    if (!title) {
+        closeComposer();
         return;
     }
-    // ⌘/Ctrl + Enter saves from anywhere in the form, including the textarea.
-    if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
-        event.preventDefault();
-        if (!form.processing) submit();
-    }
-}
 
-watch(showModal, (open) => {
-    if (open) {
-        participantSearch.value = '';
-        document.addEventListener('keydown', onModalKeydown);
-        document.body.style.overflow = 'hidden';
-        nextTick(() => titleInput.value?.focus());
-    } else {
-        document.removeEventListener('keydown', onModalKeydown);
-        document.body.style.overflow = '';
-    }
-});
-
-onUnmounted(() => {
-    document.removeEventListener('keydown', onModalKeydown);
-    document.body.style.overflow = '';
-});
-
-// ─── Due-date shortcuts ───────────────────────────────────────────────────
-const DUE_PRESETS: { label: string; days: number }[] = [
-    { label: 'Today', days: 0 },
-    { label: 'Tomorrow', days: 1 },
-    { label: 'Next week', days: 7 },
-];
-
-function presetDate(days: number): string {
-    return dayjs().add(days, 'day').format('YYYY-MM-DD');
-}
-
-function setDue(days: number | null) {
-    form.due_date = days === null ? '' : presetDate(days);
-}
-
-function dueIs(days: number): boolean {
-    return form.due_date === presetDate(days);
-}
-
-function closeModal() {
-    showModal.value = false;
-    editingId.value = null;
-}
-
-function submit() {
-    const options = {
-        preserveScroll: true,
-        onSuccess: () => {
-            const wasEdit = editingId.value !== null;
-            closeModal();
-            toast.fire({
-                icon: 'success',
-                title: wasEdit ? 'Task updated' : 'Task created',
-            });
+    router.post(
+        route('tasks.cards.store', listId),
+        { title },
+        {
+            preserveScroll: true,
+            // Close on success. The composer only ever appears because the user
+            // asked for it, so leaving an empty field open afterwards reads like
+            // the page is waiting on them.
+            onSuccess: () => closeComposer(),
+            onError: () => toast.fire({ icon: 'error', title: 'Failed to add task' }),
         },
-    };
-
-    if (editingId.value) {
-        form.put(route('tasks.update', editingId.value), options);
-    } else {
-        form.post(route('tasks.store'), options);
-    }
+    );
 }
 
-// ─── Row actions ──────────────────────────────────────────────────────────
-// Only the creator can delete a shared task for everyone; other participants
-// leave it instead, which just detaches them.
-async function deleteTask(task: TaskItem) {
-    const owns = isCreator(task);
+// ─── List composer ────────────────────────────────────────────────────────
+const addingList = ref(false);
+const newListName = ref('');
+const newListInput = ref<HTMLInputElement | null>(null);
+
+function openListComposer() {
+    addingList.value = true;
+    newListName.value = '';
+    nextTick(() => newListInput.value?.focus());
+}
+
+function submitListComposer() {
+    const name = newListName.value.trim();
+    if (!name) {
+        addingList.value = false;
+        return;
+    }
+
+    router.post(
+        route('tasks.lists.store', props.board.id),
+        { name },
+        {
+            preserveScroll: true,
+            // Same rule as the task composer: close once it has done its job.
+            onSuccess: () => {
+                newListName.value = '';
+                addingList.value = false;
+            },
+            onError: () => toast.fire({ icon: 'error', title: 'Failed to add list' }),
+        },
+    );
+}
+
+// ─── List rename / delete ─────────────────────────────────────────────────
+const renamingListId = ref<number | null>(null);
+const renameListName = ref('');
+
+function startRenameList(list: BoardList) {
+    renamingListId.value = list.id;
+    renameListName.value = list.name;
+}
+
+function submitRenameList(list: BoardList) {
+    const name = renameListName.value.trim();
+    renamingListId.value = null;
+    if (!name || name === list.name) return;
+
+    router.put(route('tasks.lists.update', list.id), { name }, { preserveScroll: true });
+}
+
+async function deleteList(list: BoardList) {
+    if (list.is_protected) {
+        toast.fire({ icon: 'info', title: `“${list.name}” is a default list` });
+        return;
+    }
 
     const result = await Swal.fire({
-        title: owns ? 'Delete this task?' : 'Leave this task?',
-        text: owns && isShared(task) ? `${task.title} — this removes it for everyone it is shared with.` : task.title,
+        title: `Delete “${list.name}”?`,
+        text: list.tasks.length ? `${list.tasks.length} card${list.tasks.length === 1 ? '' : 's'} in it will be deleted too.` : 'This list is empty.',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#dc2626',
-        confirmButtonText: owns ? 'Yes, delete it' : 'Yes, leave it',
+        confirmButtonText: 'Delete list',
     });
 
     if (!result.isConfirmed) return;
 
-    router.delete(route('tasks.destroy', task.id), {
+    router.delete(route('tasks.lists.destroy', list.id), {
         preserveScroll: true,
-        onSuccess: () => toast.fire({ icon: 'success', title: owns ? 'Task deleted' : 'You left the task' }),
-        onError: () => toast.fire({ icon: 'error', title: owns ? 'Failed to delete the task' : 'Failed to leave the task' }),
+        onSuccess: () => toast.fire({ icon: 'success', title: 'List deleted' }),
     });
 }
 
-function toggleDone(task: TaskItem) {
-    router.put(route('tasks.update-status', task.id), { status: task.status === 'done' ? 'todo' : 'done' }, { preserveScroll: true });
+// ─── Bottom dock ──────────────────────────────────────────────────────────
+type DockPanel = 'completed' | 'boards' | null;
+
+const dockPanel = ref<DockPanel>(null);
+const completedSearch = ref('');
+
+function toggleDockPanel(panel: Exclude<DockPanel, null>) {
+    dockPanel.value = dockPanel.value === panel ? null : panel;
+    if (dockPanel.value !== 'completed') completedSearch.value = '';
 }
 
-// ─── Presentation helpers ─────────────────────────────────────────────────
-const PRIORITY_PILL: Record<TaskPriority, string> = {
-    low: 'border-border text-muted-foreground',
-    medium: 'border-sky-500/40 text-sky-600 dark:text-sky-400',
-    high: 'border-amber-500/50 text-amber-600 dark:text-amber-400',
-    urgent: 'border-red-500/60 text-red-600 dark:text-red-400',
-};
+/** The archive can grow without bound, so it is filterable. */
+const visibleCompleted = computed(() => {
+    const term = completedSearch.value.trim().toLowerCase();
+    if (!term) return props.completedCards;
+    return props.completedCards.filter((card) => card.title.toLowerCase().includes(term) || (card.list_name ?? '').toLowerCase().includes(term));
+});
 
-// Priority picker swatches — colour matches the card edge bar, so what you
-// choose in the modal is what you see on the board.
-const PRIORITY_CHOICE: Record<TaskPriority, { dot: string; active: string }> = {
-    low: { dot: 'bg-zinc-400', active: 'border-zinc-400 bg-zinc-400/10' },
-    medium: { dot: 'bg-sky-500', active: 'border-sky-500 bg-sky-500/10 text-sky-700 dark:text-sky-300' },
-    high: { dot: 'bg-amber-500', active: 'border-amber-500 bg-amber-500/10 text-amber-700 dark:text-amber-300' },
-    urgent: { dot: 'bg-red-500', active: 'border-red-500 bg-red-500/10 text-red-700 dark:text-red-300' },
-};
-
-// Left edge bar on each card — priority readable without reading the pill.
-const PRIORITY_EDGE: Record<TaskPriority, string> = {
-    low: 'border-l-zinc-300 dark:border-l-zinc-700',
-    medium: 'border-l-sky-500',
-    high: 'border-l-amber-500',
-    urgent: 'border-l-red-500',
-};
-
-/** Participants other than the current user — who the task is shared with. */
-function othersOf(task: TaskItem): UserOption[] {
-    return (task.participants ?? []).filter((u) => u.id !== authUserId.value);
+// ─── Completion ───────────────────────────────────────────────────────────
+// Completing archives a card: it keeps its list and position server-side, so
+// restoring drops it back exactly where it was.
+function completeCard(card: Card) {
+    router.put(
+        route('tasks.cards.complete', card.id),
+        {},
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => toast.fire({ icon: 'success', title: 'Card completed' }),
+            onError: () => toast.fire({ icon: 'error', title: 'Failed to complete card' }),
+        },
+    );
 }
 
-function isShared(task: TaskItem): boolean {
-    return othersOf(task).length > 0;
+/** Complete from the detail panel, which then has nothing left to show. */
+function completeFromModal() {
+    if (!openCard.value) return;
+
+    const card = openCard.value;
+    closeCardDetail();
+    completeCard(card);
 }
 
-function isCreator(task: TaskItem): boolean {
-    return task.created_by === authUserId.value;
+function restoreCard(card: CompletedCard) {
+    router.put(
+        route('tasks.cards.complete', card.id),
+        {},
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => toast.fire({ icon: 'success', title: `Restored to ${card.list_name}` }),
+            onError: () => toast.fire({ icon: 'error', title: 'Failed to restore card' }),
+        },
+    );
 }
 
+// ─── Card detail panel ────────────────────────────────────────────────────
+const openCard = ref<Card | null>(null);
+
+const cardForm = useForm({
+    title: '',
+    description: '',
+    due_date: '',
+});
+
+function openCardDetail(card: Card) {
+    openCard.value = card;
+    cardForm.clearErrors();
+    cardForm.defaults({
+        title: card.title,
+        description: card.description ?? '',
+        due_date: card.due_date ?? '',
+    });
+    cardForm.reset();
+}
+
+function closeCardDetail() {
+    openCard.value = null;
+}
+
+function saveCard() {
+    if (!openCard.value) return;
+
+    cardForm.put(route('tasks.cards.update', openCard.value.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            closeCardDetail();
+            toast.fire({ icon: 'success', title: 'Card saved' });
+        },
+    });
+}
+
+async function deleteCard(card: Card) {
+    const mine = card.created_by === authUserId.value;
+    const assigned = (card.members ?? []).some((m) => m.id === authUserId.value);
+    const leaving = !mine && assigned;
+
+    const result = await Swal.fire({
+        title: leaving ? 'Leave this card?' : 'Delete this card?',
+        text: card.title,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        confirmButtonText: leaving ? 'Leave card' : 'Delete card',
+    });
+
+    if (!result.isConfirmed) return;
+
+    router.delete(route('tasks.cards.destroy', card.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            closeCardDetail();
+            toast.fire({ icon: 'success', title: leaving ? 'You left the card' : 'Card deleted' });
+        },
+    });
+}
+
+// ─── Boards ───────────────────────────────────────────────────────────────
+const showBoardModal = ref(false);
+const boardModalMode = ref<'create' | 'rename'>('create');
+const boardName = ref('');
+const boardNameInput = ref<HTMLInputElement | null>(null);
+
+function openCreateBoard() {
+    boardModalMode.value = 'create';
+    boardName.value = '';
+    showBoardModal.value = true;
+    dockPanel.value = null;
+    nextTick(() => boardNameInput.value?.focus());
+}
+
+function openRenameBoard() {
+    boardModalMode.value = 'rename';
+    boardName.value = props.board.name;
+    showBoardModal.value = true;
+    dockPanel.value = null;
+    nextTick(() => boardNameInput.value?.select());
+}
+
+function submitBoardModal() {
+    const name = boardName.value.trim();
+    if (!name) return;
+
+    const options = {
+        preserveScroll: true,
+        onSuccess: () => {
+            showBoardModal.value = false;
+            toast.fire({
+                icon: 'success' as const,
+                title: boardModalMode.value === 'create' ? 'Board created' : 'Board renamed',
+            });
+        },
+    };
+
+    if (boardModalMode.value === 'create') {
+        router.post(route('tasks.boards.store'), { name }, options);
+    } else {
+        router.put(route('tasks.boards.update', props.board.id), { name }, options);
+    }
+}
+
+async function deleteBoard() {
+    dockPanel.value = null;
+
+    const result = await Swal.fire({
+        title: isOwner.value ? `Delete “${props.board.name}”?` : `Leave “${props.board.name}”?`,
+        text: isOwner.value
+            ? `All ${lists.value.length} lists and ${cardCount.value} cards go with it. This cannot be undone.`
+            : 'You will lose access to its lists and cards.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        confirmButtonText: isOwner.value ? 'Delete board' : 'Leave board',
+    });
+
+    if (!result.isConfirmed) return;
+
+    router.delete(route('tasks.boards.destroy', props.board.id), {
+        onSuccess: () => toast.fire({ icon: 'success', title: isOwner.value ? 'Board deleted' : 'You left the board' }),
+    });
+}
+
+// ─── Board members ────────────────────────────────────────────────────────
+const showMembersModal = ref(false);
+const memberForm = useForm({ members: [] as number[] });
+
+function openMembersModal() {
+    dockPanel.value = null;
+    memberForm.clearErrors();
+    memberForm.defaults({
+        members: props.board.members.filter((m) => m.id !== props.board.user_id).map((m) => m.id),
+    });
+    memberForm.reset();
+    showMembersModal.value = true;
+}
+
+function toggleBoardMember(userId: number) {
+    const next = new Set(memberForm.members);
+    if (next.has(userId)) next.delete(userId);
+    else next.add(userId);
+    memberForm.members = [...next];
+}
+
+function saveMembers() {
+    memberForm.put(route('tasks.boards.members', props.board.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            showMembersModal.value = false;
+            toast.fire({ icon: 'success', title: 'Members updated' });
+        },
+    });
+}
+
+// ─── Shared helpers ───────────────────────────────────────────────────────
 function initials(name: string): string {
     return name
         .split(/\s+/)
@@ -372,596 +521,879 @@ function initials(name: string): string {
         .join('');
 }
 
-function isOverdue(task: TaskItem): boolean {
-    if (!task.due_date || task.status === 'done') return false;
-    return dayjs(task.due_date).endOf('day').isBefore(dayjs());
+function isOverdue(card: Card): boolean {
+    if (!card.due_date || card.completed_at) return false;
+    return dayjs(card.due_date).endOf('day').isBefore(dayjs());
 }
 
-function dueLabel(task: TaskItem): string {
-    const due = dayjs(task.due_date!);
+function dueLabel(card: Card): string {
+    const due = dayjs(card.due_date!);
     if (due.isSame(dayjs(), 'day')) return 'Today';
     if (due.isSame(dayjs().add(1, 'day'), 'day')) return 'Tomorrow';
+    if (due.isSame(dayjs().subtract(1, 'day'), 'day')) return 'Yesterday';
     return due.format('MMM D');
 }
+
+// Escape closes whatever is on top, in that order.
+function onKeydown(event: KeyboardEvent) {
+    if (event.key !== 'Escape') return;
+
+    if (showBoardModal.value) showBoardModal.value = false;
+    else if (showMembersModal.value) showMembersModal.value = false;
+    else if (openCard.value) closeCardDetail();
+    else if (composingListId.value !== null) closeComposer();
+    else if (addingList.value) addingList.value = false;
+    else if (dockPanel.value) dockPanel.value = null;
+}
+
+onMounted(() => document.addEventListener('keydown', onKeydown));
+onUnmounted(() => document.removeEventListener('keydown', onKeydown));
 </script>
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs" :themed="false">
-        <Head title="Tasks" />
+        <Head :title="`${board.name} · Tasks`" />
 
-        <div class="p-4 md:p-6">
-            <!-- Header -->
-            <div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold uppercase tracking-wider">Tasks</h1>
-                    <div class="mt-2 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.12em]">
-                        <span class="rounded-full border border-border bg-card px-2.5 py-1 shadow-sm"> {{ openCount }} open </span>
-                        <span class="rounded-full border border-border bg-card px-2.5 py-1 text-muted-foreground shadow-sm">
-                            {{ totalCount }} total
+        <!-- Fixed-height shell so only the board scrolls sideways -->
+        <!--
+            min-w-0 keeps this page from widening the sidebar's <main>, which is
+            a flex item with min-width:auto. Without it the whole document
+            scrolls sideways and takes the app header — notifications, user menu
+            — off screen with it.
+        -->
+        <div class="flex h-[calc(100vh-4rem)] min-w-0 flex-col overflow-hidden">
+            <!--
+                Lists: the only horizontally scrolling region. The scroller is
+                absolutely positioned so its width never feeds back into the
+                layout — the box below it is sized purely by the flex column.
+            -->
+            <div class="relative min-w-0 flex-1">
+                <!-- pb leaves room for the dock so the last card is never under it -->
+                <div class="absolute inset-0 overflow-x-auto overflow-y-hidden px-4 pb-24 pt-4 md:px-6">
+                    <draggable
+                        v-model="lists"
+                        :group="{ name: 'lists' }"
+                        item-key="id"
+                        handle=".list-drag"
+                        ghost-class="list-ghost"
+                        animation="180"
+                        class="flex h-full items-start gap-3"
+                        @end="persistLists"
+                    >
+                        <template #item="{ element: list }">
+                            <section
+                                class="flex max-h-full w-[17rem] shrink-0 flex-col rounded-xl border border-border bg-muted/40 shadow-sm dark:bg-white/[0.02]"
+                            >
+                                <!-- List header -->
+                                <header class="flex items-center gap-1.5 px-2.5 py-2">
+                                    <!--
+                                        The drag handle only exists on custom lists. `handle=".list-drag"`
+                                        on the lists draggable means a list without this element cannot be
+                                        picked up at all — the default lists stay put by construction.
+                                    -->
+                                    <span
+                                        v-if="!list.is_protected"
+                                        class="list-drag grid h-6 w-4 shrink-0 cursor-grab place-items-center text-muted-foreground opacity-40 transition-opacity hover:opacity-100 active:cursor-grabbing"
+                                        title="Drag list"
+                                    >
+                                        <GripVertical class="h-3.5 w-3.5" />
+                                    </span>
+
+                                    <input
+                                        v-if="renamingListId === list.id"
+                                        v-model="renameListName"
+                                        type="text"
+                                        class="min-w-0 flex-1 rounded border border-input bg-background px-1.5 py-1 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-foreground/10"
+                                        @blur="submitRenameList(list)"
+                                        @keydown.enter.prevent="submitRenameList(list)"
+                                        @keydown.esc="renamingListId = null"
+                                        v-focus
+                                    />
+                                    <button
+                                        v-else
+                                        type="button"
+                                        class="min-w-0 flex-1 truncate rounded px-1 py-0.5 text-left text-sm font-semibold transition-colors hover:bg-muted"
+                                        title="Rename list"
+                                        @click="startRenameList(list)"
+                                    >
+                                        {{ list.name }}
+                                    </button>
+
+                                    <span class="shrink-0 rounded-full bg-background px-1.5 py-0.5 text-[10px] tabular-nums text-muted-foreground">
+                                        {{ list.tasks.length }}
+                                    </span>
+
+                                    <button
+                                        v-if="!list.is_protected"
+                                        type="button"
+                                        class="grid h-6 w-6 shrink-0 place-items-center rounded text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400"
+                                        title="Delete list"
+                                        @click="deleteList(list)"
+                                    >
+                                        <Trash2 class="h-3.5 w-3.5" stroke-width="1.5" />
+                                    </button>
+                                </header>
+
+                                <!-- Cards -->
+                                <div class="min-h-0 shrink overflow-y-auto px-2">
+                                    <draggable
+                                        v-model="list.tasks"
+                                        :group="{ name: 'cards' }"
+                                        item-key="id"
+                                        ghost-class="card-ghost"
+                                        drag-class="card-dragging"
+                                        handle=".card-drag"
+                                        animation="180"
+                                        class="space-y-2 rounded-lg transition-all"
+                                        :class="
+                                            list.tasks.length
+                                                ? 'pb-1'
+                                                : draggingCard
+                                                  ? 'min-h-[3.25rem] border border-dashed border-muted-foreground/40 bg-foreground/[0.03]'
+                                                  : 'min-h-0'
+                                        "
+                                        @start="draggingCard = true"
+                                        @end="persistCards"
+                                    >
+                                        <template #item="{ element: card }">
+                                            <article
+                                                class="group cursor-pointer rounded-lg border bg-card p-2.5 shadow-sm ring-1 ring-black/[0.03] transition-all hover:-translate-y-px hover:shadow-md dark:ring-white/[0.04]"
+                                                :class="isOverdue(card) ? 'border-red-500/40' : 'border-border hover:border-muted-foreground/40'"
+                                                @click="openCardDetail(card)"
+                                            >
+                                                <div class="flex items-start gap-1.5">
+                                                    <!--
+                                                        Cards move only by this grip. Dragging the card body
+                                                        would fight the click that opens the detail panel.
+                                                    -->
+                                                    <span
+                                                        class="card-drag -ml-0.5 mt-px grid h-5 w-4 shrink-0 cursor-grab place-items-center text-muted-foreground opacity-30 transition-opacity hover:opacity-100 active:cursor-grabbing"
+                                                        title="Drag card"
+                                                        @click.stop
+                                                    >
+                                                        <GripVertical class="h-3.5 w-3.5" />
+                                                    </span>
+
+                                                    <!--
+                                                        One-click complete. Always visible so it reads as an
+                                                        available action — and so it works on touch, where
+                                                        there is no hover. Stop-propagation keeps it from
+                                                        opening the detail panel.
+                                                    -->
+                                                    <button
+                                                        type="button"
+                                                        class="mt-px grid h-5 w-5 shrink-0 place-items-center rounded-full border border-muted-foreground/50 text-transparent transition-all hover:border-emerald-500 hover:bg-emerald-500 hover:text-white"
+                                                        title="Mark complete"
+                                                        aria-label="Mark complete"
+                                                        @click.stop="completeCard(card)"
+                                                    >
+                                                        <Check class="h-3 w-3" stroke-width="3" />
+                                                    </button>
+
+                                                    <p class="min-w-0 flex-1 break-words text-sm leading-snug">
+                                                        {{ card.title }}
+                                                    </p>
+                                                </div>
+
+                                                <div
+                                                    v-if="card.due_date || card.description"
+                                                    class="mt-2 flex flex-wrap items-center gap-1.5 pl-[1.375rem]"
+                                                >
+                                                    <span
+                                                        v-if="card.due_date"
+                                                        class="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px]"
+                                                        :class="
+                                                            isOverdue(card)
+                                                                ? 'border-red-500/50 bg-red-500/10 text-red-600 dark:text-red-400'
+                                                                : 'border-transparent text-muted-foreground'
+                                                        "
+                                                    >
+                                                        <CalendarDays class="h-3 w-3" stroke-width="1.5" />
+                                                        {{ dueLabel(card) }}
+                                                    </span>
+
+                                                    <span
+                                                        v-if="card.description"
+                                                        class="text-[10px] text-muted-foreground"
+                                                        title="This card has a description"
+                                                    >
+                                                        ≡
+                                                    </span>
+                                                </div>
+                                            </article>
+                                        </template>
+                                    </draggable>
+
+                                    <!-- Composer: one input, exactly like Trello -->
+                                    <div v-if="composingListId === list.id" class="mt-2 pb-2">
+                                        <textarea
+                                            ref="composerInput"
+                                            v-model="composerTitle"
+                                            rows="2"
+                                            placeholder="Enter a title…"
+                                            class="w-full resize-none rounded-lg border border-input bg-card p-2.5 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/10"
+                                            @keydown.enter.prevent="submitComposer(list.id)"
+                                            @keydown.esc="closeComposer"
+                                        ></textarea>
+                                        <div class="mt-1.5 flex items-center gap-2">
+                                            <button
+                                                type="button"
+                                                class="rounded-md bg-foreground px-3 py-1.5 text-xs font-semibold text-background shadow-sm transition-shadow hover:shadow"
+                                                @click="submitComposer(list.id)"
+                                            >
+                                                Add
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="grid h-7 w-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                                aria-label="Cancel"
+                                                @click="closeComposer"
+                                            >
+                                                <X class="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button
+                                    v-if="composingListId !== list.id"
+                                    type="button"
+                                    class="group/add mx-2 mb-2 mt-1 flex items-center gap-2 rounded-lg border border-dashed border-border bg-card/60 px-2.5 py-2 text-left text-xs font-semibold text-muted-foreground shadow-sm transition-all hover:-translate-y-px hover:border-solid hover:border-indigo-500/50 hover:bg-indigo-500/10 hover:text-indigo-700 hover:shadow-md dark:hover:text-indigo-300"
+                                    @click="openComposer(list.id)"
+                                >
+                                    <span
+                                        class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground transition-colors group-hover/add:bg-indigo-500 group-hover/add:text-white"
+                                    >
+                                        <Plus class="h-3 w-3" stroke-width="2.5" />
+                                    </span>
+                                    Add task
+                                </button>
+                            </section>
+                        </template>
+
+                        <!-- Add-list column pinned after the lists -->
+                        <template #footer>
+                            <div class="w-[17rem] shrink-0">
+                                <div v-if="addingList" class="rounded-xl border border-border bg-card p-2 shadow-sm">
+                                    <input
+                                        ref="newListInput"
+                                        v-model="newListName"
+                                        type="text"
+                                        placeholder="List name…"
+                                        class="w-full rounded-lg border border-input bg-background px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-foreground/10"
+                                        @keydown.enter.prevent="submitListComposer"
+                                        @keydown.esc="addingList = false"
+                                    />
+                                    <div class="mt-1.5 flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            class="rounded-md bg-foreground px-3 py-1.5 text-xs font-semibold text-background shadow-sm"
+                                            @click="submitListComposer"
+                                        >
+                                            Add list
+                                        </button>
+                                        <button
+                                            type="button"
+                                            class="grid h-7 w-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                            aria-label="Cancel"
+                                            @click="addingList = false"
+                                        >
+                                            <X class="h-4 w-4" />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button
+                                    v-else
+                                    type="button"
+                                    class="flex w-full items-center gap-2 rounded-xl border border-dashed border-border bg-muted/30 px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:border-muted-foreground/50 hover:text-foreground"
+                                    @click="openListComposer"
+                                >
+                                    <Plus class="h-4 w-4" />
+                                    Add list
+                                </button>
+                            </div>
+                        </template>
+                    </draggable>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── Bottom dock ───────────────────────────────────────────────
+            Fixed, centred, floating above the board. Everything that is about
+            the board rather than about a card lives here: the archive and the
+            board itself (switching, actions, members).
+        -->
+        <div class="pointer-events-none fixed bottom-5 left-0 right-0 z-40 flex flex-col items-center gap-2 px-4">
+            <!-- Boards panel -->
+            <div
+                v-if="dockPanel === 'boards'"
+                class="dock-panel pointer-events-auto flex max-h-[60vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+            >
+                <header class="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
+                    <div class="min-w-0">
+                        <h2 class="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
+                            <LayoutGrid class="h-4 w-4 text-muted-foreground" stroke-width="1.5" />
+                            Boards
+                        </h2>
+                        <p class="mt-0.5 truncate text-[11px] text-muted-foreground">
+                            {{ board.name }} · {{ lists.length }} list{{ lists.length === 1 ? '' : 's' }} · {{ cardCount }} card{{
+                                cardCount === 1 ? '' : 's'
+                            }}
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        class="grid h-8 w-8 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        aria-label="Close"
+                        @click="dockPanel = null"
+                    >
+                        <X class="h-4 w-4" />
+                    </button>
+                </header>
+
+                <div class="flex-1 overflow-y-auto">
+                    <!-- Switch board -->
+                    <p class="px-4 pb-1 pt-3 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Switch board</p>
+                    <Link
+                        v-for="item in boards"
+                        :key="item.id"
+                        :href="route('tasks.board', item.id)"
+                        class="flex items-center justify-between gap-2 px-4 py-2 text-sm transition-colors hover:bg-muted"
+                        :class="item.id === board.id ? 'bg-muted/70 font-semibold' : ''"
+                        @click="dockPanel = null"
+                    >
+                        <span class="truncate">{{ item.name }}</span>
+                        <Check v-if="item.id === board.id" class="h-3.5 w-3.5 shrink-0" />
+                        <span v-else-if="item.user_id !== authUserId" class="shrink-0 text-[10px] uppercase tracking-wider text-muted-foreground">
+                            shared
                         </span>
-                        <span
-                            v-if="overdueCount"
-                            class="rounded-full border border-red-500/50 bg-red-500/10 px-2.5 py-1 text-red-600 shadow-sm dark:text-red-400"
+                    </Link>
+
+                    <!-- Members, moved down from the old top-right corner -->
+                    <div class="mt-2 border-t border-border">
+                        <p class="px-4 pb-1 pt-3 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Members</p>
+                        <button
+                            type="button"
+                            class="flex w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors hover:bg-muted"
+                            @click="openMembersModal"
                         >
-                            {{ overdueCount }} overdue
-                        </span>
+                            <span class="flex -space-x-1.5">
+                                <span
+                                    v-for="member in board.members.slice(0, 4)"
+                                    :key="member.id"
+                                    class="grid h-6 w-6 place-items-center rounded-full bg-indigo-500 text-[8px] font-semibold text-white ring-2 ring-card"
+                                    :title="member.name"
+                                >
+                                    {{ initials(member.name) }}
+                                </span>
+                            </span>
+                            <span class="min-w-0 flex-1 truncate">
+                                {{ board.members.map((m) => m.name).join(', ') }}
+                            </span>
+                            <UserPlus v-if="isOwner" class="h-3.5 w-3.5 shrink-0 text-muted-foreground" stroke-width="1.5" />
+                        </button>
+                    </div>
+
+                    <!-- Board actions -->
+                    <div class="mt-2 border-t border-border pb-2">
+                        <p class="px-4 pb-1 pt-3 text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Actions</p>
+                        <button
+                            type="button"
+                            class="flex w-full items-center gap-2 px-4 py-2 text-sm transition-colors hover:bg-muted"
+                            @click="openCreateBoard"
+                        >
+                            <Plus class="h-3.5 w-3.5" />
+                            New board
+                        </button>
+                        <button
+                            v-if="isOwner"
+                            type="button"
+                            class="flex w-full items-center gap-2 px-4 py-2 text-sm transition-colors hover:bg-muted"
+                            @click="openRenameBoard"
+                        >
+                            <Pencil class="h-3.5 w-3.5" />
+                            Rename board
+                        </button>
+                        <button
+                            type="button"
+                            class="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 transition-colors hover:bg-red-500/10 dark:text-red-400"
+                            @click="deleteBoard"
+                        >
+                            <component :is="isOwner ? Trash2 : LogOut" class="h-3.5 w-3.5" />
+                            {{ isOwner ? 'Delete board' : 'Leave board' }}
+                        </button>
                     </div>
                 </div>
+            </div>
 
-                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <!-- Search -->
-                    <div class="relative">
-                        <Search
-                            class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-                            stroke-width="1.5"
-                        />
-                        <input
-                            v-model="search"
-                            type="search"
-                            placeholder="Search tasks"
-                            class="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-sm shadow-sm transition-shadow placeholder:text-muted-foreground focus:shadow-md focus:outline-none focus:ring-2 focus:ring-foreground/10 sm:w-56"
-                        />
-                    </div>
+            <!-- The pill itself -->
+            <div
+                class="pointer-events-auto flex items-center gap-1 rounded-full border border-border bg-card/95 p-1 shadow-2xl backdrop-blur supports-[backdrop-filter]:bg-card/80"
+            >
+                <button
+                    type="button"
+                    class="flex items-center gap-2 rounded-full px-3.5 py-2 text-xs font-semibold transition-colors"
+                    :class="
+                        dockPanel === 'completed' ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    "
+                    :aria-pressed="dockPanel === 'completed'"
+                    @click="toggleDockPanel('completed')"
+                >
+                    <CheckCheck class="h-4 w-4" stroke-width="1.75" />
+                    Completed
+                    <span
+                        v-if="completedCards.length"
+                        class="rounded-full px-1.5 py-0.5 text-[10px] tabular-nums"
+                        :class="dockPanel === 'completed' ? 'bg-background/20' : 'bg-muted'"
+                    >
+                        {{ completedCards.length }}
+                    </span>
+                </button>
 
-                    <!-- Priority filter -->
-                    <div class="flex items-center gap-1 rounded-lg border border-border bg-card p-1 shadow-sm">
+                <span aria-hidden="true" class="h-5 w-px bg-border" />
+
+                <button
+                    type="button"
+                    class="flex max-w-[14rem] items-center gap-2 rounded-full px-3.5 py-2 text-xs font-semibold transition-colors"
+                    :class="dockPanel === 'boards' ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-muted hover:text-foreground'"
+                    :aria-pressed="dockPanel === 'boards'"
+                    @click="toggleDockPanel('boards')"
+                >
+                    <LayoutGrid class="h-4 w-4 shrink-0" stroke-width="1.75" />
+                    <span class="truncate">{{ board.name }}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ─── Completed drawer ──────────────────────────────────────────
+            Slides in from the right and runs the full height of the viewport,
+            so the archive keeps working when there are hundreds of cards —
+            a panel above the dock would have run out of room.
+        -->
+        <div v-if="dockPanel === 'completed'" class="fixed inset-0 z-[55] bg-black/40 backdrop-blur-sm" @click="dockPanel = null" />
+
+        <aside
+            v-if="dockPanel === 'completed'"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Completed cards"
+            class="completed-drawer fixed bottom-0 right-0 top-0 z-[60] flex w-full max-w-md flex-col border-l border-border bg-card shadow-2xl"
+        >
+            <header class="flex items-start justify-between gap-3 border-b border-border px-4 py-4">
+                <div class="min-w-0">
+                    <h2 class="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
+                        <CheckCheck class="h-4 w-4 text-emerald-500" stroke-width="1.5" />
+                        Completed
+                    </h2>
+                    <p class="mt-0.5 truncate text-[11px] text-muted-foreground">
+                        {{ completedCards.length }} card{{ completedCards.length === 1 ? '' : 's' }} archived from {{ board.name }}
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    class="grid h-8 w-8 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    aria-label="Close"
+                    @click="dockPanel = null"
+                >
+                    <X class="h-4 w-4" />
+                </button>
+            </header>
+
+            <!-- Search, so a long archive stays usable -->
+            <div v-if="completedCards.length > 6" class="border-b border-border px-4 py-3">
+                <div class="relative">
+                    <Search
+                        class="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground"
+                        stroke-width="1.5"
+                    />
+                    <input
+                        v-model="completedSearch"
+                        type="search"
+                        placeholder="Search completed cards"
+                        class="w-full rounded-lg border border-input bg-background py-2 pl-9 pr-3 text-xs shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/10"
+                    />
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-2">
+                <div
+                    v-for="card in visibleCompleted"
+                    :key="card.id"
+                    class="group flex items-start gap-2.5 rounded-lg border border-transparent px-2.5 py-2.5 transition-colors hover:border-border hover:bg-muted/50"
+                >
+                    <span class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-emerald-500 text-white">
+                        <Check class="h-3 w-3" stroke-width="3" />
+                    </span>
+
+                    <span class="min-w-0 flex-1">
+                        <span class="block break-words text-sm text-muted-foreground line-through">{{ card.title }}</span>
+                        <span class="mt-0.5 block text-[11px] text-muted-foreground">
+                            {{ card.list_name }}
+                            <template v-if="card.completed_at"> · {{ dayjs(card.completed_at).format('MMM D') }}</template>
+                            <template v-if="card.creator"> · {{ card.creator.name }}</template>
+                        </span>
+                    </span>
+
+                    <span class="flex shrink-0 items-center gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
                         <button
-                            v-for="option in PRIORITY_FILTERS"
-                            :key="option"
                             type="button"
-                            class="rounded-md px-2.5 py-1.5 text-[11px] uppercase tracking-[0.12em] transition-all"
-                            :class="
-                                priorityFilter === option
-                                    ? 'bg-foreground text-background shadow-sm'
-                                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                            "
-                            @click="priorityFilter = option"
+                            class="grid h-7 w-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                            :title="`Restore to ${card.list_name}`"
+                            @click="restoreCard(card)"
                         >
-                            {{ option }}
+                            <RotateCcw class="h-3.5 w-3.5" stroke-width="1.5" />
                         </button>
+                        <button
+                            type="button"
+                            class="grid h-7 w-7 place-items-center rounded-md text-red-600 transition-colors hover:bg-red-500/10 dark:text-red-400"
+                            title="Delete permanently"
+                            @click="deleteCard(card)"
+                        >
+                            <Trash2 class="h-3.5 w-3.5" stroke-width="1.5" />
+                        </button>
+                    </span>
+                </div>
+
+                <p v-if="!completedCards.length" class="px-3 py-12 text-center text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                    Nothing completed yet
+                </p>
+                <p v-else-if="!visibleCompleted.length" class="px-3 py-12 text-center text-[11px] text-muted-foreground">
+                    No match for “{{ completedSearch }}”
+                </p>
+            </div>
+        </aside>
+        <!-- ─── Card detail ───────────────────────────────────────────── -->
+        <div
+            v-if="openCard"
+            class="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center sm:p-4"
+            @click.self="closeCardDetail"
+        >
+            <form
+                role="dialog"
+                aria-modal="true"
+                aria-label="Card detail"
+                class="task-modal flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl border border-border bg-card shadow-2xl sm:max-h-[88vh] sm:max-w-lg sm:rounded-2xl"
+                @submit.prevent="saveCard"
+            >
+                <header class="flex items-start gap-3 border-b border-border px-5 py-4">
+                    <div class="min-w-0 flex-1">
+                        <label for="card-title" class="sr-only">Title</label>
+                        <input
+                            id="card-title"
+                            v-model="cardForm.title"
+                            type="text"
+                            required
+                            maxlength="255"
+                            class="w-full border-0 bg-transparent p-0 text-base font-semibold leading-snug focus:outline-none focus:ring-0"
+                        />
+                        <p class="mt-0.5 text-[11px] text-muted-foreground">in {{ lists.find((l) => l.id === openCard!.list_id)?.name }}</p>
+                        <p v-if="cardForm.errors.title" class="mt-1 text-xs text-red-600 dark:text-red-400">
+                            {{ cardForm.errors.title }}
+                        </p>
                     </div>
 
                     <button
                         type="button"
-                        class="group flex items-center justify-center gap-2 rounded-lg bg-foreground px-4 py-2 text-sm uppercase tracking-wider text-background shadow-md transition-all hover:-translate-y-px hover:shadow-lg active:translate-y-0"
-                        @click="openCreate('todo')"
+                        class="grid h-8 w-8 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        aria-label="Close"
+                        @click="closeCardDetail"
                     >
-                        <CirclePlus class="h-4 w-4 transition-transform duration-200 group-hover:rotate-90" />
-                        New Task
+                        <X class="h-4 w-4" />
                     </button>
-                </div>
-            </div>
+                </header>
 
-            <p
-                v-if="isFiltering"
-                class="mb-4 rounded-lg border border-dashed border-border bg-muted/40 px-3 py-2 text-[11px] uppercase tracking-[0.12em] text-muted-foreground"
-            >
-                Filtered view — clear the search and priority filter to drag cards again.
-            </p>
-
-            <!-- Board -->
-            <div class="grid gap-4 lg:grid-cols-3">
-                <section
-                    v-for="column in COLUMNS"
-                    :key="column.key"
-                    class="relative flex flex-col overflow-hidden rounded-xl border border-border bg-muted/40 shadow-sm dark:bg-white/[0.02]"
-                >
-                    <!-- Accent rail -->
-                    <span aria-hidden="true" class="absolute inset-x-0 top-0 h-0.5" :class="column.rail" />
-
-                    <header class="flex items-center justify-between border-b border-border/70 px-3 py-2.5">
-                        <div class="flex items-center gap-2">
-                            <span aria-hidden="true" class="h-1.5 w-1.5 rounded-full" :class="column.dot" />
-                            <component :is="column.icon" class="h-4 w-4 text-muted-foreground" stroke-width="1.5" />
-                            <h2 class="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                                {{ column.label }}
-                            </h2>
-                            <span
-                                class="rounded-full border border-border bg-background px-1.5 py-0.5 text-[10px] tabular-nums text-muted-foreground"
-                            >
-                                {{ visibleIn(column.key).length }}
-                            </span>
-                        </div>
-                        <button
-                            type="button"
-                            class="grid h-7 w-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-foreground hover:text-background"
-                            :aria-label="`Add task to ${column.label}`"
-                            :title="`Add task to ${column.label}`"
-                            @click="openCreate(column.key)"
-                        >
-                            <CirclePlus class="h-4 w-4" stroke-width="1.5" />
-                        </button>
-                    </header>
-
-                    <draggable
-                        v-model="board[column.key]"
-                        :group="{ name: 'tasks' }"
-                        :disabled="isFiltering"
-                        item-key="id"
-                        handle=".task-drag"
-                        ghost-class="task-ghost"
-                        drag-class="task-dragging"
-                        animation="180"
-                        class="flex-1 space-y-2 rounded-lg p-2 transition-colors"
-                        :class="dragging ? 'bg-foreground/[0.03] ring-1 ring-inset ring-foreground/10' : ''"
-                        style="min-height: 8rem"
-                        @start="dragging = true"
-                        @end="persistOrder"
-                    >
-                        <template #item="{ element: task }">
-                            <article
-                                v-show="visibleIn(column.key).some((t) => t.id === task.id)"
-                                class="group rounded-lg border border-l-[3px] bg-card p-3 shadow-sm ring-1 ring-black/[0.03] transition-all hover:-translate-y-px hover:shadow-md dark:ring-white/[0.04]"
-                                :class="[
-                                    PRIORITY_EDGE[task.priority],
-                                    isOverdue(task) ? 'border-red-500/40 ring-red-500/20' : 'border-border hover:border-muted-foreground/40',
-                                    task.status === 'done' ? 'opacity-70' : '',
-                                ]"
-                            >
-                                <div class="flex items-start gap-2">
-                                    <span
-                                        class="task-drag mt-0.5 grid h-5 w-4 shrink-0 place-items-center text-muted-foreground transition-opacity"
-                                        :class="
-                                            isFiltering
-                                                ? 'cursor-not-allowed opacity-30'
-                                                : 'cursor-grab opacity-0 active:cursor-grabbing group-hover:opacity-100'
-                                        "
-                                    >
-                                        <GripVertical class="h-4 w-4" />
-                                    </span>
-
-                                    <button
-                                        type="button"
-                                        class="mt-0.5 shrink-0 text-muted-foreground transition-colors hover:text-foreground"
-                                        :aria-label="task.status === 'done' ? 'Reopen task' : 'Mark task done'"
-                                        :title="task.status === 'done' ? 'Reopen task' : 'Mark task done'"
-                                        @click="toggleDone(task)"
-                                    >
-                                        <CheckCircle2 v-if="task.status === 'done'" class="h-4 w-4 text-emerald-500" stroke-width="1.5" />
-                                        <Circle v-else class="h-4 w-4" stroke-width="1.5" />
-                                    </button>
-
-                                    <div class="min-w-0 flex-1">
-                                        <h3
-                                            class="break-words text-sm font-semibold leading-snug"
-                                            :class="{ 'line-through opacity-60': task.status === 'done' }"
-                                        >
-                                            {{ task.title }}
-                                        </h3>
-                                        <p v-if="task.description" class="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                                            {{ task.description }}
-                                        </p>
-                                    </div>
-
-                                    <div
-                                        class="flex shrink-0 items-center gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100"
-                                    >
-                                        <button
-                                            type="button"
-                                            class="grid h-7 w-7 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                                            aria-label="Edit task"
-                                            title="Edit task"
-                                            @click="openEdit(task)"
-                                        >
-                                            <Pencil class="h-3.5 w-3.5" stroke-width="1.5" />
-                                        </button>
-                                        <button
-                                            type="button"
-                                            class="grid h-7 w-7 place-items-center rounded-md text-red-600 transition-colors hover:bg-red-500/10 dark:text-red-400"
-                                            :aria-label="isCreator(task) ? 'Delete task' : 'Leave task'"
-                                            :title="isCreator(task) ? 'Delete task' : 'Leave task'"
-                                            @click="deleteTask(task)"
-                                        >
-                                            <Trash2 v-if="isCreator(task)" class="h-3.5 w-3.5" stroke-width="1.5" />
-                                            <LogOut v-else class="h-3.5 w-3.5" stroke-width="1.5" />
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Meta row -->
-                                <div class="mt-3 flex flex-wrap items-center gap-2 pl-6">
-                                    <span
-                                        class="rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-[0.12em]"
-                                        :class="PRIORITY_PILL[task.priority]"
-                                    >
-                                        {{ task.priority }}
-                                    </span>
-
-                                    <span
-                                        v-if="task.due_date"
-                                        class="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px]"
-                                        :class="
-                                            isOverdue(task)
-                                                ? 'border-red-500/50 bg-red-500/10 text-red-600 dark:text-red-400'
-                                                : 'border-transparent text-muted-foreground'
-                                        "
-                                    >
-                                        <CalendarDays class="h-3 w-3" stroke-width="1.5" />
-                                        {{ dueLabel(task) }}
-                                    </span>
-
-                                    <!-- Joint task: who else is on it -->
-                                    <span
-                                        v-if="isShared(task)"
-                                        class="inline-flex items-center gap-1.5 rounded-full border border-indigo-500/40 bg-indigo-500/10 py-0.5 pl-1.5 pr-2 text-[11px] text-indigo-600 dark:text-indigo-400"
-                                        :title="`Shared with ${othersOf(task)
-                                            .map((u) => u.name)
-                                            .join(', ')}`"
-                                    >
-                                        <Users class="h-3 w-3" stroke-width="1.5" />
-                                        <span class="flex items-center -space-x-1">
-                                            <span
-                                                v-for="participant in othersOf(task).slice(0, 3)"
-                                                :key="participant.id"
-                                                class="grid h-4 w-4 place-items-center rounded-full bg-indigo-500 text-[8px] font-semibold text-white ring-1 ring-card"
-                                            >
-                                                {{ initials(participant.name) }}
-                                            </span>
-                                        </span>
-                                        <span v-if="othersOf(task).length > 3">+{{ othersOf(task).length - 3 }}</span>
-                                    </span>
-
-                                    <!-- Someone else started it and shared it with you -->
-                                    <span
-                                        v-if="!isCreator(task) && task.creator"
-                                        class="inline-flex items-center gap-1 text-[11px] text-muted-foreground"
-                                        :title="`Created by ${task.creator.name}`"
-                                    >
-                                        <UserRound class="h-3 w-3" stroke-width="1.5" />
-                                        {{ task.creator.name }}
-                                    </span>
-                                </div>
-                            </article>
-                        </template>
-                    </draggable>
-
-                    <p
-                        v-if="visibleIn(column.key).length === 0"
-                        class="mx-2 mb-2 rounded-lg border border-dashed border-border py-6 text-center text-[11px] uppercase tracking-[0.12em] text-muted-foreground"
-                    >
-                        Nothing here
-                    </p>
-                </section>
-            </div>
-        </div>
-
-        <!-- Create / edit modal -->
-        <Transition
-            enter-active-class="transition-opacity duration-150 ease-out"
-            enter-from-class="opacity-0"
-            enter-to-class="opacity-100"
-            leave-active-class="transition-opacity duration-100 ease-in"
-            leave-from-class="opacity-100"
-            leave-to-class="opacity-0"
-        >
-            <div
-                v-if="showModal"
-                class="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center sm:p-4"
-                @click.self="closeModal"
-            >
-                <form
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="task-modal-title"
-                    class="task-modal flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl border border-border bg-card shadow-2xl sm:max-h-[88vh] sm:max-w-xl sm:rounded-2xl"
-                    @submit.prevent="submit"
-                >
-                    <!-- Header -->
-                    <header class="flex items-start justify-between gap-3 border-b border-border px-5 py-4">
-                        <div class="min-w-0">
-                            <h2 id="task-modal-title" class="text-sm font-bold uppercase tracking-wider">
-                                {{ editingId ? 'Edit Task' : 'New Task' }}
-                            </h2>
-                            <p class="mt-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                                <span aria-hidden="true" class="h-1.5 w-1.5 rounded-full" :class="COLUMNS.find((c) => c.key === form.status)?.dot" />
-                                {{ editingId ? 'Sitting in' : 'Lands in' }}
-                                {{ COLUMNS.find((c) => c.key === form.status)?.label }}
-                                <template v-if="selectedUsers.length"> · shared with {{ selectedUsers.length }} </template>
-                            </p>
-                        </div>
-                        <button
-                            type="button"
-                            class="grid h-8 w-8 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                            aria-label="Close"
-                            @click="closeModal"
-                        >
-                            <X class="h-4 w-4" />
-                        </button>
-                    </header>
-
-                    <!-- Scrollable body -->
-                    <div class="flex-1 space-y-6 overflow-y-auto px-5 py-5">
-                        <!-- Title + description read as one block, like a note -->
-                        <div>
-                            <label for="task-title" class="sr-only">Title</label>
-                            <input
-                                id="task-title"
-                                ref="titleInput"
-                                v-model="form.title"
-                                type="text"
-                                required
-                                maxlength="255"
-                                placeholder="What needs doing?"
-                                class="w-full border-0 bg-transparent p-0 text-lg font-semibold leading-snug placeholder:font-normal placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0"
-                            />
-
-                            <label for="task-description" class="sr-only">Description</label>
-                            <textarea
-                                id="task-description"
-                                v-model="form.description"
-                                rows="2"
-                                placeholder="Add detail, links, acceptance criteria…"
-                                class="mt-2 w-full resize-y border-0 bg-transparent p-0 text-sm leading-relaxed text-muted-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0"
-                            ></textarea>
-
-                            <div class="mt-2 flex items-center justify-between gap-3 border-t border-border/70 pt-2">
-                                <p v-if="form.errors.title" class="text-xs text-red-600 dark:text-red-400">
-                                    {{ form.errors.title }}
-                                </p>
-                                <p v-else-if="form.errors.description" class="text-xs text-red-600 dark:text-red-400">
-                                    {{ form.errors.description }}
-                                </p>
-                                <span v-else class="text-[11px] text-muted-foreground">
-                                    {{ form.title.length ? `${form.title.length}/255` : 'Title required' }}
-                                </span>
-                                <span v-if="form.title.length > 220" class="text-[11px] text-amber-600 dark:text-amber-400"> Getting long </span>
-                            </div>
-                        </div>
-
-                        <!-- Column -->
-                        <fieldset>
-                            <legend class="mb-2 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Column</legend>
-                            <div class="grid grid-cols-3 gap-2">
-                                <button
-                                    v-for="column in COLUMNS"
-                                    :key="column.key"
-                                    type="button"
-                                    class="flex items-center justify-center gap-2 rounded-lg border px-3 py-2 text-xs transition-all"
-                                    :class="
-                                        form.status === column.key
-                                            ? 'border-foreground bg-foreground/[0.06] font-semibold shadow-sm'
-                                            : 'border-border text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground'
-                                    "
-                                    :aria-pressed="form.status === column.key"
-                                    @click="form.status = column.key"
-                                >
-                                    <span aria-hidden="true" class="h-1.5 w-1.5 rounded-full" :class="column.dot" />
-                                    {{ column.label }}
-                                </button>
-                            </div>
-                        </fieldset>
-
-                        <!-- Priority -->
-                        <fieldset>
-                            <legend class="mb-2 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Priority</legend>
-                            <div class="grid grid-cols-4 gap-2">
-                                <button
-                                    v-for="priority in PRIORITIES"
-                                    :key="priority"
-                                    type="button"
-                                    class="flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs capitalize transition-all"
-                                    :class="
-                                        form.priority === priority
-                                            ? `${PRIORITY_CHOICE[priority].active} font-semibold shadow-sm`
-                                            : 'border-border text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground'
-                                    "
-                                    :aria-pressed="form.priority === priority"
-                                    @click="form.priority = priority"
-                                >
-                                    <span aria-hidden="true" class="h-1.5 w-1.5 rounded-full" :class="PRIORITY_CHOICE[priority].dot" />
-                                    {{ priority }}
-                                </button>
-                            </div>
-                        </fieldset>
-
-                        <!-- Due date -->
-                        <fieldset>
-                            <legend class="mb-2 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Due date</legend>
-                            <div class="flex flex-wrap items-center gap-2">
-                                <button
-                                    v-for="preset in DUE_PRESETS"
-                                    :key="preset.label"
-                                    type="button"
-                                    class="rounded-full border px-3 py-1.5 text-[11px] transition-all"
-                                    :class="
-                                        dueIs(preset.days)
-                                            ? 'border-foreground bg-foreground text-background shadow-sm'
-                                            : 'border-border text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground'
-                                    "
-                                    @click="setDue(preset.days)"
-                                >
-                                    {{ preset.label }}
-                                </button>
-
-                                <label for="task-due" class="sr-only">Pick a due date</label>
-                                <input
-                                    id="task-due"
-                                    v-model="form.due_date"
-                                    type="date"
-                                    class="rounded-lg border border-input bg-background px-3 py-1.5 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-foreground/10"
-                                />
-
-                                <button
-                                    v-if="form.due_date"
-                                    type="button"
-                                    class="inline-flex items-center gap-1 rounded-full px-2 py-1.5 text-[11px] text-muted-foreground transition-colors hover:text-foreground"
-                                    @click="setDue(null)"
-                                >
-                                    <X class="h-3 w-3" />
-                                    Clear
-                                </button>
-                            </div>
-                            <p v-if="form.errors.due_date" class="mt-1 text-xs text-red-600 dark:text-red-400">
-                                {{ form.errors.due_date }}
-                            </p>
-                        </fieldset>
-
-                        <!-- Share with -->
-                        <fieldset>
-                            <div class="mb-2 flex items-center justify-between gap-3">
-                                <legend class="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Share with</legend>
-                                <button
-                                    v-if="form.participants.length"
-                                    type="button"
-                                    class="text-[11px] text-muted-foreground transition-colors hover:text-foreground"
-                                    @click="form.participants = []"
-                                >
-                                    Clear all
-                                </button>
-                            </div>
-
-                            <template v-if="props.users.length">
-                                <!-- Chosen people, removable -->
-                                <div v-if="selectedUsers.length" class="mb-2 flex flex-wrap gap-1.5">
-                                    <button
-                                        v-for="user in selectedUsers"
-                                        :key="user.id"
-                                        type="button"
-                                        class="group inline-flex items-center gap-1.5 rounded-full border border-indigo-500/40 bg-indigo-500/10 py-1 pl-1 pr-2 text-[11px] text-indigo-700 transition-colors hover:bg-indigo-500/20 dark:text-indigo-300"
-                                        :title="`Remove ${user.name}`"
-                                        @click="toggleParticipant(user.id)"
-                                    >
-                                        <span class="grid h-5 w-5 place-items-center rounded-full bg-indigo-500 text-[9px] font-semibold text-white">
-                                            {{ initials(user.name) }}
-                                        </span>
-                                        {{ user.name }}
-                                        <X class="h-3 w-3 opacity-50 transition-opacity group-hover:opacity-100" />
-                                    </button>
-                                </div>
-
-                                <!-- Search, only worth showing on a longer list -->
-                                <div v-if="props.users.length > 5" class="relative mb-2">
-                                    <Search
-                                        class="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground"
-                                        stroke-width="1.5"
-                                    />
-                                    <input
-                                        v-model="participantSearch"
-                                        type="search"
-                                        placeholder="Find a person"
-                                        class="w-full rounded-lg border border-input bg-background py-1.5 pl-8 pr-3 text-xs shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/10"
-                                    />
-                                </div>
-
-                                <div class="max-h-40 overflow-y-auto rounded-lg border border-input bg-background shadow-sm">
-                                    <label
-                                        v-for="user in filteredUsers"
-                                        :key="user.id"
-                                        class="flex cursor-pointer items-center gap-3 border-b border-border/60 px-3 py-2 text-sm transition-colors last:border-b-0 hover:bg-muted"
-                                        :class="form.participants.includes(user.id) ? 'bg-muted/60' : ''"
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            class="h-4 w-4 shrink-0 cursor-pointer rounded border-input accent-foreground"
-                                            :checked="form.participants.includes(user.id)"
-                                            @change="toggleParticipant(user.id)"
-                                        />
-                                        <span
-                                            class="grid h-6 w-6 shrink-0 place-items-center rounded-full text-[9px] font-semibold transition-colors"
-                                            :class="
-                                                form.participants.includes(user.id) ? 'bg-indigo-500 text-white' : 'bg-muted text-muted-foreground'
-                                            "
-                                        >
-                                            {{ initials(user.name) }}
-                                        </span>
-                                        <span class="min-w-0 flex-1">
-                                            <span class="block truncate">{{ user.name }}</span>
-                                            <span class="block truncate text-[11px] text-muted-foreground">
-                                                {{ user.email }}
-                                            </span>
-                                        </span>
-                                    </label>
-
-                                    <p v-if="!filteredUsers.length" class="px-3 py-4 text-center text-[11px] text-muted-foreground">
-                                        No match for “{{ participantSearch }}”
-                                    </p>
-                                </div>
-
-                                <p class="mt-1.5 text-[11px] text-muted-foreground">
-                                    Stays on your board and appears on theirs. Everyone picked gets a notification; unticking removes their access.
-                                </p>
-                            </template>
-
-                            <p v-else class="rounded-lg border border-dashed border-border px-3 py-3 text-[11px] text-muted-foreground">
-                                No other users to share with.
-                            </p>
-
-                            <p v-if="form.errors.participants" class="mt-1 text-xs text-red-600 dark:text-red-400">
-                                {{ form.errors.participants }}
-                            </p>
-                        </fieldset>
+                <div class="flex-1 space-y-5 overflow-y-auto px-5 py-5">
+                    <div>
+                        <label for="card-description" class="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                            Description
+                        </label>
+                        <textarea
+                            id="card-description"
+                            v-model="cardForm.description"
+                            rows="4"
+                            placeholder="Add detail, links, acceptance criteria…"
+                            class="w-full resize-y rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/10"
+                        ></textarea>
                     </div>
 
-                    <!-- Footer stays put while the body scrolls -->
-                    <footer class="flex items-center justify-between gap-3 border-t border-border bg-card px-5 py-3">
-                        <p class="hidden text-[11px] text-muted-foreground sm:block">
-                            <kbd class="rounded border border-border px-1 py-0.5 font-mono text-[10px]">⌘</kbd>
-                            <kbd class="rounded border border-border px-1 py-0.5 font-mono text-[10px]">↵</kbd>
-                            save ·
-                            <kbd class="rounded border border-border px-1 py-0.5 font-mono text-[10px]">Esc</kbd>
-                            close
-                        </p>
-                        <div class="ml-auto flex gap-2">
+                    <div>
+                        <label for="card-due" class="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                            Due date
+                        </label>
+                        <div class="flex items-center gap-2">
+                            <input
+                                id="card-due"
+                                v-model="cardForm.due_date"
+                                type="date"
+                                class="rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-foreground/10"
+                            />
                             <button
+                                v-if="cardForm.due_date"
                                 type="button"
-                                class="rounded-lg border border-border px-4 py-2 text-sm uppercase tracking-wider text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                                @click="closeModal"
+                                class="inline-flex items-center gap-1 text-[11px] text-muted-foreground transition-colors hover:text-foreground"
+                                @click="cardForm.due_date = ''"
                             >
-                                Cancel
-                            </button>
-                            <button
-                                type="submit"
-                                :disabled="form.processing || !form.title.trim()"
-                                class="rounded-lg bg-foreground px-4 py-2 text-sm uppercase tracking-wider text-background shadow-md transition-all hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
-                            >
-                                {{ form.processing ? 'Saving…' : editingId ? 'Save Changes' : 'Create Task' }}
+                                <X class="h-3 w-3" />
+                                Clear
                             </button>
                         </div>
-                    </footer>
-                </form>
-            </div>
-        </Transition>
+                    </div>
+
+                    <div>
+                        <p class="mb-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Created by</p>
+                        <div class="flex items-center gap-3 rounded-lg border border-border bg-muted/40 px-3 py-2.5">
+                            <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-indigo-500 text-[10px] font-semibold text-white">
+                                {{ initials(openCard!.creator?.name ?? '?') }}
+                            </span>
+                            <span class="min-w-0 flex-1">
+                                <span class="block truncate text-sm font-medium">
+                                    {{ openCard!.creator?.name ?? 'Unknown' }}
+                                    <span v-if="openCard!.created_by === authUserId" class="font-normal text-muted-foreground">(you)</span>
+                                </span>
+                                <span class="block truncate text-[11px] text-muted-foreground">
+                                    {{ openCard!.creator?.email }}
+                                </span>
+                            </span>
+                            <span v-if="openCard!.created_at" class="shrink-0 text-[11px] text-muted-foreground">
+                                {{ dayjs(openCard!.created_at).format('MMM D, YYYY') }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="flex items-center justify-between gap-3 border-t border-border px-5 py-3">
+                    <div class="flex items-center gap-1">
+                        <button
+                            type="button"
+                            class="inline-flex items-center gap-1.5 rounded-lg px-2 py-2 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-500/10 dark:text-emerald-400"
+                            title="Archive this card into Completed"
+                            @click="completeFromModal"
+                        >
+                            <CheckCheck class="h-3.5 w-3.5" />
+                            Complete
+                        </button>
+                        <button
+                            type="button"
+                            class="inline-flex items-center gap-1.5 rounded-lg px-2 py-2 text-xs text-red-600 transition-colors hover:bg-red-500/10 dark:text-red-400"
+                            @click="deleteCard(openCard!)"
+                        >
+                            <component :is="openCard!.created_by === authUserId ? Trash2 : LogOut" class="h-3.5 w-3.5" />
+                            {{ openCard!.created_by === authUserId ? 'Delete' : 'Leave' }}
+                        </button>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button
+                            type="button"
+                            class="rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                            @click="closeCardDetail"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            :disabled="cardForm.processing || !cardForm.title.trim()"
+                            class="rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-background shadow-md transition-all hover:shadow-lg disabled:opacity-40"
+                        >
+                            {{ cardForm.processing ? 'Saving…' : 'Save' }}
+                        </button>
+                    </div>
+                </footer>
+            </form>
+        </div>
+
+        <!-- ─── Board create / rename ─────────────────────────────────── -->
+        <div
+            v-if="showBoardModal"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+            @click.self="showBoardModal = false"
+        >
+            <form
+                role="dialog"
+                aria-modal="true"
+                class="task-modal w-full max-w-sm rounded-2xl border border-border bg-card p-5 shadow-2xl"
+                @submit.prevent="submitBoardModal"
+            >
+                <h2 class="text-sm font-bold uppercase tracking-wider">
+                    {{ boardModalMode === 'create' ? 'New board' : 'Rename board' }}
+                </h2>
+                <p v-if="boardModalMode === 'create'" class="mt-1 text-[11px] text-muted-foreground">
+                    Starts with Today, Tomorrow, This week and Later — rename or delete them freely.
+                </p>
+
+                <input
+                    ref="boardNameInput"
+                    v-model="boardName"
+                    type="text"
+                    required
+                    maxlength="255"
+                    placeholder="Board name"
+                    class="mt-4 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-foreground/10"
+                />
+
+                <div class="mt-4 flex justify-end gap-2">
+                    <button
+                        type="button"
+                        class="rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        @click="showBoardModal = false"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        :disabled="!boardName.trim()"
+                        class="rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-background shadow-md transition-all hover:shadow-lg disabled:opacity-40"
+                    >
+                        {{ boardModalMode === 'create' ? 'Create' : 'Rename' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ─── Board members ─────────────────────────────────────────── -->
+        <div
+            v-if="showMembersModal"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+            @click.self="showMembersModal = false"
+        >
+            <form
+                role="dialog"
+                aria-modal="true"
+                class="task-modal flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+                @submit.prevent="saveMembers"
+            >
+                <header class="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
+                    <div>
+                        <h2 class="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
+                            <Users class="h-4 w-4 text-muted-foreground" stroke-width="1.5" />
+                            Board members
+                        </h2>
+                        <p class="mt-0.5 text-[11px] text-muted-foreground">Members see every list and card on this board.</p>
+                    </div>
+                    <button
+                        type="button"
+                        class="grid h-8 w-8 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        aria-label="Close"
+                        @click="showMembersModal = false"
+                    >
+                        <X class="h-4 w-4" />
+                    </button>
+                </header>
+
+                <div class="flex-1 overflow-y-auto px-5 py-4">
+                    <div class="mb-3 flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2">
+                        <span class="grid h-7 w-7 place-items-center rounded-full bg-indigo-500 text-[9px] font-semibold text-white">
+                            {{ initials(board.members.find((m) => m.id === board.user_id)?.name ?? '?') }}
+                        </span>
+                        <span class="min-w-0 flex-1 truncate text-sm">
+                            {{ board.members.find((m) => m.id === board.user_id)?.name }}
+                        </span>
+                        <span class="text-[10px] uppercase tracking-wider text-muted-foreground">owner</span>
+                    </div>
+
+                    <template v-if="isOwner">
+                        <div v-if="users.length" class="overflow-hidden rounded-lg border border-input">
+                            <label
+                                v-for="user in users"
+                                :key="user.id"
+                                class="flex cursor-pointer items-center gap-3 border-b border-border/60 px-3 py-2 text-sm transition-colors last:border-b-0 hover:bg-muted"
+                                :class="memberForm.members.includes(user.id) ? 'bg-muted/60' : ''"
+                            >
+                                <input
+                                    type="checkbox"
+                                    class="h-4 w-4 shrink-0 cursor-pointer rounded border-input accent-foreground"
+                                    :checked="memberForm.members.includes(user.id)"
+                                    @change="toggleBoardMember(user.id)"
+                                />
+                                <span
+                                    class="grid h-6 w-6 shrink-0 place-items-center rounded-full text-[9px] font-semibold"
+                                    :class="memberForm.members.includes(user.id) ? 'bg-indigo-500 text-white' : 'bg-muted text-muted-foreground'"
+                                >
+                                    {{ initials(user.name) }}
+                                </span>
+                                <span class="min-w-0 flex-1">
+                                    <span class="block truncate">{{ user.name }}</span>
+                                    <span class="block truncate text-[11px] text-muted-foreground">{{ user.email }}</span>
+                                </span>
+                            </label>
+                        </div>
+                        <p v-else class="rounded-lg border border-dashed border-border px-3 py-3 text-[11px] text-muted-foreground">
+                            No other users to add.
+                        </p>
+                        <p class="mt-2 text-[11px] text-muted-foreground">Removing someone also unassigns them from this board's cards.</p>
+                    </template>
+
+                    <template v-else>
+                        <div
+                            v-for="member in board.members.filter((m) => m.id !== board.user_id)"
+                            :key="member.id"
+                            class="flex items-center gap-3 border-b border-border/60 px-1 py-2 text-sm last:border-b-0"
+                        >
+                            <span class="grid h-6 w-6 place-items-center rounded-full bg-indigo-500 text-[9px] font-semibold text-white">
+                                {{ initials(member.name) }}
+                            </span>
+                            <span class="min-w-0 flex-1 truncate">{{ member.name }}</span>
+                            <span v-if="member.id === authUserId" class="text-[10px] uppercase tracking-wider text-muted-foreground"> you </span>
+                        </div>
+                        <p class="mt-3 text-[11px] text-muted-foreground">Only the board owner can add or remove members.</p>
+                    </template>
+                </div>
+
+                <footer v-if="isOwner" class="flex justify-end gap-2 border-t border-border px-5 py-3">
+                    <button
+                        type="button"
+                        class="rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        @click="showMembersModal = false"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        :disabled="memberForm.processing"
+                        class="rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-background shadow-md transition-all hover:shadow-lg disabled:opacity-40"
+                    >
+                        {{ memberForm.processing ? 'Saving…' : 'Save members' }}
+                    </button>
+                </footer>
+            </form>
+        </div>
     </AppLayout>
 </template>
 
 <style scoped>
-/* Placeholder slot the card will drop into. */
-.task-ghost {
+.card-ghost {
     opacity: 0.35;
     border-style: dashed;
     box-shadow: none;
 }
 
-/* The card actually following the cursor. */
-.task-dragging {
+.card-dragging {
     box-shadow:
         0 12px 24px -8px rgb(0 0 0 / 0.25),
         0 4px 8px -4px rgb(0 0 0 / 0.15);
 }
 
-/* Panel rises into place — sheet from the bottom on mobile, lift on desktop. */
-.task-modal {
+.list-ghost {
+    opacity: 0.4;
+}
+
+.task-modal,
+.dock-panel {
     animation: task-modal-in 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Archive slides in from the right edge. */
+.completed-drawer {
+    animation: completed-drawer-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes completed-drawer-in {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
 }
 @keyframes task-modal-in {
     from {
@@ -974,7 +1406,9 @@ function dueLabel(task: TaskItem): string {
     }
 }
 @media (prefers-reduced-motion: reduce) {
-    .task-modal {
+    .task-modal,
+    .dock-panel,
+    .completed-drawer {
         animation: none;
     }
 }

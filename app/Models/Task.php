@@ -4,19 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * A card. Lives in a list, which lives on a board — access follows from board
+ * membership, not from the card itself.
+ */
 class Task extends Model
 {
-    public const STATUSES = ['todo', 'in_progress', 'done'];
-
-    public const PRIORITIES = ['low', 'medium', 'high', 'urgent'];
-
     protected $fillable = [
+        'list_id',
         'created_by',
         'title',
         'description',
-        'status',
-        'priority',
         'due_date',
+        'position',
         'completed_at',
     ];
 
@@ -27,41 +27,34 @@ class Task extends Model
         'updated_at' => 'datetime',
     ];
 
-    /**
-     * Everyone the task is shared with, the creator included. The pivot carries
-     * `position` because each participant orders their own board.
-     */
-    public function participants()
+    public function list()
     {
-        return $this->belongsToMany(User::class, 'task_user')
-            ->withPivot('position')
-            ->withTimestamps();
+        return $this->belongsTo(TaskList::class, 'list_id');
     }
 
-    /**
-     * The user who created the task. Only they can delete it for everyone.
-     */
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
     /**
-     * Restrict a query to tasks the given user takes part in. Tasks are private
-     * to their participants, so every read and write path goes through this.
+     * People assigned to this specific card. Always a subset of the board's
+     * members — being a card member is about who is doing it, not who can see
+     * it.
+     */
+    public function members()
+    {
+        return $this->belongsToMany(User::class, 'task_user')->withTimestamps();
+    }
+
+    /**
+     * Restrict a query to cards on boards the given user can see.
      */
     public function scopeForUser($query, $userId)
     {
-        return $query->whereHas('participants', fn ($q) => $q->where('users.id', $userId));
-    }
-
-    public function scopeByStatus($query, $status)
-    {
-        return $query->where('status', $status);
-    }
-
-    public function isSharedWithOthers(): bool
-    {
-        return $this->participants()->count() > 1;
+        return $query->whereHas(
+            'list.board.members',
+            fn ($q) => $q->where('users.id', $userId),
+        );
     }
 }
