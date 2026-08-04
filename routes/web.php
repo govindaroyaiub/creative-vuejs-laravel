@@ -224,6 +224,21 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::delete('/support-tickets/{ticket}', [App\Http\Controllers\SupportTicketController::class, 'destroy'])->name('support-tickets.destroy');
     //Support Ticket Routes End
 
+    //Task Routes Start
+    Route::get('/tasks', [App\Http\Controllers\TaskController::class, 'index'])->name('tasks.index');
+    Route::post('/tasks', [App\Http\Controllers\TaskController::class, 'store'])->name('tasks.store');
+    Route::post('/tasks/reorder', [App\Http\Controllers\TaskController::class, 'reorder'])->name('tasks.reorder');
+    Route::put('/tasks/{task}', [App\Http\Controllers\TaskController::class, 'update'])
+        ->where('task', '[0-9]+')
+        ->name('tasks.update');
+    Route::put('/tasks/{task}/status', [App\Http\Controllers\TaskController::class, 'updateStatus'])
+        ->where('task', '[0-9]+')
+        ->name('tasks.update-status');
+    Route::delete('/tasks/{task}', [App\Http\Controllers\TaskController::class, 'destroy'])
+        ->where('task', '[0-9]+')
+        ->name('tasks.destroy');
+    //Task Routes End
+
     //Orbit Routes Start
     Route::get('/orbit', [OrbitController::class, 'index'])->name('orbit.index');
     Route::get('/orbit/available-previews', [OrbitController::class, 'availablePreviews'])->name('orbit.available-previews');

@@ -23,6 +23,7 @@ import {
     ImagePlay,
     LayoutTemplate,
     Link2,
+    ListChecks,
     Megaphone,
     Orbit,
     Paintbrush,
@@ -37,6 +38,7 @@ export type SidebarSection = 'main' | 'footer';
 
 export const MAIN_NAV_ITEMS: NavItem[] = [
     { title: 'Dashboard', href: '/dashboard', icon: ChartNoAxesCombined },
+    { title: 'Tasks', href: '/tasks', icon: ListChecks },
     { title: 'Reporting', href: '/reporting', icon: BarChart3 },
     { title: 'Previews', href: '/previews', icon: Megaphone },
     { title: 'Color Palettes', href: '/color-palettes', icon: Paintbrush },

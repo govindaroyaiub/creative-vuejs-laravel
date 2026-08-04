@@ -14,6 +14,7 @@
 return [
     'main' => [
         '/dashboard',
+        '/tasks',
         '/reporting',
         '/previews',
         '/color-palettes',
