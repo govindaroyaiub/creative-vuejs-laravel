@@ -31,7 +31,7 @@ class TaskController extends Controller
             'position' => (int) $list->tasks()->max('position') + 1,
         ]);
 
-        return back()->with('success', 'Card added!');
+        return back()->with('success', 'Task added!');
     }
 
     /**
@@ -66,9 +66,13 @@ class TaskController extends Controller
 
         $task->save();
 
-        $this->syncMembers($task, $validated['members'] ?? []);
+        // Only touch assignees when the payload actually carries them. Falling
+        // back to an empty array here would detach everyone on a plain save.
+        if (array_key_exists('members', $validated)) {
+            $this->syncMembers($task, $validated['members']);
+        }
 
-        return back()->with('success', 'Card updated!');
+        return back()->with('success', 'Task updated!');
     }
 
     /**
@@ -84,7 +88,7 @@ class TaskController extends Controller
 
         $task->update($validated);
 
-        return back()->with('success', 'Card renamed!');
+        return back()->with('success', 'Task renamed!');
     }
 
     /**
@@ -103,7 +107,7 @@ class TaskController extends Controller
         $task->completed_at = $restoring ? null : now();
         $task->save();
 
-        return back()->with('success', $restoring ? 'Card restored!' : 'Card completed!');
+        return back()->with('success', $restoring ? 'Task restored!' : 'Task completed!');
     }
 
     /**
@@ -172,7 +176,7 @@ class TaskController extends Controller
         if ((int) $task->created_by === Auth::id()) {
             $task->delete();
 
-            return back()->with('success', 'Card deleted!');
+            return back()->with('success', 'Task deleted!');
         }
 
         if ($task->members()->where('users.id', Auth::id())->exists()) {
@@ -180,18 +184,18 @@ class TaskController extends Controller
             $this->notify(
                 (int) $task->created_by,
                 'task_left',
-                'Someone Left A Card',
-                Auth::user()->name." left your card: {$task->title}",
+                'Someone Left A Task',
+                Auth::user()->name." left your task: {$task->title}",
             );
 
-            return back()->with('success', 'You left the card.');
+            return back()->with('success', 'You left the task.');
         }
 
         // A board member who is neither creator nor assignee can still delete —
         // a shared board is a shared workspace.
         $task->delete();
 
-        return back()->with('success', 'Card deleted!');
+        return back()->with('success', 'Task deleted!');
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────
@@ -227,8 +231,8 @@ class TaskController extends Controller
                 $this->notify(
                     $userId,
                     'task_assigned',
-                    'Card Assigned To You',
-                    "{$actor} assigned you a card: {$task->title}",
+                    'Task Assigned To You',
+                    "{$actor} assigned you a task: {$task->title}",
                 );
             }
         }

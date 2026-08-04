@@ -167,7 +167,7 @@ function persistCards() {
             preserveScroll: true,
             preserveState: true,
             onError: () => {
-                toast.fire({ icon: 'error', title: 'Failed to save card order' });
+                toast.fire({ icon: 'error', title: 'Failed to save task order' });
                 router.reload();
             },
         },
@@ -284,7 +284,7 @@ async function deleteList(list: BoardList) {
 
     const result = await Swal.fire({
         title: `Delete “${list.name}”?`,
-        text: list.tasks.length ? `${list.tasks.length} card${list.tasks.length === 1 ? '' : 's'} in it will be deleted too.` : 'This list is empty.',
+        text: list.tasks.length ? `${list.tasks.length} task${list.tasks.length === 1 ? '' : 's'} in it will be deleted too.` : 'This list is empty.',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#dc2626',
@@ -327,8 +327,8 @@ function completeCard(card: Card) {
         {
             preserveScroll: true,
             preserveState: true,
-            onSuccess: () => toast.fire({ icon: 'success', title: 'Card completed' }),
-            onError: () => toast.fire({ icon: 'error', title: 'Failed to complete card' }),
+            onSuccess: () => toast.fire({ icon: 'success', title: 'Task completed' }),
+            onError: () => toast.fire({ icon: 'error', title: 'Failed to complete task' }),
         },
     );
 }
@@ -350,13 +350,35 @@ function restoreCard(card: CompletedCard) {
             preserveScroll: true,
             preserveState: true,
             onSuccess: () => toast.fire({ icon: 'success', title: `Restored to ${card.list_name}` }),
-            onError: () => toast.fire({ icon: 'error', title: 'Failed to restore card' }),
+            onError: () => toast.fire({ icon: 'error', title: 'Failed to restore task' }),
         },
     );
 }
 
 // ─── Card detail panel ────────────────────────────────────────────────────
 const openCard = ref<Card | null>(null);
+
+// The whole card is draggable, so a click and the start of a drag are the same
+// gesture until the pointer moves. Compare press and release positions rather
+// than guessing from event order — anything past a few pixels was a drag.
+const CLICK_SLOP = 5;
+let pressedAt: { x: number; y: number } | null = null;
+
+function onCardPointerDown(event: PointerEvent) {
+    pressedAt = { x: event.clientX, y: event.clientY };
+}
+
+function onCardClick(card: Card, event: MouseEvent) {
+    if (pressedAt) {
+        const movedX = Math.abs(event.clientX - pressedAt.x);
+        const movedY = Math.abs(event.clientY - pressedAt.y);
+        pressedAt = null;
+
+        if (movedX > CLICK_SLOP || movedY > CLICK_SLOP) return;
+    }
+
+    openCardDetail(card);
+}
 
 const cardForm = useForm({
     title: '',
@@ -386,7 +408,7 @@ function saveCard() {
         preserveScroll: true,
         onSuccess: () => {
             closeCardDetail();
-            toast.fire({ icon: 'success', title: 'Card saved' });
+            toast.fire({ icon: 'success', title: 'Task saved' });
         },
     });
 }
@@ -397,12 +419,12 @@ async function deleteCard(card: Card) {
     const leaving = !mine && assigned;
 
     const result = await Swal.fire({
-        title: leaving ? 'Leave this card?' : 'Delete this card?',
+        title: leaving ? 'Leave this task?' : 'Delete this task?',
         text: card.title,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#dc2626',
-        confirmButtonText: leaving ? 'Leave card' : 'Delete card',
+        confirmButtonText: leaving ? 'Leave task' : 'Delete task',
     });
 
     if (!result.isConfirmed) return;
@@ -411,7 +433,7 @@ async function deleteCard(card: Card) {
         preserveScroll: true,
         onSuccess: () => {
             closeCardDetail();
-            toast.fire({ icon: 'success', title: leaving ? 'You left the card' : 'Card deleted' });
+            toast.fire({ icon: 'success', title: leaving ? 'You left the task' : 'Task deleted' });
         },
     });
 }
@@ -466,8 +488,8 @@ async function deleteBoard() {
     const result = await Swal.fire({
         title: isOwner.value ? `Delete “${props.board.name}”?` : `Leave “${props.board.name}”?`,
         text: isOwner.value
-            ? `All ${lists.value.length} lists and ${cardCount.value} cards go with it. This cannot be undone.`
-            : 'You will lose access to its lists and cards.',
+            ? `All ${lists.value.length} lists and ${cardCount.value} tasks go with it. This cannot be undone.`
+            : 'You will lose access to its lists and tasks.',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#dc2626',
@@ -642,7 +664,8 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
                                         item-key="id"
                                         ghost-class="card-ghost"
                                         drag-class="card-dragging"
-                                        handle=".card-drag"
+                                        filter=".card-no-drag"
+                                        :prevent-on-filter="false"
                                         animation="180"
                                         class="space-y-2 rounded-lg transition-all"
                                         :class="
@@ -655,34 +678,31 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
                                         @start="draggingCard = true"
                                         @end="persistCards"
                                     >
+                                        <!--
+                                            The whole card is the drag handle. `pointerdown` records where the
+                                            press started so a drag is never mistaken for the click that opens
+                                            the detail panel.
+
+                                            Keep this comment outside the #item slot: vuedraggable counts
+                                            vnodes there and a comment node makes it two children, which
+                                            throws "Item slot must have only one child".
+                                        -->
                                         <template #item="{ element: card }">
                                             <article
-                                                class="group cursor-pointer rounded-lg border bg-card p-2.5 shadow-sm ring-1 ring-black/[0.03] transition-all hover:-translate-y-px hover:shadow-md dark:ring-white/[0.04]"
+                                                class="group cursor-grab rounded-lg border bg-card p-2.5 shadow-sm ring-1 ring-black/[0.03] transition-all hover:-translate-y-px hover:shadow-md active:cursor-grabbing dark:ring-white/[0.04]"
                                                 :class="isOverdue(card) ? 'border-red-500/40' : 'border-border hover:border-muted-foreground/40'"
-                                                @click="openCardDetail(card)"
+                                                @pointerdown="onCardPointerDown"
+                                                @click="onCardClick(card, $event)"
                                             >
                                                 <div class="flex items-start gap-1.5">
                                                     <!--
-                                                        Cards move only by this grip. Dragging the card body
-                                                        would fight the click that opens the detail panel.
-                                                    -->
-                                                    <span
-                                                        class="card-drag -ml-0.5 mt-px grid h-5 w-4 shrink-0 cursor-grab place-items-center text-muted-foreground opacity-30 transition-opacity hover:opacity-100 active:cursor-grabbing"
-                                                        title="Drag card"
-                                                        @click.stop
-                                                    >
-                                                        <GripVertical class="h-3.5 w-3.5" />
-                                                    </span>
-
-                                                    <!--
-                                                        One-click complete. Always visible so it reads as an
-                                                        available action — and so it works on touch, where
-                                                        there is no hover. Stop-propagation keeps it from
-                                                        opening the detail panel.
+                                                        One-click complete. `card-no-drag` is in the draggable's
+                                                        filter, so pressing it never starts a drag, and
+                                                        prevent-on-filter is off so the click still lands.
                                                     -->
                                                     <button
                                                         type="button"
-                                                        class="mt-px grid h-5 w-5 shrink-0 place-items-center rounded-full border border-muted-foreground/50 text-transparent transition-all hover:border-emerald-500 hover:bg-emerald-500 hover:text-white"
+                                                        class="card-no-drag mt-px grid h-5 w-5 shrink-0 cursor-pointer place-items-center rounded-full border border-muted-foreground/50 text-transparent transition-all hover:border-emerald-500 hover:bg-emerald-500 hover:text-white"
                                                         title="Mark complete"
                                                         aria-label="Mark complete"
                                                         @click.stop="completeCard(card)"
@@ -697,7 +717,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
 
                                                 <div
                                                     v-if="card.due_date || card.description"
-                                                    class="mt-2 flex flex-wrap items-center gap-1.5 pl-[1.375rem]"
+                                                    class="mt-2 flex flex-wrap items-center gap-1.5 pl-[1.625rem]"
                                                 >
                                                     <span
                                                         v-if="card.due_date"
@@ -715,7 +735,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
                                                     <span
                                                         v-if="card.description"
                                                         class="text-[10px] text-muted-foreground"
-                                                        title="This card has a description"
+                                                        title="This task has a description"
                                                     >
                                                         ≡
                                                     </span>
@@ -837,7 +857,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
                             Boards
                         </h2>
                         <p class="mt-0.5 truncate text-[11px] text-muted-foreground">
-                            {{ board.name }} · {{ lists.length }} list{{ lists.length === 1 ? '' : 's' }} · {{ cardCount }} card{{
+                            {{ board.name }} · {{ lists.length }} list{{ lists.length === 1 ? '' : 's' }} · {{ cardCount }} task{{
                                 cardCount === 1 ? '' : 's'
                             }}
                         </p>
@@ -977,7 +997,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
             v-if="dockPanel === 'completed'"
             role="dialog"
             aria-modal="true"
-            aria-label="Completed cards"
+            aria-label="Completed tasks"
             class="completed-drawer fixed bottom-0 right-0 top-0 z-[60] flex w-full max-w-md flex-col border-l border-border bg-card shadow-2xl"
         >
             <header class="flex items-start justify-between gap-3 border-b border-border px-4 py-4">
@@ -987,7 +1007,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
                         Completed
                     </h2>
                     <p class="mt-0.5 truncate text-[11px] text-muted-foreground">
-                        {{ completedCards.length }} card{{ completedCards.length === 1 ? '' : 's' }} archived from {{ board.name }}
+                        {{ completedCards.length }} task{{ completedCards.length === 1 ? '' : 's' }} archived from {{ board.name }}
                     </p>
                 </div>
                 <button
@@ -1010,7 +1030,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
                     <input
                         v-model="completedSearch"
                         type="search"
-                        placeholder="Search completed cards"
+                        placeholder="Search completed tasks"
                         class="w-full rounded-lg border border-input bg-background py-2 pl-9 pr-3 text-xs shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/10"
                     />
                 </div>
@@ -1072,7 +1092,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
             <form
                 role="dialog"
                 aria-modal="true"
-                aria-label="Card detail"
+                aria-label="Task detail"
                 class="task-modal flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl border border-border bg-card shadow-2xl sm:max-h-[88vh] sm:max-w-lg sm:rounded-2xl"
                 @submit.prevent="saveCard"
             >
@@ -1167,7 +1187,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
                         <button
                             type="button"
                             class="inline-flex items-center gap-1.5 rounded-lg px-2 py-2 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-500/10 dark:text-emerald-400"
-                            title="Archive this card into Completed"
+                            title="Archive this task into Completed"
                             @click="completeFromModal"
                         >
                             <CheckCheck class="h-3.5 w-3.5" />
@@ -1269,7 +1289,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
                             <Users class="h-4 w-4 text-muted-foreground" stroke-width="1.5" />
                             Board members
                         </h2>
-                        <p class="mt-0.5 text-[11px] text-muted-foreground">Members see every list and card on this board.</p>
+                        <p class="mt-0.5 text-[11px] text-muted-foreground">Members see every list and task on this board.</p>
                     </div>
                     <button
                         type="button"
@@ -1321,7 +1341,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
                         <p v-else class="rounded-lg border border-dashed border-border px-3 py-3 text-[11px] text-muted-foreground">
                             No other users to add.
                         </p>
-                        <p class="mt-2 text-[11px] text-muted-foreground">Removing someone also unassigns them from this board's cards.</p>
+                        <p class="mt-2 text-[11px] text-muted-foreground">Removing someone also unassigns them from this board's tasks.</p>
                     </template>
 
                     <template v-else>
