@@ -227,14 +227,12 @@ class TaskController extends Controller
             $task->members()->attach($added->all());
 
             $actor = Auth::user()->name;
-            foreach ($added as $userId) {
-                $this->notify(
-                    $userId,
-                    'task_assigned',
-                    'Task Assigned To You',
-                    "{$actor} assigned you a task: {$task->title}",
-                );
-            }
+            $this->notifyMany(
+                $added->all(),
+                'task_assigned',
+                'Task Assigned To You',
+                "{$actor} assigned you a task: {$task->title}",
+            );
         }
 
         if ($removed->isNotEmpty()) {
@@ -269,5 +267,44 @@ class TaskController extends Controller
         ]);
 
         broadcast(new NotificationCreated($notification))->toOthers();
+    }
+
+    /**
+     * Same notification for many recipients in one insert, instead of one
+     * `Notification::create()` per recipient. Broadcasting still loops — each
+     * one just queues a `BroadcastEvent` job, so that part was never the cost.
+     */
+    private function notifyMany(array $userIds, string $type, string $title, string $message): void
+    {
+        $recipients = collect($userIds)
+            ->map(fn ($id) => (int) $id)
+            ->reject(fn ($id) => $id === Auth::id())
+            ->unique()
+            ->values();
+
+        if ($recipients->isEmpty()) {
+            return;
+        }
+
+        $now = now();
+
+        Notification::insert($recipients->map(fn ($userId) => [
+            'user_id' => $userId,
+            'type' => $type,
+            'title' => $title,
+            'message' => $message,
+            'link' => route('tasks.index'),
+            'actor_id' => Auth::id(),
+            'is_read' => false,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ])->all());
+
+        Notification::with(['preview:id,name,slug', 'actor:id,name'])
+            ->whereIn('user_id', $recipients->all())
+            ->where('type', $type)
+            ->where('created_at', $now)
+            ->get()
+            ->each(fn (Notification $notification) => broadcast(new NotificationCreated($notification))->toOthers());
     }
 }

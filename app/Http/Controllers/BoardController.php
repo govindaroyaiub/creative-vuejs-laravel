@@ -51,12 +51,20 @@ class BoardController extends Controller
         return Inertia::render('Tasks/Index', [
             'boards' => $boards,
             'board' => $current,
-            'completedCards' => $this->completedCards($current->id),
+            // Cheap COUNT so the dock badge and drawer header always know the
+            // total without paying for the archive itself.
+            'completedCount' => $this->completedCardsQuery($current->id)->count(),
+            // Both of these are `Inertia::optional()`: excluded from every
+            // normal visit — including the one every task save triggers via
+            // `back()` — and only evaluated when the frontend explicitly asks
+            // for them with `router.reload({ only: [...] })` (drawer/modal
+            // open). Before this they were rebuilt on every single task edit.
+            'completedCards' => Inertia::optional(fn () => $this->completedCards($current->id)),
             // Candidates for board membership. Card members are chosen from the
             // board's own members, so the frontend needs both lists.
-            'users' => User::where('id', '!=', Auth::id())
+            'users' => Inertia::optional(fn () => User::where('id', '!=', Auth::id())
                 ->orderBy('name')
-                ->get(['id', 'name', 'email']),
+                ->get(['id', 'name', 'email'])),
         ]);
     }
 
@@ -65,18 +73,25 @@ class BoardController extends Controller
      *
      * Scoped to one board — the archive belongs to the workspace you are
      * looking at. `list_name` rides along so the panel can say where each card
-     * will go back to.
+     * will go back to. Capped at the most recent 200: an archive that has been
+     * running for a while has no natural end, and nobody scrolls that far.
      */
     private function completedCards(int $boardId)
+    {
+        return $this->completedCardsQuery($boardId)
+            ->with('creator:id,name,email')
+            ->orderByDesc('tasks.completed_at')
+            ->select('tasks.*', 'task_lists.name as list_name')
+            ->limit(200)
+            ->get();
+    }
+
+    private function completedCardsQuery(int $boardId)
     {
         return Task::query()
             ->join('task_lists', 'task_lists.id', '=', 'tasks.list_id')
             ->where('task_lists.board_id', $boardId)
-            ->whereNotNull('tasks.completed_at')
-            ->with('creator:id,name,email')
-            ->orderByDesc('tasks.completed_at')
-            ->select('tasks.*', 'task_lists.name as list_name')
-            ->get();
+            ->whereNotNull('tasks.completed_at');
     }
 
     /**
@@ -161,14 +176,12 @@ class BoardController extends Controller
             $board->members()->attach($added->all());
 
             $actor = Auth::user()->name;
-            foreach ($added as $userId) {
-                $this->notify(
-                    $userId,
-                    'board_shared',
-                    'Board Shared With You',
-                    "{$actor} added you to the board: {$board->name}",
-                );
-            }
+            $this->notifyMany(
+                $added->all(),
+                'board_shared',
+                'Board Shared With You',
+                "{$actor} added you to the board: {$board->name}",
+            );
         }
 
         if ($removed->isNotEmpty()) {
@@ -331,5 +344,44 @@ class BoardController extends Controller
         ]);
 
         broadcast(new NotificationCreated($notification))->toOthers();
+    }
+
+    /**
+     * Same notification for many recipients in one insert, instead of one
+     * `Notification::create()` per recipient. Broadcasting still loops — each
+     * one just queues a `BroadcastEvent` job, so that part was never the cost.
+     */
+    private function notifyMany(array $userIds, string $type, string $title, string $message): void
+    {
+        $recipients = collect($userIds)
+            ->map(fn ($id) => (int) $id)
+            ->reject(fn ($id) => $id === Auth::id())
+            ->unique()
+            ->values();
+
+        if ($recipients->isEmpty()) {
+            return;
+        }
+
+        $now = now();
+
+        Notification::insert($recipients->map(fn ($userId) => [
+            'user_id' => $userId,
+            'type' => $type,
+            'title' => $title,
+            'message' => $message,
+            'link' => route('tasks.index'),
+            'actor_id' => Auth::id(),
+            'is_read' => false,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ])->all());
+
+        Notification::with(['preview:id,name,slug', 'actor:id,name'])
+            ->whereIn('user_id', $recipients->all())
+            ->where('type', $type)
+            ->where('created_at', $now)
+            ->get()
+            ->each(fn (Notification $notification) => broadcast(new NotificationCreated($notification))->toOthers());
     }
 }

@@ -13,6 +13,7 @@ import {
     Pencil,
     Plus,
     RotateCcw,
+    Search,
     Trash2,
     UserPlus,
     Users,
@@ -74,17 +75,38 @@ interface CompletedCard extends Card {
     list_name: string;
 }
 
-const props = defineProps<{
-    boards: BoardSummary[];
-    board: BoardDetail;
-    completedCards: CompletedCard[];
-    users: UserOption[];
-}>();
+const props = withDefaults(
+    defineProps<{
+        boards: BoardSummary[];
+        board: BoardDetail;
+        /** Cheap count, always sent — the archive itself loads lazily, see below. */
+        completedCount: number;
+        /**
+         * Both are `Inertia::optional()` server-side: excluded from every normal
+         * visit (including the one after every task save) and fetched only when
+         * `router.reload({ only: [...] })` asks for them explicitly — otherwise
+         * they'd be re-fetched in full on every single task edit.
+         */
+        completedCards?: CompletedCard[];
+        users?: UserOption[];
+    }>(),
+    { completedCards: () => [], users: () => [] },
+);
+
+// Shadow the raw props under the same names: `withDefaults` guarantees these
+// are never actually undefined at runtime, but the template's implicit prop
+// bindings don't pick up that narrowing, so `completedCards.length` etc. in
+// the template would otherwise type-check as possibly undefined.
+const completedCards = computed(() => props.completedCards ?? []);
+const users = computed(() => props.users ?? []);
 
 const page = usePage<SharedData>();
 const authUserId = computed(() => page.props.auth.user.id);
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Tasks', href: '/tasks' }];
+const breadcrumbs = computed<BreadcrumbItem[]>(() => [
+    { title: 'Tasks', href: '/tasks' },
+    { title: props.board.name, href: route('tasks.board', props.board.id) },
+]);
 
 /**
  * Top-right toast for non-blocking notices. Confirmations stay centred and go
@@ -304,10 +326,23 @@ type DockPanel = 'completed' | 'boards' | null;
 
 const dockPanel = ref<DockPanel>(null);
 const completedSearch = ref('');
+const loadingCompleted = ref(false);
 
 function toggleDockPanel(panel: Exclude<DockPanel, null>) {
     dockPanel.value = dockPanel.value === panel ? null : panel;
-    if (dockPanel.value !== 'completed') completedSearch.value = '';
+    if (dockPanel.value !== 'completed') {
+        completedSearch.value = '';
+        return;
+    }
+
+    // The archive is `Inertia::optional()` server-side — never sent on a normal
+    // visit (including the reload every task save already triggers), only on a
+    // partial reload that names it. Fetch it the moment the drawer opens.
+    loadingCompleted.value = true;
+    router.reload({
+        only: ['completedCards'],
+        onFinish: () => (loadingCompleted.value = false),
+    });
 }
 
 /** The archive can grow without bound, so it is filterable. */
@@ -505,6 +540,7 @@ async function deleteBoard() {
 
 // ─── Board members ────────────────────────────────────────────────────────
 const showMembersModal = ref(false);
+const loadingUsers = ref(false);
 const memberForm = useForm({ members: [] as number[] });
 
 function openMembersModal() {
@@ -515,6 +551,17 @@ function openMembersModal() {
     });
     memberForm.reset();
     showMembersModal.value = true;
+
+    // `users` (every other account, invite candidates) is `Inertia::optional()`
+    // too — same reasoning as the completed archive: only the owner needs it,
+    // and only while this modal is open.
+    if (isOwner.value) {
+        loadingUsers.value = true;
+        router.reload({
+            only: ['users'],
+            onFinish: () => (loadingUsers.value = false),
+        });
+    }
 }
 
 function toggleBoardMember(userId: number) {
@@ -568,8 +615,34 @@ function onKeydown(event: KeyboardEvent) {
     else if (dockPanel.value) dockPanel.value = null;
 }
 
-onMounted(() => document.addEventListener('keydown', onKeydown));
-onUnmounted(() => document.removeEventListener('keydown', onKeydown));
+/**
+ * The "Switch board" panel has no dedicated backdrop like the Completed
+ * drawer or the modals do, so a click anywhere outside the dock has nothing
+ * to close it. Any click that lands outside `dockRef` while it's open closes
+ * it — the click that opens it lands ON a button inside `dockRef`, so this
+ * never fires on the same click that opened it.
+ *
+ * Scoped to `'boards'` only: the Completed drawer already closes itself via
+ * its own backdrop, and it renders outside `dockRef` — treating it the same
+ * way here would close it the instant you clicked anything inside it.
+ */
+const dockRef = ref<HTMLElement | null>(null);
+
+function onDocumentClick(event: MouseEvent) {
+    if (dockPanel.value !== 'boards') return;
+    if (dockRef.value && !dockRef.value.contains(event.target as Node)) {
+        dockPanel.value = null;
+    }
+}
+
+onMounted(() => {
+    document.addEventListener('keydown', onKeydown);
+    document.addEventListener('click', onDocumentClick);
+});
+onUnmounted(() => {
+    document.removeEventListener('keydown', onKeydown);
+    document.removeEventListener('click', onDocumentClick);
+});
 </script>
 
 <template>
@@ -584,6 +657,22 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
             — off screen with it.
         -->
         <div class="flex h-[calc(100vh-4rem)] min-w-0 flex-col overflow-hidden">
+            <!--
+                Board header: name + who's on it, always visible so the board's
+                identity isn't hidden behind the bottom dock or a hover tooltip.
+            -->
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3 md:px-6">
+                <h1 class="truncate text-lg font-bold">{{ board.name }}</h1>
+                <div v-if="board.members.length" class="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                    <span v-for="member in board.members" :key="member.id" class="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <span class="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-indigo-500 text-[8px] font-semibold text-white">
+                            {{ initials(member.name) }}
+                        </span>
+                        {{ member.name }}
+                    </span>
+                </div>
+            </div>
+
             <!--
                 Lists: the only horizontally scrolling region. The scroller is
                 absolutely positioned so its width never feeds back into the
@@ -844,7 +933,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
             the board rather than about a card lives here: the archive and the
             board itself (switching, actions, members).
         -->
-        <div class="pointer-events-none fixed bottom-5 left-0 right-0 z-40 flex flex-col items-center gap-2 px-4">
+        <div ref="dockRef" class="pointer-events-none fixed bottom-5 left-0 right-0 z-40 flex flex-col items-center gap-2 px-4">
             <!-- Boards panel -->
             <div
                 v-if="dockPanel === 'boards'"
@@ -949,7 +1038,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
 
             <!-- The pill itself -->
             <div
-                class="pointer-events-auto flex items-center gap-1 rounded-full border border-border bg-card/95 p-1 shadow-2xl backdrop-blur supports-[backdrop-filter]:bg-card/80"
+                class="pointer-events-auto flex items-center gap-1 rounded-full border border-border bg-card/95 p-1 shadow-2xl ring-1 ring-black/5 backdrop-blur supports-[backdrop-filter]:bg-card/80 dark:ring-white/10"
             >
                 <button
                     type="button"
@@ -963,16 +1052,18 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
                     <CheckCheck class="h-4 w-4" stroke-width="1.75" />
                     Completed
                     <span
-                        v-if="completedCards.length"
+                        v-if="completedCount"
                         class="rounded-full px-1.5 py-0.5 text-[10px] tabular-nums"
                         :class="dockPanel === 'completed' ? 'bg-background/20' : 'bg-muted'"
                     >
-                        {{ completedCards.length }}
+                        {{ completedCount }}
                     </span>
                 </button>
 
                 <span aria-hidden="true" class="h-5 w-px bg-border" />
 
+                <!-- Board name now lives in the page header up top, so the pill
+                     just names the action rather than repeating it. -->
                 <button
                     type="button"
                     class="flex max-w-[14rem] items-center gap-2 rounded-full px-3.5 py-2 text-xs font-semibold transition-colors"
@@ -981,7 +1072,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
                     @click="toggleDockPanel('boards')"
                 >
                     <LayoutGrid class="h-4 w-4 shrink-0" stroke-width="1.75" />
-                    <span class="truncate">{{ board.name }}</span>
+                    <span class="truncate">Switch board</span>
                 </button>
             </div>
         </div>
@@ -1007,7 +1098,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
                         Completed
                     </h2>
                     <p class="mt-0.5 truncate text-[11px] text-muted-foreground">
-                        {{ completedCards.length }} task{{ completedCards.length === 1 ? '' : 's' }} archived from {{ board.name }}
+                        {{ completedCount }} task{{ completedCount === 1 ? '' : 's' }} archived from {{ board.name }}
                     </p>
                 </div>
                 <button
@@ -1021,7 +1112,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
             </header>
 
             <!-- Search, so a long archive stays usable -->
-            <div v-if="completedCards.length > 6" class="border-b border-border px-4 py-3">
+            <div v-if="completedCount > 6" class="border-b border-border px-4 py-3">
                 <div class="relative">
                     <Search
                         class="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground"
@@ -1075,7 +1166,10 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
                     </span>
                 </div>
 
-                <p v-if="!completedCards.length" class="px-3 py-12 text-center text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                <p v-if="loadingCompleted" class="px-3 py-12 text-center text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                    Loading…
+                </p>
+                <p v-else-if="!completedCards.length" class="px-3 py-12 text-center text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
                     Nothing completed yet
                 </p>
                 <p v-else-if="!visibleCompleted.length" class="px-3 py-12 text-center text-[11px] text-muted-foreground">
@@ -1313,7 +1407,10 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown));
                     </div>
 
                     <template v-if="isOwner">
-                        <div v-if="users.length" class="overflow-hidden rounded-lg border border-input">
+                        <p v-if="loadingUsers" class="rounded-lg border border-dashed border-border px-3 py-3 text-[11px] text-muted-foreground">
+                            Loading…
+                        </p>
+                        <div v-else-if="users.length" class="overflow-hidden rounded-lg border border-input">
                             <label
                                 v-for="user in users"
                                 :key="user.id"
