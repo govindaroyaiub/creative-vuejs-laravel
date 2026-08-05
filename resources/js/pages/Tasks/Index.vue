@@ -355,6 +355,18 @@ const visibleCompleted = computed(() => {
 // ─── Completion ───────────────────────────────────────────────────────────
 // Completing archives a card: it keeps its list and position server-side, so
 // restoring drops it back exactly where it was.
+/**
+ * `completedCards` is lazy (`Inertia::optional()`, see the props above) — the
+ * plain reload every mutation triggers via `back()` never includes it, so
+ * `completedCount` updates but the drawer's own list goes stale (or, once it
+ * empties out, wrongly shows "Nothing completed yet") the moment anything
+ * changes while it's open. Re-fetch it whenever that can happen.
+ */
+function refreshCompletedArchive() {
+    if (dockPanel.value !== 'completed') return;
+    router.reload({ only: ['completedCards'] });
+}
+
 function completeCard(card: Card) {
     router.put(
         route('tasks.cards.complete', card.id),
@@ -362,7 +374,10 @@ function completeCard(card: Card) {
         {
             preserveScroll: true,
             preserveState: true,
-            onSuccess: () => toast.fire({ icon: 'success', title: 'Task completed' }),
+            onSuccess: () => {
+                toast.fire({ icon: 'success', title: 'Task completed' });
+                refreshCompletedArchive();
+            },
             onError: () => toast.fire({ icon: 'error', title: 'Failed to complete task' }),
         },
     );
@@ -384,7 +399,10 @@ function restoreCard(card: CompletedCard) {
         {
             preserveScroll: true,
             preserveState: true,
-            onSuccess: () => toast.fire({ icon: 'success', title: `Restored to ${card.list_name}` }),
+            onSuccess: () => {
+                toast.fire({ icon: 'success', title: `Restored to ${card.list_name}` });
+                refreshCompletedArchive();
+            },
             onError: () => toast.fire({ icon: 'error', title: 'Failed to restore task' }),
         },
     );
@@ -469,6 +487,7 @@ async function deleteCard(card: Card) {
         onSuccess: () => {
             closeCardDetail();
             toast.fire({ icon: 'success', title: leaving ? 'You left the task' : 'Task deleted' });
+            refreshCompletedArchive();
         },
     });
 }
