@@ -92,7 +92,7 @@
             </div>
         </div>
 
-        <div class="flex flex-col items-center justify-center w-full h-full bg-white dark:bg-black font-mono">
+        <div class="flex flex-col items-center h-screen justify-center w-full bg-white dark:bg-black font-mono">
             <div class="flex flex-row gap-8 w-full max-w-3xl">
                 <div class="flex flex-col gap-4">
                     <div class="flex gap-4 justify-between">
