@@ -8,7 +8,7 @@ import UserMenuContent from '@/components/UserMenuContent.vue';
 import DateRangePicker from '@/components/DateRangePicker.vue';
 import { useInitials } from '@/composables/useInitials';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Upload, Download, AlertTriangle, CheckCircle2, XCircle, Loader2, CalendarDays, Coins, Eye, TrendingUp, Award, CalendarCheck, X, FileText, FileSpreadsheet, FileJson, ArrowLeft, ExternalLink, Plus, Link2, Mail, Copy, Trash2, RefreshCw, Circle, Settings, Minus, ChevronDown, Gauge, FileArchive, PackageCheck } from 'lucide-vue-next';
+import { Upload, Download, AlertTriangle, CheckCircle2, XCircle, Loader2, CalendarDays, Coins, Eye, TrendingUp, Award, CalendarCheck, X, FileText, FileSpreadsheet, FileJson, ArrowLeft, ExternalLink, Plus, Link2, Mail, Copy, Trash2, RefreshCw, Circle, Settings, Minus, ChevronDown, ChevronUp, Gauge, FileArchive, PackageCheck } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { Line, Doughnut } from 'vue-chartjs';
@@ -321,6 +321,18 @@ const days = computed<any[]>(() => {
     if (from.value) arr = arr.filter((d: any) => d.dateKey >= from.value);
     if (to.value) arr = arr.filter((d: any) => d.dateKey <= to.value);
     return arr;
+});
+
+// Table-tab row order only — everything else (charts, latestDay, totals) keeps
+// `days` chronological ascending. Default newest-first; click the Date header
+// to flip.
+const dateSort = ref<'asc' | 'desc'>('desc');
+function toggleDateSort() {
+    dateSort.value = dateSort.value === 'desc' ? 'asc' : 'desc';
+}
+const tableDays = computed(() => {
+    const arr = [...days.value];
+    return dateSort.value === 'asc' ? arr : arr.reverse();
 });
 
 const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -1162,7 +1174,13 @@ const tabs = [
                     <table class="w-full whitespace-nowrap text-xs">
                         <thead>
                             <tr class="rpt-label border-b text-left">
-                                <th class="px-1.5 py-2">Date</th>
+                                <th class="cursor-pointer select-none px-1.5 py-2" title="Sort by date" @click="toggleDateSort">
+                                    <span class="inline-flex items-center gap-1">
+                                        Date
+                                        <ChevronUp v-if="dateSort === 'asc'" class="h-3 w-3" />
+                                        <ChevronDown v-else class="h-3 w-3" />
+                                    </span>
+                                </th>
                                 <th v-for="p in PARTNERS" :key="p.key" class="px-1.5 py-2 text-right leading-tight">
                                     <template v-if="p.lines">
                                         {{ p.lines[0] }}<br>{{ p.lines[1] }}
@@ -1178,7 +1196,7 @@ const tabs = [
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="d in days" :key="d.dateKey" class="cursor-pointer border-b last:border-0"
+                            <tr v-for="d in tableDays" :key="d.dateKey" class="cursor-pointer border-b last:border-0"
                                 :class="[rpmRowClass(d), selectedRow === d.dateKey ? 'rpt-row-selected' : '']"
                                 @click="toggleRow(d.dateKey)">
                                 <td class="px-1.5 py-1 font-medium">{{ d.dateKey }}</td>
