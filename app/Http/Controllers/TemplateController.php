@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Template;
+use App\Support\SafeName;
 use Illuminate\Http\Request;
 use ZipArchive;
 use Inertia\Inertia;
@@ -51,7 +52,11 @@ class TemplateController extends Controller
             /** @var UploadedFile $file */
             $file = $request->file('file');
             $originalName = $file->getClientOriginalName();
-            $filename = str_replace(' ', '_', $originalName);
+            // The stored name has to be unique: two people uploading
+            // `report.zip` used to silently overwrite each other. The
+            // original name is kept in `file_name` for display.
+            $filename = SafeName::segment(pathinfo($originalName, PATHINFO_FILENAME), 'template')
+                . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('templates', $filename, 'public');
 
             $data['file_path'] = $path;
@@ -92,7 +97,11 @@ class TemplateController extends Controller
 
             $file = $request->file('file');
             $originalName = $file->getClientOriginalName();
-            $filename = str_replace(' ', '_', $originalName);
+            // The stored name has to be unique: two people uploading
+            // `report.zip` used to silently overwrite each other. The
+            // original name is kept in `file_name` for display.
+            $filename = SafeName::segment(pathinfo($originalName, PATHINFO_FILENAME), 'template')
+                . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('templates', $filename, 'public');
 
             $template->file_path = $path;
