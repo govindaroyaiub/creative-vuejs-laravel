@@ -153,6 +153,29 @@ describe('creating', function () {
         Storage::disk('public')->assertExists($document->path);
     });
 
+    it('gives two documents with the same filename distinct stored paths', function () {
+        // storeDocument() used `time()`, which has one-second resolution, so a
+        // same-named pair uploaded together overwrote each other.
+        $this->actingAs($this->user)
+            ->post(route('bills-create-post'), billPayload([
+                'documents' => [
+                    UploadedFile::fake()->createWithContent('receipt.pdf', 'first'),
+                    UploadedFile::fake()->createWithContent('receipt.pdf', 'second'),
+                ],
+            ]))
+            ->assertRedirect(route('bills'));
+
+        $paths = BillDocument::orderBy('id')->pluck('path');
+
+        expect($paths)->toHaveCount(2);
+        expect($paths[0])->not->toBe($paths[1]);
+        expect(Storage::disk('public')->get($paths[0]))->toBe('first');
+        expect(Storage::disk('public')->get($paths[1]))->toBe('second');
+
+        // Both still present their original name to the user.
+        expect(BillDocument::pluck('filename')->unique()->all())->toBe(['receipt.pdf']);
+    });
+
     it('rejects a document of a disallowed type', function () {
         $this->actingAs($this->user)
             ->post(route('bills-create-post'), billPayload([

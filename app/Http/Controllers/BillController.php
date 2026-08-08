@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bill;
 use App\Models\BillDocument;
+use App\Support\SafeName;
 use App\Support\SqlDate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -180,11 +181,18 @@ class BillController extends Controller
      */
     private function storeDocument(Bill $bill, $file)
     {
-        $filename = time() . '_' . $file->getClientOriginalName();
+        $originalName = $file->getClientOriginalName();
+
+        // `time()` has one-second resolution, so two documents uploaded in the
+        // same second under the same name overwrote each other. The original
+        // name is kept in the `filename` column for display and download.
+        $filename = SafeName::segment(pathinfo($originalName, PATHINFO_FILENAME), 'document')
+            . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
         $path = $file->storeAs('bill_documents', $filename, 'public');
 
         $bill->documents()->create([
-            'filename' => $file->getClientOriginalName(),
+            'filename' => $originalName,
             'path' => $path,
             'mime_type' => $file->getClientMimeType(),
             'file_size' => $file->getSize(),
