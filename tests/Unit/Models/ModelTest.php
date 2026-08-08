@@ -4,272 +4,248 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Models;
 
-use App\Models\User;
-use App\Models\newPreview;
-use App\Models\Client;
 use App\Models\Bill;
+use App\Models\BillDocument;
+use App\Models\Client;
+use App\Models\ColorPalette;
+use App\Models\Designation;
 use App\Models\FileTransfer;
+use App\Models\SubBill;
+use App\Models\User;
+use App\Models\newCategory;
+use App\Models\newPreview;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-describe('User Model', function () {
-    it('has many previews relationship', function () {
-        $user = User::factory()->create();
-        $preview = newPreview::factory()->create(['user_id' => $user->id]);
+/**
+ * This file previously described a different application — `User::active()`,
+ * `User::totalRevenue()`, soft-deleted previews with `title`/`duration`
+ * columns, `Bill::paid()`. None of it exists. It now covers the relationships
+ * and behaviour the models actually have.
+ */
+describe('User', function () {
+    it('belongs to a client', function () {
+        $client = Client::factory()->create();
+        $user = User::factory()->create(['client_id' => $client->id]);
 
-        expect($user->previews)->toHaveCount(1);
-        expect($user->previews->first()->id)->toBe($preview->id);
+        expect($user->client)->toBeInstanceOf(Client::class);
+        expect($user->client->id)->toBe($client->id);
     });
 
-    it('has many bills relationship', function () {
-        $user = User::factory()->create();
-        $bill = Bill::factory()->create(['user_id' => $user->id]);
+    it('belongs to a designation through the same-named column', function () {
+        $designation = Designation::factory()->create(['name' => 'Motion Designer']);
+        $user = User::factory()->withDesignation($designation)->create();
 
-        expect($user->bills)->toHaveCount(1);
-        expect($user->bills->first()->id)->toBe($bill->id);
+        // The relation is shadowed by the foreign key column of the same name,
+        // so the record is only reachable through the relation itself.
+        expect($user->designation)->toBe($designation->id);
+        expect($user->designation()->first()->name)->toBe('Motion Designer');
     });
 
-    it('has many file transfers relationship', function () {
-        $user = User::factory()->create();
-        $transfer = FileTransfer::factory()->create(['user_id' => $user->id]);
+    it('survives its client being deleted', function () {
+        $client = Client::factory()->create();
+        $user = User::factory()->create(['client_id' => $client->id]);
 
-        expect($user->fileTransfers)->toHaveCount(1);
-        expect($user->fileTransfers->first()->id)->toBe($transfer->id);
+        $client->delete();
+
+        // onDelete('set null') — the user stays, unattached.
+        expect($user->fresh()->client_id)->toBeNull();
     });
 
-    it('scopes active users correctly', function () {
-        $activeUser = User::factory()->create(['email_verified_at' => now()]);
-        $inactiveUser = User::factory()->create(['email_verified_at' => null]);
+    it('grants access by wildcard permission', function () {
+        $user = User::factory()->create(['permissions' => ['*']]);
 
-        $activeUsers = User::active()->get();
-
-        expect($activeUsers)->toHaveCount(1);
-        expect($activeUsers->first()->id)->toBe($activeUser->id);
+        expect($user->canAccess('/previews'))->toBeTrue();
+        expect($user->canAccess('/anything-at-all'))->toBeTrue();
     });
 
-    it('calculates total revenue for user', function () {
-        $user = User::factory()->create();
+    it('grants access only to listed routes otherwise', function () {
+        $user = User::factory()->create(['permissions' => ['/previews', '/bills']]);
 
-        Bill::factory()->create([
-            'user_id' => $user->id,
-            'status' => 'paid',
-            'total_amount' => 1000.00
-        ]);
-
-        Bill::factory()->create([
-            'user_id' => $user->id,
-            'status' => 'paid',
-            'total_amount' => 500.00
-        ]);
-
-        Bill::factory()->create([
-            'user_id' => $user->id,
-            'status' => 'pending',
-            'total_amount' => 300.00
-        ]);
-
-        expect($user->totalRevenue())->toBe(1500.00);
+        expect($user->canAccess('/previews'))->toBeTrue();
+        expect($user->canAccess('/file-transfers'))->toBeFalse();
     });
 
-    it('gets user activity summary', function () {
-        $user = User::factory()->create();
+    it('refuses access when permissions are not an array', function () {
+        $user = User::factory()->create(['permissions' => null]);
 
-        newPreview::factory(3)->create(['user_id' => $user->id]);
-        Bill::factory(2)->create(['user_id' => $user->id]);
-        FileTransfer::factory(1)->create(['user_id' => $user->id]);
+        expect($user->canAccess('/previews'))->toBeFalse();
+    });
 
-        $summary = $user->activitySummary();
+    it('casts permissions and hides the password', function () {
+        $user = User::factory()->create(['permissions' => ['/bills']]);
 
-        expect($summary)->toHaveKeys(['previews_count', 'bills_count', 'transfers_count']);
-        expect($summary['previews_count'])->toBe(3);
-        expect($summary['bills_count'])->toBe(2);
-        expect($summary['transfers_count'])->toBe(1);
+        expect($user->permissions)->toBeArray();
+        expect($user->toArray())->not->toHaveKey('password');
+        expect($user->toArray())->not->toHaveKey('remember_token');
     });
 });
 
-describe('newPreview Model', function () {
-    it('belongs to user and client', function () {
-        $user = User::factory()->create();
+describe('newPreview', function () {
+    it('belongs to a client and an uploader', function () {
         $client = Client::factory()->create();
-        $preview = newPreview::factory()->create([
-            'user_id' => $user->id,
-            'client_id' => $client->id
-        ]);
+        $uploader = User::factory()->create();
+        $preview = newPreview::factory()->forClient($client)->uploadedBy($uploader)->create();
 
-        expect($preview->user->id)->toBe($user->id);
         expect($preview->client->id)->toBe($client->id);
+        expect($preview->uploader->id)->toBe($uploader->id);
     });
 
-    it('has correct fillable attributes', function () {
-        $preview = new newPreview();
-
-        expect($preview->getFillable())->toContain('title');
-        expect($preview->getFillable())->toContain('description');
-        expect($preview->getFillable())->toContain('file_path');
-        expect($preview->getFillable())->toContain('user_id');
-        expect($preview->getFillable())->toContain('client_id');
-    });
-
-    it('scopes by status correctly', function () {
-        newPreview::factory()->create(['status' => 'active']);
-        newPreview::factory()->create(['status' => 'inactive']);
-        newPreview::factory()->create(['status' => 'active']);
-
-        $activePreviews = newPreview::active()->get();
-
-        expect($activePreviews)->toHaveCount(2);
-        $activePreviews->each(fn($preview) => expect($preview->status)->toBe('active'));
-    });
-
-    it('generates file URL correctly', function () {
-        $preview = newPreview::factory()->create([
-            'file_path' => 'previews/test-video.mp4'
-        ]);
-
-        expect($preview->file_url)->toContain('storage/previews/test-video.mp4');
-    });
-
-    it('calculates duration in human readable format', function () {
-        $preview = newPreview::factory()->create(['duration' => '00:02:30']);
-
-        expect($preview->human_duration)->toBe('2 minutes 30 seconds');
-    });
-
-    it('soft deletes correctly', function () {
+    it('belongs to a colour palette', function () {
         $preview = newPreview::factory()->create();
-        $previewId = $preview->id;
+
+        expect($preview->colorPalette)->toBeInstanceOf(ColorPalette::class);
+    });
+
+    it('has many categories', function () {
+        $preview = newPreview::factory()->create();
+
+        newCategory::create(['preview_id' => $preview->id, 'name' => 'Banners', 'type' => 'banner']);
+        newCategory::create(['preview_id' => $preview->id, 'name' => 'Videos', 'type' => 'video']);
+
+        expect($preview->categories)->toHaveCount(2);
+        expect($preview->categories->pluck('type')->all())->toBe(['banner', 'video']);
+    });
+
+    it('casts team members to an array', function () {
+        $members = [1, 2, 3];
+        $preview = newPreview::factory()->withTeam($members)->create();
+
+        expect($preview->fresh()->team_members)->toBe($members);
+    });
+
+    it('has a unique slug', function () {
+        $preview = newPreview::factory()->create();
+
+        expect(fn () => newPreview::factory()->create(['slug' => $preview->slug]))
+            ->toThrow(\Illuminate\Database\QueryException::class);
+    });
+
+    it('cascades its categories away when deleted', function () {
+        $preview = newPreview::factory()->create();
+        $category = newCategory::create([
+            'preview_id' => $preview->id, 'name' => 'Banners', 'type' => 'banner',
+        ]);
 
         $preview->delete();
 
-        expect(newPreview::find($previewId))->toBeNull();
-        expect(newPreview::withTrashed()->find($previewId))->not()->toBeNull();
+        expect(newCategory::find($category->id))->toBeNull();
     });
 });
 
-describe('Bill Model', function () {
-    it('belongs to user and client', function () {
-        $user = User::factory()->create();
-        $client = Client::factory()->create();
-        $bill = Bill::factory()->create([
-            'user_id' => $user->id,
-            'client_id' => $client->id
-        ]);
-
-        expect($bill->user->id)->toBe($user->id);
-        expect($bill->client->id)->toBe($client->id);
-    });
-
+describe('Bill', function () {
     it('has many sub bills', function () {
         $bill = Bill::factory()->create();
-        $subBills = \App\Models\SubBill::factory(3)->create(['bill_id' => $bill->id]);
+        SubBill::factory(3)->create(['bill_id' => $bill->id]);
 
         expect($bill->subBills)->toHaveCount(3);
+        // Lazy loading is disabled app-wide, so the inverse has to be loaded.
+        expect($bill->subBills->first()->load('bill')->bill->id)->toBe($bill->id);
     });
 
-    it('scopes by status correctly', function () {
-        Bill::factory()->create(['status' => 'paid']);
-        Bill::factory()->create(['status' => 'pending']);
-        Bill::factory()->create(['status' => 'overdue']);
+    it('has many documents', function () {
+        $bill = Bill::factory()->create();
+        BillDocument::factory(2)->create(['bill_id' => $bill->id]);
 
-        $paidBills = Bill::paid()->get();
-        $pendingBills = Bill::pending()->get();
-
-        expect($paidBills)->toHaveCount(1);
-        expect($pendingBills)->toHaveCount(1);
+        expect($bill->documents)->toHaveCount(2);
     });
 
-    it('calculates totals correctly', function () {
-        $bill = Bill::factory()->create([
-            'subtotal' => 1000.00,
-            'tax_rate' => 10.00
-        ]);
+    it('cascades sub bills and documents away when deleted', function () {
+        $bill = Bill::factory()->create();
+        $sub = SubBill::factory()->create(['bill_id' => $bill->id]);
+        $doc = BillDocument::factory()->create(['bill_id' => $bill->id]);
 
-        expect($bill->tax_amount)->toBe(100.00);
-        expect($bill->total_amount)->toBe(1100.00);
+        $bill->delete();
+
+        expect(SubBill::find($sub->id))->toBeNull();
+        expect(BillDocument::find($doc->id))->toBeNull();
     });
 
-    it('determines if bill is overdue', function () {
-        $overdueBill = Bill::factory()->create([
-            'due_date' => now()->subDays(5),
-            'status' => 'pending'
-        ]);
+    it('stores the client as free text, not a relation', function () {
+        $bill = Bill::factory()->create(['client' => 'Nike']);
 
-        $currentBill = Bill::factory()->create([
-            'due_date' => now()->addDays(5),
-            'status' => 'pending'
-        ]);
-
-        expect($overdueBill->is_overdue)->toBeTrue();
-        expect($currentBill->is_overdue)->toBeFalse();
-    });
-
-    it('formats bill number correctly', function () {
-        $bill = Bill::factory()->create(['bill_number' => 'INV-2024-001']);
-
-        expect($bill->formatted_bill_number)->toBe('INV-2024-001');
+        expect($bill->client)->toBe('Nike');
+        expect($bill->getFillable())->toContain('client');
+        expect($bill->getFillable())->not->toContain('client_id');
     });
 });
 
-describe('FileTransfer Model', function () {
-    it('belongs to user and client', function () {
-        $user = User::factory()->create();
-        $client = Client::factory()->create();
-        $transfer = FileTransfer::factory()->create([
-            'user_id' => $user->id,
-            'client_id' => $client->id
+describe('BillDocument', function () {
+    it('belongs to its bill and its uploader', function () {
+        $uploader = User::factory()->create();
+        $doc = BillDocument::factory()->create(['uploaded_by' => $uploader->id]);
+
+        expect($doc->bill)->toBeInstanceOf(Bill::class);
+        expect($doc->uploader->id)->toBe($uploader->id);
+    });
+
+    it('formats its file size for display', function () {
+        $doc = BillDocument::factory()->create(['file_size' => 2097152]);
+
+        expect($doc->formatted_file_size)->toContain('MB');
+    });
+});
+
+describe('SubBill', function () {
+    it('keeps quantity, unit price and amount consistent', function () {
+        $sub = SubBill::factory()->create([
+            'quantity' => 4,
+            'unit_price' => 250.00,
+            'amount' => 1000.00,
         ]);
 
+        expect((float) $sub->amount)->toBe((float) $sub->quantity * (float) $sub->unit_price);
+    });
+});
+
+describe('FileTransfer', function () {
+    it('belongs to the user who created it', function () {
+        $user = User::factory()->create();
+        $transfer = FileTransfer::factory()->forUser($user)->create();
+
+        expect($transfer->user)->toBeInstanceOf(User::class);
         expect($transfer->user->id)->toBe($user->id);
-        expect($transfer->client->id)->toBe($client->id);
     });
 
-    it('generates unique download token', function () {
-        $transfer1 = FileTransfer::factory()->create();
-        $transfer2 = FileTransfer::factory()->create();
-
-        expect($transfer1->download_token)->not()->toBe($transfer2->download_token);
-        expect($transfer1->download_token)->toHaveLength(32);
-    });
-
-    it('generates download URL correctly', function () {
+    it('stores its slug as a uuid so the public link is unguessable', function () {
         $transfer = FileTransfer::factory()->create();
 
-        expect($transfer->download_url)->toContain('file-transfer/download/');
-        expect($transfer->download_url)->toContain($transfer->download_token);
+        expect($transfer->slug)->toMatch('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/');
     });
 
-    it('tracks download attempts correctly', function () {
-        $transfer = FileTransfer::factory()->create([
-            'download_count' => 0,
-            'max_downloads' => 5
-        ]);
+    it('holds several archives as one comma joined path string', function () {
+        $transfer = FileTransfer::factory()->withFiles(3)->create();
 
-        $transfer->incrementDownloadCount();
-
-        expect($transfer->download_count)->toBe(1);
-        expect($transfer->last_downloaded_at)->not()->toBeNull();
+        expect(explode(',', $transfer->file_path))->toHaveCount(3);
+        expect($transfer->file_path)->toContain('Transfer Files/');
     });
 
-    it('determines download availability', function () {
-        $availableTransfer = FileTransfer::factory()->create([
-            'download_count' => 2,
-            'max_downloads' => 5,
-            'expires_at' => now()->addWeek()
-        ]);
+    it('links to a preview only once a round is approved', function () {
+        $preview = newPreview::factory()->create();
 
-        $exhaustedTransfer = FileTransfer::factory()->create([
-            'download_count' => 5,
-            'max_downloads' => 5
-        ]);
+        expect(FileTransfer::factory()->create()->preview_id)->toBeNull();
+        expect(FileTransfer::factory()->forPreview($preview->id)->create()->preview_id)
+            ->toBe($preview->id);
+    });
+});
 
-        expect($availableTransfer->is_download_available)->toBeTrue();
-        expect($exhaustedTransfer->is_download_available)->toBeFalse();
+describe('Client', function () {
+    it('belongs to a colour palette and has many users', function () {
+        $client = Client::factory()->create();
+        User::factory(2)->create(['client_id' => $client->id]);
+
+        expect($client->colorPalette)->toBeInstanceOf(ColorPalette::class);
+        expect($client->users)->toHaveCount(2);
     });
 
-    it('formats file size correctly', function () {
-        $transfer = FileTransfer::factory()->create(['file_size' => 1048576]); // 1MB
+    it('limits the validColumns scope to real columns', function () {
+        Client::factory()->create();
 
-        expect($transfer->formatted_file_size)->toBe('1.00 MB');
+        $client = Client::validColumns()->first();
+
+        expect($client->getAttributes())->toHaveKeys(
+            ['id', 'name', 'website', 'preview_url', 'logo', 'color_palette_id']
+        );
     });
 });
