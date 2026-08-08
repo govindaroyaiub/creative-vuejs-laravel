@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Concerns\ResolvesPreviewName;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\newPreview;
 use App\Models\newFeedback;
@@ -11,6 +12,7 @@ use Spatie\Activitylog\LogOptions;
 
 class newCategory extends Model
 {
+    use ResolvesPreviewName;
     use HasFactory;
     use LogsActivity;
 
@@ -34,7 +36,7 @@ class newCategory extends Model
     // Accessor to get preview name
     public function getPreviewNameAttribute()
     {
-        return $this->preview?->name;
+        return $this->previewNameVia(['preview']);
     }
 
     protected static $logAttributes = ['*'];

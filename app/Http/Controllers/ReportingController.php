@@ -238,7 +238,7 @@ class ReportingController extends Controller
         if (! $row) return back()->with('error', 'Date not found');
 
         $imp = $row->impressions ?? [];
-        $adhese = $data['adhese'];
+        $adhese = $data['adhese'] ?? null; // optional rule: absent keys are dropped by validate()
         $imp['adhese'] = ($adhese === null || $adhese === '') ? null : (int) $adhese;
 
         $sum = 0;

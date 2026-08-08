@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ResolvesPreviewName;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\newVersion;
@@ -14,6 +15,7 @@ use Spatie\Activitylog\LogOptions;
 
 class newSocial extends Model
 {
+    use ResolvesPreviewName;
     use HasFactory;
     use LogsActivity;
 
@@ -35,7 +37,7 @@ class newSocial extends Model
     // Accessor to get preview name
     public function getPreviewNameAttribute()
     {
-        return $this->version?->feedbackset?->feedback?->category?->preview?->name;
+        return $this->previewNameVia(['version', 'feedbackset', 'feedback', 'category', 'preview']);
     }
 
     public function getActivitylogOptions(): LogOptions

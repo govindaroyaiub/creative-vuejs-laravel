@@ -396,9 +396,6 @@ function deleteSelected() {
             // reload the page to refresh logs
             router.get('/activity-logs', { search: search.value }, { preserveState: true, replace: true })
         },
-        onError: () => {
-            Swal.fire('Error', 'Could not delete selected logs.', 'error')
-        }
     })
 }
 
@@ -424,9 +421,6 @@ function emptyAll() {
             Swal.fire('Deleted', 'All activity logs have been deleted.', 'success')
             router.get('/activity-logs', { search: search.value }, { preserveState: true, replace: true })
         },
-        onError: () => {
-            Swal.fire('Error', 'Could not delete logs.', 'error')
-        }
     })
 }
 

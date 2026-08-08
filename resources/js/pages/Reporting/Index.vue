@@ -658,7 +658,6 @@ function processFiles() {
                 Swal.fire({ icon: 'success', title: 'Processed', timer: 1400, showConfirmButton: false });
             }
         },
-        onError: (errors: any) => Swal.fire('Upload failed', (Object.values(errors)[0] as string) ?? 'Error', 'error'),
     });
 }
 

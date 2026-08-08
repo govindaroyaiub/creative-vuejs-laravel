@@ -47,9 +47,6 @@ const saveRoute = () => {
             adding.value = false;
             newRoute.value = { title: '', href: '' };
         },
-        onError: () => {
-            Swal.fire('Error!', 'Failed to create route.', 'error');
-        },
     });
 };
 
@@ -75,9 +72,6 @@ const updateRoute = (id: number) => {
             editingId.value = null;
             editForm.value = { title: '', href: '' };
         },
-        onError: () => {
-            Swal.fire('Error!', 'Failed to update.', 'error');
-        },
     });
 };
 
@@ -98,9 +92,6 @@ const deleteRoute = async (id: number) => {
             onSuccess: () => {
                 routes.value = routes.value.filter((r: any) => r.id !== id);
                 Swal.fire('Deleted!', 'Route deleted successfully.', 'success');
-            },
-            onError: () => {
-                Swal.fire('Error!', 'Failed to delete.', 'error');
             },
         });
     }

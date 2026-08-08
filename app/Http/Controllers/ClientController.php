@@ -41,7 +41,12 @@ class ClientController extends Controller
             'name' => 'required|string|max:255',
             'website' => 'required|url',
             'preview_url' => 'nullable|url',
-            'logo' => 'nullable|image|max:2048',
+            // Required: `clients.logo` is NOT NULL and the preview header
+            // renders it (PreviewTopBar reads `/logos/{headerLogo.logo}`), so a
+            // client without one would ship a broken image to the client-facing
+            // page. Validating it here turns what was a 500 from the database
+            // into a normal 422 the user can read and act on.
+            'logo' => 'required|image|max:2048',
             'color_palette_id' => 'required|exists:color_palettes,id',
         ]);
 
@@ -58,9 +63,13 @@ class ClientController extends Controller
         Client::create([
             'name' => $validated['name'],
             'website' => $validated['website'],
-            'preview_url' => $validated['preview_url'],
+            // `validate()` omits absent optional keys entirely, so reading
+            // this directly threw "Undefined array key" when the field was
+            // not submitted at all.
+            'preview_url' => $validated['preview_url'] ?? null,
+            // Null when no logo was picked; the column is nullable and the UI
+            // renders the logo behind a `v-if`.
             'logo' => $filename,
-            'brand_color' => $palette->primary,
             'color_palette_id' => $palette->id,
         ]);
 
@@ -73,8 +82,15 @@ class ClientController extends Controller
             'name' => 'required|string|max:255',
             'website' => 'required|url',
             'preview_url' => 'nullable|url',
+            // Nullable here on purpose: omitting the file means "keep the
+            // existing logo", which is what `$filename = $client->logo` below
+            // does. A client can never end up without one.
             'logo' => 'nullable|image|max:2048',
-            'color_palette_id' => 'nullable|exists:color_palettes,id',
+            // Required, not nullable: the column is NOT NULL and store()
+            // already demands one. Accepting null here passed validation and
+            // then failed the update with "Column 'color_palette_id' cannot be
+            // null" — the same mismatch that made `logo` fail on create.
+            'color_palette_id' => 'required|exists:color_palettes,id',
         ]);
 
         $client = Client::findOrFail($id);
@@ -95,9 +111,12 @@ class ClientController extends Controller
         $client->update([
             'name' => $validated['name'],
             'website' => $validated['website'],
-            'preview_url' => $validated['preview_url'],
+            // `validate()` omits absent optional keys entirely, so reading
+            // this directly threw "Undefined array key" when the field was
+            // not submitted at all.
+            'preview_url' => $validated['preview_url'] ?? null,
             'logo' => $filename,
-            'color_palette_id' => $validated['color_palette_id'] ?? null,
+            'color_palette_id' => $validated['color_palette_id'],
         ]);
 
         return redirect()->route('clients')->with('success', 'Client updated successfully.');

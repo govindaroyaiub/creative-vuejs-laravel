@@ -84,14 +84,6 @@ const uploadFile = () => {
                 customClass: { popup: 'rounded-lg' }
             });
         },
-        onError: () => {
-            Swal.fire({
-                title: 'Error!',
-                text: 'Failed to upload.',
-                icon: 'error',
-                customClass: { popup: 'rounded-lg' }
-            });
-        },
         onFinish: () => {
             uploading.value = false;
         },
@@ -148,14 +140,6 @@ const bulkDelete = async () => {
                 selectAllChecked.value = false;
                 router.reload();
             },
-            onError: () => {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Bulk delete failed.',
-                    icon: 'error',
-                    customClass: { popup: 'rounded-lg' }
-                });
-            }
         });
     }
 };
@@ -194,12 +178,6 @@ const deleteMedia = async (id: number) => {
                 title: 'Deleted!',
                 text: 'File deleted.',
                 icon: 'success',
-                customClass: { popup: 'rounded-lg' }
-            }),
-            onError: () => Swal.fire({
-                title: 'Error!',
-                text: 'Delete failed.',
-                icon: 'error',
                 customClass: { popup: 'rounded-lg' }
             }),
         });

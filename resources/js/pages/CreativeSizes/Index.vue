@@ -85,9 +85,6 @@ function saveNew() {
                 customClass: { popup: 'rounded-lg' },
             });
         },
-        onError: () => {
-            Swal.fire({ title: 'Error', text: 'Could not save.', icon: 'error', customClass: { popup: 'rounded-lg' } });
-        },
         onFinish: () => {
             saving.value = false;
         },
@@ -131,9 +128,6 @@ function saveEdit(id: number) {
                 customClass: { popup: 'rounded-lg' },
             });
         },
-        onError: () => {
-            Swal.fire({ title: 'Error', text: 'Could not update.', icon: 'error', customClass: { popup: 'rounded-lg' } });
-        },
         onFinish: () => {
             saving.value = false;
         },
@@ -169,12 +163,6 @@ async function remove(id: number) {
             icon: 'success',
             timer: 1200,
             showConfirmButton: false,
-            customClass: { popup: 'rounded-lg' },
-        }),
-        onError: () => Swal.fire({
-            title: 'Error',
-            text: 'Could not delete.',
-            icon: 'error',
             customClass: { popup: 'rounded-lg' },
         }),
     });

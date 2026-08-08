@@ -57,12 +57,6 @@ const deleteVideoSize = async (id: number) => {
                 icon: 'success',
                 customClass: { popup: 'rounded-lg' }
             }),
-            onError: () => Swal.fire({
-                title: 'Error!',
-                text: 'Failed to delete video size.',
-                icon: 'error',
-                customClass: { popup: 'rounded-lg' }
-            }),
         });
     }
 };
@@ -98,14 +92,6 @@ const saveEdit = async (id: number) => {
                 });
                 cancelEdit();
             },
-            onError: () => {
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Failed to update video size.',
-                    icon: 'error',
-                    customClass: { popup: 'rounded-lg' }
-                });
-            },
             onFinish: () => {
                 saving.value = false;
             },
@@ -136,14 +122,6 @@ const saveNewSize = async () => {
                 });
                 newSize.value = { name: '', width: '', height: '' };
                 adding.value = false;
-            },
-            onError: () => {
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Failed to add video size.',
-                    icon: 'error',
-                    customClass: { popup: 'rounded-lg' }
-                });
             },
             onFinish: () => {
                 saving.value = false;

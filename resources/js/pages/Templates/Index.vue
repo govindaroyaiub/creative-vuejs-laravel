@@ -98,7 +98,6 @@ function submit() {
                 Swal.fire({ icon: 'success', title: 'Updated', toast: true, position: 'top-end', timer: 1200, showConfirmButton: false, customClass: { popup: 'rounded-lg' } });
                 closeModal();
             },
-            onError: () => Swal.fire({ title: 'Error', text: 'Failed to update template', icon: 'error', customClass: { popup: 'rounded-lg' } }),
         });
     } else {
         router.post(route('templates.store'), payload, {
@@ -107,7 +106,6 @@ function submit() {
                 Swal.fire({ icon: 'success', title: 'Uploaded', toast: true, position: 'top-end', timer: 1200, showConfirmButton: false, customClass: { popup: 'rounded-lg' } });
                 closeModal();
             },
-            onError: () => Swal.fire({ title: 'Error', text: 'Failed to upload template', icon: 'error', customClass: { popup: 'rounded-lg' } }),
         });
     }
 }
@@ -128,7 +126,6 @@ const remove = async (id: number) => {
         router.delete(route('templates.delete', id), {
             preserveScroll: true,
             onSuccess: () => Swal.fire({ icon: 'success', title: 'Deleted', toast: true, position: 'top-end', timer: 1200, showConfirmButton: false, customClass: { popup: 'rounded-lg' } }),
-            onError: () => Swal.fire({ title: 'Error', text: 'Could not delete template', icon: 'error', customClass: { popup: 'rounded-lg' } }),
         });
     }
 };

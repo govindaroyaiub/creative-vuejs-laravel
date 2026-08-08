@@ -89,17 +89,6 @@ const deleteFileTransfer = async (id: number) => {
                 toast: true,
                 customClass: { popup: 'rounded-lg' }
             }),
-            onError: () => Swal.fire({
-                title: 'Error!',
-                text: 'Failed to delete file transfer.',
-                icon: 'error',
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 4000,
-                timerProgressBar: true,
-                toast: true,
-                customClass: { popup: 'rounded-lg' }
-            }),
         });
     }
 };
@@ -167,7 +156,6 @@ const bulkDelete = async () => {
             selectedIds.value = [];
             selectAllChecked.value = false;
         },
-        onError: () => Swal.fire({ title: 'Error!', text: 'Failed to delete selected transfers.', icon: 'error', customClass: { popup: 'rounded-lg' } })
     });
 }
 
@@ -249,19 +237,6 @@ const handleSubmit = () => {
                 customClass: { popup: 'rounded-lg' }
             });
         },
-        onError: () => {
-            Swal.fire({
-                title: 'Error!',
-                text: 'Failed to create file transfer.',
-                icon: 'error',
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 4000,
-                timerProgressBar: true,
-                toast: true,
-                customClass: { popup: 'rounded-lg' }
-            });
-        }
     });
 };
 
@@ -340,19 +315,6 @@ const handleEditSubmit = () => {
                 customClass: { popup: 'rounded-lg' }
             });
         },
-        onError: () => {
-            Swal.fire({
-                title: 'Error!',
-                text: 'Failed to update file transfer.',
-                icon: 'error',
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 4000,
-                timerProgressBar: true,
-                toast: true,
-                customClass: { popup: 'rounded-lg' }
-            });
-        }
     });
 };
 </script>

@@ -10,6 +10,7 @@ import Inspector from './Update2/Inspector.vue'
 import NewCategoryModal from './Update2/modals/NewCategoryModal.vue'
 import ChangesSidebar from './Update2/ChangesSidebar.vue'
 import { createPreviewTree, isDbId, type AssetType } from './Update2/usePreviewTree'
+import { formatBulkEditErrors, renderProblemsHtml, type SaveProblem } from '@/lib/preview-save-errors'
 
 type Palette = {
   id: number
@@ -109,11 +110,70 @@ const generateKey = () => {
   return 'k-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10)
 }
 
+/**
+ * Name any branch of the tree that has no children.
+ *
+ * The API requires at least one child at every level (`categories`,
+ * `.feedbacks`, `.feedback_sets` and `.versions` all carry min:1). An empty
+ * array appends nothing to FormData, so the key is absent altogether and the
+ * server can only answer with the raw path — "The
+ * categories.0.feedbacks.0.feedback_sets.0.versions field is required." —
+ * which tells the user nothing about which item to fix.
+ *
+ * Adding a project, round or version leaves it empty by design
+ * (see usePreviewTree's addCategory/addFeedback/addSet), so this is easy to
+ * hit: add one, hit save, get a dead end.
+ *
+ * Wording follows the editor's labels, which are swapped relative to the
+ * column names: a `feedback_set` node is shown as a "version" and a `version`
+ * node as a "set". See Inspector.vue and TreeNode.vue.
+ */
+const describeEmptyBranches = (): SaveProblem[] => {
+  const problems: SaveProblem[] = []
+  const label = (node: any, fallback: string) => (node?.name || '').trim() || fallback
+
+  ;(tree.preview.categories ?? []).forEach((c: any) => {
+    const cName = label(c, 'Untitled project')
+    if (!c.feedbacks?.length) {
+      problems.push({ where: cName, what: 'This project has no revision round.' })
+      return
+    }
+    c.feedbacks.forEach((f: any) => {
+      const fName = label(f, 'Untitled round')
+      if (!f.feedback_sets?.length) {
+        problems.push({ where: `${cName} \u203a ${fName}`, what: 'This revision round has no version.' })
+        return
+      }
+      f.feedback_sets.forEach((s: any) => {
+        if (!s.versions?.length) {
+          const sName = label(s, 'Untitled version')
+          problems.push({ where: `${cName} \u203a ${fName} \u203a ${sName}`, what: 'This version has no set.' })
+        }
+      })
+    })
+  })
+
+  return problems
+}
+
 const saveAll = () => {
   // Hard re-entry guard. The button is disabled, but a stray programmatic
   // call (Cmd+S handler, retry, etc.) could land here while a save is
   // already in flight. Drop it.
   if (tree.isSaving.value) return
+
+  const empties = describeEmptyBranches()
+  if (empties.length) {
+    Swal.fire({
+      icon: 'warning',
+      title: empties.length === 1 ? "One item can't be saved yet" : `${empties.length} items can't be saved yet`,
+      html: renderProblemsHtml(empties) +
+        '<p style="font-size:12px;opacity:.7;margin:12px 0 0">Add what is missing, or delete the empty item, then save again.</p>',
+      width: 560,
+      confirmButtonText: 'Got it',
+    })
+    return
+  }
 
   const fd = new FormData()
   const p = tree.preview
@@ -198,15 +258,22 @@ const saveAll = () => {
       // the same key on retry, which is exactly what we want.
       pendingIdempotencyKey.value = null
       console.error('Save failed', errs)
+
+      // Resolve the server's nested keys against the tree we just sent, so the
+      // dialog names the offending item instead of printing
+      // "categories.0.feedbacks.0.feedback_sets.0.versions is required".
+      // The raw bag stays in the console for debugging.
+      const problems = formatBulkEditErrors(errs ?? {}, tree.preview.categories ?? [])
+
       Swal.fire({
         icon: 'error',
-        title: 'Validation error',
-        // Use `text:` (not `html:`) so the JSON-stringified error
-        // payload — which echoes back the user's own input — can't be
-        // interpreted as HTML and turn into a self-XSS the moment the
-        // user pastes anything containing `<script>` into a field.
-        text: JSON.stringify(errs, null, 2),
-        width: 600,
+        title: problems.length === 1 ? "Couldn't save one item" : `Couldn't save ${problems.length || ''} items`.trim(),
+        html: problems.length
+          ? renderProblemsHtml(problems) +
+            '<p style="font-size:12px;opacity:.7;margin:12px 0 0">Fix the items above and save again. Nothing was changed.</p>'
+          : '<p style="font-size:13px">The server rejected the save. Details are in the browser console.</p>',
+        width: 560,
+        confirmButtonText: 'Close',
       })
     },
     onFinish: () => {

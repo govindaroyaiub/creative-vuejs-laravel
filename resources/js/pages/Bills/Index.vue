@@ -43,12 +43,6 @@ const deleteBill = async (id: number) => {
                 icon: 'success',
                 customClass: { popup: 'rounded-lg' }
             }),
-            onError: () => Swal.fire({
-                title: 'Error!',
-                text: 'Failed to delete bill.',
-                icon: 'error',
-                customClass: { popup: 'rounded-lg' }
-            }),
         });
     }
 };

@@ -114,7 +114,10 @@ class NewGifController extends Controller
                 // Create new row
                 $newGifRow = newGif::create([
                     'name' => $safeName,
-                    'size_id' => $request->input('size_id', 1),
+                    // See NewBannerController: a blank field arrives as a present
+                    // null, so `input()`'s default is skipped. Falls back to the
+                    // gif's current size rather than a hardcoded id.
+                    'size_id' => $request->input('size_id') ?? $gif->size_id,
                     'version_id' => $gif->version_id,
                     'position' => $request->input('position', 1),
                     'path' => 'uploads/gifs/' . $safeName,

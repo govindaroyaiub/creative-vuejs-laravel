@@ -43,9 +43,6 @@ const toggleStatus = async () => {
                     showConfirmButton: false
                 });
             },
-            onError: () => {
-                Swal.fire('Error!', 'Failed to update tour guide status.', 'error');
-            },
             onFinish: () => {
                 isUpdating.value = false;
             }

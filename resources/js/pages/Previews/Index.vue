@@ -262,10 +262,6 @@ const submitForm = () => {
             });
             closeModal();
         },
-        onError: (error) => {
-            console.log(error);
-            Swal.fire('Error!', 'Failed to create preview.', 'error');
-        }
     });
 };
 

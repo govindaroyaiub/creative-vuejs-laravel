@@ -722,6 +722,24 @@ class NewPreviewController extends Controller
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.file' => 'nullable|file|mimes:mp4,mov,avi,wmv,mkv',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.companion_banner' => 'nullable|file|mimes:jpeg,png,webp,bmp,gif,jpg|max:20480',
             // Add similar validation for socials, videos, gifs if needed
+        ], [
+            // Every level requires at least one child, and an empty array
+            // appends nothing to FormData — so the key is simply missing and
+            // the default message is the raw path, e.g.
+            // "The categories.0.feedbacks.0.feedback_sets.0.versions field is
+            // required." Nobody can act on that.
+            //
+            // The wording follows the editor's labels, which are deliberately
+            // swapped relative to these column names: a `feedback_set` is shown
+            // as a "version" and a `version` as a "set". See Inspector.vue.
+            'categories.required' => 'A preview needs at least one project.',
+            'categories.min' => 'A preview needs at least one project.',
+            'categories.*.feedbacks.required' => 'Every project needs at least one revision round.',
+            'categories.*.feedbacks.min' => 'Every project needs at least one revision round.',
+            'categories.*.feedbacks.*.feedback_sets.required' => 'Every revision round needs at least one version.',
+            'categories.*.feedbacks.*.feedback_sets.min' => 'Every revision round needs at least one version.',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.required' => 'Every version needs at least one set.',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.min' => 'Every version needs at least one set.',
         ]);
 
         $preview = newPreview::with([
@@ -756,6 +774,12 @@ class NewPreviewController extends Controller
                 if (isset($catData['id'])) {
                     $category = newCategory::find($catData['id']);
                     if ($category) {
+                        // Attach the parent in memory before saving. The
+                        // activity-log hook reads `preview_name` during the
+                        // `updated` event, and it now only walks relations that
+                        // are already loaded (see ResolvesPreviewName) — without
+                        // this the log name would lose the preview.
+                        $category->setRelation('preview', $preview);
                         $category->update([
                             'name' => $catData['name'],
                             'type' => $catData['type'],
@@ -783,6 +807,8 @@ class NewPreviewController extends Controller
                     if (isset($fbData['id'])) {
                         $feedback = newFeedback::find($fbData['id']);
                         if ($feedback) {
+                            // Parent in memory so the activity-log name keeps the preview.
+                            $feedback->setRelation('category', $category);
                             $feedback->update([
                                 'name' => $fbData['name'],
                                 'description' => $fbData['description'],
@@ -810,6 +836,8 @@ class NewPreviewController extends Controller
                         if (isset($setData['id'])) {
                             $set = newFeedbackSet::find($setData['id']);
                             if ($set) {
+                                // Parent in memory so the activity-log name keeps the preview.
+                                $set->setRelation('feedback', $feedback);
                                 $set->update([
                                     'name' => $setData['name'] ?? '',
                                 ]);
@@ -828,6 +856,8 @@ class NewPreviewController extends Controller
                             if (isset($verData['id'])) {
                                 $version = newVersion::find($verData['id']);
                                 if ($version) {
+                                    // Parent in memory so the activity-log name keeps the preview.
+                                    $version->setRelation('feedbackset', $set);
                                     $version->update([
                                         'name' => $verData['name'] ?? '',
                                     ]);
@@ -852,6 +882,9 @@ class NewPreviewController extends Controller
                                     foreach ($verData['banners'] as $bannerData) {
                                         if (isset($bannerData['id']) && $existingBanners->has($bannerData['id'])) {
                                             $banner = $existingBanners[$bannerData['id']];
+                                            // Parent in memory: the activity-log hook reads preview_name
+                                            // during `updated`, and rearranging makes `position` dirty.
+                                            $banner->setRelation('version', $version);
                                             $banner->update([
                                                 'name' => $bannerData['name'] ?? $banner->name,
                                                 'size_id' => $bannerData['size_id'],
@@ -946,6 +979,9 @@ class NewPreviewController extends Controller
                                     foreach ($verData['socials'] as $socialData) {
                                         if (isset($socialData['id']) && $existingSocials->has($socialData['id'])) {
                                             $social = $existingSocials[$socialData['id']];
+                                            // Parent in memory: the activity-log hook reads preview_name
+                                            // during `updated`, and rearranging makes `position` dirty.
+                                            $social->setRelation('version', $version);
                                             $social->update([
                                                 'name' => $socialData['name'] ?? $social->name,
                                                 'position' => $socialData['position'],
@@ -1014,6 +1050,9 @@ class NewPreviewController extends Controller
 
                                             if (isset($videoData['id']) && $existingVideos->has($videoData['id'])) {
                                                 $video = $existingVideos[$videoData['id']];
+                                                // Parent in memory: the activity-log hook reads preview_name
+                                                // during `updated`, and rearranging makes `position` dirty.
+                                                $video->setRelation('version', $version);
                                                 $video->update([
                                                     'name' => $videoData['name'] ?? $video->name,
                                                     'codec' => $videoData['codec'] ?? $video->codec,
@@ -1129,6 +1168,9 @@ class NewPreviewController extends Controller
                                     foreach ($verData['gifs'] as $gifData) {
                                         if (isset($gifData['id']) && $existingGifs->has($gifData['id'])) {
                                             $gif = $existingGifs[$gifData['id']];
+                                            // Parent in memory: the activity-log hook reads preview_name
+                                            // during `updated`, and rearranging makes `position` dirty.
+                                            $gif->setRelation('version', $version);
                                             $gif->update([
                                                 'size_id' => $gifData['size_id'],
                                                 'position' => $gifData['position'],

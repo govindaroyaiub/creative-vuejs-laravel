@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Concerns\ResolvesPreviewName;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\newVersion;
 use App\Models\newPreview;
@@ -15,6 +16,7 @@ use Spatie\Activitylog\LogOptions;
 
 class newBanner extends Model
 {
+    use ResolvesPreviewName;
     use HasFactory;
     use LogsActivity;
 
@@ -36,7 +38,7 @@ class newBanner extends Model
     // Accessor to get preview name
     public function getPreviewNameAttribute()
     {
-        return $this->version?->feedbackset?->feedback?->category?->preview?->name;
+        return $this->previewNameVia(['version', 'feedbackset', 'feedback', 'category', 'preview']);
     }
 
     public function getActivitylogOptions(): LogOptions

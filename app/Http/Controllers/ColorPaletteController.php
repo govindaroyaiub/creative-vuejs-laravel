@@ -41,14 +41,17 @@ class ColorPaletteController extends Controller
             'secondary' => 'required|string|max:7',
             'tertiary' => 'required|string|max:7',
             'quaternary' => 'required|string|max:7',
-            'quinary' => 'nullable|string|max:7',
-            'senary' => 'nullable|string|max:7',
-            'septenary' => 'nullable|string|max:7',
-            'feedbackTab_inactive_image' => 'nullable|image|max:2048',
-            'feedbackTab_active_image' => 'nullable|image|max:2048',
-            'rightSideTab_feedback_description_image' => 'nullable|image|max:2048',
-            'rightSideTab_color_palette_image' => 'nullable|image|max:2048',
-            'header_image' => 'nullable|image|max:2048',
+            'quinary' => 'required|string|max:7',
+            'senary' => 'required|string|max:7',
+            'septenary' => 'required|string|max:7',
+            // Required on create: all five columns are NOT NULL, and the
+            // preview chrome renders them. Validating here turns what was a
+            // 500 from MySQL into a 422 the user can read.
+            'feedbackTab_inactive_image' => 'required|image|max:2048',
+            'feedbackTab_active_image' => 'required|image|max:2048',
+            'rightSideTab_feedback_description_image' => 'required|image|max:2048',
+            'rightSideTab_color_palette_image' => 'required|image|max:2048',
+            'header_image' => 'required|image|max:2048',
         ]);
 
         // Set status to 0 by default
@@ -84,9 +87,12 @@ class ColorPaletteController extends Controller
             'secondary' => 'required|string|max:7',
             'tertiary' => 'required|string|max:7',
             'quaternary' => 'required|string|max:7',
-            'quinary' => 'nullable|string|max:7',
-            'senary' => 'nullable|string|max:7',
-            'septenary' => 'nullable|string|max:7',
+            'quinary' => 'required|string|max:7',
+            'senary' => 'required|string|max:7',
+            'septenary' => 'required|string|max:7',
+            // Nullable on update on purpose: omitting a file means "keep the
+            // existing image", and the loop below only writes the key when a
+            // new file arrives, so a palette can never lose an image.
             'feedbackTab_inactive_image' => 'nullable|image|max:2048',
             'feedbackTab_active_image' => 'nullable|image|max:2048',
             'rightSideTab_feedback_description_image' => 'nullable|image|max:2048',

@@ -54,6 +54,11 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            // Lets the global error handler in app.ts decide whether to show
+            // Inertia's raw error modal (useful while debugging) or a clean
+            // message. Never leaks anything: it is the same flag the framework
+            // already uses to decide what a 500 page reveals.
+            'debug' => config('app.debug'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),

@@ -82,7 +82,10 @@ class NewBannerController extends Controller
 
             // Update name, size, position if provided
             $banner->update([
-                'size_id' => $request->input('size_id', $banner->size_id),
+                // `input($k, $default)` only falls back when the key is absent;
+                // ConvertEmptyStringsToNull turns a blank field into a present
+                // null, which would hit the NOT NULL column. `??` covers both.
+                'size_id' => $request->input('size_id') ?? $banner->size_id,
                 // Add other fields if needed
             ]);
 

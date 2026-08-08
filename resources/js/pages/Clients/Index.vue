@@ -189,7 +189,6 @@ const handleCreateSubmit = () => {
                 timerProgressBar: true,
             });
         },
-        onError: () => Swal.fire('Error!', 'Failed to create client.', 'error'),
     });
 };
 
@@ -219,7 +218,6 @@ const handleEditSubmit = () => {
                 timerProgressBar: true,
             });
         },
-        onError: () => Swal.fire('Error!', 'Failed to update client.', 'error'),
     });
 };
 
@@ -254,14 +252,6 @@ const deleteClient = async (id: number, name: string) => {
                     customClass: { popup: 'rounded-lg' }
                 });
             },
-            onError: () => {
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Failed to delete client.',
-                    icon: 'error',
-                    customClass: { popup: 'rounded-lg' }
-                });
-            }
         });
     }
 };
@@ -560,7 +550,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                         <div>
                             <label
                                 class="block text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">Logo
-                                (Image)</label>
+                                (Image) <span class="text-[#D71921]">*</span></label>
                             <FilePond name="logo" :files="createFilePondFiles" @updatefiles="handleCreateFilePondUpdate"
                                 :allowMultiple="false" :acceptedFileTypes="['image/*']"
                                 :labelIdle="'Drag & Drop your logo or <span class=\'filepond--label-action\'>Browse</span>'"
@@ -574,7 +564,7 @@ const totalClients = computed(() => clients.value?.total || 0);
                                 Cancel
                             </button>
                             <button type="submit"
-                                :disabled="!createForm.name || !createForm.website || !createForm.color_palette_id"
+                                :disabled="!createForm.name || !createForm.website || !createForm.color_palette_id || !createForm.logo"
                                 class="flex-1 rounded-full bg-black dark:bg-white text-white dark:text-black px-6 py-3 hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white disabled:opacity-50 disabled:cursor-not-allowed font-mono tracking-wide text-sm transition-colors">
                                 Create Client
                             </button>

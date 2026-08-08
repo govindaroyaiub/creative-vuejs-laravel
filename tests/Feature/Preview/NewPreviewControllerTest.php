@@ -392,3 +392,173 @@ describe('deleting', function () {
             ->assertStatus(404);
     });
 });
+
+describe('bulk edit validation messages', function () {
+    /** A payload that is valid except for the branch under test. */
+    function bulkPayload(array $setOverrides = []): array
+    {
+        return [
+            'categories' => [[
+                'name' => 'Banners',
+                'type' => 'banner',
+                'feedbacks' => [[
+                    'name' => 'Round 1',
+                    'description' => 'First pass',
+                    'feedback_sets' => [array_merge(['name' => 'Concept A'], $setOverrides)],
+                ]],
+            ]],
+        ];
+    }
+
+    it('names the empty version in the editor\'s own words', function () {
+        $preview = newPreview::factory()->create();
+
+        // A feedback_set with no versions — what the UI calls a version with no
+        // set. An empty array appends nothing to FormData, so the key is simply
+        // absent, which is exactly what the editor sends.
+        $this->actingAs(planetNine())
+            ->post(route('previews.bulkEdit', $preview->id), bulkPayload() + ['preview_id' => $preview->id])
+            ->assertSessionHasErrors([
+                'categories.0.feedbacks.0.feedback_sets.0.versions' => 'Every version needs at least one set.',
+            ]);
+    });
+
+    it('names an empty revision round', function () {
+        $preview = newPreview::factory()->create();
+        $payload = bulkPayload();
+        $payload['categories'][0]['feedbacks'][0]['feedback_sets'] = [];
+
+        $this->actingAs(planetNine())
+            ->post(route('previews.bulkEdit', $preview->id), $payload + ['preview_id' => $preview->id])
+            ->assertSessionHasErrors([
+                'categories.0.feedbacks.0.feedback_sets' => 'Every revision round needs at least one version.',
+            ]);
+    });
+
+    it('names an empty project', function () {
+        $preview = newPreview::factory()->create();
+        $payload = bulkPayload();
+        $payload['categories'][0]['feedbacks'] = [];
+
+        $this->actingAs(planetNine())
+            ->post(route('previews.bulkEdit', $preview->id), $payload + ['preview_id' => $preview->id])
+            ->assertSessionHasErrors([
+                'categories.0.feedbacks' => 'Every project needs at least one revision round.',
+            ]);
+    });
+
+    it('never leaks a raw field path into the message', function () {
+        $preview = newPreview::factory()->create();
+
+        $this->actingAs(planetNine())
+            ->post(route('previews.bulkEdit', $preview->id), bulkPayload() + ['preview_id' => $preview->id]);
+
+        $messages = session('errors')->all();
+
+        expect($messages)->not->toBeEmpty();
+        foreach ($messages as $message) {
+            expect($message)->not->toContain('categories.0');
+        }
+    });
+});
+
+describe('rearranging banners', function () {
+    /** Build preview → category → round → set → version → 2 banners. */
+    function bannerTree(): array
+    {
+        $preview = newPreview::factory()->create();
+        $category = newCategory::create([
+            'preview_id' => $preview->id, 'name' => 'Banner', 'type' => 'banner', 'is_active' => true,
+        ]);
+        $feedback = \App\Models\newFeedback::create([
+            'category_id' => $category->id, 'name' => 'Round 1', 'description' => 'First pass', 'is_active' => true,
+        ]);
+        $set = \App\Models\newFeedbackSet::create(['feedback_id' => $feedback->id, 'name' => null]);
+        $version = \App\Models\newVersion::create(['feedback_set_id' => $set->id, 'name' => null]);
+        $size = \App\Models\BannerSize::create(['width' => 300, 'height' => 250]);
+
+        $banners = collect(['A', 'B'])->map(fn ($n, $i) => \App\Models\newBanner::create([
+            'version_id' => $version->id,
+            'name' => "Banner {$n}",
+            'path' => "uploads/banners/banner-{$n}/",
+            'size_id' => $size->id,
+            'file_size' => '10 KB',
+            'position' => $i + 1,
+        ]));
+
+        return compact('preview', 'category', 'feedback', 'set', 'version', 'size', 'banners');
+    }
+
+    it('reorders banners without a lazy-loading violation', function () {
+        // Regression: the activity-log hook reads `preview_name` during the
+        // `updated` event. It used to walk version → feedbackset → feedback →
+        // category → preview, none of which bulkEdit loads, and lazy loading is
+        // disabled outside production — so this 500'd. Only reordering triggered
+        // it, because Eloquent skips `updated` when nothing is dirty.
+        ['preview' => $preview, 'category' => $category, 'feedback' => $feedback,
+         'set' => $set, 'version' => $version, 'size' => $size, 'banners' => $banners] = bannerTree();
+
+        $payload = [
+            'preview_id' => $preview->id,
+            'categories' => [[
+                'id' => $category->id,
+                'name' => $category->name,
+                'type' => 'banner',
+                'feedbacks' => [[
+                    'id' => $feedback->id,
+                    'name' => $feedback->name,
+                    'description' => $feedback->description,
+                    'feedback_sets' => [[
+                        'id' => $set->id,
+                        'name' => '',
+                        'versions' => [[
+                            'id' => $version->id,
+                            'name' => '',
+                            // Swapped positions — this is the rearrange.
+                            'banners' => [
+                                ['id' => $banners[0]->id, 'name' => $banners[0]->name, 'size_id' => $size->id, 'position' => 2],
+                                ['id' => $banners[1]->id, 'name' => $banners[1]->name, 'size_id' => $size->id, 'position' => 1],
+                            ],
+                        ]],
+                    ]],
+                ]],
+            ]],
+        ];
+
+        $this->actingAs(planetNine())
+            ->post(route('previews.bulkEdit', $preview->id), $payload)
+            ->assertSessionHasNoErrors();
+
+        expect($banners[0]->fresh()->position)->toBe(2);
+        expect($banners[1]->fresh()->position)->toBe(1);
+    });
+
+    it('keeps the preview name in the activity log name', function () {
+        ['preview' => $preview, 'banners' => $banners] = $tree = bannerTree();
+        $preview->update(['name' => 'Summer Sale']);
+
+        // Same shape as above, just reordering.
+        $this->actingAs(planetNine())->post(route('previews.bulkEdit', $preview->id), [
+            'preview_id' => $preview->id,
+            'categories' => [[
+                'id' => $tree['category']->id, 'name' => 'Banner', 'type' => 'banner',
+                'feedbacks' => [[
+                    'id' => $tree['feedback']->id, 'name' => 'Round 1', 'description' => 'First pass',
+                    'feedback_sets' => [[
+                        'id' => $tree['set']->id, 'name' => '',
+                        'versions' => [[
+                            'id' => $tree['version']->id, 'name' => '',
+                            'banners' => [
+                                ['id' => $banners[0]->id, 'name' => 'Banner A', 'size_id' => $tree['size']->id, 'position' => 2],
+                            ],
+                        ]],
+                    ]],
+                ]],
+            ]],
+        ])->assertSessionHasNoErrors();
+
+        $logNames = \Spatie\Activitylog\Models\Activity::pluck('log_name')->unique();
+
+        expect($logNames->contains(fn ($n) => str_contains((string) $n, 'Summer Sale')))->toBeTrue();
+    });
+});

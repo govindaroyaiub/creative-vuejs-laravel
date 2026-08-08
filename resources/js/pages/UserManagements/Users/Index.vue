@@ -92,7 +92,6 @@ const savePermissions = () => {
                 permissionsModalUserId.value = null;
                 Swal.fire('Success!', 'Permissions updated.', 'success');
             },
-            onError: () => Swal.fire('Error!', 'Failed to update permissions.', 'error'),
             onFinish: () => (savingPermissions.value = false),
         },
     );
@@ -168,9 +167,6 @@ const deleteUser = async (id: number) => {
             onSuccess: () => {
                 users.value = users.value.filter((u: any) => u.id !== id);
                 Swal.fire('Deleted!', 'User has been deleted.', 'success');
-            },
-            onError: () => {
-                Swal.fire('Error!', 'Failed to delete user.', 'error');
             },
         });
     }

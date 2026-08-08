@@ -48,9 +48,6 @@ const updateStatus = (ticketId: number, newStatus: string) => {
                     showConfirmButton: false,
                 });
             },
-            onError: () => {
-                Swal.fire('Error!', 'Failed to update status.', 'error');
-            },
         }
     );
 };
@@ -73,9 +70,6 @@ const updatePriority = async (ticketId: number, newPriority: string) => {
                 preserveScroll: true,
                 onSuccess: () => {
                     Swal.fire('Updated!', 'Ticket priority has been updated.', 'success');
-                },
-                onError: () => {
-                    Swal.fire('Error!', 'Failed to update priority.', 'error');
                 },
             }
         );
@@ -104,9 +98,6 @@ const updateStatusFromModal = async (newStatus: string) => {
                     Swal.fire('Updated!', 'Ticket status has been updated.', 'success');
                     selectedTicket.value.status = newStatus;
                 },
-                onError: () => {
-                    Swal.fire('Error!', 'Failed to update status.', 'error');
-                },
             }
         );
     }
@@ -128,9 +119,6 @@ const deleteTicket = async (id: number) => {
             preserveScroll: true,
             onSuccess: () => {
                 Swal.fire('Deleted!', 'Ticket deleted successfully.', 'success');
-            },
-            onError: () => {
-                Swal.fire('Error!', 'Failed to delete ticket.', 'error');
             },
         });
     }

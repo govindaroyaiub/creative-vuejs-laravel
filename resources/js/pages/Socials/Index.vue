@@ -45,9 +45,6 @@ const saveEdit = (id: number) => {
                 editingId.value = null;
                 Swal.fire('Updated!', 'Social updated successfully.', 'success');
             },
-            onError: () => {
-                Swal.fire('Error!', 'Failed to update social.', 'error');
-            },
         },
     );
 };
@@ -68,9 +65,6 @@ const deleteSocial = async (id: number) => {
             preserveScroll: true,
             onSuccess: () => {
                 Swal.fire('Deleted!', 'Social deleted successfully.', 'success');
-            },
-            onError: () => {
-                Swal.fire('Error!', 'Failed to delete social.', 'error');
             },
         });
     }
@@ -97,9 +91,6 @@ const saveNewSocial = () => {
             onSuccess: () => {
                 adding.value = false;
                 Swal.fire('Added!', 'Social created successfully.', 'success');
-            },
-            onError: () => {
-                Swal.fire('Error!', 'Failed to create social.', 'error');
             },
         },
     );

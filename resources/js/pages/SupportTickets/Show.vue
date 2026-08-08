@@ -69,9 +69,6 @@ const updateStatus = async (newStatus: string) => {
                 onSuccess: () => {
                     Swal.fire('Updated!', 'Ticket status has been updated.', 'success');
                 },
-                onError: () => {
-                    Swal.fire('Error!', 'Failed to update status.', 'error');
-                },
             }
         );
     }
@@ -95,9 +92,6 @@ const updatePriority = async (newPriority: string) => {
                 preserveScroll: true,
                 onSuccess: () => {
                     Swal.fire('Updated!', 'Ticket priority has been updated.', 'success');
-                },
-                onError: () => {
-                    Swal.fire('Error!', 'Failed to update priority.', 'error');
                 },
             }
         );

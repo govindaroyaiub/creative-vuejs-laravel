@@ -147,7 +147,10 @@ class UserManagementController extends Controller
             // they do). Using a literal "password" here historically
             // meant any guessed-email account was takeable.
             'password' => bcrypt(Str::random(40)),
-            'designation' => $data['send_mail'] ? null : 7, // if no mail, assign client designation
+            // `send_mail` is nullable, and validate() drops absent optional
+            // keys, so reading it directly threw "Undefined array key" when the
+            // checkbox was not submitted at all.
+            'designation' => ($data['send_mail'] ?? false) ? null : 7, // if no mail, assign client designation
             'permissions' => $permissions,
         ]);
 

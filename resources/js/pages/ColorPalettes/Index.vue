@@ -383,12 +383,17 @@
 
           <!-- Modal Actions -->
           <div class="flex justify-end space-x-4 mt-8 pt-6 border-t-2 border-[#E8E8E8] dark:border-[#222222]">
+            <p v-if="!canSubmitPalette"
+              class="mr-auto self-center text-xs font-mono tracking-wide text-[#D71921]">
+              All five images are required ({{ missingImages.length }} still missing).
+            </p>
             <button type="button" @click="closeModal"
               class="px-6 py-3 border-2 border-[#CCCCCC] dark:border-[#333333] text-black dark:text-white rounded-full hover:border-black hover:dark:border-white transition-colors font-mono tracking-wide text-sm">
               Cancel
             </button>
-            <button type="submit"
-              class="px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white transition-colors font-mono tracking-wide text-sm">
+            <button type="submit" :disabled="!canSubmitPalette"
+              :title="canSubmitPalette ? undefined : `Add ${missingImages.length} more image(s) first`"
+              class="px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-full hover:bg-white hover:dark:bg-black hover:text-black hover:dark:text-white border-2 border-black dark:border-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-mono tracking-wide text-sm">
               {{ modalMode === 'edit' ? 'Update Palette' : 'Create Palette' }}
             </button>
           </div>
@@ -400,7 +405,7 @@
 
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import Swal from 'sweetalert2'
 import { Head } from '@inertiajs/vue3'
@@ -417,6 +422,7 @@ const colorKeys = [
 ]
 
 const showModal = ref(false)
+
 const modalMode = ref('add') // 'add' or 'edit'
 const selectedPalette = ref(null)
 
@@ -448,6 +454,31 @@ const form = ref({
   rightSideTab_feedback_description_image_preview: null,
   rightSideTab_color_palette_image_preview: null,
 })
+
+/**
+ * All five image columns on `color_palettes` are NOT NULL and the preview
+ * chrome renders them, so a new palette must carry every one. `store()`
+ * validates them as required; this stops the user finding out only after a
+ * round-trip.
+ *
+ * Editing is not gated: omitting a file there means "keep the stored image",
+ * which is what the controller does.
+ */
+const PALETTE_IMAGE_FIELDS = [
+  'header_image',
+  'feedbackTab_inactive_image',
+  'feedbackTab_active_image',
+  'rightSideTab_feedback_description_image',
+  'rightSideTab_color_palette_image',
+] as const
+
+const missingImages = computed(() =>
+  PALETTE_IMAGE_FIELDS.filter((field) => !(form.value as any)[field]),
+)
+
+const canSubmitPalette = computed(
+  () => modalMode.value === 'edit' || missingImages.value.length === 0,
+)
 
 function openEditModal(palette) {
   modalMode.value = 'edit'

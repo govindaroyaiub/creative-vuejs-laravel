@@ -304,14 +304,6 @@ const submit = () => {
                 timerProgressBar: true,
             });
         },
-        onError: () => {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Something went wrong. Please check your inputs and try again.',
-                confirmButtonColor: '#dc2626',
-            });
-        },
     });
 };
 
@@ -343,7 +335,6 @@ const confirmDelete = async () => {
         },
         onError: () => {
             deleting.value = false;
-            Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to delete preview.' });
         }
     });
 };

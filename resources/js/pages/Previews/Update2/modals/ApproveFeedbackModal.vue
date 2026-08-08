@@ -63,10 +63,6 @@ const submit = () => {
       Swal.fire({ icon: 'success', title: 'Round approved', toast: true, position: 'top-end', timer: 1400, showConfirmButton: false })
       emit('update:open', false)
     },
-    onError: (errs) => {
-      console.error(errs)
-      Swal.fire({ icon: 'error', title: 'Approval failed', text: 'See console for details.' })
-    },
     onFinish: () => { isSubmitting.value = false },
   })
 }

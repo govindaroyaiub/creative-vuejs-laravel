@@ -47,13 +47,6 @@ const saveDesignation = () => {
             adding.value = false;
             newDesignation.value = '';
         },
-        onError: (errors) => {
-            if (errors.name) {
-                Swal.fire('Error!', errors.name, 'error');
-            } else {
-                Swal.fire('Error!', 'Something went wrong.', 'error');
-            }
-        },
     });
 };
 
@@ -84,13 +77,6 @@ const updateDesignation = (id: number) => {
                 editingId.value = null;
                 editName.value = '';
             },
-            onError: (errors) => {
-                if (errors.name) {
-                    Swal.fire('Error!', errors.name, 'error');
-                } else {
-                    Swal.fire('Error!', 'Something went wrong.', 'error');
-                }
-            },
         },
     );
 };
@@ -113,7 +99,6 @@ const deleteDesignation = async (id: number) => {
                 designations.value = designations.value.filter((d: any) => d.id !== id);
                 Swal.fire('Deleted!', 'Designation deleted.', 'success');
             },
-            onError: () => Swal.fire('Error!', 'Failed to delete.', 'error'),
         });
     }
 };

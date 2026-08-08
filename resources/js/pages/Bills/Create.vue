@@ -138,15 +138,6 @@ const handleSubmit = async () => {
                 timerProgressBar: true,
             });
         },
-        onError: (errors) => {
-            console.log(errors);
-            Swal.fire({
-                title: 'Error!',
-                text: 'Failed to create bill. Please check your input.',
-                icon: 'error',
-                customClass: { popup: 'rounded-lg' }
-            });
-        },
         onFinish: () => {
             isLoading.value = false;
         }

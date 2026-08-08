@@ -1164,9 +1164,6 @@ function deleteSelected() {
             selectedIds.value = []
             selectAll.value = false
         },
-        onError: () => {
-            Swal.fire('Error', 'Could not delete selected logs.', 'error')
-        }
     })
 }
 
@@ -1192,9 +1189,6 @@ function emptyAll() {
             Swal.fire('Deleted', 'All activity logs have been deleted.', 'success')
             loadActivityLogs(1)
         },
-        onError: () => {
-            Swal.fire('Error', 'Could not delete logs.', 'error')
-        }
     })
 }
 

@@ -62,10 +62,6 @@ const submitTicket = () => {
                 confirmButtonText: 'OK'
             });
         },
-        onError: (errors) => {
-            Swal.fire('Error', 'Failed to create ticket. Please try again.', 'error');
-            console.error(errors);
-        },
     });
 };
 </script>

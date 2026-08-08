@@ -189,7 +189,6 @@ function persistCards() {
             preserveScroll: true,
             preserveState: true,
             onError: () => {
-                toast.fire({ icon: 'error', title: 'Failed to save task order' });
                 router.reload();
             },
         },
@@ -204,7 +203,6 @@ function persistLists() {
             preserveScroll: true,
             preserveState: true,
             onError: () => {
-                toast.fire({ icon: 'error', title: 'Failed to save list order' });
                 router.reload();
             },
         },
@@ -243,7 +241,6 @@ function submitComposer(listId: number) {
             // asked for it, so leaving an empty field open afterwards reads like
             // the page is waiting on them.
             onSuccess: () => closeComposer(),
-            onError: () => toast.fire({ icon: 'error', title: 'Failed to add task' }),
         },
     );
 }
@@ -276,7 +273,6 @@ function submitListComposer() {
                 newListName.value = '';
                 addingList.value = false;
             },
-            onError: () => toast.fire({ icon: 'error', title: 'Failed to add list' }),
         },
     );
 }
@@ -378,7 +374,6 @@ function completeCard(card: Card) {
                 toast.fire({ icon: 'success', title: 'Task completed' });
                 refreshCompletedArchive();
             },
-            onError: () => toast.fire({ icon: 'error', title: 'Failed to complete task' }),
         },
     );
 }
@@ -403,7 +398,6 @@ function restoreCard(card: CompletedCard) {
                 toast.fire({ icon: 'success', title: `Restored to ${card.list_name}` });
                 refreshCompletedArchive();
             },
-            onError: () => toast.fire({ icon: 'error', title: 'Failed to restore task' }),
         },
     );
 }

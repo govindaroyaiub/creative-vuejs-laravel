@@ -571,15 +571,6 @@ const handleSubmit = async () => {
                 timerProgressBar: true,
             });
         },
-        onError: (errors) => {
-            console.log(errors);
-            Swal.fire({
-                title: 'Error!',
-                text: 'Failed to update bill. Please check your input.',
-                icon: 'error',
-                customClass: { popup: 'rounded-lg' }
-            });
-        },
         onFinish: () => {
             isLoading.value = false;
         }
@@ -633,14 +624,6 @@ const deleteExistingDocument = (documentId: number) => {
                         position: 'top-end',
                     });
                 },
-                onError: () => {
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Failed to delete document.',
-                        icon: 'error',
-                        customClass: { popup: 'rounded-lg' }
-                    });
-                }
             });
         }
     });

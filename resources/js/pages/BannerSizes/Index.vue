@@ -59,9 +59,6 @@ const saveEdit = (id: number) => {
                 customClass: { popup: 'rounded-lg' }
             });
         },
-        onError: () => {
-            Swal.fire('Error!', 'Size Already Exists!', 'error');
-        },
     });
 };
 
@@ -118,14 +115,6 @@ const deleteBannerSize = async (id: number) => {
                     title: 'Deleted!',
                     text: 'Banner size deleted.',
                     icon: 'success',
-                    customClass: { popup: 'rounded-lg' }
-                });
-            },
-            onError: () => {
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Could not delete.',
-                    icon: 'error',
                     customClass: { popup: 'rounded-lg' }
                 });
             },

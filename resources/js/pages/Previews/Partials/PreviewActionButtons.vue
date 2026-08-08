@@ -34,7 +34,6 @@ const deletePreview = async (id: number) => {
         router.delete(route('previews-delete', id), {
             preserveScroll: true,
             onSuccess: () => Swal.fire('Deleted!', 'Preview deleted successfully.', 'success'),
-            onError: () => Swal.fire('Error!', 'Failed to delete preview.', 'error'),
         });
     }
 };
