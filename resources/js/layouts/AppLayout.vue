@@ -28,7 +28,18 @@ const userName = computed(() => (page.props.auth?.user as any)?.name ?? '');
         <WelcomeBanner v-if="showWelcome" :name="userName" />
         <div v-if="themed" class="p9-theme relative min-h-screen">
             <ThemeBackdrop />
-            <div class="relative z-[1]">
+            <!--
+                `relative` without a z-index on purpose. A positioned element
+                WITH a z-index creates a stacking context, which trapped every
+                modal rendered inside a page: a `fixed inset-0 z-50` overlay was
+                clamped to this wrapper's level and painted below the sidebar
+                (`fixed inset-y-0 z-10`), which lives outside this subtree.
+                With z-index left as `auto` no stacking context is created, and
+                the backdrop still sits behind: it is `absolute; z-index: 0`
+                and this wrapper comes later in tree order, so both paint in
+                the same layer and the content wins.
+            -->
+            <div class="relative">
                 <slot />
             </div>
         </div>
