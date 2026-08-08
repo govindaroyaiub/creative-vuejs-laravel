@@ -7,12 +7,19 @@ import { ref, computed, watch } from 'vue';
 
 // Create FilePond component
 import vueFilePond from 'vue-filepond';
+import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 
 // FilePond styles
 import 'filepond/dist/filepond.min.css';
 
 // Create FilePond component
-const FilePond = vueFilePond();
+// vue-filepond builds its props from the options registered at the moment
+// vueFilePond() runs, but its render() always reads `acceptedFileTypes` —
+// an option contributed by this plugin. Without it registered Vue warns
+// "Property 'acceptedFileTypes' was accessed during render but is not
+// defined on instance". Registering it declares the prop; no file-type
+// restriction is applied unless `acceptedFileTypes` is actually passed.
+const FilePond = vueFilePond(FilePondPluginFileValidateType);
 
 const page = usePage();
 const medias = computed(() => page.props.medias?.data || []);
