@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\SqlDate;
 use App\Models\newPreview;
 use Illuminate\Http\Request;
 use ZipArchive;
 use App\Support\SafeName;
-use App\Support\SqlDate;
 use App\Support\SafeZip;
 use Inertia\Inertia;
 use getID3;
@@ -263,9 +263,14 @@ class NewPreviewController extends Controller
                 'name' => $request->name,
                 'client_id' => $request->client_id,
                 'header_logo_id' => $request->header_logo_id,
-                'requires_login' => $request->requires_login,
-                'show_planetnine_logo' => $request->show_planetnine_logo,
-                'show_sidebar_logo' => $request->show_sidebar_logo,
+                // These columns are NOT NULL with a default. The toggles are
+                // optional in the validator, so reading them raw wrote null and
+                // the insert failed — `boolean()` folds a missing or "false"
+                // value to false. `show_footer` was validated but never saved.
+                'requires_login' => $request->boolean('requires_login'),
+                'show_planetnine_logo' => $request->boolean('show_planetnine_logo', true),
+                'show_sidebar_logo' => $request->boolean('show_sidebar_logo', true),
+                'show_footer' => $request->boolean('show_footer', true),
                 'team_members' => $request->team_ids,
                 'color_palette_id' => $request->color_palette_id,
                 'uploader_id' => Auth::id(),
