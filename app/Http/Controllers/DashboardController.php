@@ -39,7 +39,9 @@ class DashboardController extends Controller
         $clientIdOfLoggedInUser = Auth::user()->client_id;
         $client = Client::find($clientIdOfLoggedInUser);
 
-        if ($client['name'] == 'Planet Nine') {
+        // `users.client_id` is nullable, and deleting a client nulls it, so the
+        // client can legitimately be missing — array access on null 500'd here.
+        if ($client?->name === 'Planet Nine') {
             // Yearly totals are just the sum of the monthly buckets already fetched
             // above — derive them in PHP instead of re-querying each table.
             return Inertia::render('Dashboard', [

@@ -83,7 +83,10 @@ class NewPreviewController extends Controller
         $view = $request->input('view', 'grid');
         $perPage = $view === 'grid' ? 100 : 10;
 
-        if ($client['name'] == 'Planet Nine') {
+        // `users.client_id` is nullable and deleting a client nulls it, so the
+        // client can legitimately be missing — array access on null 500'd here.
+        // Matches AuthorizesPreviewAccess::isPlanetNineStaff().
+        if ($client?->name === 'Planet Nine') {
             $query = newPreview::with(['client', 'uploader', 'colorPalette', 'categories.feedbacks']);
 
             if ($search = $request->input('search')) {
