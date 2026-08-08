@@ -20,6 +20,13 @@ class SafeZip
      * Extract $zipPath into $destination. Throws RuntimeException on
      * any path that would escape $destination, on a corrupt archive,
      * or on absolute / Windows-drive entry names.
+     *
+     * OS bookkeeping entries (`__MACOSX/`, `.DS_Store`, AppleDouble
+     * `._*` forks, `Thumbs.db`, `desktop.ini`) are skipped rather than
+     * rejected: designers zip on a Mac, so nearly every uploaded banner
+     * carries them, and they would otherwise sit in the extracted folder
+     * and be handed to the client — some ad servers reject an archive
+     * over exactly that.
      */
     public static function extract(string $zipPath, string $destination): void
     {
@@ -29,6 +36,7 @@ class SafeZip
         }
 
         try {
+            $wanted = [];
             for ($i = 0; $i < $zip->numFiles; $i++) {
                 $name = $zip->getNameIndex($i);
                 if ($name === false) {
@@ -40,18 +48,51 @@ class SafeZip
                         'Refusing to extract archive: contains unsafe entry "' . $name . '".'
                     );
                 }
+
+                if (! self::isJunkEntry($name)) {
+                    $wanted[] = $name;
+                }
+            }
+
+            if ($wanted === []) {
+                throw new RuntimeException('Uploaded archive contains no usable files.');
             }
 
             if (! is_dir($destination) && ! mkdir($destination, 0755, true) && ! is_dir($destination)) {
                 throw new RuntimeException('Could not create extraction directory.');
             }
 
-            if ($zip->extractTo($destination) !== true) {
+            // Passing the entry list extracts only those names; parent
+            // directories are still created for each one.
+            if ($zip->extractTo($destination, $wanted) !== true) {
                 throw new RuntimeException('ZIP extraction failed.');
             }
         } finally {
             $zip->close();
         }
+    }
+
+    /**
+     * Metadata the operating system wrote into the archive, which is
+     * never part of the creative itself.
+     */
+    private static function isJunkEntry(string $name): bool
+    {
+        $segments = preg_split('#[\\\\/]+#', $name);
+
+        foreach ($segments as $segment) {
+            if ($segment === '__MACOSX') {
+                return true;
+            }
+        }
+
+        $basename = (string) end($segments);
+
+        if (str_starts_with($basename, '._')) {
+            return true;
+        }
+
+        return in_array(mb_strtolower($basename), ['.ds_store', 'thumbs.db', 'desktop.ini'], true);
     }
 
     /**
