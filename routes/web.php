@@ -124,7 +124,7 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
 
     //Bills Routes Start
     Route::get('/bills', [BillController::class, 'index'])->name('bills');
-    Route::get('/bills/{id}', [BillController::class, 'show'])->name('bills-show');
+    Route::get('/bills/{id}', [BillController::class, 'show'])->where('id', '[0-9]+')->name('bills-show');
     Route::get('/bills-create', [BillController::class, 'create'])->name('bills-create');
     Route::post('/bills-create-post', [BillController::class, 'store'])->name('bills-create-post');
     Route::get('/bills-edit/{id}', [BillController::class, 'edit'])->name('bills-edit');

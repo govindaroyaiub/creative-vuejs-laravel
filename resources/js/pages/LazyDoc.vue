@@ -959,7 +959,7 @@ const apiEndpoints = ref({
         {
             method: 'GET',
             path: '/bills/{id}',
-            description: 'View detailed bill with all sub-bills',
+            description: 'View a bill with its line items and documents',
             authenticated: true,
             permission: '/bills'
         },

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\SqlDate;
 use App\Models\Bill;
 use App\Models\BillDocument;
 use App\Support\SafeName;
-use App\Support\SqlDate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
@@ -41,11 +41,17 @@ class BillController extends Controller
         ]);
     }
 
+    /**
+     * Read-only view of a bill — the same content as the PDF, without having
+     * to download it first.
+     */
     public function show($id)
     {
-        $bill = Bill::with(['subBills', 'documents.uploader'])->findOrFail($id);
+        $bill = Bill::with(['subBills', 'documents.uploader:id,name'])->findOrFail($id);
+
         return Inertia::render('Bills/Show', [
             'bill' => $bill,
+            'amountInWords' => $this->amountInWords($bill->total_amount),
         ]);
     }
 
@@ -163,17 +169,24 @@ class BillController extends Controller
         $bill = Bill::with('subBills')->findOrFail($id);
         $issueDate = Carbon::now()->format('F j, Y');
 
-        $numberToWords = new NumberToWords();
-        $numberTransformer = $numberToWords->getNumberTransformer('en');
-        $amountInWords = ucfirst($numberTransformer->toWords($bill->total_amount)) . ' Taka Only';
-
         $pdf = Pdf::loadView('pdf.bill', [
             'bill' => $bill,
             'issueDate' => $issueDate,
-            'amountInWords' => $amountInWords,
+            'amountInWords' => $this->amountInWords($bill->total_amount),
         ]);
 
         return $pdf->download("bill-{$bill->id}-{$issueDate}.pdf");
+    }
+
+    /**
+     * Spell an amount out, matching the wording printed on the PDF so the
+     * on-screen bill and the downloaded one never disagree.
+     */
+    private function amountInWords(float|string $amount): string
+    {
+        $transformer = (new NumberToWords())->getNumberTransformer('en');
+
+        return ucfirst($transformer->toWords((int) round((float) $amount))) . ' Taka Only';
     }
 
     /**

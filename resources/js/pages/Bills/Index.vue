@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage, Link } from '@inertiajs/vue3';
-import { CirclePlus, Download, Pencil, Trash2, ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { CirclePlus, Download, Eye, Pencil, Trash2, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, onMounted, watch } from 'vue';
 
@@ -140,6 +140,11 @@ onMounted(() => {
                                     }) }}
                                 </td>
                                 <td class="space-x-2 px-4 py-3 border-b border-[#E8E8E8] dark:border-[#222222]">
+                                    <Link :href="route('bills-show', bill.id)"
+                                        class="text-black dark:text-white hover:text-[#666666] dark:hover:text-[#999999] p-1 transition-colors inline-block"
+                                        aria-label="View Bill">
+                                    <Eye class="inline h-5 w-5" stroke-width="1.5" />
+                                    </Link>
                                     <a :href="route('bills-download', bill.id)" target="_blank"
                                         class="text-black dark:text-white hover:text-[#666666] dark:hover:text-[#999999] p-1 transition-colors inline-block"
                                         aria-label="Download Bill">
@@ -186,6 +191,11 @@ onMounted(() => {
 
                             <!-- Actions -->
                             <div class="flex gap-2 ml-3">
+                                <Link :href="route('bills-show', bill.id)"
+                                    class="text-black dark:text-white hover:text-[#666666] dark:hover:text-[#999999] p-2 rounded-lg transition-colors"
+                                    aria-label="View Bill">
+                                <Eye class="h-5 w-5" stroke-width="1.5" />
+                                </Link>
                                 <a :href="route('bills-download', bill.id)" target="_blank"
                                     class="text-black dark:text-white hover:text-[#666666] dark:hover:text-[#999999] p-2 rounded-lg transition-colors"
                                     aria-label="Download Bill">

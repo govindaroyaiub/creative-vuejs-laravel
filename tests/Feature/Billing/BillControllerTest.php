@@ -93,6 +93,65 @@ describe('listing', function () {
     });
 });
 
+describe('showing', function () {
+    it('shows a bill with its line items and documents', function () {
+        $bill = Bill::factory()->create(['name' => 'INV-2026-009', 'client' => 'Nike']);
+        SubBill::factory(2)->create(['bill_id' => $bill->id]);
+        BillDocument::factory()->create(['bill_id' => $bill->id, 'uploaded_by' => $this->user->id]);
+
+        $this->actingAs($this->user)
+            ->get(route('bills-show', $bill->id))
+            ->assertStatus(200)
+            ->assertInertia(fn ($page) => $page->component('Bills/Show')
+                ->where('bill.id', $bill->id)
+                ->where('bill.name', 'INV-2026-009')
+                ->where('bill.client', 'Nike')
+                ->count('bill.sub_bills', 2)
+                ->count('bill.documents', 1));
+    });
+
+    it('names the uploader of each document', function () {
+        $uploader = User::factory()->create(['name' => 'Grace Hopper']);
+        $bill = Bill::factory()->create();
+        BillDocument::factory()->create(['bill_id' => $bill->id, 'uploaded_by' => $uploader->id]);
+
+        $this->actingAs($this->user)
+            ->get(route('bills-show', $bill->id))
+            ->assertInertia(fn ($page) => $page->where('bill.documents.0.uploader.name', 'Grace Hopper'));
+    });
+
+    it('spells the total out the same way the PDF does', function () {
+        $bill = Bill::factory()->create(['total_amount' => 1500.00]);
+
+        $this->actingAs($this->user)
+            ->get(route('bills-show', $bill->id))
+            ->assertInertia(fn ($page) => $page->where(
+                'amountInWords',
+                'One thousand five hundred Taka Only',
+            ));
+    });
+
+    it('handles a bill with no line items or documents', function () {
+        $bill = Bill::factory()->create();
+
+        $this->actingAs($this->user)
+            ->get(route('bills-show', $bill->id))
+            ->assertStatus(200)
+            ->assertInertia(fn ($page) => $page->count('bill.sub_bills', 0)
+                ->count('bill.documents', 0));
+    });
+
+    it('404s an unknown bill', function () {
+        $this->actingAs($this->user)->get(route('bills-show', 99999))->assertStatus(404);
+    });
+
+    it('redirects guests', function () {
+        $bill = Bill::factory()->create();
+
+        $this->get(route('bills-show', $bill->id))->assertRedirect(route('login'));
+    });
+});
+
 describe('creating', function () {
     it('creates a bill with its line items', function () {
         $this->actingAs($this->user)
