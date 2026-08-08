@@ -145,6 +145,57 @@ html {
     }
 }
 
+/* ─── Sidebar scrollbar ────────────────────────────────────────────────────
+   The nav list scrolls once it outgrows the viewport, which happens on any
+   short screen. macOS uses overlay scrollbars that stay hidden until you
+   already scroll, so there was nothing to tell you the list continued past
+   the fold.
+
+   Giving ::-webkit-scrollbar an explicit width opts this container out of
+   overlay behaviour in Chrome and Safari, so the bar is visible whenever the
+   list actually overflows — and, because the container is `overflow: auto`,
+   it still disappears entirely when everything fits.
+
+   Matches the `.ob-fl-list` treatment in FileTransfers/View.vue.
+
+   The thumb is tinted from --sidebar-foreground rather than --sidebar-border,
+   because that token is a near-white #CCC in light mode and a near-black #333
+   in dark mode — both too close to their own background to notice. An alpha of
+   the foreground reads at the same strength either way.
+
+   Do NOT set `scrollbar-width` / `scrollbar-color` unconditionally. Chrome 121+
+   honours those standard properties and then ignores ::-webkit-scrollbar
+   completely — and `scrollbar-width: thin` on macOS is still an auto-hiding
+   overlay that reserves no width, which is the exact problem being fixed. They
+   are scoped to engines with no ::-webkit-scrollbar support, i.e. Firefox. */
+@supports not selector(::-webkit-scrollbar) {
+    [data-sidebar="content"] {
+        scrollbar-width: thin;
+        scrollbar-color: hsl(var(--sidebar-foreground) / 0.28) transparent;
+    }
+
+    [data-sidebar="content"]:hover {
+        scrollbar-color: hsl(var(--sidebar-foreground) / 0.5) transparent;
+    }
+}
+
+[data-sidebar="content"]::-webkit-scrollbar {
+    width: 8px;
+}
+
+[data-sidebar="content"]::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+[data-sidebar="content"]::-webkit-scrollbar-thumb {
+    background: hsl(var(--sidebar-foreground) / 0.28);
+    border-radius: 4px;
+}
+
+[data-sidebar="content"]::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--sidebar-foreground) / 0.5);
+}
+
 /* ─── P9 shared theme ──────────────────────────────────────────────────────
    Extracted from Reporting/Index.vue (which mirrors Previews/Update2 chrome):
    JetBrains Mono, glass surfaces, ambient accent glow, dark-mode starfield,
