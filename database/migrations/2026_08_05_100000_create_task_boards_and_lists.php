@@ -66,6 +66,25 @@ return new class extends Migration
             $table->dropColumn(['status', 'priority']);
         });
 
+        // `create_task_user_table` indexed ['user_id', 'position'], and the
+        // `position` column is going away. Two constraints make the order here
+        // matter:
+        //
+        //  - MySQL requires an index covering a foreign key column. It never
+        //    created a dedicated one for `user_id` because ['user_id',
+        //    'position'] already served as one, so dropping that index while
+        //    it is the only candidate fails with errno 1553. A standalone
+        //    `user_id` index has to exist first.
+        //  - SQLite refuses to drop a column an index still references, so
+        //    the composite index has to go before the column.
+        Schema::table('task_user', function (Blueprint $table) {
+            $table->index('user_id');
+        });
+
+        Schema::table('task_user', function (Blueprint $table) {
+            $table->dropIndex(['user_id', 'position']);
+        });
+
         Schema::table('task_user', function (Blueprint $table) {
             $table->dropColumn('position');
         });
@@ -160,6 +179,24 @@ return new class extends Migration
             $table->unsignedInteger('position')->default(0)->after('user_id');
         });
 
+        // Restore the composite index `up()` dropped, so rollback-then-migrate
+        // works. It has to go back before the standalone `user_id` index is
+        // removed, or MySQL is left with no index for the foreign key.
+        Schema::table('task_user', function (Blueprint $table) {
+            $table->index(['user_id', 'position']);
+        });
+
+        Schema::table('task_user', function (Blueprint $table) {
+            $table->dropIndex(['user_id']);
+        });
+
+        // The `list_id` foreign key has to go before its index: MySQL is using
+        // ['list_id', 'position'] to satisfy that key, and refuses to drop the
+        // index while the constraint still needs it (errno 1553).
+        Schema::table('tasks', function (Blueprint $table) {
+            $table->dropForeign(['list_id']);
+        });
+
         Schema::table('tasks', function (Blueprint $table) {
             $table->dropIndex(['list_id', 'position']);
             $table->enum('status', ['todo', 'in_progress', 'done'])->default('todo')->after('description');
@@ -171,7 +208,6 @@ return new class extends Migration
         });
 
         Schema::table('tasks', function (Blueprint $table) {
-            $table->dropForeign(['list_id']);
             $table->dropColumn(['list_id', 'position']);
         });
 
