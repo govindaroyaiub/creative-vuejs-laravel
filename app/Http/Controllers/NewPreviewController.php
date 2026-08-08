@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\newPreview;
 use Illuminate\Http\Request;
 use ZipArchive;
+use App\Support\SafeName;
 use App\Support\SafeZip;
 use Inertia\Inertia;
 use getID3;
@@ -851,7 +852,7 @@ class NewPreviewController extends Controller
                                             $currentBannerIds[] = $banner->id;
                                             if (isset($bannerData['file']) && $bannerData['file'] instanceof \Illuminate\Http\UploadedFile) {
                                                 $this->deletePath($banner->path);
-                                                $previewName = str_replace(' ', '_', $preview->name);
+                                                $previewName = SafeName::segment($preview->name, 'banner');
                                                 $uniqueSuffix = uniqid('_');
                                                 $uploadDir = public_path("uploads/banners");
                                                 if (!is_dir($uploadDir)) {
@@ -882,7 +883,7 @@ class NewPreviewController extends Controller
                                             }
                                         } else {
                                             if (isset($bannerData['file']) && $bannerData['file'] instanceof \Illuminate\Http\UploadedFile) {
-                                                $previewName = str_replace(' ', '_', $preview->name);
+                                                $previewName = SafeName::segment($preview->name, 'banner');
                                                 $uniqueSuffix = uniqid('_');
                                                 $uploadDir = public_path("uploads/banners");
                                                 if (!is_dir($uploadDir)) {
@@ -991,7 +992,7 @@ class NewPreviewController extends Controller
                                     if (isset($verData['videos'])) {
                                         foreach ($verData['videos'] as $videoData) {
                                             // Prepare file names
-                                            $previewName = str_replace(' ', '_', $preview->name);
+                                            $previewName = SafeName::segment($preview->name, 'video');
                                             $uniqueSuffix = uniqid('_');
                                             $videoFilename = $previewName . $uniqueSuffix . '.mp4';
                                             $bannerFilename = $previewName . $uniqueSuffix . '_banner';

@@ -15,6 +15,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use App\Support\SafeName;
 use App\Support\SafeZip;
 use App\Http\Concerns\AuthorizesPreviewAccess;
 use ZipArchive;
@@ -95,7 +96,7 @@ class NewBannerController extends Controller
                     }
                 }
 
-                $previewName = str_replace(' ', '_', $banner->version->feedbackset->feedback->category->preview->name ?? 'banner');
+                $previewName = SafeName::segment($banner->version->feedbackset->feedback->category->preview->name ?? null, 'banner');
                 $uniqueSuffix = uniqid('_');
                 $uploadDir = public_path("uploads/banners");
                 if (!is_dir($uploadDir)) {
