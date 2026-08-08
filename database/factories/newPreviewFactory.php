@@ -2,89 +2,59 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
 use App\Models\Client;
+use App\Models\ColorPalette;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\newPreview>
  */
 class newPreviewFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            'title' => $this->faker->sentence(3),
-            'description' => $this->faker->paragraph(),
-            'file_path' => 'previews/' . $this->faker->uuid . '.mp4',
-            'file_size' => $this->faker->numberBetween(1048576, 104857600), // 1MB to 100MB
-            'duration' => $this->faker->time('H:i:s'),
-            'resolution' => $this->faker->randomElement(['1920x1080', '1280x720', '3840x2160']),
-            'fps' => $this->faker->randomElement([24, 30, 60]),
-            'status' => $this->faker->randomElement(['active', 'inactive', 'processing']),
-            'user_id' => User::factory(),
+            'slug' => Str::uuid()->toString(),
+            'name' => Str::title($this->faker->words(3, true)),
             'client_id' => Client::factory(),
-            'created_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
-            'updated_at' => function (array $attributes) {
-                return $this->faker->dateTimeBetween($attributes['created_at'], 'now');
-            },
+            // Despite the name this holds a `clients.id` — the controller
+            // validates it with `exists:clients,id` and renders that client's
+            // logo in the preview header.
+            'header_logo_id' => Client::factory(),
+            // Cast to array on the model; holds user ids.
+            'team_members' => [],
+            'uploader_id' => User::factory(),
+            'color_palette_id' => ColorPalette::factory(),
+            'requires_login' => false,
+            'show_planetnine_logo' => true,
+            'show_sidebar_logo' => true,
+            'show_footer' => true,
         ];
     }
 
-    /**
-     * Indicate that the preview is active.
-     */
-    public function active(): static
+    public function requiringLogin(): static
     {
-        return $this->state(fn(array $attributes) => [
-            'status' => 'active',
-        ]);
+        return $this->state(fn () => ['requires_login' => true]);
     }
 
-    /**
-     * Indicate that the preview is processing.
-     */
-    public function processing(): static
-    {
-        return $this->state(fn(array $attributes) => [
-            'status' => 'processing',
-        ]);
-    }
-
-    /**
-     * Create a high-resolution preview.
-     */
-    public function highResolution(): static
-    {
-        return $this->state(fn(array $attributes) => [
-            'resolution' => '3840x2160',
-            'fps' => 60,
-            'file_size' => $this->faker->numberBetween(104857600, 524288000), // 100MB to 500MB
-        ]);
-    }
-
-    /**
-     * Create a preview with specific user.
-     */
-    public function forUser(User $user): static
-    {
-        return $this->state(fn(array $attributes) => [
-            'user_id' => $user->id,
-        ]);
-    }
-
-    /**
-     * Create a preview with specific client.
-     */
+    /** Reuse one client for both the owner and the header logo. */
     public function forClient(Client $client): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn () => [
             'client_id' => $client->id,
+            'header_logo_id' => $client->id,
         ]);
+    }
+
+    public function uploadedBy(User $user): static
+    {
+        return $this->state(fn () => ['uploader_id' => $user->id]);
+    }
+
+    public function withTeam(array $userIds): static
+    {
+        return $this->state(fn () => ['team_members' => $userIds]);
     }
 }

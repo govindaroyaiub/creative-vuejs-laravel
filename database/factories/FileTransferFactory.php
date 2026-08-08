@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\User;
-use App\Models\Client;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -12,124 +11,42 @@ use Illuminate\Support\Str;
  */
 class FileTransferFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
-        $fileName = $this->faker->word . '.' . $this->faker->randomElement(['pdf', 'docx', 'xlsx', 'jpg', 'png', 'mp4', 'zip']);
+        $name = $this->faker->words(3, true);
 
         return [
-            'original_name' => $fileName,
-            'file_path' => 'transfers/' . Str::uuid() . '_' . $fileName,
-            'file_size' => $this->faker->numberBetween(1024, 10485760), // 1KB to 10MB
-            'mime_type' => $this->faker->randomElement([
-                'application/pdf',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'image/jpeg',
-                'image/png',
-                'video/mp4',
-                'application/zip'
-            ]),
-            'download_token' => Str::random(32),
+            // The public viewer URL is keyed on this UUID, so it carries the
+            // access entropy — it is not a readable slug.
+            'slug' => Str::uuid()->toString(),
+            'name' => Str::title($name),
+            // `client` is a free-text column on this table, not a FK.
+            'client' => $this->faker->company(),
+            'preview_id' => null,
             'user_id' => User::factory(),
-            'client_id' => Client::factory(),
-            'description' => $this->faker->optional()->sentence(),
-            'password_protected' => $this->faker->boolean(30), // 30% chance
-            'password' => function (array $attributes) {
-                return $attributes['password_protected']
-                    ? bcrypt($this->faker->password(8, 12))
-                    : null;
-            },
-            'expires_at' => $this->faker->optional(80)->dateTimeBetween('now', '+6 months'), // 80% have expiry
-            'max_downloads' => $this->faker->optional(60)->numberBetween(1, 10), // 60% have download limit
-            'download_count' => 0,
-            'last_downloaded_at' => null,
-            'created_at' => $this->faker->dateTimeBetween('-6 months', 'now'),
-            'updated_at' => function (array $attributes) {
-                return $this->faker->dateTimeBetween($attributes['created_at'], 'now');
-            },
+            // Comma-joined list of paths relative to public/.
+            'file_path' => 'Transfer Files/' . Str::slug($name) . '_' . $this->faker->unixTime() . '_' . Str::random(13) . '.zip',
         ];
     }
 
-    /**
-     * Create a password protected file transfer.
-     */
-    public function passwordProtected(): static
+    /** A transfer holding more than one archive. */
+    public function withFiles(int $count): static
     {
-        return $this->state(fn(array $attributes) => [
-            'password_protected' => true,
-            'password' => bcrypt('secret123'),
+        return $this->state(fn () => [
+            'file_path' => collect(range(1, $count))
+                ->map(fn ($i) => 'Transfer Files/asset_' . $i . '_' . Str::random(13) . '.zip')
+                ->implode(','),
         ]);
     }
 
-    /**
-     * Create an expired file transfer.
-     */
-    public function expired(): static
+    /** A transfer created by approving a revision round on a preview. */
+    public function forPreview(int $previewId): static
     {
-        return $this->state(fn(array $attributes) => [
-            'expires_at' => $this->faker->dateTimeBetween('-2 months', '-1 day'),
-        ]);
+        return $this->state(fn () => ['preview_id' => $previewId]);
     }
 
-    /**
-     * Create a file transfer that has been downloaded.
-     */
-    public function downloaded(int $times = 1): static
-    {
-        return $this->state(fn(array $attributes) => [
-            'download_count' => $times,
-            'last_downloaded_at' => $this->faker->dateTimeBetween('-1 month', 'now'),
-        ]);
-    }
-
-    /**
-     * Create a file transfer with download limit reached.
-     */
-    public function limitReached(): static
-    {
-        $maxDownloads = $this->faker->numberBetween(3, 10);
-
-        return $this->state(fn(array $attributes) => [
-            'max_downloads' => $maxDownloads,
-            'download_count' => $maxDownloads,
-            'last_downloaded_at' => $this->faker->dateTimeBetween('-1 week', 'now'),
-        ]);
-    }
-
-    /**
-     * Create a file transfer for a specific user.
-     */
     public function forUser(User $user): static
     {
-        return $this->state(fn(array $attributes) => [
-            'user_id' => $user->id,
-        ]);
-    }
-
-    /**
-     * Create a file transfer for a specific client.
-     */
-    public function forClient(Client $client): static
-    {
-        return $this->state(fn(array $attributes) => [
-            'client_id' => $client->id,
-        ]);
-    }
-
-    /**
-     * Create a large file transfer.
-     */
-    public function largeFile(): static
-    {
-        return $this->state(fn(array $attributes) => [
-            'file_size' => $this->faker->numberBetween(52428800, 104857600), // 50MB to 100MB
-            'original_name' => 'large_video_' . $this->faker->randomNumber(4) . '.mp4',
-            'mime_type' => 'video/mp4',
-        ]);
+        return $this->state(fn () => ['user_id' => $user->id]);
     }
 }

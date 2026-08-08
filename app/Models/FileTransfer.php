@@ -4,6 +4,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -12,6 +13,7 @@ use Spatie\Activitylog\LogOptions;
 class FileTransfer extends Model
 {
     public $timestamps = true;
+    use HasFactory;
     use LogsActivity;
 
     protected static $logAttributes = ['*']; // logs all attributes
