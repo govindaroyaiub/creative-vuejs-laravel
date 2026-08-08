@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\SqlDate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -64,7 +65,7 @@ class DashboardController extends Controller
 
     private function getMonthlyCount($model, $year)
     {
-        return $model::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+        return $model::selectRaw(SqlDate::month('created_at') . ' as month, COUNT(*) as count')
             ->whereYear('created_at', $year)
             ->groupBy('month')
             ->orderBy('month')
@@ -75,7 +76,7 @@ class DashboardController extends Controller
 
     private function getMonthlyBillTotals($year)
     {
-        return Bill::selectRaw('MONTH(created_at) as month, SUM(total_amount) as total')
+        return Bill::selectRaw(SqlDate::month('created_at') . ' as month, SUM(total_amount) as total')
             ->whereYear('created_at', $year)
             ->groupBy('month')
             ->orderBy('month')
@@ -86,7 +87,7 @@ class DashboardController extends Controller
 
     private function getMonthlyPreviewCount($model, $year)
     {
-        return newPreview::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+        return newPreview::selectRaw(SqlDate::month('created_at') . ' as month, COUNT(*) as count')
             ->whereYear('created_at', $year)
             ->groupBy('month')
             ->orderBy('month')

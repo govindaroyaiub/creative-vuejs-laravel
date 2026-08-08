@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\SqlDate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
@@ -70,7 +71,7 @@ class FileTransferController extends Controller
         if ($search = $request->input('search')) {
             $query->where('name', 'like', "%{$search}%")
                 ->orWhere('client', 'like', "%{$search}%")
-                ->orWhereRaw("DATE_FORMAT(created_at, '%d %M %Y') LIKE ?", ["%{$search}%"]);
+                ->orWhereRaw(SqlDate::longDate('created_at') . " LIKE ?", ["%{$search}%"]);
         }
 
         $fileTransfers = $query->latest()->paginate(10)->withQueryString();

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bill;
 use App\Models\BillDocument;
+use App\Support\SqlDate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +25,7 @@ class BillController extends Controller
                     ->orWhere('client', 'like', "%{$search}%")
                     ->orWhere('total_amount', 'like', "%{$search}%")
                     // Search by formatted date (e.g. "21 January")
-                    ->orWhereRaw("DATE_FORMAT(created_at, '%d %M %Y') LIKE ?", ["%{$search}%"]);
+                    ->orWhereRaw(SqlDate::longDate('created_at') . " LIKE ?", ["%{$search}%"]);
             });
         }
 

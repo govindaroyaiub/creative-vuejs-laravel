@@ -6,6 +6,7 @@ use App\Models\newPreview;
 use Illuminate\Http\Request;
 use ZipArchive;
 use App\Support\SafeName;
+use App\Support\SqlDate;
 use App\Support\SafeZip;
 use Inertia\Inertia;
 use getID3;
@@ -90,7 +91,7 @@ class NewPreviewController extends Controller
                     $q->where('name', 'like', "%{$search}%")
                         ->orWhereHas('client', fn($q2) => $q2->where('name', 'like', "%{$search}%"))
                         ->orWhereHas('uploader', fn($q3) => $q3->where('name', 'like', "%{$search}%"))
-                        ->orWhereRaw("DATE_FORMAT(created_at, '%d %M %Y') LIKE ?", ["%{$search}%"]);
+                        ->orWhereRaw(SqlDate::longDate('created_at') . " LIKE ?", ["%{$search}%"]);
                 });
             }
 
@@ -147,7 +148,7 @@ class NewPreviewController extends Controller
                     $q->where('name', 'like', "%{$search}%")
                         ->orWhereHas('client', fn($q2) => $q2->where('name', 'like', "%{$search}%"))
                         ->orWhereHas('uploader', fn($q3) => $q3->where('name', 'like', "%{$search}%"))
-                        ->orWhereRaw("DATE_FORMAT(created_at, '%d %M %Y') LIKE ?", ["%{$search}%"]);
+                        ->orWhereRaw(SqlDate::longDate('created_at') . " LIKE ?", ["%{$search}%"]);
                 });
             }
 
