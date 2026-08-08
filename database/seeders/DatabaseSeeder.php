@@ -285,7 +285,6 @@ class DatabaseSeeder extends Seeder
             ['title' => 'Registration', 'href' => '/welcome-to-planetnine/register'],
             ['title' => 'Tour Guide', 'href' => '/preview-tour-guide'],
             ['title' => 'Support Tickets', 'href' => '/support-tickets'],
-            ['title' => 'Orbit', 'href' => '/orbit'],
         ];
 
         foreach ($routes as $route) {

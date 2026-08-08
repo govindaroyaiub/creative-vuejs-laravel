@@ -25,7 +25,6 @@ import {
     Link2,
     ListChecks,
     Megaphone,
-    Orbit,
     Paintbrush,
     ReceiptText,
     Ruler,
@@ -49,7 +48,6 @@ export const MAIN_NAV_ITEMS: NavItem[] = [
     { title: 'Media Library', href: '/medias', icon: ImagePlay },
     { title: 'Tetris', href: '/play/tetris', icon: Type },
     { title: 'Templates', href: '/templates', icon: LayoutTemplate },
-    { title: 'Orbit', href: '/orbit', icon: Orbit },
 ];
 
 export const FOOTER_NAV_ITEMS: NavItem[] = [
