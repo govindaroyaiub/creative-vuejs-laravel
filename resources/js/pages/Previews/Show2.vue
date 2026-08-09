@@ -4,6 +4,7 @@ import { Head, router } from '@inertiajs/vue3'
 import axios from 'axios'
 
 import PreviewTopBar from './Show2/PreviewTopBar.vue'
+import { useMediaQuery } from '@vueuse/core'
 import ProjectSidebar from './Show2/ProjectSidebar.vue'
 import RoundTabs from './Show2/RoundTabs.vue'
 import AssetCanvas from './Show2/AssetCanvas.vue'
@@ -95,6 +96,8 @@ const toggleDark = () => {
 
 provide('show2Theme', { isDark: readonly(isDark), toggleDark })
 
+const currentYear = new Date().getFullYear()
+
 const categories = ref<any[]>([])
 const feedbacks = ref<any[]>([])
 const feedbackSets = ref<any[]>([])
@@ -106,9 +109,44 @@ const isInitialLoading = ref(true)
 const isAssetsLoading = ref(false)
 const isNotesOpen = ref(false)
 const isPaletteOpen = ref(false)
+/**
+ * On a short screen the always-visible sidebar column gives the page a second
+ * scroll region — the category list scrolls independently of the content, which
+ * is disorienting and hides the selected project below its own fold. Above a
+ * certain height there is room for the whole list and the column is fine.
+ *
+ * Gated on category count too: the second scrollbar only appears when the list
+ * is long enough to overflow, so a preview with a handful of projects keeps its
+ * column even on a laptop.
+ */
+const hasRoomForSidebarColumn = useMediaQuery('(min-height: 820px)')
+const preferDrawerNav = computed(
+  () => !hasRoomForSidebarColumn.value && categories.value.length > 6,
+)
+
 const isSidebarOpen = ref(false) // mobile drawer
 const isIntroOpen = ref(false)
 const guestName = ref('')
+
+/**
+ * The viewer can collapse the column away to give the creatives the full width.
+ *
+ * Remembered across previews rather than per preview: it is a statement about
+ * how someone likes to review work, not about one job. Restored in `onMounted`
+ * so it survives a reload, and written through `setSidebarCollapsed` so the two
+ * never drift apart.
+ */
+const SIDEBAR_COLLAPSED_KEY = 'show2-sidebar-collapsed'
+const isSidebarCollapsed = ref(false)
+
+const setSidebarCollapsed = (value: boolean) => {
+  isSidebarCollapsed.value = value
+  try {
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, value ? '1' : '0')
+  } catch {
+    /* private mode, ignore */
+  }
+}
 
 // True once the user has scrolled past the topbar. Used to fade the
 // header logo out and slide a copy into the top of the sticky sidebar
@@ -275,6 +313,11 @@ const onScroll = () => { isScrolled.value = window.scrollY > 32 }
 
 onMounted(async () => {
   initGuestName()
+  // Read here rather than in the ref's initialiser: this component also renders
+  // server-side, where there is no localStorage.
+  try {
+    isSidebarCollapsed.value = localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === '1'
+  } catch { /* private mode, ignore */ }
   await initialLoad()
   trackingInterval = window.setInterval(trackViewer, 8000)
   if (props.authUserClientName === 'Planet Nine') {
@@ -317,7 +360,17 @@ const themeStyle = computed(() => ({
 <template>
   <Head :title="`Creative · ${preview.name}`" />
 
-  <div class="show2-root min-h-screen text-zinc-900 antialiased dark:text-zinc-100" :style="themeStyle">
+  <!-- `flex flex-col` exists for the footer. `sticky bottom-0` can only pull an
+       element up when it would fall below the fold — it cannot push one down, so
+       on a short page (a preview with no assets yet) the footer used to sit
+       directly under the content, stranded mid-screen with empty space beneath
+       it. As a flex column the content row takes the leftover height and lands
+       the footer on the bottom edge instead. The two ambient layers are
+       `position: fixed`, so they stay out of this. -->
+  <div
+    class="show2-root flex min-h-screen flex-col text-zinc-900 antialiased dark:text-zinc-100"
+    :style="themeStyle"
+  >
     <!-- Decorative ambient color wash. Light mode is asset-first
          (very subtle); dark mode opens up into a cinematic Planet Nine
          backdrop with a starfield + aurora glow. -->
@@ -331,22 +384,35 @@ const themeStyle = computed(() => ({
       :viewers="viewers"
       :is-authenticated="isAuthenticated"
       :auth-user-client-name="authUserClientName"
+      :force-drawer-nav="preferDrawerNav"
+      :active-category="activeCategory"
       @open-sidebar="isSidebarOpen = true"
       @open-palette="isPaletteOpen = true"
       @logout="onLogout"
     />
 
-    <div class="mx-auto flex w-full max-w-[2000px] gap-6 px-4 pb-24 pt-6 lg:px-8">
+    <!-- `lg:pl-20` when collapsed leaves room for the fixed rail. Without it the
+         rail floats over the creatives on a ~1024-1280px desktop, where the
+         centred container has no margin to spare. Still a big win on width: 80px
+         instead of the column's 288px plus a 24px gutter. -->
+    <div
+      class="mx-auto flex w-full max-w-[2000px] flex-1 gap-6 px-4 pb-24 pt-6 lg:px-8"
+      :class="isSidebarCollapsed ? 'lg:pl-20' : ''"
+    >
       <ProjectSidebar
         :categories="categories"
         :active-category="activeCategory"
         :is-loading="isInitialLoading"
         :is-mobile-open="isSidebarOpen"
+        :force-drawer-nav="preferDrawerNav"
+        :collapsed="isSidebarCollapsed"
         :preview="preview"
         :client="client"
         :header-logo="headerLogo"
         @select="onCategorySelect"
         @close="isSidebarOpen = false"
+        @collapse="setSidebarCollapsed(true)"
+        @expand="setSidebarCollapsed(false)"
       />
 
       <main class="min-w-0 flex-1">
@@ -367,6 +433,60 @@ const themeStyle = computed(() => ({
         />
       </main>
     </div>
+
+    <!--
+      Planet Nine credit. Gated on `show_footer`, the flag the edit page already
+      exposes as "Show Footer?" — it drives the same footer on the older Show
+      viewer but was never implemented here, so toggling it did nothing on this
+      page and the preview carried no Planet Nine branding at all once a client
+      was picked in the header-logo select.
+
+      Sticky rather than in-flow so the credit stays visible while scrolling.
+      Two floating glass pills rather than a full-width bar: the page is an
+      asset viewer, so the chrome stays out of the way and lets the work run
+      edge to edge behind it.
+
+      The <footer> itself is only a transparent positioner now, which is why it
+      is `pointer-events-none` — full-width and invisible, it would otherwise
+      swallow clicks on whatever sits under it. Each pill takes pointer events
+      back for itself.
+
+      z-20 sits under the top bar (z-30) and under the floating file-transfer
+      dock and help button (z-40), which remain clickable above it. The pill is
+      centred and the dock is bottom-right, so they no longer collide and the
+      old `pr-28` nudge is gone.
+    -->
+    <footer
+      v-if="preview?.show_footer"
+      class="show2-sticky pointer-events-none sticky bottom-0 z-20 flex justify-center px-4 pb-2"
+    >
+      <!-- One pill, two halves: the credit and a hairline, then the mark. The
+           glass and the rounding live on the wrapper so the two read as a
+           single object rather than two things that happen to be adjacent. -->
+      <div
+        class="p2-glass show2-credit pointer-events-auto flex items-center gap-2.5 rounded-full py-1.5 pl-3.5 pr-2 text-xs shadow-sm"
+        :style="{ color: 'var(--p2-text-muted)' }"
+      >
+        <span>&copy; {{ currentYear }} All rights reserved.</span>
+
+        <span aria-hidden="true" class="h-3.5 w-px shrink-0" :style="{ background: 'var(--p2-hairline)' }" />
+
+        <!-- The mark itself is the link. `planetnine.png` is Planet Nine's own
+             attribution, not the preview's branding, so it is the static asset
+             rather than the header/client logo the top bar and sidebar show.
+             The negative vertical margin lets the hit area fill the pill's
+             full height without the pill growing around it. -->
+        <a
+          href="https://www.planetnine.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Planet Nine"
+          class="-my-1.5 flex items-center rounded-full px-2 py-1.5"
+        >
+          <img src="/logos/planetnine.png" alt="Planet Nine" class="h-4 w-auto" />
+        </a>
+      </div>
+    </footer>
 
     <NotesSheet
       v-model:open="isNotesOpen"
@@ -498,9 +618,20 @@ const themeStyle = computed(() => ({
   50%      { opacity: 0.65; }
 }
 
-.show2-root > :not(.show2-ambient):not(.show2-stars):not(.fixed) {
+.show2-root > :not(.show2-ambient):not(.show2-stars):not(.fixed):not(.show2-sticky) {
   position: relative;
   z-index: 1;
+}
+
+/* Opt-out for children that must keep their own `position`.
+   This rule forces `relative` on every child to layer them above the fixed
+   ambient/stars, which silently defeated the footer's `sticky bottom-0`.
+   Only elements marked `.show2-sticky` are exempt — deliberately narrow: the
+   top bar also carries `sticky top-0`, but the design scrolls it away (its
+   logo transfers into the sidebar via `isScrolled`), so it must keep the
+   `relative` it has always had. */
+.show2-root > .show2-sticky {
+  z-index: 20;
 }
 
 /* ---------- Reusable Planet Nine primitives ---------- */
@@ -564,6 +695,25 @@ const themeStyle = computed(() => ({
   transition: border-color 200ms var(--p2-ease-expo), background 200ms var(--p2-ease-expo);
 }
 .p2-pill-ghost:hover { border-color: var(--p2-border-strong); }
+
+/* Footer credit pill. Hover follows `.p2-pill-ghost`: the border firms up and
+   the surface gains a little weight, rather than the fill changing colour — the
+   pill floats over the creative work, so it should never pull the eye off it. */
+.show2-credit {
+  transition:
+    border-color 200ms var(--p2-ease-expo),
+    background 200ms var(--p2-ease-expo);
+}
+.show2-credit:hover {
+  border-color: var(--p2-border-strong);
+  background: var(--p2-surface);
+}
+
+/* The mark is a dark slate wordmark on transparency, so on the dark theme's
+   glass it sinks into the background. Inverting it lifts it back out. */
+.dark .show2-credit img {
+  filter: invert(1);
+}
 
 /* Focus rings — 2px accent ring on every interactive surface. */
 .show2-root :focus-visible {

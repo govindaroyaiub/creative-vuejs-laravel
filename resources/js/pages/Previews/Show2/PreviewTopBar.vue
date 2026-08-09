@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, inject, type Ref } from 'vue'
-import { Menu, Palette, LogOut, Calendar, Users, Sun, Moon } from 'lucide-vue-next'
+import { Menu, Palette, LogOut, Calendar, Users, Sun, Moon, Folder } from 'lucide-vue-next'
 
 const props = defineProps<{
   preview: any
@@ -9,6 +9,11 @@ const props = defineProps<{
   viewers: string[]
   isAuthenticated: boolean
   authUserClientName: string
+  /** Mirrors Show2's preferDrawerNav — keeps the menu trigger visible. */
+  forceDrawerNav?: boolean
+  /** Which project is open. The only indication of it once the sidebar column
+   *  is replaced by the drawer. */
+  activeCategory?: any
 }>()
 
 defineEmits<{
@@ -55,11 +60,12 @@ const isPlanetNineStaff = computed(() => props.authUserClientName === 'Planet Ni
         background: 'linear-gradient(90deg, transparent 0%, var(--p2-accent) 35%, var(--p2-accent-2) 65%, transparent 100%)',
       }"
     />
-    <div class="mx-auto flex w-full max-w-[2000px] items-center gap-4 px-4 py-3 lg:gap-6 lg:px-8">
+    <div class="mx-auto flex w-full max-w-[2000px] items-center gap-3 px-4 py-3 lg:gap-4 lg:px-8">
       <!-- Mobile menu trigger -->
       <button
         type="button"
-        class="grid h-9 w-9 place-items-center rounded-full border bg-[var(--p2-surface-muted)] text-[var(--p2-text-muted)] backdrop-blur-md transition-colors duration-200 ease-p2-expo hover:text-[var(--p2-text)] lg:hidden"
+        class="grid h-9 w-9 place-items-center rounded-full border bg-[var(--p2-surface-muted)] text-[var(--p2-text-muted)] backdrop-blur-md transition-colors duration-200 ease-p2-expo hover:text-[var(--p2-text)]"
+        :class="props.forceDrawerNav ? '' : 'lg:hidden'"
         :style="{ borderColor: 'var(--p2-border)' }"
         aria-label="Open projects"
         @click="$emit('open-sidebar')"
@@ -72,7 +78,10 @@ const isPlanetNineStaff = computed(() => props.authUserClientName === 'Planet Ni
            when scrolled, so the logo can re-appear inside the sticky
            sidebar; the container keeps its width either way to avoid
            layout shift. -->
-      <div class="flex shrink-0 items-center justify-center lg:w-72">
+      <div
+        class="flex shrink-0 items-center justify-center"
+        :class="forceDrawerNav ? '' : 'lg:w-72'"
+      >
         <div
           class="transition-all duration-500 ease-p2-cinema"
           :class="isScrolled
@@ -110,6 +119,20 @@ const isPlanetNineStaff = computed(() => props.authUserClientName === 'Planet Ni
           <span class="p2-mono hidden items-center gap-1.5 text-[11px] tracking-wide sm:inline-flex">
             <Calendar class="h-3 w-3" />
             {{ formatDate(preview.created_at) }}
+          </span>
+          <!-- Which project is open. Without the sidebar column there is
+               otherwise nothing on screen that says. -->
+          <span
+            v-if="activeCategory?.name"
+            class="inline-flex max-w-[14rem] items-center gap-1.5 truncate rounded-full px-2 py-0.5 text-[11px] font-medium"
+            :style="{
+              background: 'var(--p2-accent-soft)',
+              color: 'var(--p2-accent)',
+            }"
+            :title="activeCategory.name"
+          >
+            <Folder class="h-3 w-3 shrink-0" />
+            <span class="truncate">{{ activeCategory.name }}</span>
           </span>
         </div>
       </div>

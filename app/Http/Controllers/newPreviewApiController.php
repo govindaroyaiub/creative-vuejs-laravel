@@ -41,6 +41,51 @@ class newPreviewApiController extends Controller
      *
      * Returns the preview model on success; aborts 403 on miss.
      */
+    /**
+     * The payload Show2 expects, tolerant of a partly-built preview.
+     *
+     * Three flatten steps used to run unguarded:
+     *
+     *     $activeCategory = $categories->where('is_active', 1)->first();
+     *     $feedbacks      = $activeCategory->feedbacks;          // null deref
+     *     $activeFeedback = $feedbacks->where('is_active', 1)->first();
+     *     $feedbackSets   = $activeFeedback->feedbackSets;       // null deref
+     *
+     * Every one of those states is reachable and legitimate: a preview starts
+     * life with no categories at all (and Show2 calls renderCategories on
+     * mount), a category can exist before its first revision round, and the
+     * active flag can be absent. Each 500'd the viewer with
+     * "Attempt to read property ... on null".
+     *
+     * Returning empty collections lets the page render its own empty states,
+     * which it already has.
+     */
+    private function previewPayload(int $previewId): array
+    {
+        $preview = newPreview::with([
+            'categories.feedbacks.feedbackSets.versions'
+        ])->findOrFail($previewId);
+
+        $categories = $preview->categories;
+        $activeCategory = $categories->firstWhere('is_active', 1);
+        $feedbacks = $activeCategory?->feedbacks ?? collect();
+        $activeFeedback = $feedbacks->firstWhere('is_active', 1);
+        $feedbackSets = $activeFeedback?->feedbackSets ?? collect();
+
+        return [
+            'preview' => $preview,
+            'categories' => $categories,
+            'feedbacks' => $feedbacks,
+            'feedbackSets' => $feedbackSets,
+            'activeCategory' => $activeCategory,
+            'activeFeedback' => $activeFeedback,
+            'versions' => $feedbackSets->flatMap->versions,
+            'fileTransfer' => $activeCategory?->file_transfer_id
+                ? FileTransfer::find($activeCategory->file_transfer_id)
+                : null,
+        ];
+    }
+
     private function assertPreviewVisible(newPreview $preview): newPreview
     {
         if ($preview->requires_login && !Auth::check()) {
@@ -69,33 +114,9 @@ class newPreviewApiController extends Controller
 
     function renderCategories($id)
     {
-        $preview = newPreview::with([
-            'categories.feedbacks.feedbackSets.versions'
-        ])->findOrFail($id);
-        $this->assertPreviewVisible($preview);
+        $this->assertPreviewVisible(newPreview::findOrFail($id));
 
-        // Flatten categories, feedbacks, etc.
-        $categories = $preview->categories;
-        $activeCategory = $categories->where('is_active', 1)->first();
-        $feedbacks = $activeCategory->feedbacks;
-        $activeFeedback = $feedbacks->where('is_active', 1)->first();
-        $feedbackSets = $activeFeedback->feedbackSets;
-        $versions = $feedbackSets->flatMap->versions;
-        $fileTransfer = FileTransfer::find($activeCategory->file_transfer_id);
-        if (!$fileTransfer) {
-            $fileTransfer = null;
-        }
-
-        return response()->json([
-            'preview' => $preview,
-            'categories' => $categories,
-            'feedbacks' => $feedbacks,
-            'feedbackSets' => $feedbackSets,
-            'activeCategory' => $activeCategory,
-            'activeFeedback' => $activeFeedback,
-            'versions' => $versions,
-            'fileTransfer' => $fileTransfer
-        ]);
+        return response()->json($this->previewPayload((int) $id));
     }
 
     function updateActiveCategory($id)
@@ -104,40 +125,21 @@ class newPreviewApiController extends Controller
         $preview = newPreview::findOrFail($category->preview_id);
         $this->assertPreviewVisible($preview);
 
-        // Set all categories under the same preview to inactive
+        // Deactivate the others, then activate the target with a direct query.
+        //
+        // Doing it the other way round breaks when the target is already the
+        // active one: the mass update cleared its row, but the in-memory model
+        // still read 1, so `$category->save()` saw nothing dirty and wrote
+        // nothing — leaving the preview with NO active category, after which
+        // renderCategories dereferenced null and the viewer 500'd for everyone.
         newCategory::where('preview_id', $category->preview_id)
+            ->whereKeyNot($category->getKey())
             ->update(['is_active' => 0]);
 
-        // Set the selected category to active
-        $category->is_active = 1;
-        $category->save();
+        newCategory::whereKey($category->getKey())->update(['is_active' => 1]);
+        $category->refresh();
 
-        $preview = newPreview::with([
-            'categories.feedbacks.feedbackSets.versions'
-        ])->findOrFail($category->preview_id);
-
-        // Flatten categories, feedbacks, etc.
-        $categories = $preview->categories;
-        $activeCategory = $categories->where('is_active', 1)->first();
-        $feedbacks = $activeCategory->feedbacks;
-        $activeFeedback = $feedbacks->where('is_active', 1)->first();
-        $feedbackSets = $activeFeedback->feedbackSets;
-        $versions = $feedbackSets->flatMap->versions;
-        $fileTransfer = FileTransfer::find($activeCategory->file_transfer_id);
-        if (!$fileTransfer) {
-            $fileTransfer = null;
-        }
-
-        return response()->json([
-            'preview' => $preview,
-            'categories' => $categories,
-            'feedbacks' => $feedbacks,
-            'feedbackSets' => $feedbackSets,
-            'activeCategory' => $activeCategory,
-            'activeFeedback' => $activeFeedback,
-            'versions' => $versions,
-            'fileTransfer' => $fileTransfer
-        ]);
+        return response()->json($this->previewPayload((int) $category->preview_id));
     }
 
     function updateActiveFeedback($id)
@@ -146,40 +148,17 @@ class newPreviewApiController extends Controller
         $preview = newPreview::findOrFail($feedback->category->preview_id);
         $this->assertPreviewVisible($preview);
 
-        // Set all feedbacks under the same category to inactive
+        // Same shape as updateActiveCategory: exclude the target from the
+        // deactivate and set it with a direct query, so re-selecting the round
+        // that is already active cannot leave the category with none.
         newFeedback::where('category_id', $feedback->category_id)
+            ->whereKeyNot($feedback->getKey())
             ->update(['is_active' => 0]);
 
-        // Set the selected feedback to active
-        $feedback->is_active = 1;
-        $feedback->save();
+        newFeedback::whereKey($feedback->getKey())->update(['is_active' => 1]);
+        $feedback->refresh();
 
-        $preview = newPreview::with([
-            'categories.feedbacks.feedbackSets.versions'
-        ])->findOrFail($feedback->category->preview_id);
-
-        // Flatten categories, feedbacks, etc.
-        $categories = $preview->categories;
-        $activeCategory = $categories->where('is_active', 1)->first();
-        $feedbacks = $activeCategory->feedbacks;
-        $activeFeedback = $feedbacks->where('is_active', 1)->first();
-        $feedbackSets = $activeFeedback->feedbackSets;
-        $versions = $feedbackSets->flatMap->versions;
-        $fileTransfer = FileTransfer::find($activeCategory->file_transfer_id);
-        if (!$fileTransfer) {
-            $fileTransfer = null;
-        }
-
-        return response()->json([
-            'preview' => $preview,
-            'categories' => $categories,
-            'feedbacks' => $feedbacks,
-            'feedbackSets' => $feedbackSets,
-            'activeCategory' => $activeCategory,
-            'activeFeedback' => $activeFeedback,
-            'versions' => $versions,
-            'fileTransfer' => $fileTransfer
-        ]);
+        return response()->json($this->previewPayload((int) $feedback->category->preview_id));
     }
 
     /**

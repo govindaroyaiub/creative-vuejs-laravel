@@ -16,10 +16,16 @@ defineEmits<{
  * videos / etc. retain their drag-managed `position` order.
  */
 const sortedCategories = computed(() =>
-  [...tree.preview.categories].sort(
-    (a: any, b: any) =>
+  [...tree.preview.categories].sort((a: any, b: any) => {
+    const byDate =
       new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
-  )
+
+    // Categories created in one batch share a timestamp to the second, and
+    // Array.sort is stable — so equal timestamps kept insertion order and the
+    // list came out part descending, part ascending. Ids are monotonic (temp
+    // ids from nextTmpId() are >= 1e12), so they break the tie correctly.
+    return byDate !== 0 ? byDate : Number(b.id) - Number(a.id)
+  })
 )
 
 const filtered = computed(() => {

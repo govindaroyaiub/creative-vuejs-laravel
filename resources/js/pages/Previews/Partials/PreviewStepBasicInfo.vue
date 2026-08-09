@@ -214,9 +214,11 @@ const formErrors = reactive({
 
 const toggleConfigs = [
   { label: 'Requires login?', model: 'requires_login' as keyof FormData, description: 'Auth required to view' },
-  { label: 'Show header logo?', model: 'show_planetnine_logo' as keyof FormData, description: 'Display Planet Nine logo' },
+  // show_planetnine_logo gates the client chosen in the header-logo select,
+  // not Planet Nine branding — see PreviewTopBar.
+  { label: 'Show header logo?', model: 'show_planetnine_logo' as keyof FormData, description: 'Display the selected header logo' },
   { label: 'Show sidebar logo?', model: 'show_sidebar_logo' as keyof FormData, description: 'Logo in navigation' },
-  { label: 'Show footer in preview?', model: 'show_footer' as keyof FormData, description: 'Display page footer' },
+  { label: 'Show footer in preview?', model: 'show_footer' as keyof FormData, description: 'Planet Nine credit at the foot of the preview' },
 ] as const;
 
 const selectedUsers = computed(() =>

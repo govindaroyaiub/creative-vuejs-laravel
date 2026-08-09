@@ -245,7 +245,10 @@ const toggleConfigs = [
     {
         label: 'Show Header Logo?',
         model: 'show_planetnine_logo',
-        description: 'Display Planet Nine logo in the header'
+        // The flag is named show_planetnine_logo for historical reasons, but it
+        // gates whichever client is chosen in the header-logo select — it has
+        // nothing to do with Planet Nine branding (see PreviewTopBar).
+        description: 'Display the selected header logo in the top bar'
     },
     {
         label: 'Show Sidebar Logo?',
@@ -255,7 +258,7 @@ const toggleConfigs = [
     {
         label: 'Show Footer?',
         model: 'show_footer',
-        description: 'Display footer section on preview pages'
+        description: 'Show the Planet Nine credit at the foot of the preview'
     },
 ] as const;
 
