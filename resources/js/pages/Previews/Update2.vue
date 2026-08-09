@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, provide, ref } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
-// import AppLayout from '@/layouts/AppLayout.vue'
 import Swal from 'sweetalert2'
 
 import TopBar from './Update2/TopBar.vue'
@@ -326,10 +325,6 @@ const onCreateCategory = (value: { name: string; type: AssetType }) => {
   tree.addCategory(value.name, value.type)
 }
 
-const goToPreview = () => {
-  window.open(`/previews/show/${props.preview_slug || tree.preview.slug}`, '_blank')
-}
-
 const goToPreview2 = () => {
   window.open(`/previews/show2/${props.preview_slug || tree.preview.slug}`, '_blank')
 }
@@ -369,46 +364,49 @@ onBeforeUnmount(() => {
 <template>
   <Head :title="`Edit · ${preview_name}`" />
 
-  <AppLayout>
-    <div class="update2-root relative flex h-[calc(100vh-4rem)] flex-col" :style="themeStyle">
-      <!-- Decorative ambient color wash. Light mode is asset-first
-           (very subtle); dark mode opens up into a cinematic Planet
-           Nine backdrop with a starfield + aurora glow — same identity
-           as the public Show2 viewer. -->
-      <div aria-hidden="true" class="update2-ambient" />
-      <div aria-hidden="true" class="update2-stars" />
+  <!-- Full viewport height. This used to be `calc(100vh-4rem)`, reserving room
+       for AppLayout's header — but the layout import was commented out while the
+       template still wrapped everything in <AppLayout>, so Vue could not resolve
+       it, no header rendered, and the editor sat 64px short of the fold for
+       nothing. `dvh` rather than `vh` so mobile browser chrome does not push the
+       bottom of the editor out of reach. -->
+  <div class="update2-root relative flex h-dvh flex-col" :style="themeStyle">
+    <!-- Decorative ambient color wash. Light mode is asset-first
+         (very subtle); dark mode opens up into a cinematic Planet
+         Nine backdrop with a starfield + aurora glow — same identity
+         as the public Show2 viewer. -->
+    <div aria-hidden="true" class="update2-ambient" />
+    <div aria-hidden="true" class="update2-stars" />
 
-      <TopBar
-        :preview-name="preview_name"
-        :client-name="client_name"
-        :preview-slug="preview_slug || tree.preview.slug"
-        :dirty-count="tree.unsavedCount.value"
-        :is-saving="tree.isSaving.value"
-        :elapsed-seconds="elapsedSeconds"
-        :sidebar-open="showSidebar"
-        @save="saveAll"
-        @preview="goToPreview"
-        @preview2="goToPreview2"
-        @edit-info="goToEditInfo"
-        @back="goBack"
-        @toggle-sidebar="showSidebar = !showSidebar"
-        @view-changes="showChanges = true"
+    <TopBar
+      :preview-name="preview_name"
+      :client-name="client_name"
+      :preview-slug="preview_slug || tree.preview.slug"
+      :dirty-count="tree.unsavedCount.value"
+      :is-saving="tree.isSaving.value"
+      :elapsed-seconds="elapsedSeconds"
+      :sidebar-open="showSidebar"
+      @save="saveAll"
+      @preview2="goToPreview2"
+      @edit-info="goToEditInfo"
+      @back="goBack"
+      @toggle-sidebar="showSidebar = !showSidebar"
+      @view-changes="showChanges = true"
+    />
+
+    <ChangesSidebar :open="showChanges" @close="showChanges = false" />
+
+    <div class="flex min-h-0 flex-1">
+      <Tree
+        v-show="showSidebar"
+        @add-category="onAddCategory"
       />
 
-      <ChangesSidebar :open="showChanges" @close="showChanges = false" />
-
-      <div class="flex min-h-0 flex-1">
-        <Tree
-          v-show="showSidebar"
-          @add-category="onAddCategory"
-        />
-
-        <Inspector class="flex-1" />
-      </div>
-
-      <NewCategoryModal v-model:open="showNewCategory" @create="onCreateCategory" />
+      <Inspector class="flex-1" />
     </div>
-  </AppLayout>
+
+    <NewCategoryModal v-model:open="showNewCategory" @create="onCreateCategory" />
+  </div>
 </template>
 
 <style>
@@ -529,8 +527,15 @@ onBeforeUnmount(() => {
   50%      { opacity: 0.65; }
 }
 
-/* All editor children sit above the ambient + stars layers. */
-.update2-root > :not(.update2-ambient):not(.update2-stars) {
+/* All editor children sit above the ambient + stars layers.
+ *
+ * `:not(.fixed)` matters: this rule outranks Tailwind's single-class `.fixed`
+ * (0,3,0 vs 0,1,0), so without the exclusion it silently rewrote the History
+ * panel from `position: fixed` to `relative`. The panel then stopped being an
+ * overlay and became an ordinary 384px flex child of this column — landing in
+ * the flow directly above the tree's search box and squeezing everything else
+ * sideways, instead of sliding in over the right edge. */
+.update2-root > :not(.update2-ambient):not(.update2-stars):not(.fixed) {
   position: relative;
   z-index: 1;
 }

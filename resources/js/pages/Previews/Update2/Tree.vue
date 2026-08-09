@@ -129,16 +129,5 @@ const filtered = computed(() => {
         Click <span class="font-semibold text-[var(--p2-accent)]">+</span> to create one.
       </div>
     </div>
-
-    <!-- Footer summary -->
-    <div
-      class="border-t px-4 py-2"
-      :style="{ borderColor: 'var(--p2-hairline)' }"
-    >
-      <span class="p2-mono text-[11px] text-[var(--p2-text-muted)]">
-        {{ tree.preview.categories.length }}
-        {{ tree.preview.categories.length === 1 ? 'project' : 'projects' }}
-      </span>
-    </div>
   </aside>
 </template>

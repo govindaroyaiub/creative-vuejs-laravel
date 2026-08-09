@@ -24,7 +24,6 @@ const elapsedLabel = computed(() => {
 
 defineEmits<{
   (e: 'save'): void
-  (e: 'preview'): void
   (e: 'preview2'): void
   (e: 'edit-info'): void
   (e: 'back'): void
@@ -137,26 +136,18 @@ const dirtyLabel = computed(() => {
         Edit Info
       </button>
 
+      <!-- One preview button. The old `/previews/show/{slug}` viewer is no longer
+           what anyone should be sent to, so "Preview v2" is simply "Preview"
+           now and points at Show2. -->
       <button
         type="button"
         class="hidden h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)] md:inline-flex"
         :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
         title="Open preview in new tab"
-        @click="$emit('preview')"
-      >
-        <ExternalLink class="h-3.5 w-3.5" />
-        Preview
-      </button>
-
-      <button
-        type="button"
-        class="hidden h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)] md:inline-flex"
-        :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
-        title="Open new preview UI"
         @click="$emit('preview2')"
       >
         <ExternalLink class="h-3.5 w-3.5" />
-        Preview v2
+        Preview
       </button>
 
       <button
