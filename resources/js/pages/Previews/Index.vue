@@ -716,12 +716,12 @@ const groups = computed(() => {
                                     </div>
                                 </section>
 
-                                <!-- No Feedback -->
+                                <!-- No Assets -->
                                 <section>
                                     <div class="flex items-center justify-between mb-1">
                                         <h3
                                             class="text-xs font-mono uppercase tracking-widest text-[#666666] dark:text-[#999999]">
-                                            NO FEEDBACK</h3>
+                                            NO ASSETS</h3>
                                         <div class="text-xs text-[#666666] dark:text-[#999999] font-mono">{{
                                             Math.min(groups.noFeedback.length,
                                             noFeedbackLimit) }} / {{ groups.noFeedback.length }}</div>
@@ -736,7 +736,7 @@ const groups = computed(() => {
                                         </div>
                                         <div v-else
                                             class="text-xs text-[#666666] dark:text-[#999999] font-mono tracking-wide">
-                                            NO PREVIEWS WITHOUT FEEDBACK</div>
+                                            NO PREVIEWS WITHOUT ASSETS</div>
                                     </div>
                                     <div v-if="groups.noFeedback.length > noFeedbackDefault" class="mt-4 text-center">
                                         <button v-if="noFeedbackLimit < groups.noFeedback.length"

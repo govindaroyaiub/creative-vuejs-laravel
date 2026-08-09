@@ -28,7 +28,7 @@ const progressPct = computed(() => total.value ? Math.round((approved.value / to
 const statusLabel = computed(() => ({
     inProgress: 'IN PROGRESS',
     completed: 'COMPLETED',
-    noFeedback: 'NO FEEDBACK',
+    noFeedback: 'NO ASSETS',
 }[props.status]));
 
 const formatDateRelative = (dateStr: string) => dateStr ? dayjs(dateStr).fromNow() : '';
