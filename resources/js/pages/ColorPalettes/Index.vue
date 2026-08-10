@@ -133,60 +133,6 @@
                   </div>
                 </div>
               </div>
-
-              <!-- Header Image -->
-              <div v-if="palette.header_image" class="mb-2">
-                <p class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">Header
-                  Image</p>
-                <div
-                  class="bg-[#F5F5F5] dark:bg-[#111111] border border-[#CCCCCC] dark:border-[#333333] rounded-lg p-3">
-                  <img :src="`/${palette.header_image}`" alt="Header"
-                    class="h-12 mx-auto" />
-                </div>
-              </div>
-
-              <!-- Tab Images -->
-              <div class="space-y-4">
-                <div>
-                  <p class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">Feedback
-                    Tabs</p>
-                  <div
-                    class="flex items-center justify-between space-x-4 bg-[#F5F5F5] dark:bg-[#111111] border border-[#CCCCCC] dark:border-[#333333] rounded-lg p-3">
-                    <div class="text-center">
-                      <img :src="`/${palette.feedbackTab_inactive_image}`" alt="Inactive" class="h-8 mx-auto mb-1" />
-                      <span class="text-xs text-[#666666] dark:text-[#999999] uppercase font-mono">Inactive</span>
-                    </div>
-                    <svg class="w-4 h-4 text-[#999999]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                    <div class="text-center">
-                      <img :src="`/${palette.feedbackTab_active_image}`" alt="Active" class="h-8 mx-auto mb-1" />
-                      <span class="text-xs text-[#666666] dark:text-[#999999] uppercase font-mono">Active</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <p class="text-xs font-mono tracking-wide text-[#666666] dark:text-[#999999] mb-2">Right
-                    Side Tabs</p>
-                  <div
-                    class="flex items-center justify-between space-x-4 bg-[#F5F5F5] dark:bg-[#111111] border border-[#CCCCCC] dark:border-[#333333] rounded-lg p-3">
-                    <div class="text-center">
-                      <img :src="`/${palette.rightSideTab_feedback_description_image}`" alt="Feedback Description"
-                        class="h-8 mx-auto mb-1" />
-                      <span class="text-xs text-[#666666] dark:text-[#999999] uppercase font-mono">Feedback</span>
-                    </div>
-                    <svg class="w-4 h-4 text-[#999999]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                    <div class="text-center">
-                      <img :src="`/${palette.rightSideTab_color_palette_image}`" alt="Color Palette"
-                        class="h-8 mx-auto mb-1" />
-                      <span class="text-xs text-[#666666] dark:text-[#999999] uppercase font-mono">Palette</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
 
             <!-- Card Actions -->
