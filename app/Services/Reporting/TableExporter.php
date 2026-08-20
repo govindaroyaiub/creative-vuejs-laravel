@@ -14,8 +14,9 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
  *
  * Separate from ZipBuilder: that packages the raw partner source files for
  * re-upload elsewhere; this hands back the computed daily figures the dashboard
- * displays. Impression counts are only tracked for F1Maximaal, so the
- * Impressions block is blank for the other sites.
+ * displays. Impression counts are computed per site (not just F1Maximaal), so
+ * the Impressions block is only blank for a site/day that never had a partner
+ * impressions file merged in.
  */
 class TableExporter
 {

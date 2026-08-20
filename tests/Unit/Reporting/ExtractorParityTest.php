@@ -60,7 +60,7 @@ it('matches JS output for per-site partners', function (string $partner) use ($e
 it('matches JS output for analytics (f1maximaal)', function () use ($expected, $uploads, $perDay, $TOL) {
     $fields = ['views', 'activeUsers', 'viewsPerUser', 'avgEngagement', 'eventCount', 'keyEvents', 'totalRevenue'];
     $exp = $expected['partners']['analytics']['f1maximaal'];
-    $got = $perDay(Extractors::analytics(file_get_contents("$uploads/Analytics.csv")), $fields);
+    $got = $perDay(Extractors::analytics("$uploads/Analytics.csv"), $fields);
 
     expect(array_keys($got))->toEqualCanonicalizing(array_keys($exp), 'analytics date keys differ');
     foreach ($exp as $k => $vals) {

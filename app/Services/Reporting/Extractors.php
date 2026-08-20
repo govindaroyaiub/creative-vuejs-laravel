@@ -53,10 +53,21 @@ class Extractors
         return $out;
     }
 
-    public static function analytics(string $csv): array
+    /**
+     * GA4 "Pages and screens: Content group" export, one property (site) per
+     * file. CSV keeps the original text-based parser (needed for the leading
+     * "#"-comment rows GA4's CSV export adds); XLSX goes through PhpSpreadsheet
+     * with the same comment-row skip so both formats land on the same header.
+     */
+    public static function analytics(string $path): array
     {
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $rows = $ext === 'csv'
+            ? SpreadsheetReader::csvRows(file_get_contents($path))
+            : self::analyticsXlsxRows($path);
+
         $out = [];
-        foreach (SpreadsheetReader::csvRows($csv) as $r) {
+        foreach ($rows as $r) {
             $d = Reporting::parseDate($r['Date'] ?? $r['date'] ?? '');
             if (! $d) continue;
             $out[] = [
@@ -69,6 +80,32 @@ class Extractors
                 'keyEvents' => Reporting::stripNum($r['Key events'] ?? ''),
                 'totalRevenue' => Reporting::stripNum($r['Total revenue'] ?? ''),
             ];
+        }
+
+        return $out;
+    }
+
+    /** Same header-skip rule as {@see SpreadsheetReader::csvRows()}, sourced from an xlsx matrix. */
+    private static function analyticsXlsxRows(string $path): array
+    {
+        $matrix = SpreadsheetReader::matrix($path);
+        if (count($matrix) === 0) return [];
+
+        $hi = 0;
+        foreach ($matrix as $i => $row) {
+            $first = trim((string) ($row[0] ?? ''));
+            if ($first !== '' && ! str_starts_with($first, '#')) { $hi = $i; break; }
+        }
+
+        $headers = array_map(fn ($h) => trim((string) $h), $matrix[$hi]);
+        $out = [];
+        for ($i = $hi + 1; $i < count($matrix); $i++) {
+            $row = [];
+            foreach ($headers as $c => $h) {
+                if ($h === '') continue;
+                $row[$h] = $matrix[$i][$c] ?? '';
+            }
+            $out[] = $row;
         }
 
         return $out;

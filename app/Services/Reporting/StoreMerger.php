@@ -38,8 +38,8 @@ class StoreMerger
         $ogury = $lookup($parsed['ogury'] ?? null);
 
         $isF1 = $siteId === 'f1maximaal';
-        $analytics = $isF1 ? $lookup($parsed['analytics'] ?? null) : [];
-        $gamF1m = $isF1 ? $lookup($parsed['gam_f1m'] ?? null) : [];
+        $analytics = $lookup($parsed['analytics'] ?? null);
+        $gamF1m = $lookup($parsed['gam_f1m'] ?? null);
         $outbrain = $isF1 ? $lookup($parsed['outbrain'] ?? null) : [];
         $preferred = $isF1 ? $lookup($parsed['preferreddeals'] ?? null) : [];
         // impressions_f1 was historically wired but Adhese impressions are entered
@@ -47,8 +47,8 @@ class StoreMerger
 
         $allKeys = array_unique(array_merge(
             array_keys($adhese), array_keys($seedtag), array_keys($teads), array_keys($showheroes),
-            array_keys($gam), array_keys($adform), array_keys($ogury), array_keys($analytics),
-            array_keys($gamF1m), array_keys($outbrain), array_keys($preferred),
+            array_keys($gam), array_keys($adform), array_keys($ogury),
+            array_keys($analytics), array_keys($gamF1m), array_keys($outbrain), array_keys($preferred),
         ));
 
         foreach ($allKeys as $k) {
@@ -67,37 +67,41 @@ class StoreMerger
                 'preferredDeals' => $preferred[$k]['revenue'] ?? $existing['revenue']['preferredDeals'] ?? 0,
             ];
 
-            if ($isF1) {
-                $gf = $gamF1m[$k] ?? [];
-                $imp = $existing['impressions'] ?? [];
-                $day['impressions'] = [
-                    'seedtag' => $seedtag[$k]['impressions'] ?? $imp['seedtag'] ?? 0,
-                    'teads' => $teads[$k]['impressions'] ?? $imp['teads'] ?? 0,
-                    'showheroes' => $showheroes[$k]['impressions'] ?? $imp['showheroes'] ?? 0,
-                    'gam' => $gf['gamImpressions'] ?? $imp['gam'] ?? 0,
-                    'adform' => $adform[$k]['impressions'] ?? $imp['adform'] ?? 0,
-                    'ogury' => $ogury[$k]['impressions'] ?? $imp['ogury'] ?? 0,
-                    'outbrain' => $outbrain[$k]['impressions'] ?? $imp['outbrain'] ?? 0,
-                    // Adhese impressions are entered manually; never overwrite from a file.
-                    'adhese' => $imp['adhese'] ?? null,
-                    'preferredDeals' => $preferred[$k]['impressions'] ?? $imp['preferredDeals'] ?? 0,
-                ];
-                $day['totalAdRequests'] = $gf['totalAdRequests'] ?? $existing['totalAdRequests'] ?? 0;
-                $day['analytics'] = isset($analytics[$k]) ? [
-                    'views' => $analytics[$k]['views'],
-                    'activeUsers' => $analytics[$k]['activeUsers'],
-                    'viewsPerUser' => $analytics[$k]['viewsPerUser'],
-                    'avgEngagement' => $analytics[$k]['avgEngagement'],
-                    'eventCount' => $analytics[$k]['eventCount'],
-                    'keyEvents' => $analytics[$k]['keyEvents'],
-                    'totalRevenue' => $analytics[$k]['totalRevenue'],
-                ] : ($existing['analytics'] ?? null);
+            // Impressions/ad-requests used to be F1-only; now generic per site.
+            // Outbrain/Preferred Deals stay real zeros for sites that don't run
+            // those partners (extraction itself is still F1-only, above).
+            $gf = $gamF1m[$k] ?? [];
+            $imp = $existing['impressions'] ?? [];
+            $day['impressions'] = [
+                'seedtag' => $seedtag[$k]['impressions'] ?? $imp['seedtag'] ?? 0,
+                'teads' => $teads[$k]['impressions'] ?? $imp['teads'] ?? 0,
+                'showheroes' => $showheroes[$k]['impressions'] ?? $imp['showheroes'] ?? 0,
+                'gam' => $gf['gamImpressions'] ?? $imp['gam'] ?? 0,
+                'adform' => $adform[$k]['impressions'] ?? $imp['adform'] ?? 0,
+                'ogury' => $ogury[$k]['impressions'] ?? $imp['ogury'] ?? 0,
+                'outbrain' => $outbrain[$k]['impressions'] ?? $imp['outbrain'] ?? 0,
+                // Adhese impressions are entered manually; never overwrite from a file.
+                'adhese' => $imp['adhese'] ?? null,
+                'preferredDeals' => $preferred[$k]['impressions'] ?? $imp['preferredDeals'] ?? 0,
+            ];
+            $day['totalAdRequests'] = $gf['totalAdRequests'] ?? $existing['totalAdRequests'] ?? 0;
 
-                $i2 = $day['impressions'];
-                $day['impressionsSold'] = ($i2['seedtag'] ?: 0) + ($i2['teads'] ?: 0) + ($i2['showheroes'] ?: 0)
-                    + ($i2['gam'] ?: 0) + ($i2['adform'] ?: 0) + ($i2['ogury'] ?: 0)
-                    + ($i2['outbrain'] ?: 0) + ($i2['adhese'] ?: 0) + ($i2['preferredDeals'] ?: 0);
-            }
+            $i2 = $day['impressions'];
+            $day['impressionsSold'] = ($i2['seedtag'] ?: 0) + ($i2['teads'] ?: 0) + ($i2['showheroes'] ?: 0)
+                + ($i2['gam'] ?: 0) + ($i2['adform'] ?: 0) + ($i2['ogury'] ?: 0)
+                + ($i2['outbrain'] ?: 0) + ($i2['adhese'] ?: 0) + ($i2['preferredDeals'] ?: 0);
+
+            // Analytics (GA4 "Pages and screens" export) is per-site, not F1-only —
+            // any site with a routed analytics file gets its numbers merged here.
+            $day['analytics'] = isset($analytics[$k]) ? [
+                'views' => $analytics[$k]['views'],
+                'activeUsers' => $analytics[$k]['activeUsers'],
+                'viewsPerUser' => $analytics[$k]['viewsPerUser'],
+                'avgEngagement' => $analytics[$k]['avgEngagement'],
+                'eventCount' => $analytics[$k]['eventCount'],
+                'keyEvents' => $analytics[$k]['keyEvents'],
+                'totalRevenue' => $analytics[$k]['totalRevenue'],
+            ] : ($existing['analytics'] ?? null);
 
             $days[$k] = $day;
         }

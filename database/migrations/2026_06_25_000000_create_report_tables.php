@@ -21,9 +21,9 @@ return new class extends Migration
             $table->string('site');                       // f1maximaal | topgear | horses | festileaks
             $table->date('date');
             $table->json('revenue')->nullable();          // { adhese, gam, seedtag, teads, showheroes, adform, ogury, outbrain, preferredDeals }
-            $table->json('impressions')->nullable();      // per-partner impressions (f1maximaal only carries the full set)
+            $table->json('impressions')->nullable();      // per-partner impressions, any site
             $table->unsignedBigInteger('total_ad_requests')->default(0);
-            $table->json('analytics')->nullable();        // GA4 metrics (f1maximaal only)
+            $table->json('analytics')->nullable();        // GA4 metrics, any site
             $table->unsignedBigInteger('impressions_sold')->default(0);
             $table->timestamps();
 

@@ -43,10 +43,8 @@ class ReportStore
             ];
             if ($row->impressions !== null) $day['impressions'] = $row->impressions;
             if ($row->analytics !== null) $day['analytics'] = $row->analytics;
-            if ($site === 'f1maximaal') {
-                $day['totalAdRequests'] = $row->total_ad_requests;
-                $day['impressionsSold'] = $row->impressions_sold;
-            }
+            $day['totalAdRequests'] = $row->total_ad_requests;
+            $day['impressionsSold'] = $row->impressions_sold;
             $store['sites'][$site]['days'][$k] = $day;
         }
 

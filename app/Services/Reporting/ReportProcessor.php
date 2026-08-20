@@ -27,6 +27,8 @@ class ReportProcessor
         $pathByType = [];      // type => temp path of the uploaded file
         $origByType = [];      // type => original filename (for extension)
         $adheseRows = [];
+        $analyticsFiles = [];  // list of {name, path} — one GA4 property export per site
+        $gamF1mFiles = [];     // list of {name, path} — one GAM ad-requests export per site
 
         foreach ($files as $file) {
             $type = Reporting::detectFileType($file['name'], $filePatterns);
@@ -34,6 +36,10 @@ class ReportProcessor
             try {
                 if ($type === 'adhese') {
                     $adheseRows = array_merge($adheseRows, Extractors::adhese($file['path'], $file['name']));
+                } elseif ($type === 'analytics') {
+                    $analyticsFiles[] = $file;
+                } elseif ($type === 'gam_f1m') {
+                    $gamF1mFiles[] = $file;
                 } else {
                     $pathByType[$type] = $file['path'];
                     $origByType[$type] = $file['name'];
@@ -51,6 +57,41 @@ class ReportProcessor
             $k = Reporting::dateKey($row['date']);
             $adhesePerSite[$siteId][$k] ??= ['date' => $row['date'], 'revenue' => 0.0];
             $adhesePerSite[$siteId][$k]['revenue'] += $row['revenue'];
+        }
+
+        // GA4 exports carry no site column (one property per file), so route by
+        // filename the same way Adhese does: explicit TG/FL, default F1Maximaal.
+        $analyticsPerSite = [];
+        foreach ($analyticsFiles as $file) {
+            $fname = mb_strtolower($file['name']);
+            if (str_contains($fname, ' tg') || str_contains($fname, 'topgear')) $siteId = 'topgear';
+            elseif (str_contains($fname, ' fl') || str_contains($fname, 'festileaks')) $siteId = 'festileaks';
+            else $siteId = 'f1maximaal';
+            try {
+                $rows = Extractors::analytics($file['path']);
+                $analyticsPerSite[$siteId] = array_merge($analyticsPerSite[$siteId] ?? [], $rows);
+            } catch (\Throwable $e) {
+                // Skip an unparseable file; the rest of the run continues.
+            }
+        }
+
+        // GAM's per-site ad-requests export ("Copy of {site} …") also carries no
+        // site column — one export per site — so route by filename the same way.
+        $gamF1mPerSite = [];
+        foreach ($gamF1mFiles as $file) {
+            $fname = mb_strtolower($file['name']);
+            $siteId = null;
+            foreach (Reporting::SITES as $sid => $site) {
+                $needle = mb_strtolower(explode('.', $site['name'])[0]);
+                if (str_contains($fname, $needle)) { $siteId = $sid; break; }
+            }
+            $siteId ??= 'f1maximaal'; // legacy files never carried a site hint beyond "f1max"
+            try {
+                $rows = Extractors::gamF1m($file['path']);
+                $gamF1mPerSite[$siteId] = array_merge($gamF1mPerSite[$siteId] ?? [], $rows);
+            } catch (\Throwable $e) {
+                // Skip an unparseable file; the rest of the run continues.
+            }
         }
 
         // Clear optional files at the start — written back only if this run has data.
@@ -78,9 +119,10 @@ class ReportProcessor
                 if (isset($pathByType['ogury'])) $parsed['ogury'] = Extractors::ogury($pathByType['ogury'], $siteId, $oguryRate);
                 if (isset($adhesePerSite[$siteId])) $parsed['adhese'] = array_values($adhesePerSite[$siteId]);
 
+                if (isset($analyticsPerSite[$siteId])) $parsed['analytics'] = $analyticsPerSite[$siteId];
+                if (isset($gamF1mPerSite[$siteId])) $parsed['gam_f1m'] = $gamF1mPerSite[$siteId];
+
                 if ($siteId === 'f1maximaal') {
-                    if (isset($pathByType['analytics'])) $parsed['analytics'] = Extractors::analytics(file_get_contents($pathByType['analytics']));
-                    if (isset($pathByType['gam_f1m'])) $parsed['gam_f1m'] = Extractors::gamF1m($pathByType['gam_f1m']);
                     if (isset($pathByType['outbrain'])) {
                         $parsed['outbrain'] = Extractors::outbrain(file_get_contents($pathByType['outbrain']));
                         $outbrainHasData = self::anyImpressions($parsed['outbrain']);
@@ -127,12 +169,19 @@ class ReportProcessor
             copy($pathByType[$c['type']], $uploadsDir . '/' . $c['name'] . $ext);
         }
 
-        file_put_contents($uploadsDir . '/Analytics.csv', CsvGenerator::analytics($store));
+        file_put_contents($uploadsDir . '/Analytics.csv', CsvGenerator::analytics($store, 'f1maximaal'));
         file_put_contents($uploadsDir . '/Adhese f1.csv', CsvGenerator::adhese($store, 'f1maximaal'));
         foreach (['topgear' => 'tg', 'festileaks' => 'fl'] as $sid => $label) {
             $csv = CsvGenerator::adhese($store, $sid);
             if (count(explode("\n", $csv)) > 1) {
                 file_put_contents($uploadsDir . "/Adhese {$label}.csv", $csv);
+            }
+
+            // Same per-site split as Adhese above — each site's analytics
+            // re-download stays separate, never merged into F1's Analytics.csv.
+            $analyticsCsv = CsvGenerator::analytics($store, $sid);
+            if ($analyticsCsv !== '') {
+                file_put_contents($uploadsDir . "/Analytics {$label}.csv", $analyticsCsv);
             }
         }
 

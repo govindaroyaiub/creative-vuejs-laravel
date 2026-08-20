@@ -94,6 +94,10 @@ class Reporting
         // Preferred Deals must precede gam_f1m — that filename also contains "f1max".
         if ($matches('preferreddeals')) return 'preferreddeals';
         if ($matches('gam_f1m')) return 'gam_f1m';
+        // Same GAM per-site ad-requests export as gam_f1m, just for a site other than
+        // F1Maximaal — GAM's own export naming is "Copy of {site} (date range)" for
+        // all of them; only exclude the unrelated all-publishers revenue download.
+        if (str_starts_with($name, 'copy of ') && ! str_contains($name, 'general data download')) return 'gam_f1m';
         if (str_starts_with($name, 'planetnine-report-')) return 'planetnine';
         if (str_starts_with($name, 'tg-revenue-report-')) return 'report_topgear';
         if (str_starts_with($name, 'horses-revenue-report-')) return 'report_horses';

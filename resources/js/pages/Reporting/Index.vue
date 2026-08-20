@@ -320,6 +320,11 @@ const days = computed<any[]>(() => {
     let arr = Object.values(map).sort((a: any, b: any) => a.dateKey.localeCompare(b.dateKey));
     if (from.value) arr = arr.filter((d: any) => d.dateKey >= from.value);
     if (to.value) arr = arr.filter((d: any) => d.dateKey <= to.value);
+    // A day that hasn't been (re)processed since impressions/analytics became
+    // per-site has no `impressions` object at all yet — normalize it here once
+    // so every template access (including v-model, which can't use `?.` as an
+    // assignment target) can rely on it always being an object.
+    arr.forEach((d: any) => { if (!d.impressions) d.impressions = {}; });
     return arr;
 });
 
@@ -364,9 +369,17 @@ const partnerTotals = computed(() => {
     return { totals, grand };
 });
 
+// Adhese impressions / RPM / Impr. sold / Ad requests — this whole bundle is
+// only meaningful for F1Maximaal and Topgear (the sites Adhese, GA4 analytics,
+// and the GAM ad-requests export are actually wired up for). Horses and
+// Festileaks don't track any of it, by design, not as a gap to fill in.
+const supportsAdheseAndRpm = computed(() => ['f1maximaal', 'topgear'].includes(selectedSite.value));
+
 // RPM (revenue per 1000 pageviews). A high RPM means analytics pageviews are
 // under-reported (incomplete/late-finalized GA4 data) — the day's analytics file
-// likely needs re-uploading. F1Maximaal only; other sites carry no pageviews.
+// likely needs re-uploading. rpmFor() itself works for any site with analytics
+// merged; anomaly tinting (rpmTier, below) stays F1Maximaal-only for now until
+// Topgear's analytics upload cadence is as proven as F1's.
 // Editable in Settings; default to amber >=7.5, red >=8. Reactive so the table
 // re-tints immediately after the thresholds are saved.
 const rpmAmber = ref<number>((page.props.rpmAmber as number) ?? 7.5);
@@ -377,8 +390,9 @@ const rpmFor = (d: any): number | null => {
     return views > 0 ? (dayRevenue(d) / views) * 1000 : null;
 };
 const rpmTier = (d: any): 'red' | 'amber' | null => {
-    // Only F1Maximaal carries pageviews; on other sites "revenue but no views"
-    // is the normal state, not an anomaly — never tint their rows.
+    // Anomaly tinting stays F1Maximaal-only for now — other sites' analytics
+    // data (impressions/RPM) is real as of this generalization but its upload
+    // cadence isn't proven yet, so "revenue but no views" isn't flagged there.
     if (selectedSite.value !== 'f1maximaal') return null;
     const rpm = rpmFor(d);
     // Missing/zero pageviews on a day that has revenue is itself the "re-upload
@@ -405,7 +419,7 @@ const rpmCardClass = (d: any) => {
     return t === 'red' ? 'border-red-500/40 bg-red-500/5' : t === 'amber' ? 'border-amber-400/40 bg-amber-400/5' : '';
 };
 // Most recent day in the active date-range filter — backs the Summary tab's
-// "Latest day" block (F1Maximaal only; same fields Days used to show).
+// "Latest day" block (per site now; same fields Days used to show).
 const latestDay = computed<any | null>(() => days.value[days.value.length - 1] ?? null);
 const blendedRpm = computed<number | null>(() => {
     const views = days.value.reduce((t, d) => t + (d.analytics?.views ?? 0), 0);
@@ -548,31 +562,43 @@ function detectType(filename: string): string {
     if (n.startsWith('impressions') && n.includes('f1')) return 'impressions_f1';
     if (matchesPattern(n, p.preferreddeals)) return 'preferreddeals';
     if (matchesPattern(n, p.gam_f1m)) return 'gam_f1m';
+    // Same GAM per-site ad-requests export as gam_f1m, just for a site other than
+    // F1Maximaal — mirrors the server-side fallback in Reporting::detectFileType().
+    if (n.startsWith('copy of ') && !n.includes('general data download')) return 'gam_f1m';
     return 'unknown';
 }
 
 const REQUIRED: { key: string; label: string }[] = [
-    { key: 'adform', label: 'Adform' }, { key: 'gam', label: 'GAM' }, { key: 'gam_f1m', label: 'GAM F1M' },
+    { key: 'adform', label: 'Adform' }, { key: 'gam', label: 'GAM' },
     { key: 'ogury', label: 'Ogury' }, { key: 'seedtag', label: 'SeedTag' }, { key: 'showheroes', label: 'Showheroes' },
-    { key: 'teads', label: 'Teads' }, { key: 'analytics', label: 'Analytics' },
+    { key: 'teads', label: 'Teads' },
+    { key: 'analytics_f1', label: 'Analytics (F1)' }, { key: 'analytics_tg', label: 'Analytics (TopGear)' },
+    { key: 'gam_f1m_f1', label: 'GAM Ad Requests (F1)' }, { key: 'gam_f1m_tg', label: 'GAM Ad Requests (TopGear)' },
     { key: 'adhese_f1', label: 'Adhese (F1)' }, { key: 'adhese_tg', label: 'Adhese (TopGear)' }, { key: 'adhese_fl', label: 'Adhese (Festileaks)' },
     { key: 'outbrain', label: 'Outbrain' }, { key: 'preferreddeals', label: 'Preferred Deals' },
 ];
+
+// A GA4 export or GAM ad-requests export carries no site column (one property/
+// site per file), so — same as Adhese — the site comes from the filename: TG/FL
+// explicit, F1Maximaal is the default for anything else.
+function siteSuffixFromName(name: string): 'f1' | 'tg' | 'fl' {
+    const n = name.toLowerCase();
+    if (n.includes(' tg') || n.includes('topgear')) return 'tg';
+    if (n.includes(' fl') || n.includes('festileaks')) return 'fl';
+    return 'f1';
+}
 
 // Live checklist: each required file is checked once a matching dropped file is
 // detected; unchecked items are the ones still missing.
 const checklist = computed(() => {
     const detected = new Set<string>();
-    const adhese = new Set<string>();
+    const perSite = new Set<string>(); // e.g. 'adhese_tg', 'analytics_f1', 'gam_f1m_fl'
     const fileFor: Record<string, string> = {};
     for (const f of selectedUploadFiles.value) {
         const t = detectType(f.name);
-        if (t === 'adhese') {
-            const n = f.name.toLowerCase();
-            let k = 'adhese_f1';
-            if (n.includes('adhese tg') || n.includes('adhese topgear')) k = 'adhese_tg';
-            else if (n.includes('adhese fl') || n.includes('adhese festileaks')) k = 'adhese_fl';
-            adhese.add(k);
+        if (t === 'adhese' || t === 'analytics' || t === 'gam_f1m') {
+            const k = `${t}_${siteSuffixFromName(f.name)}`;
+            perSite.add(k);
             if (!fileFor[k]) fileFor[k] = f.name;
         } else {
             detected.add(t);
@@ -580,7 +606,8 @@ const checklist = computed(() => {
         }
     }
     return REQUIRED.map((r) => {
-        const checked = r.key.startsWith('adhese_') ? adhese.has(r.key) : detected.has(r.key);
+        const isPerSite = r.key.startsWith('adhese_') || r.key.startsWith('analytics_') || r.key.startsWith('gam_f1m_');
+        const checked = isPerSite ? perSite.has(r.key) : detected.has(r.key);
         return { ...r, checked, file: checked ? fileFor[r.key] : null };
     });
 });
@@ -615,7 +642,7 @@ function removeFile(f: File) {
 // new-dates-only prompt never fired for it. Surface EVERY such gap, not just
 // brand-new dates, so days like these can't silently stay blank.
 const missingAdhese = computed<any[]>(() =>
-    selectedSite.value === 'f1maximaal'
+    supportsAdheseAndRpm.value
         ? days.value.filter((d: any) => (d.revenue?.adhese ?? 0) > 0 && d.impressions?.adhese == null)
         : []);
 
@@ -630,7 +657,7 @@ const openAdheseGaps = promptMissingAdhese;
 
 function saveAdheseBatch() {
     adheseSaving.value = true;
-    router.post('/reporting/save-adhese-batch', { entries: adheseEntries.value }, {
+    router.post('/reporting/save-adhese-batch', { entries: adheseEntries.value, site: selectedSite.value }, {
         preserveScroll: true, preserveState: true,
         onFinish: () => { adheseSaving.value = false; },
         onSuccess: () => {
@@ -662,7 +689,7 @@ function processFiles() {
 }
 
 function saveAdhese(day: any) {
-    router.post('/reporting/save-adhese', { dateKey: day.dateKey, adhese: day.impressions?.adhese ?? null }, {
+    router.post('/reporting/save-adhese', { dateKey: day.dateKey, adhese: day.impressions?.adhese ?? null, site: selectedSite.value }, {
         preserveScroll: true, preserveState: true,
     });
 }
@@ -1047,13 +1074,13 @@ const tabs = [
                             <div class="min-w-0"><div class="rpt-label">Total revenue</div><div class="truncate text-base font-semibold tracking-tight">{{ eur(partnerTotals.grand) }}</div></div>
                         </CardContent>
                     </Card>
-                    <Card v-if="selectedSite === 'f1maximaal'" class="rpt-glass">
+                    <Card v-if="supportsAdheseAndRpm" class="rpt-glass">
                         <CardContent class="flex items-center gap-2.5 pt-5">
                             <div class="shrink-0 rounded-lg bg-blue-500/10 p-2 text-blue-500"><Eye class="h-5 w-5" /></div>
                             <div class="min-w-0"><div class="rpt-label">Impressions</div><div class="truncate text-base font-semibold tracking-tight">{{ num(impressionsSoldTotal) }}</div></div>
                         </CardContent>
                     </Card>
-                    <Card v-if="selectedSite === 'f1maximaal'" class="rpt-glass">
+                    <Card v-if="supportsAdheseAndRpm" class="rpt-glass">
                         <CardContent class="flex items-center gap-2.5 pt-5">
                             <div class="shrink-0 rounded-lg p-2"
                                 :class="blendedRpmTier === 'red' ? 'bg-red-500/10 text-red-500' : blendedRpmTier === 'amber' ? 'bg-amber-500/10 text-amber-500' : 'bg-cyan-500/10 text-cyan-500'">
@@ -1088,10 +1115,10 @@ const tabs = [
                             </div>
                         </CardContent>
                     </Card>
-                    <!-- Latest day — carried over from the old Days tab. F1Maximaal only
-                         (Adhese impressions / Impr. sold / Ad requests don't exist for other
-                         sites); moves with the active date-range preset like the rest of Summary. -->
-                    <Card v-if="selectedSite === 'f1maximaal' && latestDay" class="rpt-glass sm:col-span-2" :class="rpmCardClass(latestDay)">
+                    <!-- Latest day — carried over from the old Days tab. Adhese impressions /
+                         Impr. sold / Ad requests / RPM only apply to F1Maximaal and Topgear;
+                         moves with the active date-range preset like the rest of Summary. -->
+                    <Card v-if="latestDay && supportsAdheseAndRpm" class="rpt-glass sm:col-span-2" :class="rpmCardClass(latestDay)">
                         <CardContent class="flex flex-col gap-2 pt-5">
                             <div class="rpt-label">Latest day · {{ latestDay.dateKey }}</div>
                             <div class="flex items-center justify-between gap-2 text-xs">
@@ -1187,10 +1214,10 @@ const tabs = [
                                     <template v-else>{{ p.label }}</template>
                                 </th>
                                 <th class="px-1.5 py-2 text-right">Total</th>
-                                <th v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-2 text-right">RPM</th>
-                                <th v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-2 text-right leading-tight">Adhese<br>impr.</th>
-                                <th v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-2 text-right leading-tight">Impr.<br>sold</th>
-                                <th v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-2 text-right leading-tight">Ad<br>requests</th>
+                                <th v-if="supportsAdheseAndRpm" class="px-1.5 py-2 text-right">RPM</th>
+                                <th v-if="supportsAdheseAndRpm" class="px-1.5 py-2 text-right leading-tight">Adhese<br>impr.</th>
+                                <th v-if="supportsAdheseAndRpm" class="px-1.5 py-2 text-right leading-tight">Impr.<br>sold</th>
+                                <th v-if="supportsAdheseAndRpm" class="px-1.5 py-2 text-right leading-tight">Ad<br>requests</th>
                                 <th class="px-1.5 py-2"></th>
                             </tr>
                         </thead>
@@ -1205,14 +1232,14 @@ const tabs = [
                                 <td class="px-1.5 py-1 text-right font-semibold">
                                     {{ PARTNERS.reduce((t, p) => t + (d.revenue?.[p.key] ?? 0), 0).toFixed(2) }}
                                 </td>
-                                <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1 text-right tabular-nums">
+                                <td v-if="supportsAdheseAndRpm" class="px-1.5 py-1 text-right tabular-nums">
                                     {{ rpmFor(d) === null ? '—' : rpmFor(d)!.toFixed(2) }}
                                 </td>
-                                <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1 text-right">
+                                <td v-if="supportsAdheseAndRpm" class="px-1.5 py-1 text-right">
                                     <Input v-model.number="d.impressions.adhese" type="number" :class="['ml-auto h-7 w-24 px-1.5 text-right text-[11px] leading-none', (d.revenue?.adhese ?? 0) > 0 && d.impressions?.adhese == null ? 'ring-1 ring-amber-400 focus-visible:ring-amber-400' : '']" @change="saveAdhese(d)" />
                                 </td>
-                                <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1 text-right">{{ num(d.impressionsSold || 0) }}</td>
-                                <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1 text-right">{{ num(d.totalAdRequests || 0) }}</td>
+                                <td v-if="supportsAdheseAndRpm" class="px-1.5 py-1 text-right">{{ num(d.impressionsSold || 0) }}</td>
+                                <td v-if="supportsAdheseAndRpm" class="px-1.5 py-1 text-right">{{ num(d.totalAdRequests || 0) }}</td>
                                 <td class="px-1.5 py-1 text-right">
                                     <button class="text-muted-foreground transition hover:text-red-500" title="Delete day" @click.stop="deleteDay(d)"><Trash2 class="h-3.5 w-3.5" /></button>
                                 </td>
@@ -1224,10 +1251,10 @@ const tabs = [
                                     {{ partnerTotals.totals[p.key].toFixed(2) }}
                                 </td>
                                 <td class="px-1.5 py-1.5 text-right">{{ partnerTotals.grand.toFixed(2) }}</td>
-                                <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1.5 text-right tabular-nums">{{ blendedRpm === null ? '—' : blendedRpm.toFixed(2) }}</td>
-                                <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1.5 text-right">—</td>
-                                <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1.5 text-right">{{ num(days.reduce((t, d) => t + (d.impressionsSold || 0), 0)) }}</td>
-                                <td v-if="selectedSite === 'f1maximaal'" class="px-1.5 py-1.5 text-right">{{ num(days.reduce((t, d) => t + (d.totalAdRequests || 0), 0)) }}</td>
+                                <td v-if="supportsAdheseAndRpm" class="px-1.5 py-1.5 text-right tabular-nums">{{ blendedRpm === null ? '—' : blendedRpm.toFixed(2) }}</td>
+                                <td v-if="supportsAdheseAndRpm" class="px-1.5 py-1.5 text-right">—</td>
+                                <td v-if="supportsAdheseAndRpm" class="px-1.5 py-1.5 text-right">{{ num(days.reduce((t, d) => t + (d.impressionsSold || 0), 0)) }}</td>
+                                <td v-if="supportsAdheseAndRpm" class="px-1.5 py-1.5 text-right">{{ num(days.reduce((t, d) => t + (d.totalAdRequests || 0), 0)) }}</td>
                                 <td></td>
                             </tr>
                         </tbody>
@@ -1544,7 +1571,7 @@ const tabs = [
                 </Card>
             </div>
 
-            <!-- Adhese impressions batch modal — fires after process/sync when new F1 dates appear -->
+            <!-- Adhese impressions batch modal — fires after process/sync when new dates appear for the selected site -->
             <div v-if="showAdheseModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
                 <Card class="rpt-glass rpt-modal w-full max-w-md">
                     <CardHeader class="flex flex-row items-center justify-between gap-2 pb-2">
@@ -1553,7 +1580,7 @@ const tabs = [
                     </CardHeader>
                     <CardContent class="flex flex-col gap-3">
                         <p class="text-sm text-muted-foreground">
-                            {{ adheseEntries.length }} new day{{ adheseEntries.length === 1 ? '' : 's' }} added — enter the Adhese impression counts for F1Maximaal.
+                            {{ adheseEntries.length }} new day{{ adheseEntries.length === 1 ? '' : 's' }} added — enter the Adhese impression counts for {{ sites.find((s) => s.id === selectedSite)?.name }}.
                         </p>
                         <div class="flex max-h-64 flex-col gap-2 overflow-y-auto">
                             <div v-for="entry in adheseEntries" :key="entry.dateKey" class="flex items-center gap-3">

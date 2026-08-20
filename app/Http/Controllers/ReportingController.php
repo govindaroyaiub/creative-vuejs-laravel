@@ -202,39 +202,55 @@ class ReportingController extends Controller
         return redirect()->route('reporting');
     }
 
-    /** Required partner files not present in an upload run (Adhese broken out per site). */
+    /** Required partner files not present in an upload run (Adhese/Analytics/GAM ad-requests broken out per site). */
     private function missingFromTypes(array $fileTypes): array
     {
         $required = [
-            'adform' => 'Adform', 'gam' => 'GAM', 'gam_f1m' => 'GAM F1M', 'ogury' => 'Ogury',
-            'seedtag' => 'SeedTag', 'showheroes' => 'Showheroes', 'teads' => 'Teads', 'analytics' => 'Analytics',
+            'adform' => 'Adform', 'gam' => 'GAM', 'ogury' => 'Ogury',
+            'seedtag' => 'SeedTag', 'showheroes' => 'Showheroes', 'teads' => 'Teads',
+            'analytics_f1' => 'Analytics (F1)', 'analytics_tg' => 'Analytics (TopGear)',
+            'gam_f1m_f1' => 'GAM Ad Requests (F1)', 'gam_f1m_tg' => 'GAM Ad Requests (TopGear)',
             'adhese_f1' => 'Adhese (F1)', 'adhese_tg' => 'Adhese (TopGear)', 'adhese_fl' => 'Adhese (Festileaks)',
         ];
         $uploaded = array_values($fileTypes);
-        $adhese = [];
-        foreach ($fileTypes as $name => $type) {
-            if ($type !== 'adhese') continue;
+
+        // A GA4/GAM ad-requests export carries no site column (one property/site
+        // per file), so — same as Adhese — the site comes from the filename: TG/FL
+        // explicit, F1Maximaal is the default for anything else.
+        $siteSuffix = function (string $name): string {
             $n = mb_strtolower($name);
-            if (str_contains($n, 'adhese tg') || str_contains($n, 'adhese topgear')) $adhese['adhese_tg'] = true;
-            elseif (str_contains($n, 'adhese fl') || str_contains($n, 'adhese festileaks')) $adhese['adhese_fl'] = true;
-            else $adhese['adhese_f1'] = true;
+            if (str_contains($n, ' tg') || str_contains($n, 'topgear')) return 'tg';
+            if (str_contains($n, ' fl') || str_contains($n, 'festileaks')) return 'fl';
+            return 'f1';
+        };
+
+        $perSite = [];
+        foreach ($fileTypes as $name => $type) {
+            if (! in_array($type, ['adhese', 'analytics', 'gam_f1m'], true)) continue;
+            $perSite[$type . '_' . $siteSuffix($name)] = true;
         }
 
         $missing = [];
         foreach ($required as $key => $label) {
-            $present = str_starts_with($key, 'adhese_') ? isset($adhese[$key]) : in_array($key, $uploaded, true);
+            $isPerSite = str_starts_with($key, 'adhese_') || str_starts_with($key, 'analytics_') || str_starts_with($key, 'gam_f1m_');
+            $present = $isPerSite ? isset($perSite[$key]) : in_array($key, $uploaded, true);
             if (! $present) $missing[] = $label;
         }
 
         return $missing;
     }
 
-    /** Manually set F1Maximaal's Adhese impressions for a day (no file source). */
+    /** Manually set a site's Adhese impressions for a day (no file source). */
     public function saveAdhese(Request $request)
     {
-        $data = $request->validate(['dateKey' => 'required|string', 'adhese' => 'nullable']);
+        $data = $request->validate([
+            'dateKey' => 'required|string',
+            'adhese' => 'nullable',
+            'site' => 'nullable|string|in:' . implode(',', array_keys(Reporting::SITES)),
+        ]);
+        $site = $data['site'] ?? 'f1maximaal';
 
-        $row = ReportDay::firstWhere(['site' => 'f1maximaal', 'date' => $data['dateKey']]);
+        $row = ReportDay::firstWhere(['site' => $site, 'date' => $data['dateKey']]);
         if (! $row) return back()->with('error', 'Date not found');
 
         $imp = $row->impressions ?? [];
@@ -256,18 +272,20 @@ class ReportingController extends Controller
         return redirect()->route('reporting');
     }
 
-    /** Batch-set Adhese impressions for multiple F1Maximaal days at once. */
+    /** Batch-set Adhese impressions for multiple days of one site at once. */
     public function saveAdheseBatch(Request $request)
     {
         $data = $request->validate([
             'entries'             => 'required|array',
             'entries.*.dateKey'   => 'required|string',
             'entries.*.adhese'    => 'nullable',
+            'site'                => 'nullable|string|in:' . implode(',', array_keys(Reporting::SITES)),
         ]);
+        $site = $data['site'] ?? 'f1maximaal';
 
         // Fetch every affected day in one query, keyed by date, instead of a
         // SELECT per entry.
-        $rowsByDate = ReportDay::where('site', 'f1maximaal')
+        $rowsByDate = ReportDay::where('site', $site)
             ->whereIn('date', array_column($data['entries'], 'dateKey'))
             ->get()
             ->keyBy(fn ($r) => $r->date->format('Y-m-d'));

@@ -42,7 +42,7 @@ $buildStore = function () use ($uploads, $rate): array {
             'ogury' => Extractors::ogury("$uploads/Ogury.xlsx", $site, $rate),
         ];
         if (isset($adhesePerSite[$site])) $parsed['adhese'] = array_values($adhesePerSite[$site]);
-        if ($site === 'f1maximaal') $parsed['analytics'] = Extractors::analytics(file_get_contents("$uploads/Analytics.csv"));
+        if ($site === 'f1maximaal') $parsed['analytics'] = Extractors::analytics("$uploads/Analytics.csv");
         StoreMerger::merge($store, $site, $parsed);
     }
 

@@ -32,7 +32,9 @@ class ZipBuilder
 
         foreach ($files as $f) {
             $generated = match ($f) {
-                'Analytics.csv' => CsvGenerator::analytics($store, $from, $to),
+                'Analytics.csv' => CsvGenerator::analytics($store, 'f1maximaal', $from, $to),
+                'Analytics tg.csv' => CsvGenerator::analytics($store, 'topgear', $from, $to),
+                'Analytics fl.csv' => CsvGenerator::analytics($store, 'festileaks', $from, $to),
                 'Adhese f1.csv' => CsvGenerator::adhese($store, 'f1maximaal', $from, $to),
                 'Adhese tg.csv' => CsvGenerator::adhese($store, 'topgear', $from, $to),
                 'Adhese fl.csv' => CsvGenerator::adhese($store, 'festileaks', $from, $to),
