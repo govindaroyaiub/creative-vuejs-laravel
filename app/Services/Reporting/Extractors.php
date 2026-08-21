@@ -58,13 +58,21 @@ class Extractors
      * file. CSV keeps the original text-based parser (needed for the leading
      * "#"-comment rows GA4's CSV export adds); XLSX goes through PhpSpreadsheet
      * with the same comment-row skip so both formats land on the same header.
+     *
+     * Routed by content, NOT by file extension — a real HTTP upload's temp path
+     * (e.g. "phpB823.tmp") never carries the original ".csv"/".xlsx" extension,
+     * so pathinfo() would always misroute a real upload to the XLSX branch.
+     * That branch's own PhpSpreadsheet CSV fallback then mis-detects the
+     * delimiter for this file, silently producing zero rows (no exception) —
+     * a real upload of this file was doing nothing. XLSX files are ZIP
+     * archives (start with "PK"); anything else here is the plain-text export.
      */
     public static function analytics(string $path): array
     {
-        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-        $rows = $ext === 'csv'
-            ? SpreadsheetReader::csvRows(file_get_contents($path))
-            : self::analyticsXlsxRows($path);
+        $isXlsx = str_starts_with((string) @file_get_contents($path, false, null, 0, 4), 'PK');
+        $rows = $isXlsx
+            ? self::analyticsXlsxRows($path)
+            : SpreadsheetReader::csvRows(file_get_contents($path));
 
         $out = [];
         foreach ($rows as $r) {

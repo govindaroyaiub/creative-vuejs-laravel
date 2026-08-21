@@ -309,7 +309,7 @@ watch(selectedSite, () => {
 const oguryRate = ref<number>(store.value?.config?.oguryRate ?? 0.85);
 const processing = ref(false);
 const showAdheseModal = ref(false);
-const adheseEntries = ref<{ dateKey: string; adhese: number | null }[]>([]);
+const adheseEntries = ref<{ site: string; siteName: string; dateKey: string; adhese: number | null }[]>([]);
 const adheseSaving = ref(false);
 const fileInput = ref<HTMLInputElement | null>(null);
 const dragging = ref(false);
@@ -379,7 +379,8 @@ const partnerTotals = computed(() => {
 // only meaningful for F1Maximaal and Topgear (the sites Adhese, GA4 analytics,
 // and the GAM ad-requests export are actually wired up for). Horses and
 // Festileaks don't track any of it, by design, not as a gap to fill in.
-const supportsAdheseAndRpm = computed(() => ['f1maximaal', 'topgear'].includes(selectedSite.value));
+const ADHESE_RPM_SITES = ['f1maximaal', 'topgear'];
+const supportsAdheseAndRpm = computed(() => ADHESE_RPM_SITES.includes(selectedSite.value));
 
 // RPM (revenue per 1000 pageviews). A high RPM means analytics pageviews are
 // under-reported (incomplete/late-finalized GA4 data) — the day's analytics file
@@ -647,30 +648,61 @@ function removeFile(f: File) {
 // (from another partner or a sync) when its Adhese revenue arrived, so the old
 // new-dates-only prompt never fired for it. Surface EVERY such gap, not just
 // brand-new dates, so days like these can't silently stay blank.
-const missingAdhese = computed<any[]>(() =>
-    supportsAdheseAndRpm.value
-        ? days.value.filter((d: any) => (d.revenue?.adhese ?? 0) > 0 && d.impressions?.adhese == null)
-        : []);
+//
+// Scans EVERY site in the Adhese/RPM bundle (F1Maximaal + Topgear), not just
+// whichever tab happens to be selected — a single upload run can leave a gap
+// on either site, and switching tabs never re-checks for one, so a per-site
+// scan here is the only way both ever get surfaced in the same modal.
+const missingAdhese = computed<any[]>(() => {
+    const out: any[] = [];
+    for (const siteId of ADHESE_RPM_SITES) {
+        const map = store.value?.sites?.[siteId]?.days ?? {};
+        const siteName = sites.value.find((s: any) => s.id === siteId)?.name ?? siteId;
+        for (const d of Object.values(map) as any[]) {
+            if ((d.revenue?.adhese ?? 0) > 0 && d.impressions?.adhese == null) {
+                out.push({ site: siteId, siteName, dateKey: d.dateKey });
+            }
+        }
+    }
+    return out.sort((a, b) => a.dateKey.localeCompare(b.dateKey) || a.site.localeCompare(b.site));
+});
 
 function promptMissingAdhese(): boolean {
     if (!missingAdhese.value.length) return false;
-    adheseEntries.value = missingAdhese.value.map((d: any) => ({ dateKey: d.dateKey, adhese: null }));
+    adheseEntries.value = missingAdhese.value.map((d) => ({ site: d.site, siteName: d.siteName, dateKey: d.dateKey, adhese: null }));
     showAdheseModal.value = true;
     return true;
 }
 // Manual entry point behind the "Fill now" banner button.
 const openAdheseGaps = promptMissingAdhese;
 
+// The backend endpoint saves one site's entries per call, so a mixed-site
+// batch (e.g. F1 + Topgear gaps in the same modal) posts once per site,
+// site-by-site, before closing the modal.
 function saveAdheseBatch() {
     adheseSaving.value = true;
-    router.post('/reporting/save-adhese-batch', { entries: adheseEntries.value, site: selectedSite.value }, {
-        preserveScroll: true, preserveState: true,
-        onFinish: () => { adheseSaving.value = false; },
-        onSuccess: () => {
+    const bySite = new Map<string, typeof adheseEntries.value>();
+    for (const e of adheseEntries.value) {
+        if (!bySite.has(e.site)) bySite.set(e.site, []);
+        bySite.get(e.site)!.push(e);
+    }
+    const siteIds = [...bySite.keys()];
+
+    const postNext = (i: number) => {
+        if (i >= siteIds.length) {
+            adheseSaving.value = false;
             showAdheseModal.value = false;
             Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Adhese impressions saved', timer: 1300, showConfirmButton: false });
-        },
-    });
+            return;
+        }
+        const siteId = siteIds[i];
+        router.post('/reporting/save-adhese-batch', { entries: bySite.get(siteId), site: siteId }, {
+            preserveScroll: true, preserveState: true,
+            onSuccess: () => postNext(i + 1),
+            onError: () => { adheseSaving.value = false; },
+        });
+    };
+    postNext(0);
 }
 
 // ─── Upload / process ──────────────────────────────────────────────────────────
@@ -1583,7 +1615,8 @@ const tabs = [
                 </Card>
             </div>
 
-            <!-- Adhese impressions batch modal — fires after process/sync when new dates appear for the selected site -->
+            <!-- Adhese impressions batch modal — fires after process/sync for any gap
+                 on F1Maximaal or Topgear, regardless of which tab is active -->
             <div v-if="showAdheseModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
                 <Card class="rpt-glass rpt-modal w-full max-w-md">
                     <CardHeader class="flex flex-row items-center justify-between gap-2 pb-2">
@@ -1592,10 +1625,11 @@ const tabs = [
                     </CardHeader>
                     <CardContent class="flex flex-col gap-3">
                         <p class="text-sm text-muted-foreground">
-                            {{ adheseEntries.length }} new day{{ adheseEntries.length === 1 ? '' : 's' }} added — enter the Adhese impression counts for {{ sites.find((s) => s.id === selectedSite)?.name }}.
+                            {{ adheseEntries.length }} day{{ adheseEntries.length === 1 ? '' : 's' }} need an Adhese impression count.
                         </p>
                         <div class="flex max-h-64 flex-col gap-2 overflow-y-auto">
-                            <div v-for="entry in adheseEntries" :key="entry.dateKey" class="flex items-center gap-3">
+                            <div v-for="entry in adheseEntries" :key="entry.site + entry.dateKey" class="flex items-center gap-3">
+                                <span class="w-16 shrink-0 truncate text-xs font-medium text-muted-foreground" :title="entry.siteName">{{ entry.siteName }}</span>
                                 <span class="w-24 shrink-0 font-mono text-sm">{{ entry.dateKey }}</span>
                                 <Input v-model.number="entry.adhese" type="number" placeholder="0" class="flex-1" />
                             </div>
