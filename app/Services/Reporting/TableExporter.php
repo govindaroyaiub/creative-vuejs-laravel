@@ -39,9 +39,13 @@ class TableExporter
         $map = $store['sites'][$siteId]['days'] ?? [];
         ksort($map);
 
+        // Outbrain and Preferred Deals only ever run on F1Maximaal (extraction
+        // itself is F1-only) — every other site would just show dead zero columns.
+        $partners = $isF1 ? self::PARTNERS : array_diff_key(self::PARTNERS, ['outbrain' => null, 'preferredDeals' => null]);
+
         $days = [];
-        $revTotals = array_fill_keys(array_keys(self::PARTNERS), 0.0);
-        $impTotals = array_fill_keys(array_keys(self::PARTNERS), 0);
+        $revTotals = array_fill_keys(array_keys($partners), 0.0);
+        $impTotals = array_fill_keys(array_keys($partners), 0);
         $grand = 0.0;
         $soldTotal = 0;
         $requestsTotal = 0;
@@ -54,7 +58,7 @@ class TableExporter
             $imp = $day['impressions'] ?? [];
             $row = ['date' => $k, 'revenue' => [], 'impressions' => [], 'total' => 0.0];
             $dayTotal = 0.0;
-            foreach (self::PARTNERS as $key => $label) {
+            foreach ($partners as $key => $label) {
                 $v = (float) ($rev[$key] ?? 0);
                 $row['revenue'][$key] = round($v, 2);
                 $dayTotal += $v;
@@ -82,7 +86,7 @@ class TableExporter
             'from' => $from ?: null,
             'to' => $to ?: null,
             'isF1' => $isF1,
-            'partners' => self::PARTNERS,
+            'partners' => $partners,
             'days' => $days,
             'totals' => [
                 'revenue' => array_map(fn ($v) => round($v, 2), $revTotals),
@@ -96,14 +100,14 @@ class TableExporter
 
     // ── Column definitions ─────────────────────────────────────────────────────
 
-    private static function revenueHeaders(): array
+    private static function revenueHeaders(array $data): array
     {
-        return array_merge(['Date'], array_values(self::PARTNERS), ['Total']);
+        return array_merge(['Date'], array_values($data['partners']), ['Total']);
     }
 
-    private static function impressionHeaders(): array
+    private static function impressionHeaders(array $data): array
     {
-        return array_merge(['Date'], array_values(self::PARTNERS), ['Impressions Sold', 'Total Ad Requests']);
+        return array_merge(['Date'], array_values($data['partners']), ['Impressions Sold', 'Total Ad Requests']);
     }
 
     /** Revenue rows + trailing totals row. */
@@ -112,12 +116,12 @@ class TableExporter
         $rows = [];
         foreach ($data['days'] as $d) {
             $row = [$d['date']];
-            foreach (self::PARTNERS as $key => $label) $row[] = $d['revenue'][$key];
+            foreach ($data['partners'] as $key => $label) $row[] = $d['revenue'][$key];
             $row[] = $d['total'];
             $rows[] = $row;
         }
         $tot = ['Total'];
-        foreach (self::PARTNERS as $key => $label) $tot[] = $data['totals']['revenue'][$key];
+        foreach ($data['partners'] as $key => $label) $tot[] = $data['totals']['revenue'][$key];
         $tot[] = $data['totals']['total'];
         $rows[] = $tot;
 
@@ -130,13 +134,13 @@ class TableExporter
         $rows = [];
         foreach ($data['days'] as $d) {
             $row = [$d['date']];
-            foreach (self::PARTNERS as $key => $label) $row[] = $d['impressions'][$key];
+            foreach ($data['partners'] as $key => $label) $row[] = $d['impressions'][$key];
             $row[] = $d['impressionsSold'];
             $row[] = $d['totalAdRequests'];
             $rows[] = $row;
         }
         $tot = ['Total'];
-        foreach (self::PARTNERS as $key => $label) $tot[] = $data['totals']['impressions'][$key];
+        foreach ($data['partners'] as $key => $label) $tot[] = $data['totals']['impressions'][$key];
         $tot[] = $data['totals']['impressionsSold'];
         $tot[] = $data['totals']['totalAdRequests'];
         $rows[] = $tot;
@@ -152,11 +156,11 @@ class TableExporter
         $put = fn ($row) => fputcsv($fh, array_map(fn ($v) => $v === null ? '' : $v, $row), ',', '"', '');
 
         $put(['Revenues — ' . $data['siteName']]);
-        $put(self::revenueHeaders());
+        $put(self::revenueHeaders($data));
         foreach (self::revenueRows($data) as $r) $put($r);
         $put([]); // blank separator line
         $put(['Impressions — ' . $data['siteName']]);
-        $put(self::impressionHeaders());
+        $put(self::impressionHeaders($data));
         foreach (self::impressionRows($data) as $r) $put($r);
 
         rewind($fh);
@@ -172,8 +176,8 @@ class TableExporter
     public static function xlsx(array $data): string
     {
         $ss = new Spreadsheet();
-        self::fillSheet($ss->getActiveSheet(), 'Impressions', self::impressionHeaders(), self::impressionRows($data), '#,##0');
-        self::fillSheet($ss->createSheet(), 'Revenues', self::revenueHeaders(), self::revenueRows($data), '#,##0.00');
+        self::fillSheet($ss->getActiveSheet(), 'Impressions', self::impressionHeaders($data), self::impressionRows($data), '#,##0');
+        self::fillSheet($ss->createSheet(), 'Revenues', self::revenueHeaders($data), self::revenueRows($data), '#,##0.00');
         $ss->setActiveSheetIndex(0);
 
         ob_start();

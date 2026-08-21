@@ -1,12 +1,12 @@
 {
-    "exported_at": "2026-08-21 11:46:42",
+    "exported_at": "2026-08-21 11:55:21",
     "settings": {
         "oguryRate": 0.878,
         "last_run": {
             "at": "2026-08-19 21:19:33",
             "missing": []
         },
-        "synced_at": "2026-08-21 11:46:42",
+        "synced_at": "2026-08-21 11:55:21",
         "report_links": [
             {
                 "url": "https://publisher-panel.seedtag.com/",
@@ -64,8 +64,8 @@
             "showheroes": "topgear-",
             "preferreddeals": "preferred deal, preferred_deal"
         },
-        "rpm_amber": 7.5,
-        "rpm_red": 8
+        "rpm_amber": 8.5,
+        "rpm_red": 9
     },
     "days": [
         {
@@ -4572,13 +4572,13 @@
             },
             "total_ad_requests": 1823543,
             "analytics": {
-                "views": 119855,
+                "views": 119854,
                 "keyEvents": 0,
-                "eventCount": 279425,
-                "activeUsers": 39045,
+                "eventCount": 279420,
+                "activeUsers": 39021,
                 "totalRevenue": 0,
-                "viewsPerUser": 3.0696632091176848,
-                "avgEngagement": 34.552004097835834
+                "viewsPerUser": 3.071525588785526,
+                "avgEngagement": 34.57363983496066
             },
             "impressions_sold": 684827
         },
@@ -6388,10 +6388,10 @@
                 "views": 32806,
                 "keyEvents": 0,
                 "eventCount": 75477,
-                "activeUsers": 10773,
+                "activeUsers": 10767,
                 "totalRevenue": 0,
-                "viewsPerUser": 3.0452056066091155,
-                "avgEngagement": 40.121600297038896
+                "viewsPerUser": 3.0469025726757684,
+                "avgEngagement": 40.14395839138107
             },
             "impressions_sold": 113936
         },
@@ -6422,13 +6422,13 @@
             },
             "total_ad_requests": 356207,
             "analytics": {
-                "views": 46011,
+                "views": 46010,
                 "keyEvents": 0,
-                "eventCount": 107443,
-                "activeUsers": 15636,
+                "eventCount": 107440,
+                "activeUsers": 15622,
                 "totalRevenue": 0,
-                "viewsPerUser": 2.942632386799693,
-                "avgEngagement": 34.58595548733692
+                "viewsPerUser": 2.9452054794520546,
+                "avgEngagement": 34.61675841761618
             },
             "impressions_sold": 163528
         },

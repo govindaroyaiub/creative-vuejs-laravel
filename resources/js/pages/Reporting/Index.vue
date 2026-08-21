@@ -283,13 +283,19 @@ async function copyBody(cfg: EmailCfg) {
     done();
 }
 
-const PARTNERS: { key: string; label: string; lines?: [string, string] }[] = [
+const ALL_PARTNERS: { key: string; label: string; lines?: [string, string] }[] = [
     { key: 'adhese', label: 'Adhese' }, { key: 'gam', label: 'GAM' },
     { key: 'seedtag', label: 'SeedTag' }, { key: 'teads', label: 'Teads' },
     { key: 'showheroes', label: 'Showheroes' }, { key: 'adform', label: 'Adform' },
     { key: 'ogury', label: 'Ogury' }, { key: 'outbrain', label: 'Outbrain' },
     { key: 'preferredDeals', label: 'Preferred Deals', lines: ['Preferred', 'Deals'] },
 ];
+// Outbrain and Preferred Deals only ever run on F1Maximaal (extraction itself
+// is F1-only, see ReportProcessor) — Topgear/Horses/Festileaks always show 0
+// for both, so hide the columns there instead of displaying dead zeros.
+const PARTNERS = computed(() => selectedSite.value === 'f1maximaal'
+    ? ALL_PARTNERS
+    : ALL_PARTNERS.filter((p) => p.key !== 'outbrain' && p.key !== 'preferredDeals'));
 const COLORS = ['#e2483d', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#a3a3a3', '#6366f1'];
 
 const selectedSite = ref('f1maximaal');
@@ -359,9 +365,9 @@ const num = (n: number) => (n || 0).toLocaleString('en-US');
 const partnerTotals = computed(() => {
     const totals: Record<string, number> = {};
     let grand = 0;
-    for (const p of PARTNERS) totals[p.key] = 0;
+    for (const p of PARTNERS.value) totals[p.key] = 0;
     for (const d of days.value) {
-        for (const p of PARTNERS) {
+        for (const p of PARTNERS.value) {
             const v = d.revenue?.[p.key] ?? 0;
             totals[p.key] += v; grand += v;
         }
@@ -384,7 +390,7 @@ const supportsAdheseAndRpm = computed(() => ['f1maximaal', 'topgear'].includes(s
 // re-tints immediately after the thresholds are saved.
 const rpmAmber = ref<number>((page.props.rpmAmber as number) ?? 7.5);
 const rpmRed = ref<number>((page.props.rpmRed as number) ?? 8);
-const dayRevenue = (d: any) => PARTNERS.reduce((t, p) => t + (d.revenue?.[p.key] ?? 0), 0);
+const dayRevenue = (d: any) => PARTNERS.value.reduce((t, p) => t + (d.revenue?.[p.key] ?? 0), 0);
 const rpmFor = (d: any): number | null => {
     const views = d.analytics?.views ?? 0;
     return views > 0 ? (dayRevenue(d) / views) * 1000 : null;
@@ -444,7 +450,7 @@ const avgDaily = computed(() => (days.value.length ? partnerTotals.value.grand /
 const partnerBreakdown = computed(() => {
     const t = partnerTotals.value.totals;
     const grand = partnerTotals.value.grand || 1;
-    return PARTNERS.map((p, i) => ({ ...p, total: t[p.key], pct: (t[p.key] / grand) * 100, color: COLORS[i % COLORS.length] }))
+    return PARTNERS.value.map((p, i) => ({ ...p, total: t[p.key], pct: (t[p.key] / grand) * 100, color: COLORS[i % COLORS.length] }))
         .filter((x) => x.total > 0)
         .sort((a, b) => b.total - a.total);
 });
@@ -453,10 +459,10 @@ const topPartner = computed(() => partnerBreakdown.value[0] ?? null);
 const bestDay = computed(() => {
     let best: { dateKey: string; total: number; partner: string } | null = null;
     for (const d of days.value) {
-        const tot = PARTNERS.reduce((t, p) => t + (d.revenue?.[p.key] ?? 0), 0);
+        const tot = PARTNERS.value.reduce((t, p) => t + (d.revenue?.[p.key] ?? 0), 0);
         if (!best || tot > best.total) {
             let top = { label: '—', v: -1 };
-            for (const p of PARTNERS) {
+            for (const p of PARTNERS.value) {
                 const v = d.revenue?.[p.key] ?? 0;
                 if (v > top.v) top = { label: p.label, v };
             }
@@ -471,7 +477,7 @@ const revenueChart = computed(() => ({
     labels: days.value.map((d) => d.dateKey.slice(5)),
     datasets: [{
         label: 'Revenue',
-        data: days.value.map((d) => PARTNERS.reduce((t, p) => t + (d.revenue?.[p.key] ?? 0), 0)),
+        data: days.value.map((d) => PARTNERS.value.reduce((t, p) => t + (d.revenue?.[p.key] ?? 0), 0)),
         borderColor: '#e2483d',
         borderWidth: 2,
         tension: 0.4,
@@ -528,7 +534,7 @@ const doughnutOptions = {
 const anomaliesOpen = ref(false);
 const anomalies = computed(() => {
     const arr = days.value; const n = arr.length; const out: any[] = [];
-    for (const p of PARTNERS) {
+    for (const p of PARTNERS.value) {
         const vals = arr.map((d) => { const v = d.revenue?.[p.key]; return v == null ? null : v; });
         const present = vals.filter((v) => (v ?? 0) > 0).length;
         if (!(n >= 4 && present >= Math.ceil(0.6 * n) && present < n)) continue;
