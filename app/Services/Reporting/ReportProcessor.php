@@ -104,6 +104,14 @@ class ReportProcessor
                 if (is_file($p)) unlink($p);
             }
         }
+        // Pre-rename leftovers ("Analytics.csv" -> "Analytics f1.csv", "Analytics
+        // fl.csv" dropped entirely — Festileaks was never part of the bundle). The
+        // uploads dir is per-machine (gitignored), so a laptop that hasn't run an
+        // upload since the rename would otherwise show these stale names forever.
+        foreach (['Analytics.csv', 'Analytics fl.csv'] as $legacy) {
+            $p = $uploadsDir . '/' . $legacy;
+            if (is_file($p)) unlink($p);
+        }
 
         $thisMonth = $today->format('Y-m');
         $sevenDaysAgoKey = $today->subDays(7)->format('Y-m-d');
