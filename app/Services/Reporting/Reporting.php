@@ -56,8 +56,8 @@ class Reporting
         'analytics' => 'pages_and_screens, content_group',
         'adhese' => 'adhese',
         'outbrain' => 'current-view, all publishers',
-        'preferreddeals' => 'preferred deal',
-        'gam_f1m' => 'copy of f1max',
+        'preferreddeals' => 'preferred deal, preferred_deal',
+        'gam_f1m' => 'copy of f1max, copy of topgear',
     ];
 
     /**

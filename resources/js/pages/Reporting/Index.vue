@@ -390,10 +390,10 @@ const rpmFor = (d: any): number | null => {
     return views > 0 ? (dayRevenue(d) / views) * 1000 : null;
 };
 const rpmTier = (d: any): 'red' | 'amber' | null => {
-    // Anomaly tinting stays F1Maximaal-only for now — other sites' analytics
-    // data (impressions/RPM) is real as of this generalization but its upload
-    // cadence isn't proven yet, so "revenue but no views" isn't flagged there.
-    if (selectedSite.value !== 'f1maximaal') return null;
+    // Anomaly tinting applies to whichever sites carry Adhese/RPM at all
+    // (F1Maximaal + Topgear) — Topgear's analytics cadence is proven now,
+    // same bundle gate as everywhere else on this page.
+    if (!supportsAdheseAndRpm.value) return null;
     const rpm = rpmFor(d);
     // Missing/zero pageviews on a day that has revenue is itself the "re-upload
     // analytics" signal (RPM is effectively infinite) — flag red.
@@ -761,6 +761,12 @@ async function confirmDownload() {
             throw new Error(body?.error ?? 'Could not build the zip.');
         }
 
+        // Filename comes from the server's Content-Disposition (it already
+        // knows the selected range) — don't duplicate that naming logic here.
+        const disposition = res.headers.get('Content-Disposition') ?? '';
+        const filenameMatch = disposition.match(/filename="?([^"]+)"?/);
+        const downloadName = filenameMatch?.[1] ?? 'Partners Report.zip';
+
         const total = Number(res.headers.get('Content-Length')) || 0;
         dlKnownSize.value = total > 0;
         const reader = res.body?.getReader();
@@ -785,7 +791,7 @@ async function confirmDownload() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'F1Maximaal Reports.zip';
+        a.download = downloadName;
         document.body.appendChild(a);
         a.click();
         a.remove();

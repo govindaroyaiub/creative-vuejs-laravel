@@ -94,7 +94,10 @@ class ReportProcessor
             }
         }
 
-        // Clear optional files at the start — written back only if this run has data.
+        // Clear optional/legacy files at the start. Outbrain is written back below
+        // only if this run has data; PreferredDeals is never written back at all
+        // (merged into the store, but the raw file isn't offered for download) —
+        // this also sweeps away any stale PreferredDeals file from before that changed.
         foreach (['Outbrain', 'PreferredDeals'] as $name) {
             foreach (['.csv', '.xlsx'] as $e) {
                 $p = $uploadsDir . '/' . $name . $e;
@@ -106,7 +109,6 @@ class ReportProcessor
         $sevenDaysAgoKey = $today->subDays(7)->format('Y-m-d');
 
         $outbrainHasData = false;
-        $preferredHasData = false;
 
         foreach (array_keys(Reporting::SITES) as $siteId) {
             $parsed = [];
@@ -129,17 +131,22 @@ class ReportProcessor
                     }
                     if (isset($pathByType['preferreddeals'])) {
                         $parsed['preferreddeals'] = Extractors::preferredDeals($pathByType['preferreddeals']);
-                        $preferredHasData = self::anyImpressions($parsed['preferreddeals']);
                     }
                     if (isset($pathByType['impressions_f1'])) $parsed['impressions_f1'] = Extractors::impressionsF1($pathByType['impressions_f1']);
                 }
 
-                // Strip past-month rows before merging (current month + last 7 days).
+                // Strip rows outside "current month + trailing week of the prior
+                // month" before merging. The trailing-week check is bounded above
+                // by the current month's start — without that bound, a file whose
+                // rows are lexicographically >= $sevenDaysAgoKey but from a LATER
+                // month (e.g. running a backdated backfill against a file that
+                // also happens to carry more recent rows) would silently slip
+                // through and merge into a month nobody asked to touch.
                 foreach ($parsed as $key => $arr) {
                     if (! is_array($arr)) continue;
                     $parsed[$key] = array_values(array_filter($arr, function ($r) use ($thisMonth, $sevenDaysAgoKey) {
                         $dk = isset($r['date']) ? Reporting::dateKey($r['date']) : null;
-                        return $dk && (str_starts_with($dk, $thisMonth) || $dk >= $sevenDaysAgoKey);
+                        return $dk && (str_starts_with($dk, $thisMonth) || ($dk >= $sevenDaysAgoKey && $dk < $thisMonth . '-01'));
                     }));
                 }
 
@@ -160,29 +167,27 @@ class ReportProcessor
             copy($path, $uploadsDir . '/' . $baseName . $ext);
         }
 
-        foreach ([
-            ['type' => 'outbrain', 'name' => 'Outbrain', 'has' => $outbrainHasData, 'defExt' => '.csv'],
-            ['type' => 'preferreddeals', 'name' => 'PreferredDeals', 'has' => $preferredHasData, 'defExt' => '.xlsx'],
-        ] as $c) {
-            if (! isset($pathByType[$c['type']]) || ! $c['has']) continue;
-            $ext = '.' . (pathinfo($origByType[$c['type']] ?? '', PATHINFO_EXTENSION) ?: ltrim($c['defExt'], '.'));
-            copy($pathByType[$c['type']], $uploadsDir . '/' . $c['name'] . $ext);
+        // Preferred Deals is intentionally NOT re-saved for download — the data
+        // is merged into the store (see above) but nobody needs the raw file back.
+        if (isset($pathByType['outbrain']) && $outbrainHasData) {
+            $ext = '.' . (pathinfo($origByType['outbrain'] ?? '', PATHINFO_EXTENSION) ?: 'csv');
+            copy($pathByType['outbrain'], $uploadsDir . '/Outbrain' . $ext);
         }
 
-        file_put_contents($uploadsDir . '/Analytics.csv', CsvGenerator::analytics($store, 'f1maximaal'));
+        file_put_contents($uploadsDir . '/Analytics f1.csv', CsvGenerator::analytics($store, 'f1maximaal'));
         file_put_contents($uploadsDir . '/Adhese f1.csv', CsvGenerator::adhese($store, 'f1maximaal'));
         foreach (['topgear' => 'tg', 'festileaks' => 'fl'] as $sid => $label) {
             $csv = CsvGenerator::adhese($store, $sid);
             if (count(explode("\n", $csv)) > 1) {
                 file_put_contents($uploadsDir . "/Adhese {$label}.csv", $csv);
             }
+        }
 
-            // Same per-site split as Adhese above — each site's analytics
-            // re-download stays separate, never merged into F1's Analytics.csv.
-            $analyticsCsv = CsvGenerator::analytics($store, $sid);
-            if ($analyticsCsv !== '') {
-                file_put_contents($uploadsDir . "/Analytics {$label}.csv", $analyticsCsv);
-            }
+        // Analytics re-download is only wired for Topgear alongside F1 —
+        // Festileaks doesn't track it (not part of the Adhese/RPM bundle).
+        $tgAnalyticsCsv = CsvGenerator::analytics($store, 'topgear');
+        if ($tgAnalyticsCsv !== '') {
+            file_put_contents($uploadsDir . '/Analytics tg.csv', $tgAnalyticsCsv);
         }
 
         return [

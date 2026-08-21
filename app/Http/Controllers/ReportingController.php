@@ -10,6 +10,7 @@ use App\Services\Reporting\Reporting;
 use App\Services\Reporting\TableExporter;
 use App\Services\Reporting\Verifier;
 use App\Services\Reporting\ZipBuilder;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Inertia\Inertia;
@@ -413,23 +414,34 @@ class ReportingController extends Controller
     /** Download the reports ZIP (optionally a date range + file subset). */
     public function download(Request $request)
     {
+        $from = $request->query('from');
+        $to = $request->query('to');
         $requested = $request->query('files') ? array_map('trim', explode(',', $request->query('files'))) : null;
         try {
             $buf = ZipBuilder::build(
                 ReportStore::load(),
                 $this->uploadsDir(),
                 $requested,
-                $request->query('from'),
-                $request->query('to'),
+                $from,
+                $to,
                 (bool) ReportSetting::get('ogury_old_format', false),
             );
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 404);
         }
 
+        // Name the file after the selected range so a re-download for a
+        // different period doesn't just overwrite the last one on disk.
+        // Falls back to today's date when no range was picked (the "All" preset).
+        $label = match (true) {
+            $from && $to && $from !== $to => "$from to $to",
+            $from || $to => $from ?: $to,
+            default => CarbonImmutable::now()->format('Y-m-d'),
+        };
+
         return response($buf)
             ->header('Content-Type', 'application/zip')
-            ->header('Content-Disposition', 'attachment; filename="F1Maximaal Reports.zip"');
+            ->header('Content-Disposition', "attachment; filename=\"Partners Report {$label}.zip\"");
     }
 
     /** Export the dashboard table (per-day revenue + impressions) as csv/xlsx/json. */

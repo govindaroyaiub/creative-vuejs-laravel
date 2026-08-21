@@ -6,8 +6,8 @@ use RuntimeException;
 use ZipArchive;
 
 /**
- * Builds the "F1Maximaal Reports.zip" download, ported from server.js
- * /download/zip. Analytics.csv and the Adhese CSVs are regenerated from the
+ * Builds the "Partners Report {date range}.zip" download, ported from
+ * server.js /download/zip. The Analytics and Adhese CSVs are regenerated from the
  * store (so a date range can be applied); other files are added from disk.
  * planetnine-report-* files are always excluded.
  */
@@ -32,9 +32,8 @@ class ZipBuilder
 
         foreach ($files as $f) {
             $generated = match ($f) {
-                'Analytics.csv' => CsvGenerator::analytics($store, 'f1maximaal', $from, $to),
+                'Analytics f1.csv' => CsvGenerator::analytics($store, 'f1maximaal', $from, $to),
                 'Analytics tg.csv' => CsvGenerator::analytics($store, 'topgear', $from, $to),
-                'Analytics fl.csv' => CsvGenerator::analytics($store, 'festileaks', $from, $to),
                 'Adhese f1.csv' => CsvGenerator::adhese($store, 'f1maximaal', $from, $to),
                 'Adhese tg.csv' => CsvGenerator::adhese($store, 'topgear', $from, $to),
                 'Adhese fl.csv' => CsvGenerator::adhese($store, 'festileaks', $from, $to),
