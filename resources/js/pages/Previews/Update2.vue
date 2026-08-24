@@ -185,6 +185,7 @@ const saveAll = () => {
     if (isDbId(c.id)) fd.append(`categories[${ci}][id]`, String(c.id))
     fd.append(`categories[${ci}][name]`, c.name ?? '')
     fd.append(`categories[${ci}][type]`, c.type ?? 'banner')
+    if (c.created_at_local) fd.append(`categories[${ci}][created_at]`, c.created_at_local)
 
     c.feedbacks.forEach((f: any, fi: number) => {
       const fp = `categories[${ci}][feedbacks][${fi}]`

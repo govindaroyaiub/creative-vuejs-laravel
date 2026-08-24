@@ -2,11 +2,21 @@
 import { computed, inject } from 'vue'
 import { Trash2, Plus, ExternalLink, Image as ImageIcon, Film, Share2, Sparkles } from 'lucide-vue-next'
 import type { PreviewTree } from '../usePreviewTree'
+import DateTimePicker from '@/components/DateTimePicker.vue'
 
 const props = defineProps<{ category: any }>()
 defineEmits<{ (e: 'delete'): void }>()
 
 const tree = inject<PreviewTree>('tree')!
+
+// Editable creation timestamp (naive 'YYYY-MM-DDTHH:mm', app timezone).
+const createdAt = computed({
+  get: () => props.category.created_at_local ?? '',
+  set: (v: string) => {
+    props.category.created_at_local = v
+    tree.markDirty({ kind: 'category', id: props.category.id })
+  },
+})
 
 const typeMeta = computed(() => {
   switch (props.category.type) {
@@ -63,6 +73,12 @@ const addFeedback = () => {
       Project type:
       <span class="p2-mono ml-1 font-semibold text-[var(--p2-text)]">{{ category.type }}</span>
       <span class="ml-2 text-[var(--p2-text-subtle)]">(can't change after creation)</span>
+    </div>
+
+    <!-- Created at -->
+    <div>
+      <p class="p2-label mb-1.5">Created at</p>
+      <DateTimePicker v-model="createdAt" />
     </div>
 
     <!-- File transfer link -->

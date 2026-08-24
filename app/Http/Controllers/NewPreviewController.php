@@ -32,6 +32,7 @@ use App\Models\newGif;
 use App\Models\newSocial;
 use App\Models\FileTransfer;
 use App\Models\TourGuide;
+use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 use App\Http\Concerns\AuthorizesPreviewAccess;
 
@@ -427,6 +428,9 @@ class NewPreviewController extends Controller
 
         return Inertia::render('Previews/Edit', [
             'preview' => $newPreview,
+            // Pre-formatted for the datetime-local field so the value round-trips
+            // in the app timezone without any browser-tz conversion drift.
+            'createdAtLocal' => $newPreview->created_at?->format('Y-m-d\TH:i'),
             'clients' => Client::all(['id', 'name']),
             'headerLogos' => Client::all(['id', 'name']),
             'users' => User::all(['id', 'name']),
@@ -452,6 +456,7 @@ class NewPreviewController extends Controller
             'show_planetnine_logo' => ['required', 'boolean'],
             'show_sidebar_logo' => ['required', 'boolean'],
             'show_footer' => ['required', 'boolean'],
+            'created_at' => ['nullable', 'date'],
         ]);
 
         $newPreview->update([
@@ -465,6 +470,13 @@ class NewPreviewController extends Controller
             'show_sidebar_logo' => $validated['show_sidebar_logo'],
             'show_footer' => $validated['show_footer'],
         ]);
+
+        // created_at is a guarded timestamp, so set it explicitly. Parsed in the
+        // app timezone to match the Y-m-d\TH:i value sent by the edit form.
+        if (! empty($validated['created_at'])) {
+            $newPreview->created_at = Carbon::parse($validated['created_at']);
+            $newPreview->save();
+        }
 
         return redirect()
             ->route('previews-edit', $newPreview->id)
@@ -583,6 +595,8 @@ class NewPreviewController extends Controller
         )->pluck('slug', 'id');
         foreach ($preview->categories as $category) {
             $category->file_transfer_slug = $slugById->get($category->file_transfer_id);
+            // App-tz formatted creation timestamp for the editable DateTimePicker.
+            $category->created_at_local = $category->created_at?->format('Y-m-d\TH:i');
         }
         $preview_name = $preview->name;
         $client = Client::select(['id', 'name', 'logo'])->find($preview->client_id);
@@ -631,6 +645,8 @@ class NewPreviewController extends Controller
         )->pluck('slug', 'id');
         foreach ($preview->categories as $category) {
             $category->file_transfer_slug = $slugById->get($category->file_transfer_id);
+            // App-tz formatted creation timestamp for the editable DateTimePicker.
+            $category->created_at_local = $category->created_at?->format('Y-m-d\TH:i');
         }
 
         $client = Client::select(['id', 'name', 'logo'])->find($preview->client_id);
@@ -682,6 +698,7 @@ class NewPreviewController extends Controller
             'categories.*.id' => 'nullable|integer',
             'categories.*.name' => 'required|string|max:255',
             'categories.*.type' => ['required', \Illuminate\Validation\Rule::in(['banner', 'video', 'social', 'gif'])],
+            'categories.*.created_at' => 'nullable|date',
             'categories.*.feedbacks' => 'required|array|min:1',
             'categories.*.feedbacks.*.id' => 'nullable|integer',
             'categories.*.feedbacks.*.name' => 'required|string|max:255',
@@ -785,6 +802,12 @@ class NewPreviewController extends Controller
                             'type' => $catData['type'],
                             // Do NOT update is_active here!
                         ]);
+                        // created_at is a guarded timestamp — set it explicitly
+                        // when the editor sent an override (app-tz parsed).
+                        if (! empty($catData['created_at'])) {
+                            $category->created_at = Carbon::parse($catData['created_at']);
+                            $category->save();
+                        }
                         $submittedCategoryIds[] = $category->id;
                     }
                     // Do NOT update other categories' is_active here!
@@ -795,6 +818,10 @@ class NewPreviewController extends Controller
                         'type' => $catData['type'],
                         'is_active' => true,
                     ]);
+                    if (! empty($catData['created_at'])) {
+                        $category->created_at = Carbon::parse($catData['created_at']);
+                        $category->save();
+                    }
                     $submittedCategoryIds[] = $category->id;
                     // Set all other categories to inactive
                     newCategory::where('preview_id', $preview->id)

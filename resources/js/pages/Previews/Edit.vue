@@ -120,6 +120,16 @@
                         </div>
                     </div>
 
+                    <!-- Created at (admin override of the record's creation timestamp) -->
+                    <div>
+                        <label for="preview-created-at"
+                            class="block text-[10px] font-medium text-[#666666] dark:text-[#999999] mb-1 uppercase tracking-widest font-mono">
+                            Created at
+                        </label>
+                        <DateTimePicker id="preview-created-at" v-model="form.created_at" />
+                        <p v-if="form.errors.created_at" class="mt-1 text-xs text-[#D71921]">{{ form.errors.created_at }}</p>
+                    </div>
+
                     <!-- Team Members (fills remaining vertical space) -->
                     <div class="flex-1 min-h-0 flex flex-col">
                         <div class="flex items-center justify-between mb-1">
@@ -211,6 +221,7 @@ import { Head, useForm, usePage, Link, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import Swal from 'sweetalert2';
 import AppLayout from '@/layouts/AppLayout.vue';
+import DateTimePicker from '@/components/DateTimePicker.vue';
 
 const page = usePage();
 const preview = computed(() => page.props.preview);
@@ -231,6 +242,7 @@ const form = useForm({
     show_planetnine_logo: !!preview.value.show_planetnine_logo,
     show_sidebar_logo: !!preview.value.show_sidebar_logo,
     show_footer: !!preview.value.show_footer,
+    created_at: page.props.createdAtLocal ?? '',
 });
 
 const userSearch = ref('');

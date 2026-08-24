@@ -8,7 +8,7 @@ import UserMenuContent from '@/components/UserMenuContent.vue';
 import DateRangePicker from '@/components/DateRangePicker.vue';
 import { useInitials } from '@/composables/useInitials';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Upload, Download, AlertTriangle, CheckCircle2, XCircle, Loader2, CalendarDays, Coins, Eye, TrendingUp, Award, CalendarCheck, X, FileText, FileSpreadsheet, FileJson, ArrowLeft, ExternalLink, Plus, Link2, Mail, Copy, Trash2, RefreshCw, Circle, Settings, Minus, ChevronDown, ChevronUp, Gauge, FileArchive, PackageCheck } from 'lucide-vue-next';
+import { Upload, Download, AlertTriangle, CheckCircle2, XCircle, Loader2, CalendarDays, Coins, Eye, TrendingUp, Award, CalendarCheck, X, FileText, FileSpreadsheet, FileJson, ArrowLeft, ExternalLink, Plus, Link2, Mail, Copy, Trash2, RefreshCw, Circle, Settings, Minus, ChevronDown, ChevronUp, Gauge, FileArchive, PackageCheck, Calculator } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, onMounted, watch } from 'vue';
 import { Line, Doughnut } from 'vue-chartjs';
@@ -97,6 +97,10 @@ function expandWednesday() {
 onMounted(() => {
     try { wnMinimized.value = !!localStorage.getItem(wnKey()); } catch { /* ignore */ }
 });
+
+// ─── "How it's calculated" reference panel — read-only formula documentation
+// so the numbers on this page can be explained on the spot. ─────────────────────
+const showFormulas = ref(false);
 
 // ─── Settings modal (Ogury rate + reminder day + upload file names) ─────────────
 const showSettings = ref(false);
@@ -943,6 +947,7 @@ const tabs = [
                     </Button>
                     <Button class="rounded-full" variant="outline" @click="showLinks = true"><Link2 class="mr-2 h-4 w-4" /> Report links</Button>
                     <Button class="rounded-full" variant="outline" @click="openDownload"><Download class="mr-2 h-4 w-4" /> Download Reports</Button>
+                    <Button class="rounded-full" variant="outline" @click="showFormulas = true"><Calculator class="mr-2 h-4 w-4" /> How it's calculated</Button>
                     <Button class="rounded-full" variant="outline" @click="openSettings"><Settings class="mr-2 h-4 w-4" /> Settings</Button>
                 </div>
             </div>
@@ -1499,6 +1504,98 @@ const tabs = [
                             <Button class="rounded-full" :disabled="!selectedFiles.length" @click="confirmDownload"><Download class="mr-2 h-4 w-4" /> Download</Button>
                         </div>
                     </CardContent>
+                </Card>
+            </div>
+
+            <!-- "How it's calculated" reference panel -->
+            <div v-if="showFormulas" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="showFormulas = false">
+                <Card class="rpt-glass rpt-modal flex max-h-[88vh] w-full max-w-3xl flex-col overflow-hidden p-0">
+                    <div class="flex items-center justify-between gap-2 border-b px-6 py-4">
+                        <span class="flex items-center gap-2 font-medium"><Calculator class="h-5 w-5 text-[#e2483d]" /> How it's calculated</span>
+                        <button class="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground" @click="showFormulas = false"><X class="h-4 w-4" /></button>
+                    </div>
+
+                    <div class="flex flex-1 flex-col gap-6 overflow-y-auto px-6 py-5 text-sm">
+                        <p class="text-[13px] text-muted-foreground">
+                            Every figure on this page is derived from the uploaded partner files — nothing is estimated or invented.
+                            Values are read from each partner's own export and summed per day. This reflects the current settings live.
+                        </p>
+
+                        <!-- Revenue -->
+                        <section class="flex flex-col gap-2">
+                            <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Revenue (per partner, per day)</h3>
+                            <p class="text-[13px]">Read straight from each partner's uploaded export and summed by date. Source column per partner:</p>
+                            <div class="overflow-x-auto rounded-lg border">
+                                <table class="w-full text-[13px]">
+                                    <thead class="border-b bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
+                                        <tr><th class="px-3 py-2">Partner</th><th class="px-3 py-2">Source column</th></tr>
+                                    </thead>
+                                    <tbody class="divide-y">
+                                        <tr><td class="px-3 py-1.5 font-medium">SeedTag</td><td class="px-3 py-1.5">"Estimated Earnings in EUR"</td></tr>
+                                        <tr><td class="px-3 py-1.5 font-medium">Teads</td><td class="px-3 py-1.5">"Revenue" (report_finance)</td></tr>
+                                        <tr><td class="px-3 py-1.5 font-medium">Showheroes</td><td class="px-3 py-1.5">"Premium Revenue"</td></tr>
+                                        <tr><td class="px-3 py-1.5 font-medium">GAM</td><td class="px-3 py-1.5">"AdSense revenue" + "Ad Exchange revenue"</td></tr>
+                                        <tr><td class="px-3 py-1.5 font-medium">Adform</td><td class="px-3 py-1.5">revenue column (auto-detected)</td></tr>
+                                        <tr><td class="px-3 py-1.5 font-medium">Ogury</td><td class="px-3 py-1.5">"Revenues" × rate (<b>{{ oguryRate }}</b>) — the only adjusted partner</td></tr>
+                                        <tr><td class="px-3 py-1.5 font-medium">Adhese</td><td class="px-3 py-1.5">Adhese export, summed per site</td></tr>
+                                        <tr><td class="px-3 py-1.5 font-medium">Outbrain</td><td class="px-3 py-1.5">"Revenue"</td></tr>
+                                        <tr><td class="px-3 py-1.5 font-medium">Preferred Deals</td><td class="px-3 py-1.5">GAM preferred-deals file</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p class="rounded-md bg-muted/40 px-3 py-2 font-mono text-[12px]">Day total revenue = sum of all partner revenues that day</p>
+                        </section>
+
+                        <!-- Impressions -->
+                        <section class="flex flex-col gap-2 border-t pt-5">
+                            <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Impressions</h3>
+                            <p class="text-[13px]">Each partner's impressions come from its file's impressions column. Two special cases:</p>
+                            <ul class="ml-4 list-disc text-[13px] text-muted-foreground">
+                                <li><span class="text-foreground">GAM impressions</span> = "Ad Exchange impressions" + "AdSense impressions"</li>
+                                <li><span class="text-foreground">Adhese impressions</span> are entered <b>manually</b> (never read from a file)</li>
+                            </ul>
+                            <p class="rounded-md bg-muted/40 px-3 py-2 font-mono text-[12px]">Impressions Sold = seedtag + teads + showheroes + gam + adform + ogury + outbrain + adhese + preferredDeals (impressions)</p>
+                        </section>
+
+                        <!-- Ad requests -->
+                        <section class="flex flex-col gap-2 border-t pt-5">
+                            <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Total Ad Requests</h3>
+                            <p class="rounded-md bg-muted/40 px-3 py-2 font-mono text-[12px]">Total Ad Requests = value from the GAM ad-requests export ("Copy of {site}")</p>
+                        </section>
+
+                        <!-- RPM -->
+                        <section class="flex flex-col gap-2 border-t pt-5">
+                            <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">RPM (revenue per mille)</h3>
+                            <p class="rounded-md bg-muted/40 px-3 py-2 font-mono text-[12px]">RPM = (day total revenue ÷ analytics pageviews) × 1000</p>
+                            <p class="rounded-md bg-muted/40 px-3 py-2 font-mono text-[12px]">Blended RPM (range) = (total revenue ÷ total pageviews) × 1000</p>
+                            <p class="text-[13px] text-muted-foreground">
+                                A row/card tints <span class="font-medium text-amber-500">amber ≥ {{ rpmAmber }}</span> and
+                                <span class="font-medium text-red-500">red ≥ {{ rpmRed }}</span> (editable in Settings).
+                                A high RPM means GA4 pageviews are under-reported — re-upload that day's analytics file.
+                                Revenue present but zero pageviews also flags red.
+                            </p>
+                        </section>
+
+                        <!-- Verify -->
+                        <section class="flex flex-col gap-2 border-t pt-5">
+                            <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Verify tab — tolerances vs Planetnine report</h3>
+                            <p class="text-[13px]">A day passes when our stored value is within tolerance of the Planetnine report:</p>
+                            <ul class="ml-4 list-disc text-[13px] text-muted-foreground">
+                                <li>Impressions Sold: <span class="text-foreground">± 50</span></li>
+                                <li>Total Ad Requests: <span class="text-foreground">± 10</span></li>
+                                <li>Total Revenue &amp; each partner: <span class="text-foreground">± 0.5</span></li>
+                            </ul>
+                        </section>
+
+                        <p class="border-t pt-4 text-[12px] text-muted-foreground">
+                            Pipeline: upload → detect partner by filename → read the columns above → keep current month + last 7 days →
+                            merge into the day (a partner missing from a run keeps its previous value, never zeroed) → save.
+                        </p>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 border-t px-6 py-4">
+                        <Button class="rounded-full" @click="showFormulas = false">Close</Button>
+                    </div>
                 </Card>
             </div>
 
