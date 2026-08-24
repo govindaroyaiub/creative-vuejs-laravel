@@ -82,6 +82,31 @@ it('verifies the monthly Planetnine report', function () use ($partnerFiles, $up
     expect(abs($sh['pn'] - $sh['us']))->toBeLessThan(0.5);
 });
 
+it('verifies the monthly Planetnine report for a non-f1 site', function () use ($partnerFiles, $uploadFile, $fixtures) {
+    $this->post('/reporting/process', ['files' => $partnerFiles()])->assertRedirect();
+
+    // Clone F1's reconciled day data onto Topgear so the same Planetnine report
+    // numbers apply there too — proves Verifier::monthly() reads the requested
+    // site's days rather than being hardcoded to f1maximaal.
+    $store = \App\Services\Reporting\ReportStore::load();
+    $store['sites']['topgear']['days'] = $store['sites']['f1maximaal']['days'];
+    \App\Services\Reporting\ReportStore::save($store);
+
+    $result = null;
+    $this->post('/reporting/verify', [
+        'site' => 'topgear',
+        'file' => $uploadFile("$fixtures/Planetnine-Report.xlsx", 'Planetnine-Report.xlsx'),
+    ])->assertOk()->assertInertia(function (\Inertia\Testing\AssertableInertia $p) use (&$result) {
+        $p->component('Reporting/Index')->has('verifyResult.rows');
+        $result = $p->toArray()['props']['verifyResult'];
+    });
+
+    expect($result['site'])->toBe('topgear');
+    $row = collect($result['rows'])->firstWhere('dateKey', '2026-06-01');
+    $sh = collect($row['checks'])->firstWhere('label', 'Showheroes');
+    expect(abs($sh['pn'] - $sh['us']))->toBeLessThan(0.5);
+});
+
 it('updates the ogury rate', function () {
     $this->post('/reporting/config', ['oguryRate' => 0.9])->assertRedirect(route('reporting'));
     expect((float) ReportSetting::get('oguryRate'))->toEqual(0.9);

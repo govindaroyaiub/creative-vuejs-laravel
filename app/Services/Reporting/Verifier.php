@@ -18,9 +18,10 @@ class Verifier
         'outbrain' => 'Outbrain', 'adhese' => 'Adhese',
     ];
 
-    /** F1Maximaal monthly Planetnine report. */
-    public static function monthly(array $store, string $path): array
+    /** Monthly Planetnine report (Trend + Demand Partners sheets) for any site that receives one. */
+    public static function monthly(array $store, string $path, string $siteId = 'f1maximaal'): array
     {
+        if (! isset(Reporting::SITES[$siteId])) throw new RuntimeException('Unknown site');
         $names = SpreadsheetReader::sheetNames($path);
         if (! in_array('Trend', $names, true)) throw new RuntimeException('Could not find Trend sheet');
 
@@ -62,11 +63,11 @@ class Verifier
             }
         }
 
-        $f1Days = $store['sites']['f1maximaal']['days'] ?? [];
+        $siteDays = $store['sites'][$siteId]['days'] ?? [];
         ksort($pnTrend);
         $rows = [];
         foreach ($pnTrend as $k => $pn) {
-            $s = $f1Days[$k] ?? null;
+            $s = $siteDays[$k] ?? null;
             $rev = $s['revenue'] ?? [];
             $checks = [
                 ['label' => 'Impr. Sold', 'pn' => $pn['impressionsSold'], 'us' => $s['impressionsSold'] ?? 0, 'tol' => 50],

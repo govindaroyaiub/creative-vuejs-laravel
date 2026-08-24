@@ -10,7 +10,7 @@ import { useInitials } from '@/composables/useInitials';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { Upload, Download, AlertTriangle, CheckCircle2, XCircle, Loader2, CalendarDays, Coins, Eye, TrendingUp, Award, CalendarCheck, X, FileText, FileSpreadsheet, FileJson, ArrowLeft, ExternalLink, Plus, Link2, Mail, Copy, Trash2, RefreshCw, Circle, Settings, Minus, ChevronDown, ChevronUp, Gauge, FileArchive, PackageCheck } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
-import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { Line, Doughnut } from 'vue-chartjs';
 import {
     Chart as ChartJS, Title, Tooltip, Legend, Filler,
@@ -30,37 +30,6 @@ const store = computed<any>(() => page.props.store);
 const sites = computed<any[]>(() => (page.props.sites as any[]) ?? []);
 const authUser = computed<any>(() => (page.props.auth as any)?.user ?? null);
 const { getInitials } = useInitials();
-
-// ─── Welcome splash ("Loading the reports…") — every page load, capped at 5s,
-// dismissible by click/keypress/Esc. Purely cosmetic, no data dependency. ────
-const SPLASH_STATUS_LINES = ['Fetching Adhese…', 'Crunching RPM…', 'Stacking partners…', 'Polishing pixels…'];
-const showSplash = ref(true);
-const splashStatusIndex = ref(0);
-let splashTimeout: ReturnType<typeof setTimeout> | null = null;
-let splashStatusInterval: ReturnType<typeof setInterval> | null = null;
-function dismissSplash() {
-    if (!showSplash.value) return;
-    showSplash.value = false;
-    if (splashTimeout) clearTimeout(splashTimeout);
-    if (splashStatusInterval) clearInterval(splashStatusInterval);
-    window.removeEventListener('keydown', onSplashKeydown);
-}
-function onSplashKeydown(e: KeyboardEvent) {
-    dismissSplash();
-    void e;
-}
-onMounted(() => {
-    splashTimeout = setTimeout(dismissSplash, 5000);
-    splashStatusInterval = setInterval(() => {
-        splashStatusIndex.value = (splashStatusIndex.value + 1) % SPLASH_STATUS_LINES.length;
-    }, 900);
-    window.addEventListener('keydown', onSplashKeydown);
-});
-onBeforeUnmount(() => {
-    if (splashTimeout) clearTimeout(splashTimeout);
-    if (splashStatusInterval) clearInterval(splashStatusInterval);
-    window.removeEventListener('keydown', onSplashKeydown);
-});
 
 // ─── Data sync (import the committed JSON snapshot into this machine's DB) ──────
 const sync = computed<any>(() => (page.props.sync as any) ?? { available: false });
@@ -889,19 +858,25 @@ const verifyMismatches = computed(() => {
 function onVerifyUpdate(items: any[]) {
     verifyFile.value = items.length ? (items[0].file as File) : null;
 }
+// Sites that now receive the full Trend-sheet Planetnine report (Ad Requests,
+// Impressions Sold, Total Revenue, per-partner breakdown), same as F1. Others
+// (Horses, Festileaks) still only get the simpler weekly Demand Partners report.
+const MONTHLY_VERIFY_SITES = ['f1maximaal', 'topgear'];
+
 function runVerify() {
     if (!verifyFile.value) { Swal.fire('No file', 'Add the Planetnine report.', 'info'); return; }
     const fd = new FormData();
     fd.append('file', verifyFile.value, verifyFile.value.name);
-    const url = selectedSite.value === 'f1maximaal' ? '/reporting/verify' : '/reporting/verify-weekly';
+    const isMonthly = MONTHLY_VERIFY_SITES.includes(selectedSite.value);
+    const url = isMonthly ? '/reporting/verify' : '/reporting/verify-weekly';
     if (selectedSite.value !== 'f1maximaal') fd.append('site', selectedSite.value);
     router.post(url, fd, {
         forceFormData: true, preserveScroll: true, preserveState: true,
         onStart: () => (verifying.value = true),
         onFinish: () => (verifying.value = false),
         onSuccess: () => {
-            // Rendered inline (preserveState — no remount, no splash replay, no
-            // tab change), but Inertia points the address bar at this POST-only
+            // Rendered inline (preserveState — no remount, no tab change), but
+            // Inertia points the address bar at this POST-only
             // URL. Fix it up in place so a refresh hits GET /reporting instead
             // of 405ing on /reporting/verify(-weekly).
             window.history.replaceState(window.history.state, '', '/reporting');
@@ -918,24 +893,6 @@ const tabs = [
 <template>
     <Head title="Reporting" />
     <div class="rpt-root relative min-h-screen">
-        <!-- Welcome splash — cosmetic only, dismiss on click/key/5s timeout. -->
-        <Transition name="rpt-splash-fade">
-            <div v-if="showSplash" class="rpt-splash" @click="dismissSplash">
-                <div aria-hidden="true" class="rpt-ambient" />
-                <div aria-hidden="true" class="rpt-stars rpt-stars--always" />
-                <div class="rpt-splash-content">
-                    <div class="rpt-splash-mark">
-                        <span class="rpt-splash-ring" />
-                        <span class="rpt-splash-mark-text">P9</span>
-                    </div>
-                    <h1 class="rpt-splash-title">Loading the reports<span class="rpt-splash-dots"><span>.</span><span>.</span><span>.</span></span></h1>
-                    <p class="rpt-splash-status">{{ SPLASH_STATUS_LINES[splashStatusIndex] }}</p>
-                    <div class="rpt-splash-bar"><div class="rpt-splash-bar-fill" /></div>
-                    <button type="button" class="rpt-splash-skip" @click.stop="dismissSplash">Skip →</button>
-                </div>
-            </div>
-        </Transition>
-
         <!-- Decorative ambient color wash + starfield (dark mode only), same
              technique as the Previews/Update2 editor's chrome. -->
         <div aria-hidden="true" class="rpt-ambient" />
@@ -1310,7 +1267,7 @@ const tabs = [
             <!-- VERIFY -->
             <Card class="rpt-glass" v-show="activeTab === 'verify'">
                 <CardHeader class="pb-2 font-medium">
-                    Verify {{ selectedSite === 'f1maximaal' ? 'monthly' : 'weekly' }} report — {{ sites.find((s) => s.id === selectedSite)?.name }}
+                    Verify {{ MONTHLY_VERIFY_SITES.includes(selectedSite) ? 'monthly' : 'weekly' }} report — {{ sites.find((s) => s.id === selectedSite)?.name }}
                 </CardHeader>
                 <CardContent class="flex flex-col gap-3">
                     <FilePond ref="verifyPond" :allow-multiple="false" :instant-upload="false" label-idle="Drop the Planetnine report here" @updatefiles="onVerifyUpdate" />
@@ -1758,118 +1715,6 @@ const tabs = [
 .rpt-row-selected {
     background: var(--rpt-accent-soft) !important;
     box-shadow: inset 3px 0 0 0 var(--rpt-accent);
-}
-
-/* ---------- Welcome splash ---------- */
-.rpt-splash {
-    position: fixed;
-    inset: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    background: var(--rpt-bg);
-    overflow: hidden;
-}
-.rpt-splash .rpt-ambient,
-.rpt-splash .rpt-stars { opacity: 0.7; }
-.rpt-stars--always { opacity: 0.55 !important; animation: rpt-twinkle 6s ease-in-out infinite; }
-
-.rpt-splash-fade-enter-active,
-.rpt-splash-fade-leave-active { transition: opacity 400ms cubic-bezier(0.22, 1, 0.36, 1); }
-.rpt-splash-fade-enter-from,
-.rpt-splash-fade-leave-to { opacity: 0; }
-
-.rpt-splash-content {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    text-align: center;
-    padding: 24px;
-}
-
-.rpt-splash-mark {
-    position: relative;
-    display: grid;
-    place-items: center;
-    width: 72px;
-    height: 72px;
-    margin-bottom: 8px;
-}
-.rpt-splash-ring {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    border: 2px solid var(--rpt-accent-muted);
-    border-top-color: var(--rpt-accent);
-    animation: rpt-splash-spin 1s linear infinite;
-}
-.rpt-splash-mark-text {
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    color: var(--rpt-accent);
-}
-@keyframes rpt-splash-spin { to { transform: rotate(360deg); } }
-
-.rpt-splash-title {
-    font-size: 20px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--rpt-text);
-}
-.rpt-splash-dots span {
-    animation: rpt-splash-dot 1.2s ease-in-out infinite;
-    opacity: 0.2;
-}
-.rpt-splash-dots span:nth-child(2) { animation-delay: 0.2s; }
-.rpt-splash-dots span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes rpt-splash-dot { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
-
-.rpt-splash-status {
-    font-size: 12px;
-    color: var(--rpt-text-muted);
-    min-height: 1.2em;
-}
-
-.rpt-splash-bar {
-    width: 180px;
-    height: 3px;
-    border-radius: 999px;
-    background: var(--rpt-border);
-    overflow: hidden;
-    margin-top: 4px;
-}
-.rpt-splash-bar-fill {
-    height: 100%;
-    width: 0%;
-    border-radius: 999px;
-    background: linear-gradient(90deg, var(--rpt-accent), var(--rpt-accent-2));
-    animation: rpt-splash-fill 5s linear forwards;
-}
-@keyframes rpt-splash-fill { to { width: 100%; } }
-
-.rpt-splash-skip {
-    margin-top: 10px;
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--rpt-text-muted);
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: color 200ms;
-}
-.rpt-splash-skip:hover { color: var(--rpt-accent); }
-
-@media (prefers-reduced-motion: reduce) {
-    .rpt-splash-ring, .rpt-splash-dots span, .rpt-splash-bar-fill, .rpt-stars--always {
-        animation: none !important;
-    }
-    .rpt-splash-bar-fill { width: 100%; }
 }
 
 /* ---------- Ambient backdrop ---------- */

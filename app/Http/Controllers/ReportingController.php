@@ -315,15 +315,18 @@ class ReportingController extends Controller
         return redirect()->route('reporting');
     }
 
-    /** Verify the F1Maximaal monthly Planetnine report. */
+    /** Verify a monthly Planetnine report (Trend + Demand Partners sheets). */
     public function verify(Request $request)
     {
-        $request->validate(['file' => 'required|file']);
+        $request->validate(['file' => 'required|file', 'site' => 'nullable|string']);
+        $siteId = $request->input('site', 'f1maximaal');
+        if (! isset(Reporting::SITES[$siteId])) return $this->renderWithVerify(null, 'Unknown site');
+
         try {
-            $rows = Verifier::monthly(ReportStore::load(), $request->file('file')->getRealPath());
+            $rows = Verifier::monthly(ReportStore::load(), $request->file('file')->getRealPath(), $siteId);
 
             return $this->renderWithVerify([
-                'rows' => $rows, 'site' => 'f1maximaal', 'siteName' => Reporting::SITES['f1maximaal']['name'],
+                'rows' => $rows, 'site' => $siteId, 'siteName' => Reporting::SITES[$siteId]['name'],
             ], null);
         } catch (\Throwable $e) {
             return $this->renderWithVerify(null, $e->getMessage());
