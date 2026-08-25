@@ -1658,8 +1658,8 @@ const qaList = ref([
                 <ul class="list-disc list-inside text-sm">
                     <li><strong>Model:</strong> <code>BannerSize.php</code></li>
                     <li><strong>Migration:</strong> <code>2025_04_15_070726_create_banner_sizes_table.php</code></li>
-                    <li><strong>Controller:</strong> <code>BannerSizeController.php</code></li>
-                    <li><strong>Vue Files:</strong> <code>Pages/BannerSizes</code></li>
+                    <li><strong>Controller:</strong> <code>CreativeSizeController.php</code></li>
+                    <li><strong>Vue Files:</strong> <code>Pages/CreativeSizes</code></li>
                 </ul>
             </div>
             <div class="p-2 rounded-lg border bg-white text-black dark:bg-black dark:text-white">
@@ -1667,8 +1667,8 @@ const qaList = ref([
                 <ul class="list-disc list-inside text-sm">
                     <li><strong>Model:</strong> <code>VideoSize.php</code></li>
                     <li><strong>Migration:</strong> <code>2025_04_17_173143_create_video_sizes_table.php</code></li>
-                    <li><strong>Controller:</strong> <code>VideoSizeController.php</code></li>
-                    <li><strong>Vue Files:</strong> <code>Pages/VideoSizes</code></li>
+                    <li><strong>Controller:</strong> <code>CreativeSizeController.php</code></li>
+                    <li><strong>Vue Files:</strong> <code>Pages/CreativeSizes</code></li>
                 </ul>
             </div>
         </div>
