@@ -193,7 +193,16 @@ class CacheManagementController extends Controller
     /** The real list of table names in the current connection. Acts as the whitelist. */
     private function dbTableNames(): array
     {
-        $names = collect(Schema::getTables())->pluck('name')->all();
+        // Schema::getTables() spans every schema the database user can read, so
+        // a server hosting several databases returns one row per copy of a
+        // shared name — three `users`, two `notifications`. Only the connected
+        // database is browsable here, and the row counts below all resolve
+        // against it, so anything else is a duplicate pointing at the wrong
+        // schema.
+        $names = collect(Schema::getTables())
+            ->where('schema', DB::connection()->getDatabaseName())
+            ->pluck('name')
+            ->all();
         // Hide Laravel internal plumbing that isn't useful to browse.
         $hidden = ['migrations', 'password_reset_tokens', 'password_resets', 'failed_jobs', 'jobs', 'job_batches', 'sessions', 'cache', 'cache_locks'];
         return array_values(array_filter($names, fn ($n) => ! in_array($n, $hidden, true)));
