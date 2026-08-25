@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Inertia\Inertia;
 
@@ -181,6 +183,110 @@ class CacheManagementController extends Controller
             : File::delete($resolved['real']);
 
         return response()->json(['success' => true]);
+    }
+
+    // ─── Database browser (read-only) ────────────────────────────────────────────
+
+    /** Column names whose values are masked in the browser (never leak secrets). */
+    private array $dbMaskedColumns = ['password', 'remember_token', 'api_token', 'two_factor_secret', 'two_factor_recovery_codes'];
+
+    /** The real list of table names in the current connection. Acts as the whitelist. */
+    private function dbTableNames(): array
+    {
+        $names = collect(Schema::getTables())->pluck('name')->all();
+        // Hide Laravel internal plumbing that isn't useful to browse.
+        $hidden = ['migrations', 'password_reset_tokens', 'password_resets', 'failed_jobs', 'jobs', 'job_batches', 'sessions', 'cache', 'cache_locks'];
+        return array_values(array_filter($names, fn ($n) => ! in_array($n, $hidden, true)));
+    }
+
+    /** List every browsable table with its row count. Powers the sidebar list. */
+    public function dbTables()
+    {
+        $tables = [];
+        foreach ($this->dbTableNames() as $name) {
+            try {
+                $count = DB::table($name)->count();
+            } catch (\Throwable $e) {
+                $count = null;
+            }
+            $tables[] = ['name' => $name, 'rows' => $count];
+        }
+        usort($tables, fn ($a, $b) => strcmp($a['name'], $b['name']));
+
+        return response()->json(['tables' => $tables]);
+    }
+
+    /** Browse one table: columns + paginated rows, with optional search and sort. */
+    public function dbBrowse(Request $request)
+    {
+        $data = $request->validate([
+            'table'   => 'required|string',
+            'page'    => 'nullable|integer|min:1',
+            'perPage' => 'nullable|integer|min:5|max:100',
+            'q'       => 'nullable|string|max:255',
+            'sort'    => 'nullable|string',
+            'dir'     => 'nullable|in:asc,desc',
+        ]);
+
+        // Whitelist: the table must actually exist and be browsable.
+        if (! in_array($data['table'], $this->dbTableNames(), true)) {
+            return response()->json(['error' => 'Unknown table'], 404);
+        }
+
+        $table   = $data['table'];
+        $perPage = $data['perPage'] ?? 25;
+        $columns = Schema::getColumnListing($table);
+
+        $query = DB::table($table);
+
+        // Search across every column (case-insensitive LIKE). Grouped so it
+        // never widens an otherwise-empty result to the whole table.
+        $q = trim($data['q'] ?? '');
+        if ($q !== '') {
+            $query->where(function ($sub) use ($columns, $q) {
+                foreach ($columns as $col) {
+                    $sub->orWhere($col, 'like', '%' . $q . '%');
+                }
+            });
+        }
+
+        // Sort only by a real column (guards against injection).
+        $sort = $data['sort'] ?? null;
+        if ($sort && in_array($sort, $columns, true)) {
+            $query->orderBy($sort, $data['dir'] ?? 'asc');
+        }
+
+        $paginator = $query->paginate($perPage, ['*'], 'page', $data['page'] ?? 1);
+
+        // Mask secrets + stringify/cap long values so the payload stays sane.
+        $masked = $this->dbMaskedColumns;
+        $rows = collect($paginator->items())->map(function ($row) use ($masked) {
+            $out = [];
+            foreach ((array) $row as $key => $val) {
+                if (in_array($key, $masked, true)) {
+                    $out[$key] = $val === null ? null : '••••••••';
+                } elseif (is_string($val) && strlen($val) > 2000) {
+                    $out[$key] = substr($val, 0, 2000) . '… (truncated)';
+                } else {
+                    $out[$key] = $val;
+                }
+            }
+            return $out;
+        });
+
+        return response()->json([
+            'table'   => $table,
+            'columns' => $columns,
+            'rows'    => $rows,
+            'meta'    => [
+                'page'     => $paginator->currentPage(),
+                'perPage'  => $paginator->perPage(),
+                'total'    => $paginator->total(),
+                'lastPage' => $paginator->lastPage(),
+                'from'     => $paginator->firstItem(),
+                'to'       => $paginator->lastItem(),
+            ],
+        ]);
     }
 
     public function runCleanup(Request $request)

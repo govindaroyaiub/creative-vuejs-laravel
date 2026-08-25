@@ -208,6 +208,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/cache-management/explorer/search', [CacheManagementController::class, 'explorerSearch'])->name('cache-management.explorer.search');
     Route::get('/cache-management/explorer/download', [CacheManagementController::class, 'explorerDownload'])->name('cache-management.explorer.download');
     Route::delete('/cache-management/explorer', [CacheManagementController::class, 'explorerDestroy'])->name('cache-management.explorer.destroy');
+    Route::get('/cache-management/database/tables', [CacheManagementController::class, 'dbTables'])->name('cache-management.database.tables');
+    Route::get('/cache-management/database/browse', [CacheManagementController::class, 'dbBrowse'])->name('cache-management.database.browse');
     //Cache Management Routes End
 
     //Log Viewer Routes Start

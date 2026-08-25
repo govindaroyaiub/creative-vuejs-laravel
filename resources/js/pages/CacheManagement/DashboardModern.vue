@@ -651,6 +651,132 @@
                             </div>
                             <p v-if="!canDelete" class="text-center text-[10px] font-mono uppercase tracking-wider text-[#BBBBBB] dark:text-[#555555]">Delete is restricted to super admins</p>
                         </div>
+
+                        <!-- Database Tab (read-only) -->
+                        <div v-show="activeTab === 'database'" class="animate-fadeIn">
+                            <div class="grid grid-cols-1 gap-4 lg:grid-cols-[260px_1fr]">
+                                <!-- Table list -->
+                                <aside class="flex flex-col rounded-2xl border border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-[#0A0A0A] shadow-sm">
+                                    <div class="border-b border-[#E8E8E8] dark:border-[#222222] p-3">
+                                        <div class="relative">
+                                            <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#999999]">
+                                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="7" /><path stroke-linecap="round" d="M21 21l-4.3-4.3" /></svg>
+                                            </span>
+                                            <input v-model="dbTableFilter" type="text" placeholder="Find table…"
+                                                class="w-full rounded-lg border border-[#E8E8E8] dark:border-[#222222] bg-[#F9F9F9] dark:bg-black py-2 pl-9 pr-3 font-mono text-[12px] text-black dark:text-white placeholder-[#AAAAAA] dark:placeholder-[#555555] outline-none transition-colors focus:border-black dark:focus:border-white" />
+                                        </div>
+                                    </div>
+                                    <div class="max-h-[62vh] overflow-y-auto p-2">
+                                        <!-- Skeleton -->
+                                        <div v-if="dbTablesLoading" class="space-y-1.5 p-1">
+                                            <div v-for="n in 10" :key="n" class="h-8 animate-pulse rounded-lg bg-[#F0F0F0] dark:bg-[#161616]"></div>
+                                        </div>
+                                        <template v-else>
+                                            <button v-for="t in filteredDbTables" :key="t.name" @click="openTable(t.name)"
+                                                :class="['group mb-0.5 flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left transition-colors',
+                                                    dbCurrentTable === t.name ? 'bg-black text-white dark:bg-white dark:text-black' : 'text-[#444444] dark:text-[#BBBBBB] hover:bg-[#F5F5F5] dark:hover:bg-[#111111]']">
+                                                <span class="truncate font-mono text-[12px]">{{ t.name }}</span>
+                                                <span :class="['shrink-0 rounded-full px-1.5 py-0.5 font-mono text-[9px] tabular-nums',
+                                                    dbCurrentTable === t.name ? 'bg-white/20 dark:bg-black/20' : 'bg-[#F0F0F0] dark:bg-[#161616] text-[#999999]']">
+                                                    {{ t.rows === null ? '—' : t.rows }}
+                                                </span>
+                                            </button>
+                                            <p v-if="!filteredDbTables.length" class="px-3 py-6 text-center font-mono text-[11px] text-[#999999]">No tables</p>
+                                        </template>
+                                    </div>
+                                </aside>
+
+                                <!-- Table viewer -->
+                                <section class="flex min-w-0 flex-col rounded-2xl border border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-[#0A0A0A] shadow-sm">
+                                    <!-- Header: table name + search + per-page -->
+                                    <div class="flex flex-col gap-3 border-b border-[#E8E8E8] dark:border-[#222222] p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <span class="text-base">🗄️</span>
+                                            <span class="truncate font-mono text-sm font-semibold text-black dark:text-white">{{ dbCurrentTable || 'Select a table' }}</span>
+                                            <span v-if="dbCurrentTable" class="shrink-0 rounded-full border border-[#E8E8E8] dark:border-[#222222] px-2 py-0.5 font-mono text-[10px] tabular-nums text-[#999999]">{{ dbMeta.total }} rows</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <div class="relative flex-1 sm:w-56 sm:flex-none">
+                                                <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#999999]">
+                                                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="7" /><path stroke-linecap="round" d="M21 21l-4.3-4.3" /></svg>
+                                                </span>
+                                                <input v-model="dbSearch" @keyup.enter="dbRunSearch" type="text" placeholder="Search rows…" :disabled="!dbCurrentTable"
+                                                    class="w-full rounded-lg border border-[#E8E8E8] dark:border-[#222222] bg-[#F9F9F9] dark:bg-black py-2 pl-9 pr-8 font-mono text-[12px] text-black dark:text-white placeholder-[#AAAAAA] dark:placeholder-[#555555] outline-none transition-colors focus:border-black dark:focus:border-white disabled:opacity-40" />
+                                                <button v-if="dbSearch" @click="dbClearSearch" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#999999] transition-colors hover:text-black dark:hover:text-white">✕</button>
+                                            </div>
+                                            <select :value="dbMeta.perPage" @change="dbSetPerPage(Number(($event.target as HTMLSelectElement).value))" :disabled="!dbCurrentTable"
+                                                class="rounded-lg border border-[#E8E8E8] dark:border-[#222222] bg-[#F9F9F9] dark:bg-black px-2 py-2 font-mono text-[11px] text-black dark:text-white outline-none transition-colors focus:border-black dark:focus:border-white disabled:opacity-40">
+                                                <option :value="25">25</option>
+                                                <option :value="50">50</option>
+                                                <option :value="100">100</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Grid -->
+                                    <div class="relative overflow-auto max-h-[58vh]">
+                                        <!-- Loading -->
+                                        <div v-if="dbLoading" class="space-y-2 p-4">
+                                            <div v-for="n in 8" :key="n" class="h-6 animate-pulse rounded bg-[#F0F0F0] dark:bg-[#161616]"></div>
+                                        </div>
+                                        <!-- Error -->
+                                        <div v-else-if="dbError" class="flex flex-col items-center gap-2 px-4 py-16 text-center">
+                                            <span class="text-2xl">⚠️</span>
+                                            <p class="font-mono text-xs text-red-500">{{ dbError }}</p>
+                                        </div>
+                                        <!-- Empty -->
+                                        <div v-else-if="!dbRows.length" class="flex flex-col items-center gap-2 px-4 py-16 text-center">
+                                            <span class="text-3xl opacity-40">{{ dbSearch.trim() ? '🔍' : '🫙' }}</span>
+                                            <p class="font-mono text-xs uppercase tracking-wider text-[#999999]">{{ dbSearch.trim() ? 'No matching rows' : 'No rows' }}</p>
+                                        </div>
+                                        <!-- Table -->
+                                        <table v-else class="w-full border-collapse">
+                                            <thead class="sticky top-0 z-10">
+                                                <tr class="bg-[#FAFAFA]/95 dark:bg-black/90 backdrop-blur">
+                                                    <th v-for="col in dbColumns" :key="col" @click="dbSortBy(col)"
+                                                        class="cursor-pointer whitespace-nowrap border-b border-[#E8E8E8] dark:border-[#222222] px-3 py-2.5 text-left font-mono text-[10px] uppercase tracking-[0.08em] text-[#666666] dark:text-[#999999] transition-colors hover:text-black dark:hover:text-white">
+                                                        <span class="inline-flex items-center gap-1">
+                                                            {{ col }}
+                                                            <span v-if="dbSort === col" class="text-[9px]">{{ dbDir === 'asc' ? '▲' : '▼' }}</span>
+                                                        </span>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(row, ri) in dbRows" :key="ri"
+                                                    class="transition-colors odd:bg-white even:bg-[#FCFCFC] hover:bg-[#F5F5F5] dark:odd:bg-[#0A0A0A] dark:even:bg-[#0D0D0D] dark:hover:bg-[#141414]">
+                                                    <td v-for="col in dbColumns" :key="col"
+                                                        class="max-w-[320px] truncate border-b border-[#F0F0F0] dark:border-[#161616] px-3 py-2 font-mono text-[12px] tabular-nums"
+                                                        :class="dbIsNull(row[col]) ? 'text-[#CCCCCC] dark:text-[#444444] italic' : 'text-[#333333] dark:text-[#DDDDDD]'"
+                                                        :title="dbCell(row[col])">
+                                                        {{ dbCell(row[col]) }}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <!-- Pagination footer -->
+                                    <div v-if="dbCurrentTable && !dbLoading && dbRows.length" class="flex flex-col gap-2 border-t border-[#E8E8E8] dark:border-[#222222] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                                        <span class="font-mono text-[11px] text-[#999999]">
+                                            {{ dbMeta.from }}–{{ dbMeta.to }} of {{ dbMeta.total }}
+                                        </span>
+                                        <div class="flex items-center gap-1">
+                                            <button @click="dbGoTo(1)" :disabled="dbMeta.page <= 1"
+                                                class="rounded-md border border-[#E8E8E8] dark:border-[#222222] px-2 py-1 font-mono text-[11px] text-[#666666] dark:text-[#999999] transition-colors hover:border-black hover:text-black dark:hover:border-white dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-30">«</button>
+                                            <button @click="dbGoTo(dbMeta.page - 1)" :disabled="dbMeta.page <= 1"
+                                                class="rounded-md border border-[#E8E8E8] dark:border-[#222222] px-2 py-1 font-mono text-[11px] text-[#666666] dark:text-[#999999] transition-colors hover:border-black hover:text-black dark:hover:border-white dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-30">‹</button>
+                                            <span class="px-2 font-mono text-[11px] tabular-nums text-black dark:text-white">{{ dbMeta.page }} / {{ dbMeta.lastPage }}</span>
+                                            <button @click="dbGoTo(dbMeta.page + 1)" :disabled="dbMeta.page >= dbMeta.lastPage"
+                                                class="rounded-md border border-[#E8E8E8] dark:border-[#222222] px-2 py-1 font-mono text-[11px] text-[#666666] dark:text-[#999999] transition-colors hover:border-black hover:text-black dark:hover:border-white dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-30">›</button>
+                                            <button @click="dbGoTo(dbMeta.lastPage)" :disabled="dbMeta.page >= dbMeta.lastPage"
+                                                class="rounded-md border border-[#E8E8E8] dark:border-[#222222] px-2 py-1 font-mono text-[11px] text-[#666666] dark:text-[#999999] transition-colors hover:border-black hover:text-black dark:hover:border-white dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-30">»</button>
+                                        </div>
+                                    </div>
+                                    <p class="border-t border-[#E8E8E8] dark:border-[#222222] px-4 py-2 text-center font-mono text-[10px] uppercase tracking-wider text-[#BBBBBB] dark:text-[#555555]">Read-only · secrets masked</p>
+                                </section>
+                            </div>
+                        </div>
                     </div>
                 </main>
             </div>
@@ -706,7 +832,8 @@ const tabs = ref([
     { id: 'overview', name: 'Overview', icon: '📊' },
     { id: 'activity', name: 'Cleanup Logs', icon: '🕐' },
     { id: 'activity_logs', name: 'Activity Log', icon: '📋' },
-    { id: 'explorer', name: 'Explorer', icon: '📁' }
+    { id: 'explorer', name: 'Explorer', icon: '📁' },
+    { id: 'database', name: 'Database', icon: '🗄️' }
 ])
 
 // ─── File explorer tab ──────────────────────────────────────────────────────────
@@ -816,6 +943,107 @@ const isImage = (ext: string) => ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 's
 
 // Lazy-load the folder listing the first time the Explorer tab is opened.
 watch(activeTab, (t) => { if (t === 'explorer' && !explorerLoaded.value) loadExplorer() })
+
+// ─── Database browser tab (read-only) ─────────────────────────────────────────
+const dbTables = ref<any[]>([])
+const dbTablesLoaded = ref(false)
+const dbTablesLoading = ref(false)
+const dbTableFilter = ref('')          // filters the table list (client-side)
+const dbCurrentTable = ref<string>('')
+
+const dbColumns = ref<string[]>([])
+const dbRows = ref<any[]>([])
+const dbMeta = ref<any>({ page: 1, perPage: 25, total: 0, lastPage: 1, from: 0, to: 0 })
+const dbLoading = ref(false)
+const dbError = ref('')
+
+const dbSearch = ref('')               // row search (server-side)
+const dbSort = ref('')
+const dbDir = ref<'asc' | 'desc'>('asc')
+
+const filteredDbTables = computed(() => {
+    const q = dbTableFilter.value.trim().toLowerCase()
+    if (!q) return dbTables.value
+    return dbTables.value.filter((t) => t.name.toLowerCase().includes(q))
+})
+
+async function loadDbTables() {
+    dbTablesLoading.value = true
+    try {
+        const { data } = await axios.get('/cache-management/database/tables')
+        dbTables.value = data.tables
+        dbTablesLoaded.value = true
+        if (!dbCurrentTable.value && data.tables.length) openTable(data.tables[0].name)
+    } catch (e: any) {
+        dbError.value = e?.response?.data?.error || 'Could not load tables'
+    } finally {
+        dbTablesLoading.value = false
+    }
+}
+
+async function loadDbRows() {
+    if (!dbCurrentTable.value) return
+    dbLoading.value = true
+    dbError.value = ''
+    try {
+        const { data } = await axios.get('/cache-management/database/browse', {
+            params: {
+                table: dbCurrentTable.value,
+                page: dbMeta.value.page,
+                perPage: dbMeta.value.perPage,
+                q: dbSearch.value.trim() || undefined,
+                sort: dbSort.value || undefined,
+                dir: dbDir.value,
+            },
+        })
+        dbColumns.value = data.columns
+        dbRows.value = data.rows
+        dbMeta.value = data.meta
+    } catch (e: any) {
+        dbError.value = e?.response?.data?.error || 'Could not load rows'
+        dbRows.value = []
+        dbColumns.value = []
+    } finally {
+        dbLoading.value = false
+    }
+}
+
+function openTable(name: string) {
+    if (name === dbCurrentTable.value) return
+    dbCurrentTable.value = name
+    dbSearch.value = ''
+    dbSort.value = ''
+    dbDir.value = 'asc'
+    dbMeta.value = { ...dbMeta.value, page: 1 }
+    loadDbRows()
+}
+function dbRunSearch() { dbMeta.value.page = 1; loadDbRows() }
+function dbClearSearch() { if (!dbSearch.value) return; dbSearch.value = ''; dbMeta.value.page = 1; loadDbRows() }
+function dbSortBy(col: string) {
+    if (dbSort.value === col) {
+        dbDir.value = dbDir.value === 'asc' ? 'desc' : 'asc'
+    } else {
+        dbSort.value = col; dbDir.value = 'asc'
+    }
+    dbMeta.value.page = 1
+    loadDbRows()
+}
+function dbGoTo(page: number) {
+    if (page < 1 || page > dbMeta.value.lastPage || page === dbMeta.value.page) return
+    dbMeta.value.page = page
+    loadDbRows()
+}
+function dbSetPerPage(n: number) { dbMeta.value.perPage = n; dbMeta.value.page = 1; loadDbRows() }
+
+function dbCell(val: any): string {
+    if (val === null || val === undefined) return '∅'
+    if (typeof val === 'object') return JSON.stringify(val)
+    return String(val)
+}
+const dbIsNull = (val: any) => val === null || val === undefined
+
+// Lazy-load tables the first time the Database tab is opened.
+watch(activeTab, (t) => { if (t === 'database' && !dbTablesLoaded.value) loadDbTables() })
 
 // Quick actions configuration
 const quickActions = ref([
