@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { CirclePlus, Pencil, Trash2, Eye, ChevronLeft, ChevronRight, X, Download } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
@@ -22,7 +21,12 @@ import 'filepond/dist/filepond.min.css';
 // restriction is applied unless `acceptedFileTypes` is actually passed.
 const FilePond = vueFilePond(FilePondPluginFileValidateType);
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'File Transfers', href: '/file-transfers' }];
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'File Transfers', href: '/file-transfers' }] }, () => page),
+});
 
 const page = usePage<any>();
 const search = ref<string>((page.props as any).search ?? '');
@@ -322,7 +326,6 @@ const handleEditSubmit = () => {
 <template>
 
     <Head title="File Transfers" />
-    <AppLayout :breadcrumbs="breadcrumbs">
         <div class="min-h-screen bg-white dark:bg-black">
             <div class="p-4 md:p-6">
                 <!-- Search & Add -->
@@ -838,5 +841,4 @@ const handleEditSubmit = () => {
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>

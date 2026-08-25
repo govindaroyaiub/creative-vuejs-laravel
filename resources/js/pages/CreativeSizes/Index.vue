@@ -5,6 +5,13 @@ import { CirclePlus, Pencil, Trash2, X, ChevronLeft, ChevronRight, Image as Imag
 import Swal from 'sweetalert2';
 import { computed, ref, watch } from 'vue';
 
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Creative Sizes', href: '/creative-sizes' }] }, () => page),
+});
+
 const page = usePage<any>();
 const type = computed<'banner' | 'video'>(() => (page.props.type as any) === 'video' ? 'video' : 'banner');
 const sizes = computed<any>(() => page.props.sizes ?? { data: [], links: [] });
@@ -172,7 +179,6 @@ async function remove(id: number) {
 <template>
 
     <Head title="Creative Sizes" />
-    <AppLayout :breadcrumbs="[{ title: 'Creative Sizes', href: '/creative-sizes' }]">
         <div class="min-h-screen bg-white dark:bg-black font-mono">
             <div class="p-4 md:p-6 space-y-4">
                 <!-- Top bar: tabs + search + add -->
@@ -436,5 +442,4 @@ async function remove(id: number) {
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>

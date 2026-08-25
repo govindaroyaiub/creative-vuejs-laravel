@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
 import { computed, ref } from 'vue';
@@ -21,7 +20,12 @@ import 'filepond/dist/filepond.min.css';
 // restriction is applied unless `acceptedFileTypes` is actually passed.
 const FilePond = vueFilePond(FilePondPluginFileValidateType);
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'File Transfers', href: '/file-transfers' }, { title: 'Upload From Preview', href: '/file-transfers/upload-from-preview' }];
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'File Transfers', href: '/file-transfers' }, { title: 'Upload From Preview', href: '/file-transfers/upload-from-preview' }] }, () => page),
+});
 
 const page = usePage<any>();
 
@@ -110,7 +114,6 @@ const handleCancel = () => {
 <template>
 
     <Head title="File Transfers" />
-    <AppLayout :breadcrumbs="breadcrumbs">
         <div class="min-h-screen bg-white dark:bg-black flex justify-center">
             <div class="p-4 md:p-6 w-full max-w-6xl">
                 <div
@@ -175,5 +178,4 @@ const handleCancel = () => {
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>

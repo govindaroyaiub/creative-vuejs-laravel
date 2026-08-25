@@ -2,12 +2,16 @@
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/pages/UserManagements/Layout.vue';
-import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
 import { computed, ref } from 'vue';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Designations', href: '/user-managements/designations' }];
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Designations', href: '/user-managements/designations' }] }, () => page),
+});
 
 const page = usePage();
 const designations = ref(page.props.designations ?? []);
@@ -105,9 +109,7 @@ const deleteDesignation = async (id: number) => {
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="breadcrumbs">
-
-        <Head title="Designations" />
+    <Head title="Designations" />
         <SettingsLayout>
             <!-- Nothing Design System -->
             <div class="space-y-6 font-mono">
@@ -279,5 +281,4 @@ const deleteDesignation = async (id: number) => {
                 </div>
             </div>
         </SettingsLayout>
-    </AppLayout>
 </template>

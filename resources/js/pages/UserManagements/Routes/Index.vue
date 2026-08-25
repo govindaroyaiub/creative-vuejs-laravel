@@ -2,12 +2,16 @@
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/pages/UserManagements/Layout.vue';
-import { type BreadcrumbItem } from '@/types';
 import { Head, usePage, router } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
 import { computed, ref } from 'vue';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Routes', href: '/user-managements/routes' }];
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Routes', href: '/user-managements/routes' }] }, () => page),
+});
 
 const page = usePage();
 const routes = ref(page.props.routes ?? []);
@@ -99,9 +103,7 @@ const deleteRoute = async (id: number) => {
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="breadcrumbs">
-
-        <Head title="Routes" />
+    <Head title="Routes" />
         <SettingsLayout>
             <!-- Nothing Design System -->
             <div class="space-y-6 font-mono">
@@ -294,5 +296,4 @@ const deleteRoute = async (id: number) => {
                 </div>
             </div>
         </SettingsLayout>
-    </AppLayout>
 </template>

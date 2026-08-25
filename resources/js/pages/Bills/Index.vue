@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage, Link } from '@inertiajs/vue3';
 import { CirclePlus, Download, Eye, Pencil, Trash2, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, onMounted, watch } from 'vue';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Bills', href: '/bills' }];
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Bills', href: '/bills' }] }, () => page),
+});
 
 const page = usePage();
 const bills = computed(() => page.props.bills);
@@ -83,8 +87,7 @@ onMounted(() => {
 <template>
 
     <Head title="Bills" />
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="min-h-screen bg-white dark:bg-black">
+    <div class="min-h-screen bg-white dark:bg-black">
             <div class="p-4 md:p-6">
                 <!-- Search & Add -->
                 <div class="mb-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
@@ -329,5 +332,4 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>

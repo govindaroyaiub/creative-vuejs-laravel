@@ -1,8 +1,7 @@
 <template>
 
     <Head title="Edit Bill" />
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="min-h-screen bg-white dark:bg-black font-mono">
+    <div class="min-h-screen bg-white dark:bg-black font-mono">
             <div class="p-4">
                 <div class="max-w-6xl mx-auto space-y-6">
                     <!-- Bill Form -->
@@ -399,7 +398,6 @@
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>
 
 <script setup lang="ts">
@@ -408,12 +406,16 @@ import { Head, router, usePage, Link } from '@inertiajs/vue3';
 import { ref, computed, watch } from 'vue';
 import { Plus, Trash2, Calculator, Receipt, User, FileText, Save, ArrowLeft, Upload, X, Calendar } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
-import { type BreadcrumbItem } from '@/types';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Bills', href: '/bills' },
-    { title: 'Edit Bill', href: '/bills-edit' },
-];
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [
+            { title: 'Bills', href: '/bills' },
+            { title: 'Edit Bill', href: '/bills-edit' },
+        ] }, () => page),
+});
 
 const page = usePage();
 const bill = page.props.bill;

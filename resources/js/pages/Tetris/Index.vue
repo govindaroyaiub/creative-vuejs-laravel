@@ -1,8 +1,7 @@
 <template>
 
     <Head title="Tetris Game" />
-    <AppLayout :breadcrumbs="[{ title: 'Tetris Game', href: '/play/tetris' }]">
-        <!-- Introductory Guide Overlay -->
+    <!-- Introductory Guide Overlay -->
         <div v-if="showIntro" @click.self="closeIntro"
             class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 backdrop-blur-sm">
             <div
@@ -143,7 +142,6 @@
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>
 
 <script setup lang="ts">
@@ -151,6 +149,14 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
+
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Tetris Game', href: '/play/tetris' }] }, () => page),
+});
+
 const page = usePage();
 const authUser = computed(() => (page.props.auth as any)?.user);
 const isSuperAdmin = computed(() => authUser.value?.role === 'super_admin');

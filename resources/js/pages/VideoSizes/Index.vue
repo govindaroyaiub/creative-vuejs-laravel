@@ -4,9 +4,13 @@ import { Head, router, usePage } from '@inertiajs/vue3';
 import { CirclePlus, Pencil, Trash2, LoaderCircle, ChevronLeft, ChevronRight, X } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, watch } from 'vue';
-import { type BreadcrumbItem } from '@/types';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Video Sizes', href: '/video-sizes' }];
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Video Sizes', href: '/video-sizes' }] }, () => page),
+});
 
 const page = usePage();
 const videoSizes = computed(() => page.props.videoSizes ?? { data: [], links: [] });
@@ -134,8 +138,7 @@ const saveNewSize = async () => {
 <template>
 
     <Head title="Video Sizes" />
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="min-h-screen bg-white dark:bg-black">
+    <div class="min-h-screen bg-white dark:bg-black">
             <div class="p-4 sm:p-6">
                 <!-- Search & Add -->
                 <div
@@ -473,5 +476,4 @@ const saveNewSize = async () => {
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>

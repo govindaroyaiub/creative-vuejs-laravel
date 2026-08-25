@@ -4,12 +4,16 @@ import { Head, router, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { Plus, Trash2, Calculator, Receipt, User, FileText, Save, Upload, X, Calendar } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
-import { type BreadcrumbItem } from '@/types';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Bills', href: '/bills' },
-    { title: 'Add Bill', href: '/bills-create' },
-];
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [
+            { title: 'Bills', href: '/bills' },
+            { title: 'Add Bill', href: '/bills-create' },
+        ] }, () => page),
+});
 
 const form = ref({
     name: '',
@@ -177,8 +181,7 @@ const formatFileSize = (bytes: number) => {
 <template>
 
     <Head title="Create Bill" />
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="min-h-screen bg-white dark:bg-black font-mono">
+    <div class="min-h-screen bg-white dark:bg-black font-mono">
             <div class="p-4">
                 <div class="max-w-6xl mx-auto space-y-6">
                     <!-- Bill Form -->
@@ -532,7 +535,6 @@ const formatFileSize = (bytes: number) => {
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>
 
 <style scoped>

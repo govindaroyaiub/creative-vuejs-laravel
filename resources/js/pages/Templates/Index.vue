@@ -12,6 +12,13 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Templates', href: '/templates' }] }, () => page),
+});
+
 const page = usePage();
 const templates = computed(() => page.props.templates ?? { data: [], links: [] });
 const search = ref(page.props.filters?.search ?? '');
@@ -139,8 +146,7 @@ function gotoLink(link: any) {
 <template>
 
     <Head title="Templates" />
-    <AppLayout :breadcrumbs="[{ title: 'Templates', href: '/templates' }]">
-        <div class="min-h-screen bg-white dark:bg-black">
+    <div class="min-h-screen bg-white dark:bg-black">
             <div class="p-4 md:p-6 space-y-4">
                 <div class="flex items-center justify-between gap-4">
                     <div class="flex-1">
@@ -472,5 +478,4 @@ function gotoLink(link: any) {
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>

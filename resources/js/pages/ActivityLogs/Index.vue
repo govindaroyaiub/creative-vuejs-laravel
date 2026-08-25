@@ -1,8 +1,7 @@
 <template>
 
     <Head title="Activity Logs" />
-    <AppLayout :breadcrumbs="[{ title: 'Activity Logs', href: '/activity-logs' }]">
-        <div
+    <div
             class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-gray-50 dark:from-black dark:via-gray-950 dark:to-black">
             <div class="p-6 space-y-6">
                 <!-- Search Section -->
@@ -306,7 +305,6 @@
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>
 
 <script setup>
@@ -314,6 +312,13 @@ import { ref, watch } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue';
 import Swal from 'sweetalert2'
+
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h, page) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Activity Logs', href: '/activity-logs' }] }, () => page),
+});
 
 const props = defineProps({
     logs: Object,

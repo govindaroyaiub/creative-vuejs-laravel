@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { CirclePlus, Eye, Trash2, AlertCircle, Clock, CheckCircle, X, Calendar, User, Tag, Image as ImageIcon } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref } from 'vue';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Support Tickets', href: '/support-tickets' },
-];
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Support Tickets', href: '/support-tickets' }] }, () => page),
+});
 
 const page = usePage();
 const tickets = computed(() => page.props.tickets as any);
@@ -156,8 +158,7 @@ const getPriorityColor = (priority: string) => {
 <template>
 
     <Head title="Support Tickets" />
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="min-h-screen bg-white dark:bg-black">
+    <div class="min-h-screen bg-white dark:bg-black">
             <div class="p-4 sm:p-6">
                 <div
                     class="mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-0 sm:justify-between">
@@ -413,5 +414,4 @@ const getPriorityColor = (priority: string) => {
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>

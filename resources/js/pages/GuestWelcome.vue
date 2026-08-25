@@ -2,7 +2,14 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
-const breadcrumbs: any[] = [];
+
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Dashboard', href: '/dashboard' }] }, () => page),
+});
+
 const page = usePage();
 const username = computed(() => page.props.value?.username ?? page.props.value?.auth?.user?.name ?? 'Guest');
 </script>
@@ -11,7 +18,6 @@ const username = computed(() => page.props.value?.username ?? page.props.value?.
 
     <Head title="Welcome" />
 
-    <AppLayout :breadcrumbs="[{ title: 'Dashboard', href: '/dashboard' }]">
         <div
             class="min-h-[70vh] flex items-center justify-center bg-gradient-to-b dark:from-slate-900 dark:via-slate-800 dark:to-black py-16">
             <div
@@ -59,5 +65,4 @@ const username = computed(() => page.props.value?.username ?? page.props.value?.
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>

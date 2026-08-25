@@ -1,10 +1,7 @@
 <template>
 
     <Head title="Batch Update" />
-    <AppLayout
-        :themed="false"
-        :breadcrumbs="[{ title: 'Previews', href: '/previews' }, { title: 'Batch Update', href: '/previews/batch-update' }]">
-        <div class="max-w-8xl py-4 px-4">
+    <div class="max-w-8xl py-4 px-4">
             <div v-if="preview">
                 <div class="mb-6">
                     <div
@@ -905,7 +902,6 @@
                 <div class="text-center text-gray-500 py-12">Loading preview data...</div>
             </div>
         </div>
-    </AppLayout>
 </template>
 
 <script setup lang="ts">
@@ -922,6 +918,19 @@ import vueFilePond from 'vue-filepond';
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import 'filepond/dist/filepond.min.css';
 const FilePond = vueFilePond(FilePondPluginFileValidateType);
+
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, {
+            themed: false,
+            breadcrumbs: [
+                { title: 'Previews', href: '/previews' },
+                { title: 'Batch Update', href: '/previews/batch-update' },
+            ],
+        }, () => page),
+});
 
 const page = usePage();
 const preview = computed(() => page.props.preview);

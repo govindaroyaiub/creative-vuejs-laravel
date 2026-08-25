@@ -5,6 +5,13 @@ import { CirclePlus, Pencil, Trash2, X, ChevronLeft, ChevronRight } from 'lucide
 import Swal from 'sweetalert2';
 import { computed, ref, watch } from 'vue';
 
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Banner Sizes', href: '/banner-sizes' }] }, () => page),
+});
+
 const page = usePage();
 const bannerSizes = computed(() => page.props.bannerSizes);
 const search = ref(page.props.search ?? ''); // Preserve search across pagination
@@ -126,8 +133,7 @@ const deleteBannerSize = async (id: number) => {
 <template>
 
     <Head title="Banner Sizes" />
-    <AppLayout :breadcrumbs="[{ title: 'Banner Sizes', href: '/banner-sizes' }]">
-        <div class="min-h-screen bg-white dark:bg-black">
+    <div class="min-h-screen bg-white dark:bg-black">
             <div class="p-4 sm:p-6">
                 <div
                     class="mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-0 sm:justify-between">
@@ -470,5 +476,4 @@ const deleteBannerSize = async (id: number) => {
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>

@@ -5,6 +5,13 @@ import { Eye, Trash2, Share2, Settings2, ChevronLeft, ChevronRight } from 'lucid
 import Swal from 'sweetalert2';
 import { computed, ref, watch } from 'vue';
 
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Previews', href: '/previews' }] }, () => page),
+});
+
 const loading = ref(false);
 const page = usePage();
 const search = ref('');
@@ -135,8 +142,7 @@ const changePage = (url: string) => {
 <template>
 
     <Head title="Previews" />
-    <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }]">
-        <div class="p-4 md:p-6 space-y-4">
+    <div class="p-4 md:p-6 space-y-4">
             <!-- Search & Create -->
             <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
                 <input v-model="search" placeholder="SEARCH PREVIEWS..." aria-label="Search previews"
@@ -384,5 +390,4 @@ const changePage = (url: string) => {
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>

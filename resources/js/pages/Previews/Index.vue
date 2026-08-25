@@ -10,6 +10,13 @@ import PreviewActionButtons from './Partials/PreviewActionButtons.vue';
 import PreviewGridCard from './Partials/PreviewGridCard.vue';
 import PreviewPagination from './Partials/PreviewPagination.vue';
 
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Previews', href: '/previews' }] }, () => page),
+});
+
 // Click-away directive
 const vClickAway = {
     mounted(el: any, binding: any) {
@@ -418,8 +425,7 @@ const groups = computed(() => {
 <template>
 
     <Head title="Previews" />
-    <AppLayout :breadcrumbs="[{ title: 'Previews', href: '/previews' }]">
-        <div class="min-h-screen bg-[#FFFFFF] dark:bg-black font-mono">
+    <div class="min-h-screen bg-[#FFFFFF] dark:bg-black font-mono">
             <div class="p-4 md:p-6 space-y-6">
                 <!-- Tabs / Search (Add button placed next to tabs) -->
                 <div class="flex items-center justify-between gap-4">
@@ -780,7 +786,6 @@ const groups = computed(() => {
             </div>
         </div>
 
-    </AppLayout>
 </template>
 
 <style scoped>

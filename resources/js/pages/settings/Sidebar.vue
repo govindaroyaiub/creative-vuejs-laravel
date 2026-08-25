@@ -8,7 +8,7 @@ import HeadingSmall from '@/components/HeadingSmall.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
-import { type BreadcrumbItem, type SharedData } from '@/types';
+import { type SharedData } from '@/types';
 
 import {
     editorRowsForSection,
@@ -17,9 +17,12 @@ import {
 
 defineProps<{ status?: string }>();
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Sidebar settings', href: '/settings/sidebar' },
-];
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Sidebar settings', href: '/settings/sidebar' }] }, () => page),
+});
 
 const page = usePage<SharedData>();
 
@@ -98,8 +101,7 @@ const justReset = computed(() => (page.props as any).status === 'sidebar-reset')
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <Head title="Sidebar settings" />
+    <Head title="Sidebar settings" />
 
         <SettingsLayout>
             <div class="space-y-6 font-mono">
@@ -256,7 +258,6 @@ const justReset = computed(() => (page.props as any).status === 'sidebar-reset')
                 </form>
             </div>
         </SettingsLayout>
-    </AppLayout>
 </template>
 
 <style scoped>

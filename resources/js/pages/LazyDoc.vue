@@ -1,7 +1,6 @@
 <template>
 
     <Head title="Documentations" />
-    <AppLayout :breadcrumbs="breadcrumbs">
         <div class="min-h-screen bg-white dark:bg-black">
             <div class="container mx-auto px-4 py-6 sm:py-8 max-w-5xl">
                 <!-- Header Section -->
@@ -488,16 +487,19 @@ const response = await axios.get('/dashboard');</code></pre>
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { Head } from '@inertiajs/vue3'
-import type { BreadcrumbItem } from '@/types'
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Documentations', href: '/documentations' }];
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Documentations', href: '/documentations' }] }, () => page),
+});
 
 const search = ref('')
 const apiSearch = ref('')

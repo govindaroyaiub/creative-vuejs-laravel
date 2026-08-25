@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { Upload, Send, X } from 'lucide-vue-next';
 import { ref } from 'vue';
 import Swal from 'sweetalert2';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Support Tickets', href: '/support-tickets' },
-    { title: 'Create Ticket', href: '/support-tickets/create' },
-];
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Support Tickets', href: '/support-tickets' }, { title: 'Create Ticket', href: '/support-tickets/create' }] }, () => page),
+});
 
 const form = useForm({
     name: '',
@@ -69,8 +70,7 @@ const submitTicket = () => {
 <template>
 
     <Head title="Create Support Ticket" />
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="min-h-screen bg-white dark:bg-black">
+    <div class="min-h-screen bg-white dark:bg-black">
             <div class="p-4 sm:p-6 max-w-4xl mx-auto">
                 <div
                     class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-6 sm:p-8">
@@ -207,5 +207,4 @@ const submitTicket = () => {
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>

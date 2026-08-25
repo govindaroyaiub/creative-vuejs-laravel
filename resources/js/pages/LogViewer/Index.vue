@@ -1,36 +1,7 @@
 <template>
 
     <Head title="System logs" />
-    <AppLayout
-        :breadcrumbs="[{ title: 'Cache Management', href: '/cache-management' }, { title: 'Logs', href: '/logs' }]">
-        <template #header>
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="font-semibold text-xl text-black dark:text-white leading-tight uppercase tracking-wide">
-                        📋 Log Viewer
-                    </h2>
-                    <p class="text-xs text-[#666666] dark:text-[#999999] mt-1 uppercase tracking-wider">
-                        Monitor application logs in real-time
-                    </p>
-                </div>
-                <div class="flex items-center space-x-3">
-                    <div class="flex items-center space-x-2">
-                        <div class="w-2 h-2 bg-black dark:bg-white rounded-full animate-pulse"></div>
-                        <span class="text-xs text-[#666666] dark:text-[#999999] uppercase tracking-wider">Live</span>
-                    </div>
-                    <button @click="toggleAutoRefresh" :class="[
-                        'px-3 py-1 rounded-full border-2 text-xs uppercase tracking-wider transition-colors duration-200',
-                        autoRefresh
-                            ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white'
-                            : 'bg-white dark:bg-black text-black dark:text-white border-[#CCCCCC] dark:border-[#333333]'
-                    ]">
-                        {{ autoRefresh ? 'Auto-refresh ON' : 'Auto-refresh OFF' }}
-                    </button>
-                </div>
-            </div>
-        </template>
-
-        <div class="py-2 bg-white dark:bg-black font-mono">
+    <div class="py-2 bg-white dark:bg-black font-mono">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
                 <!-- Controls Panel -->
@@ -273,13 +244,19 @@
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, reactive } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
+
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Cache Management', href: '/cache-management' }, { title: 'Logs', href: '/logs' }] }, () => page),
+})
 
 // Props
 const props = defineProps({

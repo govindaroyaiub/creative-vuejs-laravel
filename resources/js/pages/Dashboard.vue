@@ -23,7 +23,6 @@ import {
     TimeSeriesScale,
 } from 'chart.js';
 import { computed, ref, watchEffect, onMounted, onUnmounted } from 'vue';
-import { type BreadcrumbItem } from '@/types';
 
 ChartJS.register(
     Title,
@@ -40,9 +39,13 @@ ChartJS.register(
     TimeScale,
     TimeSeriesScale
 );
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: '/dashboard' },
-];
+
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across Inertia
+// navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Dashboard', href: '/dashboard' }] }, () => page),
+});
 
 // Comprehensive timezone database
 interface TimezoneData {
@@ -1004,8 +1007,7 @@ const formatNumber = (num: number) => {
 
     <Head title="Dashboard" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="min-h-screen bg-[#FFFFFF] dark:bg-black font-mono">
+    <div class="min-h-screen bg-[#FFFFFF] dark:bg-black font-mono">
             <div class="p-6 space-y-12">
                 <!-- Header -->
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 lg:gap-0">
@@ -1347,7 +1349,6 @@ const formatNumber = (num: number) => {
                 </div>
             </div>
         </Transition>
-    </AppLayout>
 </template>
 
 <style scoped>

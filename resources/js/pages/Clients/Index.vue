@@ -4,7 +4,6 @@ import { Head, router, usePage } from '@inertiajs/vue3';
 import { Pencil, Trash2, CirclePlus, Search, ExternalLink, Palette, Building2, Users, X, Eye } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { ref, computed, onMounted, watch } from 'vue';
-import { type BreadcrumbItem } from '@/types';
 
 // Create FilePond component
 import vueFilePond from 'vue-filepond';
@@ -20,7 +19,12 @@ import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css
 // Create FilePond component with image preview
 const FilePond = vueFilePond(FilePondPluginFileValidateType, FilePondPluginImagePreview);
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Clients', href: '/clients' }];
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across Inertia
+// navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Clients', href: '/clients' }] }, () => page),
+});
 
 const page = usePage();
 const clients = computed(() => page.props.clients);
@@ -292,8 +296,7 @@ const totalClients = computed(() => clients.value?.total || 0);
 <template>
 
     <Head title="Clients Management" />
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="min-h-screen bg-white dark:bg-black">
+    <div class="min-h-screen bg-white dark:bg-black">
             <div class="p-6 space-y-6">
                 <!-- Stats Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
@@ -694,8 +697,6 @@ const totalClients = computed(() => clients.value?.total || 0);
                     class="w-full h-auto max-h-[25vh] object-contain rounded-lg mx-auto" />
             </div>
         </div>
-
-    </AppLayout>
 </template>
 
 <style scoped>

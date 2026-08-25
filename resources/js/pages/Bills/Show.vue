@@ -1,18 +1,22 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { ArrowLeft, Download, FileText, Pencil, Receipt, User } from 'lucide-vue-next';
 import { computed } from 'vue';
 
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [
+            { title: 'Bills', href: '/bills' },
+            { title: 'Bill Details', href: '#' },
+        ] }, () => page),
+});
+
 const page = usePage<any>();
 const bill = computed<any>(() => page.props.bill);
 const amountInWords = computed<string>(() => String(page.props.amountInWords ?? ''));
-
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Bills', href: '/bills' },
-    { title: 'Bill Details', href: '#' },
-];
 
 const subBills = computed<any[]>(() => bill.value?.sub_bills ?? []);
 const documents = computed<any[]>(() => bill.value?.documents ?? []);
@@ -40,8 +44,7 @@ const formatFileSize = (bytes: number) => {
 <template>
 
     <Head :title="`Bill #${bill.id}`" />
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="min-h-screen bg-white dark:bg-black font-mono">
+    <div class="min-h-screen bg-white dark:bg-black font-mono">
             <div class="p-4 md:p-6">
                 <div class="max-w-5xl mx-auto space-y-6">
 
@@ -222,5 +225,4 @@ const formatFileSize = (bytes: number) => {
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>

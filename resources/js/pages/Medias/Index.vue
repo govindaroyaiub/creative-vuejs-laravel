@@ -12,6 +12,13 @@ import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 // FilePond styles
 import 'filepond/dist/filepond.min.css';
 
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Media Library', href: '/medias' }] }, () => page),
+});
+
 // Create FilePond component
 // vue-filepond builds its props from the options registered at the moment
 // vueFilePond() runs, but its render() always reads `acceptedFileTypes` —
@@ -208,8 +215,7 @@ const getFileSize = (bytes: number) => {
 <template>
 
     <Head title="Media Library" />
-    <AppLayout :breadcrumbs="[{ title: 'Media Library', href: '/medias' }]">
-        <div class="min-h-screen bg-white dark:bg-black">
+    <div class="min-h-screen bg-white dark:bg-black">
             <div class="p-4 md:p-6">
                 <!-- Search & Upload (aligned like FileTransfers) -->
                 <div class="mb-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
@@ -534,5 +540,4 @@ const getFileSize = (bytes: number) => {
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>

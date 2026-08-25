@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/pages/UserManagements/Layout.vue';
-import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import Swal from 'sweetalert2';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Users', href: '/user-managements/users' }];
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Users', href: '/user-managements/users' }] }, () => page),
+});
 
 const page = usePage();
 const tourGuide = computed(() => page.props.tourGuide);
@@ -52,10 +56,9 @@ const toggleStatus = async () => {
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="breadcrumbs">
 
-        <Head title="Preview Tour Guide" />
-        <SettingsLayout>
+    <Head title="Preview Tour Guide" />
+    <SettingsLayout>
             <div class="space-y-6 font-mono">
                 <div class="flex flex-col items-start">
                     <h2 class="text-lg font-bold">Preview Tour Guide Permission</h2>
@@ -138,5 +141,4 @@ const toggleStatus = async () => {
                 </div>
             </div>
         </SettingsLayout>
-    </AppLayout>
 </template>

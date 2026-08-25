@@ -3,8 +3,7 @@
     <Head title="Cache Management" />
 
     <!-- Modern Minimal Background -->
-    <AppLayout :breadcrumbs="[{ title: 'Cache Management', href: '/cache-management' }]">
-        <div class="min-h-screen bg-white dark:bg-black animate-fadeIn font-mono">
+    <div class="min-h-screen bg-white dark:bg-black animate-fadeIn font-mono">
             <!-- Clean Header -->
             <div class="container mx-auto px-4 max-w-8xl">
                 <header class="backdrop-blur-xl sticky top-0 z-50 bg-white dark:bg-black">
@@ -503,7 +502,6 @@
                 </main>
             </div>
         </div>
-    </AppLayout>
 
 </template>
 
@@ -515,6 +513,13 @@ import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { router, Head } from '@inertiajs/vue3'
 import Swal from 'sweetalert2'
 import timezoneDetector from '@/utils/timezone.js'
+
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Cache Management', href: '/cache-management' }] }, () => page),
+});
 
 // Props
 const props = defineProps({

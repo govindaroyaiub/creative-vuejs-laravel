@@ -1,7 +1,6 @@
 <template>
 
   <Head title="Color Palettes" />
-  <AppLayout :breadcrumbs="[{ title: 'Color Palettes', href: '/color-palettes' }]">
     <div class="min-h-screen bg-white dark:bg-black">
       <div class="p-6 space-y-6">
         <!-- Stats Card -->
@@ -346,7 +345,6 @@
         </form>
       </div>
     </div>
-  </AppLayout>
 </template>
 
 <script setup lang="ts">
@@ -356,6 +354,13 @@ import { router } from '@inertiajs/vue3'
 import Swal from 'sweetalert2'
 import { Head } from '@inertiajs/vue3'
 import { CirclePlus } from 'lucide-vue-next'
+
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Color Palettes', href: '/color-palettes' }] }, () => page),
+});
 
 const props = defineProps({
   colorPalettes: Array

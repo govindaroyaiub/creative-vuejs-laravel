@@ -2,14 +2,18 @@
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/pages/UserManagements/Layout.vue';
-import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { computed, ref } from 'vue';
 import { LoaderCircle } from 'lucide-vue-next';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Users', href: '/user-managements/users' }];
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Users', href: '/user-managements/users' }] }, () => page),
+});
 
 const page = usePage();
 const users = ref<any[]>((page.props.users as any[]) ?? []);
@@ -202,9 +206,7 @@ const resetPassword = async (userId: number) => {
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="breadcrumbs">
-
-        <Head title="Users" />
+    <Head title="Users" />
         <SettingsLayout>
             <!-- Nothing Design System -->
             <div class="space-y-6 font-mono">
@@ -536,7 +538,6 @@ const resetPassword = async (userId: number) => {
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>
 
 <style scoped>

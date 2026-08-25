@@ -4,10 +4,17 @@ import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { Check, Plus, Minus } from 'lucide-vue-next';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Previews', href: '/previews' },
-    { title: 'Add Preview', href: '/previews-create' },
-];
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, {
+            breadcrumbs: [
+                { title: 'Previews', href: '/previews' },
+                { title: 'Add Preview', href: '/previews-create' },
+            ],
+        }, () => page),
+});
 
 const page = usePage();
 const clients = computed(() => page.props.clients ?? []);
@@ -74,8 +81,7 @@ const submit = () => {
 <template>
 
     <Head title="Create Preview" />
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="min-h-screen bg-[#FFFFFF] dark:bg-black font-mono py-8">
+    <div class="min-h-screen bg-[#FFFFFF] dark:bg-black font-mono py-8">
             <div class="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8 space-y-6">
                 <h1 class="text-base font-semibold font-mono text-black dark:text-white">
                     Create preview</h1>
@@ -165,5 +171,4 @@ const submit = () => {
                 </div>
             </div>
         </div>
-    </AppLayout>
 </template>

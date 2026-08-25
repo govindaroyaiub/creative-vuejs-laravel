@@ -6,6 +6,13 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 dayjs.extend(relativeTime)
 
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Preview Tracker', href: '/preview-tracker' }] }, () => page),
+});
+
 const props = defineProps({
     previews: Object,
 })
@@ -64,8 +71,7 @@ function truncate(text: string | null, length = 140) {
 <template>
 
     <Head title="Preview Tracker" />
-    <AppLayout :breadcrumbs="[{ title: 'Preview Tracker', href: '/preview-tracker' }]">
-        <div class="p-6">
+    <div class="p-6">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center">
                     <input v-model="search" @input="onSearchInput" type="text" placeholder="Search..."
@@ -232,5 +238,4 @@ function truncate(text: string | null, length = 140) {
 
 
         </div>
-    </AppLayout>
 </template>

@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { CirclePlus, Pencil, Trash2 } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, watch } from 'vue';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Socials', href: '/socials' },
-];
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Socials', href: '/socials' }] }, () => page),
+});
 
 const page = usePage();
 const socials = computed(() => page.props.socials);
@@ -100,8 +102,7 @@ const saveNewSocial = () => {
 <template>
 
     <Head title="Socials" />
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="p-6">
+    <div class="p-6">
             <div class="mb-4 flex items-center justify-between">
                 <input v-model="search" placeholder="Search..."
                     class="w-full max-w-xs rounded border px-4 py-2 dark:bg-gray-700 dark:text-white" />
@@ -183,5 +184,4 @@ const saveNewSocial = () => {
                 </template>
             </div>
         </div>
-    </AppLayout>
 </template>

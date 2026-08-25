@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
-import { type BreadcrumbItem, type User } from '@/types';
+import { type User } from '@/types';
 
 interface Props {
     mustVerifyEmail: boolean;
@@ -19,12 +19,12 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Profile settings',
-        href: '/settings/profile',
-    },
-];
+// Persistent layout — keeps AppLayout (sidebar/backdrop) mounted across
+// Inertia navigations instead of rebuilding it on every page change.
+defineOptions({
+    layout: (h: any, page: any) =>
+        h(AppLayout, { breadcrumbs: [{ title: 'Profile settings', href: '/settings/profile' }] }, () => page),
+});
 
 const form = useForm({
     name: props.user.name,
@@ -39,9 +39,7 @@ const submit = () => {
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="breadcrumbs">
-
-        <Head title="Profile settings" />
+    <Head title="Profile settings" />
 
         <SettingsLayout>
             <div class="flex flex-col space-y-6 font-mono">
@@ -132,5 +130,4 @@ const submit = () => {
 
             <DeleteUser />
         </SettingsLayout>
-    </AppLayout>
 </template>
