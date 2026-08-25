@@ -655,7 +655,7 @@
                         <div v-show="activeTab === 'database'" class="animate-fadeIn">
                             <div class="grid grid-cols-1 gap-4 lg:grid-cols-[260px_1fr] lg:items-start">
                                 <!-- Table list -->
-                                <aside class="flex flex-col rounded-2xl border border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-[#0A0A0A] shadow-sm lg:max-h-[70vh]">
+                                <aside class="flex flex-col overflow-hidden rounded-2xl border border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-[#0A0A0A] shadow-sm">
                                     <div class="border-b border-[#E8E8E8] dark:border-[#222222] p-3">
                                         <div class="relative">
                                             <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#999999]">
@@ -665,7 +665,7 @@
                                                 class="w-full rounded-lg border border-[#E8E8E8] dark:border-[#222222] bg-[#F9F9F9] dark:bg-black py-2 pl-9 pr-3 font-mono text-[12px] text-black dark:text-white placeholder-[#AAAAAA] dark:placeholder-[#555555] outline-none transition-colors focus:border-black dark:focus:border-white" />
                                         </div>
                                     </div>
-                                    <div class="flex-1 min-h-0 overflow-y-auto p-2">
+                                    <div class="max-h-[52vh] overflow-y-auto p-2">
                                         <!-- Skeleton -->
                                         <div v-if="dbTablesLoading" class="space-y-1.5 p-1">
                                             <div v-for="n in 10" :key="n" class="h-8 animate-pulse rounded-lg bg-[#F0F0F0] dark:bg-[#161616]"></div>
