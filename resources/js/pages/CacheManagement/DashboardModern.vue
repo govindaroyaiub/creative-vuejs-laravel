@@ -686,7 +686,7 @@
                                 </aside>
 
                                 <!-- Table viewer -->
-                                <section class="flex min-w-0 flex-col rounded-2xl border border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-[#0A0A0A] shadow-sm">
+                                <section class="flex min-w-0 flex-col rounded-2xl border border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-[#0A0A0A] shadow-sm lg:min-h-[74vh]">
                                     <!-- Header: table name + search + per-page -->
                                     <div class="flex flex-col gap-3 border-b border-[#E8E8E8] dark:border-[#222222] p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
                                         <div class="flex items-center gap-2 min-w-0">
@@ -716,7 +716,7 @@
                                     </div>
 
                                     <!-- Grid -->
-                                    <div class="relative overflow-auto max-h-[58vh]">
+                                    <div class="relative flex-1 overflow-auto max-h-[58vh]">
                                         <!-- Loading -->
                                         <div v-if="dbLoading" class="space-y-2 p-4">
                                             <div v-for="n in 8" :key="n" class="h-6 animate-pulse rounded bg-[#F0F0F0] dark:bg-[#161616]"></div>
@@ -763,8 +763,8 @@
                                         </table>
                                     </div>
 
-                                    <!-- Pagination footer -->
-                                    <div v-if="dbCurrentTable && !dbLoading && dbRows.length" class="flex flex-col gap-2 border-t border-[#E8E8E8] dark:border-[#222222] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <!-- Pagination footer (only when more than one page) -->
+                                    <div v-if="dbCurrentTable && !dbLoading && dbRows.length && dbMeta.lastPage > 1" class="mt-auto flex flex-col gap-2 border-t border-[#E8E8E8] dark:border-[#222222] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                                         <span class="font-mono text-[11px] text-[#999999]">
                                             {{ dbMeta.from }}–{{ dbMeta.to }} of {{ dbMeta.total }}
                                         </span>
@@ -780,7 +780,7 @@
                                                 class="rounded-md border border-[#E8E8E8] dark:border-[#222222] px-2 py-1 font-mono text-[11px] text-[#666666] dark:text-[#999999] transition-colors hover:border-black hover:text-black dark:hover:border-white dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-30">»</button>
                                         </div>
                                     </div>
-                                    <p class="border-t border-[#E8E8E8] dark:border-[#222222] px-4 py-2 text-center font-mono text-[10px] uppercase tracking-wider text-[#BBBBBB] dark:text-[#555555]">Read-only · secrets masked · click a cell to expand</p>
+                                    <p class="mt-auto border-t border-[#E8E8E8] dark:border-[#222222] px-4 py-2 text-center font-mono text-[10px] uppercase tracking-wider text-[#BBBBBB] dark:text-[#555555]">Read-only · secrets masked · click a cell to expand</p>
                                 </section>
                             </div>
                         </div>
