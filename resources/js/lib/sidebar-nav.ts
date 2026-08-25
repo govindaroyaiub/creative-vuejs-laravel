@@ -52,7 +52,7 @@ export const MAIN_NAV_ITEMS: NavItem[] = [
 
 export const FOOTER_NAV_ITEMS: NavItem[] = [
     { title: 'Access Manager', href: '/user-managements/designations', icon: Users },
-    { title: 'Cache Management', href: '/cache-management', icon: HardDriveIcon },
+    { title: 'Server Management', href: '/cache-management', icon: HardDriveIcon },
     { title: 'Documentations', href: '/documentations', icon: FileCode },
     { title: 'Pulse', href: '/pulse', icon: Activity, external: true },
 ];

@@ -277,7 +277,7 @@ class DatabaseSeeder extends Seeder
             ['title' => 'Access Manager', 'href' => '/user-managements'],
             ['title' => 'Change Password', 'href' => '/change-password'],
             ['title' => 'Activity Logs', 'href' => '/activity-logs'],
-            ['title' => 'Cache Management', 'href' => '/cache-management'],
+            ['title' => 'Server Management', 'href' => '/cache-management'],
             ['title' => 'Documentation', 'href' => '/documentations'],
             ['title' => 'Notifications', 'href' => '/notifications'],
             ['title' => 'Reporting', 'href' => '/reporting'],

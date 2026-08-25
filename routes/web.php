@@ -204,6 +204,10 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::post('/cache-management/run-cleanup', [CacheManagementController::class, 'runCleanup'])->name('cache-management.run-cleanup');
     Route::post('/cache-management/blank-logs', [CacheManagementController::class, 'blankLogFiles'])->name('cache-management.blank-logs');
     Route::post('/cache-management/run-artisan-clear', [CacheManagementController::class, 'runArtisanClear'])->name('cache-management.run-artisan-clear');
+    Route::get('/cache-management/explorer', [CacheManagementController::class, 'explorerBrowse'])->name('cache-management.explorer');
+    Route::get('/cache-management/explorer/search', [CacheManagementController::class, 'explorerSearch'])->name('cache-management.explorer.search');
+    Route::get('/cache-management/explorer/download', [CacheManagementController::class, 'explorerDownload'])->name('cache-management.explorer.download');
+    Route::delete('/cache-management/explorer', [CacheManagementController::class, 'explorerDestroy'])->name('cache-management.explorer.destroy');
     //Cache Management Routes End
 
     //Log Viewer Routes Start

@@ -255,7 +255,7 @@ import AppLayout from '@/layouts/AppLayout.vue'
 // Inertia navigations instead of rebuilding it on every page change.
 defineOptions({
     layout: (h: any, page: any) =>
-        h(AppLayout, { breadcrumbs: [{ title: 'Cache Management', href: '/cache-management' }, { title: 'Logs', href: '/logs' }] }, () => page),
+        h(AppLayout, { breadcrumbs: [{ title: 'Server Management', href: '/cache-management' }, { title: 'Logs', href: '/logs' }] }, () => page),
 })
 
 // Props

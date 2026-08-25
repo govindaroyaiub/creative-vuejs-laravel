@@ -24,8 +24,163 @@ class CacheManagementController extends Controller
             'stats' => $stats,
             'recentCleanups' => $recentCleanups,
             'systemInfo' => $systemInfo,
-            'lastCleanup' => $this->getLastCleanupTime()
+            'lastCleanup' => $this->getLastCleanupTime(),
+            // File explorer (4th tab): whitelisted roots + delete gate.
+            'explorerRoots' => collect($this->explorerRoots())
+                ->map(fn ($r, $id) => ['id' => $id, 'label' => $r['label']])
+                ->values(),
+            'canDelete' => Auth::user()?->role === 'super_admin',
         ]);
+    }
+
+    // ─── File explorer ──────────────────────────────────────────────────────────
+
+    /** Whitelisted browse roots. Only these two trees are ever reachable. */
+    private function explorerRoots(): array
+    {
+        return [
+            'uploads' => ['label' => 'public/uploads', 'base' => public_path('uploads')],
+            'storage' => ['label' => 'storage/app', 'base' => storage_path('app')],
+        ];
+    }
+
+    /**
+     * Resolve (root id + relative path) to a safe absolute path that is proven to
+     * sit inside the whitelisted root. Returns null on any escape / bad input —
+     * this is the single guard against path traversal.
+     */
+    private function explorerResolve(string $rootId, string $rel): ?array
+    {
+        $roots = $this->explorerRoots();
+        if (! isset($roots[$rootId])) return null;
+
+        $base = $roots[$rootId]['base'];
+        if (! is_dir($base)) @mkdir($base, 0775, true);
+        $baseReal = realpath($base);
+        if ($baseReal === false) return null;
+
+        $rel = ltrim(str_replace('\\', '/', $rel), '/');
+        $real = realpath($rel === '' ? $baseReal : $baseReal . DIRECTORY_SEPARATOR . $rel);
+        if ($real === false) return null;
+
+        // Must be the root itself or strictly inside it.
+        if ($real !== $baseReal && ! str_starts_with($real, $baseReal . DIRECTORY_SEPARATOR)) return null;
+
+        return ['base' => $baseReal, 'real' => $real];
+    }
+
+    /** List one directory (folders first, then files). */
+    public function explorerBrowse(Request $request)
+    {
+        $data = $request->validate(['root' => 'required|string', 'path' => 'nullable|string']);
+        $resolved = $this->explorerResolve($data['root'], $data['path'] ?? '');
+        if (! $resolved || ! is_dir($resolved['real'])) {
+            return response()->json(['error' => 'Invalid path'], 404);
+        }
+
+        [$base, $dir] = [$resolved['base'], $resolved['real']];
+        $entries = [];
+        foreach (scandir($dir) as $name) {
+            if ($name === '.' || $name === '..') continue;
+            $full = $dir . DIRECTORY_SEPARATOR . $name;
+            $isDir = is_dir($full);
+            $rel = ltrim(str_replace('\\', '/', substr($full, strlen($base))), '/');
+            $entries[] = [
+                'name' => $name,
+                'type' => $isDir ? 'dir' : 'file',
+                'size' => $isDir ? null : @filesize($full),
+                'modified' => date('Y-m-d H:i', @filemtime($full) ?: time()),
+                'path' => $rel,
+                'ext' => $isDir ? null : strtolower(pathinfo($name, PATHINFO_EXTENSION)),
+            ];
+        }
+        usort($entries, fn ($a, $b) => [$a['type'] === 'file', strtolower($a['name'])] <=> [$b['type'] === 'file', strtolower($b['name'])]);
+
+        $relDir = ltrim(str_replace('\\', '/', substr($dir, strlen($base))), '/');
+
+        return response()->json(['root' => $data['root'], 'path' => $relDir, 'entries' => $entries]);
+    }
+
+    /** Recursively search a whole root tree by filename (case-insensitive). */
+    public function explorerSearch(Request $request)
+    {
+        $data = $request->validate(['root' => 'required|string', 'q' => 'required|string|min:1|max:255']);
+        $roots = $this->explorerRoots();
+        if (! isset($roots[$data['root']])) return response()->json(['error' => 'Invalid root'], 404);
+
+        $base = realpath($roots[$data['root']]['base']);
+        if ($base === false) {
+            return response()->json(['root' => $data['root'], 'query' => $data['q'], 'entries' => [], 'capped' => false]);
+        }
+
+        $needle = mb_strtolower(trim($data['q']));
+        $max = 500;
+        $entries = [];
+        try {
+            $it = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($base, \FilesystemIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::SELF_FIRST,
+                \RecursiveIteratorIterator::CATCH_GET_CHILD, // skip unreadable dirs instead of aborting
+            );
+            foreach ($it as $info) {
+                if (! str_contains(mb_strtolower($info->getFilename()), $needle)) continue;
+                $full = $info->getPathname();
+                $isDir = $info->isDir();
+                $rel = ltrim(str_replace('\\', '/', substr($full, strlen($base))), '/');
+                $parent = trim(str_replace('\\', '/', dirname($rel)), '.');
+                $entries[] = [
+                    'name' => $info->getFilename(),
+                    'type' => $isDir ? 'dir' : 'file',
+                    'size' => $isDir ? null : $info->getSize(),
+                    'modified' => date('Y-m-d H:i', $info->getMTime()),
+                    'path' => $rel,
+                    'parent' => $parent === '' ? $data['root'] : $data['root'] . '/' . $parent,
+                    'ext' => $isDir ? null : strtolower($info->getExtension()),
+                ];
+                if (count($entries) >= $max) break;
+            }
+        } catch (\Throwable $e) {
+            return response()->json(['error' => 'Search failed'], 500);
+        }
+
+        usort($entries, fn ($a, $b) => [$a['type'] === 'file', strtolower($a['name'])] <=> [$b['type'] === 'file', strtolower($b['name'])]);
+
+        return response()->json([
+            'root' => $data['root'], 'query' => $data['q'],
+            'entries' => $entries, 'capped' => count($entries) >= $max,
+        ]);
+    }
+
+    /** Stream one file as a download. */
+    public function explorerDownload(Request $request)
+    {
+        $data = $request->validate(['root' => 'required|string', 'path' => 'required|string']);
+        $resolved = $this->explorerResolve($data['root'], $data['path']);
+        if (! $resolved || ! is_file($resolved['real'])) abort(404);
+
+        return response()->download($resolved['real']);
+    }
+
+    /** Delete a file or folder. Super-admins only (destructive). */
+    public function explorerDestroy(Request $request)
+    {
+        if (Auth::user()?->role !== 'super_admin') {
+            return response()->json(['error' => 'Only super admins can delete.'], 403);
+        }
+        $data = $request->validate(['root' => 'required|string', 'path' => 'required|string']);
+        $resolved = $this->explorerResolve($data['root'], $data['path']);
+        if (! $resolved) return response()->json(['error' => 'Invalid path'], 404);
+
+        // Never delete a whitelisted root itself.
+        if ($resolved['real'] === $resolved['base']) {
+            return response()->json(['error' => 'Cannot delete the root folder.'], 422);
+        }
+
+        is_dir($resolved['real'])
+            ? File::deleteDirectory($resolved['real'])
+            : File::delete($resolved['real']);
+
+        return response()->json(['success' => true]);
     }
 
     public function runCleanup(Request $request)

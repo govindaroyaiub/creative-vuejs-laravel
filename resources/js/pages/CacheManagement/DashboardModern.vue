@@ -1,6 +1,6 @@
 <template>
 
-    <Head title="Cache Management" />
+    <Head title="Server Management" />
 
     <!-- Modern Minimal Background -->
     <div class="min-h-screen bg-white dark:bg-black animate-fadeIn font-mono">
@@ -14,7 +14,7 @@
                                 <div class="min-w-0 flex-1">
                                     <h1 class="text-xl sm:text-2xl md:text-3xl font-light text-black dark:text-white uppercase tracking-[0.08em]"
                                         style="font-family: 'Space Grotesk', sans-serif;">
-                                        Cache Management
+                                        Server Management
                                     </h1>
                                     <p
                                         class="text-[#666666] dark:text-[#999999] text-[10px] sm:text-xs hidden sm:block font-mono uppercase tracking-[0.08em] mt-1">
@@ -498,6 +498,159 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Explorer Tab -->
+                        <div v-show="activeTab === 'explorer'" class="space-y-4 animate-fadeIn">
+                            <!-- Toolbar: segmented root control + breadcrumb + summary -->
+                            <div class="rounded-2xl border border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-[#0A0A0A] shadow-sm">
+                                <div class="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
+                                    <!-- Segmented root control -->
+                                    <div class="inline-flex rounded-full border border-[#E8E8E8] dark:border-[#222222] bg-[#F5F5F5] dark:bg-black p-0.5">
+                                        <button v-for="r in explorerRoots" :key="(r as any).id" @click="switchRoot((r as any).id)"
+                                            :class="['px-3.5 py-1.5 text-[11px] font-mono uppercase tracking-wider rounded-full transition-all duration-200', currentRoot === (r as any).id ? 'bg-black text-white dark:bg-white dark:text-black shadow-sm' : 'text-[#666666] dark:text-[#999999] hover:text-black dark:hover:text-white']">
+                                            {{ (r as any).label }}
+                                        </button>
+                                    </div>
+                                    <!-- Summary -->
+                                    <div class="flex items-center gap-2 text-[10px] font-mono uppercase tracking-wider text-[#999999]">
+                                        <span class="rounded-full border border-[#E8E8E8] dark:border-[#222222] px-2.5 py-1">{{ dirCount }} folders</span>
+                                        <span class="rounded-full border border-[#E8E8E8] dark:border-[#222222] px-2.5 py-1">{{ fileCount }} files</span>
+                                        <span class="rounded-full border border-[#E8E8E8] dark:border-[#222222] px-2.5 py-1 tabular-nums">{{ formatBytes(totalSize) }}</span>
+                                    </div>
+                                </div>
+                                <!-- Breadcrumb -->
+                                <div class="flex flex-wrap items-center gap-1.5 border-t border-[#E8E8E8] dark:border-[#222222] px-4 py-2.5 text-[11px] font-mono">
+                                    <button @click="goRoot"
+                                        :class="['rounded-md px-1.5 py-0.5 transition-colors', atRoot ? 'text-black dark:text-white font-semibold' : 'text-[#666666] dark:text-[#999999] hover:text-black dark:hover:text-white hover:bg-[#F5F5F5] dark:hover:bg-black']">
+                                        {{ currentRoot }}
+                                    </button>
+                                    <template v-for="(seg, i) in pathSegments" :key="i">
+                                        <span class="text-[#CCCCCC] dark:text-[#444444]">/</span>
+                                        <button @click="goToSegment(i)"
+                                            :class="['rounded-md px-1.5 py-0.5 transition-colors', i === pathSegments.length - 1 ? 'text-black dark:text-white font-semibold' : 'text-[#666666] dark:text-[#999999] hover:text-black dark:hover:text-white hover:bg-[#F5F5F5] dark:hover:bg-black']">
+                                            {{ seg }}
+                                        </button>
+                                    </template>
+                                </div>
+                                <!-- Search -->
+                                <div class="flex items-center gap-2 border-t border-[#E8E8E8] dark:border-[#222222] px-3 py-2.5 sm:px-4">
+                                    <div class="relative flex-1">
+                                        <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#999999]">
+                                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="7" /><path stroke-linecap="round" d="M21 21l-4.3-4.3" /></svg>
+                                        </span>
+                                        <input v-model="search" @keyup.enter="runRecursiveSearch" type="text"
+                                            placeholder="Filter this folder — press Enter to search the whole root"
+                                            class="w-full rounded-lg border border-[#E8E8E8] dark:border-[#222222] bg-[#F9F9F9] dark:bg-black py-2 pl-9 pr-3 font-mono text-[12px] text-black dark:text-white placeholder-[#AAAAAA] dark:placeholder-[#555555] outline-none transition-colors focus:border-black dark:focus:border-white" />
+                                    </div>
+                                    <button @click="runRecursiveSearch" :disabled="!search.trim() || searchLoading"
+                                        class="shrink-0 rounded-lg border border-[#E8E8E8] dark:border-[#222222] px-3 py-2 text-[11px] font-mono uppercase tracking-wider text-black dark:text-white transition-colors hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black disabled:cursor-not-allowed disabled:opacity-40">
+                                        Search all
+                                    </button>
+                                    <button v-if="search || searchMode" @click="clearSearch" title="Clear"
+                                        class="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#E8E8E8] dark:border-[#222222] text-[#999999] transition-colors hover:text-black dark:hover:text-white">✕</button>
+                                </div>
+                            </div>
+
+                            <!-- Search results banner -->
+                            <div v-if="searchMode" class="flex items-center justify-between rounded-xl border border-[#E8E8E8] dark:border-[#222222] bg-[#F9F9F9] dark:bg-black px-4 py-2 text-[11px] font-mono">
+                                <span class="text-[#666666] dark:text-[#999999]">
+                                    Results for “<span class="text-black dark:text-white">{{ search }}</span>” in {{ currentRoot }}
+                                    · {{ displayEntries.length }}<span v-if="searchCapped">+ (showing first 500)</span>
+                                </span>
+                                <button @click="clearSearch" class="text-[#666666] dark:text-[#999999] transition-colors hover:text-black hover:underline dark:hover:text-white">Back to browsing</button>
+                            </div>
+
+                            <!-- Listing -->
+                            <div class="overflow-hidden rounded-2xl border border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-[#0A0A0A] shadow-sm">
+                                <!-- Sticky header -->
+                                <div class="sticky top-0 z-10 grid grid-cols-[1fr_auto_auto] items-center gap-4 border-b border-[#E8E8E8] dark:border-[#222222] bg-[#FAFAFA]/90 dark:bg-black/80 px-4 py-2.5 text-[10px] font-mono uppercase tracking-[0.12em] text-[#999999] backdrop-blur">
+                                    <span>Name</span>
+                                    <span class="w-24 text-right">Size</span>
+                                    <span class="w-32 text-right pr-1">Modified · Actions</span>
+                                </div>
+
+                                <!-- Scrollable body -->
+                                <div class="max-h-[58vh] overflow-y-auto">
+                                    <!-- Loading skeleton -->
+                                    <div v-if="explorerLoading || searchLoading" class="divide-y divide-[#E8E8E8] dark:divide-[#222222]">
+                                        <div v-for="n in 8" :key="n" class="flex items-center gap-3 px-4 py-3">
+                                            <div class="h-9 w-9 shrink-0 animate-pulse rounded-lg bg-[#F0F0F0] dark:bg-[#161616]"></div>
+                                            <div class="h-3 flex-1 animate-pulse rounded bg-[#F0F0F0] dark:bg-[#161616]" :style="{ maxWidth: (40 + (n * 7) % 45) + '%' }"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Error -->
+                                    <div v-else-if="explorerError" class="flex flex-col items-center gap-2 px-4 py-16 text-center">
+                                        <span class="text-2xl">⚠️</span>
+                                        <p class="text-xs font-mono text-red-500">{{ explorerError }}</p>
+                                    </div>
+
+                                    <!-- Empty -->
+                                    <div v-else-if="!displayEntries.length" class="flex flex-col items-center gap-2 px-4 py-16 text-center">
+                                        <span class="text-3xl opacity-40">{{ searchMode || search.trim() ? '🔍' : '🗂️' }}</span>
+                                        <p class="text-xs font-mono uppercase tracking-wider text-[#999999]">
+                                            {{ searchMode ? 'No matches in this root' : (search.trim() ? 'No matches in this folder' : 'This folder is empty') }}
+                                        </p>
+                                    </div>
+
+                                    <!-- Rows -->
+                                    <div v-else class="divide-y divide-[#E8E8E8] dark:divide-[#222222]">
+                                        <!-- Up row -->
+                                        <button v-if="!atRoot && !searchMode && !search.trim()" @click="goUp"
+                                            class="group flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-[#F7F7F7] dark:hover:bg-[#111111]">
+                                            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#E8E8E8] dark:border-[#222222] text-[#999999]">↩</span>
+                                            <span class="font-mono text-[13px] text-[#666666] dark:text-[#999999]">..</span>
+                                        </button>
+
+                                        <div v-for="e in displayEntries" :key="e.path"
+                                            class="group grid grid-cols-[1fr_auto_auto] items-center gap-4 px-4 py-2.5 transition-colors hover:bg-[#F7F7F7] dark:hover:bg-[#111111]">
+                                            <!-- Name + icon/thumb -->
+                                            <button :disabled="e.type !== 'dir'" @click="openEntry(e)"
+                                                class="flex min-w-0 items-center gap-3 text-left"
+                                                :class="e.type === 'dir' ? 'cursor-pointer' : 'cursor-default'">
+                                                <span class="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg border transition-colors"
+                                                    :class="e.type === 'dir'
+                                                        ? 'border-[#E8E8E8] dark:border-[#222222] bg-[#F5F5F5] dark:bg-black group-hover:border-black dark:group-hover:border-white'
+                                                        : 'border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-[#0A0A0A]'">
+                                                    <img v-if="e.type === 'file' && isImage(e.ext)" :src="downloadUrl(e)" loading="lazy" alt=""
+                                                        class="h-full w-full object-cover" />
+                                                    <span v-else class="text-base">{{ e.type === 'dir' ? '📁' : '📄' }}</span>
+                                                </span>
+                                                <span class="flex min-w-0 flex-col">
+                                                    <span class="truncate font-mono text-[13px] text-black dark:text-white"
+                                                        :class="e.type === 'dir' ? 'group-hover:underline' : ''">{{ e.name }}</span>
+                                                    <span v-if="searchMode" class="truncate font-mono text-[10px] text-[#AAAAAA] dark:text-[#555555]">{{ e.parent }}</span>
+                                                    <span v-else-if="e.ext" class="font-mono text-[10px] uppercase tracking-wider text-[#BBBBBB] dark:text-[#555555]">{{ e.ext }}</span>
+                                                </span>
+                                            </button>
+
+                                            <!-- Size -->
+                                            <span class="w-24 text-right font-mono text-[11px] tabular-nums text-[#666666] dark:text-[#999999]">
+                                                {{ e.type === 'dir' ? '—' : formatBytes(e.size) }}
+                                            </span>
+
+                                            <!-- Modified + actions (actions reveal on hover) -->
+                                            <div class="flex w-32 items-center justify-end gap-2">
+                                                <span class="font-mono text-[10px] tabular-nums text-[#AAAAAA] dark:text-[#666666] transition-opacity group-hover:opacity-0 group-hover:hidden">
+                                                    {{ e.modified }}
+                                                </span>
+                                                <div class="hidden items-center gap-1.5 group-hover:flex">
+                                                    <button v-if="e.type === 'file'" @click.stop="downloadEntry(e)" title="Download"
+                                                        class="grid h-7 w-7 place-items-center rounded-md border border-[#E8E8E8] dark:border-[#222222] text-[#666666] dark:text-[#999999] transition-colors hover:border-black hover:bg-black hover:text-white dark:hover:border-white dark:hover:bg-white dark:hover:text-black">
+                                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" /></svg>
+                                                    </button>
+                                                    <button v-if="canDelete" @click.stop="deleteEntry(e)" title="Delete"
+                                                        class="grid h-7 w-7 place-items-center rounded-md border border-red-200 dark:border-red-500/30 text-red-500 transition-colors hover:border-red-500 hover:bg-red-500 hover:text-white">
+                                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-7 0v12a1 1 0 001 1h6a1 1 0 001-1V7" /></svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p v-if="!canDelete" class="text-center text-[10px] font-mono uppercase tracking-wider text-[#BBBBBB] dark:text-[#555555]">Delete is restricted to super admins</p>
+                        </div>
                     </div>
                 </main>
             </div>
@@ -509,8 +662,9 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import DotMatrixNumber from '@/components/DotMatrixNumber.vue';
 import SegmentedProgressBar from '@/components/SegmentedProgressBar.vue';
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { router, Head } from '@inertiajs/vue3'
+import axios from 'axios'
 import Swal from 'sweetalert2'
 import timezoneDetector from '@/utils/timezone.js'
 
@@ -518,7 +672,7 @@ import timezoneDetector from '@/utils/timezone.js'
 // Inertia navigations instead of rebuilding it on every page change.
 defineOptions({
     layout: (h: any, page: any) =>
-        h(AppLayout, { breadcrumbs: [{ title: 'Cache Management', href: '/cache-management' }] }, () => page),
+        h(AppLayout, { breadcrumbs: [{ title: 'Server Management', href: '/cache-management' }] }, () => page),
 });
 
 // Props
@@ -526,7 +680,9 @@ const props = defineProps({
     stats: Object,
     recentCleanups: Array,
     systemInfo: Object,
-    lastCleanup: Object
+    lastCleanup: Object,
+    explorerRoots: Array,
+    canDelete: Boolean,
 })
 
 // Reactive state
@@ -549,8 +705,117 @@ const clockInterval = ref(null)
 const tabs = ref([
     { id: 'overview', name: 'Overview', icon: '📊' },
     { id: 'activity', name: 'Cleanup Logs', icon: '🕐' },
-    { id: 'activity_logs', name: 'Activity Log', icon: '📋' }
+    { id: 'activity_logs', name: 'Activity Log', icon: '📋' },
+    { id: 'explorer', name: 'Explorer', icon: '📁' }
 ])
+
+// ─── File explorer tab ──────────────────────────────────────────────────────────
+const explorerRoots = ref(props.explorerRoots || [])
+const canDelete = ref(!!props.canDelete)
+const currentRoot = ref((props.explorerRoots?.[0] as any)?.id || 'uploads')
+const currentPath = ref('')
+const explorerEntries = ref<any[]>([])
+const explorerLoading = ref(false)
+const explorerError = ref('')
+const explorerLoaded = ref(false)
+
+const pathSegments = computed(() => (currentPath.value ? currentPath.value.split('/') : []))
+const atRoot = computed(() => currentPath.value === '')
+
+// Search: live filter of the current folder + recursive root-wide search.
+const search = ref('')
+const searchMode = ref(false)
+const searchResults = ref<any[]>([])
+const searchLoading = ref(false)
+const searchCapped = ref(false)
+
+const displayEntries = computed(() => {
+    if (searchMode.value) return searchResults.value
+    const q = search.value.trim().toLowerCase()
+    if (!q) return explorerEntries.value
+    return explorerEntries.value.filter((e) => e.name.toLowerCase().includes(q))
+})
+
+async function runRecursiveSearch() {
+    const q = search.value.trim()
+    if (!q) return
+    searchLoading.value = true
+    explorerError.value = ''
+    try {
+        const { data } = await axios.get('/cache-management/explorer/search', {
+            params: { root: currentRoot.value, q },
+        })
+        searchResults.value = data.entries
+        searchCapped.value = data.capped
+        searchMode.value = true
+    } catch (e: any) {
+        explorerError.value = e?.response?.data?.error || 'Search failed'
+    } finally {
+        searchLoading.value = false
+    }
+}
+function clearSearch() {
+    search.value = ''
+    searchMode.value = false
+    searchResults.value = []
+    searchCapped.value = false
+}
+const fileCount = computed(() => displayEntries.value.filter((e) => e.type === 'file').length)
+const dirCount = computed(() => displayEntries.value.filter((e) => e.type === 'dir').length)
+const totalSize = computed(() => displayEntries.value.reduce((t, e) => t + (e.type === 'file' ? (e.size || 0) : 0), 0))
+function downloadUrl(e: any) {
+    return `/cache-management/explorer/download?root=${encodeURIComponent(currentRoot.value)}&path=${encodeURIComponent(e.path)}`
+}
+function goUp() {
+    if (atRoot.value) return
+    clearSearch()
+    currentPath.value = pathSegments.value.slice(0, -1).join('/')
+    loadExplorer()
+}
+
+async function loadExplorer() {
+    explorerLoading.value = true
+    explorerError.value = ''
+    try {
+        const { data } = await axios.get('/cache-management/explorer', {
+            params: { root: currentRoot.value, path: currentPath.value },
+        })
+        explorerEntries.value = data.entries
+        currentPath.value = data.path
+        explorerLoaded.value = true
+    } catch (e: any) {
+        explorerError.value = e?.response?.data?.error || 'Could not load folder'
+        explorerEntries.value = []
+    } finally {
+        explorerLoading.value = false
+    }
+}
+function switchRoot(id: string) { clearSearch(); currentRoot.value = id; currentPath.value = ''; loadExplorer() }
+function openEntry(entry: any) { if (entry.type === 'dir') { clearSearch(); currentPath.value = entry.path; loadExplorer() } }
+function goToSegment(i: number) { clearSearch(); currentPath.value = pathSegments.value.slice(0, i + 1).join('/'); loadExplorer() }
+function goRoot() { clearSearch(); currentPath.value = ''; loadExplorer() }
+function downloadEntry(entry: any) {
+    window.open(downloadUrl(entry), '_blank')
+}
+async function deleteEntry(entry: any) {
+    const res = await Swal.fire({
+        title: `Delete ${entry.type === 'dir' ? 'folder' : 'file'}?`,
+        text: entry.name + (entry.type === 'dir' ? ' and everything inside it' : ''),
+        icon: 'warning', showCancelButton: true, confirmButtonText: 'Delete', confirmButtonColor: '#dc2626',
+    })
+    if (!res.isConfirmed) return
+    try {
+        await axios.delete('/cache-management/explorer', { data: { root: currentRoot.value, path: entry.path } })
+        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Deleted', timer: 1200, showConfirmButton: false })
+        searchMode.value ? runRecursiveSearch() : loadExplorer()
+    } catch (e: any) {
+        Swal.fire({ icon: 'error', title: 'Delete failed', text: e?.response?.data?.error || 'Could not delete' })
+    }
+}
+const isImage = (ext: string) => ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg'].includes(ext)
+
+// Lazy-load the folder listing the first time the Explorer tab is opened.
+watch(activeTab, (t) => { if (t === 'explorer' && !explorerLoaded.value) loadExplorer() })
 
 // Quick actions configuration
 const quickActions = ref([
