@@ -655,7 +655,7 @@
                         <div v-show="activeTab === 'database'" class="animate-fadeIn">
                             <div class="grid grid-cols-1 gap-4 lg:grid-cols-[260px_1fr] lg:items-start">
                                 <!-- Table list -->
-                                <aside class="flex flex-col overflow-hidden rounded-2xl border border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-[#0A0A0A] shadow-sm">
+                                <aside class="flex flex-col overflow-hidden rounded-2xl border border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-[#0A0A0A] shadow-sm lg:h-[70vh]">
                                     <div class="border-b border-[#E8E8E8] dark:border-[#222222] p-3">
                                         <div class="relative">
                                             <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#999999]">
