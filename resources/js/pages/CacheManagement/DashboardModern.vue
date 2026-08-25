@@ -653,7 +653,7 @@
 
                         <!-- Database Tab (read-only) -->
                         <div v-show="activeTab === 'database'" class="animate-fadeIn">
-                            <div class="grid grid-cols-1 gap-4 lg:grid-cols-[260px_1fr] lg:items-start">
+                            <div class="grid grid-cols-1 gap-4 lg:grid-cols-[260px_1fr] lg:items-stretch">
                                 <!-- Table list -->
                                 <aside class="flex flex-col overflow-hidden rounded-2xl border border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-[#0A0A0A] shadow-sm">
                                     <div class="border-b border-[#E8E8E8] dark:border-[#222222] p-3">
