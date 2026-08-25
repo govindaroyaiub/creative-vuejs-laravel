@@ -735,8 +735,9 @@
                                         <table v-else class="w-full border-collapse">
                                             <thead class="sticky top-0 z-10">
                                                 <tr class="bg-[#FAFAFA]/95 dark:bg-black/90 backdrop-blur">
-                                                    <th v-for="col in dbColumns" :key="col" @click="dbSortBy(col)"
-                                                        class="cursor-pointer whitespace-nowrap border-b border-[#E8E8E8] dark:border-[#222222] px-3 py-2.5 text-left font-mono text-[10px] uppercase tracking-[0.08em] text-[#666666] dark:text-[#999999] transition-colors hover:text-black dark:hover:text-white">
+                                                    <th v-for="(col, ci) in dbColumns" :key="col" @click="dbSortBy(col)"
+                                                        class="cursor-pointer whitespace-nowrap border-b border-[#E8E8E8] dark:border-[#222222] px-3 py-2.5 text-left font-mono text-[10px] uppercase tracking-[0.08em] text-[#666666] dark:text-[#999999] transition-colors hover:text-black dark:hover:text-white"
+                                                        :class="ci === 0 ? 'sticky left-0 z-20 bg-[#FAFAFA] dark:bg-black border-r border-[#E8E8E8] dark:border-[#222222]' : ''">
                                                         <span class="inline-flex items-center gap-1">
                                                             {{ col }}
                                                             <span v-if="dbSort === col" class="text-[9px]">{{ dbDir === 'asc' ? '▲' : '▼' }}</span>
@@ -746,14 +747,16 @@
                                             </thead>
                                             <tbody>
                                                 <tr v-for="(row, ri) in dbRows" :key="ri"
-                                                    class="transition-colors odd:bg-white even:bg-[#FCFCFC] hover:bg-[#F5F5F5] dark:odd:bg-[#0A0A0A] dark:even:bg-[#0D0D0D] dark:hover:bg-[#141414]">
-                                                    <td v-for="col in dbColumns" :key="col" @click="dbToggleCell(ri, col)"
+                                                    class="group transition-colors odd:bg-white even:bg-[#FCFCFC] hover:bg-[#F5F5F5] dark:odd:bg-[#0A0A0A] dark:even:bg-[#0D0D0D] dark:hover:bg-[#141414]">
+                                                    <td v-for="(col, ci) in dbColumns" :key="col" @click="dbToggleCell(ri, col)"
                                                         class="cursor-pointer border-b border-[#F0F0F0] dark:border-[#161616] px-3 py-2 font-mono text-[12px] tabular-nums align-top"
                                                         :class="[
                                                             dbIsNull(row[col]) ? 'text-[#CCCCCC] dark:text-[#444444] italic' : 'text-[#333333] dark:text-[#DDDDDD]',
                                                             dbCellExpanded(ri, col)
                                                                 ? 'whitespace-pre-wrap break-all bg-[#F5F5F5] dark:bg-[#141414] min-w-[280px]'
-                                                                : 'max-w-[320px] truncate'
+                                                                : 'max-w-[320px] truncate',
+                                                            ci === 0 ? 'sticky left-0 z-10 border-r border-[#E8E8E8] dark:border-[#222222] group-hover:bg-[#F5F5F5] dark:group-hover:bg-[#141414]' : '',
+                                                            ci === 0 && !dbCellExpanded(ri, col) ? (ri % 2 === 0 ? 'bg-white dark:bg-[#0A0A0A]' : 'bg-[#FCFCFC] dark:bg-[#0D0D0D]') : ''
                                                         ]"
                                                         :title="dbCellExpanded(ri, col) ? 'Click to collapse' : dbCell(row[col])">
                                                         {{ dbCell(row[col]) }}
