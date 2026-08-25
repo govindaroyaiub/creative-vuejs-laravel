@@ -686,7 +686,7 @@
                                 </aside>
 
                                 <!-- Table viewer -->
-                                <section class="flex min-w-0 flex-col rounded-2xl border border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-[#0A0A0A] shadow-sm lg:max-h-[70vh]">
+                                <section class="flex min-w-0 flex-col rounded-2xl border border-[#E8E8E8] dark:border-[#222222] bg-white dark:bg-[#0A0A0A] shadow-sm lg:h-[70vh]">
                                     <!-- Header: table name + search + per-page -->
                                     <div class="flex flex-col gap-3 border-b border-[#E8E8E8] dark:border-[#222222] p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
                                         <div class="flex items-center gap-2 min-w-0">
