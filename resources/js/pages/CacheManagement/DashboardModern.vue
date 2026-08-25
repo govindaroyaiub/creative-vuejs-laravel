@@ -619,8 +619,7 @@
                                                 <span class="flex min-w-0 flex-col">
                                                     <span class="truncate font-mono text-[13px] text-black dark:text-white"
                                                         :class="e.type === 'dir' ? 'group-hover:underline' : ''">{{ e.name }}</span>
-                                                    <span v-if="searchMode" class="truncate font-mono text-[10px] text-[#AAAAAA] dark:text-[#555555]">{{ e.parent }}</span>
-                                                    <span v-else-if="e.ext" class="font-mono text-[10px] uppercase tracking-wider text-[#BBBBBB] dark:text-[#555555]">{{ e.ext }}</span>
+                                                    <span class="truncate font-mono text-[10px] text-[#AAAAAA] dark:text-[#555555]" :title="fullPath(e)">{{ fullPath(e) }}</span>
                                                 </span>
                                             </button>
 
@@ -692,7 +691,10 @@
                                     <div class="flex flex-col gap-3 border-b border-[#E8E8E8] dark:border-[#222222] p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
                                         <div class="flex items-center gap-2 min-w-0">
                                             <span class="text-base">🗄️</span>
-                                            <span class="truncate font-mono text-sm font-semibold text-black dark:text-white">{{ dbCurrentTable || 'Select a table' }}</span>
+                                            <span v-if="dbCurrentTable" class="truncate font-mono text-sm text-black dark:text-white" :title="(dbName ? dbName + '.' : '') + dbCurrentTable">
+                                                <span class="text-[#AAAAAA] dark:text-[#666666]">{{ dbName }}.</span><span class="font-semibold">{{ dbCurrentTable }}</span>
+                                            </span>
+                                            <span v-else class="truncate font-mono text-sm font-semibold text-black dark:text-white">Select a table</span>
                                             <span v-if="dbCurrentTable" class="shrink-0 rounded-full border border-[#E8E8E8] dark:border-[#222222] px-2 py-0.5 font-mono text-[10px] tabular-nums text-[#999999]">{{ dbMeta.total }} rows</span>
                                         </div>
                                         <div class="flex items-center gap-2">
@@ -745,10 +747,15 @@
                                             <tbody>
                                                 <tr v-for="(row, ri) in dbRows" :key="ri"
                                                     class="transition-colors odd:bg-white even:bg-[#FCFCFC] hover:bg-[#F5F5F5] dark:odd:bg-[#0A0A0A] dark:even:bg-[#0D0D0D] dark:hover:bg-[#141414]">
-                                                    <td v-for="col in dbColumns" :key="col"
-                                                        class="max-w-[320px] truncate border-b border-[#F0F0F0] dark:border-[#161616] px-3 py-2 font-mono text-[12px] tabular-nums"
-                                                        :class="dbIsNull(row[col]) ? 'text-[#CCCCCC] dark:text-[#444444] italic' : 'text-[#333333] dark:text-[#DDDDDD]'"
-                                                        :title="dbCell(row[col])">
+                                                    <td v-for="col in dbColumns" :key="col" @click="dbToggleCell(ri, col)"
+                                                        class="cursor-pointer border-b border-[#F0F0F0] dark:border-[#161616] px-3 py-2 font-mono text-[12px] tabular-nums align-top"
+                                                        :class="[
+                                                            dbIsNull(row[col]) ? 'text-[#CCCCCC] dark:text-[#444444] italic' : 'text-[#333333] dark:text-[#DDDDDD]',
+                                                            dbCellExpanded(ri, col)
+                                                                ? 'whitespace-pre-wrap break-all bg-[#F5F5F5] dark:bg-[#141414] min-w-[280px]'
+                                                                : 'max-w-[320px] truncate'
+                                                        ]"
+                                                        :title="dbCellExpanded(ri, col) ? 'Click to collapse' : dbCell(row[col])">
                                                         {{ dbCell(row[col]) }}
                                                     </td>
                                                 </tr>
@@ -773,7 +780,7 @@
                                                 class="rounded-md border border-[#E8E8E8] dark:border-[#222222] px-2 py-1 font-mono text-[11px] text-[#666666] dark:text-[#999999] transition-colors hover:border-black hover:text-black dark:hover:border-white dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-30">»</button>
                                         </div>
                                     </div>
-                                    <p class="border-t border-[#E8E8E8] dark:border-[#222222] px-4 py-2 text-center font-mono text-[10px] uppercase tracking-wider text-[#BBBBBB] dark:text-[#555555]">Read-only · secrets masked</p>
+                                    <p class="border-t border-[#E8E8E8] dark:border-[#222222] px-4 py-2 text-center font-mono text-[10px] uppercase tracking-wider text-[#BBBBBB] dark:text-[#555555]">Read-only · secrets masked · click a cell to expand</p>
                                 </section>
                             </div>
                         </div>
@@ -848,6 +855,9 @@ const explorerLoaded = ref(false)
 
 const pathSegments = computed(() => (currentPath.value ? currentPath.value.split('/') : []))
 const atRoot = computed(() => currentPath.value === '')
+const currentRootLabel = computed(() => (explorerRoots.value.find((r: any) => r.id === currentRoot.value) as any)?.label || currentRoot.value)
+// Full path shown under every entry: root label + its relative path.
+const fullPath = (e: any) => `${currentRootLabel.value}/${e.path}`
 
 // Search: live filter of the current folder + recursive root-wide search.
 const search = ref('')
@@ -946,6 +956,7 @@ watch(activeTab, (t) => { if (t === 'explorer' && !explorerLoaded.value) loadExp
 
 // ─── Database browser tab (read-only) ─────────────────────────────────────────
 const dbTables = ref<any[]>([])
+const dbName = ref('')
 const dbTablesLoaded = ref(false)
 const dbTablesLoading = ref(false)
 const dbTableFilter = ref('')          // filters the table list (client-side)
@@ -972,6 +983,7 @@ async function loadDbTables() {
     try {
         const { data } = await axios.get('/cache-management/database/tables')
         dbTables.value = data.tables
+        dbName.value = data.database || ''
         dbTablesLoaded.value = true
         if (!dbCurrentTable.value && data.tables.length) openTable(data.tables[0].name)
     } catch (e: any) {
@@ -985,6 +997,7 @@ async function loadDbRows() {
     if (!dbCurrentTable.value) return
     dbLoading.value = true
     dbError.value = ''
+    dbExpanded.value = ''
     try {
         const { data } = await axios.get('/cache-management/database/browse', {
             params: {
@@ -1041,6 +1054,15 @@ function dbCell(val: any): string {
     return String(val)
 }
 const dbIsNull = (val: any) => val === null || val === undefined
+
+// Click a cell to reveal its full value (long paths/text otherwise truncate to "…").
+const dbExpanded = ref('')
+const dbCellKey = (ri: number, col: string) => `${ri}:${col}`
+const dbCellExpanded = (ri: number, col: string) => dbExpanded.value === dbCellKey(ri, col)
+function dbToggleCell(ri: number, col: string) {
+    const k = dbCellKey(ri, col)
+    dbExpanded.value = dbExpanded.value === k ? '' : k
+}
 
 // Lazy-load tables the first time the Database tab is opened.
 watch(activeTab, (t) => { if (t === 'database' && !dbTablesLoaded.value) loadDbTables() })

@@ -213,7 +213,11 @@ class CacheManagementController extends Controller
         }
         usort($tables, fn ($a, $b) => strcmp($a['name'], $b['name']));
 
-        return response()->json(['tables' => $tables]);
+        return response()->json([
+            'tables'     => $tables,
+            'database'   => DB::connection()->getDatabaseName(),
+            'connection' => DB::connection()->getName(),
+        ]);
     }
 
     /** Browse one table: columns + paginated rows, with optional search and sort. */
