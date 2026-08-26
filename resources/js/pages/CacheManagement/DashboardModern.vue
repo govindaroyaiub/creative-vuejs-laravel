@@ -516,6 +516,11 @@
                                         <span class="rounded-full border border-[#E8E8E8] dark:border-[#222222] px-2.5 py-1">{{ dirCount }} folders</span>
                                         <span class="rounded-full border border-[#E8E8E8] dark:border-[#222222] px-2.5 py-1">{{ fileCount }} files</span>
                                         <span class="rounded-full border border-[#E8E8E8] dark:border-[#222222] px-2.5 py-1 tabular-nums">{{ formatBytes(totalSize) }}</span>
+                                        <button v-if="canDelete && !searchMode && explorerEntries.length" @click="deleteAll"
+                                            class="inline-flex items-center gap-1 rounded-full border border-red-200 dark:border-red-500/30 px-2.5 py-1 text-red-500 transition-colors hover:border-red-500 hover:bg-red-500 hover:text-white">
+                                            <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-7 0v12a1 1 0 001 1h6a1 1 0 001-1V7" /></svg>
+                                            Delete all
+                                        </button>
                                     </div>
                                 </div>
                                 <!-- Breadcrumb -->
@@ -952,6 +957,30 @@ async function deleteEntry(entry: any) {
         Swal.fire({ icon: 'error', title: 'Delete failed', text: e?.response?.data?.error || 'Could not delete' })
     }
 }
+// Delete every entry in the current folder. Super-admins only, hard confirm.
+async function deleteAll() {
+    const where = currentPath.value ? `${currentRootLabel.value}/${currentPath.value}` : currentRootLabel.value
+    const count = explorerEntries.value.length
+    if (!count) return
+    const res = await Swal.fire({
+        title: 'Delete everything here?',
+        html: `This permanently deletes all <b>${count}</b> item(s) in<br><code>${where}</code><br>This cannot be undone.`,
+        icon: 'warning', showCancelButton: true,
+        confirmButtonText: 'Delete all', confirmButtonColor: '#dc2626',
+        input: 'text', inputPlaceholder: 'Type DELETE to confirm',
+        inputValidator: (v) => (v === 'DELETE' ? null : 'Type DELETE to confirm'),
+    })
+    if (!res.isConfirmed) return
+    try {
+        const { data } = await axios.delete('/cache-management/explorer/all', {
+            data: { root: currentRoot.value, path: currentPath.value },
+        })
+        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `Deleted ${data.deleted} item(s)`, timer: 1500, showConfirmButton: false })
+        loadExplorer()
+    } catch (e: any) {
+        Swal.fire({ icon: 'error', title: 'Delete failed', text: e?.response?.data?.error || 'Could not delete' })
+    }
+}
 const isImage = (ext: string) => ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg'].includes(ext)
 
 // Lazy-load the folder listing the first time the Explorer tab is opened.
@@ -1270,66 +1299,44 @@ const refreshAllData = async () => {
     }
 }
 
-// Live Clock Functions
-const startLiveClock = () => {
-    // Get initial server time and timezone
-    updateServerTime()
+// Live Clock — fetch server time ONCE on load, then tick locally using the
+// measured server↔browser offset (no per-second network requests).
+const serverOffsetMs = ref(0)
 
-    // Set up interval to update every second
-    clockInterval.value = setInterval(updateServerTime, 1000)
+const startLiveClock = async () => {
+    await syncServerTime()               // single network call
+    tickClock()                          // render immediately
+    clockInterval.value = setInterval(tickClock, 1000) // local ticks only
 }
 
-const updateServerTime = async () => {
+// One-shot: read server time + timezone, store the offset vs the browser clock.
+const syncServerTime = async () => {
     try {
         const response = await fetch('/api/cache-management/server-time')
-        if (response.url.includes('/login') || response.status === 401 || response.status === 419) {
-            // If redirected to login or unauthorized, use browser time
-            updateTime()
-            return
-        }
-
-        if (!response.ok) {
-            updateTime()
-            return
-        }
-
-        // Ensure we have JSON before attempting to parse (avoid HTML error pages)
         const contentType = response.headers.get('content-type') || ''
-        if (!contentType.includes('application/json')) {
-            updateTime()
+        const bad = response.url.includes('/login') || response.status === 401
+            || response.status === 419 || !response.ok || !contentType.includes('application/json')
+        if (bad) {
+            currentTimezone.value = Intl.DateTimeFormat().resolvedOptions().timeZone
+            serverOffsetMs.value = 0
             return
         }
-
         const data = await response.json()
-
-        // Set timezone from server if present
-        if (data?.timezone) {
-            currentTimezone.value = data.timezone
-        }
-
-        // Create Date object from server timestamp and format it
-        const ts = data?.timestamp || (Date.now() / 1000)
-        const serverTime = new Date(ts * 1000)
-        currentTime.value = serverTime.toLocaleTimeString('en-US', {
-            hour12: true,
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        })
+        if (data?.timezone) currentTimezone.value = data.timezone
+        if (data?.timestamp) serverOffsetMs.value = data.timestamp * 1000 - Date.now()
     } catch (error) {
-        // Avoid noisy JSON parse errors flooding the console when server returns HTML
         if (!(error instanceof SyntaxError)) {
             console.warn('Failed to fetch server time, using browser time:', error)
         }
-        updateTime()
+        currentTimezone.value = Intl.DateTimeFormat().resolvedOptions().timeZone
+        serverOffsetMs.value = 0
     }
 }
 
-const updateTime = () => {
-    // Fallback function for browser time
-    currentTimezone.value = Intl.DateTimeFormat().resolvedOptions().timeZone
-    const now = new Date()
-    currentTime.value = now.toLocaleTimeString('en-US', {
+// Local tick: browser clock shifted by the server offset. No network.
+const tickClock = () => {
+    const t = new Date(Date.now() + serverOffsetMs.value)
+    currentTime.value = t.toLocaleTimeString('en-US', {
         hour12: true,
         hour: '2-digit',
         minute: '2-digit',

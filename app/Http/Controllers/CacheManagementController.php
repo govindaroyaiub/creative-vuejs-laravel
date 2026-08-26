@@ -185,6 +185,30 @@ class CacheManagementController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /** Delete every entry inside a folder (contents only, folder kept). Super-admins only. */
+    public function explorerDestroyAll(Request $request)
+    {
+        if (Auth::user()?->role !== 'super_admin') {
+            return response()->json(['error' => 'Only super admins can delete.'], 403);
+        }
+        $data = $request->validate(['root' => 'required|string', 'path' => 'nullable|string']);
+        $resolved = $this->explorerResolve($data['root'], $data['path'] ?? '');
+        if (! $resolved || ! is_dir($resolved['real'])) {
+            return response()->json(['error' => 'Invalid folder'], 404);
+        }
+
+        $dir = $resolved['real'];
+        $deleted = 0;
+        foreach (scandir($dir) as $name) {
+            if ($name === '.' || $name === '..') continue;
+            $full = $dir . DIRECTORY_SEPARATOR . $name;
+            $ok = is_dir($full) ? File::deleteDirectory($full) : File::delete($full);
+            if ($ok) $deleted++;
+        }
+
+        return response()->json(['success' => true, 'deleted' => $deleted]);
+    }
+
     // ─── Database browser (read-only) ────────────────────────────────────────────
 
     /** Column names whose values are masked in the browser (never leak secrets). */
