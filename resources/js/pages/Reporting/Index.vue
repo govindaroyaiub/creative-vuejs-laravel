@@ -572,18 +572,19 @@ const REQUIRED: { key: string; label: string }[] = [
     { key: 'teads', label: 'Teads' },
     { key: 'adsense', label: 'Adsense' }, { key: 'gumgum', label: 'Gumgum' },
     { key: 'analytics_f1', label: 'Analytics (F1)' }, { key: 'analytics_tg', label: 'Analytics (TopGear)' },
-    { key: 'gam_f1m_f1', label: 'GAM Ad Requests (F1)' }, { key: 'gam_f1m_tg', label: 'GAM Ad Requests (TopGear)' },
-    { key: 'adhese_f1', label: 'Adhese (F1)' }, { key: 'adhese_tg', label: 'Adhese (TopGear)' }, { key: 'adhese_fl', label: 'Adhese (Festileaks)' },
+    { key: 'gam_f1m_f1', label: 'GAM Ad Requests (F1)' }, { key: 'gam_f1m_tg', label: 'GAM Ad Requests (TopGear)' }, { key: 'gam_f1m_jfk', label: 'GAM Ad Requests (JFK)' },
+    { key: 'adhese_f1', label: 'Adhese (F1)' }, { key: 'adhese_tg', label: 'Adhese (TopGear)' }, { key: 'adhese_fl', label: 'Adhese (Festileaks)' }, { key: 'adhese_jfk', label: 'Adhese (JFK)' },
     { key: 'outbrain', label: 'Outbrain' }, { key: 'preferreddeals', label: 'Preferred Deals' },
 ];
 
 // A GA4 export or GAM ad-requests export carries no site column (one property/
 // site per file), so — same as Adhese — the site comes from the filename: TG/FL
 // explicit, F1Maximaal is the default for anything else.
-function siteSuffixFromName(name: string): 'f1' | 'tg' | 'fl' {
+function siteSuffixFromName(name: string): 'f1' | 'tg' | 'fl' | 'jfk' {
     const n = name.toLowerCase();
     if (n.includes(' tg') || n.includes('topgear')) return 'tg';
     if (n.includes(' fl') || n.includes('festileaks')) return 'fl';
+    if (n.includes('jfk')) return 'jfk';
     return 'f1';
 }
 

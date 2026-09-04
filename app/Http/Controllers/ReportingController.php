@@ -211,8 +211,8 @@ class ReportingController extends Controller
             'seedtag' => 'SeedTag', 'showheroes' => 'Showheroes', 'teads' => 'Teads',
             'adsense' => 'Adsense', 'gumgum' => 'Gumgum',
             'analytics_f1' => 'Analytics (F1)', 'analytics_tg' => 'Analytics (TopGear)',
-            'gam_f1m_f1' => 'GAM Ad Requests (F1)', 'gam_f1m_tg' => 'GAM Ad Requests (TopGear)',
-            'adhese_f1' => 'Adhese (F1)', 'adhese_tg' => 'Adhese (TopGear)', 'adhese_fl' => 'Adhese (Festileaks)',
+            'gam_f1m_f1' => 'GAM Ad Requests (F1)', 'gam_f1m_tg' => 'GAM Ad Requests (TopGear)', 'gam_f1m_jfk' => 'GAM Ad Requests (JFK)',
+            'adhese_f1' => 'Adhese (F1)', 'adhese_tg' => 'Adhese (TopGear)', 'adhese_fl' => 'Adhese (Festileaks)', 'adhese_jfk' => 'Adhese (JFK)',
         ];
         $uploaded = array_values($fileTypes);
 
@@ -223,6 +223,7 @@ class ReportingController extends Controller
             $n = mb_strtolower($name);
             if (str_contains($n, ' tg') || str_contains($n, 'topgear')) return 'tg';
             if (str_contains($n, ' fl') || str_contains($n, 'festileaks')) return 'fl';
+            if (str_contains($n, 'jfk')) return 'jfk';
             return 'f1';
         };
 
