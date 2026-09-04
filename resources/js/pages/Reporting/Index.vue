@@ -362,8 +362,14 @@ const partnerTotals = computed(() => {
 // only meaningful for F1Maximaal and Topgear (the sites Adhese, GA4 analytics,
 // and the GAM ad-requests export are actually wired up for). Horses and
 // Festileaks don't track any of it, by design, not as a gap to fill in.
-const ADHESE_RPM_SITES = ['f1maximaal', 'topgear'];
-const supportsAdheseAndRpm = computed(() => ADHESE_RPM_SITES.includes(selectedSite.value));
+// RPM needs GA4 analytics, wired only for F1Maximaal + Topgear.
+const RPM_SITES = ['f1maximaal', 'topgear'];
+// Impression-side columns (Impr. sold / Ad requests / manual Adhese input) apply
+// to any site that tracks impressions — F1, Topgear, and JFK (no analytics, so
+// no RPM, but it still has GAM ad-requests + Adhese revenue to reconcile).
+const IMPRESSION_SITES = ['f1maximaal', 'topgear', 'jfk'];
+const supportsRpm = computed(() => RPM_SITES.includes(selectedSite.value));
+const supportsImpressions = computed(() => IMPRESSION_SITES.includes(selectedSite.value));
 
 // RPM (revenue per 1000 pageviews). A high RPM means analytics pageviews are
 // under-reported (incomplete/late-finalized GA4 data) — the day's analytics file
@@ -383,7 +389,7 @@ const rpmTier = (d: any): 'red' | 'amber' | null => {
     // Anomaly tinting applies to whichever sites carry Adhese/RPM at all
     // (F1Maximaal + Topgear) — Topgear's analytics cadence is proven now,
     // same bundle gate as everywhere else on this page.
-    if (!supportsAdheseAndRpm.value) return null;
+    if (!supportsRpm.value) return null;
     const rpm = rpmFor(d);
     // Missing/zero pageviews on a day that has revenue is itself the "re-upload
     // analytics" signal (RPM is effectively infinite) — flag red.
@@ -641,7 +647,7 @@ function removeFile(f: File) {
 // scan here is the only way both ever get surfaced in the same modal.
 const missingAdhese = computed<any[]>(() => {
     const out: any[] = [];
-    for (const siteId of ADHESE_RPM_SITES) {
+    for (const siteId of IMPRESSION_SITES) {
         const map = store.value?.sites?.[siteId]?.days ?? {};
         const siteName = sites.value.find((s: any) => s.id === siteId)?.name ?? siteId;
         for (const d of Object.values(map) as any[]) {
@@ -1094,13 +1100,13 @@ const tabs = [
                             <div class="min-w-0"><div class="rpt-label">Total revenue</div><div class="truncate text-base font-semibold tracking-tight">{{ eur(partnerTotals.grand) }}</div></div>
                         </CardContent>
                     </Card>
-                    <Card v-if="supportsAdheseAndRpm" class="rpt-glass">
+                    <Card v-if="supportsImpressions" class="rpt-glass">
                         <CardContent class="flex items-center gap-2.5 pt-5">
                             <div class="shrink-0 rounded-lg bg-blue-500/10 p-2 text-blue-500"><Eye class="h-5 w-5" /></div>
                             <div class="min-w-0"><div class="rpt-label">Impressions</div><div class="truncate text-base font-semibold tracking-tight">{{ num(impressionsSoldTotal) }}</div></div>
                         </CardContent>
                     </Card>
-                    <Card v-if="supportsAdheseAndRpm" class="rpt-glass">
+                    <Card v-if="supportsRpm" class="rpt-glass">
                         <CardContent class="flex items-center gap-2.5 pt-5">
                             <div class="shrink-0 rounded-lg p-2"
                                 :class="blendedRpmTier === 'red' ? 'bg-red-500/10 text-red-500' : blendedRpmTier === 'amber' ? 'bg-amber-500/10 text-amber-500' : 'bg-cyan-500/10 text-cyan-500'">
@@ -1138,7 +1144,7 @@ const tabs = [
                     <!-- Latest day — carried over from the old Days tab. Adhese impressions /
                          Impr. sold / Ad requests / RPM only apply to F1Maximaal and Topgear;
                          moves with the active date-range preset like the rest of Summary. -->
-                    <Card v-if="latestDay && supportsAdheseAndRpm" class="rpt-glass sm:col-span-2" :class="rpmCardClass(latestDay)">
+                    <Card v-if="latestDay && supportsRpm" class="rpt-glass sm:col-span-2" :class="rpmCardClass(latestDay)">
                         <CardContent class="flex flex-col gap-2 pt-5">
                             <div class="rpt-label">Latest day · {{ latestDay.dateKey }}</div>
                             <div class="flex items-center justify-between gap-2 text-xs">
@@ -1234,10 +1240,10 @@ const tabs = [
                                     <template v-else>{{ p.label }}</template>
                                 </th>
                                 <th class="px-1.5 py-2 text-right">Total</th>
-                                <th v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-2 text-right">RPM</th>
-                                <th v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-2 text-right leading-tight">Adhese<br>impr.</th>
-                                <th v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-2 text-right leading-tight">Impr.<br>sold</th>
-                                <th v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-2 text-right leading-tight">Ad<br>requests</th>
+                                <th v-if="supportsRpm && tableMetric === 'impressions'" class="px-1.5 py-2 text-right">RPM</th>
+                                <th v-if="supportsImpressions && tableMetric === 'impressions'" class="px-1.5 py-2 text-right leading-tight">Adhese<br>impr.</th>
+                                <th v-if="supportsImpressions && tableMetric === 'impressions'" class="px-1.5 py-2 text-right leading-tight">Impr.<br>sold</th>
+                                <th v-if="supportsImpressions && tableMetric === 'impressions'" class="px-1.5 py-2 text-right leading-tight">Ad<br>requests</th>
                                 <th class="px-1.5 py-2"></th>
                             </tr>
                         </thead>
@@ -1254,14 +1260,14 @@ const tabs = [
                                         ? PARTNERS.reduce((t, p) => t + (d.revenue?.[p.key] ?? 0), 0).toFixed(2)
                                         : num(PARTNERS.reduce((t, p) => t + (d.impressions?.[p.key] ?? 0), 0)) }}
                                 </td>
-                                <td v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-1 text-right tabular-nums">
+                                <td v-if="supportsRpm && tableMetric === 'impressions'" class="px-1.5 py-1 text-right tabular-nums">
                                     {{ rpmFor(d) === null ? '—' : rpmFor(d)!.toFixed(2) }}
                                 </td>
-                                <td v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-1 text-right">
+                                <td v-if="supportsImpressions && tableMetric === 'impressions'" class="px-1.5 py-1 text-right">
                                     <Input v-model.number="d.impressions.adhese" type="number" :class="['ml-auto h-7 w-24 px-1.5 text-right text-[11px] leading-none', (d.revenue?.adhese ?? 0) > 0 && d.impressions?.adhese == null ? 'ring-1 ring-amber-400 focus-visible:ring-amber-400' : '']" @change="saveAdhese(d)" />
                                 </td>
-                                <td v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-1 text-right">{{ num(d.impressionsSold || 0) }}</td>
-                                <td v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-1 text-right">{{ num(d.totalAdRequests || 0) }}</td>
+                                <td v-if="supportsImpressions && tableMetric === 'impressions'" class="px-1.5 py-1 text-right">{{ num(d.impressionsSold || 0) }}</td>
+                                <td v-if="supportsImpressions && tableMetric === 'impressions'" class="px-1.5 py-1 text-right">{{ num(d.totalAdRequests || 0) }}</td>
                                 <td class="px-1.5 py-1 text-right">
                                     <button class="text-muted-foreground transition hover:text-red-500" title="Delete day" @click.stop="deleteDay(d)"><Trash2 class="h-3.5 w-3.5" /></button>
                                 </td>
@@ -1273,10 +1279,10 @@ const tabs = [
                                     {{ tableMetric === 'revenue' ? partnerTotals.totals[p.key].toFixed(2) : num(partnerTotals.impTotals[p.key]) }}
                                 </td>
                                 <td class="px-1.5 py-1.5 text-right">{{ tableMetric === 'revenue' ? partnerTotals.grand.toFixed(2) : num(partnerTotals.impGrand) }}</td>
-                                <td v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-1.5 text-right tabular-nums">{{ blendedRpm === null ? '—' : blendedRpm.toFixed(2) }}</td>
-                                <td v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-1.5 text-right">—</td>
-                                <td v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-1.5 text-right">{{ num(days.reduce((t, d) => t + (d.impressionsSold || 0), 0)) }}</td>
-                                <td v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-1.5 text-right">{{ num(days.reduce((t, d) => t + (d.totalAdRequests || 0), 0)) }}</td>
+                                <td v-if="supportsRpm && tableMetric === 'impressions'" class="px-1.5 py-1.5 text-right tabular-nums">{{ blendedRpm === null ? '—' : blendedRpm.toFixed(2) }}</td>
+                                <td v-if="supportsImpressions && tableMetric === 'impressions'" class="px-1.5 py-1.5 text-right">—</td>
+                                <td v-if="supportsImpressions && tableMetric === 'impressions'" class="px-1.5 py-1.5 text-right">{{ num(days.reduce((t, d) => t + (d.impressionsSold || 0), 0)) }}</td>
+                                <td v-if="supportsImpressions && tableMetric === 'impressions'" class="px-1.5 py-1.5 text-right">{{ num(days.reduce((t, d) => t + (d.totalAdRequests || 0), 0)) }}</td>
                                 <td></td>
                             </tr>
                         </tbody>
