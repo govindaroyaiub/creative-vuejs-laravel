@@ -283,6 +283,9 @@ watch(selectedSite, () => {
 });
 const oguryRate = ref<number>(store.value?.config?.oguryRate ?? 0.85);
 const processing = ref(false);
+// Optional YYYY-MM: process/backfill that whole month instead of the default
+// "current month + last 7 days" window.
+const backfillPeriod = ref('');
 const showAdheseModal = ref(false);
 const adheseEntries = ref<{ site: string; siteName: string; dateKey: string; adhese: number | null }[]>([]);
 const adheseSaving = ref(false);
@@ -703,6 +706,9 @@ function processFiles() {
     if (!selectedUploadFiles.value.length) { Swal.fire('No files', 'Add the partner files first.', 'info'); return; }
     const fd = new FormData();
     selectedUploadFiles.value.forEach((f) => fd.append('files[]', f, f.name));
+    // Backfill an older month: without it the run keeps only the current month +
+    // last 7 days, dropping everything earlier in the uploaded files.
+    if (backfillPeriod.value) fd.append('period', backfillPeriod.value);
     router.post('/reporting/process', fd, {
         forceFormData: true, preserveScroll: true, preserveState: true,
         onStart: () => (processing.value = true),
@@ -1021,12 +1027,19 @@ const tabs = [
                         </span>
                     </div>
 
-                    <div v-if="selectedUploadFiles.length" class="flex items-center gap-3">
+                    <div v-if="selectedUploadFiles.length" class="flex flex-wrap items-center gap-3">
                         <Button class="rounded-full" :disabled="processing" @click="processFiles">
                             <Loader2 v-if="processing" class="mr-2 h-4 w-4 animate-spin" />
                             Process {{ selectedUploadFiles.length }} file{{ selectedUploadFiles.length === 1 ? '' : 's' }}
                         </Button>
                         <button class="text-xs text-muted-foreground hover:underline" @click="selectedUploadFiles = []">Clear</button>
+                        <!-- Backfill an older month (else only current month + last 7 days is kept) -->
+                        <label class="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
+                            Backfill month
+                            <input v-model="backfillPeriod" type="month"
+                                class="rounded-md border bg-background px-2 py-1 text-xs text-foreground" />
+                        </label>
+                        <button v-if="backfillPeriod" class="text-xs text-muted-foreground hover:underline" @click="backfillPeriod = ''">reset</button>
                     </div>
                 </CardContent>
             </Card>

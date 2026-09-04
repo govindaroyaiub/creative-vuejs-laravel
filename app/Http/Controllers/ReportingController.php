@@ -178,13 +178,25 @@ class ReportingController extends Controller
     /** Handle an upload run, then re-render with the refreshed store. */
     public function process(Request $request)
     {
-        $request->validate(['files' => 'required|array', 'files.*' => 'file']);
+        $request->validate([
+            'files' => 'required|array', 'files.*' => 'file',
+            // Backfill: process an older month regardless of today. Without it the
+            // run keeps only the current month + trailing 7 days, so uploading last
+            // month's files now would silently drop everything before that window.
+            'period' => 'nullable|date_format:Y-m',
+        ]);
 
         $files = collect($request->file('files'))
             ->map(fn ($f) => ['name' => $f->getClientOriginalName(), 'path' => $f->getRealPath()])
             ->all();
 
-        $result = ReportProcessor::process($files, $this->uploadsDir());
+        // Anchor the keep-window to the end of the chosen month so that whole month
+        // (plus the prior trailing week, as usual) is retained.
+        $asOf = $request->filled('period')
+            ? \Carbon\CarbonImmutable::createFromFormat('Y-m', $request->input('period'))->endOfMonth()->startOfDay()
+            : null;
+
+        $result = ReportProcessor::process($files, $this->uploadsDir(), $asOf);
 
         // Persist the run's missing-files list so the alert is reliable and survives
         // reloads (no fragile session flash), until the next upload replaces it.
