@@ -132,8 +132,8 @@ class Extractors
         $domain = Reporting::SITES[$siteId]['domain'];
         $byDate = [];
         foreach (SpreadsheetReader::rows($path) as $r) {
-            $site = mb_strtolower((string) (Reporting::pick($r, 'Site', 'Domain', 'Publisher') ?? ''));
-            if ($site === '' || ! str_contains($site, $domain)) continue;
+            $site = Reporting::pick($r, 'Site', 'Domain', 'Publisher') ?? '';
+            if (! Reporting::hostMatches($site, $domain)) continue;
             $d = Reporting::parseDate(Reporting::pick($r, 'Date') ?? ''); if (! $d) continue;
             $k = Reporting::dateKey($d);
             $byDate[$k] ??= ['date' => $d, 'impressions' => 0.0, 'revenue' => 0.0];
@@ -154,8 +154,8 @@ class Extractors
         $domain = Reporting::SITES[$siteId]['domain'];
         $byDate = [];
         foreach (SpreadsheetReader::rows($path) as $r) {
-            $zone = mb_strtolower((string) (Reporting::pick($r, 'Zone', 'Site', 'Domain') ?? ''));
-            if ($zone === '' || ! str_contains($zone, $domain)) continue;
+            $zone = Reporting::pick($r, 'Zone', 'Site', 'Domain') ?? '';
+            if (! Reporting::hostMatches($zone, $domain)) continue;
             $d = Reporting::parseDate(Reporting::pick($r, 'Date') ?? ''); if (! $d) continue;
             $k = Reporting::dateKey($d);
             $byDate[$k] ??= ['date' => $d, 'impressions' => 0.0, 'revenue' => 0.0];
@@ -171,7 +171,7 @@ class Extractors
         $domain = Reporting::SITES[$siteId]['domain'];
         $byDate = [];
         foreach (SpreadsheetReader::rows($path) as $r) {
-            if (mb_strtolower((string) ($r['Publisher'] ?? '')) !== $domain) continue;
+            if (! Reporting::hostMatches($r['Publisher'] ?? '', $domain)) continue;
             $d = Reporting::parseDate($r['Date'] ?? ''); if (! $d) continue;
             $k = Reporting::dateKey($d);
             $byDate[$k] ??= ['date' => $d, 'impressions' => 0.0, 'revenue' => 0.0];
@@ -187,7 +187,7 @@ class Extractors
         $domain = Reporting::SITES[$siteId]['domain'];
         $byDate = [];
         foreach (SpreadsheetReader::rows($path) as $r) {
-            if (mb_strtolower((string) ($r['Websites & Apps'] ?? '')) !== $domain) continue;
+            if (! Reporting::hostMatches($r['Websites & Apps'] ?? '', $domain)) continue;
             $d = Reporting::parseDate($r['Day'] ?? ''); if (! $d) continue;
             $k = Reporting::dateKey($d);
             $byDate[$k] ??= ['date' => $d, 'impressions' => 0.0, 'revenue' => 0.0];
@@ -203,7 +203,7 @@ class Extractors
         $domain = Reporting::SITES[$siteId]['domain'];
         $byDate = [];
         foreach (SpreadsheetReader::rows($path) as $r) {
-            if (mb_strtolower((string) ($r['Site'] ?? '')) !== $domain) continue;
+            if (! Reporting::hostMatches($r['Site'] ?? '', $domain)) continue;
             $dv = $r['Date and Time'] ?? '';
             if ($dv === '' || mb_strtolower((string) $dv) === 'totals') continue;
             $d = Reporting::parseDate($dv); if (! $d) continue;

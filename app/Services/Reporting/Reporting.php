@@ -175,6 +175,19 @@ class Reporting
         return $d->format('Y-m-d');
     }
 
+    /**
+     * Does a report row's host belong to a site? True when it equals the site
+     * domain OR is a sub-domain of it (www.jfk.men, forum.festileaks.com). A
+     * plain substring test would wrongly fold "racehorses.nl" into "horses.nl";
+     * the leading-dot on the suffix check prevents that.
+     */
+    public static function hostMatches(mixed $host, string $domain): bool
+    {
+        $h = trim(mb_strtolower((string) $host));
+        $domain = mb_strtolower($domain);
+        return $h === $domain || str_ends_with($h, '.' . $domain);
+    }
+
     public static function fmtAdheseDate(CarbonImmutable $d): string
     {
         return $d->day . '-' . self::MONTHS[$d->month - 1] . '-' . substr((string) $d->year, 2);
