@@ -110,7 +110,8 @@ const FILE_PATTERN_FIELDS = [
     { key: 'teads', label: 'Teads' }, { key: 'ogury', label: 'Ogury' }, { key: 'gam', label: 'GAM' },
     { key: 'seedtag', label: 'SeedTag' }, { key: 'adform', label: 'Adform' },
     { key: 'showheroes', label: 'Showheroes' }, { key: 'analytics', label: 'Analytics' },
-    { key: 'adhese', label: 'Adhese' }, { key: 'outbrain', label: 'Outbrain' },
+    { key: 'adhese', label: 'Adhese' }, { key: 'adsense', label: 'Adsense' },
+    { key: 'gumgum', label: 'Gumgum' }, { key: 'outbrain', label: 'Outbrain' },
     { key: 'preferreddeals', label: 'Preferred Deals' }, { key: 'gam_f1m', label: 'GAM F1M' },
 ];
 const filePatterns = ref<Record<string, string>>({ ...((page.props.filePatterns as Record<string, string>) ?? {}) });
@@ -262,6 +263,7 @@ const ALL_PARTNERS: { key: string; label: string; lines?: [string, string] }[] =
     { key: 'showheroes', label: 'Showheroes' }, { key: 'adform', label: 'Adform' },
     { key: 'ogury', label: 'Ogury' }, { key: 'outbrain', label: 'Outbrain' },
     { key: 'preferredDeals', label: 'Preferred Deals', lines: ['Preferred', 'Deals'] },
+    { key: 'adsense', label: 'Adsense' }, { key: 'gumgum', label: 'Gumgum' },
 ];
 // Outbrain and Preferred Deals only ever run on F1Maximaal (extraction itself
 // is F1-only, see ReportProcessor) — Topgear/Horses/Festileaks always show 0
@@ -269,10 +271,10 @@ const ALL_PARTNERS: { key: string; label: string; lines?: [string, string] }[] =
 const PARTNERS = computed(() => selectedSite.value === 'f1maximaal'
     ? ALL_PARTNERS
     : ALL_PARTNERS.filter((p) => p.key !== 'outbrain' && p.key !== 'preferredDeals'));
-const COLORS = ['#e2483d', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#a3a3a3', '#6366f1'];
+const COLORS = ['#e2483d', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#a3a3a3', '#6366f1', '#84cc16', '#f97316'];
 
 const selectedSite = ref('f1maximaal');
-const activeTab = ref<'summary' | 'table' | 'verify' | 'email'>('summary');
+const activeTab = ref<'summary' | 'impressions' | 'revenue' | 'verify' | 'email'>('summary');
 watch(selectedSite, () => {
     // Verify is per-site — clear the staged file + widget so a report uploaded
     // for one site doesn't linger when switching to another.
@@ -335,17 +337,25 @@ applyPreset('This month');
 const eur = (n: number) => '€' + (n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const num = (n: number) => (n || 0).toLocaleString('en-US');
 
+// The Impressions and Revenue tabs render the same table, differing only in which
+// per-partner map (counts vs €) they show — driven straight off the active tab.
+const tableMetric = computed<'revenue' | 'impressions'>(() => activeTab.value === 'revenue' ? 'revenue' : 'impressions');
+
 const partnerTotals = computed(() => {
     const totals: Record<string, number> = {};
+    const impTotals: Record<string, number> = {};
     let grand = 0;
-    for (const p of PARTNERS.value) totals[p.key] = 0;
+    let impGrand = 0;
+    for (const p of PARTNERS.value) { totals[p.key] = 0; impTotals[p.key] = 0; }
     for (const d of days.value) {
         for (const p of PARTNERS.value) {
             const v = d.revenue?.[p.key] ?? 0;
             totals[p.key] += v; grand += v;
+            const iv = d.impressions?.[p.key] ?? 0;
+            impTotals[p.key] += iv; impGrand += iv;
         }
     }
-    return { totals, grand };
+    return { totals, grand, impTotals, impGrand };
 });
 
 // Adhese impressions / RPM / Impr. sold / Ad requests — this whole bundle is
@@ -531,6 +541,8 @@ function detectType(filename: string): string {
     const n = filename.toLowerCase();
     const p = filePatterns.value;
     if (matchesPattern(n, p.adhese)) return 'adhese';
+    if (matchesPattern(n, p.adsense)) return 'adsense';
+    if (matchesPattern(n, p.gumgum)) return 'gumgum';
     if (matchesPattern(n, p.analytics)) return 'analytics';
     if (matchesPattern(n, p.adform)) return 'adform';
     if (matchesPattern(n, p.gam)) return 'gam';
@@ -552,6 +564,7 @@ const REQUIRED: { key: string; label: string }[] = [
     { key: 'adform', label: 'Adform' }, { key: 'gam', label: 'GAM' },
     { key: 'ogury', label: 'Ogury' }, { key: 'seedtag', label: 'SeedTag' }, { key: 'showheroes', label: 'Showheroes' },
     { key: 'teads', label: 'Teads' },
+    { key: 'adsense', label: 'Adsense' }, { key: 'gumgum', label: 'Gumgum' },
     { key: 'analytics_f1', label: 'Analytics (F1)' }, { key: 'analytics_tg', label: 'Analytics (TopGear)' },
     { key: 'gam_f1m_f1', label: 'GAM Ad Requests (F1)' }, { key: 'gam_f1m_tg', label: 'GAM Ad Requests (TopGear)' },
     { key: 'adhese_f1', label: 'Adhese (F1)' }, { key: 'adhese_tg', label: 'Adhese (TopGear)' }, { key: 'adhese_fl', label: 'Adhese (Festileaks)' },
@@ -889,8 +902,9 @@ function runVerify() {
 }
 
 const tabs = [
-    { id: 'summary', label: 'Summary' }, { id: 'table', label: 'Table' },
-    { id: 'verify', label: 'Verify' }, { id: 'email', label: 'Email' },
+    { id: 'summary', label: 'Summary' },
+    { id: 'impressions', label: 'Impressions' }, { id: 'revenue', label: 'Revenue' },
+    { id: 'email', label: 'Email' }, { id: 'verify', label: 'Verify' },
 ];
 </script>
 
@@ -1176,13 +1190,13 @@ const tabs = [
             </div>
 
             <!-- TABLE -->
-            <Card class="rpt-glass" v-show="activeTab === 'table'">
+            <Card class="rpt-glass" v-show="activeTab === 'impressions' || activeTab === 'revenue'">
                 <CardContent class="overflow-x-auto pt-6">
                     <!-- Export the table data itself (current site + date range).
                          Separate from the file "Download" — this is the computed figures. -->
                     <div class="mb-3 flex items-center justify-between gap-2">
                         <div class="text-xs text-muted-foreground">
-                            {{ days.length }} day{{ days.length === 1 ? '' : 's' }}<span v-if="from || to"> · {{ from || '…' }} → {{ to || '…' }}</span>
+                            {{ tableMetric === 'revenue' ? 'Revenue (€)' : 'Impressions' }} · {{ days.length }} day{{ days.length === 1 ? '' : 's' }}<span v-if="from || to"> · {{ from || '…' }} → {{ to || '…' }}</span>
                         </div>
                         <DropdownMenu>
                             <DropdownMenuTrigger as-child>
@@ -1220,10 +1234,10 @@ const tabs = [
                                     <template v-else>{{ p.label }}</template>
                                 </th>
                                 <th class="px-1.5 py-2 text-right">Total</th>
-                                <th v-if="supportsAdheseAndRpm" class="px-1.5 py-2 text-right">RPM</th>
-                                <th v-if="supportsAdheseAndRpm" class="px-1.5 py-2 text-right leading-tight">Adhese<br>impr.</th>
-                                <th v-if="supportsAdheseAndRpm" class="px-1.5 py-2 text-right leading-tight">Impr.<br>sold</th>
-                                <th v-if="supportsAdheseAndRpm" class="px-1.5 py-2 text-right leading-tight">Ad<br>requests</th>
+                                <th v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-2 text-right">RPM</th>
+                                <th v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-2 text-right leading-tight">Adhese<br>impr.</th>
+                                <th v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-2 text-right leading-tight">Impr.<br>sold</th>
+                                <th v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-2 text-right leading-tight">Ad<br>requests</th>
                                 <th class="px-1.5 py-2"></th>
                             </tr>
                         </thead>
@@ -1232,20 +1246,22 @@ const tabs = [
                                 :class="[rpmRowClass(d), selectedRow === d.dateKey ? 'rpt-row-selected' : '']"
                                 @click="toggleRow(d.dateKey)">
                                 <td class="px-1.5 py-1 font-medium">{{ d.dateKey }}</td>
-                                <td v-for="p in PARTNERS" :key="p.key" class="px-1.5 py-1 text-right" :class="{ 'text-muted-foreground': !(d.revenue?.[p.key]) }">
-                                    {{ (d.revenue?.[p.key] ?? 0).toFixed(2) }}
+                                <td v-for="p in PARTNERS" :key="p.key" class="px-1.5 py-1 text-right" :class="{ 'text-muted-foreground': tableMetric === 'revenue' ? !(d.revenue?.[p.key]) : !(d.impressions?.[p.key]) }">
+                                    {{ tableMetric === 'revenue' ? (d.revenue?.[p.key] ?? 0).toFixed(2) : num(d.impressions?.[p.key] ?? 0) }}
                                 </td>
                                 <td class="px-1.5 py-1 text-right font-semibold">
-                                    {{ PARTNERS.reduce((t, p) => t + (d.revenue?.[p.key] ?? 0), 0).toFixed(2) }}
+                                    {{ tableMetric === 'revenue'
+                                        ? PARTNERS.reduce((t, p) => t + (d.revenue?.[p.key] ?? 0), 0).toFixed(2)
+                                        : num(PARTNERS.reduce((t, p) => t + (d.impressions?.[p.key] ?? 0), 0)) }}
                                 </td>
-                                <td v-if="supportsAdheseAndRpm" class="px-1.5 py-1 text-right tabular-nums">
+                                <td v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-1 text-right tabular-nums">
                                     {{ rpmFor(d) === null ? '—' : rpmFor(d)!.toFixed(2) }}
                                 </td>
-                                <td v-if="supportsAdheseAndRpm" class="px-1.5 py-1 text-right">
+                                <td v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-1 text-right">
                                     <Input v-model.number="d.impressions.adhese" type="number" :class="['ml-auto h-7 w-24 px-1.5 text-right text-[11px] leading-none', (d.revenue?.adhese ?? 0) > 0 && d.impressions?.adhese == null ? 'ring-1 ring-amber-400 focus-visible:ring-amber-400' : '']" @change="saveAdhese(d)" />
                                 </td>
-                                <td v-if="supportsAdheseAndRpm" class="px-1.5 py-1 text-right">{{ num(d.impressionsSold || 0) }}</td>
-                                <td v-if="supportsAdheseAndRpm" class="px-1.5 py-1 text-right">{{ num(d.totalAdRequests || 0) }}</td>
+                                <td v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-1 text-right">{{ num(d.impressionsSold || 0) }}</td>
+                                <td v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-1 text-right">{{ num(d.totalAdRequests || 0) }}</td>
                                 <td class="px-1.5 py-1 text-right">
                                     <button class="text-muted-foreground transition hover:text-red-500" title="Delete day" @click.stop="deleteDay(d)"><Trash2 class="h-3.5 w-3.5" /></button>
                                 </td>
@@ -1254,13 +1270,13 @@ const tabs = [
                             <tr v-if="days.length" class="border-t-2 bg-muted/30 font-semibold">
                                 <td class="px-1.5 py-1.5 text-xs uppercase tracking-wide text-muted-foreground">Total</td>
                                 <td v-for="p in PARTNERS" :key="p.key" class="px-1.5 py-1.5 text-right">
-                                    {{ partnerTotals.totals[p.key].toFixed(2) }}
+                                    {{ tableMetric === 'revenue' ? partnerTotals.totals[p.key].toFixed(2) : num(partnerTotals.impTotals[p.key]) }}
                                 </td>
-                                <td class="px-1.5 py-1.5 text-right">{{ partnerTotals.grand.toFixed(2) }}</td>
-                                <td v-if="supportsAdheseAndRpm" class="px-1.5 py-1.5 text-right tabular-nums">{{ blendedRpm === null ? '—' : blendedRpm.toFixed(2) }}</td>
-                                <td v-if="supportsAdheseAndRpm" class="px-1.5 py-1.5 text-right">—</td>
-                                <td v-if="supportsAdheseAndRpm" class="px-1.5 py-1.5 text-right">{{ num(days.reduce((t, d) => t + (d.impressionsSold || 0), 0)) }}</td>
-                                <td v-if="supportsAdheseAndRpm" class="px-1.5 py-1.5 text-right">{{ num(days.reduce((t, d) => t + (d.totalAdRequests || 0), 0)) }}</td>
+                                <td class="px-1.5 py-1.5 text-right">{{ tableMetric === 'revenue' ? partnerTotals.grand.toFixed(2) : num(partnerTotals.impGrand) }}</td>
+                                <td v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-1.5 text-right tabular-nums">{{ blendedRpm === null ? '—' : blendedRpm.toFixed(2) }}</td>
+                                <td v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-1.5 text-right">—</td>
+                                <td v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-1.5 text-right">{{ num(days.reduce((t, d) => t + (d.impressionsSold || 0), 0)) }}</td>
+                                <td v-if="supportsAdheseAndRpm && tableMetric === 'impressions'" class="px-1.5 py-1.5 text-right">{{ num(days.reduce((t, d) => t + (d.totalAdRequests || 0), 0)) }}</td>
                                 <td></td>
                             </tr>
                         </tbody>
@@ -1540,6 +1556,8 @@ const tabs = [
                                         <tr><td class="px-3 py-1.5 font-medium">Adhese</td><td class="px-3 py-1.5">Adhese export, summed per site</td></tr>
                                         <tr><td class="px-3 py-1.5 font-medium">Outbrain</td><td class="px-3 py-1.5">"Revenue"</td></tr>
                                         <tr><td class="px-3 py-1.5 font-medium">Preferred Deals</td><td class="px-3 py-1.5">GAM preferred-deals file</td></tr>
+                                        <tr><td class="px-3 py-1.5 font-medium">Adsense</td><td class="px-3 py-1.5">AdSense export "Estimated earnings", per site by host</td></tr>
+                                        <tr><td class="px-3 py-1.5 font-medium">Gumgum</td><td class="px-3 py-1.5">GumGum export "Publisher Currency Revenue", per site by host</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -1554,7 +1572,7 @@ const tabs = [
                                 <li><span class="text-foreground">GAM impressions</span> = "Ad Exchange impressions" + "AdSense impressions"</li>
                                 <li><span class="text-foreground">Adhese impressions</span> are entered <b>manually</b> (never read from a file)</li>
                             </ul>
-                            <p class="rounded-md bg-muted/40 px-3 py-2 font-mono text-[12px]">Impressions Sold = seedtag + teads + showheroes + gam + adform + ogury + outbrain + adhese + preferredDeals (impressions)</p>
+                            <p class="rounded-md bg-muted/40 px-3 py-2 font-mono text-[12px]">Impressions Sold = seedtag + teads + showheroes + gam + adform + ogury + outbrain + adhese + preferredDeals + adsense + gumgum (impressions)</p>
                         </section>
 
                         <!-- Ad requests -->

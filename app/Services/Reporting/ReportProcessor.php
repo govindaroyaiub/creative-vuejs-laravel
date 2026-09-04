@@ -127,6 +127,10 @@ class ReportProcessor
                 if (isset($pathByType['gam'])) $parsed['gam'] = Extractors::gam($pathByType['gam'], $siteId);
                 if (isset($pathByType['adform'])) $parsed['adform'] = Extractors::adform($pathByType['adform'], $siteId);
                 if (isset($pathByType['ogury'])) $parsed['ogury'] = Extractors::ogury($pathByType['ogury'], $siteId, $oguryRate);
+                // Adsense + GumGum: one multi-site file each; the extractor filters
+                // to this site's host, so they slot straight into the per-site loop.
+                if (isset($pathByType['adsense'])) $parsed['adsense'] = Extractors::adsense($pathByType['adsense'], $siteId);
+                if (isset($pathByType['gumgum'])) $parsed['gumgum'] = Extractors::gumgum($pathByType['gumgum'], $siteId);
                 if (isset($adhesePerSite[$siteId])) $parsed['adhese'] = array_values($adhesePerSite[$siteId]);
 
                 if (isset($analyticsPerSite[$siteId])) $parsed['analytics'] = $analyticsPerSite[$siteId];

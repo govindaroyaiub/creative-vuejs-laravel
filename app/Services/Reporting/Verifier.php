@@ -15,7 +15,7 @@ class Verifier
     private const PARTNERS = [
         'adform' => 'Adform', 'gam' => 'GAM', 'ogury' => 'Ogury', 'seedtag' => 'Seedtag',
         'showheroes' => 'Showheroes', 'teads' => 'Teads', 'preferredDeals' => 'Preferred Deals',
-        'outbrain' => 'Outbrain', 'adhese' => 'Adhese',
+        'outbrain' => 'Outbrain', 'adhese' => 'Adhese', 'adsense' => 'Adsense', 'gumgum' => 'GumGum',
     ];
 
     /** Monthly Planetnine report (Trend + Demand Partners sheets) for any site that receives one. */
@@ -23,7 +23,14 @@ class Verifier
     {
         if (! isset(Reporting::SITES[$siteId])) throw new RuntimeException('Unknown site');
         $names = SpreadsheetReader::sheetNames($path);
-        if (! in_array('Trend', $names, true)) throw new RuntimeException('Could not find Trend sheet');
+        // No Trend sheet (Impr. Sold / Ad Requests / Revenues live there): fall
+        // back to a Demand-Partners-only reconciliation instead of failing.
+        if (! in_array('Trend', $names, true)) {
+            if (in_array('Demand Partners', $names, true)) {
+                return self::demandOnly($store, $path, $siteId);
+            }
+            throw new RuntimeException('Could not find Trend or Demand Partners sheet');
+        }
 
         $tRows = SpreadsheetReader::matrix($path, 'Trend');
         $tHdrIdx = self::findHeaderRow($tRows);
@@ -78,6 +85,50 @@ class Verifier
                 foreach (self::PARTNERS as $key => $col) {
                     $checks[] = ['label' => $col, 'pn' => $pn['partners'][$key] ?? 0, 'us' => $rev[$key] ?? 0, 'tol' => 0.5];
                 }
+            }
+            $rows[] = ['dateKey' => $k, 'checks' => $checks];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Monthly-report fallback: reconcile using only the Demand Partners sheet
+     * (Total Revenue + per-partner revenue). Used when the Trend sheet — which
+     * carries Impr. Sold / Ad Requests — is absent. Returns the same
+     * list-of-{dateKey,checks} shape as monthly().
+     */
+    private static function demandOnly(array $store, string $path, string $siteId): array
+    {
+        $dRows = SpreadsheetReader::matrix($path, 'Demand Partners');
+        $dHdrIdx = self::findHeaderRow($dRows);
+        if ($dHdrIdx < 0) throw new RuntimeException('Could not find header row in Demand Partners sheet');
+        $dHdr = array_map(fn ($h) => trim((string) $h), $dRows[$dHdrIdx]);
+        $dDate = self::idx($dHdr, 'Date');
+        $totalIdx = self::idx($dHdr, 'Total');
+
+        $pnData = [];
+        for ($i = $dHdrIdx + 1; $i < count($dRows); $i++) {
+            $r = $dRows[$i];
+            if (($r[$dDate] ?? '') === '') continue;
+            $d = Reporting::parseDate($r[$dDate]); if (! $d) continue;
+            $k = Reporting::dateKey($d);
+            $pnData[$k] = [
+                'partners' => self::readPartners($dHdr, $r),
+                'total' => $totalIdx >= 0 ? Reporting::stripNum($r[$totalIdx] ?? '') : 0,
+            ];
+        }
+
+        $siteDays = $store['sites'][$siteId]['days'] ?? [];
+        ksort($pnData);
+        $rows = [];
+        foreach ($pnData as $k => $pn) {
+            $rev = $siteDays[$k]['revenue'] ?? [];
+            $checks = [
+                ['label' => 'Total Revenue', 'pn' => $pn['total'], 'us' => array_sum(array_map('floatval', $rev)), 'tol' => 0.5],
+            ];
+            foreach (self::PARTNERS as $key => $col) {
+                $checks[] = ['label' => $col, 'pn' => $pn['partners'][$key] ?? 0, 'us' => $rev[$key] ?? 0, 'tol' => 0.5];
             }
             $rows[] = ['dateKey' => $k, 'checks' => $checks];
         }

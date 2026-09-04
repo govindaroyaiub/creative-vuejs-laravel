@@ -25,6 +25,7 @@ class TableExporter
         'adhese' => 'Adhese', 'gam' => 'GAM', 'seedtag' => 'SeedTag', 'teads' => 'Teads',
         'showheroes' => 'Showheroes', 'adform' => 'Adform', 'ogury' => 'Ogury',
         'outbrain' => 'Outbrain', 'preferredDeals' => 'Preferred Deals',
+        'adsense' => 'Adsense', 'gumgum' => 'Gumgum',
     ];
 
     /**

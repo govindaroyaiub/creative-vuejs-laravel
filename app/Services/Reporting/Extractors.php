@@ -25,6 +25,8 @@ class Extractors
             $fallbackSite = 'topgear.nl';
         } elseif (str_contains($fname, 'adhese fl') || str_contains($fname, 'adhese festileaks')) {
             $fallbackSite = 'festileaks.com';
+        } elseif (str_contains($fname, 'adhese jfk')) {
+            $fallbackSite = 'jfk.men';
         } else {
             $fallbackSite = 'f1maximaal.nl';
         }
@@ -117,6 +119,51 @@ class Extractors
         }
 
         return $out;
+    }
+
+    /**
+     * Google AdSense "Report" export — one file, all sites, keyed by a `Site`
+     * column carrying the full host (e.g. "www.f1maximaal.nl"). Matched loosely
+     * (str_contains) so sub-domains like "forum.festileaks.com" fold into their
+     * parent site and are summed per day.
+     */
+    public static function adsense(string $path, string $siteId): array
+    {
+        $domain = Reporting::SITES[$siteId]['domain'];
+        $byDate = [];
+        foreach (SpreadsheetReader::rows($path) as $r) {
+            $site = mb_strtolower((string) (Reporting::pick($r, 'Site', 'Domain', 'Publisher') ?? ''));
+            if ($site === '' || ! str_contains($site, $domain)) continue;
+            $d = Reporting::parseDate(Reporting::pick($r, 'Date') ?? ''); if (! $d) continue;
+            $k = Reporting::dateKey($d);
+            $byDate[$k] ??= ['date' => $d, 'impressions' => 0.0, 'revenue' => 0.0];
+            $byDate[$k]['impressions'] += Reporting::stripNum(Reporting::pick($r, 'Impressions'));
+            $byDate[$k]['revenue'] += Reporting::stripNum(Reporting::pick($r, 'Estimated earnings', 'Estimated Earnings in EUR'));
+        }
+
+        return array_values($byDate);
+    }
+
+    /**
+     * GumGum export — one file, all sites, keyed by a `Zone` column carrying the
+     * host. Ad Impressions feed Impressions Sold; Publisher Currency Revenue feeds
+     * revenue. Loose host match, same as {@see adsense()}.
+     */
+    public static function gumgum(string $path, string $siteId): array
+    {
+        $domain = Reporting::SITES[$siteId]['domain'];
+        $byDate = [];
+        foreach (SpreadsheetReader::rows($path) as $r) {
+            $zone = mb_strtolower((string) (Reporting::pick($r, 'Zone', 'Site', 'Domain') ?? ''));
+            if ($zone === '' || ! str_contains($zone, $domain)) continue;
+            $d = Reporting::parseDate(Reporting::pick($r, 'Date') ?? ''); if (! $d) continue;
+            $k = Reporting::dateKey($d);
+            $byDate[$k] ??= ['date' => $d, 'impressions' => 0.0, 'revenue' => 0.0];
+            $byDate[$k]['impressions'] += Reporting::stripNum(Reporting::pick($r, 'Ad Impressions'));
+            $byDate[$k]['revenue'] += Reporting::stripNum(Reporting::pick($r, 'Publisher Currency Revenue', 'Revenue'));
+        }
+
+        return array_values($byDate);
     }
 
     public static function seedtag(string $path, string $siteId): array

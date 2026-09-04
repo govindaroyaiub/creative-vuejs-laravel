@@ -20,6 +20,10 @@ class Reporting
         'topgear'    => ['name' => 'TopGear.nl', 'adformPrefix' => 'TG_', 'gamPrefix' => 'VDS_Topgear', 'domain' => 'topgear.nl', 'oguryAsset' => 'topgear.nl'],
         'horses'     => ['name' => 'Horses.nl', 'adformPrefix' => 'OHO_', 'gamPrefix' => 'EHM_Eisma', 'domain' => 'horses.nl', 'oguryAsset' => 'horses.nl'],
         'festileaks' => ['name' => 'Festileaks.com', 'adformPrefix' => 'FL_', 'gamPrefix' => 'FL_Festileaks', 'domain' => 'festileaks.com', 'oguryAsset' => 'festileaks'],
+        // JFK.men currently only carries Adsense + GumGum data (matched by the
+        // 'domain' host); the adform/gam/ogury prefixes are placeholders that
+        // match nothing, so those extractors simply return no rows for it.
+        'jfk' => ['name' => 'JFK.men', 'adformPrefix' => 'JFK_', 'gamPrefix' => 'VDS_Jfk', 'domain' => 'jfk.men', 'oguryAsset' => 'jfk.men'],
     ];
 
     /** Partner buffer types whose uploaded file is re-saved under a canonical name. */
@@ -30,6 +34,8 @@ class Reporting
         'seedtag' => 'SeedTag',
         'showheroes' => 'Showheroes',
         'teads' => 'Teads',
+        'adsense' => 'Adsense',
+        'gumgum' => 'Gumgum',
     ];
 
     public const ADHESE_MARKET = [
@@ -55,6 +61,8 @@ class Reporting
         'showheroes' => 'topgear-',
         'analytics' => 'pages_and_screens, content_group',
         'adhese' => 'adhese',
+        'adsense' => 'adsense',
+        'gumgum' => 'gumgum',
         'outbrain' => 'current-view, all publishers',
         'preferreddeals' => 'preferred deal, preferred_deal',
         'gam_f1m' => 'copy of f1max, copy of topgear',
@@ -81,6 +89,8 @@ class Reporting
         };
 
         if ($matches('adhese')) return 'adhese';
+        if ($matches('adsense')) return 'adsense';
+        if ($matches('gumgum')) return 'gumgum';
         if ($matches('analytics')) return 'analytics';
         if ($matches('adform')) return 'adform';
         if ($matches('gam')) return 'gam';

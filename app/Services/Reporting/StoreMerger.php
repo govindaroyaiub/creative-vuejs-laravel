@@ -36,6 +36,8 @@ class StoreMerger
         $gam = $lookup($parsed['gam'] ?? null);
         $adform = $lookup($parsed['adform'] ?? null);
         $ogury = $lookup($parsed['ogury'] ?? null);
+        $adsense = $lookup($parsed['adsense'] ?? null);
+        $gumgum = $lookup($parsed['gumgum'] ?? null);
 
         $isF1 = $siteId === 'f1maximaal';
         $analytics = $lookup($parsed['analytics'] ?? null);
@@ -48,6 +50,7 @@ class StoreMerger
         $allKeys = array_unique(array_merge(
             array_keys($adhese), array_keys($seedtag), array_keys($teads), array_keys($showheroes),
             array_keys($gam), array_keys($adform), array_keys($ogury),
+            array_keys($adsense), array_keys($gumgum),
             array_keys($analytics), array_keys($gamF1m), array_keys($outbrain), array_keys($preferred),
         ));
 
@@ -65,6 +68,8 @@ class StoreMerger
                 'ogury' => $ogury[$k]['revenue'] ?? $existing['revenue']['ogury'] ?? 0,
                 'outbrain' => $outbrain[$k]['revenue'] ?? $existing['revenue']['outbrain'] ?? 0,
                 'preferredDeals' => $preferred[$k]['revenue'] ?? $existing['revenue']['preferredDeals'] ?? 0,
+                'adsense' => $adsense[$k]['revenue'] ?? $existing['revenue']['adsense'] ?? 0,
+                'gumgum' => $gumgum[$k]['revenue'] ?? $existing['revenue']['gumgum'] ?? 0,
             ];
 
             // Impressions/ad-requests used to be F1-only; now generic per site.
@@ -83,13 +88,16 @@ class StoreMerger
                 // Adhese impressions are entered manually; never overwrite from a file.
                 'adhese' => $imp['adhese'] ?? null,
                 'preferredDeals' => $preferred[$k]['impressions'] ?? $imp['preferredDeals'] ?? 0,
+                'adsense' => $adsense[$k]['impressions'] ?? $imp['adsense'] ?? 0,
+                'gumgum' => $gumgum[$k]['impressions'] ?? $imp['gumgum'] ?? 0,
             ];
             $day['totalAdRequests'] = $gf['totalAdRequests'] ?? $existing['totalAdRequests'] ?? 0;
 
             $i2 = $day['impressions'];
             $day['impressionsSold'] = ($i2['seedtag'] ?: 0) + ($i2['teads'] ?: 0) + ($i2['showheroes'] ?: 0)
                 + ($i2['gam'] ?: 0) + ($i2['adform'] ?: 0) + ($i2['ogury'] ?: 0)
-                + ($i2['outbrain'] ?: 0) + ($i2['adhese'] ?: 0) + ($i2['preferredDeals'] ?: 0);
+                + ($i2['outbrain'] ?: 0) + ($i2['adhese'] ?: 0) + ($i2['preferredDeals'] ?: 0)
+                + ($i2['adsense'] ?: 0) + ($i2['gumgum'] ?: 0);
 
             // Analytics (GA4 "Pages and screens" export) is per-site, not F1-only —
             // any site with a routed analytics file gets its numbers merged here.

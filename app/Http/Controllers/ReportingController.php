@@ -209,6 +209,7 @@ class ReportingController extends Controller
         $required = [
             'adform' => 'Adform', 'gam' => 'GAM', 'ogury' => 'Ogury',
             'seedtag' => 'SeedTag', 'showheroes' => 'Showheroes', 'teads' => 'Teads',
+            'adsense' => 'Adsense', 'gumgum' => 'Gumgum',
             'analytics_f1' => 'Analytics (F1)', 'analytics_tg' => 'Analytics (TopGear)',
             'gam_f1m_f1' => 'GAM Ad Requests (F1)', 'gam_f1m_tg' => 'GAM Ad Requests (TopGear)',
             'adhese_f1' => 'Adhese (F1)', 'adhese_tg' => 'Adhese (TopGear)', 'adhese_fl' => 'Adhese (Festileaks)',
@@ -259,7 +260,7 @@ class ReportingController extends Controller
         $imp['adhese'] = ($adhese === null || $adhese === '') ? null : (int) $adhese;
 
         $sum = 0;
-        foreach (['seedtag', 'teads', 'showheroes', 'gam', 'adform', 'ogury', 'outbrain', 'adhese', 'preferredDeals'] as $p) {
+        foreach (['seedtag', 'teads', 'showheroes', 'gam', 'adform', 'ogury', 'outbrain', 'adhese', 'preferredDeals', 'adsense', 'gumgum'] as $p) {
             $sum += (int) ($imp[$p] ?? 0);
         }
         $row->update(['impressions' => $imp, 'impressions_sold' => $sum]);
@@ -300,7 +301,7 @@ class ReportingController extends Controller
             $imp['adhese'] = ($adhese === null || $adhese === '') ? null : (int) $adhese;
 
             $sum = 0;
-            foreach (['seedtag', 'teads', 'showheroes', 'gam', 'adform', 'ogury', 'outbrain', 'adhese', 'preferredDeals'] as $p) {
+            foreach (['seedtag', 'teads', 'showheroes', 'gam', 'adform', 'ogury', 'outbrain', 'adhese', 'preferredDeals', 'adsense', 'gumgum'] as $p) {
                 $sum += (int) ($imp[$p] ?? 0);
             }
             $row->update(['impressions' => $imp, 'impressions_sold' => $sum]);
