@@ -1,28 +1,15 @@
 {
-    "exported_at": "2026-09-04 15:32:59",
+    "exported_at": "2026-09-04 22:20:08",
     "settings": {
         "oguryRate": 0.878,
         "last_run": {
-            "at": "2026-09-04 15:32:58",
+            "at": "2026-09-04 22:20:08",
             "missing": [
-                "Adform",
-                "GAM",
-                "Ogury",
-                "SeedTag",
-                "Showheroes",
-                "Teads",
-                "Analytics (F1)",
-                "Analytics (TopGear)",
-                "GAM Ad Requests (F1)",
-                "GAM Ad Requests (TopGear)",
-                "GAM Ad Requests (JFK)",
-                "Adhese (F1)",
-                "Adhese (TopGear)",
-                "Adhese (Festileaks)",
-                "Adhese (JFK)"
+                "Gumgum",
+                "Analytics (TopGear)"
             ]
         },
-        "synced_at": "2026-09-04 15:32:59",
+        "synced_at": "2026-09-04 22:20:08",
         "report_links": [
             {
                 "url": "https://publisher-panel.seedtag.com/",
@@ -7108,7 +7095,7 @@
                 "adform": 1.89675552,
                 "adhese": 39.5646000003,
                 "gumgum": 0,
-                "adsense": 0,
+                "adsense": 76.2,
                 "seedtag": 2.47,
                 "outbrain": 0,
                 "showheroes": 38.783962,
@@ -7121,7 +7108,7 @@
                 "adform": 1366,
                 "adhese": 17865,
                 "gumgum": 0,
-                "adsense": 0,
+                "adsense": 145415,
                 "seedtag": 4571,
                 "outbrain": 0,
                 "showheroes": 15325,
@@ -7137,7 +7124,7 @@
                 "viewsPerUser": 2.775506902502157,
                 "avgEngagement": 36.03893442622951
             },
-            "impressions_sold": 110318
+            "impressions_sold": 255733
         },
         {
             "site": "festileaks",
@@ -12675,7 +12662,7 @@
                 "adform": 0.05488648,
                 "adhese": 7.4567400018001,
                 "gumgum": 0,
-                "adsense": 0,
+                "adsense": 3.97,
                 "seedtag": 0.8400000000000001,
                 "outbrain": 0,
                 "showheroes": 0,
@@ -12688,7 +12675,7 @@
                 "adform": 89,
                 "adhese": null,
                 "gumgum": 0,
-                "adsense": 0,
+                "adsense": 37176,
                 "seedtag": 2136,
                 "outbrain": 0,
                 "showheroes": 0,
@@ -12696,7 +12683,7 @@
             },
             "total_ad_requests": 0,
             "analytics": null,
-            "impressions_sold": 2621
+            "impressions_sold": 39797
         },
         {
             "site": "horses",
