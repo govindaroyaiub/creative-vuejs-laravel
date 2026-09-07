@@ -147,6 +147,9 @@ function addLink() {
     showAddLink.value = false;
     saveLinks();
 }
+// Host + favicon for the report-links cards (visual only).
+const linkHost = (u: string): string => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return ''; } };
+const linkFavicon = (u: string): string => { const h = linkHost(u); return h ? `https://www.google.com/s2/favicons?domain=${h}&sz=64` : ''; };
 function removeLink(i: number) {
     reportLinks.value.splice(i, 1);
     saveLinks();
@@ -1423,9 +1426,9 @@ const tabs = [
 
             <!-- Report links modal -->
             <div v-if="showLinks" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="showLinks = false">
-                <Card class="rpt-glass rpt-modal w-full max-w-lg">
+                <Card class="rpt-glass rpt-modal w-full max-w-2xl">
                     <CardHeader class="flex flex-row items-center justify-between gap-2 pb-2">
-                        <div class="flex items-center gap-2"><Link2 class="h-5 w-5 text-[#e2483d]" /><span class="font-medium">Report sources</span></div>
+                        <div class="flex items-center gap-2"><Link2 class="h-5 w-5 text-[#e2483d]" /><span class="font-medium">Report sources</span><span class="rounded-full bg-muted px-2 py-0.5 text-[11px] tabular-nums text-muted-foreground">{{ reportLinks.length }}</span></div>
                         <div class="flex items-center gap-2">
                             <Button class="rounded-full" variant="outline" size="sm" @click="showAddLink = !showAddLink"><Plus class="mr-1 h-4 w-4" /> Add</Button>
                             <button class="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground" title="Close" @click="showLinks = false"><X class="h-4 w-4" /></button>
@@ -1434,20 +1437,24 @@ const tabs = [
                     <CardContent class="flex flex-col gap-3">
                         <p class="text-xs text-muted-foreground">Open a partner's page in a new tab to download its report.</p>
 
-                        <div class="flex max-h-80 flex-col gap-2 overflow-y-auto">
+                        <div class="grid max-h-[60vh] gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
                             <div v-for="(l, i) in reportLinks" :key="i"
-                                class="group flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition hover:bg-muted/40">
-                                <a :href="l.url" target="_blank" rel="noopener noreferrer" class="flex min-w-0 flex-1 items-center gap-2">
-                                    <ExternalLink class="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                                    <span class="min-w-0">
-                                        <span class="block font-medium">{{ l.label }}</span>
-                                        <span class="block truncate text-[11px] text-muted-foreground">{{ l.url }}</span>
+                                class="group relative flex items-center rounded-xl border bg-card transition hover:border-[#e2483d]/50 hover:shadow-sm">
+                                <a :href="l.url" target="_blank" rel="noopener noreferrer" class="flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5">
+                                    <span class="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg border bg-white">
+                                        <img :src="linkFavicon(l.url)" :alt="l.label" class="h-5 w-5"
+                                            loading="lazy" @error="(($event.target as HTMLImageElement).style.visibility = 'hidden')" />
                                     </span>
+                                    <span class="min-w-0 flex-1">
+                                        <span class="block truncate text-sm font-medium">{{ l.label }}</span>
+                                        <span class="block truncate text-[11px] text-muted-foreground">{{ linkHost(l.url) }}</span>
+                                    </span>
+                                    <ExternalLink class="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 transition group-hover:opacity-100" />
                                 </a>
-                                <button class="text-muted-foreground opacity-0 transition hover:text-red-500 group-hover:opacity-100"
-                                    title="Remove" @click="removeLink(i)"><X class="h-4 w-4" /></button>
+                                <button class="absolute right-1.5 top-1.5 rounded-md bg-card/80 p-0.5 text-muted-foreground opacity-0 transition hover:text-red-500 group-hover:opacity-100"
+                                    title="Remove" @click="removeLink(i)"><X class="h-3.5 w-3.5" /></button>
                             </div>
-                            <p v-if="!reportLinks.length" class="text-sm text-muted-foreground">No sources yet — add one.</p>
+                            <p v-if="!reportLinks.length" class="col-span-full py-6 text-center text-sm text-muted-foreground">No sources yet — add one.</p>
                         </div>
 
                         <div v-if="showAddLink" class="flex flex-col gap-2 rounded-lg border bg-muted/30 p-3">
