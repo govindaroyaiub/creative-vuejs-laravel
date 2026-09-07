@@ -25,6 +25,8 @@ class ReportingController extends Controller
         ['label' => 'GAM', 'url' => 'https://admanager.google.com/21759686865#reports/interactive/list?redirected=true'],
         ['label' => 'Adform', 'url' => 'https://www.adform.com/DirectIntegrationsUI/#/publishers-home/YieldManager'],
         ['label' => 'Ogury', 'url' => 'https://publishers.ogury.co/identity/login?redirect=%2Fexclusive-demand%2Freports%2Fad-unit'],
+        ['label' => 'Adsense', 'url' => 'https://adsense.google.com/adsense/u/0/pub-6799746348201165/reporting/?savedreport=P9%20-%20Adsense%20overview%20-%20month%20to%20data'],
+        ['label' => 'Gumgum', 'url' => 'https://app.gumgum.com/home/custom'],
         ['label' => 'Outbrain', 'url' => 'https://my.outbrain.com/login'],
         ['label' => 'Analytics', 'url' => 'https://analytics.google.com/analytics/web/#/a89733213p312613556/reports/intelligenthome'],
         ['label' => 'Looker Studio', 'url' => 'https://datastudio.google.com/reporting/ef35717e-5742-44c1-80d5-b134e54b9002/page/8WngB'],

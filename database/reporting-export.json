@@ -1,5 +1,5 @@
 {
-    "exported_at": "2026-09-04 22:20:08",
+    "exported_at": "2026-09-07 12:11:58",
     "settings": {
         "oguryRate": 0.878,
         "last_run": {
@@ -9,7 +9,7 @@
                 "Analytics (TopGear)"
             ]
         },
-        "synced_at": "2026-09-04 22:20:08",
+        "synced_at": "2026-09-07 12:11:58",
         "report_links": [
             {
                 "url": "https://publisher-panel.seedtag.com/",
@@ -34,6 +34,14 @@
             {
                 "url": "https://publishers.ogury.co/identity/login?redirect=%2Fexclusive-demand%2Freports%2Fad-unit",
                 "label": "Ogury"
+            },
+            {
+                "url": "https://adsense.google.com/adsense/u/0/pub-6799746348201165/reporting/?savedreport=P9%20-%20Adsense%20overview%20-%20month%20to%20data",
+                "label": "Adsense"
+            },
+            {
+                "url": "https://app.gumgum.com/home/custom",
+                "label": "Gumgum"
             },
             {
                 "url": "https://my.outbrain.com/login",
