@@ -1,29 +1,19 @@
 {
-    "exported_at": "2026-09-08 22:02:48",
+    "exported_at": "2026-09-09 12:16:30",
     "settings": {
         "oguryRate": 0.878,
         "last_run": {
-            "at": "2026-09-08 22:02:48",
+            "at": "2026-09-09 12:16:30",
             "missing": [
-                "Adform",
-                "GAM",
-                "Ogury",
-                "SeedTag",
-                "Showheroes",
-                "Teads",
                 "Gumgum",
                 "Analytics (F1)",
                 "Analytics (TopGear)",
-                "GAM Ad Requests (F1)",
-                "GAM Ad Requests (TopGear)",
-                "GAM Ad Requests (JFK)",
                 "Adhese (F1)",
                 "Adhese (TopGear)",
-                "Adhese (Festileaks)",
-                "Adhese (JFK)"
+                "Adhese (Festileaks)"
             ]
         },
-        "synced_at": "2026-09-08 22:02:48",
+        "synced_at": "2026-09-09 12:16:30",
         "report_links": [
             {
                 "url": "https://publisher-panel.seedtag.com/",
@@ -18715,7 +18705,7 @@
                 "ogury": 134,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 709,
                 "gumgum": 0,
                 "adsense": 508,
                 "seedtag": 3576,
@@ -18725,7 +18715,7 @@
             },
             "total_ad_requests": 38560,
             "analytics": null,
-            "impressions_sold": 21625
+            "impressions_sold": 22334
         },
         {
             "site": "jfk",
@@ -18748,7 +18738,7 @@
                 "ogury": 753,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 3717,
                 "gumgum": 0,
                 "adsense": 3526,
                 "seedtag": 26388,
@@ -18758,7 +18748,7 @@
             },
             "total_ad_requests": 297297,
             "analytics": null,
-            "impressions_sold": 175149
+            "impressions_sold": 178866
         },
         {
             "site": "jfk",
@@ -18781,7 +18771,7 @@
                 "ogury": 414,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 4752,
                 "gumgum": 0,
                 "adsense": 2041,
                 "seedtag": 13585,
@@ -18791,7 +18781,7 @@
             },
             "total_ad_requests": 180597,
             "analytics": null,
-            "impressions_sold": 104508
+            "impressions_sold": 109260
         },
         {
             "site": "jfk",
@@ -18814,7 +18804,7 @@
                 "ogury": 110,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 1190,
                 "gumgum": 0,
                 "adsense": 1216,
                 "seedtag": 9835,
@@ -18824,7 +18814,7 @@
             },
             "total_ad_requests": 91209,
             "analytics": null,
-            "impressions_sold": 50598
+            "impressions_sold": 51788
         },
         {
             "site": "jfk",
@@ -18847,7 +18837,7 @@
                 "ogury": 222,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 2040,
                 "gumgum": 0,
                 "adsense": 175,
                 "seedtag": 10176,
@@ -18857,7 +18847,7 @@
             },
             "total_ad_requests": 92122,
             "analytics": null,
-            "impressions_sold": 48901
+            "impressions_sold": 50941
         },
         {
             "site": "jfk",
@@ -18880,7 +18870,7 @@
                 "ogury": 243,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 2106,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 7508,
@@ -18890,7 +18880,7 @@
             },
             "total_ad_requests": 89121,
             "analytics": null,
-            "impressions_sold": 49177
+            "impressions_sold": 51283
         },
         {
             "site": "jfk",
@@ -18913,7 +18903,7 @@
                 "ogury": 369,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 4236,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 6789,
@@ -18923,7 +18913,7 @@
             },
             "total_ad_requests": 79563,
             "analytics": null,
-            "impressions_sold": 41647
+            "impressions_sold": 45883
         },
         {
             "site": "jfk",
@@ -18946,7 +18936,7 @@
                 "ogury": 242,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 2942,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 5535,
@@ -18956,7 +18946,7 @@
             },
             "total_ad_requests": 64563,
             "analytics": null,
-            "impressions_sold": 31882
+            "impressions_sold": 34824
         },
         {
             "site": "jfk",
@@ -18979,7 +18969,7 @@
                 "ogury": 416,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 2032,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 9862,
@@ -18989,7 +18979,7 @@
             },
             "total_ad_requests": 107731,
             "analytics": null,
-            "impressions_sold": 55636
+            "impressions_sold": 57668
         },
         {
             "site": "jfk",
@@ -19012,7 +19002,7 @@
                 "ogury": 376,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 2831,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 5192,
@@ -19022,7 +19012,7 @@
             },
             "total_ad_requests": 116606,
             "analytics": null,
-            "impressions_sold": 59866
+            "impressions_sold": 62697
         },
         {
             "site": "jfk",
@@ -19045,7 +19035,7 @@
                 "ogury": 244,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 3201,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 10001,
@@ -19055,7 +19045,7 @@
             },
             "total_ad_requests": 133132,
             "analytics": null,
-            "impressions_sold": 67787
+            "impressions_sold": 70988
         },
         {
             "site": "jfk",
@@ -19078,7 +19068,7 @@
                 "ogury": 947,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 8614,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 15946,
@@ -19088,7 +19078,7 @@
             },
             "total_ad_requests": 216184,
             "analytics": null,
-            "impressions_sold": 119627
+            "impressions_sold": 128241
         },
         {
             "site": "jfk",
@@ -19111,7 +19101,7 @@
                 "ogury": 60,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 2112,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 2458,
@@ -19121,7 +19111,7 @@
             },
             "total_ad_requests": 39590,
             "analytics": null,
-            "impressions_sold": 19993
+            "impressions_sold": 22105
         },
         {
             "site": "jfk",
@@ -19144,7 +19134,7 @@
                 "ogury": 60,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 2959,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 8472,
@@ -19154,7 +19144,7 @@
             },
             "total_ad_requests": 151986,
             "analytics": null,
-            "impressions_sold": 77164
+            "impressions_sold": 80123
         },
         {
             "site": "jfk",
@@ -19177,7 +19167,7 @@
                 "ogury": 15,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 2240,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 3941,
@@ -19187,7 +19177,7 @@
             },
             "total_ad_requests": 48461,
             "analytics": null,
-            "impressions_sold": 23806
+            "impressions_sold": 26046
         },
         {
             "site": "jfk",
@@ -19210,7 +19200,7 @@
                 "ogury": 27,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 1828,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 3743,
@@ -19220,7 +19210,7 @@
             },
             "total_ad_requests": 55656,
             "analytics": null,
-            "impressions_sold": 25822
+            "impressions_sold": 27650
         },
         {
             "site": "jfk",
@@ -19243,7 +19233,7 @@
                 "ogury": 71,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 2633,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 7230,
@@ -19253,7 +19243,7 @@
             },
             "total_ad_requests": 53228,
             "analytics": null,
-            "impressions_sold": 23352
+            "impressions_sold": 25985
         },
         {
             "site": "jfk",
@@ -19276,7 +19266,7 @@
                 "ogury": 62,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 3593,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 7517,
@@ -19286,7 +19276,7 @@
             },
             "total_ad_requests": 59942,
             "analytics": null,
-            "impressions_sold": 27565
+            "impressions_sold": 31158
         },
         {
             "site": "jfk",
@@ -19309,7 +19299,7 @@
                 "ogury": 73,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 3161,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 6019,
@@ -19319,7 +19309,7 @@
             },
             "total_ad_requests": 57218,
             "analytics": null,
-            "impressions_sold": 26225
+            "impressions_sold": 29386
         },
         {
             "site": "jfk",
@@ -19342,7 +19332,7 @@
                 "ogury": 77,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 3224,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 5790,
@@ -19352,7 +19342,7 @@
             },
             "total_ad_requests": 47407,
             "analytics": null,
-            "impressions_sold": 22744
+            "impressions_sold": 25968
         },
         {
             "site": "jfk",
@@ -19375,7 +19365,7 @@
                 "ogury": 58,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 2014,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 2678,
@@ -19385,7 +19375,7 @@
             },
             "total_ad_requests": 34803,
             "analytics": null,
-            "impressions_sold": 15940
+            "impressions_sold": 17954
         },
         {
             "site": "jfk",
@@ -19408,7 +19398,7 @@
                 "ogury": 25,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 925,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 1792,
@@ -19418,7 +19408,7 @@
             },
             "total_ad_requests": 22193,
             "analytics": null,
-            "impressions_sold": 10844
+            "impressions_sold": 11769
         },
         {
             "site": "jfk",
@@ -19441,7 +19431,7 @@
                 "ogury": 124,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 1720,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 3938,
@@ -19451,7 +19441,7 @@
             },
             "total_ad_requests": 39613,
             "analytics": null,
-            "impressions_sold": 23786
+            "impressions_sold": 25506
         },
         {
             "site": "jfk",
@@ -19474,7 +19464,7 @@
                 "ogury": 137,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 2717,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 8057,
@@ -19484,7 +19474,7 @@
             },
             "total_ad_requests": 86093,
             "analytics": null,
-            "impressions_sold": 43156
+            "impressions_sold": 45873
         },
         {
             "site": "jfk",
@@ -19507,7 +19497,7 @@
                 "ogury": 105,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 3774,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 5717,
@@ -19517,7 +19507,7 @@
             },
             "total_ad_requests": 51627,
             "analytics": null,
-            "impressions_sold": 28308
+            "impressions_sold": 32082
         },
         {
             "site": "jfk",
@@ -19540,7 +19530,7 @@
                 "ogury": 84,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 2852,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 4357,
@@ -19550,7 +19540,7 @@
             },
             "total_ad_requests": 37358,
             "analytics": null,
-            "impressions_sold": 21462
+            "impressions_sold": 24314
         },
         {
             "site": "jfk",
@@ -19573,7 +19563,7 @@
                 "ogury": 66,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 4004,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 9924,
@@ -19583,7 +19573,7 @@
             },
             "total_ad_requests": 56948,
             "analytics": null,
-            "impressions_sold": 31752
+            "impressions_sold": 35756
         },
         {
             "site": "jfk",
@@ -19606,7 +19596,7 @@
                 "ogury": 50,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 1153,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 3217,
@@ -19616,7 +19606,7 @@
             },
             "total_ad_requests": 22480,
             "analytics": null,
-            "impressions_sold": 8607
+            "impressions_sold": 9760
         },
         {
             "site": "jfk",
@@ -19639,7 +19629,7 @@
                 "ogury": 23,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 883,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 2562,
@@ -19649,7 +19639,7 @@
             },
             "total_ad_requests": 18526,
             "analytics": null,
-            "impressions_sold": 7851
+            "impressions_sold": 8734
         },
         {
             "site": "jfk",
@@ -19672,7 +19662,7 @@
                 "ogury": 20,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 1331,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 1677,
@@ -19682,7 +19672,7 @@
             },
             "total_ad_requests": 18132,
             "analytics": null,
-            "impressions_sold": 7886
+            "impressions_sold": 9217
         },
         {
             "site": "jfk",
@@ -19705,7 +19695,7 @@
                 "ogury": 98,
                 "teads": 0,
                 "adform": 0,
-                "adhese": 0,
+                "adhese": 4438,
                 "gumgum": 0,
                 "adsense": 0,
                 "seedtag": 8070,
@@ -19715,7 +19705,7 @@
             },
             "total_ad_requests": 53410,
             "analytics": null,
-            "impressions_sold": 30662
+            "impressions_sold": 35100
         },
         {
             "site": "jfk",

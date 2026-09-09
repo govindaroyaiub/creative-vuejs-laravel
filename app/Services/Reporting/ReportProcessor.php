@@ -188,7 +188,7 @@ class ReportProcessor
 
         file_put_contents($uploadsDir . '/Analytics f1.csv', CsvGenerator::analytics($store, 'f1maximaal'));
         file_put_contents($uploadsDir . '/Adhese f1.csv', CsvGenerator::adhese($store, 'f1maximaal'));
-        foreach (['topgear' => 'tg', 'festileaks' => 'fl'] as $sid => $label) {
+        foreach (['topgear' => 'tg', 'festileaks' => 'fl', 'jfk' => 'jfk'] as $sid => $label) {
             $csv = CsvGenerator::adhese($store, $sid);
             if (count(explode("\n", $csv)) > 1) {
                 file_put_contents($uploadsDir . "/Adhese {$label}.csv", $csv);
