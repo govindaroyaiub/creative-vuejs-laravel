@@ -18,12 +18,12 @@ class Reporting
     public const SITES = [
         'f1maximaal' => ['name' => 'F1Maximaal.nl', 'adformPrefix' => 'F1M_', 'gamPrefix' => 'VM_F1Maximaal', 'domain' => 'f1maximaal.nl', 'oguryAsset' => 'f1maximaal.nl'],
         'topgear'    => ['name' => 'TopGear.nl', 'adformPrefix' => 'TG_', 'gamPrefix' => 'VDS_Topgear', 'domain' => 'topgear.nl', 'oguryAsset' => 'topgear.nl'],
-        'horses'     => ['name' => 'Horses.nl', 'adformPrefix' => 'OHO_', 'gamPrefix' => 'EHM_Eisma', 'domain' => 'horses.nl', 'oguryAsset' => 'horses.nl'],
-        'festileaks' => ['name' => 'Festileaks.com', 'adformPrefix' => 'FL_', 'gamPrefix' => 'FL_Festileaks', 'domain' => 'festileaks.com', 'oguryAsset' => 'festileaks'],
         // JFK.men currently only carries Adsense + GumGum data (matched by the
         // 'domain' host); the adform/gam/ogury prefixes are placeholders that
         // match nothing, so those extractors simply return no rows for it.
         'jfk' => ['name' => 'JFK.men', 'adformPrefix' => 'JFK_', 'gamPrefix' => 'VDS_Jfk', 'domain' => 'jfk.men', 'oguryAsset' => 'jfk.men'],
+        'horses'     => ['name' => 'Horses.nl', 'adformPrefix' => 'OHO_', 'gamPrefix' => 'EHM_Eisma', 'domain' => 'horses.nl', 'oguryAsset' => 'horses.nl'],
+        'festileaks' => ['name' => 'Festileaks.com', 'adformPrefix' => 'FL_', 'gamPrefix' => 'FL_Festileaks', 'domain' => 'festileaks.com', 'oguryAsset' => 'festileaks'],
     ];
 
     /** Partner buffer types whose uploaded file is re-saved under a canonical name. */

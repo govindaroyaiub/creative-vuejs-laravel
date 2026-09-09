@@ -210,6 +210,17 @@ const SITE_EMAILS: Record<string, EmailCfg> = {
         subject: (c) => `Top Gear Ad Revenue Reports - Week ${c.week}`,
         attachment: (c) => `TG-revenue-report-week${c.week}.xlsx`,
     },
+    jfk: {
+        to: [
+            { name: 'Martijn van der Spek (TopGear Nederland)', email: 'martijn@topgear.nl' },
+            { name: 'Roland van der Spek (VDS Publishers)', email: 'roland@vds-publishers.nl' },
+            { name: 'Robert Heijmans (VDS Publishers)', email: 'robert@vds-publishers.nl' },
+        ],
+        cc: [{ name: 'Chris Beijer', email: 'chris@planetnine.com' }, { name: 'Taco Stomps', email: 'taco@planetnine.com' }],
+        body: `Dear Martijn, Robert and Roland,\n\nHope you are doing well!\n\nPlease find this week's revenue reports for JFK.men attached. If you have any questions, please reach out.\n\nBest regards`,
+        subject: (c) => `JFK.men Ad Revenue Reports - Week ${c.week}`,
+        attachment: (c) => `JFK-revenue-report-week${c.week}.xlsx`,
+    },
     horses: {
         to: [
             { name: '', email: 'a.vanbel@eisma.nl' }, { name: '', email: 'J.vanderMolen@eisma.nl' },
