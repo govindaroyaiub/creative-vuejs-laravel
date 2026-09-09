@@ -538,19 +538,55 @@ const doughnutOptions = {
 };
 
 // ─── Anomalies (zero/missing only) ─────────────────────────────────────────────
+// A partner that reports on most days of the range but drops to 0 (or has no
+// value at all) on a given day is almost always a missing/broken upload rather
+// than a real zero. Checked per metric — revenue and, on sites that track them,
+// impressions — so the message can name exactly which number went missing and
+// what that partner normally does on a day.
 const anomaliesOpen = ref(false);
+const METRICS: { key: 'revenue' | 'impressions'; label: string; unit: 'eur' | 'count' }[] = [
+    { key: 'revenue', label: 'Revenue', unit: 'eur' },
+    { key: 'impressions', label: 'Impressions', unit: 'count' },
+];
+const median = (xs: number[]) => {
+    const a = [...xs].sort((x, y) => x - y);
+    const m = a.length >> 1;
+    return a.length % 2 ? (a[m] ?? 0) : ((a[m - 1] ?? 0) + (a[m] ?? 0)) / 2;
+};
 const anomalies = computed(() => {
     const arr = days.value; const n = arr.length; const out: any[] = [];
-    for (const p of PARTNERS.value) {
-        const vals = arr.map((d) => { const v = d.revenue?.[p.key]; return v == null ? null : v; });
-        const present = vals.filter((v) => (v ?? 0) > 0).length;
-        if (!(n >= 4 && present >= Math.ceil(0.6 * n) && present < n)) continue;
-        vals.forEach((v, i) => {
-            if (v == null || v === 0) out.push({ dateKey: arr[i].dateKey, detail: `${p.label} usually reports but was 0` });
-        });
+    for (const metric of METRICS) {
+        // Impressions only exist for the sites that actually track them —
+        // flagging "0 impressions" on Horses/Festileaks would be pure noise.
+        if (metric.key === 'impressions' && !supportsImpressions.value) continue;
+        for (const p of PARTNERS.value) {
+            const vals = arr.map((d) => d[metric.key]?.[p.key] ?? null);
+            const reported = vals.filter((v): v is number => (v ?? 0) > 0);
+            // Needs a real habit to break: >=4 days in range, reporting on at
+            // least 60% of them, and at least one day that isn't reporting.
+            if (!(n >= 4 && reported.length >= Math.ceil(0.6 * n) && reported.length < n)) continue;
+            const typical = median(reported);
+            vals.forEach((v, i) => {
+                if (v != null && v !== 0) return;
+                out.push({
+                    dateKey: arr[i].dateKey,
+                    partner: p.label,
+                    metric: metric.label,
+                    unit: metric.unit,
+                    missing: v == null,
+                    typical,
+                    reportedDays: reported.length,
+                    totalDays: n,
+                });
+            });
+        }
     }
-    return out.sort((a, b) => b.dateKey.localeCompare(a.dateKey));
+    return out.sort((a, b) => b.dateKey.localeCompare(a.dateKey) || a.partner.localeCompare(b.partner));
 });
+// "€0.00" / "0 impressions" vs "no value at all" — the two are different
+// problems (partner reported a zero vs the file never landed), so say which.
+const anomalyValue = (a: any) => (a.missing ? 'no data' : a.unit === 'eur' ? eur(0) : '0');
+const anomalyTypical = (a: any) => (a.unit === 'eur' ? eur(a.typical) : num(Math.round(a.typical)));
 
 // ─── File selection + client-side missing-files detection ──────────────────────
 // Mirrors the server's detectFileType so we can tell which required reports are
@@ -1095,16 +1131,32 @@ const tabs = [
             <Card v-if="anomalies.length && activeTab === 'summary'" class="rpt-glass border-amber-500/40">
                 <button class="flex w-full items-center gap-2 px-6 py-4 text-left" @click="anomaliesOpen = !anomaliesOpen">
                     <AlertTriangle class="h-5 w-5 shrink-0 text-amber-500" />
-                    <span class="font-medium">Anomalies <span class="text-muted-foreground">({{ anomalies.length }})</span></span>
+                    <span class="font-medium">Anomalies <span class="text-muted-foreground">({{ anomalies.length }} missing partner {{ anomalies.length === 1 ? 'figure' : 'figures' }})</span></span>
                     <ChevronDown class="ml-auto h-4 w-4 text-muted-foreground transition-transform" :class="{ 'rotate-180': anomaliesOpen }" />
                 </button>
                 <CardContent v-show="anomaliesOpen" class="pt-0">
-                    <ul class="flex flex-col gap-1 text-sm">
-                        <li v-for="(a, i) in anomalies.slice(0, 60)" :key="i" class="flex items-center gap-2">
+                    <p class="pb-3 text-xs text-muted-foreground">
+                        Partners that report on most days of this range, but reported nothing on the days below — usually a missing or broken upload for
+                        <span class="font-medium">{{ sites.find((s) => s.id === selectedSite)?.name }}</span>.
+                    </p>
+                    <ul class="flex flex-col gap-1.5 text-sm">
+                        <li v-for="(a, i) in anomalies.slice(0, 60)" :key="i"
+                            class="flex flex-wrap items-center gap-x-2 gap-y-1 rounded border border-amber-500/20 bg-amber-500/5 px-2 py-1.5">
                             <span class="rounded bg-amber-500/15 px-1.5 py-0.5 text-xs font-medium tabular-nums">{{ a.dateKey }}</span>
-                            <span class="text-muted-foreground">{{ a.detail }}</span>
+                            <span class="font-medium">{{ a.partner }}</span>
+                            <span class="rounded bg-muted px-1.5 py-0.5 text-xs font-medium">{{ a.metric }}</span>
+                            <span class="font-semibold tabular-nums" :class="a.missing ? 'text-muted-foreground italic' : 'text-amber-600 dark:text-amber-400'">
+                                {{ anomalyValue(a) }}
+                            </span>
+                            <span class="text-muted-foreground">
+                                — normally about <span class="font-medium tabular-nums text-foreground">{{ anomalyTypical(a) }}</span>/day
+                                (reported on {{ a.reportedDays }} of {{ a.totalDays }} days in range)
+                            </span>
                         </li>
                     </ul>
+                    <p v-if="anomalies.length > 60" class="pt-2 text-xs text-muted-foreground">
+                        +{{ anomalies.length - 60 }} more — narrow the date range to see the rest.
+                    </p>
                 </CardContent>
             </Card>
 
