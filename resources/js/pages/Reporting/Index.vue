@@ -388,6 +388,17 @@ const IMPRESSION_SITES = ['f1maximaal', 'topgear', 'jfk'];
 const supportsRpm = computed(() => RPM_SITES.includes(selectedSite.value));
 const supportsImpressions = computed(() => IMPRESSION_SITES.includes(selectedSite.value));
 
+// In the impressions view the manual "Adhese impr." input column already shows
+// (and edits) Adhese impressions, so drop the generic read-only Adhese partner
+// column there to avoid two Adhese columns. Revenue view keeps it (adhese
+// revenue). The Total still sums the full PARTNERS list, so adhese impressions
+// stay counted regardless of whether this column is shown.
+const displayPartners = computed(() =>
+    supportsImpressions.value && tableMetric.value === 'impressions'
+        ? PARTNERS.value.filter((p) => p.key !== 'adhese')
+        : PARTNERS.value,
+);
+
 // RPM (revenue per 1000 pageviews). A high RPM means analytics pageviews are
 // under-reported (incomplete/late-finalized GA4 data) — the day's analytics file
 // likely needs re-uploading. rpmFor() itself works for any site with analytics
@@ -711,6 +722,24 @@ const missingAdhese = computed<any[]>(() => {
         }
     }
     return out.sort((a, b) => a.dateKey.localeCompare(b.dateKey) || a.site.localeCompare(b.site));
+});
+
+// Pivot the flat entry list into a date-by-site grid for the modal: dates are
+// rows, the impression sites are fixed columns, each cell is the entry to fill
+// (or null where that day/site has no gap → rendered as a dash).
+const adheseSiteCols = computed(() =>
+    IMPRESSION_SITES.map((id) => ({ id, name: sites.value.find((s: any) => s.id === id)?.name ?? id })),
+);
+const adheseGrid = computed(() => {
+    const byDate = new Map<string, Record<string, any>>();
+    for (const e of adheseEntries.value) {
+        if (!byDate.has(e.dateKey)) byDate.set(e.dateKey, {});
+        byDate.get(e.dateKey)![e.site] = e;
+    }
+    return [...byDate.keys()].sort().map((dateKey) => ({
+        dateKey,
+        cells: IMPRESSION_SITES.map((siteId) => ({ siteId, entry: byDate.get(dateKey)![siteId] ?? null })),
+    }));
 });
 
 function promptMissingAdhese(): boolean {
@@ -1313,7 +1342,7 @@ const tabs = [
                                         <ChevronDown v-else class="h-3 w-3" />
                                     </span>
                                 </th>
-                                <th v-for="p in PARTNERS" :key="p.key" class="px-1.5 py-2 text-right leading-tight">
+                                <th v-for="p in displayPartners" :key="p.key" class="px-1.5 py-2 text-right leading-tight">
                                     <template v-if="p.lines">
                                         {{ p.lines[0] }}<br>{{ p.lines[1] }}
                                     </template>
@@ -1332,7 +1361,7 @@ const tabs = [
                                 :class="[rpmRowClass(d), selectedRow === d.dateKey ? 'rpt-row-selected' : '']"
                                 @click="toggleRow(d.dateKey)">
                                 <td class="px-1.5 py-1 font-medium">{{ d.dateKey }}</td>
-                                <td v-for="p in PARTNERS" :key="p.key" class="px-1.5 py-1 text-right" :class="{ 'text-muted-foreground': tableMetric === 'revenue' ? !(d.revenue?.[p.key]) : !(d.impressions?.[p.key]) }">
+                                <td v-for="p in displayPartners" :key="p.key" class="px-1.5 py-1 text-right" :class="{ 'text-muted-foreground': tableMetric === 'revenue' ? !(d.revenue?.[p.key]) : !(d.impressions?.[p.key]) }">
                                     {{ tableMetric === 'revenue' ? (d.revenue?.[p.key] ?? 0).toFixed(2) : num(d.impressions?.[p.key] ?? 0) }}
                                 </td>
                                 <td class="px-1.5 py-1 text-right font-semibold">
@@ -1355,7 +1384,7 @@ const tabs = [
                             <!-- Totals row -->
                             <tr v-if="days.length" class="border-t-2 bg-muted/30 font-semibold">
                                 <td class="px-1.5 py-1.5 text-xs uppercase tracking-wide text-muted-foreground">Total</td>
-                                <td v-for="p in PARTNERS" :key="p.key" class="px-1.5 py-1.5 text-right">
+                                <td v-for="p in displayPartners" :key="p.key" class="px-1.5 py-1.5 text-right">
                                     {{ tableMetric === 'revenue' ? partnerTotals.totals[p.key].toFixed(2) : num(partnerTotals.impTotals[p.key]) }}
                                 </td>
                                 <td class="px-1.5 py-1.5 text-right">{{ tableMetric === 'revenue' ? partnerTotals.grand.toFixed(2) : num(partnerTotals.impGrand) }}</td>
@@ -1780,7 +1809,7 @@ const tabs = [
             <!-- Adhese impressions batch modal — fires after process/sync for any gap
                  on F1Maximaal or Topgear, regardless of which tab is active -->
             <div v-if="showAdheseModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                <Card class="rpt-glass rpt-modal w-full max-w-md">
+                <Card class="rpt-glass rpt-modal w-full max-w-xl">
                     <CardHeader class="flex flex-row items-center justify-between gap-2 pb-2">
                         <span class="font-medium">Adhese impressions</span>
                         <button class="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground" @click="showAdheseModal = false"><X class="h-4 w-4" /></button>
@@ -1789,12 +1818,24 @@ const tabs = [
                         <p class="text-sm text-muted-foreground">
                             {{ adheseEntries.length }} day{{ adheseEntries.length === 1 ? '' : 's' }} need an Adhese impression count.
                         </p>
-                        <div class="flex max-h-64 flex-col gap-2 overflow-y-auto">
-                            <div v-for="entry in adheseEntries" :key="entry.site + entry.dateKey" class="flex items-center gap-3">
-                                <span class="w-16 shrink-0 truncate text-xs font-medium text-muted-foreground" :title="entry.siteName">{{ entry.siteName }}</span>
-                                <span class="w-24 shrink-0 font-mono text-sm">{{ entry.dateKey }}</span>
-                                <Input v-model.number="entry.adhese" type="number" placeholder="0" class="flex-1" />
-                            </div>
+                        <div class="max-h-72 overflow-auto">
+                            <table class="w-full border-collapse text-sm">
+                                <thead>
+                                    <tr class="border-b">
+                                        <th class="px-2 py-1.5 text-left text-xs font-medium text-muted-foreground">Date</th>
+                                        <th v-for="col in adheseSiteCols" :key="col.id" class="px-2 py-1.5 text-center text-xs font-medium text-muted-foreground">{{ col.name }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="row in adheseGrid" :key="row.dateKey" class="border-b last:border-0">
+                                        <td class="whitespace-nowrap px-2 py-1 font-mono text-xs text-muted-foreground">{{ row.dateKey }}</td>
+                                        <td v-for="cell in row.cells" :key="cell.siteId" class="px-1 py-1">
+                                            <Input v-if="cell.entry" v-model.number="cell.entry.adhese" type="number" placeholder="0" class="w-full text-center" />
+                                            <span v-else class="block text-center text-muted-foreground">—</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                         <div class="flex items-center justify-between border-t pt-3">
                             <button class="text-sm text-muted-foreground hover:underline" @click="showAdheseModal = false">Skip</button>
