@@ -36,6 +36,7 @@ class Reporting
         'teads' => 'Teads',
         'adsense' => 'Adsense',
         'gumgum' => 'Gumgum',
+        'preferreddeals' => 'PreferredDeals',
     ];
 
     public const ADHESE_MARKET = [

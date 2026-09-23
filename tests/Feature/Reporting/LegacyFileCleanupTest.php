@@ -7,7 +7,7 @@ use App\Services\Reporting\ReportProcessor;
  * hasn't run an upload since "Analytics.csv" was renamed to "Analytics f1.csv"
  * (and "Analytics fl.csv" dropped entirely) would otherwise show those stale
  * names in the download modal forever. ReportProcessor::process() should sweep
- * them away on every run, the same way it already does for Outbrain/PreferredDeals.
+ * them away on every run, the same way it already does for Outbrain.
  */
 it('deletes legacy Analytics filenames left over from before the rename', function () {
     $dir = storage_path('framework/testing/legacy-cleanup-uploads');

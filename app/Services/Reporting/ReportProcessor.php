@@ -94,11 +94,10 @@ class ReportProcessor
             }
         }
 
-        // Clear optional/legacy files at the start. Outbrain is written back below
-        // only if this run has data; PreferredDeals is never written back at all
-        // (merged into the store, but the raw file isn't offered for download) —
-        // this also sweeps away any stale PreferredDeals file from before that changed.
-        foreach (['Outbrain', 'PreferredDeals'] as $name) {
+        // Clear Outbrain at the start — it is written back below only if this run
+        // has data. (PreferredDeals is a regular RENAME_MAP partner now, re-saved
+        // for download like the others, so it is no longer swept here.)
+        foreach (['Outbrain'] as $name) {
             foreach (['.csv', '.xlsx'] as $e) {
                 $p = $uploadsDir . '/' . $name . $e;
                 if (is_file($p)) unlink($p);
@@ -179,8 +178,6 @@ class ReportProcessor
             copy($path, $uploadsDir . '/' . $baseName . $ext);
         }
 
-        // Preferred Deals is intentionally NOT re-saved for download — the data
-        // is merged into the store (see above) but nobody needs the raw file back.
         if (isset($pathByType['outbrain']) && $outbrainHasData) {
             $ext = '.' . (pathinfo($origByType['outbrain'] ?? '', PATHINFO_EXTENSION) ?: 'csv');
             copy($pathByType['outbrain'], $uploadsDir . '/Outbrain' . $ext);
