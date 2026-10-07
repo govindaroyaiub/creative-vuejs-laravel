@@ -63,13 +63,22 @@ class CsvGenerator
         if ($from) $days = array_filter($days, fn ($d) => $d['dateKey'] >= $from);
         if ($to) $days = array_filter($days, fn ($d) => $d['dateKey'] <= $to);
 
-        $lines = ['date,site,market.name,Paid Revenue'];
-        $marketName = Reporting::ADHESE_MARKET[$siteId] ?? '';
+        // Festileaks' Adhese file stays revenue-only; every other site carries impressions.
+        $withImpressions = $siteId !== 'festileaks';
+
+        $lines = ['date,site,market.name,Paid Revenue' . ($withImpressions ? ',Impressions' : '')];
+        $marketName = $store['config']['adheseMarkets'][$siteId] ?? '';
         foreach ($days as $d) {
             $adhese = $d['revenue']['adhese'] ?? 0;
             if (! $adhese) continue;
             $dt = CarbonImmutable::parse($d['dateKey'] . 'T12:00:00');
-            $lines[] = Reporting::fmtAdheseDate($dt) . ',' . $site['name'] . ',' . $marketName . ',' . $adhese;
+            $line = Reporting::fmtAdheseDate($dt) . ',' . $site['name'] . ',' . $marketName . ',' . $adhese;
+            if ($withImpressions) {
+                // Adhese impressions are entered by hand and may not be filled in yet.
+                // Write 0 rather than a blank: the tool that reads this file can't parse blanks.
+                $line .= ',' . (int) ($d['impressions']['adhese'] ?? 0);
+            }
+            $lines[] = $line;
         }
 
         return implode("\n", $lines);

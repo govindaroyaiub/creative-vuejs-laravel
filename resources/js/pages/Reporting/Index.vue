@@ -624,9 +624,9 @@ function detectType(filename: string): string {
     if (n.startsWith('impressions') && n.includes('f1')) return 'impressions_f1';
     if (matchesPattern(n, p.preferreddeals)) return 'preferreddeals';
     if (matchesPattern(n, p.gam_f1m)) return 'gam_f1m';
-    // Same GAM per-site ad-requests export as gam_f1m, just for a site other than
-    // F1Maximaal — mirrors the server-side fallback in Reporting::detectFileType().
-    if (n.startsWith('copy of ') && !n.includes('general data download')) return 'gam_f1m';
+    // Same GAM per-site ad-requests export as gam_f1m ("Copy of {site}" or
+    // "GAM - {site}") — mirrors the server-side fallback in Reporting::detectFileType().
+    if ((n.startsWith('copy of ') || n.startsWith('gam - ')) && !n.includes('general data download')) return 'gam_f1m';
     return 'unknown';
 }
 

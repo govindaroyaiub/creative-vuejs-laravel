@@ -48,6 +48,7 @@ class Extractors
             $out[] = [
                 'date'    => $date,
                 'site'    => mb_strtolower((string) $siteRaw) ?: $fallbackSite,
+                'market'  => trim((string) (Reporting::pick($r, 'market.name', 'market') ?? '')),
                 'revenue' => Reporting::stripNum(Reporting::pick($r, 'Paid Revenue', 'Revenue', 'Paid revenue')),
             ];
         }

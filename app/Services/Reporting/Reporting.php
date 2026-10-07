@@ -39,12 +39,6 @@ class Reporting
         'preferreddeals' => 'PreferredDeals',
     ];
 
-    public const ADHESE_MARKET = [
-        'f1maximaal' => 'DALE-igmn',
-        'topgear' => 'DALE-igmn',
-        'festileaks' => 'DALE-igmn',
-    ];
-
     public const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     /**
@@ -56,7 +50,7 @@ class Reporting
     public const DEFAULT_FILE_PATTERNS = [
         'teads' => 'report_finance',
         'ogury' => 'ogury, export-ad-units',
-        'gam' => 'copy of general data download',
+        'gam' => 'general data download',
         'seedtag' => 'daily_report_from, revenue-export',
         'adform' => 'tg 2, tg_2',
         'showheroes' => 'topgear-',
@@ -105,10 +99,11 @@ class Reporting
         // Preferred Deals must precede gam_f1m — that filename also contains "f1max".
         if ($matches('preferreddeals')) return 'preferreddeals';
         if ($matches('gam_f1m')) return 'gam_f1m';
-        // Same GAM per-site ad-requests export as gam_f1m, just for a site other than
-        // F1Maximaal — GAM's own export naming is "Copy of {site} (date range)" for
-        // all of them; only exclude the unrelated all-publishers revenue download.
-        if (str_starts_with($name, 'copy of ') && ! str_contains($name, 'general data download')) return 'gam_f1m';
+        // Same GAM per-site ad-requests export as gam_f1m, for any site. GAM names
+        // these "Copy of {site} (date range)" (older) or "GAM - {site} (date range)"
+        // (current); only exclude the unrelated all-publishers revenue download.
+        if ((str_starts_with($name, 'copy of ') || str_starts_with($name, 'gam - '))
+            && ! str_contains($name, 'general data download')) return 'gam_f1m';
         if (str_starts_with($name, 'planetnine-report-')) return 'planetnine';
         if (str_starts_with($name, 'tg-revenue-report-')) return 'report_topgear';
         if (str_starts_with($name, 'horses-revenue-report-')) return 'report_horses';

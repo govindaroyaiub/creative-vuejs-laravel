@@ -49,14 +49,21 @@ class ReportProcessor
             }
         }
 
-        // Group adhese rows by site.
+        // Group adhese rows by site, remembering each site's market.name exactly as
+        // the uploaded file states it — the Adhese download writes it back out.
         $adhesePerSite = [];
+        $adheseMarkets = [];
         foreach ($adheseRows as $row) {
             $siteId = self::siteForDomain($row['site']);
             if (! $siteId) continue;
             $k = Reporting::dateKey($row['date']);
             $adhesePerSite[$siteId][$k] ??= ['date' => $row['date'], 'revenue' => 0.0];
             $adhesePerSite[$siteId][$k]['revenue'] += $row['revenue'];
+            if (($row['market'] ?? '') !== '') $adheseMarkets[$siteId] = $row['market'];
+        }
+        if ($adheseMarkets) {
+            $store['config']['adheseMarkets'] = array_merge($store['config']['adheseMarkets'] ?? [], $adheseMarkets);
+            \App\Models\ReportSetting::put('adhese_markets', $store['config']['adheseMarkets']);
         }
 
         // GA4 exports carry no site column (one property per file), so route by

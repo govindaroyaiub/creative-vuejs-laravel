@@ -31,6 +31,8 @@ class ReportStore
         $store = self::empty();
         $store['config'] = [
             'oguryRate' => ReportSetting::get('oguryRate', self::DEFAULT_OGURY_RATE),
+            // site => market.name, captured from the last processed Adhese file.
+            'adheseMarkets' => (array) ReportSetting::get('adhese_markets', []),
         ];
 
         foreach (ReportDay::all() as $row) {

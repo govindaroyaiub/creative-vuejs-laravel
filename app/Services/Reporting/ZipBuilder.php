@@ -15,12 +15,7 @@ class ZipBuilder
 {
     public static function build(array $store, string $uploadsDir, ?array $requested = null, ?string $from = null, ?string $to = null, bool $oguryOldFormat = false): string
     {
-        $exclude = fn (string $name) => str_starts_with(mb_strtolower($name), 'planetnine-report-');
-
-        $all = array_values(array_filter(
-            is_dir($uploadsDir) ? array_diff(scandir($uploadsDir), ['.', '..']) : [],
-            fn ($f) => is_file($uploadsDir . '/' . $f) && ! $exclude($f),
-        ));
+        $all = self::availableFiles($uploadsDir);
         if (count($all) === 0) throw new RuntimeException('No files to download yet');
 
         $files = $requested !== null ? array_values(array_filter($all, fn ($f) => in_array($f, $requested, true))) : $all;
@@ -37,6 +32,7 @@ class ZipBuilder
                 'Adhese f1.csv' => CsvGenerator::adhese($store, 'f1maximaal', $from, $to),
                 'Adhese tg.csv' => CsvGenerator::adhese($store, 'topgear', $from, $to),
                 'Adhese fl.csv' => CsvGenerator::adhese($store, 'festileaks', $from, $to),
+                'Adhese jfk.csv' => CsvGenerator::adhese($store, 'jfk', $from, $to),
                 default => null,
             };
             if ($generated !== null) {
@@ -69,7 +65,9 @@ class ZipBuilder
     public static function availableFiles(string $uploadsDir): array
     {
         if (! is_dir($uploadsDir)) return [];
-        $exclude = fn (string $name) => str_starts_with(mb_strtolower($name), 'planetnine-report-');
+        // Hidden files (macOS .DS_Store, ._* resource forks) are OS litter, not reports.
+        $exclude = fn (string $name) => str_starts_with($name, '.')
+            || str_starts_with(mb_strtolower($name), 'planetnine-report-');
         $files = array_values(array_filter(
             array_diff(scandir($uploadsDir), ['.', '..']),
             fn ($f) => is_file($uploadsDir . '/' . $f) && ! $exclude($f),
