@@ -22,7 +22,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // MySQL 26-compatible Pulse storage (see App\Services\Pulse\DatabaseStorage).
+        $this->app->bind(\Laravel\Pulse\Contracts\Storage::class, \App\Services\Pulse\DatabaseStorage::class);
     }
 
     /**
