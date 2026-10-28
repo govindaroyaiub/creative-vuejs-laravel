@@ -1,0 +1,61 @@
+# Shared settings for the 3 PHP containers (YAML "anchor")
+x-php: &php
+  build: ./docker/php
+  volumes:
+    - .:/var/www/html
+  environment: # these override .env inside containers only
+    DB_HOST: mysql # service name = hostname on Docker's network
+    DB_PORT: 3306
+    DB_DATABASE: creative
+    DB_USERNAME: creative
+    DB_PASSWORD: secret
+    REVERB_HOST: reverb # PHP sends events to the reverb container
+  depends_on:
+    mysql:
+      condition: service_healthy
+
+services:
+  app:
+    <<: *php
+    # PHP built-in server directly: `artisan serve` drops env vars that also exist in .env,
+    # which would undo the DB_HOST/REVERB_HOST overrides above.
+    working_dir: /var/www/html/public   # Laravel's router expects to run from public/
+    command: php -S 0.0.0.0:8000 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php
+    ports: ["8000:8000"]
+
+  queue:
+    <<: *php
+    command: php artisan queue:listen --tries=1
+
+  reverb:
+    <<: *php
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080
+    ports: ["8080:8080"]
+
+  vite:
+    image: node:22
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+      - node_modules:/var/www/html/node_modules # Linux node_modules, kept apart from your Windows one
+    command: sh -c "npm ci && npm run dev"
+    ports: ["5173:5173"]
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: creative
+      MYSQL_USER: creative
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root
+    ports: ["3307:3306"] # 3307 on your PC, because Ubuntu MySQL already uses 3306
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      retries: 20
+
+volumes:
+  mysql-data:
+  node_modules:

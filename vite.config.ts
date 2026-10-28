@@ -33,4 +33,9 @@ export default defineConfig({
             plugins: [tailwindcss, autoprefixer],
         },
     },
+    server: {
+        host: '0.0.0.0',
+        port: 5173,
+        hmr: { host: 'localhost' },     // the browser connects back to localhost:5173
+    },
 });
