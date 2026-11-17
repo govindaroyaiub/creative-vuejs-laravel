@@ -36,7 +36,8 @@ class ReportingController extends Controller
     /** Where canonical uploaded files + regenerated CSVs live for the ZIP download. */
     private function uploadsDir(): string
     {
-        $dir = storage_path('app/reporting/uploads');
+        // Overridable so the test suite never writes into the real uploads folder.
+        $dir = config('reporting.uploads_dir') ?? storage_path('app/reporting/uploads');
         if (! is_dir($dir)) mkdir($dir, 0775, true);
 
         return $dir;

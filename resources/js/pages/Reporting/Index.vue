@@ -3,18 +3,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import UserMenuContent from '@/components/UserMenuContent.vue';
 import DateRangePicker from '@/components/DateRangePicker.vue';
 import { useInitials } from '@/composables/useInitials';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Upload, Download, AlertTriangle, CheckCircle2, XCircle, Loader2, CalendarDays, Coins, Eye, TrendingUp, Award, CalendarCheck, X, FileText, FileSpreadsheet, FileJson, ArrowLeft, ExternalLink, Plus, Link2, Mail, Copy, Trash2, RefreshCw, Circle, Settings, Minus, ChevronDown, ChevronUp, Gauge, FileArchive, PackageCheck, Calculator } from 'lucide-vue-next';
+import { Upload, Download, AlertTriangle, CheckCircle2, XCircle, Loader2, CalendarDays, X, FileText, FileSpreadsheet, FileJson, ArrowLeft, ExternalLink, Plus, Link2, Mail, Copy, Trash2, RefreshCw, Settings, Minus, ChevronDown, ChevronUp, MoreHorizontal, FileArchive, PackageCheck, Calculator } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, ref, onMounted, watch } from 'vue';
-import { Line, Doughnut } from 'vue-chartjs';
+import { Bar } from 'vue-chartjs';
 import {
     Chart as ChartJS, Title, Tooltip, Legend, Filler,
-    LineElement, CategoryScale, LinearScale, PointElement, ArcElement,
+    LineElement, CategoryScale, LinearScale, PointElement, BarElement, BarController, LineController,
 } from 'chart.js';
 
 import vueFilePond from 'vue-filepond';
@@ -22,7 +22,8 @@ import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import 'filepond/dist/filepond.min.css';
 const FilePond = vueFilePond(FilePondPluginFileValidateType);
 
-ChartJS.register(Title, Tooltip, Legend, Filler, LineElement, CategoryScale, LinearScale, PointElement, ArcElement);
+// LineController: the RPM strip is a bar chart with two dashed threshold lines.
+ChartJS.register(Title, Tooltip, Legend, Filler, LineElement, CategoryScale, LinearScale, PointElement, BarElement, BarController, LineController);
 
 
 const page = usePage();
@@ -285,7 +286,6 @@ const ALL_PARTNERS: { key: string; label: string; lines?: [string, string] }[] =
 const PARTNERS = computed(() => selectedSite.value === 'f1maximaal'
     ? ALL_PARTNERS
     : ALL_PARTNERS.filter((p) => p.key !== 'outbrain' && p.key !== 'preferredDeals'));
-const COLORS = ['#e2483d', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#a3a3a3', '#6366f1', '#84cc16', '#f97316'];
 
 const selectedSite = ref('f1maximaal');
 const activeTab = ref<'summary' | 'impressions' | 'revenue' | 'verify' | 'email'>('summary');
@@ -300,6 +300,7 @@ const processing = ref(false);
 // Optional YYYY-MM: process/backfill that whole month instead of the default
 // "current month + last 7 days" window.
 const backfillPeriod = ref('');
+const showUpload = ref(false);
 const showAdheseModal = ref(false);
 const adheseEntries = ref<{ site: string; siteName: string; dateKey: string; adhese: number | null }[]>([]);
 const adheseSaving = ref(false);
@@ -436,48 +437,41 @@ const rpmRowClass = (d: any) => {
     const t = rpmTier(d);
     return t === 'red' ? 'bg-red-500/10' : t === 'amber' ? 'bg-amber-400/10' : '';
 };
-// Same banding as the table rows (border + soft fill) — used on the Summary
-// tab's "Latest day" block so anomalies stand out there too.
-const rpmCardClass = (d: any) => {
-    const t = rpmTier(d);
-    return t === 'red' ? 'border-red-500/40 bg-red-500/5' : t === 'amber' ? 'border-amber-400/40 bg-amber-400/5' : '';
-};
-// Most recent day in the active date-range filter — backs the Summary tab's
-// "Latest day" block (per site now; same fields Days used to show).
+// Most recent day in the active date-range filter — the Summary tab's
+// "Latest day" panel answers the page's question: did that day come in, and
+// does its RPM look right?
 const latestDay = computed<any | null>(() => days.value[days.value.length - 1] ?? null);
 const blendedRpm = computed<number | null>(() => {
     const views = days.value.reduce((t, d) => t + (d.analytics?.views ?? 0), 0);
     return views > 0 ? (partnerTotals.value.grand / views) * 1000 : null;
 });
 // Same amber/red banding as the table rows, applied to the range-wide blended
-// RPM so the Summary KPI card signals when the period as a whole looks off.
+// RPM so the range strip signals when the period as a whole looks off.
 const blendedRpmTier = computed<'red' | 'amber' | null>(() => {
     if (blendedRpm.value === null) return null;
     if (blendedRpm.value >= rpmRed.value) return 'red';
     if (blendedRpm.value >= rpmAmber.value) return 'amber';
     return null;
 });
-
 const impressionsSoldTotal = computed(() =>
     days.value.reduce((t, d) => t + (d.impressionsSold || 0), 0));
 
 const avgDaily = computed(() => (days.value.length ? partnerTotals.value.grand / days.value.length : 0));
 
-// Partners that actually have revenue, ranked, with colour + share — drives both
-// the doughnut and the legend list.
+// Partners that actually have revenue, ranked by share — the "Revenue by
+// partner" list; its first row is the top partner.
 const partnerBreakdown = computed(() => {
     const t = partnerTotals.value.totals;
     const grand = partnerTotals.value.grand || 1;
-    return PARTNERS.value.map((p, i) => ({ ...p, total: t[p.key], pct: (t[p.key] / grand) * 100, color: COLORS[i % COLORS.length] }))
+    return PARTNERS.value.map((p) => ({ ...p, total: t[p.key] ?? 0, pct: ((t[p.key] ?? 0) / grand) * 100 }))
         .filter((x) => x.total > 0)
         .sort((a, b) => b.total - a.total);
 });
-const topPartner = computed(() => partnerBreakdown.value[0] ?? null);
 
 const bestDay = computed(() => {
     let best: { dateKey: string; total: number; partner: string } | null = null;
     for (const d of days.value) {
-        const tot = PARTNERS.value.reduce((t, p) => t + (d.revenue?.[p.key] ?? 0), 0);
+        const tot = dayRevenue(d);
         if (!best || tot > best.total) {
             let top = { label: '—', v: -1 };
             for (const p of PARTNERS.value) {
@@ -490,40 +484,129 @@ const bestDay = computed(() => {
     return best;
 });
 
+// ─── Latest day (Summary panel) ───────────────────────────────────────────────
+// Every stored day for the site, oldest first, ignoring the range filter: the
+// panel compares the latest day with the stored day before it, and the RPM
+// strip shows the 14 days up to it even when the range starts later.
+const siteDaysAll = computed<any[]>(() => {
+    const map = store.value?.sites?.[selectedSite.value]?.days ?? {};
+    return Object.values(map).sort((a: any, b: any) => a.dateKey.localeCompare(b.dateKey));
+});
+const latestIdx = computed(() => (latestDay.value ? siteDaysAll.value.findIndex((d) => d.dateKey === latestDay.value.dateKey) : -1));
+const prevDay = computed<any | null>(() => (latestIdx.value > 0 ? siteDaysAll.value[latestIdx.value - 1] : null));
+const siteName = computed(() => sites.value.find((s) => s.id === selectedSite.value)?.name ?? '');
+
+const asDate = (k: string) => new Date(k + 'T12:00:00');
+const fmtDay = (k: string) => asDate(k).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+const fmtDayLong = (k: string) => asDate(k).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+const fmtDayShort = (k: string) => asDate(k).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
+// A change against the day before, signed. Colour says good or bad for the
+// business (more revenue is good); figures that aren't judged stay grey.
+type Delta = { text: string; tone: 'pos' | 'neg' | 'flat' };
+function delta(cur: number, prev: number | null | undefined, fmt: (n: number) => string, judged = true): Delta | null {
+    if (prev == null) return null;
+    const diff = cur - prev;
+    if (Math.abs(diff) < 0.005) return { text: '±0', tone: 'flat' };
+    return { text: (diff > 0 ? '+' : '−') + fmt(Math.abs(diff)), tone: !judged ? 'flat' : diff > 0 ? 'pos' : 'neg' };
+}
+const pct = (part: number, whole: number) => (whole > 0 ? ((part / whole) * 100).toFixed(1) + '%' : '—');
+
+const adheseMissing = computed(() => {
+    const d = latestDay.value;
+    return !!d && supportsImpressions.value && (d.revenue?.adhese ?? 0) > 0 && d.impressions?.adhese == null;
+});
+
+// The figures under the headline number, each against the day before.
+const latestRows = computed(() => {
+    const d = latestDay.value;
+    if (!d) return [];
+    const p = prevDay.value;
+    const rows: { label: string; value: string; sub?: string | undefined; delta: Delta | null }[] = [
+        { label: 'Revenue', value: eur(dayRevenue(d)), delta: delta(dayRevenue(d), p ? dayRevenue(p) : null, eur) },
+    ];
+    if (supportsRpm.value) {
+        const v = d.analytics?.views;
+        rows.push({ label: 'Pageviews', value: v != null ? num(v) : '—', delta: v != null ? delta(v, p?.analytics?.views, num) : null });
+    }
+    if (supportsImpressions.value) {
+        const sold = d.impressionsSold || 0;
+        const req = d.totalAdRequests || 0;
+        rows.push({ label: 'Impressions sold', value: num(sold), sub: req ? pct(sold, req) + ' of requests' : undefined, delta: delta(sold, p ? p.impressionsSold || 0 : null, num) });
+        rows.push({ label: 'Ad requests', value: num(req), delta: delta(req, p ? p.totalAdRequests || 0 : null, num, false) });
+    }
+    return rows;
+});
+
+const tierText = (t: 'red' | 'amber' | null, r: number | null) =>
+    t === 'red' ? (r === null ? 'No pageviews' : 'Over the alert') : t === 'amber' ? 'Over the watch line' : 'Normal';
+
 // ─── Charts ──────────────────────────────────────────────────────────────────
+// One hue on the screen's main data: the latest day, in the brand red. Every
+// other day is grey; amber and red are kept for the RPM alert levels.
+const HUE = '#e2483d';
+const BAR = 'rgba(128,128,128,0.32)';
+const BAR_STRONG = 'rgba(128,128,128,0.85)';
+const WATCH = '#e3a23b';
+const ALERT = '#c4242a';
+
 const revenueChart = computed(() => ({
-    labels: days.value.map((d) => d.dateKey.slice(5)),
+    labels: days.value.map((d) => fmtDayShort(d.dateKey)),
     datasets: [{
         label: 'Revenue',
-        data: days.value.map((d) => PARTNERS.value.reduce((t, p) => t + (d.revenue?.[p.key] ?? 0), 0)),
-        borderColor: '#e2483d',
-        borderWidth: 2,
-        tension: 0.4,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-        pointHoverBackgroundColor: '#e2483d',
-        fill: true,
-        backgroundColor: (ctx: any) => {
-            const { ctx: c, chartArea } = ctx.chart;
-            if (!chartArea) return 'rgba(226,72,61,0.15)';
-            const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-            g.addColorStop(0, 'rgba(226,72,61,0.30)');
-            g.addColorStop(1, 'rgba(226,72,61,0)');
-            return g;
-        },
+        data: days.value.map(dayRevenue),
+        backgroundColor: days.value.map((d) => (d.dateKey === latestDay.value?.dateKey ? HUE : BAR)),
+        borderRadius: 0, barPercentage: 0.8, categoryPercentage: 0.9,
     }],
 }));
-const splitChart = computed(() => ({
-    labels: partnerBreakdown.value.map((p) => p.label),
-    datasets: [{ data: partnerBreakdown.value.map((p) => p.total), backgroundColor: partnerBreakdown.value.map((p) => p.color), borderWidth: 0, hoverOffset: 6 }],
-}));
 
-const gridColor = 'rgba(128,128,128,0.12)';
-const tickColor = 'rgba(128,128,128,0.8)';
+// RPM against the alert band: the 14 stored days up to the latest one, with
+// the Settings thresholds as dashed lines. Sites without analytics get their
+// daily revenue here instead.
+const stripDays = computed(() => (latestIdx.value >= 0 ? siteDaysAll.value.slice(Math.max(0, latestIdx.value - 13), latestIdx.value + 1) : []));
+const stripChart = computed(() => {
+    const ds = stripDays.value;
+    const last = ds.length - 1;
+    const labels = ds.map((d) => fmtDayShort(d.dateKey));
+    if (!supportsRpm.value) {
+        return { labels, datasets: [{ type: 'bar' as const, label: 'Revenue', data: ds.map(dayRevenue), backgroundColor: ds.map((_, i) => (i === last ? HUE : BAR)), borderRadius: 0, barPercentage: 0.75, categoryPercentage: 0.9 }] };
+    }
+    const flat = (v: number, label: string, color: string) => ({
+        type: 'line' as const, label, data: ds.map(() => v), borderColor: color, borderWidth: 1, borderDash: [4, 4], pointRadius: 0, pointHoverRadius: 0, order: 0,
+    });
+    return {
+        labels,
+        datasets: [
+            {
+                type: 'bar' as const, label: 'RPM', order: 1,
+                data: ds.map((d) => rpmFor(d)),
+                backgroundColor: ds.map((d, i) => {
+                    const t = rpmTier(d);
+                    return t === 'red' ? ALERT : t === 'amber' ? WATCH : i === last ? BAR_STRONG : BAR;
+                }),
+                borderRadius: 0, barPercentage: 0.75, categoryPercentage: 0.9,
+            },
+            flat(rpmAmber.value, 'Watch', WATCH),
+            flat(rpmRed.value, 'Alert', ALERT),
+        ],
+    };
+});
+
+const gridColor = 'rgba(128,128,128,0.14)';
+const tickColor = 'rgba(128,128,128,0.9)';
 const tip = {
-    backgroundColor: 'rgba(17,17,17,0.9)', padding: 10, cornerRadius: 8, displayColors: false,
-    titleFont: { size: 11 }, bodyFont: { size: 12, weight: 'bold' as const },
+    backgroundColor: 'rgba(17,17,17,0.92)', padding: 8, cornerRadius: 4, displayColors: false,
+    titleFont: { size: 11 }, bodyFont: { size: 12 },
 };
+// X labels on one even step, counted back from the latest day so it is always
+// labelled (autoSkip would drop it).
+const stepTicks = (labels: string[], most: number) => {
+    const step = Math.max(1, Math.ceil(labels.length / most));
+    const last = labels.length - 1;
+    return { color: tickColor, font: { size: 11 }, maxRotation: 0, autoSkip: false,
+        callback: (_v: any, i: number) => ((last - i) % step === 0 ? labels[i] : '') };
+};
+const axisX = { grid: { display: false }, border: { display: false }, ticks: { color: tickColor, font: { size: 11 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 7 } };
 const chartOptions = {
     responsive: true, maintainAspectRatio: false,
     // No draw-in animation: charts live under v-show, so Chart.js would replay
@@ -532,21 +615,38 @@ const chartOptions = {
     interaction: { mode: 'index' as const, intersect: false },
     plugins: {
         legend: { display: false },
-        tooltip: { ...tip, callbacks: { label: (c: any) => '€' + c.parsed.y.toLocaleString('en-US', { maximumFractionDigits: 0 }) } },
+        tooltip: { ...tip, callbacks: { label: (c: any) => eur(c.parsed.y) } },
     },
     scales: {
-        x: { grid: { display: false }, border: { display: false }, ticks: { color: tickColor, font: { size: 10 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } },
-        y: { grid: { color: gridColor }, border: { display: false }, ticks: { color: tickColor, font: { size: 10 }, maxTicksLimit: 5, callback: (v: any) => '€' + v } },
+        x: axisX,
+        y: { beginAtZero: true, grid: { color: gridColor }, border: { display: false }, ticks: { color: tickColor, font: { size: 11 }, maxTicksLimit: 5, callback: (v: any) => '€' + Number(v).toLocaleString('en-US') } },
     },
 };
-const doughnutOptions = {
-    responsive: true, maintainAspectRatio: false, cutout: '70%',
-    animation: false as const,
-    plugins: {
-        legend: { display: false },
-        tooltip: { ...tip, callbacks: { label: (c: any) => c.label + ': €' + c.parsed.toLocaleString('en-US', { maximumFractionDigits: 0 }) } },
-    },
-};
+const revenueOptions = computed(() => ({
+    ...chartOptions,
+    scales: { ...chartOptions.scales, x: { ...axisX, ticks: stepTicks(revenueChart.value.labels, 8) } },
+}));
+const stripOptions = computed(() => {
+    const vals = ((stripChart.value.datasets[0]?.data ?? []) as (number | null)[]).filter((v): v is number => typeof v === 'number');
+    const rpm = supportsRpm.value;
+    return {
+        ...chartOptions,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                ...tip,
+                filter: (c: any) => c.dataset.type === 'bar',
+                callbacks: { label: (c: any) => (rpm ? (c.parsed.y == null ? 'No pageviews' : 'RPM ' + c.parsed.y.toFixed(2)) : eur(c.parsed.y)) },
+            },
+        },
+        scales: {
+            x: { ...axisX, ticks: stepTicks(stripChart.value.labels, 5) },
+            y: rpm
+                ? { beginAtZero: true, max: Math.ceil((Math.max(rpmRed.value, ...vals) + 0.25) / 2) * 2, grid: { color: gridColor }, border: { display: false }, ticks: { stepSize: 2, color: tickColor, font: { size: 11 }, callback: (v: any) => Number(v).toFixed(0) } }
+                : chartOptions.scales.y,
+        },
+    };
+});
 
 // ─── Anomalies (zero/missing only) ─────────────────────────────────────────────
 // A partner that reports on most days of the range but drops to 0 (or has no
@@ -677,11 +777,16 @@ const checklist = computed(() => {
 });
 const requiredCount = computed(() => checklist.value.length);
 const checkedCount = computed(() => checklist.value.filter((c) => c.checked).length);
-// Dropped files that don't map to a required slot (unrecognised reports).
-const extraFiles = computed(() => selectedUploadFiles.value.filter((f) => {
-    const t = detectType(f.name);
-    return !REQUIRED.some((r) => (r.key.startsWith('adhese_') ? t === 'adhese' : r.key === t));
-}));
+// The upload modal lists only what still matters: required files not added yet,
+// and every added file under the name it was recognised as (null = unknown).
+const missingItems = computed(() => checklist.value.filter((c) => !c.checked));
+function uploadLabel(name: string): string | null {
+    const t = detectType(name);
+    if (t === 'unknown') return null;
+    const key = t === 'adhese' || t === 'analytics' || t === 'gam_f1m' ? `${t}_${siteSuffixFromName(name)}` : t;
+    return REQUIRED.find((r) => r.key === key)?.label ?? name;
+}
+const addedFiles = computed(() => selectedUploadFiles.value.map((f) => ({ file: f, label: uploadLabel(f.name) })));
 
 function addFiles(list: FileList | null) {
     if (!list) return;
@@ -794,6 +899,7 @@ function processFiles() {
         onFinish: () => (processing.value = false),
         onSuccess: () => {
             selectedUploadFiles.value = [];
+            showUpload.value = false;
             // Prompt for any day left with Adhese revenue but no impressions —
             // covers brand-new dates and any that slipped through earlier.
             promptMissingAdhese();
@@ -1005,11 +1111,10 @@ const tabs = [
     <div class="rpt-root relative min-h-screen">
         <!-- Decorative ambient color wash + starfield (dark mode only), same
              technique as the Previews/Update2 editor's chrome. -->
-        <div aria-hidden="true" class="rpt-ambient" />
         <div aria-hidden="true" class="rpt-stars" />
         <!-- Standalone top bar (no app sidebar) with a way back -->
-        <header class="sticky top-0 z-40 border-b border-[var(--rpt-hairline)] bg-[var(--rpt-surface-muted)] backdrop-blur">
-            <div class="flex items-center justify-between gap-3 px-6 py-3">
+        <header class="sticky top-0 z-40 border-b border-[var(--rpt-hairline)] bg-[var(--rpt-bg)]">
+            <div class="mx-auto flex max-w-[1280px] items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
                 <div class="flex items-center gap-3">
                     <Link href="/dashboard" title="Back to dashboard" aria-label="Back"
                         class="grid h-9 w-9 place-items-center rounded-full border border-[var(--rpt-border)] text-muted-foreground transition hover:text-foreground">
@@ -1037,270 +1142,252 @@ const tabs = [
             </div>
         </header>
 
-        <div class="relative z-[1] flex w-full flex-col gap-6 p-6">
-            <!-- Header -->
-            <div class="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h1 class="text-2xl font-semibold">Reporting</h1>
-                        <span class="rounded-full bg-muted px-2 py-0.5 text-xs font-medium tabular-nums">Week {{ weekNumber }}</span>
-                    </div>
-                    <p class="text-sm text-muted-foreground">Ad-partner impressions & revenue across the four sites.</p>
+        <!-- No z-index here: it would trap every modal (z-50) below the sticky top bar (z-40).
+             Coming after the starfield in the page is enough to paint above it. -->
+        <div class="relative mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-4 py-6 sm:px-6">
+            <!-- Title row: the page, the selected site, and the jobs -->
+            <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
+                <div class="min-w-[18rem] flex-1">
+                    <h1 class="text-2xl font-semibold tracking-tight">Reporting</h1>
+                    <p class="mt-1 text-sm text-muted-foreground">{{ siteName }}</p>
                 </div>
-                <div class="flex flex-wrap items-center gap-3">
-                    <Button class="rounded-full" variant="outline" :disabled="syncing" @click="checkForData">
-                        <RefreshCw class="mr-2 h-4 w-4" :class="{ 'animate-spin': syncing }" /> Check for data
+                <div class="flex max-w-full flex-wrap items-center gap-2">
+                    <span class="mr-1 basis-full text-xs text-muted-foreground sm:basis-auto">
+                        <template v-if="sync.syncedAt">Snapshot {{ sync.syncedAt }}</template>
+                        <template v-else>No snapshot imported yet</template>
+                        <button v-if="sync.available" class="ml-1 font-medium text-foreground underline-offset-2 hover:underline" @click="confirmSync">
+                            · {{ sync.pending }} day{{ sync.pending === 1 ? '' : 's' }} to sync
+                        </button>
+                    </span>
+                    <Button variant="outline" class="h-9 max-sm:order-2" @click="openDownload"><Download /> Download reports</Button>
+                    <Button class="h-9 max-sm:order-1" @click="showUpload = true">
+                        <Upload /> Upload files
+                        <span v-if="selectedUploadFiles.length" class="rounded bg-primary-foreground/20 px-1.5 text-xs tabular-nums">{{ selectedUploadFiles.length }}</span>
                     </Button>
-                    <Button class="rounded-full" variant="outline" @click="showLinks = true"><Link2 class="mr-2 h-4 w-4" /> Report links</Button>
-                    <Button class="rounded-full" variant="outline" @click="openDownload"><Download class="mr-2 h-4 w-4" /> Download Reports</Button>
-                    <Button class="rounded-full" variant="outline" @click="showFormulas = true"><Calculator class="mr-2 h-4 w-4" /> How it's calculated</Button>
-                    <Button class="rounded-full" variant="outline" @click="openSettings"><Settings class="mr-2 h-4 w-4" /> Settings</Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger as-child>
+                            <Button variant="outline" size="icon" class="h-9 w-9 max-sm:order-3" aria-label="More actions"><MoreHorizontal /></Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" class="w-52">
+                            <DropdownMenuItem :disabled="syncing" @select="checkForData"><RefreshCw :class="{ 'animate-spin': syncing }" /> Check for data</DropdownMenuItem>
+                            <DropdownMenuItem @select="showLinks = true"><Link2 /> Report links</DropdownMenuItem>
+                            <DropdownMenuItem @select="showFormulas = true"><Calculator /> How it's calculated</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem @select="openSettings"><Settings /> Settings</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </div>
 
             <!-- Data migration banner -->
-            <div v-if="syncing" class="flex items-center gap-3 rounded-xl border border-[#e2483d]/40 bg-[#e2483d]/5 p-4 text-sm">
-                <Loader2 class="h-5 w-5 shrink-0 animate-spin text-[#e2483d]" />
-                <div><span class="font-medium">New data found — migration in progress.</span> Please wait…</div>
+            <div v-if="syncing" class="rpt-panel flex items-center gap-3 p-4 text-sm">
+                <Loader2 class="h-4 w-4 shrink-0 animate-spin text-muted-foreground" />
+                <div><span class="font-medium">New data found, importing it.</span> <span class="text-muted-foreground">Please wait…</span></div>
             </div>
 
-            <!-- Upload card: checklist drop zone -->
-            <Card class="rpt-glass">
-                <CardHeader class="flex flex-row items-center justify-between gap-2 pb-2">
-                    <div class="flex items-center gap-2">
-                        <Upload class="h-5 w-5 text-[#e2483d]" />
-                        <span class="font-medium">Upload partner files</span>
-                    </div>
-                    <span class="rounded-full px-2.5 py-0.5 text-xs font-medium tabular-nums"
-                        :class="checkedCount === requiredCount ? 'bg-emerald-500/15 text-emerald-600' : 'bg-muted text-muted-foreground'">
-                        {{ checkedCount }}/{{ requiredCount }} ready
-                    </span>
-                </CardHeader>
-                <CardContent class="flex flex-col gap-3">
-                    <input ref="fileInput" type="file" multiple class="hidden" @change="onFilesChosen" />
-                    <div class="rounded-xl border-2 border-dashed p-4 transition"
-                        :class="dragging ? 'border-[#e2483d] bg-[#e2483d]/5' : 'border-muted-foreground/25'"
-                        @dragover.prevent="dragging = true" @dragleave.prevent="dragging = false" @drop.prevent="onDrop">
-                        <p class="mb-3 text-center text-sm text-muted-foreground">
-                            Drag &amp; drop reports here, or
-                            <button type="button" class="font-medium text-[#e2483d] hover:underline" @click="fileInput?.click()">browse</button>
-                            — checked = received, unchecked = still missing.
-                        </p>
-                        <div class="grid gap-1.5 sm:grid-cols-2">
-                            <div v-for="item in checklist" :key="item.key"
-                                class="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition"
-                                :class="item.checked ? 'bg-emerald-500/10' : 'bg-muted/40'">
-                                <CheckCircle2 v-if="item.checked" class="h-4 w-4 shrink-0 text-emerald-500" />
-                                <Circle v-else class="h-4 w-4 shrink-0 text-muted-foreground/40" />
-                                <span :class="item.checked ? 'font-medium' : 'text-muted-foreground'">{{ item.label }}</span>
-                                <span v-if="item.file" class="ml-auto max-w-[45%] truncate text-[11px] text-muted-foreground">{{ item.file }}</span>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Sites -->
+            <nav class="rpt-tabs -mt-2 flex gap-6 overflow-x-auto" aria-label="Site">
+                <button v-for="s in sites" :key="s.id" :aria-current="selectedSite === s.id ? 'page' : undefined"
+                    class="shrink-0 border-b-2 pb-2.5 pt-1 text-sm transition"
+                    :class="selectedSite === s.id ? 'border-foreground font-medium text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'"
+                    @click="selectedSite = s.id">{{ s.name }}</button>
+            </nav>
 
-                    <!-- Extra/optional files dropped that aren't in the checklist -->
-                    <div v-if="extraFiles.length" class="flex flex-wrap gap-1.5">
-                        <span v-for="(f, i) in extraFiles" :key="i" class="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-xs">
-                            <FileText class="h-3 w-3 text-muted-foreground" /> {{ f.name }}
-                            <button class="text-muted-foreground hover:text-red-500" @click="removeFile(f)"><X class="h-3 w-3" /></button>
-                        </span>
-                    </div>
-
-                    <div v-if="selectedUploadFiles.length" class="flex flex-wrap items-center gap-3">
-                        <Button class="rounded-full" :disabled="processing" @click="processFiles">
-                            <Loader2 v-if="processing" class="mr-2 h-4 w-4 animate-spin" />
-                            Process {{ selectedUploadFiles.length }} file{{ selectedUploadFiles.length === 1 ? '' : 's' }}
-                        </Button>
-                        <button class="text-xs text-muted-foreground hover:underline" @click="selectedUploadFiles = []">Clear</button>
-                        <!-- Backfill an older month (else only current month + last 7 days is kept) -->
-                        <label class="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
-                            Backfill month
-                            <input v-model="backfillPeriod" type="month"
-                                class="rounded-md border bg-background px-2 py-1 text-xs text-foreground" />
-                        </label>
-                        <button v-if="backfillPeriod" class="text-xs text-muted-foreground hover:underline" @click="backfillPeriod = ''">reset</button>
-                    </div>
-                </CardContent>
-            </Card>
-
-            <!-- Site selector + tabs -->
+            <!-- View, then date range -->
             <div class="flex flex-wrap items-center justify-between gap-3">
-                <div class="flex gap-1 rounded-full border p-1">
-                    <button v-for="s in sites" :key="s.id"
-                        class="rounded-full px-3 py-1.5 text-sm transition"
-                        :class="selectedSite === s.id ? 'bg-[#e2483d] text-white' : 'hover:bg-muted'"
-                        @click="selectedSite = s.id">{{ s.name }}</button>
-                </div>
-                <div class="flex gap-1 rounded-full border p-1">
-                    <button v-for="t in tabs" :key="t.id"
-                        class="rounded-full px-3 py-1.5 text-sm transition"
-                        :class="activeTab === t.id ? 'bg-foreground text-background' : 'hover:bg-muted'"
+                <div class="rpt-track flex max-w-full gap-0.5 overflow-x-auto" role="tablist" aria-label="View">
+                    <button v-for="t in tabs" :key="t.id" role="tab" :aria-selected="activeTab === t.id"
+                        class="rpt-seg" :class="{ 'rpt-seg-on': activeTab === t.id }"
                         @click="activeTab = t.id">{{ t.label }}</button>
                 </div>
-            </div>
-
-            <!-- Date range filter -->
-            <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 rounded-xl border bg-card p-2">
-                <!-- preset pills -->
-                <div class="flex flex-wrap items-center gap-1 rounded-full bg-muted/50 p-1">
-                    <button v-for="p in PRESETS" :key="p"
-                        class="rounded-full px-3 py-1.5 text-xs font-medium transition"
-                        :class="activePreset === p ? 'bg-[#e2483d] text-white shadow-sm' : 'text-muted-foreground hover:bg-background hover:text-foreground'"
-                        @click="applyPreset(p)">{{ p }}</button>
-                </div>
-
-                <!-- range picker + count -->
-                <div class="flex items-center gap-2">
+                <div class="flex min-w-0 max-w-full flex-wrap items-center gap-2">
+                    <div class="rpt-track flex max-w-full gap-0.5 overflow-x-auto" role="radiogroup" aria-label="Date range">
+                        <button v-for="p in PRESETS" :key="p" role="radio" :aria-checked="activePreset === p"
+                            class="rpt-seg" :class="{ 'rpt-seg-on': activePreset === p }"
+                            @click="applyPreset(p)">{{ p }}</button>
+                    </div>
                     <DateRangePicker v-model:from="from" v-model:to="to" @change="activePreset = ''" />
-                    <span class="rounded-full bg-muted px-2.5 py-1 text-xs font-medium">{{ days.length }} days</span>
+                    <span class="text-xs text-muted-foreground tabular-nums">{{ days.length }} days · week {{ weekNumber }}</span>
                 </div>
             </div>
 
             <!-- Anomalies (zero/missing partners for the selected range) — Summary tab only, collapsed by default -->
-            <Card v-if="anomalies.length && activeTab === 'summary'" class="rpt-glass border-amber-500/40">
-                <button class="flex w-full items-center gap-2 px-6 py-4 text-left" @click="anomaliesOpen = !anomaliesOpen">
-                    <AlertTriangle class="h-5 w-5 shrink-0 text-amber-500" />
-                    <span class="font-medium">Anomalies <span class="text-muted-foreground">({{ anomalies.length }} missing partner {{ anomalies.length === 1 ? 'figure' : 'figures' }})</span></span>
+            <section v-if="anomalies.length && activeTab === 'summary'" class="rpt-panel">
+                <button class="flex w-full items-center gap-2 px-5 py-3.5 text-left text-sm" :aria-expanded="anomaliesOpen" @click="anomaliesOpen = !anomaliesOpen">
+                    <AlertTriangle class="h-4 w-4 shrink-0 text-amber-500" />
+                    <span class="font-medium">Needs attention</span>
+                    <span class="rounded bg-amber-500/15 px-1.5 py-0.5 text-xs font-medium tabular-nums text-amber-700 dark:text-amber-400">
+                        {{ anomalies.length }} missing partner {{ anomalies.length === 1 ? 'figure' : 'figures' }}
+                    </span>
                     <ChevronDown class="ml-auto h-4 w-4 text-muted-foreground transition-transform" :class="{ 'rotate-180': anomaliesOpen }" />
                 </button>
-                <CardContent v-show="anomaliesOpen" class="pt-0">
+                <div v-show="anomaliesOpen" class="border-t border-[var(--rpt-hairline)] px-5 pb-4 pt-3">
                     <p class="pb-3 text-xs text-muted-foreground">
                         Partners that report on most days of this range, but reported nothing on the days below — usually a missing or broken upload for
-                        <span class="font-medium">{{ sites.find((s) => s.id === selectedSite)?.name }}</span>.
+                        <span class="font-medium text-foreground">{{ siteName }}</span>.
                     </p>
-                    <ul class="flex flex-col gap-1.5 text-sm">
+                    <ul class="flex flex-col text-sm">
                         <li v-for="(a, i) in anomalies.slice(0, 60)" :key="i"
-                            class="flex flex-wrap items-center gap-x-2 gap-y-1 rounded border border-amber-500/20 bg-amber-500/5 px-2 py-1.5">
-                            <span class="rounded bg-amber-500/15 px-1.5 py-0.5 text-xs font-medium tabular-nums">{{ a.dateKey }}</span>
+                            class="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-[var(--rpt-hairline)] py-2 last:border-0">
+                            <span class="w-24 shrink-0 tabular-nums text-muted-foreground">{{ fmtDayShort(a.dateKey) }}</span>
                             <span class="font-medium">{{ a.partner }}</span>
-                            <span class="rounded bg-muted px-1.5 py-0.5 text-xs font-medium">{{ a.metric }}</span>
-                            <span class="font-semibold tabular-nums" :class="a.missing ? 'text-muted-foreground italic' : 'text-amber-600 dark:text-amber-400'">
-                                {{ anomalyValue(a) }}
-                            </span>
-                            <span class="text-muted-foreground">
-                                — normally about <span class="font-medium tabular-nums text-foreground">{{ anomalyTypical(a) }}</span>/day
-                                (reported on {{ a.reportedDays }} of {{ a.totalDays }} days in range)
+                            <span class="text-xs text-muted-foreground">{{ a.metric }}</span>
+                            <span class="font-medium tabular-nums" :class="a.missing ? 'text-muted-foreground' : 'text-amber-700 dark:text-amber-400'">{{ anomalyValue(a) }}</span>
+                            <span class="text-xs text-muted-foreground">
+                                usually about <span class="tabular-nums text-foreground">{{ anomalyTypical(a) }}</span> a day
+                                (reported on {{ a.reportedDays }} of {{ a.totalDays }} days)
                             </span>
                         </li>
                     </ul>
                     <p v-if="anomalies.length > 60" class="pt-2 text-xs text-muted-foreground">
                         +{{ anomalies.length - 60 }} more — narrow the date range to see the rest.
                     </p>
-                </CardContent>
-            </Card>
-
-            <!-- Snapshot / sync footer -->
-            <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 pt-2 text-center text-xs text-muted-foreground">
-                <span v-if="sync.syncedAt" class="rounded-full bg-[#e2483d]/10 px-2.5 py-1 font-semibold text-[#e2483d]">Data snapshot: {{ sync.syncedAt }}</span>
-                <span v-else class="rounded-full bg-[#e2483d]/10 px-2.5 py-1 font-semibold text-[#e2483d]">No data snapshot imported yet.</span>
-                <button v-if="sync.available" class="rounded-full bg-[#e2483d]/10 px-2 py-0.5 font-medium text-[#e2483d] hover:bg-[#e2483d]/20" @click="confirmSync">
-                    {{ sync.pending }} day{{ sync.pending === 1 ? '' : 's' }} ready to sync
-                </button>
-            </div>
+                </div>
+            </section>
 
             <!-- SUMMARY -->
             <div v-show="activeTab === 'summary'" class="flex flex-col gap-4">
-                <!-- KPI cards. Grid (not flex-row) so cards wrap cleanly at every
-                     width instead of being squeezed into one non-wrapping row. -->
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <Card class="rpt-glass">
-                        <CardContent class="flex items-center gap-2.5 pt-5">
-                            <div class="shrink-0 rounded-lg bg-[#e2483d]/10 p-2 text-[#e2483d]"><Coins class="h-5 w-5" /></div>
-                            <div class="min-w-0"><div class="rpt-label">Total revenue</div><div class="truncate text-base font-semibold tracking-tight">{{ eur(partnerTotals.grand) }}</div></div>
-                        </CardContent>
-                    </Card>
-                    <Card v-if="supportsImpressions" class="rpt-glass">
-                        <CardContent class="flex items-center gap-2.5 pt-5">
-                            <div class="shrink-0 rounded-lg bg-blue-500/10 p-2 text-blue-500"><Eye class="h-5 w-5" /></div>
-                            <div class="min-w-0"><div class="rpt-label">Impressions</div><div class="truncate text-base font-semibold tracking-tight">{{ num(impressionsSoldTotal) }}</div></div>
-                        </CardContent>
-                    </Card>
-                    <Card v-if="supportsRpm" class="rpt-glass">
-                        <CardContent class="flex items-center gap-2.5 pt-5">
-                            <div class="shrink-0 rounded-lg p-2"
-                                :class="blendedRpmTier === 'red' ? 'bg-red-500/10 text-red-500' : blendedRpmTier === 'amber' ? 'bg-amber-500/10 text-amber-500' : 'bg-cyan-500/10 text-cyan-500'">
-                                <Gauge class="h-5 w-5" />
-                            </div>
-                            <div class="min-w-0">
-                                <div class="rpt-label">RPM</div>
-                                <div class="truncate text-base font-semibold tracking-tight">{{ blendedRpm === null ? '—' : blendedRpm.toFixed(2) }}</div>
-                                <div class="truncate text-[11px] text-muted-foreground">€ / 1k pageviews</div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card class="rpt-glass">
-                        <CardContent class="flex items-center gap-2.5 pt-5">
-                            <div class="shrink-0 rounded-lg bg-emerald-500/10 p-2 text-emerald-500"><TrendingUp class="h-5 w-5" /></div>
-                            <div class="min-w-0"><div class="rpt-label">Avg / day</div><div class="truncate text-base font-semibold tracking-tight">{{ eur(avgDaily) }}</div></div>
-                        </CardContent>
-                    </Card>
-                    <Card class="rpt-glass">
-                        <CardContent class="flex items-center gap-2.5 pt-5">
-                            <div class="shrink-0 rounded-lg bg-amber-500/10 p-2 text-amber-500"><Award class="h-5 w-5" /></div>
-                            <div class="min-w-0"><div class="rpt-label">Top partner</div><div class="truncate text-base font-semibold tracking-tight">{{ topPartner?.label ?? '—' }}</div></div>
-                        </CardContent>
-                    </Card>
-                    <Card class="rpt-glass">
-                        <CardContent class="flex items-center gap-2.5 pt-5">
-                            <div class="shrink-0 rounded-lg bg-violet-500/10 p-2 text-violet-500"><CalendarCheck class="h-5 w-5" /></div>
-                            <div class="min-w-0">
-                                <div class="rpt-label">Best day</div>
-                                <div class="truncate text-base font-semibold tracking-tight">{{ bestDay ? eur(bestDay.total) : '—' }}</div>
-                                <div v-if="bestDay" class="truncate text-[11px] text-muted-foreground">{{ bestDay.dateKey }} · {{ bestDay.partner }}</div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <!-- Latest day — carried over from the old Days tab. Adhese impressions /
-                         Impr. sold / Ad requests / RPM only apply to F1Maximaal and Topgear;
-                         moves with the active date-range preset like the rest of Summary. -->
-                    <Card v-if="latestDay && supportsRpm" class="rpt-glass sm:col-span-2" :class="rpmCardClass(latestDay)">
-                        <CardContent class="flex flex-col gap-2 pt-5">
-                            <div class="rpt-label">Latest day · {{ latestDay.dateKey }}</div>
-                            <div class="flex items-center justify-between gap-2 text-xs">
-                                <span class="text-muted-foreground">Adhese impr.</span>
-                                <Input v-model.number="latestDay.impressions.adhese" type="number"
-                                    :class="['h-7 w-24 px-1.5 text-right text-[11px] leading-none', (latestDay.revenue?.adhese ?? 0) > 0 && latestDay.impressions?.adhese == null ? 'ring-1 ring-amber-400 focus-visible:ring-amber-400' : '']"
-                                    @change="saveAdhese(latestDay)" />
-                            </div>
-                            <div class="flex items-center justify-between gap-2 text-xs">
-                                <span class="text-muted-foreground">Impr. sold</span>
-                                <span class="font-medium tabular-nums">{{ num(latestDay.impressionsSold || 0) }}</span>
-                            </div>
-                            <div class="flex items-center justify-between gap-2 text-xs">
-                                <span class="text-muted-foreground">Ad requests</span>
-                                <span class="font-medium tabular-nums">{{ num(latestDay.totalAdRequests || 0) }}</span>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
+                <!-- Latest day: the answer, the day's figures against the day before, and
+                     RPM against the alert band (revenue for sites without analytics). -->
+                <section v-if="latestDay" class="rpt-panel grid grid-cols-1 gap-x-8 gap-y-6 p-5 lg:grid-cols-12" aria-labelledby="latest-day-title">
+                    <div class="flex min-w-0 flex-col lg:col-span-3">
+                        <h2 id="latest-day-title" class="text-sm text-muted-foreground">Latest day</h2>
+                        <div class="text-sm font-medium">{{ fmtDayLong(latestDay.dateKey) }}</div>
 
-                <!-- Charts -->
-                <div class="grid gap-4 lg:grid-cols-3">
-                    <Card class="rpt-glass lg:col-span-2">
-                        <CardHeader class="pb-2 font-medium">Revenue trend</CardHeader>
-                        <CardContent><div class="h-72"><Line :data="revenueChart" :options="chartOptions" /></div></CardContent>
-                    </Card>
-                    <Card class="rpt-glass">
-                        <CardHeader class="pb-2 font-medium">Revenue by partner</CardHeader>
-                        <CardContent class="flex flex-col gap-4">
-                            <div class="relative mx-auto h-44 w-44">
-                                <Doughnut :data="splitChart" :options="doughnutOptions" />
-                                <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                                    <span class="text-[11px] text-muted-foreground">Total</span>
-                                    <span class="text-sm font-semibold">{{ eur(partnerTotals.grand) }}</span>
-                                </div>
+                        <template v-if="supportsRpm">
+                            <div class="mt-5 flex items-baseline gap-2">
+                                <span class="text-4xl font-semibold tabular-nums tracking-tight"
+                                    :class="rpmTier(latestDay) === 'red' ? 'text-red-600 dark:text-red-400' : rpmTier(latestDay) === 'amber' ? 'text-amber-600 dark:text-amber-400' : ''">
+                                    {{ rpmFor(latestDay) === null ? '—' : rpmFor(latestDay)!.toFixed(2) }}
+                                </span>
+                                <span class="text-sm text-muted-foreground">RPM</span>
                             </div>
-                            <div class="flex flex-col gap-1.5">
-                                <div v-for="p in partnerBreakdown" :key="p.key" class="flex items-center gap-2 text-xs">
-                                    <span class="h-2.5 w-2.5 shrink-0 rounded-full" :style="{ background: p.color }"></span>
-                                    <span class="flex-1 truncate">{{ p.label }}</span>
-                                    <span class="tabular-nums text-muted-foreground">{{ p.pct.toFixed(1) }}%</span>
-                                    <span class="w-20 text-right font-medium tabular-nums">{{ eur(p.total) }}</span>
-                                </div>
-                                <p v-if="!partnerBreakdown.length" class="py-4 text-center text-sm text-muted-foreground">No revenue in this range.</p>
+                            <div class="mt-1 text-xs text-muted-foreground">€ per 1,000 pageviews</div>
+                            <div class="mt-3">
+                                <span class="rpt-pill"
+                                    :class="rpmTier(latestDay) === 'red' ? 'rpt-pill-neg' : rpmTier(latestDay) === 'amber' ? 'rpt-pill-warn' : 'rpt-pill-pos'">
+                                    {{ tierText(rpmTier(latestDay), rpmFor(latestDay)) }}
+                                </span>
+                                <span class="ml-2 text-xs text-muted-foreground tabular-nums">watch {{ rpmAmber.toFixed(2) }} · alert {{ rpmRed.toFixed(2) }}</span>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </template>
+                        <template v-else>
+                            <div class="mt-5 text-4xl font-semibold tabular-nums tracking-tight">{{ eur(dayRevenue(latestDay)) }}</div>
+                            <div class="mt-1 text-xs text-muted-foreground">Revenue that day</div>
+                        </template>
+
+                        <label v-if="supportsImpressions" class="mt-auto flex flex-col gap-1.5 pt-6 text-sm">
+                            <span class="text-muted-foreground">Adhese impressions</span>
+                            <Input v-model.number="latestDay.impressions.adhese" type="number" placeholder="Not entered"
+                                :class="['h-9 w-full tabular-nums', adheseMissing ? 'border-amber-400 focus-visible:ring-amber-400' : '']"
+                                @change="saveAdhese(latestDay)" />
+                        </label>
+                    </div>
+
+                    <div class="min-w-0 lg:col-span-4">
+                        <div class="flex items-baseline justify-between gap-3">
+                            <h3 class="text-sm font-medium">That day</h3>
+                            <span class="text-xs text-muted-foreground">{{ prevDay ? 'change vs ' + fmtDay(prevDay.dateKey) : 'no earlier day stored' }}</span>
+                        </div>
+                        <dl class="mt-2">
+                            <div v-for="r in latestRows" :key="r.label" class="grid grid-cols-[1fr_auto_6.5rem] items-baseline gap-x-3 border-b border-[var(--rpt-hairline)] py-2.5 last:border-0">
+                                <dt class="text-sm text-muted-foreground">{{ r.label }}<span v-if="r.sub" class="block text-xs">{{ r.sub }}</span></dt>
+                                <dd class="text-right text-sm font-medium tabular-nums">{{ r.value }}</dd>
+                                <dd class="text-right text-xs tabular-nums"
+                                    :class="!r.delta || r.delta.tone === 'flat' ? 'text-muted-foreground' : r.delta.tone === 'pos' ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'">
+                                    {{ r.delta ? r.delta.text : '—' }}
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
+
+                    <div class="flex min-w-0 flex-col lg:col-span-5">
+                        <div class="flex items-baseline justify-between gap-3">
+                            <h3 class="text-sm font-medium">{{ supportsRpm ? 'RPM, last 14 days' : 'Revenue, last 14 days' }}</h3>
+                            <span v-if="supportsRpm" class="flex items-center gap-3 text-xs text-muted-foreground">
+                                <span class="flex items-center gap-1.5"><span class="rpt-dash" :style="{ color: WATCH }" />watch</span>
+                                <span class="flex items-center gap-1.5"><span class="rpt-dash" :style="{ color: ALERT }" />alert</span>
+                            </span>
+                        </div>
+                        <div class="relative mt-3 h-44 lg:h-auto lg:min-h-44 lg:flex-1">
+                            <Bar :data="(stripChart as any)" :options="(stripOptions as any)" />
+                        </div>
+                    </div>
+                </section>
+                <section v-else class="rpt-panel p-5">
+                    <h2 class="text-sm text-muted-foreground">Latest day</h2>
+                    <p class="mt-2 text-sm">No data for {{ siteName }} in this range yet. Upload files, or pick a wider range.</p>
+                </section>
+
+                <!-- This range, as one strip -->
+                <section aria-labelledby="range-title">
+                    <h2 id="range-title" class="mb-2 text-sm font-medium">
+                        This range <span class="font-normal text-muted-foreground tabular-nums">· {{ days.length ? fmtDayShort(days[0].dateKey) + ' – ' + fmtDayShort(days[days.length - 1].dateKey) : 'no days' }}</span>
+                    </h2>
+                    <div class="rpt-panel rpt-strip grid grid-cols-2 lg:grid-flow-col lg:auto-cols-fr lg:grid-cols-none">
+                        <div class="rpt-cell">
+                            <div class="text-xs text-muted-foreground">Revenue</div>
+                            <div class="mt-1 text-2xl font-semibold tabular-nums tracking-tight">{{ eur(partnerTotals.grand) }}</div>
+                            <div class="mt-0.5 text-xs text-muted-foreground tabular-nums">{{ days.length }} day{{ days.length === 1 ? '' : 's' }}</div>
+                        </div>
+                        <div class="rpt-cell">
+                            <div class="text-xs text-muted-foreground">Average a day</div>
+                            <div class="mt-1 text-2xl font-semibold tabular-nums tracking-tight">{{ eur(avgDaily) }}</div>
+                        </div>
+                        <div v-if="supportsImpressions" class="rpt-cell">
+                            <div class="text-xs text-muted-foreground">Impressions sold</div>
+                            <div class="mt-1 text-2xl font-semibold tabular-nums tracking-tight">{{ num(impressionsSoldTotal) }}</div>
+                        </div>
+                        <div v-if="supportsRpm" class="rpt-cell">
+                            <div class="text-xs text-muted-foreground">RPM, whole range</div>
+                            <div class="mt-1 text-2xl font-semibold tabular-nums tracking-tight"
+                                :class="blendedRpmTier === 'red' ? 'text-red-600 dark:text-red-400' : blendedRpmTier === 'amber' ? 'text-amber-600 dark:text-amber-400' : ''">
+                                {{ blendedRpm === null ? '—' : blendedRpm.toFixed(2) }}
+                            </div>
+                            <div class="mt-0.5 text-xs text-muted-foreground">€ per 1,000 pageviews</div>
+                        </div>
+                        <div class="rpt-cell">
+                            <div class="text-xs text-muted-foreground">Best day</div>
+                            <div class="mt-1 text-2xl font-semibold tabular-nums tracking-tight">{{ bestDay ? eur(bestDay.total) : '—' }}</div>
+                            <div v-if="bestDay" class="mt-0.5 truncate text-xs text-muted-foreground">{{ fmtDay(bestDay.dateKey) }} · {{ bestDay.partner }}</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Revenue per day + by partner -->
+                <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                    <section class="rpt-panel flex min-w-0 flex-col p-5 lg:col-span-2" aria-labelledby="daily-title">
+                        <div class="flex items-baseline justify-between gap-3">
+                            <h2 id="daily-title" class="text-sm font-medium">Revenue per day</h2>
+                            <span v-if="latestDay" class="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <span class="h-2.5 w-2.5" :style="{ background: HUE }" /> {{ fmtDayShort(latestDay.dateKey) }}, latest day
+                            </span>
+                        </div>
+                        <div class="relative mt-3 min-h-64 flex-1">
+                            <Bar :data="revenueChart" :options="(revenueOptions as any)" />
+                        </div>
+                    </section>
+                    <section class="rpt-panel min-w-0 p-5" aria-labelledby="partner-title">
+                        <div class="flex items-baseline justify-between gap-3">
+                            <h2 id="partner-title" class="text-sm font-medium">Revenue by partner</h2>
+                            <span class="text-xs text-muted-foreground tabular-nums">{{ eur(partnerTotals.grand) }}</span>
+                        </div>
+                        <ul class="mt-3 flex flex-col">
+                            <li v-for="(p, i) in partnerBreakdown" :key="p.key" class="py-1.5">
+                                <div class="flex items-baseline justify-between gap-3 text-sm">
+                                    <span class="truncate" :class="i === 0 ? 'font-medium' : ''">{{ p.label }}</span>
+                                    <span class="shrink-0 tabular-nums">
+                                        <span class="mr-2 text-xs text-muted-foreground">{{ p.pct.toFixed(1) }}%</span>{{ eur(p.total) }}
+                                    </span>
+                                </div>
+                                <div class="mt-1.5 mb-1 h-[3px]">
+                                    <div class="h-full rounded-full" :class="i === 0 ? 'bg-foreground' : 'bg-muted-foreground/30'"
+                                        :style="{ width: (p.total / (partnerBreakdown[0]?.total || 1)) * 100 + '%' }" />
+                                </div>
+                            </li>
+                        </ul>
+                        <p v-if="!partnerBreakdown.length" class="mt-3 rounded border border-dashed border-[var(--rpt-border)] px-3 py-2.5 text-sm text-muted-foreground">No revenue in this range.</p>
+                    </section>
                 </div>
             </div>
 
@@ -1877,6 +1964,74 @@ const tabs = [
                 </ol>
             </div>
         </div>
+
+        <!-- Upload modal. Shows only what still matters: the files still missing
+             and the files added, never a full checklist. -->
+        <div v-if="showUpload" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            @click.self="!processing && (showUpload = false)">
+            <section class="rpt-modal flex max-h-[calc(100dvh-2rem)] w-full max-w-2xl flex-col rounded-lg" role="dialog" aria-modal="true" aria-labelledby="upload-title">
+                <header class="flex items-center justify-between gap-3 px-5 pb-3 pt-4">
+                    <h2 id="upload-title" class="flex items-center gap-2 text-base font-medium">
+                        <Upload class="h-4 w-4 text-muted-foreground" /> Upload files
+                    </h2>
+                    <div class="flex items-center gap-2">
+                        <span class="rpt-pill tabular-nums" :class="checkedCount === requiredCount ? 'rpt-pill-pos' : 'bg-muted text-muted-foreground'">
+                            {{ checkedCount }} of {{ requiredCount }} added
+                        </span>
+                        <button v-if="!processing" class="rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground" aria-label="Close" @click="showUpload = false"><X class="h-4 w-4" /></button>
+                    </div>
+                </header>
+
+                <div class="flex min-h-0 flex-col gap-4 overflow-y-auto px-5 pb-4">
+                    <input ref="fileInput" type="file" multiple class="hidden" @change="onFilesChosen" />
+                    <div class="flex items-center justify-center rounded-lg border-2 border-dashed px-4 py-4 text-sm transition"
+                        :class="dragging ? 'border-[#e2483d] bg-[#e2483d]/5 text-foreground' : 'border-[var(--rpt-border)] text-muted-foreground'"
+                        @dragover.prevent="dragging = true" @dragleave.prevent="dragging = false" @drop.prevent="onDrop">
+                        <span>Drop the reports here, or
+                            <button type="button" class="font-medium text-foreground underline underline-offset-2" @click="fileInput?.click()">browse</button>
+                        </span>
+                    </div>
+
+                    <div v-if="missingItems.length">
+                        <h3 class="text-sm font-medium">Still missing <span class="font-normal text-muted-foreground tabular-nums">· {{ missingItems.length }}</span></h3>
+                        <ul class="mt-2 flex flex-wrap gap-1.5">
+                            <li v-for="m in missingItems" :key="m.key" class="rpt-chip text-muted-foreground">{{ m.label }}</li>
+                        </ul>
+                    </div>
+                    <p v-else class="flex items-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                        <CheckCircle2 class="h-4 w-4" /> All {{ requiredCount }} files added
+                    </p>
+
+                    <div v-if="addedFiles.length">
+                        <h3 class="text-sm font-medium">Added <span class="font-normal text-muted-foreground tabular-nums">· {{ addedFiles.length }}</span></h3>
+                        <ul class="mt-2 flex flex-wrap gap-1.5">
+                            <li v-for="(a, i) in addedFiles" :key="i" :title="a.file.name"
+                                class="rpt-chip" :class="a.label ? '' : 'rpt-pill-neg'">
+                                <span class="max-w-[16rem] truncate">{{ a.label ?? a.file.name }}</span>
+                                <span v-if="!a.label" class="opacity-80">· not recognized</span>
+                                <button class="-mr-1 rounded p-0.5 opacity-60 transition hover:opacity-100" :aria-label="'Remove ' + a.file.name" @click="removeFile(a.file)"><X class="h-3 w-3" /></button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <footer class="flex flex-wrap items-center gap-3 border-t border-[var(--rpt-hairline)] px-5 py-3">
+                    <!-- Backfill an older month (else only current month + last 7 days is kept) -->
+                    <label class="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        Backfill month
+                        <input v-model="backfillPeriod" type="month" class="h-8 rounded-md border border-[var(--rpt-border)] bg-background px-2 text-xs text-foreground" />
+                    </label>
+                    <button v-if="backfillPeriod" class="text-xs text-muted-foreground hover:underline" @click="backfillPeriod = ''">reset</button>
+                    <div class="ml-auto flex items-center gap-3">
+                        <button v-if="selectedUploadFiles.length && !processing" class="text-xs text-muted-foreground hover:underline" @click="selectedUploadFiles = []">Clear</button>
+                        <Button class="h-9" :disabled="processing || !selectedUploadFiles.length" @click="processFiles">
+                            <Loader2 v-if="processing" class="h-4 w-4 animate-spin" />
+                            Process {{ selectedUploadFiles.length }} file{{ selectedUploadFiles.length === 1 ? '' : 's' }}
+                        </Button>
+                    </div>
+                </footer>
+            </section>
+        </div>
     </div>
 </template>
 
@@ -1902,6 +2057,7 @@ const tabs = [
     --rpt-text-muted:    #71717a;
     --rpt-border:        rgba(15, 15, 20, 0.08);
     --rpt-hairline:      rgba(15, 15, 20, 0.06);
+    --rpt-track:         #f0f0f1;
 
     background-color: var(--rpt-bg);
     color: var(--rpt-text);
@@ -1916,6 +2072,7 @@ const tabs = [
     --rpt-text-muted:    #94A3B8;
     --rpt-border:        rgba(255, 255, 255, 0.10);
     --rpt-hairline:      rgba(255, 255, 255, 0.06);
+    --rpt-track:         #16161b;
 }
 
 .rpt-root :focus-visible {
@@ -1925,10 +2082,87 @@ const tabs = [
 }
 
 .rpt-glass {
-    background: var(--rpt-surface-muted);
+    background: var(--rpt-surface);
     border: 1px solid var(--rpt-border);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+}
+
+/* ---------- Summary building blocks: flat panels, one tone step, 1px edges. */
+.rpt-panel {
+    background: var(--rpt-surface);
+    border: 1px solid var(--rpt-border);
+    border-radius: 8px;
+}
+/* Segmented control: a grey track, the selected option a white chip. */
+.rpt-track {
+    padding: 3px;
+    border-radius: 8px;
+    background: var(--rpt-track);
+    scrollbar-width: none;
+}
+.rpt-track::-webkit-scrollbar { display: none; }
+.rpt-seg {
+    flex: none;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    white-space: nowrap;
+    color: var(--rpt-text-muted);
+    transition: color 120ms, background-color 120ms;
+}
+.rpt-seg:hover { color: var(--rpt-text); }
+.rpt-seg-on {
+    background: var(--rpt-surface);
+    color: var(--rpt-text);
+    font-weight: 500;
+    box-shadow: 0 0 0 1px var(--rpt-border);
+}
+/* Pale status pairs: tint with dark ink of the same hue. */
+.rpt-pill {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.rpt-pill-pos  { background: #dcfae5; color: #04250e; }
+.rpt-pill-warn { background: #fef3c7; color: #92400e; }
+.rpt-pill-neg  { background: #ffedea; color: #831c1e; }
+.dark .rpt-pill-pos  { background: #172a1d; color: #3fc07a; }
+.dark .rpt-pill-warn { background: #2b2210; color: #f5b94b; }
+.dark .rpt-pill-neg  { background: #2c1a20; color: #e5566f; }
+/* A small file chip in the upload modal. */
+.rpt-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 26px;
+    padding: 0 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    background: var(--rpt-track);
+    white-space: nowrap;
+}
+/* Legend swatch for a dashed threshold line: the mark itself, scaled down. */
+.rpt-dash {
+    display: inline-block;
+    width: 14px;
+    border-top: 1.5px dashed currentColor;
+}
+/* Underline tabs on a full-width rule; the rule is an inset shadow so the
+   active underline paints over it without overflowing the scroll box. */
+.rpt-tabs { box-shadow: inset 0 -1px 0 var(--rpt-border); scrollbar-width: none; }
+.rpt-tabs::-webkit-scrollbar { display: none; }
+/* One container split by 1px dividers into equal cells. */
+.rpt-cell { padding: 16px 20px; min-width: 0; }
+.rpt-strip > .rpt-cell + .rpt-cell { border-left: 1px solid var(--rpt-hairline); }
+@media (max-width: 1023px) {
+    .rpt-strip > .rpt-cell:nth-child(odd) { border-left: 0; }
+    .rpt-strip > .rpt-cell:nth-child(n + 3) { border-top: 1px solid var(--rpt-hairline); }
+    .rpt-strip > .rpt-cell:last-child:nth-child(odd) { grid-column: 1 / -1; }
 }
 
 /* Modal dialogs sit on a dark overlay, so they must be SOLID — the translucent
@@ -1950,10 +2184,8 @@ const tabs = [
 }
 
 .rpt-label {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 500;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
     color: var(--rpt-text-muted);
 }
 
@@ -1963,24 +2195,6 @@ const tabs = [
     box-shadow: inset 3px 0 0 0 var(--rpt-accent);
 }
 
-/* ---------- Ambient backdrop ---------- */
-.rpt-ambient {
-    pointer-events: none;
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    background:
-        radial-gradient(55% 45% at 0% 0%, var(--rpt-accent-soft) 0%, transparent 70%),
-        radial-gradient(40% 40% at 100% 0%, var(--rpt-accent-2-soft) 0%, transparent 75%);
-    opacity: 0.5;
-}
-.dark .rpt-ambient {
-    background:
-        radial-gradient(70% 55% at 5% 0%, var(--rpt-accent-glow) 0%, transparent 65%),
-        radial-gradient(60% 55% at 100% 25%, var(--rpt-accent-2-glow) 0%, transparent 70%),
-        radial-gradient(60% 60% at 100% 100%, var(--rpt-accent-glow) 0%, transparent 75%);
-    opacity: 0.55;
-}
 
 .rpt-stars {
     pointer-events: none;

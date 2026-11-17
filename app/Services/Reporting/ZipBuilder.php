@@ -2,6 +2,9 @@
 
 namespace App\Services\Reporting;
 
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use RuntimeException;
 use ZipArchive;
 
@@ -41,6 +44,8 @@ class ZipBuilder
                 // "Convert to old format" is on: ship the Ogury export in the legacy
                 // Report/Statistics layout. Falls back to the original if unconvertible.
                 $zip->addFromString($f, $converted);
+            } elseif (self::isSeedtagXlsx($f) && ($withClicks = self::withSeedtagClicks($uploadsDir . '/' . $f)) !== null) {
+                $zip->addFromString($f, $withClicks);
             } else {
                 $zip->addFile($uploadsDir . '/' . $f, $f);
             }
@@ -59,6 +64,48 @@ class ZipBuilder
         $n = mb_strtolower($name);
 
         return str_starts_with($n, 'ogury.') && str_ends_with($n, '.xlsx');
+    }
+
+    /** The canonical re-saved SeedTag export. */
+    private static function isSeedtagXlsx(string $name): bool
+    {
+        $n = mb_strtolower($name);
+
+        return str_starts_with($n, 'seedtag.') && str_ends_with($n, '.xlsx');
+    }
+
+    /**
+     * The SeedTag export with a trailing "Clicks" column (0 on every row), which
+     * the tool that ingests the ZIP expects. Null if unreadable, so the original
+     * ships instead; files that already have the column are left as they are.
+     */
+    private static function withSeedtagClicks(string $path): ?string
+    {
+        try {
+            $ss = IOFactory::load($path);
+            $sheet = $ss->getSheet(0);
+            $lastRow = $sheet->getHighestDataRow();
+            $lastCol = Coordinate::columnIndexFromString($sheet->getHighestDataColumn());
+
+            $header = $sheet->rangeToArray('A1:' . Coordinate::stringFromColumnIndex($lastCol) . '1', null, false, false)[0];
+            if (in_array('clicks', array_map(fn ($h) => mb_strtolower(trim((string) $h)), $header), true)) {
+                return null;
+            }
+
+            $col = $lastCol + 1;
+            $sheet->setCellValue([$col, 1], 'Clicks');
+            for ($r = 2; $r <= $lastRow; $r++) {
+                $sheet->setCellValue([$col, $r], 0);
+            }
+
+            ob_start();
+            (new Xlsx($ss))->save('php://output');
+            $ss->disconnectWorksheets();
+
+            return ob_get_clean();
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /** Files currently available for download (for the ZIP modal checklist). */

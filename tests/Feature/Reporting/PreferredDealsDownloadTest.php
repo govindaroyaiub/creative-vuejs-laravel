@@ -31,7 +31,7 @@ it('detects the automated GAM Preferred Deals export by filename', function () {
     expect(Reporting::detectFileType(PD_NAME))->toBe('preferreddeals');
 });
 
-it('re-saves the Preferred Deals file for download and keeps it across runs', function () {
+it('re-saves the Preferred Deals file for download, and drops it from a later run without it', function () {
     $dir = storage_path('framework/testing/preferred-deals-uploads');
     if (is_dir($dir)) array_map('unlink', glob("$dir/*") ?: []);
     else mkdir($dir, 0775, true);
@@ -44,9 +44,9 @@ it('re-saves the Preferred Deals file for download and keeps it across runs', fu
     expect(is_file("$dir/PreferredDeals.xlsx"))->toBeTrue();
     expect(ZipBuilder::availableFiles($dir))->toContain('PreferredDeals.xlsx');
 
-    // A later run without the file must not sweep it away.
+    // The download list matches the latest upload, so a run without it removes it.
     ReportProcessor::process([], $dir);
-    expect(is_file("$dir/PreferredDeals.xlsx"))->toBeTrue();
+    expect(is_file("$dir/PreferredDeals.xlsx"))->toBeFalse();
 
     @unlink($src);
 });

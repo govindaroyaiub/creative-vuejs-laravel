@@ -101,22 +101,11 @@ class ReportProcessor
             }
         }
 
-        // Clear Outbrain at the start — it is written back below only if this run
-        // has data. (PreferredDeals is a regular RENAME_MAP partner now, re-saved
-        // for download like the others, so it is no longer swept here.)
-        foreach (['Outbrain'] as $name) {
-            foreach (['.csv', '.xlsx'] as $e) {
-                $p = $uploadsDir . '/' . $name . $e;
-                if (is_file($p)) unlink($p);
-            }
-        }
-        // Pre-rename leftovers ("Analytics.csv" -> "Analytics f1.csv", "Analytics
-        // fl.csv" dropped entirely — Festileaks was never part of the bundle). The
-        // uploads dir is per-machine (gitignored), so a laptop that hasn't run an
-        // upload since the rename would otherwise show these stale names forever.
-        foreach (['Analytics.csv', 'Analytics fl.csv'] as $legacy) {
-            $p = $uploadsDir . '/' . $legacy;
-            if (is_file($p)) unlink($p);
+        // The Download Reports list shows exactly this run's files: start from an
+        // empty folder, so nothing from an earlier upload (or a stale legacy name)
+        // carries over.
+        foreach (array_diff(scandir($uploadsDir) ?: [], ['.', '..']) as $old) {
+            if (is_file($uploadsDir . '/' . $old)) unlink($uploadsDir . '/' . $old);
         }
 
         $thisMonth = $today->format('Y-m');
@@ -190,20 +179,19 @@ class ReportProcessor
             copy($pathByType['outbrain'], $uploadsDir . '/Outbrain' . $ext);
         }
 
-        file_put_contents($uploadsDir . '/Analytics f1.csv', CsvGenerator::analytics($store, 'f1maximaal'));
-        file_put_contents($uploadsDir . '/Adhese f1.csv', CsvGenerator::adhese($store, 'f1maximaal'));
-        foreach (['topgear' => 'tg', 'festileaks' => 'fl', 'jfk' => 'jfk'] as $sid => $label) {
-            $csv = CsvGenerator::adhese($store, $sid);
-            if (count(explode("\n", $csv)) > 1) {
-                file_put_contents($uploadsDir . "/Adhese {$label}.csv", $csv);
+        // Generated CSVs only for the sites whose Adhese / Analytics file was in this
+        // upload. Analytics is only wired for F1 and Topgear (Festileaks isn't part
+        // of the Adhese/RPM bundle).
+        foreach (['f1maximaal' => 'f1', 'topgear' => 'tg', 'festileaks' => 'fl', 'jfk' => 'jfk'] as $sid => $label) {
+            if (isset($adhesePerSite[$sid])) {
+                file_put_contents($uploadsDir . "/Adhese {$label}.csv", CsvGenerator::adhese($store, $sid));
             }
         }
-
-        // Analytics re-download is only wired for Topgear alongside F1 —
-        // Festileaks doesn't track it (not part of the Adhese/RPM bundle).
-        $tgAnalyticsCsv = CsvGenerator::analytics($store, 'topgear');
-        if ($tgAnalyticsCsv !== '') {
-            file_put_contents($uploadsDir . '/Analytics tg.csv', $tgAnalyticsCsv);
+        foreach (['f1maximaal' => 'f1', 'topgear' => 'tg'] as $sid => $label) {
+            $csv = isset($analyticsPerSite[$sid]) ? CsvGenerator::analytics($store, $sid) : '';
+            if ($csv !== '') {
+                file_put_contents($uploadsDir . "/Analytics {$label}.csv", $csv);
+            }
         }
 
         return [
