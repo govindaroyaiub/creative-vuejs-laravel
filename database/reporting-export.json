@@ -1,14 +1,14 @@
 {
-    "exported_at": "2026-11-17 22:10:42",
+    "exported_at": "2026-11-18 22:27:31",
     "settings": {
         "oguryRate": 0.88,
         "last_run": {
-            "at": "2026-11-17 22:10:42",
+            "at": "2026-11-18 22:25:10",
             "missing": [
                 "Analytics (TopGear)"
             ]
         },
-        "synced_at": "2026-11-17 22:10:42",
+        "synced_at": "2026-11-18 22:27:31",
         "report_links": [
             {
                 "url": "https://publisher-panel.seedtag.com/",
@@ -80,8 +80,8 @@
         "rpm_red": 9,
         "adhese_markets": {
             "jfk": "DALE-igmn",
-            "topgear": "DALE-nativeconnect",
-            "f1maximaal": "DALE-nativeconnect",
+            "topgear": "DALE-igmn",
+            "f1maximaal": "DALE-candid",
             "festileaks": "DALE-igmn"
         }
     },
@@ -9896,7 +9896,7 @@
                 "ogury": 49.674125571135995,
                 "teads": 75.17,
                 "adform": 67.16115031999999,
-                "adhese": 256.64214497290004,
+                "adhese": 256.6421449729,
                 "gumgum": 65.73,
                 "adsense": 181.31,
                 "seedtag": 54.41,
@@ -9917,7 +9917,7 @@
                 "showheroes": 113577,
                 "preferredDeals": 7638
             },
-            "total_ad_requests": 1672371,
+            "total_ad_requests": 1672369,
             "analytics": {
                 "views": 211764,
                 "keyEvents": 0,
@@ -10015,7 +10015,7 @@
             "site": "f1maximaal",
             "date": "2026-11-13",
             "revenue": {
-                "gam": 340.08070495043177,
+                "gam": 340.07551191335267,
                 "ogury": 13.341609582136003,
                 "teads": 22.2,
                 "adform": 18.56079632,
@@ -10028,19 +10028,19 @@
                 "preferredDeals": 9.879165
             },
             "impressions": {
-                "gam": 209004,
+                "gam": 208996,
                 "ogury": 9673,
                 "teads": 20388,
                 "adform": 11814,
                 "adhese": 30416,
                 "gumgum": 10249,
-                "adsense": 103067,
+                "adsense": 103064,
                 "seedtag": 58042,
                 "outbrain": 0,
                 "showheroes": 30591,
                 "preferredDeals": 2590
             },
-            "total_ad_requests": 634001,
+            "total_ad_requests": 633987,
             "analytics": {
                 "views": 81132,
                 "keyEvents": 0,
@@ -10050,7 +10050,7 @@
                 "viewsPerUser": 2.6120215060687033,
                 "avgEngagement": 45.122017964650205
             },
-            "impressions_sold": 485834
+            "impressions_sold": 485823
         },
         {
             "site": "f1maximaal",
@@ -10081,7 +10081,7 @@
                 "showheroes": 16572,
                 "preferredDeals": 1304
             },
-            "total_ad_requests": 358900,
+            "total_ad_requests": 358898,
             "analytics": {
                 "views": 50269,
                 "keyEvents": 0,
@@ -10116,13 +10116,13 @@
                 "adform": 7348,
                 "adhese": 17047,
                 "gumgum": 7616,
-                "adsense": 49282,
+                "adsense": 49260,
                 "seedtag": 30774,
                 "outbrain": 0,
                 "showheroes": 22361,
                 "preferredDeals": 2290
             },
-            "total_ad_requests": 437238,
+            "total_ad_requests": 437235,
             "analytics": {
                 "views": 60890,
                 "keyEvents": 0,
@@ -10132,13 +10132,13 @@
                 "viewsPerUser": 2.754829661131973,
                 "avgEngagement": 43.36958783875492
             },
-            "impressions_sold": 265560
+            "impressions_sold": 265538
         },
         {
             "site": "f1maximaal",
             "date": "2026-11-16",
             "revenue": {
-                "gam": 220.5353462236074,
+                "gam": 220.5349710190762,
                 "ogury": 6.6855359921680035,
                 "teads": 13.72,
                 "adform": 11.143687279999998,
@@ -10151,7 +10151,7 @@
                 "preferredDeals": 11.055285
             },
             "impressions": {
-                "gam": 142759,
+                "gam": 142758,
                 "ogury": 8112,
                 "teads": 14566,
                 "adform": 8005,
@@ -10165,15 +10165,56 @@
             },
             "total_ad_requests": 452900,
             "analytics": {
-                "views": 62527,
+                "views": 62539,
                 "keyEvents": 0,
-                "eventCount": 143188,
-                "activeUsers": 20552,
+                "eventCount": 143211,
+                "activeUsers": 20539,
                 "totalRevenue": 0,
-                "viewsPerUser": 3.0423803036200856,
-                "avgEngagement": 50.50778513040093
+                "viewsPerUser": 3.0448902088709286,
+                "avgEngagement": 50.54803057597741
             },
-            "impressions_sold": 361527
+            "impressions_sold": 361526
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-11-17",
+            "revenue": {
+                "gam": 234.18151987888967,
+                "ogury": 10.601703187328006,
+                "teads": 15.56,
+                "adform": 11.62550576,
+                "adhese": 67.9008714893,
+                "gumgum": 33.88,
+                "adsense": 36.290000000000006,
+                "seedtag": 21.909999999999997,
+                "outbrain": 0,
+                "showheroes": 51.997228,
+                "preferredDeals": 13.216680000000002
+            },
+            "impressions": {
+                "gam": 145407,
+                "ogury": 7967,
+                "teads": 16188,
+                "adform": 8479,
+                "adhese": 19072,
+                "gumgum": 10710,
+                "adsense": 82132,
+                "seedtag": 49550,
+                "outbrain": 0,
+                "showheroes": 25167,
+                "preferredDeals": 3638
+            },
+            "total_ad_requests": 467318,
+            "analytics": {
+                "views": 67032,
+                "keyEvents": 0,
+                "eventCount": 154618,
+                "activeUsers": 23275,
+                "totalRevenue": 0,
+                "viewsPerUser": 2.88,
+                "avgEngagement": 44.27733619763695
+            },
+            "impressions_sold": 368310
         },
         {
             "site": "festileaks",
@@ -18015,7 +18056,7 @@
             "site": "festileaks",
             "date": "2026-11-12",
             "revenue": {
-                "gam": 83.46853574433631,
+                "gam": 83.4683477131643,
                 "ogury": 2.540269596832001,
                 "teads": 1.98,
                 "adform": 0.36538480000000007,
@@ -18081,7 +18122,7 @@
             "site": "festileaks",
             "date": "2026-11-14",
             "revenue": {
-                "gam": 61.846830090989265,
+                "gam": 61.845897891053774,
                 "ogury": 0.72990719868,
                 "teads": 1.21,
                 "adform": 0.2097964,
@@ -18100,7 +18141,7 @@
                 "adform": 193,
                 "adhese": null,
                 "gumgum": 1285,
-                "adsense": 24119,
+                "adsense": 24115,
                 "seedtag": 6276,
                 "outbrain": 0,
                 "showheroes": 839,
@@ -18108,7 +18149,7 @@
             },
             "total_ad_requests": 0,
             "analytics": null,
-            "impressions_sold": 35532
+            "impressions_sold": 35528
         },
         {
             "site": "festileaks",
@@ -18175,6 +18216,39 @@
             "total_ad_requests": 0,
             "analytics": null,
             "impressions_sold": 57034
+        },
+        {
+            "site": "festileaks",
+            "date": "2026-11-17",
+            "revenue": {
+                "gam": 82.80662155971825,
+                "ogury": 1.677235996304,
+                "teads": 1.42,
+                "adform": 0.28696888,
+                "adhese": 1.58839,
+                "gumgum": 6.29,
+                "adsense": 4.609999999999999,
+                "seedtag": 5.08,
+                "outbrain": 0,
+                "showheroes": 3.932122,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "gam": 0,
+                "ogury": 1364,
+                "teads": 2800,
+                "adform": 272,
+                "adhese": null,
+                "gumgum": 2651,
+                "adsense": 47826,
+                "seedtag": 11653,
+                "outbrain": 0,
+                "showheroes": 1685,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 68251
         },
         {
             "site": "horses",
@@ -26178,6 +26252,39 @@
             "impressions_sold": 23984
         },
         {
+            "site": "horses",
+            "date": "2026-11-17",
+            "revenue": {
+                "gam": 15.30486183219845,
+                "ogury": 0,
+                "teads": 0.93,
+                "adform": 0.47234,
+                "adhese": 0,
+                "gumgum": 0,
+                "adsense": 3.16,
+                "seedtag": 4.8999999999999995,
+                "outbrain": 0,
+                "showheroes": 2.809556,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "gam": 0,
+                "ogury": 0,
+                "teads": 1379,
+                "adform": 684,
+                "adhese": null,
+                "gumgum": 0,
+                "adsense": 15961,
+                "seedtag": 17275,
+                "outbrain": 0,
+                "showheroes": 1582,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 36881
+        },
+        {
             "site": "jfk",
             "date": "2026-08-01",
             "revenue": {
@@ -29740,6 +29847,39 @@
             "total_ad_requests": 27679,
             "analytics": null,
             "impressions_sold": 9737
+        },
+        {
+            "site": "jfk",
+            "date": "2026-11-17",
+            "revenue": {
+                "gam": 16.833615941227606,
+                "ogury": 0,
+                "teads": 0,
+                "adform": 0.0074272,
+                "adhese": 1.04362,
+                "gumgum": 0,
+                "adsense": 0,
+                "seedtag": 0,
+                "outbrain": 0,
+                "showheroes": 0,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "gam": 12044,
+                "ogury": 0,
+                "teads": 0,
+                "adform": 2,
+                "adhese": 302,
+                "gumgum": 0,
+                "adsense": 0,
+                "seedtag": 0,
+                "outbrain": 0,
+                "showheroes": 0,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 38898,
+            "analytics": null,
+            "impressions_sold": 12348
         },
         {
             "site": "topgear",
@@ -39015,7 +39155,7 @@
                 "showheroes": 902,
                 "preferredDeals": 0
             },
-            "total_ad_requests": 349309,
+            "total_ad_requests": 349297,
             "analytics": null,
             "impressions_sold": 190162
         },
@@ -39048,7 +39188,7 @@
                 "showheroes": 661,
                 "preferredDeals": 0
             },
-            "total_ad_requests": 298836,
+            "total_ad_requests": 298830,
             "analytics": null,
             "impressions_sold": 170545
         },
@@ -39056,7 +39196,7 @@
             "site": "topgear",
             "date": "2026-11-15",
             "revenue": {
-                "gam": 936.748785083148,
+                "gam": 936.7256180113116,
                 "ogury": 7.216527997976,
                 "teads": 0.08,
                 "adform": 2.65278904,
@@ -39069,7 +39209,7 @@
                 "preferredDeals": 0
             },
             "impressions": {
-                "gam": 306474,
+                "gam": 306468,
                 "ogury": 2324,
                 "teads": 49,
                 "adform": 1228,
@@ -39083,7 +39223,7 @@
             },
             "total_ad_requests": 596005,
             "analytics": null,
-            "impressions_sold": 357595
+            "impressions_sold": 357589
         },
         {
             "site": "topgear",
@@ -39114,9 +39254,42 @@
                 "showheroes": 403,
                 "preferredDeals": 0
             },
-            "total_ad_requests": 358417,
+            "total_ad_requests": 358416,
             "analytics": null,
             "impressions_sold": 186636
+        },
+        {
+            "site": "topgear",
+            "date": "2026-11-17",
+            "revenue": {
+                "gam": 247.045241693019,
+                "ogury": 0.6704191999119999,
+                "teads": 0.03,
+                "adform": 0.55954888,
+                "adhese": 21.46049,
+                "gumgum": 18.7,
+                "adsense": 0.07,
+                "seedtag": 2.7299999999999995,
+                "outbrain": 0,
+                "showheroes": 0.382621,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "gam": 73238,
+                "ogury": 247,
+                "teads": 15,
+                "adform": 260,
+                "adhese": 6340,
+                "gumgum": 3157,
+                "adsense": 303,
+                "seedtag": 1705,
+                "outbrain": 0,
+                "showheroes": 196,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 203903,
+            "analytics": null,
+            "impressions_sold": 85461
         }
     ]
 }
