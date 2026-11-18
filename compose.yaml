@@ -56,6 +56,17 @@ services:
       interval: 5s
       retries: 20
 
+  phpmyadmin: # MySQL web UI -> http://localhost:8081 (user: creative / secret, or root / root)
+    image: phpmyadmin:5
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      UPLOAD_LIMIT: 256M
+    ports: ["8081:80"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+
 volumes:
   mysql-data:
   node_modules:
