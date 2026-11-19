@@ -29,8 +29,8 @@ services:
 
   reverb:
     <<: *php
-    command: php artisan reverb:start --host=0.0.0.0 --port=8080
-    ports: ["8080:8080"]
+    command: php artisan reverb:start --host=0.0.0.0 --port=8082
+    ports: ["8082:8082"]
 
   vite:
     image: node:22
