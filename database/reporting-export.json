@@ -1,14 +1,29 @@
 {
-    "exported_at": "2026-11-19 15:09:06",
+    "exported_at": "2026-11-19 15:56:15",
     "settings": {
         "oguryRate": 0.88,
         "last_run": {
-            "at": "2026-11-19 15:08:01",
+            "at": "2026-11-19 15:56:15",
             "missing": [
-                "Analytics (TopGear)"
+                "Adform",
+                "GAM",
+                "Ogury",
+                "SeedTag",
+                "Showheroes",
+                "Teads",
+                "Adsense",
+                "Gumgum",
+                "Analytics (TopGear)",
+                "GAM Ad Requests (F1)",
+                "GAM Ad Requests (TopGear)",
+                "GAM Ad Requests (JFK)",
+                "Adhese (F1)",
+                "Adhese (TopGear)",
+                "Adhese (Festileaks)",
+                "Adhese (JFK)"
             ]
         },
-        "synced_at": "2026-11-19 15:09:06",
+        "synced_at": "2026-11-19 15:56:15",
         "report_links": [
             {
                 "url": "https://publisher-panel.seedtag.com/",
