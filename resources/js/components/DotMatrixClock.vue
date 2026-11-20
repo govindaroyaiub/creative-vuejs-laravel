@@ -76,7 +76,7 @@ const sizeClasses = computed(() => {
                 'font-mono tracking-[-0.02em] tabular-nums dot-matrix-text',
                 'text-black dark:text-white',
                 sizeClasses.time
-            ]" style="font-family: 'Doto', 'Space Mono', monospace; font-variation-settings: 'DOTS' 20;">
+            ]" style="font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-variation-settings: 'DOTS' 20;">
                 {{ time }}
             </div>
         </div>

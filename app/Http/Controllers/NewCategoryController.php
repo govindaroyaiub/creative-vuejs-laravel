@@ -69,6 +69,8 @@ class NewCategoryController extends Controller
             // Get the category to delete
             $category = $newCategory->findOrFail($id);
             $this->authorizeCategory($category);
+            // Lazy loading is disabled outside production, so load the whole subtree up front.
+            $category->load(['feedbacks.feedbackSets.versions.banners', 'feedbacks.feedbackSets.versions.videos', 'feedbacks.feedbackSets.versions.socials', 'feedbacks.feedbackSets.versions.gifs']);
 
             $fileTransfer = FileTransfer::find($category->file_transfer_id);
             if ($fileTransfer) {

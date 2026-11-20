@@ -825,34 +825,6 @@ const apiEndpoints = ref({
             description: 'Delete video size configuration',
             authenticated: true,
             permission: '/video-sizes'
-        },
-        {
-            method: 'GET',
-            path: '/socials',
-            description: 'List social media platform configurations',
-            authenticated: true,
-            permission: '/socials'
-        },
-        {
-            method: 'POST',
-            path: '/socials-create-post',
-            description: 'Create new social platform configuration',
-            authenticated: true,
-            permission: '/socials'
-        },
-        {
-            method: 'PUT',
-            path: '/socials-edit/{id}',
-            description: 'Update social platform configuration',
-            authenticated: true,
-            permission: '/socials'
-        },
-        {
-            method: 'DELETE',
-            path: '/socials-delete/{id}',
-            description: 'Delete social platform configuration',
-            authenticated: true,
-            permission: '/socials'
         }
     ],
     clients: [

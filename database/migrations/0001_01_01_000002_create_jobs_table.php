@@ -19,6 +19,9 @@ return new class extends Migration
             $table->unsignedInteger('reserved_at')->nullable();
             $table->unsignedInteger('available_at');
             $table->unsignedInteger('created_at');
+
+            $table->index(['queue', 'created_at'], 'jobs_queue_created_idx');
+            $table->index('available_at', 'jobs_available_at_idx');
         });
 
         Schema::create('job_batches', function (Blueprint $table) {

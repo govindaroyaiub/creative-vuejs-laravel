@@ -79,6 +79,8 @@ class NewFeedbackController extends Controller
             // Get the feedback to delete
             $feedback = $newFeedback->findOrFail($id);
             $this->authorizeFeedback($feedback);
+            // Lazy loading is disabled outside production, so load the whole subtree up front.
+            $feedback->load(['feedbackSets.versions.banners', 'feedbackSets.versions.videos', 'feedbackSets.versions.socials', 'feedbackSets.versions.gifs']);
 
             // Get the category type for folder deletion
             $category = $feedback->category;

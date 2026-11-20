@@ -166,7 +166,7 @@ function gotoLink(link: any) {
                 </div>
 
                 <!-- Table view (desktop) -->
-                <div class="hidden lg:block overflow-x-auto rounded-lg border-2 border-[#CCCCCC] dark:border-[#222222]">
+                <div class="hidden lg:block overflow-x-auto rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222]">
                     <table class="w-full bg-white dark:bg-[#111111] table-fixed">
                         <thead class="bg-[#F5F5F5] dark:bg-[#0A0A0A]">
                             <tr>
@@ -239,7 +239,7 @@ function gotoLink(link: any) {
                 <!-- Mobile cards -->
                 <div class="lg:hidden space-y-4">
                     <div v-for="(tpl, idx) in templates.data" :key="tpl.id"
-                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#CCCCCC] dark:border-[#222222] p-4">
+                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-4">
                         <div class="flex items-start justify-between mb-3">
                             <div class="flex-1 min-w-0">
                                 <div class="text-xs font-mono text-[#666666] dark:text-[#999999]">#{{
@@ -298,7 +298,7 @@ function gotoLink(link: any) {
                     </div>
 
                     <div v-if="templates.data.length === 0"
-                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#CCCCCC] dark:border-[#222222] p-8 text-center">
+                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-8 text-center">
                         <div class="text-[#666666] dark:text-[#999999]">No templates found.</div>
                     </div>
                 </div>

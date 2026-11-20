@@ -324,7 +324,7 @@ const getFileSize = (bytes: number) => {
                 <!-- Mobile/Tablet Cards -->
                 <div class="lg:hidden space-y-4">
                     <div v-for="(media, index) in medias" :key="media.id"
-                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#CCCCCC] dark:border-[#222222] p-4">
+                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-4">
 
                         <!-- Header: Number + Name -->
                         <div class="flex items-start justify-between mb-3">
@@ -393,7 +393,7 @@ const getFileSize = (bytes: number) => {
 
                     <!-- No results card -->
                     <div v-if="medias.length === 0"
-                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#CCCCCC] dark:border-[#222222] p-8 text-center">
+                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-8 text-center">
                         <div class="text-[#666666] dark:text-[#999999]">No media files found.</div>
                     </div>
                 </div>

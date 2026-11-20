@@ -23,11 +23,15 @@ class newVideo extends Model
     protected static $logAttributes = ['*']; // logs all attributes
     protected static $logName = 'Video'; // name for this log
 
+    /** Frames the client viewer can show a video in (null = auto from size). */
+    public const PLACEMENTS = ['story', 'feed', 'screen', 'article', 'plain'];
+
     protected $fillable = [
         'version_id',
         'name',
         'path',
         'size_id',
+        'placement',
         'codec',
         'aspect_ratio',
         'fps',

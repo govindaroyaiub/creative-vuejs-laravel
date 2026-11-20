@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=JetBrains+Mono:wght@400;500;600&family=Zalando+Sans+Expanded:ital,wght@0,200..900;1,200..900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,11 +6,11 @@
 body,
 html {
     --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 .creative-studio-font {
-    font-family: 'Chakra Petch', sans-serif;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-weight: 600;
     font-style: normal;
 }
@@ -198,7 +197,7 @@ html {
 
 /* ─── P9 shared theme ──────────────────────────────────────────────────────
    Extracted from Reporting/Index.vue (which mirrors Previews/Update2 chrome):
-   JetBrains Mono, glass surfaces, ambient accent glow, dark-mode starfield,
+   Inter, glass surfaces, ambient accent glow, dark-mode starfield,
    fixed red/amber accent. Applied app-wide via the `.p9-theme` wrapper in
    AppLayout + AuthSimpleLayout. Previews/Update.vue opts out (:themed=false),
    as it is the origin of the theme settings. */
@@ -221,7 +220,7 @@ html {
 
     background-color: var(--p9-bg);
     color: var(--p9-text);
-    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-feature-settings: 'cv11', 'ss01', 'tnum';
 }
 .dark .p9-theme {
@@ -303,4 +302,9 @@ html {
         transition-duration: 0.01ms !important;
     }
     .p9-stars { animation: none; }
+}
+
+/* `font-mono` is Inter now (single font); keep digits aligned in tables. */
+.font-mono {
+    font-variant-numeric: tabular-nums;
 }

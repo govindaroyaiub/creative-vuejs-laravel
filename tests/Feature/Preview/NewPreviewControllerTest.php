@@ -598,3 +598,180 @@ describe('show2 asset tree', function () {
             ->assertJsonPath('assetTree', []);
     });
 });
+
+describe('review prototype (demo)', function () {
+    it('sends guests to the login page', function () {
+        ['preview' => $preview] = bannerTree();
+
+        $this->get("/previews/review/{$preview->slug}")->assertRedirect('/login');
+    });
+
+    it('renders the Show2 props plus every round as history for staff', function () {
+        ['preview' => $preview, 'category' => $category] = bannerTree();
+
+        $this->actingAs(planetNine())
+            ->get("/previews/review/{$preview->slug}")
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('Previews/Review', false)
+                ->has('initialPayload.assetTree.0.versions.0.assets', 2)
+                ->has("history.{$category->id}.0.sets.0.versions.0.assets", 2));
+    });
+});
+
+describe('deleting part of the tree', function () {
+    // Regression: lazy loading is disabled outside production, and Eloquent only
+    // enforces it once a model came from a collection of two or more. A Version
+    // (new_feedback_sets) with two Sets therefore 500'd on `$version->banners`
+    // and nothing was deleted.
+    function twoSetTree(): array
+    {
+        $tree = bannerTree();
+        $second = \App\Models\newVersion::create(['feedback_set_id' => $tree['set']->id, 'name' => 'Set 2']);
+        \App\Models\newBanner::create([
+            'version_id' => $second->id, 'name' => 'Banner C', 'path' => 'uploads/banners/banner-C/',
+            'size_id' => $tree['size']->id, 'file_size' => '10 KB', 'position' => 1,
+        ]);
+
+        return $tree + ['second' => $second];
+    }
+
+    it('deletes a Version with several Sets', function () {
+        ['set' => $set, 'version' => $version, 'second' => $second] = twoSetTree();
+
+        $this->actingAs(planetNine())->delete("/previews/feedbackSet/delete/{$set->id}");
+
+        expect(\App\Models\newFeedbackSet::find($set->id))->toBeNull()
+            ->and(\App\Models\newVersion::whereIn('id', [$version->id, $second->id])->count())->toBe(0)
+            ->and(\App\Models\newBanner::count())->toBe(0);
+    });
+
+    it('deletes a Round with several Sets', function () {
+        ['feedback' => $feedback] = twoSetTree();
+        \App\Models\newFeedbackSet::create(['feedback_id' => $feedback->id, 'name' => 'Version B']);
+
+        $this->actingAs(planetNine())->delete("/previews/feedback/delete/{$feedback->id}");
+
+        expect(\App\Models\newFeedback::find($feedback->id))->toBeNull()
+            ->and(\App\Models\newBanner::count())->toBe(0);
+    });
+
+    it('deletes a Project with several Rounds', function () {
+        ['category' => $category] = twoSetTree();
+        \App\Models\newFeedback::create([
+            'category_id' => $category->id, 'name' => 'Round 2', 'description' => 'Second pass', 'is_active' => false,
+        ]);
+
+        $this->actingAs(planetNine())->delete(route('previews.category.delete', $category->id));
+
+        expect(newCategory::find($category->id))->toBeNull()
+            ->and(\App\Models\newBanner::count())->toBe(0);
+    });
+});
+
+describe('video frame (placement)', function () {
+    /** One existing video in a fresh preview, plus a bulkEdit payload builder for it. */
+    function videoTree(): array
+    {
+        $preview = newPreview::factory()->create();
+        $category = newCategory::create(['preview_id' => $preview->id, 'name' => 'Video', 'type' => 'video', 'is_active' => true]);
+        $feedback = \App\Models\newFeedback::create(['category_id' => $category->id, 'name' => 'Round 1', 'description' => 'First pass', 'is_active' => true]);
+        $set = \App\Models\newFeedbackSet::create(['feedback_id' => $feedback->id, 'name' => null]);
+        $version = \App\Models\newVersion::create(['feedback_set_id' => $set->id, 'name' => null]);
+        $size = \App\Models\VideoSize::create(['name' => '1080x2536', 'width' => 1080, 'height' => 2536]);
+        $video = \App\Models\newVideo::create([
+            'version_id' => $version->id, 'name' => 'Clip', 'path' => 'uploads/videos/clip.mp4',
+            'size_id' => $size->id, 'position' => 1,
+        ]);
+
+        $payload = fn (array $videoFields) => [
+            'preview_id' => $preview->id,
+            'categories' => [[
+                'id' => $category->id, 'name' => 'Video', 'type' => 'video',
+                'feedbacks' => [[
+                    'id' => $feedback->id, 'name' => 'Round 1', 'description' => 'First pass',
+                    'feedback_sets' => [[
+                        'id' => $set->id, 'name' => '',
+                        'versions' => [[
+                            'id' => $version->id, 'name' => '',
+                            'videos' => [['id' => $video->id, 'size_id' => $size->id, 'position' => 1] + $videoFields],
+                        ]],
+                    ]],
+                ]],
+            ]],
+        ];
+
+        return compact('preview', 'video', 'payload');
+    }
+
+    it('saves the chosen frame and clears it back to auto', function () {
+        ['preview' => $preview, 'video' => $video, 'payload' => $payload] = videoTree();
+        $staff = planetNine();
+
+        $this->actingAs($staff)->post(route('previews.bulkEdit', $preview->id), $payload(['placement' => 'story']))
+            ->assertSessionHasNoErrors();
+        expect($video->fresh()->placement)->toBe('story');
+
+        $this->actingAs($staff)->post(route('previews.bulkEdit', $preview->id), $payload(['placement' => '']))
+            ->assertSessionHasNoErrors();
+        expect($video->fresh()->placement)->toBeNull();
+    });
+
+    it('keeps the frame when the payload leaves it out', function () {
+        ['preview' => $preview, 'video' => $video, 'payload' => $payload] = videoTree();
+        $video->update(['placement' => 'feed']);
+
+        $this->actingAs(planetNine())->post(route('previews.bulkEdit', $preview->id), $payload([]))
+            ->assertSessionHasNoErrors();
+
+        expect($video->fresh()->placement)->toBe('feed');
+    });
+
+    it('rejects an unknown frame', function () {
+        ['preview' => $preview, 'video' => $video, 'payload' => $payload] = videoTree();
+
+        $this->actingAs(planetNine())->post(route('previews.bulkEdit', $preview->id), $payload(['placement' => 'billboard']))
+            ->assertSessionHasErrors();
+
+        expect($video->fresh()->placement)->toBeNull();
+    });
+});
+
+describe('social frame (placement)', function () {
+    it('saves, clears and validates the frame of a social image', function () {
+        $preview = newPreview::factory()->create();
+        $category = newCategory::create(['preview_id' => $preview->id, 'name' => 'Social', 'type' => 'social', 'is_active' => true]);
+        $feedback = \App\Models\newFeedback::create(['category_id' => $category->id, 'name' => 'Round 1', 'description' => 'First pass', 'is_active' => true]);
+        $set = \App\Models\newFeedbackSet::create(['feedback_id' => $feedback->id, 'name' => null]);
+        $version = \App\Models\newVersion::create(['feedback_set_id' => $set->id, 'name' => null]);
+        $social = \App\Models\newSocial::create(['version_id' => $version->id, 'name' => 'Post', 'path' => 'uploads/socials/x.jpg', 'position' => 1]);
+
+        $send = fn (array $fields) => $this->actingAs(planetNine())->post(route('previews.bulkEdit', $preview->id), [
+            'preview_id' => $preview->id,
+            'categories' => [[
+                'id' => $category->id, 'name' => 'Social', 'type' => 'social',
+                'feedbacks' => [[
+                    'id' => $feedback->id, 'name' => 'Round 1', 'description' => 'First pass',
+                    'feedback_sets' => [[
+                        'id' => $set->id, 'name' => '',
+                        'versions' => [[
+                            'id' => $version->id, 'name' => '',
+                            'socials' => [['id' => $social->id, 'name' => 'Post', 'position' => 1] + $fields],
+                        ]],
+                    ]],
+                ]],
+            ]],
+        ]);
+
+        $send(['placement' => 'pin'])->assertSessionHasNoErrors();
+        expect($social->fresh()->placement)->toBe('pin');
+
+        $send([])->assertSessionHasNoErrors();
+        expect($social->fresh()->placement)->toBe('pin');
+
+        $send(['placement' => ''])->assertSessionHasNoErrors();
+        expect($social->fresh()->placement)->toBeNull();
+
+        $send(['placement' => 'billboard'])->assertSessionHasErrors();
+    });
+});

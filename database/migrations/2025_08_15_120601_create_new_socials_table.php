@@ -16,6 +16,11 @@ return new class extends Migration
             $table->foreignId('version_id')->constrained('new_versions')->cascadeOnDelete();
             $table->string('name');
             $table->string('path');
+            // Filled from the file by newSocial's saving hook.
+            $table->unsignedInteger('width')->nullable();
+            $table->unsignedInteger('height')->nullable();
+            // Frame in the client viewer: feed | story | link | pin | storyboard | plain. NULL = auto from size.
+            $table->string('placement', 20)->nullable();
             $table->unsignedInteger('position')->default(0);
             $table->timestamps();
         });

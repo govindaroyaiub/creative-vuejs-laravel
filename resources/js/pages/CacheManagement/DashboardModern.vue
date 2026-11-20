@@ -13,7 +13,7 @@
                             <div class="flex items-center space-x-3 sm:space-x-4">
                                 <div class="min-w-0 flex-1">
                                     <h1 class="text-xl sm:text-2xl md:text-3xl font-light text-black dark:text-white uppercase tracking-[0.08em]"
-                                        style="font-family: 'Space Grotesk', sans-serif;">
+                                        style="font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;">
                                         Server Management
                                     </h1>
                                     <p
@@ -32,7 +32,7 @@
                                         Server Time
                                     </p>
                                     <div class="text-xs sm:text-sm font-mono tabular-nums text-black dark:text-white"
-                                        style="font-family: 'Doto', 'Space Mono', monospace; font-variation-settings: 'DOTS' 20;">
+                                        style="font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-variation-settings: 'DOTS' 20;">
                                         {{ currentTime || 'Loading...' }}
                                     </div>
                                     <p

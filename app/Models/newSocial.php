@@ -22,6 +22,9 @@ class newSocial extends Model
     protected static $logAttributes = ['*']; // logs all attributes
     protected static $logName = 'Social'; // name for this log
 
+    /** Frames the client viewer can show a social image in (null = auto from size). */
+    public const PLACEMENTS = ['feed', 'story', 'link', 'pin', 'storyboard', 'plain'];
+
     protected $fillable = [
         'version_id',
         'name',
@@ -29,6 +32,7 @@ class newSocial extends Model
         'position',
         'width',
         'height',
+        'placement',
     ];
 
     /**

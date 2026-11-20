@@ -6,6 +6,8 @@ import {
 import vSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css'
 import type { PreviewTree, AssetType } from '../usePreviewTree'
+import { PLACEMENTS, autoPlacement, placementLabel } from '@/lib/video-placement'
+import { SOCIAL_PLACEMENTS, autoSocialPlacement, socialPlacementLabel } from '@/lib/social-placement'
 
 const props = defineProps<{
   asset: any
@@ -158,6 +160,19 @@ const onSizeChange = (val: number | null) => {
   } else {
     props.asset.size = null
   }
+  markDirty()
+}
+
+// ----- Frame in the client view (video / social) ---------------------------
+// '' = auto: the client view picks the frame from the size.
+const frameOptions = computed(() => (props.assetType === 'social' ? SOCIAL_PLACEMENTS : PLACEMENTS))
+const autoFrameLabel = computed(() =>
+  props.assetType === 'social'
+    ? socialPlacementLabel(autoSocialPlacement(props.asset?.width, props.asset?.height))
+    : placementLabel(autoPlacement(props.asset?.size?.width, props.asset?.size?.height)),
+)
+const onPlacement = (e: Event) => {
+  props.asset.placement = (e.target as HTMLSelectElement).value || null
   markDirty()
 }
 
@@ -406,6 +421,23 @@ const bannerHeight = computed(() => resolvedSize.value?.height || 250)
           :clearable="false"
           @update:model-value="onSizeChange"
         />
+      </div>
+
+      <!-- Frame in the client view (video / social) -->
+      <div v-if="assetType === 'video' || assetType === 'social'" class="sm:col-span-2">
+        <label class="p2-label mb-1.5 block">Frame in client view</label>
+        <select
+          :value="asset.placement || ''"
+          class="w-full rounded-xl border px-3 py-2 text-sm text-[var(--p2-text)] focus:outline-none"
+          :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
+          @change="onPlacement"
+        >
+          <option value="">Auto · {{ autoFrameLabel }}</option>
+          <option v-for="p in frameOptions" :key="p.value" :value="p.value">{{ p.label }} — {{ p.hint }}</option>
+        </select>
+        <p class="mt-1 text-[11px] text-[var(--p2-text-subtle)]">
+          Auto picks from the size. Choose a frame when the size is unusual or meant for another placement.
+        </p>
       </div>
 
       <!-- Video metadata -->

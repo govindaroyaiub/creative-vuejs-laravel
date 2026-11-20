@@ -8,7 +8,7 @@ import { computed } from 'vue';
 
 interface Props {
     breadcrumbs?: BreadcrumbItemType[];
-    // Apply the shared P9 theme (JetBrains Mono, glass, ambient/starfield).
+    // Apply the shared P9 theme (Inter, glass, ambient/starfield).
     // Set false to opt a page out — e.g. Previews/Update.vue, the theme origin.
     themed?: boolean;
 }

@@ -361,32 +361,32 @@ const handleEditSubmit = () => {
                 </div>
 
                 <!-- Desktop Table -->
-                <div class="hidden lg:block rounded-lg overflow-x-auto border-2 border-[#CCCCCC] dark:border-[#222222]">
+                <div class="hidden lg:block rounded-lg overflow-x-auto border-2 border-[#E8E8E8] dark:border-[#222222]">
                     <table class="w-full bg-white dark:bg-[#111111]">
                         <thead class="bg-[#F5F5F5] dark:bg-[#0A0A0A]">
                             <tr class="text-center">
                                 <th
-                                    class="px-4 py-2 border-b-2 border-[#CCCCCC] dark:border-[#222222] text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                    class="px-4 py-2 border-b-2 border-[#E8E8E8] dark:border-[#222222] text-xs uppercase font-mono tracking-widest text-black dark:text-white">
                                     <input type="checkbox" v-model="selectAllChecked" @change="toggleSelectAllPage"
                                         aria-label="Select all on page" />
                                 </th>
                                 <th
-                                    class="px-4 py-2 border-b-2 border-[#CCCCCC] dark:border-[#222222] text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                    class="px-4 py-2 border-b-2 border-[#E8E8E8] dark:border-[#222222] text-xs uppercase font-mono tracking-widest text-black dark:text-white">
                                     #</th>
                                 <th
-                                    class="px-4 py-2 border-b-2 border-[#CCCCCC] dark:border-[#222222] text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                    class="px-4 py-2 border-b-2 border-[#E8E8E8] dark:border-[#222222] text-xs uppercase font-mono tracking-widest text-black dark:text-white">
                                     Name</th>
                                 <th
-                                    class="px-4 py-2 border-b-2 border-[#CCCCCC] dark:border-[#222222] text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                    class="px-4 py-2 border-b-2 border-[#E8E8E8] dark:border-[#222222] text-xs uppercase font-mono tracking-widest text-black dark:text-white">
                                     Client</th>
                                 <th
-                                    class="px-4 py-2 border-b-2 border-[#CCCCCC] dark:border-[#222222] text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                    class="px-4 py-2 border-b-2 border-[#E8E8E8] dark:border-[#222222] text-xs uppercase font-mono tracking-widest text-black dark:text-white">
                                     Uploader</th>
                                 <th
-                                    class="px-4 py-2 border-b-2 border-[#CCCCCC] dark:border-[#222222] text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                    class="px-4 py-2 border-b-2 border-[#E8E8E8] dark:border-[#222222] text-xs uppercase font-mono tracking-widest text-black dark:text-white">
                                     Preview</th>
                                 <th
-                                    class="px-4 py-2 border-b-2 border-[#CCCCCC] dark:border-[#222222] text-xs uppercase font-mono tracking-widest text-black dark:text-white">
+                                    class="px-4 py-2 border-b-2 border-[#E8E8E8] dark:border-[#222222] text-xs uppercase font-mono tracking-widest text-black dark:text-white">
                                     Actions</th>
                             </tr>
                         </thead>
@@ -456,7 +456,7 @@ const handleEditSubmit = () => {
                 <!-- Mobile/Tablet Cards -->
                 <div class="lg:hidden space-y-4">
                     <div v-for="(transfer, index) in fileTransfers.data" :key="transfer.id"
-                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#CCCCCC] dark:border-[#222222] p-4">
+                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-4">
 
                         <!-- Header: Number + Name -->
                         <div class="flex items-start justify-between mb-3">
@@ -527,7 +527,7 @@ const handleEditSubmit = () => {
 
                     <!-- No results card -->
                     <div v-if="fileTransfers.data.length === 0"
-                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#CCCCCC] dark:border-[#222222] p-8 text-center">
+                        class="bg-white dark:bg-[#111111] rounded-lg border-2 border-[#E8E8E8] dark:border-[#222222] p-8 text-center">
                         <div class="text-[#666666] dark:text-[#999999]">No file transfers found.</div>
                     </div>
                 </div>

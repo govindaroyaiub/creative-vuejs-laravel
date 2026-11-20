@@ -9,7 +9,6 @@ use App\Http\Controllers\FileTransferController;
 use App\Http\Controllers\CreativeSizeController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\ReportingController;
-use App\Http\Controllers\SocialController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\ColorPaletteController;
@@ -63,6 +62,8 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::delete('/previews-delete/{newPreview}', [NewPreviewController::class, 'destroy'])->name('previews-delete');
     Route::get('/previews/update/{id}', [NewPreviewController::class, 'updatePreview'])->name('previews.update.all');
     Route::get('/previews/update2/{id}', [NewPreviewController::class, 'updatePreview2'])->name('previews.update2.all');
+    // DEMO ONLY: review mode / comments / compare prototype for managers. Writes nothing.
+    Route::get('/previews/review/{slug}', \App\Http\Controllers\PreviewReviewDemoController::class)->name('previews.review.demo');
     Route::post('/previews/{id}/bulk-edit', [NewPreviewController::class, 'bulkEdit'])->name('previews.bulkEdit');
     Route::get('/previews/{id}/activity', [NewPreviewController::class, 'activityLog'])->name('previews.activity-log');
 
@@ -99,12 +100,6 @@ Route::middleware(['auth', 'verified', CheckUserPermission::class])->group(funct
     Route::get('/video-sizes', fn() => redirect()->route('creative-sizes-index', ['type' => 'video']))
         ->name('video-sizes-index');
 
-    //Social Routes Start
-    Route::get('/socials', [SocialController::class, 'index'])->name('socials');
-    Route::post('/socials-create-post', [SocialController::class, 'store'])->name('socials-create-post');
-    Route::put('/socials-edit/{id}', [SocialController::class, 'update'])->name('socials-update');
-    Route::delete('/socials-delete/{id}', [SocialController::class, 'destroy'])->name('socials-delete');
-    //Social Routes End
 
     //Reporting Routes Start
     Route::get('/reporting', [ReportingController::class, 'index'])->name('reporting');

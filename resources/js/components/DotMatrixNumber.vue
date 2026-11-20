@@ -48,7 +48,7 @@ const unitSize = computed(() => {
                 'font-mono tracking-tight tabular-nums dot-matrix-number',
                 'text-black dark:text-white',
                 sizeClasses
-            ]" style="font-family: 'Doto', 'Space Mono', monospace; font-variation-settings: 'DOTS' 20;">
+            ]" style="font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-variation-settings: 'DOTS' 20;">
                 {{ value }}
             </div>
             <span v-if="unit" :class="[

@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
 /* CSS Custom Properties for better maintainability */
 :root {
@@ -26,7 +25,7 @@ body {
     min-height: 100%;
     box-shadow: inset 0 0 30px 25px #fff;
     background-color: var(--secondary-color);
-    font-family: "Montserrat", sans-serif;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     overflow-x: hidden;
 }
 

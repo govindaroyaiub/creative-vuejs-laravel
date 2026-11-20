@@ -2037,9 +2037,8 @@ const tabs = [
 
 <style scoped>
 /* ---------- Reporting chrome (mirrors Previews/Update2's visual language:
-   JetBrains Mono, glass surfaces, ambient accent glow, dark-mode starfield)
+   Inter, glass surfaces, ambient accent glow, dark-mode starfield)
    with a fixed accent instead of a per-item color palette. ---------- */
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 .rpt-root {
     --rpt-accent:        #e2483d;
@@ -2061,7 +2060,7 @@ const tabs = [
 
     background-color: var(--rpt-bg);
     color: var(--rpt-text);
-    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-feature-settings: 'cv11', 'ss01', 'tnum';
 }
 .dark .rpt-root {

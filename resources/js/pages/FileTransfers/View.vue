@@ -746,9 +746,8 @@ body {
 </style>
 
 <style scoped>
-/* Planet Nine identity — Inter + JetBrains Mono, same stack as the
+/* Planet Nine identity — Inter only, same stack as the
    marketing site and the show2/update2 surfaces. */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700;800&display=swap');
 
 .ob {
     /* Surface tokens — mirror the Planet Nine site's space-tech dark
@@ -788,7 +787,7 @@ body {
         radial-gradient(ellipse at 50% 30%, #14102a 0%, var(--bg) 60%),
         var(--bg);
     color: var(--ink);
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-feature-settings: 'cv11', 'ss01', 'tnum';
     overflow-x: hidden;
 }
@@ -804,7 +803,7 @@ body {
     background: rgba(7, 9, 30, 0.92);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--line);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.18em;
@@ -870,7 +869,7 @@ body {
     align-items: center;
     gap: 0.7rem;
     margin: 0 0 1rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.32em;
@@ -885,7 +884,7 @@ body {
 }
 
 .ob-system-name {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-weight: 800;
     font-size: clamp(2.4rem, 7vw, 5rem);
     line-height: 0.95;
@@ -903,7 +902,7 @@ body {
 
 .ob-system-sub {
     margin: 0 0 0.6rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-size: 0.78rem;
     font-weight: 700;
     color: var(--muted);
@@ -918,7 +917,7 @@ body {
 
 .ob-byline {
     margin: 0;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-size: 0.78rem;
     color: var(--muted);
     letter-spacing: 0.18em;
@@ -1010,7 +1009,7 @@ body {
 
 .ob-ra-labels text {
     fill: var(--muted);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.18em;
@@ -1089,7 +1088,7 @@ body {
     background: rgba(7, 9, 30, 0.7);
     border: 1px solid var(--line);
     color: var(--ink-soft);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-size: 0.66rem;
     font-weight: 700;
     letter-spacing: 0.14em;
@@ -1152,7 +1151,7 @@ body {
 }
 
 .ob-primary-name {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-weight: 800;
     font-size: clamp(0.85rem, 1.4vw, 1.05rem);
     color: var(--ink);
@@ -1167,7 +1166,7 @@ body {
 }
 
 .ob-primary-meta {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-size: 0.62rem;
     font-weight: 700;
     letter-spacing: 0.28em;
@@ -1201,7 +1200,7 @@ body {
     background: rgba(7, 9, 30, 0.8);
     border: 1px solid var(--line);
     color: var(--ink-soft);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-size: 0.66rem;
     font-weight: 700;
     letter-spacing: 0.18em;
@@ -1236,7 +1235,7 @@ body {
     background: rgba(7, 9, 30, 0.6);
     border: 1px solid var(--line);
     border-radius: 999px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-size: 0.62rem;
     font-weight: 700;
     letter-spacing: 0.18em;
@@ -1281,7 +1280,7 @@ body {
 }
 
 .ob-empty h2 {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.02em;
@@ -1313,7 +1312,7 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-size: 0.7rem;
     font-weight: 800;
     letter-spacing: 0.24em;
@@ -1335,7 +1334,7 @@ body {
     background: var(--ink);
     color: var(--bg);
     border: 1px solid var(--ink);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-size: 0.6rem;
     font-weight: 800;
     letter-spacing: 0.18em;
@@ -1457,7 +1456,7 @@ body {
 }
 
 .ob-fl-name {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-size: 0.92rem;
     font-weight: 700;
     color: var(--ink);
@@ -1471,7 +1470,7 @@ body {
     display: flex;
     align-items: baseline;
     gap: 0.35rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-size: 0.62rem;
     font-weight: 600;
     letter-spacing: 0.12em;
@@ -1499,7 +1498,7 @@ body {
     border: 1px solid var(--accent);
     color: var(--accent);
     text-decoration: none;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-size: 0.62rem;
     font-weight: 800;
     letter-spacing: 0.18em;
@@ -1561,7 +1560,7 @@ body {
 }
 
 .ob-foot-key {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-size: 0.6rem;
     font-weight: 700;
     letter-spacing: 0.28em;
@@ -1570,7 +1569,7 @@ body {
 }
 
 .ob-foot-val {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-weight: 700;
     font-size: 0.95rem;
     letter-spacing: 0.02em;
@@ -1585,7 +1584,7 @@ body {
     gap: 1rem;
     padding-top: 1rem;
     border-top: 1px solid var(--line-soft);
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     font-size: 0.66rem;
     font-weight: 800;
     letter-spacing: 0.32em;

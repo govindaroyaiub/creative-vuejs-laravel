@@ -9,7 +9,6 @@ use App\Models\Client;
 use App\Models\ColorPalette;
 use App\Models\BannerSize;
 use App\Models\VideoSize;
-use App\Models\Social;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -264,6 +263,7 @@ class DatabaseSeeder extends Seeder
 
         $routes = [
             ['title' => 'Dashboard', 'href' => '/dashboard'],
+            ['title' => 'Tasks', 'href' => '/tasks'],
             ['title' => 'Previews', 'href' => '/previews'],
             ['title' => 'Color Palettes', 'href' => '/color-palettes'],
             ['title' => 'Clients', 'href' => '/clients'],
@@ -410,39 +410,6 @@ class DatabaseSeeder extends Seeder
 
         foreach ($videoSizes as $size) {
             VideoSize::create($size);
-        }
-
-        $socials = [
-            ['name' => 'Storyboard'],
-            ['name' => 'Instagram'],
-            ['name' => 'Facebook'],
-            ['name' => 'Twitter'],
-            ['name' => 'LinkedIn'],
-            ['name' => 'YouTube'],
-            ['name' => 'Snapchat'],
-            ['name' => 'TikTok'],
-            ['name' => 'Pinterest'],
-            ['name' => 'WhatsApp'],
-            ['name' => 'Telegram'],
-            ['name' => 'Discord'],
-            ['name' => 'Reddit'],
-            ['name' => 'Tumblr'],
-            ['name' => 'Flickr'],
-            ['name' => 'Vimeo'],
-            ['name' => 'Behance'],
-            ['name' => 'Dribbble'],
-            ['name' => 'Quora'],
-            ['name' => 'Medium'],
-            ['name' => 'Clubhouse'],
-            ['name' => 'Google My Business'],
-            ['name' => 'Yelp'],
-            ['name' => 'Tripadvisor'],
-            ['name' => 'Spotify'],
-            ['name' => 'SoundCloud'],
-        ];
-
-        foreach ($socials as $social) {
-            Social::create($social);
         }
     }
 }

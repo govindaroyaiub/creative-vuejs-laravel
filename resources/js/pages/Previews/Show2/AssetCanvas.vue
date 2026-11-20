@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref } from 'vue'
+import { computed, inject, nextTick, ref, type Component } from 'vue'
 import { ImageIcon, Film, Share2, Sparkles, MessageSquare, ChevronDown, ChevronsDownUp, ChevronsUpDown } from 'lucide-vue-next'
 import BannerCard from './BannerCard.vue'
 import VideoCard from './VideoCard.vue'
@@ -19,6 +19,29 @@ const props = defineProps<{
 defineEmits<{
   (e: 'open-notes'): void
 }>()
+
+/**
+ * Optional row under each creative, provided by a host page (the review-mode
+ * prototype provides one for comments / approval). Show2 provides none, so
+ * nothing renders and the layout is unchanged.
+ */
+const creativeFooter = inject<Component | null>('creativeFooter', null)
+/**
+ * Optional replacement for the video grid (the review prototype's in-context
+ * showcase). Show2 provides none and keeps its own grid.
+ */
+const videoShowcase = inject<Component | null>('videoShowcase', null)
+/** Same for social images (review page's in-context frames). */
+const socialShowcase = inject<Component | null>('socialShowcase', null)
+const footerContext = (set: any, version: any, sIdx: number, vIdx: number) => ({
+  category: props.activeCategory,
+  feedback: props.activeFeedback,
+  feedbackSets: props.feedbackSets,
+  set,
+  version,
+  sIdx,
+  vIdx,
+})
 
 const categoryType = computed(() => props.activeCategory?.type)
 
@@ -347,12 +370,20 @@ const sizeSummary = (version: any): string => {
                   class="flex flex-wrap items-end gap-5"
                   :data-tour="sIdx === 0 && vIdx === 0 ? 'assets' : undefined"
                 >
-                  <BannerCard
+                  <div
                     v-for="(banner, bIdx) in version.assets"
                     :key="banner.id"
-                    :banner="banner"
-                    :index="bIdx"
-                  />
+                    class="flex max-w-full flex-col"
+                  >
+                    <BannerCard :banner="banner" :index="bIdx" />
+                    <component
+                      :is="creativeFooter"
+                      v-if="creativeFooter"
+                      :asset="banner"
+                      :type="categoryType"
+                      :context="footerContext(set, version, sIdx, vIdx)"
+                    />
+                  </div>
                 </div>
 
                 <!-- GIFs -->
@@ -361,12 +392,39 @@ const sizeSummary = (version: any): string => {
                   class="flex flex-wrap items-end gap-5"
                   :data-tour="sIdx === 0 && vIdx === 0 ? 'assets' : undefined"
                 >
-                  <GifCard
+                  <div
                     v-for="gif in version.assets"
                     :key="gif.id"
-                    :gif="gif"
-                  />
+                    class="flex max-w-full flex-col"
+                  >
+                    <GifCard :gif="gif" />
+                    <component
+                      :is="creativeFooter"
+                      v-if="creativeFooter"
+                      :asset="gif"
+                      :type="categoryType"
+                      :context="footerContext(set, version, sIdx, vIdx)"
+                    />
+                  </div>
                 </div>
+
+                <!-- Videos: host page's showcase (review prototype) -->
+                <component
+                  :is="videoShowcase"
+                  v-else-if="categoryType === 'video' && videoShowcase"
+                  :videos="version.assets"
+                  :data-tour="sIdx === 0 && vIdx === 0 ? 'assets' : undefined"
+                >
+                  <template #footer="{ video }">
+                    <component
+                      :is="creativeFooter"
+                      v-if="creativeFooter"
+                      :asset="video"
+                      :type="categoryType"
+                      :context="footerContext(set, version, sIdx, vIdx)"
+                    />
+                  </template>
+                </component>
 
                 <!-- Videos -->
                 <div
@@ -374,12 +432,39 @@ const sizeSummary = (version: any): string => {
                   class="grid grid-cols-1 gap-6"
                   :data-tour="sIdx === 0 && vIdx === 0 ? 'assets' : undefined"
                 >
-                  <VideoCard
+                  <div
                     v-for="video in version.assets"
                     :key="video.id"
-                    :video="video"
-                  />
+                    class="flex max-w-full flex-col"
+                  >
+                    <VideoCard :video="video" />
+                    <component
+                      :is="creativeFooter"
+                      v-if="creativeFooter"
+                      :asset="video"
+                      :type="categoryType"
+                      :context="footerContext(set, version, sIdx, vIdx)"
+                    />
+                  </div>
                 </div>
+
+                <!-- Socials: host page's showcase (review page) -->
+                <component
+                  :is="socialShowcase"
+                  v-else-if="categoryType === 'social' && socialShowcase"
+                  :socials="version.assets"
+                  :data-tour="sIdx === 0 && vIdx === 0 ? 'assets' : undefined"
+                >
+                  <template #footer="{ social }">
+                    <component
+                      :is="creativeFooter"
+                      v-if="creativeFooter"
+                      :asset="social"
+                      :type="categoryType"
+                      :context="footerContext(set, version, sIdx, vIdx)"
+                    />
+                  </template>
+                </component>
 
                 <!-- Socials -->
                 <div
@@ -387,11 +472,20 @@ const sizeSummary = (version: any): string => {
                   class="grid grid-cols-1 items-start gap-5 sm:grid-cols-2 xl:grid-cols-3"
                   :data-tour="sIdx === 0 && vIdx === 0 ? 'assets' : undefined"
                 >
-                  <SocialCard
+                  <div
                     v-for="social in version.assets"
                     :key="social.id"
-                    :social="social"
-                  />
+                    class="flex max-w-full flex-col"
+                  >
+                    <SocialCard :social="social" />
+                    <component
+                      :is="creativeFooter"
+                      v-if="creativeFooter"
+                      :asset="social"
+                      :type="categoryType"
+                      :context="footerContext(set, version, sIdx, vIdx)"
+                    />
+                  </div>
                 </div>
               </div>
             </Transition>

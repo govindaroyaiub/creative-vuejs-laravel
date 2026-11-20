@@ -12,7 +12,10 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Instrument Sans', ...defaultTheme.fontFamily.sans],
+                // One font for the whole app. `mono` points at Inter too (with tabular
+                // numbers, see app.css) so the 700+ `font-mono` usages follow it.
+                sans: ['Inter', ...defaultTheme.fontFamily.sans],
+                mono: ['Inter', ...defaultTheme.fontFamily.sans],
             },
             transitionTimingFunction: {
                 'p2-expo': 'var(--p2-ease-expo)',

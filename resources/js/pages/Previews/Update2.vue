@@ -299,6 +299,7 @@ function appendVideo(fd: FormData, prefix: string, a: any) {
   fd.append(`${prefix}[aspect_ratio]`, a.aspect_ratio ?? '')
   fd.append(`${prefix}[fps]`, String(a.fps ?? ''))
   fd.append(`${prefix}[size_id]`, String(a.size_id ?? ''))
+  fd.append(`${prefix}[placement]`, a.placement ?? '')
   fd.append(`${prefix}[position]`, String(a.position ?? 0))
   if (a.file instanceof File) fd.append(`${prefix}[file]`, a.file)
   if (a.companion_banner instanceof File) fd.append(`${prefix}[companion_banner]`, a.companion_banner)
@@ -306,6 +307,7 @@ function appendVideo(fd: FormData, prefix: string, a: any) {
 function appendSocial(fd: FormData, prefix: string, a: any) {
   if (isDbId(a.id)) fd.append(`${prefix}[id]`, String(a.id))
   fd.append(`${prefix}[name]`, a.name ?? '')
+  fd.append(`${prefix}[placement]`, a.placement ?? '')
   fd.append(`${prefix}[position]`, String(a.position ?? 0))
   if (a.file instanceof File) fd.append(`${prefix}[file]`, a.file)
 }
@@ -415,7 +417,6 @@ onBeforeUnmount(() => {
    Show2 viewer, but with a fixed launch-blue accent and no starfield /
    aurora bloom. Editors are work surfaces; the cinematic chrome is
    reserved for the public-facing pages. */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 .update2-root {
   /* --p2-accent / --p2-accent-2 / --p2-accent-soft / --p2-accent-muted /
@@ -439,7 +440,7 @@ onBeforeUnmount(() => {
 
   background-color: var(--p2-bg);
   color: var(--p2-text);
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   font-feature-settings: 'cv11', 'ss01', 'tnum';
 }
 
@@ -464,7 +465,7 @@ onBeforeUnmount(() => {
   color: var(--p2-text-muted);
 }
 .update2-root .p2-mono {
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 .update2-root .p2-glass {
   background: var(--p2-surface-muted);

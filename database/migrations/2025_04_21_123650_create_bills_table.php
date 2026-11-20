@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('client');
             $table->decimal('total_amount', 10, 2)->default(0);
             $table->timestamps();
+
+            $table->index('created_at', 'bills_created_at_idx');
         });
     }
 

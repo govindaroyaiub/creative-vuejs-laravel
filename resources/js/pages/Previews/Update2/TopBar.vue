@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { ArrowLeft, Save, ExternalLink, PanelLeft, Loader2, Copy, Check, Pencil, History } from 'lucide-vue-next'
+import { ArrowLeft, Save, ExternalLink, PanelLeft, Loader2, Copy, Check, Pencil, History, FlaskConical } from 'lucide-vue-next'
 import { ref } from 'vue'
 
 const props = defineProps<{
@@ -149,6 +149,22 @@ const dirtyLabel = computed(() => {
         <ExternalLink class="h-3.5 w-3.5" />
         Preview
       </button>
+
+      <!-- DEMO ONLY: opens the review-mode prototype (/previews/review/{slug}).
+           Amber so it reads as a prototype, not a finished feature. Remove with
+           the rest of the demo (see docs/plans/preview-review-and-delivery.md §9). -->
+      <a
+        :href="`/previews/review/${previewSlug}`"
+        target="_blank"
+        rel="noopener"
+        class="hidden h-9 items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium text-amber-700 transition-colors duration-300 ease-p2-expo hover:bg-amber-500/15 dark:text-amber-400 md:inline-flex"
+        style="border-color: rgb(245 158 11 / 0.35); background: rgb(245 158 11 / 0.08)"
+        title="Open the review prototype (comments, approvals, compare) in a new tab"
+      >
+        <FlaskConical class="h-3.5 w-3.5" />
+        Review
+        <span class="rounded-full px-1.5 text-[10px] font-semibold" style="background: rgb(245 158 11 / 0.18)">Demo</span>
+      </a>
 
       <button
         type="button"

@@ -1013,11 +1013,11 @@ const formatNumber = (num: number) => {
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 lg:gap-0">
                     <div class="flex-1 text-center lg:text-left">
                         <h1 class="text-4xl md:text-5xl font-light tracking-tight text-black dark:text-white uppercase dot-matrix-text"
-                            style="font-family: 'Doto', 'Space Mono', monospace; font-variation-settings: 'DOTS' 20; font-weight: 700;">
+                            style="font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-variation-settings: 'DOTS' 20; font-weight: 700;">
                             DASHBOARD
                         </h1>
                         <p class="text-[#666666] dark:text-[#999999] mt-2 text-lg tracking-widest uppercase font-mono dot-matrix-text"
-                            style="font-family: 'Doto', 'Space Mono', monospace; font-variation-settings: 'DOTS' 20;">
+                            style="font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-variation-settings: 'DOTS' 20;">
                             ANALYTICS — {{ year }}
                         </p>
                     </div>

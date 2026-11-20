@@ -70,6 +70,8 @@ class NewFeedbackSetController extends Controller
             // Get the set to delete
             $set = $newFeedbackSet->findOrFail($id);
             $this->authorizeFeedbackSet($set);
+            // Lazy loading is disabled outside production, so load the whole subtree up front.
+            $set->load(['versions.banners', 'versions.videos', 'versions.socials', 'versions.gifs']);
 
             // Get the category type for folder/file deletion
             $category = $set->feedback->category;

@@ -722,6 +722,7 @@ class NewPreviewController extends Controller
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.id' => 'nullable|integer',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.name' => 'nullable|string|max:255',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.position' => 'required|integer',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.socials.*.placement' => ['nullable', \Illuminate\Validation\Rule::in(newSocial::PLACEMENTS)],
             // SVG dropped on purpose: SVGs can carry inline <script>
             // tags and execute as JS when served from the same origin
             // as the app — that's a stored-XSS primitive.
@@ -737,6 +738,7 @@ class NewPreviewController extends Controller
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.codec' => 'nullable|string|max:255',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.aspect_ratio' => 'nullable|string|max:255',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.fps' => 'nullable|string|max:255',
+            'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.placement' => ['nullable', \Illuminate\Validation\Rule::in(newVideo::PLACEMENTS)],
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.size_id' => 'required_if:categories.*.type,video|exists:video_sizes,id',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.position' => 'required|integer',
             'categories.*.feedbacks.*.feedback_sets.*.versions.*.videos.*.file' => 'nullable|file|mimes:mp4,mov,avi,wmv,mkv',
@@ -1014,6 +1016,8 @@ class NewPreviewController extends Controller
                                             $social->setRelation('version', $version);
                                             $social->update([
                                                 'name' => $socialData['name'] ?? $social->name,
+                                                // Sent as '' for "auto"; a payload without the key keeps the stored value.
+                                                'placement' => array_key_exists('placement', $socialData) ? ($socialData['placement'] ?: null) : $social->placement,
                                                 'position' => $socialData['position'],
                                             ]);
                                             $currentSocialIds[] = $social->id;
@@ -1042,6 +1046,7 @@ class NewPreviewController extends Controller
                                                     $social = newSocial::create([
                                                         'version_id' => $version->id,
                                                         'name' => $socialData['name'] ?? $filename,
+                                                        'placement' => ($socialData['placement'] ?? null) ?: null,
                                                         'position' => $socialData['position'],
                                                         'path' => "uploads/socials/{$filename}",
                                                     ]);
@@ -1089,6 +1094,8 @@ class NewPreviewController extends Controller
                                                     'aspect_ratio' => $videoData['aspect_ratio'] ?? $video->aspect_ratio,
                                                     'fps' => $videoData['fps'] ?? $video->fps,
                                                     'size_id' => $videoData['size_id'],
+                                                    // Sent as '' for "auto"; a payload without the key keeps the stored value.
+                                                    'placement' => array_key_exists('placement', $videoData) ? ($videoData['placement'] ?: null) : $video->placement,
                                                     'position' => $videoData['position'],
                                                 ]);
                                                 $currentVideoIds[] = $video->id;
@@ -1168,6 +1175,7 @@ class NewPreviewController extends Controller
                                                     'aspect_ratio' => $videoData['aspect_ratio'] ?? '',
                                                     'fps' => $videoData['fps'] ?? '30 FPS',
                                                     'size_id' => $videoData['size_id'],
+                                                    'placement' => ($videoData['placement'] ?? null) ?: null,
                                                     'position' => $videoData['position'],
                                                     'path' => $videoPath,
                                                     'file_size' => $fileSize,

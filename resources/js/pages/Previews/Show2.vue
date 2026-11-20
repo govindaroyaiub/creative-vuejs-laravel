@@ -493,10 +493,9 @@ const themeStyle = computed(() => ({
 
 <style>
 /* Planet Nine cinematic typeface stack — Inter for everything,
-   JetBrains Mono for tags / timestamps / numerics. Loaded once
+   Inter (tabular numerals) for tags / timestamps / numerics. Loaded once
    per page via @import to avoid the global CSS pulling in fonts
    the rest of the app does not need. */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 .show2-root {
   /* No `position` here on purpose — modals/sheets that re-use this
@@ -521,7 +520,7 @@ const themeStyle = computed(() => ({
 
   background-color: var(--p2-bg);
   color: var(--p2-text);
-  font-family: 'Inter', 'Montserrat', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   font-feature-settings: 'cv11', 'ss01', 'tnum';
 }
 
@@ -614,7 +613,7 @@ const themeStyle = computed(() => ({
   color: var(--p2-text-muted);
 }
 
-.p2-mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace; }
+.p2-mono { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
 
 /* Glass surface — used for cards over the ambient backdrop. */
 .p2-glass {

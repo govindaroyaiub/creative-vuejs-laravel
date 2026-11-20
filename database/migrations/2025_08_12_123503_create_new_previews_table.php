@@ -26,6 +26,11 @@ return new class extends Migration
             $table->foreignId('color_palette_id')->nullable()->constrained()->nullOnDelete();
             $table->boolean('show_tour_guide')->default(true);
             $table->timestamps();
+
+            // NewPreviewController@index filters client_id / uploader_id and orders by created_at.
+            $table->index(['client_id', 'created_at'], 'new_previews_client_created_idx');
+            $table->index(['uploader_id', 'created_at'], 'new_previews_uploader_created_idx');
+            $table->index('created_at', 'new_previews_created_at_idx');
         });
     }
 

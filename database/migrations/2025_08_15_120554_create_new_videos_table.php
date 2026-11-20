@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('path');
             $table->foreignId('size_id')->constrained('video_sizes')->cascadeOnDelete();
+            // Frame in the client viewer: story | feed | screen | article | plain. NULL = auto from size.
+            $table->string('placement', 20)->nullable();
             $table->string('codec')->nullable();
             $table->string('aspect_ratio')->nullable();
             $table->string('fps')->nullable();
