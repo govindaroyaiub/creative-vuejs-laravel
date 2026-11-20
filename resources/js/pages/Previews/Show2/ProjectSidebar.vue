@@ -164,6 +164,29 @@ const typeLabel = (type: string) => {
  * ascending. Falling back to id, which is monotonic, makes "the one I just
  * added is at the top" hold in every case.
  */
+/**
+ * Footer summary: how many projects of each type, and when the newest change
+ * landed. Gives the bottom of the card a job instead of leaving it empty when
+ * the list is short.
+ */
+const TYPE_ORDER = ['banner', 'gif', 'video', 'social']
+const typeCounts = computed(() => {
+  const counts = new Map<string, number>()
+  for (const c of props.categories) counts.set(c.type, (counts.get(c.type) || 0) + 1)
+  return [...counts.entries()]
+    .sort(([a], [b]) => (TYPE_ORDER.indexOf(a) + 1 || 99) - (TYPE_ORDER.indexOf(b) + 1 || 99))
+    .map(([type, count]) => ({ type, count }))
+})
+const lastUpdated = computed(() => {
+  let latest = 0
+  for (const c of props.categories) {
+    const t = new Date(c.updated_at || c.created_at).getTime()
+    if (t > latest) latest = t
+  }
+  if (!latest) return ''
+  return new Date(latest).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+})
+
 const sorted = computed(() =>
   [...props.categories].sort((a, b) => {
     const byDate = new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -191,13 +214,14 @@ const sorted = computed(() =>
            three creatives does not leave a tall empty panel down the page.
 
            Two bounds keep that honest:
-             min-h — a floor, matching the column width, so one or two rows still
-                     read as a panel instead of a stray chip;
+             min-h — a floor, so one or two rows still read as a panel instead
+                     of a stray chip. Kept low; the footer sits at the bottom
+                     of it, so what space is left reads as part of the card;
              max-h — a ceiling at the viewport, which is what hands scrolling back
                      to the list inside (it is `min-h-0 flex-1 overflow-y-auto`,
                      so it only starts scrolling once this ceiling is hit). -->
       <div
-        class="p2-glass flex w-72 max-h-[calc(100vh-100px)] min-h-[18rem] flex-col overflow-hidden rounded-3xl"
+        class="p2-glass flex w-72 max-h-[calc(100vh-100px)] min-h-[15rem] flex-col overflow-hidden rounded-3xl"
       >
         <!-- Header row: the count on the left, the logo on the right.
              The logo appears once the user has scrolled past the topbar (whose
@@ -324,6 +348,33 @@ const sorted = computed(() =>
               </button>
             </div>
           </template>
+        </div>
+
+        <!-- Footer: type breakdown + last update. Sits on the card's bottom
+             edge, so a short list ends in a finished panel, not empty space. -->
+        <div
+          v-if="!isLoading && categories.length"
+          class="flex shrink-0 items-center justify-between gap-3 border-t px-5 py-3"
+          :style="{ borderColor: 'var(--p2-hairline)' }"
+        >
+          <div class="flex min-w-0 flex-wrap items-center gap-1.5">
+            <span
+              v-for="t in typeCounts"
+              :key="t.type"
+              class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] text-[var(--p2-text-muted)]"
+              :style="{ background: 'var(--p2-accent-soft)' }"
+              :title="typeLabel(t.type)"
+            >
+              <component :is="typeIcon(t.type)" class="h-3 w-3" :style="{ color: 'var(--p2-accent)' }" />
+              <span class="p2-mono tabular-nums">{{ t.count }}</span>
+            </span>
+          </div>
+          <span
+            v-if="lastUpdated"
+            class="p2-mono shrink-0 text-[11px] text-[var(--p2-text-subtle)]"
+          >
+            Updated {{ lastUpdated }}
+          </span>
         </div>
       </div>
     </aside>

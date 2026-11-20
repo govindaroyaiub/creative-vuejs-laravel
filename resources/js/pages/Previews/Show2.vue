@@ -40,6 +40,7 @@ const props = defineProps<{
   authUserClientName: string
   previewId: number | string
   isAuthenticated: boolean
+  initialPayload?: any
 }>()
 
 const DEFAULT_PALETTE = {
@@ -188,66 +189,34 @@ const fetchViewers = () => {
 const applyAjaxPayload = (data: any) => {
   categories.value = data.categories || []
   feedbacks.value = data.feedbacks || []
-  feedbackSets.value = (data.feedbackSets || []).map((s: any) => ({ ...s, versions: [] }))
+  // `assetTree` carries the whole active round (set -> versions -> assets,
+  // with sizes) in one response, so the canvas can lay out every card at its
+  // real size immediately instead of waiting on a request per set + version.
+  feedbackSets.value = data.assetTree || []
   activeCategory.value = data.activeCategory || null
   activeFeedback.value = data.activeFeedback || null
   fileTransfer.value = data.fileTransfer || null
 }
 
 // Race-condition guard. Each async select operation bumps + captures the
-// epoch; after every await we re-check it. If the user fired another
-// select while we were waiting, the stale handler bails out before
-// overwriting fresh state with old data or clearing the loading flag too
-// early (which was making the empty state flash on rapid switches).
+// epoch; after the await we re-check it. If the user fired another select
+// while we were waiting, the stale handler bails out before overwriting
+// fresh state with old data or clearing the loading flag too early.
 let activeEpoch = 0
 
-const loadVersionsAndAssets = async (epoch: number) => {
-  if (!activeCategory.value) return
-  const type = activeCategory.value.type
-  await Promise.all(
-    feedbackSets.value.map(async (set) => {
-      const versionsRes = await axios.get(`/preview/renderVersions/${set.id}`)
-      if (epoch !== activeEpoch) return
-      const versions = (versionsRes.data.versions || []).map((v: any) => ({ ...v, assets: [] }))
-      set.versions = versions
-
-      await Promise.all(
-        versions.map(async (version: any) => {
-          try {
-            if (type === 'banner') {
-              const r = await axios.get(`/preview/renderBanners/${version.id}`)
-              if (epoch !== activeEpoch) return
-              version.assets = r.data.banners || []
-            } else if (type === 'video') {
-              const r = await axios.get(`/preview/renderVideos/${version.id}`)
-              if (epoch !== activeEpoch) return
-              version.assets = r.data.videos || []
-            } else if (type === 'social') {
-              const r = await axios.get(`/preview/renderSocials/${version.id}`)
-              if (epoch !== activeEpoch) return
-              version.assets = r.data.socials || []
-            } else if (type === 'gif') {
-              const r = await axios.get(`/preview/renderGifs/${version.id}`)
-              if (epoch !== activeEpoch) return
-              version.assets = r.data.gifs || []
-            }
-          } catch {
-            version.assets = []
-          }
-        })
-      )
-    })
-  )
-}
-
 const initialLoad = async () => {
+  // Normal path: the server rendered the page with the payload already in it.
+  if (props.initialPayload) {
+    applyAjaxPayload(props.initialPayload)
+    isInitialLoading.value = false
+    return
+  }
   const epoch = ++activeEpoch
   isInitialLoading.value = true
   try {
     const res = await axios.get(`/preview/renderCategories/${props.previewId}`)
     if (epoch !== activeEpoch) return
     applyAjaxPayload(res.data)
-    await loadVersionsAndAssets(epoch)
   } catch (e) {
     console.error('Failed to load categories', e)
   } finally {
@@ -266,7 +235,6 @@ const onCategorySelect = async (categoryId: number) => {
     const res = await axios.post(`/preview/updateActiveCategory/${categoryId}`)
     if (epoch !== activeEpoch) return
     applyAjaxPayload(res.data)
-    await loadVersionsAndAssets(epoch)
   } finally {
     if (epoch === activeEpoch) {
       isAssetsLoading.value = false
@@ -282,7 +250,6 @@ const onFeedbackSelect = async (feedbackId: number) => {
     const res = await axios.post(`/preview/updateActiveFeedback/${feedbackId}`)
     if (epoch !== activeEpoch) return
     applyAjaxPayload(res.data)
-    await loadVersionsAndAssets(epoch)
   } finally {
     if (epoch === activeEpoch) {
       isAssetsLoading.value = false
@@ -428,7 +395,8 @@ const themeStyle = computed(() => ({
           :feedback-sets="feedbackSets"
           :active-category="activeCategory"
           :active-feedback="activeFeedback"
-          :is-loading="isInitialLoading || isAssetsLoading"
+          :is-loading="isInitialLoading"
+          :is-switching="isAssetsLoading"
           @open-notes="isNotesOpen = true"
         />
       </main>
@@ -654,6 +622,25 @@ const themeStyle = computed(() => ({
   border: 1px solid var(--p2-border);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+}
+
+/* Loading placeholder. Cards put this on a box that already has the asset's
+   real size, so nothing moves when the asset arrives. */
+.p2-shimmer {
+  background-color: var(--p2-hairline);
+  background-image: linear-gradient(
+    100deg,
+    transparent 20%,
+    color-mix(in srgb, var(--p2-text) 6%, transparent) 50%,
+    transparent 80%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: p2-shimmer 1.4s linear infinite;
+}
+@keyframes p2-shimmer {
+  from { background-position: 150% 0; }
+  to   { background-position: -50% 0; }
 }
 
 /* Hairline divider — 1px, almost invisible, just enough to give

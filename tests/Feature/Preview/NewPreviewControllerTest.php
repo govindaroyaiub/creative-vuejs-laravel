@@ -562,3 +562,39 @@ describe('rearranging banners', function () {
         expect($logNames->contains(fn ($n) => str_contains((string) $n, 'Summer Sale')))->toBeTrue();
     });
 });
+
+describe('show2 asset tree', function () {
+    it('sends the active round as one nested tree with sizes, in position order', function () {
+        ['preview' => $preview, 'set' => $set, 'version' => $version] = bannerTree();
+        $second = \App\Models\newVersion::create(['feedback_set_id' => $set->id, 'name' => 'Set 2']);
+
+        $tree = $this->getJson("/preview/renderCategories/{$preview->id}")
+            ->assertOk()
+            ->json('assetTree');
+
+        expect($tree)->toHaveCount(1)
+            ->and($tree[0]['id'])->toBe($set->id)
+            ->and(array_column($tree[0]['versions'], 'id'))->toBe([$version->id, $second->id])
+            ->and(array_column($tree[0]['versions'][0]['assets'], 'name'))->toBe(['Banner A', 'Banner B'])
+            ->and($tree[0]['versions'][0]['assets'][0]['size'])->toMatchArray(['width' => 300, 'height' => 250])
+            ->and($tree[0]['versions'][1]['assets'])->toBe([]);
+    });
+
+    it('renders the page with the tree already in its props', function () {
+        ['preview' => $preview] = bannerTree();
+
+        $this->get("/previews/show2/{$preview->slug}")
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->component('Previews/Show2', false)
+                ->has('initialPayload.assetTree.0.versions.0.assets', 2));
+    });
+
+    it('returns an empty tree for a preview with no categories', function () {
+        $preview = newPreview::factory()->create();
+
+        $this->getJson("/preview/renderCategories/{$preview->id}")
+            ->assertOk()
+            ->assertJsonPath('assetTree', []);
+    });
+});

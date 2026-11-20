@@ -150,8 +150,7 @@ const bannerAreaClass = computed(() => `banner-area-${width.value}-${height.valu
         <button
           v-if="!isLoaded && !isLoading"
           type="button"
-          class="absolute inset-0 flex flex-col items-center justify-center gap-2 text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-text)]"
-          :style="{ background: 'var(--p2-bg)' }"
+          class="p2-shimmer absolute inset-0 flex flex-col items-center justify-center gap-2 text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-text)]"
           :aria-label="`Load banner ${width}x${height}`"
           @click="loadIframe"
         >
@@ -167,14 +166,8 @@ const bannerAreaClass = computed(() => `banner-area-${width.value}-${height.valu
         <!-- Loading -->
         <div
           v-if="isLoading && !isLoaded"
-          class="pointer-events-none absolute inset-0 flex items-center justify-center"
-          :style="{ background: 'color-mix(in srgb, var(--p2-bg) 60%, transparent)' }"
-        >
-          <div
-            class="h-5 w-5 animate-spin rounded-full border-2"
-            :style="{ borderColor: 'var(--p2-border)', borderTopColor: 'var(--p2-accent)' }"
-          />
-        </div>
+          class="p2-shimmer pointer-events-none absolute inset-0"
+        />
 
         <!-- Error -->
         <div

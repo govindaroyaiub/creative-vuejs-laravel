@@ -413,6 +413,9 @@ class NewPreviewController extends Controller
             'authUserClientName' => $authUserClientName,
             'previewId'          => $preview->id,
             'isAuthenticated'    => Auth::check(),
+            // First paint gets the whole active round, so the page renders the
+            // real cards at their real sizes with no loading request at all.
+            'initialPayload'     => app(newPreviewApiController::class)->previewPayload((int) $preview->id),
         ]);
     }
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, inject } from 'vue'
+import { computed, inject, ref } from 'vue'
 import { Download, Film, Aperture, Activity, FileVideo, Ratio } from 'lucide-vue-next'
 
 const props = defineProps<{
@@ -12,6 +12,19 @@ const resolution = computed(() => {
   const w = props.video?.size?.width
   const h = props.video?.size?.height
   return w && h ? `${w}×${h}` : null
+})
+
+const isReady = ref(false)
+
+// Reserve the player's box before the file arrives: real aspect ratio, capped
+// at 60vh tall like the player itself. Without a size we fall back to 16:9.
+const stageStyle = computed(() => {
+  const w = Number(props.video?.size?.width) || 16
+  const h = Number(props.video?.size?.height) || 9
+  return {
+    aspectRatio: `${w} / ${h}`,
+    width: `min(100%, calc(60vh * ${w} / ${h}))`,
+  }
 })
 
 const meta = computed(() =>
@@ -32,14 +45,20 @@ const meta = computed(() =>
   >
     <!-- Player -->
     <div class="bg-zinc-950">
-      <video
-        :src="`/${video.path}`"
-        controls
-        muted
-        controlsList="nodownload noremoteplayback"
-        disablePictureInPicture
-        class="mx-auto block max-h-[60vh] w-auto max-w-full"
-      />
+      <div class="relative mx-auto" :style="stageStyle">
+        <video
+          :src="`/${video.path}`"
+          controls
+          muted
+          preload="metadata"
+          controlsList="nodownload noremoteplayback"
+          disablePictureInPicture
+          class="block h-full w-full"
+          @loadeddata="isReady = true"
+          @error="isReady = true"
+        />
+        <div v-if="!isReady" class="p2-shimmer pointer-events-none absolute inset-0" />
+      </div>
     </div>
 
     <!-- Meta strip -->

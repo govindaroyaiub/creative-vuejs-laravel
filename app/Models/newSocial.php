@@ -27,7 +27,28 @@ class newSocial extends Model
         'name',
         'path',
         'position',
+        'width',
+        'height',
     ];
+
+    /**
+     * Keep width/height in step with the file. Socials are written from
+     * several places (single edit, bulk preview update), and every one of them
+     * moves the file into place before saving the path, so reading it here
+     * covers them all without touching each controller.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (newSocial $social) {
+            if (!$social->isDirty('path') || !$social->path) {
+                return;
+            }
+            $file = public_path($social->path);
+            $info = is_file($file) ? @getimagesize($file) : false;
+            $social->width = $info ? $info[0] : null;
+            $social->height = $info ? $info[1] : null;
+        });
+    }
 
     public function version()
     {

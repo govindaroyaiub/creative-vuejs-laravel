@@ -2,9 +2,26 @@
 import { ref, computed, inject, watch, nextTick, onUnmounted } from 'vue'
 import { Download, X, ZoomIn, ZoomOut, Loader2 } from 'lucide-vue-next'
 
-defineProps<{
+const props = defineProps<{
   social: any
 }>()
+
+// Card thumbnail box. Uses the stored size so the grid does not jump as
+// images arrive; rows saved before sizes existed fall back to square and
+// switch to the real ratio once the image has loaded.
+const thumbLoaded = ref(false)
+const thumbRatio = ref<string | null>(null)
+const cardRatio = computed(() => {
+  const w = Number(props.social?.width)
+  const h = Number(props.social?.height)
+  if (w && h) return `${w} / ${h}`
+  return thumbRatio.value || '1 / 1'
+})
+const onThumbLoad = (e: Event) => {
+  const img = e.target as HTMLImageElement
+  if (img.naturalWidth && img.naturalHeight) thumbRatio.value = `${img.naturalWidth} / ${img.naturalHeight}`
+  thumbLoaded.value = true
+}
 
 const isPlanetNine = inject<boolean>('isPlanetNine', false)
 
@@ -169,12 +186,17 @@ onUnmounted(() => {
       :aria-label="`Open ${social.name}`"
       @click="open"
     >
-      <img
-        :src="`/${social.path}`"
-        :alt="social.name"
-        class="block w-full object-cover transition-transform duration-500 ease-p2-cinema group-hover:scale-[1.02]"
-        loading="lazy"
-      />
+      <div class="relative w-full overflow-hidden" :style="{ aspectRatio: cardRatio }">
+        <img
+          :src="`/${social.path}`"
+          :alt="social.name"
+          class="block h-full w-full object-cover transition-transform duration-500 ease-p2-cinema group-hover:scale-[1.02]"
+          loading="lazy"
+          @load="onThumbLoad"
+          @error="thumbLoaded = true"
+        />
+        <div v-if="!thumbLoaded" class="p2-shimmer pointer-events-none absolute inset-0" />
+      </div>
 
       <!-- Hover scrim -->
       <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-zinc-900/65 via-transparent to-transparent opacity-0 transition-opacity duration-300 ease-p2-cinema group-hover:opacity-100" />

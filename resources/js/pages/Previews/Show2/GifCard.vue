@@ -9,6 +9,7 @@ const props = defineProps<{
 const isPlanetNine = inject<boolean>('isPlanetNine', false)
 
 const iframeEl = ref<HTMLIFrameElement | null>(null)
+const isLoaded = ref(false)
 
 const width = computed(() => props.gif?.size?.width || 300)
 const height = computed(() => props.gif?.size?.height || 250)
@@ -27,7 +28,9 @@ const frameStyle = computed(() => ({
 const bannerAreaClass = computed(() => `banner-area-${width.value}-${height.value}`)
 
 const reload = () => {
-  if (iframeEl.value) iframeEl.value.src = iframeEl.value.src
+  if (!iframeEl.value) return
+  isLoaded.value = false
+  iframeEl.value.src = iframeEl.value.src
 }
 </script>
 
@@ -55,7 +58,7 @@ const reload = () => {
     </div>
 
     <div class="relative" :style="{ background: 'var(--p2-bg)' }">
-      <div class="banner-card-frame mx-auto overflow-hidden" :style="frameStyle">
+      <div class="banner-card-frame relative mx-auto overflow-hidden" :style="frameStyle">
         <iframe
           ref="iframeEl"
           :src="`/${gif.path}`"
@@ -66,7 +69,9 @@ const reload = () => {
           sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
           referrerpolicy="no-referrer"
           class="block border-0"
+          @load="isLoaded = true"
         />
+        <div v-if="!isLoaded" class="p2-shimmer pointer-events-none absolute inset-0" />
       </div>
 
       <div class="pointer-events-none absolute right-2 bottom-2 flex gap-1 opacity-0 transition-opacity duration-300 ease-p2-expo group-hover:opacity-100">

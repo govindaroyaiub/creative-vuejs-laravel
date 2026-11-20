@@ -60,7 +60,7 @@ class newPreviewApiController extends Controller
      * Returning empty collections lets the page render its own empty states,
      * which it already has.
      */
-    private function previewPayload(int $previewId): array
+    public function previewPayload(int $previewId): array
     {
         $preview = newPreview::with([
             'categories.feedbacks.feedbackSets.versions'
@@ -83,7 +83,51 @@ class newPreviewApiController extends Controller
             'fileTransfer' => $activeCategory?->file_transfer_id
                 ? FileTransfer::find($activeCategory->file_transfer_id)
                 : null,
+            'assetTree' => $this->assetTree($feedbackSets, $activeCategory?->type),
         ];
+    }
+
+    /**
+     * The active round as one nested list: set -> versions -> assets.
+     *
+     * Show2 used to fetch this one request per set and one per version, so it
+     * could not know how many assets were coming, or their sizes, until every
+     * request had finished. With the whole tree in one response, each card can
+     * reserve its exact box straight away. Only rows are sent here; the heavy
+     * files (iframes, images, videos) still load lazily in the cards.
+     */
+    private function assetTree($feedbackSets, ?string $type): array
+    {
+        $relation = match ($type) {
+            'banner' => 'banners',
+            'gif'    => 'gifs',
+            'video'  => 'videos',
+            'social' => 'socials',
+            default  => null,
+        };
+
+        if (!$relation || $feedbackSets->isEmpty()) {
+            return $feedbackSets->map(fn ($set) => [
+                'id' => $set->id,
+                'name' => $set->name,
+                'versions' => [],
+            ])->values()->all();
+        }
+
+        $with = in_array($relation, ['banners', 'gifs', 'videos'], true)
+            ? ["versions.$relation.size"]
+            : ["versions.$relation"];
+        $feedbackSets->load($with);
+
+        return $feedbackSets->map(fn ($set) => [
+            'id' => $set->id,
+            'name' => $set->name,
+            'versions' => $set->versions->sortBy('id')->map(fn ($version) => [
+                'id' => $version->id,
+                'name' => $version->name,
+                'assets' => $version->{$relation}->values(),
+            ])->values()->all(),
+        ])->values()->all();
     }
 
     private function assertPreviewVisible(newPreview $preview): newPreview
