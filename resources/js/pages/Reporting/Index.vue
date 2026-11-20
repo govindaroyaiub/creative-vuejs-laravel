@@ -1114,7 +1114,7 @@ const tabs = [
         <div aria-hidden="true" class="rpt-stars" />
         <!-- Standalone top bar (no app sidebar) with a way back -->
         <header class="sticky top-0 z-40 border-b border-[var(--rpt-hairline)] bg-[var(--rpt-bg)]">
-            <div class="mx-auto flex max-w-[1280px] items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
+            <div class="flex w-full items-center justify-between gap-3 px-4 py-2.5 sm:px-6 lg:px-8">
                 <div class="flex items-center gap-3">
                     <Link href="/dashboard" title="Back to dashboard" aria-label="Back"
                         class="grid h-9 w-9 place-items-center rounded-full border border-[var(--rpt-border)] text-muted-foreground transition hover:text-foreground">
@@ -1144,7 +1144,7 @@ const tabs = [
 
         <!-- No z-index here: it would trap every modal (z-50) below the sticky top bar (z-40).
              Coming after the starfield in the page is enough to paint above it. -->
-        <div class="relative mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-4 py-6 sm:px-6">
+        <div class="relative flex w-full flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
             <!-- Title row: the page, the selected site, and the jobs -->
             <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
                 <div class="min-w-[18rem] flex-1">
