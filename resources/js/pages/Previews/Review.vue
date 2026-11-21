@@ -23,6 +23,8 @@ import VideoShowcase from './Review/video/VideoShowcase.vue'
 import { createShowcaseState } from './Review/video/useVideoFormat'
 import SocialShowcase from './Review/social/SocialShowcase.vue'
 import { createSocialShowcaseState } from './Review/social/useSocialShowcase'
+import BannerShowcase from './Review/banner/BannerShowcase.vue'
+import { createBannerShowcaseState } from './Review/banner/useBannerSlots'
 
 const props = defineProps<{
   preview: any
@@ -49,6 +51,9 @@ const demo = createReviewDemo({
 
 provide('reviewDemo', demo)
 provide('creativeFooter', CreativeFooter)
+// No Revision Notes button here: feedback lives on each creative. (The intro
+// tour drops its notes step on its own, since the button is not on the page.)
+provide('hideRevisionNotes', true)
 
 // Video showcase: in-context frames (phone, laptop, TV, article), safe zones.
 provide('videoShowcase', VideoShowcase)
@@ -56,6 +61,9 @@ provide('videoShowcaseState', createShowcaseState())
 // Social showcase: feed (carousel), story, link ad, pin, profile grid.
 provide('socialShowcase', SocialShowcase)
 provide('socialShowcaseState', createSocialShowcaseState())
+// Banner showcase: centred clean view, desktop site takeover, mobile article.
+provide('bannerShowcase', BannerShowcase)
+provide('bannerShowcaseState', createBannerShowcaseState())
 const brandName = props.client?.name || 'Brand'
 provide('videoBrand', {
   name: brandName,

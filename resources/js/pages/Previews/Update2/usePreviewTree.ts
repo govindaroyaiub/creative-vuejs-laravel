@@ -211,6 +211,28 @@ export function createPreviewTree(initialPreview: any) {
     if (p.version) expand(`version:${p.version.id}`)
   }
 
+  /**
+   * Open a category and its active Round all the way down (Versions, Sets):
+   * the Round clients currently see in the viewer. Other Rounds stay closed.
+   * No active Round: the newest one.
+   */
+  const expandActiveRound = (categoryId: any) => {
+    const c = findCategory(categoryId)
+    if (!c) return
+    const rounds = c.feedbacks || []
+    const round = rounds.find((f: any) => f.is_active) ?? rounds[rounds.length - 1]
+    const next = new Set(expanded.value)
+    next.add(`category:${c.id}`)
+    if (round) {
+      next.add(`feedback:${round.id}`)
+      for (const s of round.feedback_sets || []) {
+        next.add(`set:${s.id}`)
+        for (const v of s.versions || []) next.add(`version:${v.id}`)
+      }
+    }
+    expanded.value = next
+  }
+
   // ---------------------------------------------------------------------
   // Mutators — Add
   // ---------------------------------------------------------------------
@@ -431,6 +453,7 @@ export function createPreviewTree(initialPreview: any) {
 
     // expansion
     isExpanded,
+    expandActiveRound,
     toggleExpand,
     expand,
     expandPathTo,

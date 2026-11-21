@@ -6,7 +6,7 @@ withDefaults(defineProps<{ url: string; radius?: string }>(), { radius: '12px' }
 </script>
 
 <template>
-  <div class="overflow-hidden bg-white text-zinc-900 ring-1 ring-black/10" :style="{ borderRadius: radius }">
+  <div class="overflow-hidden border border-black/10 bg-white text-zinc-900" :style="{ borderRadius: radius }">
     <div class="flex items-center gap-3 border-b border-zinc-200 bg-zinc-100 px-3 py-2">
       <span class="flex gap-1.5">
         <span class="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />

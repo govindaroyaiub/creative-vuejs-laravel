@@ -2,10 +2,13 @@
 
 namespace Database\Seeders\Demo;
 
+use App\Models\BannerSize;
 use App\Models\Client;
+use App\Models\newBanner;
 use App\Models\newCategory;
 use App\Models\newFeedback;
 use App\Models\newFeedbackSet;
+use App\Models\newGif;
 use App\Models\newPreview;
 use App\Models\newSocial;
 use App\Models\newVersion;
@@ -21,7 +24,10 @@ use Illuminate\Support\Str;
  * /previews/review/{slug} can be tried without real uploads.
  *
  * Social images are placeholder photos (picsum.photos) with ad-style text
- * drawn on, in public/uploads/socials/demo/ (git ignored).
+ * drawn on, in public/uploads/socials/demo/ (git ignored). Banners are small
+ * animated HTML5 files in all popular IAB sizes, in
+ * public/uploads/banners/demo/ (git ignored). GIFs are animated GIFs in
+ * public/uploads/gifs/demo/ (git ignored).
  *
  * The clips are short public sample videos with sound (samplelib.com) in
  * public/uploads/videos/demo/ (git ignored). They are 16:9; the showcase
@@ -120,6 +126,8 @@ class ShowcaseDemoSeeder extends Seeder
         }
 
         $this->seedSocials($preview);
+        $this->seedBanners($preview);
+        $this->seedGifs($preview);
 
         $this->command?->info("Demo preview: /previews/review/{$preview->slug}");
     }
@@ -184,6 +192,77 @@ class ShowcaseDemoSeeder extends Seeder
                         ]);
                     }
                 }
+            }
+        }
+    }
+
+    private function seedBanners(newPreview $preview): void
+    {
+        $category = newCategory::create([
+            'preview_id' => $preview->id, 'name' => 'Display campaign', 'type' => 'banner', 'is_active' => false,
+        ]);
+
+        // The popular IAB sizes, desktop and mobile, in one Set: a stress test for the site view.
+        $sizes = [
+            [970, 250], [970, 90], [728, 90], [468, 60], [300, 250], [336, 280], [250, 250], [300, 600],
+            [300, 1050], [160, 600], [120, 600], [320, 50], [320, 100], [300, 50], [320, 480],
+        ];
+
+        foreach ([['Round 1', 'r1', false], ['Round 2', 'r2', true]] as [$roundName, $prefix, $active]) {
+            $round = newFeedback::create([
+                'category_id' => $category->id, 'name' => $roundName,
+                'description' => $active ? 'New colours, 50% headline.' : 'First version.',
+                'is_active' => $active, 'is_approved' => false,
+            ]);
+            $version = newFeedbackSet::create(['feedback_id' => $round->id, 'name' => null]);
+            $set = newVersion::create(['feedback_set_id' => $version->id, 'name' => 'IAB standard sizes']);
+
+            foreach ($sizes as $pos => [$w, $h]) {
+                $size = BannerSize::firstOrCreate(['width' => $w, 'height' => $h]);
+                $dir = "uploads/banners/demo/{$prefix}_{$w}x{$h}/";
+                $file = public_path($dir.'index.html');
+
+                newBanner::create([
+                    'version_id' => $set->id,
+                    'name' => "SummerSale_{$w}x{$h}",
+                    'path' => $dir,
+                    'size_id' => $size->id,
+                    'file_size' => is_file($file) ? round(filesize($file) / 1024, 1).' KB' : '0 KB',
+                    'position' => $pos + 1,
+                ]);
+            }
+        }
+    }
+
+    private function seedGifs(newPreview $preview): void
+    {
+        $category = newCategory::create([
+            'preview_id' => $preview->id, 'name' => 'GIF campaign', 'type' => 'gif', 'is_active' => false,
+        ]);
+        $sizes = [[970, 250], [728, 90], [300, 250], [336, 280], [300, 600], [160, 600], [320, 50]];
+
+        foreach ([['Round 1', 'r1', false], ['Round 2', 'r2', true]] as [$roundName, $prefix, $active]) {
+            $round = newFeedback::create([
+                'category_id' => $category->id, 'name' => $roundName,
+                'description' => $active ? 'Orange version.' : 'Green version.',
+                'is_active' => $active, 'is_approved' => false,
+            ]);
+            $version = newFeedbackSet::create(['feedback_id' => $round->id, 'name' => null]);
+            $set = newVersion::create(['feedback_set_id' => $version->id, 'name' => null]);
+
+            foreach ($sizes as $pos => [$w, $h]) {
+                $size = BannerSize::firstOrCreate(['width' => $w, 'height' => $h]);
+                $path = "uploads/gifs/demo/{$prefix}_{$w}x{$h}.gif";
+                $file = public_path($path);
+
+                newGif::create([
+                    'version_id' => $set->id,
+                    'name' => "FlashSale_{$w}x{$h}",
+                    'path' => $path,
+                    'size_id' => $size->id,
+                    'file_size' => is_file($file) ? round(filesize($file) / 1024, 1).' KB' : '0 KB',
+                    'position' => $pos + 1,
+                ]);
             }
         }
     }

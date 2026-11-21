@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, inject } from 'vue'
-import { Plus, Search } from 'lucide-vue-next'
+import { Plus, Search, PanelLeftClose } from 'lucide-vue-next'
 import TreeNode from './TreeNode.vue'
 import type { PreviewTree } from './usePreviewTree'
 
@@ -8,6 +8,7 @@ const tree = inject<PreviewTree>('tree')!
 
 defineEmits<{
   (e: 'add-category'): void
+  (e: 'hide'): void
 }>()
 
 /**
@@ -101,6 +102,18 @@ const filtered = computed(() => {
         @click="$emit('add-category')"
       >
         <Plus class="h-4 w-4" />
+      </button>
+      <!-- Hide the sidebar. Lives next to + so it reads as a sidebar control;
+           the top bar shows the matching "show" button while it is hidden. -->
+      <button
+        type="button"
+        class="grid h-8 w-8 place-items-center rounded-full border text-[var(--p2-text-muted)] transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-text)]"
+        :style="{ borderColor: 'var(--p2-border)', background: 'var(--p2-surface)' }"
+        title="Hide sidebar"
+        aria-label="Hide sidebar"
+        @click="$emit('hide')"
+      >
+        <PanelLeftClose class="h-4 w-4" />
       </button>
     </div>
 

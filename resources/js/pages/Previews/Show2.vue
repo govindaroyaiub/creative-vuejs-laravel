@@ -376,6 +376,7 @@ const themeStyle = computed(() => ({
         :preview="preview"
         :client="client"
         :header-logo="headerLogo"
+        :show-credit="!!preview?.show_footer"
         @select="onCategorySelect"
         @close="isSidebarOpen = false"
         @collapse="setSidebarCollapsed(true)"
@@ -424,9 +425,14 @@ const themeStyle = computed(() => ({
       centred and the dock is bottom-right, so they no longer collide and the
       old `pr-28` nudge is gone.
     -->
+    <!-- With the sidebar card open on desktop, the credit sits in its footer
+         (ProjectSidebar). When the card is not on screen (collapsed, drawer
+         mode, phones) it is a plain footer at the end of the page. Never
+         floating: it used to be sticky and covered the creatives. -->
     <footer
       v-if="preview?.show_footer"
-      class="show2-sticky pointer-events-none sticky bottom-0 z-20 flex justify-center px-4 pb-2"
+      class="pointer-events-none mt-auto flex justify-center px-4 pb-6 pt-8"
+      :class="isSidebarCollapsed || preferDrawerNav ? '' : 'lg:hidden'"
     >
       <!-- One pill, two halves: the credit and a hairline, then the mark. The
            glass and the rounding live on the wrapper so the two read as a

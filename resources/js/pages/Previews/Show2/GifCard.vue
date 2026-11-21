@@ -36,7 +36,7 @@ const reload = () => {
 
 <template>
   <div
-    :class="['group flex flex-col overflow-hidden rounded-2xl border bg-[var(--p2-surface)] transition-all duration-300 ease-p2-expo hover:-translate-y-0.5', bannerAreaClass]"
+    :class="['group flex flex-col overflow-hidden border bg-[var(--p2-surface)] transition-all duration-300 ease-p2-expo hover:-translate-y-0.5', bannerAreaClass]"
     :style="{ ...wrapperStyle, borderColor: 'var(--p2-border)' }"
   >
     <div

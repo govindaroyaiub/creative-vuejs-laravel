@@ -2,7 +2,7 @@
 /** DEMO ONLY: a generic phone body. The screen content goes in the slot. */
 import { Signal, Wifi, BatteryFull } from 'lucide-vue-next'
 
-withDefaults(defineProps<{ width?: number; screenAspect?: string; statusDark?: boolean }>(), {
+withDefaults(defineProps<{ width?: number; /** CSS width, overrides `width` (e.g. a min() that fits the screen). */ cssWidth?: string; screenAspect?: string; statusDark?: boolean }>(), {
   width: 272,
   screenAspect: '9 / 19.5',
   statusDark: false,
@@ -10,7 +10,7 @@ withDefaults(defineProps<{ width?: number; screenAspect?: string; statusDark?: b
 </script>
 
 <template>
-  <div class="phone" :style="{ width: `${width}px` }">
+  <div class="phone" :style="{ width: cssWidth || `${width}px` }">
     <div class="phone-screen" :style="{ aspectRatio: screenAspect }">
       <slot />
       <!-- Status bar -->

@@ -26,6 +26,8 @@ defineEmits<{
  * nothing renders and the layout is unchanged.
  */
 const creativeFooter = inject<Component | null>('creativeFooter', null)
+/** The review page has no Revision Notes button (feedback lives on each creative there). */
+const hideRevisionNotes = inject<boolean>('hideRevisionNotes', false)
 /**
  * Optional replacement for the video grid (the review prototype's in-context
  * showcase). Show2 provides none and keeps its own grid.
@@ -33,6 +35,8 @@ const creativeFooter = inject<Component | null>('creativeFooter', null)
 const videoShowcase = inject<Component | null>('videoShowcase', null)
 /** Same for social images (review page's in-context frames). */
 const socialShowcase = inject<Component | null>('socialShowcase', null)
+/** Same for banners and GIFs (review page's centred view and site takeover). */
+const bannerShowcase = inject<Component | null>('bannerShowcase', null)
 const footerContext = (set: any, version: any, sIdx: number, vIdx: number) => ({
   category: props.activeCategory,
   feedback: props.activeFeedback,
@@ -214,7 +218,7 @@ const sizeSummary = (version: any): string => {
 
         <!-- Revision Notes -->
         <button
-          v-if="!isLoading && hasNotes"
+          v-if="!isLoading && hasNotes && !hideRevisionNotes"
           type="button"
           class="notes-btn inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-medium text-[var(--p2-text)] backdrop-blur-md transition-colors duration-300 ease-p2-expo hover:text-[var(--p2-accent)]"
           :style="{ background: 'var(--p2-surface-muted)' }"
@@ -364,9 +368,27 @@ const sizeSummary = (version: any): string => {
                 :id="`set-panel-${version.id}`"
                 class="pb-6 pt-2"
               >
+                <!-- Banners: host page's showcase (review page) -->
+                <component
+                  :is="bannerShowcase"
+                  v-if="categoryType === 'banner' && bannerShowcase"
+                  :banners="version.assets"
+                  :data-tour="sIdx === 0 && vIdx === 0 ? 'assets' : undefined"
+                >
+                  <template #footer="{ banner }">
+                    <component
+                      :is="creativeFooter"
+                      v-if="creativeFooter"
+                      :asset="banner"
+                      :type="categoryType"
+                      :context="footerContext(set, version, sIdx, vIdx)"
+                    />
+                  </template>
+                </component>
+
                 <!-- Banners -->
                 <div
-                  v-if="categoryType === 'banner'"
+                  v-else-if="categoryType === 'banner'"
                   class="flex flex-wrap items-end gap-5"
                   :data-tour="sIdx === 0 && vIdx === 0 ? 'assets' : undefined"
                 >
@@ -385,6 +407,25 @@ const sizeSummary = (version: any): string => {
                     />
                   </div>
                 </div>
+
+                <!-- GIFs: same showcase as banners (review page) -->
+                <component
+                  :is="bannerShowcase"
+                  v-else-if="categoryType === 'gif' && bannerShowcase"
+                  :banners="version.assets"
+                  kind="gif"
+                  :data-tour="sIdx === 0 && vIdx === 0 ? 'assets' : undefined"
+                >
+                  <template #footer="{ banner }">
+                    <component
+                      :is="creativeFooter"
+                      v-if="creativeFooter"
+                      :asset="banner"
+                      :type="categoryType"
+                      :context="footerContext(set, version, sIdx, vIdx)"
+                    />
+                  </template>
+                </component>
 
                 <!-- GIFs -->
                 <div

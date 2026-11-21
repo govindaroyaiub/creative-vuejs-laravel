@@ -4,8 +4,9 @@
  * context · Safe zones, Carousel) is shared by every Set.
  * Feed images of a Set become one carousel post when Carousel is on.
  */
-import { computed, inject } from 'vue'
+import { computed, inject, ref } from 'vue'
 import { Square, Smartphone, ScanLine, GalleryHorizontal } from 'lucide-vue-next'
+import { useViewFocus } from '../useViewFocus'
 import SocialShowcaseCard from './SocialShowcaseCard.vue'
 import { socialFormatOf, type SocialMode, type SocialShowcaseState } from './useSocialShowcase'
 
@@ -33,11 +34,18 @@ const modes: { key: SocialMode; label: string; icon: any }[] = [
   { key: 'context', label: 'In context', icon: Smartphone },
   { key: 'safe', label: 'Safe zones', icon: ScanLine },
 ]
+
+const root = ref<HTMLElement | null>(null)
+const switchView = useViewFocus(root)
+const pickMode = (m: SocialMode) => {
+  if (m === state.mode) return
+  switchView(() => (state.mode = m))
+}
 </script>
 
 <template>
-  <div class="space-y-6">
-    <div class="flex flex-wrap items-center gap-2">
+  <div ref="root" class="scroll-mt-4 space-y-6">
+    <div class="flex flex-wrap items-center justify-center gap-2">
       <div class="seg" role="radiogroup" aria-label="Social view">
         <button
           v-for="m in modes"
@@ -47,7 +55,7 @@ const modes: { key: SocialMode; label: string; icon: any }[] = [
           :aria-checked="state.mode === m.key"
           class="seg-btn"
           :class="state.mode === m.key ? 'seg-on' : ''"
-          @click="state.mode = m.key"
+          @click="pickMode(m.key)"
         >
           <component :is="m.icon" class="h-3.5 w-3.5" /> {{ m.label }}
         </button>
@@ -63,7 +71,7 @@ const modes: { key: SocialMode; label: string; icon: any }[] = [
       >
         <GalleryHorizontal class="h-3.5 w-3.5" /> Carousel
       </button>
-      <span v-if="state.mode === 'safe'" class="text-[11px] text-[var(--p2-text-subtle)]">
+      <span v-if="state.mode === 'safe'" class="w-full text-center text-[11px] text-[var(--p2-text-subtle)]">
         Red areas are covered by app UI. Keep text and logos out of them.
       </span>
     </div>

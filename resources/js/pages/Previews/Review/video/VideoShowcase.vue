@@ -5,8 +5,9 @@
  * Set. Phones (story, feed) sit side by side; wide placements take a row.
  * The `footer` slot carries the review row (comments / status) per video.
  */
-import { computed, inject } from 'vue'
+import { computed, inject, ref } from 'vue'
 import { Monitor, Tv, ScanLine, Smartphone, Square } from 'lucide-vue-next'
+import { useViewFocus } from '../useViewFocus'
 import VideoShowcaseCard from './VideoShowcaseCard.vue'
 import { formatOf, isNarrowVideo, type ShowcaseMode, type ShowcaseState } from './useVideoFormat'
 
@@ -22,12 +23,19 @@ const modes: { key: ShowcaseMode; label: string; icon: any }[] = [
   { key: 'context', label: 'In context', icon: Smartphone },
   { key: 'safe', label: 'Safe zones', icon: ScanLine },
 ]
+
+const root = ref<HTMLElement | null>(null)
+const switchView = useViewFocus(root)
+const pickMode = (m: ShowcaseMode) => {
+  if (m === state.mode) return
+  switchView(() => (state.mode = m))
+}
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div ref="root" class="scroll-mt-4 space-y-6">
     <!-- toolbar -->
-    <div class="flex flex-wrap items-center gap-2">
+    <div class="flex flex-wrap items-center justify-center gap-2">
       <div class="seg" role="radiogroup" aria-label="Video view">
         <button
           v-for="m in modes"
@@ -37,7 +45,7 @@ const modes: { key: ShowcaseMode; label: string; icon: any }[] = [
           :aria-checked="state.mode === m.key"
           class="seg-btn"
           :class="state.mode === m.key ? 'seg-on' : ''"
-          @click="state.mode = m.key"
+          @click="pickMode(m.key)"
         >
           <component :is="m.icon" class="h-3.5 w-3.5" /> {{ m.label }}
         </button>
@@ -50,7 +58,7 @@ const modes: { key: ShowcaseMode; label: string; icon: any }[] = [
           <Tv class="h-3.5 w-3.5" /> TV
         </button>
       </div>
-      <span v-if="state.mode === 'safe'" class="text-[11px] text-[var(--p2-text-subtle)]">
+      <span v-if="state.mode === 'safe'" class="w-full text-center text-[11px] text-[var(--p2-text-subtle)]">
         Red areas are covered by app UI. Keep text and logos out of them.
       </span>
     </div>

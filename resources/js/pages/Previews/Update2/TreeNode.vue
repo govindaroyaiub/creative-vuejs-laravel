@@ -100,16 +100,21 @@ const label = computed(() => {
 const childCount = computed(() => childList.value.length)
 
 // ----- Interactions -----
+/**
+ * The whole row works like the arrow too: clicking a row you are already on
+ * folds / unfolds it; clicking another row selects it and opens it (never
+ * folds something you were not on).
+ */
 const onSelect = (e: MouseEvent) => {
   e.stopPropagation()
+  const wasSelected = isSelected.value
   tree.select({
     kind: props.kind,
     id: props.node.id,
     ...(props.kind === 'asset' ? { assetType: props.assetType } : {}),
   })
-  if (props.kind !== 'asset' && childCount.value > 0 && !isOpen.value) {
-    tree.toggleExpand(key.value)
-  }
+  if (props.kind === 'asset' || childCount.value === 0) return
+  if (wasSelected || !isOpen.value) tree.toggleExpand(key.value)
 }
 
 const onToggle = (e: MouseEvent) => {

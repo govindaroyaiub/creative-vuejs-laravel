@@ -5,6 +5,7 @@ import Swal from 'sweetalert2'
 
 import TopBar from './Update2/TopBar.vue'
 import Tree from './Update2/Tree.vue'
+import TreeRail from './Update2/TreeRail.vue'
 import Inspector from './Update2/Inspector.vue'
 import NewCategoryModal from './Update2/modals/NewCategoryModal.vue'
 import ChangesSidebar from './Update2/ChangesSidebar.vue'
@@ -74,16 +75,20 @@ provide('videoSizes', props.videoSizes)
 // Pick the active category (or first one as fallback). Used both on initial
 // mount and after Save All — the server flips is_active on create, so after
 // a save we want to land on whatever it just marked active.
-const selectActiveCategory = () => {
+// On first load the category's active Round (the one clients see in the
+// viewer) is opened all the way down; other Rounds stay closed. After a save,
+// whatever the user collapsed stays collapsed.
+const selectActiveCategory = (openAll = false) => {
   const cat =
     tree.preview.categories?.find((c: any) => c.is_active) ||
     tree.preview.categories?.[0]
   if (cat) {
     tree.select({ kind: 'category', id: cat.id })
     tree.expandPathTo({ kind: 'category', id: cat.id })
+    if (openAll) tree.expandActiveRound(cat.id)
   }
 }
-selectActiveCategory()
+selectActiveCategory(true)
 
 const showSidebar = ref(true)
 const showChanges = ref(false)
@@ -400,12 +405,22 @@ onBeforeUnmount(() => {
     <ChangesSidebar :open="showChanges" @close="showChanges = false" />
 
     <div class="flex min-h-0 flex-1">
-      <Tree
-        v-show="showSidebar"
-        @add-category="onAddCategory"
-      />
+      <!-- Same hide / show motion as the Show2 sidebar: the column folds to
+           zero width while sliding left and fading, so the editor beside it
+           grows smoothly instead of jumping. -->
+      <Transition name="u2-col">
+        <Tree
+          v-show="showSidebar"
+          @add-category="onAddCategory"
+          @hide="showSidebar = false"
+        />
+      </Transition>
 
-      <Inspector class="flex-1" />
+      <!-- Collapsed: the rail keeps project switching one click away. The
+           editor leaves room for it on the left. -->
+      <TreeRail :open="!showSidebar" @expand="showSidebar = true" @add-category="onAddCategory" />
+
+      <Inspector class="flex-1 transition-[padding] duration-300" :class="showSidebar ? '' : 'lg:pl-20'" />
     </div>
 
     <NewCategoryModal v-model:open="showNewCategory" @create="onCreateCategory" />
@@ -551,5 +566,32 @@ onBeforeUnmount(() => {
     transition-duration: 0.01ms !important;
   }
   .update2-stars { animation: none; }
+}
+
+/* Sidebar hide / show, matching Show2's `p2-col`. */
+.u2-col-enter-active,
+.u2-col-leave-active {
+  overflow: hidden;
+  transition:
+    width 340ms var(--p2-ease-cinema, cubic-bezier(0.22, 1, 0.36, 1)),
+    transform 340ms var(--p2-ease-cinema, cubic-bezier(0.22, 1, 0.36, 1)),
+    opacity 200ms ease;
+}
+.u2-col-enter-from,
+.u2-col-leave-to {
+  width: 0 !important;
+  transform: translateX(-1.25rem);
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .u2-col-enter-active,
+  .u2-col-leave-active {
+    transition: opacity 120ms ease;
+  }
+  .u2-col-enter-from,
+  .u2-col-leave-to {
+    width: 20rem !important;
+    transform: none;
+  }
 }
 </style>

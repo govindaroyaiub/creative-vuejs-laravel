@@ -14,6 +14,8 @@ const props = defineProps<{
   preview?: any
   client?: any
   headerLogo?: any
+  /** Show the "© year All rights reserved · Planet Nine" credit at the bottom of the card. */
+  showCredit?: boolean
 }>()
 
 defineEmits<{
@@ -164,19 +166,10 @@ const typeLabel = (type: string) => {
  * ascending. Falling back to id, which is monotonic, makes "the one I just
  * added is at the top" hold in every case.
  */
-/**
- * Footer summary: how many projects of each type, and when the newest change
- * landed. Gives the bottom of the card a job instead of leaving it empty when
- * the list is short.
- */
-const TYPE_ORDER = ['banner', 'gif', 'video', 'social']
-const typeCounts = computed(() => {
-  const counts = new Map<string, number>()
-  for (const c of props.categories) counts.set(c.type, (counts.get(c.type) || 0) + 1)
-  return [...counts.entries()]
-    .sort(([a], [b]) => (TYPE_ORDER.indexOf(a) + 1 || 99) - (TYPE_ORDER.indexOf(b) + 1 || 99))
-    .map(([type, count]) => ({ type, count }))
-})
+/** For the credit row at the bottom of the card. */
+const currentYear = new Date().getFullYear()
+
+/** When the newest change landed; shown under the "Creatives" label. */
 const lastUpdated = computed(() => {
   let latest = 0
   for (const c of props.categories) {
@@ -223,7 +216,8 @@ const sorted = computed(() =>
       <div
         class="p2-glass flex w-72 max-h-[calc(100vh-100px)] min-h-[15rem] flex-col overflow-hidden rounded-3xl"
       >
-        <!-- Header row: the count on the left, the logo on the right.
+        <!-- Header row: collapse and logo on the left, the label / last update
+             on the right.
              The logo appears once the user has scrolled past the topbar (whose
              own logo fades out at the same moment), so branding is never off
              screen entirely.
@@ -235,16 +229,22 @@ const sorted = computed(() =>
              `shrink-0` keeps the row itself from being squeezed flat when the
              column runs short of height. -->
         <div
-          class="flex shrink-0 items-center justify-between gap-3 border-b px-5 py-4"
+          class="flex shrink-0 items-center gap-3 border-b px-2 py-4"
           :style="{ borderColor: 'var(--p2-hairline)' }"
         >
-          <div class="min-w-0">
-            <p class="p2-label">Creatives</p>
-            <div class="mt-1 text-xs text-[var(--p2-text-muted)]">
-              <span class="p2-mono">{{ categories.length }}</span>
-              {{ categories.length === 1 ? 'creative' : 'creatives' }}
-            </div>
-          </div>
+          <!-- Collapsing hands the width to the creatives. Re-opening is the
+               same button the drawer uses in the top bar, which appears there
+               as soon as this column is gone. -->
+          <button
+            type="button"
+            class="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[var(--p2-text-muted)] transition-colors duration-200 ease-p2-expo hover:text-[var(--p2-text)]"
+            :style="{ background: 'var(--p2-surface-muted)', borderColor: 'var(--p2-border)' }"
+            title="Hide the creatives list"
+            aria-label="Hide the creatives list"
+            @click="$emit('collapse')"
+          >
+            <PanelLeftClose class="h-4 w-4" />
+          </button>
 
           <div class="flex shrink-0 items-center gap-2">
             <Transition
@@ -268,25 +268,24 @@ const sorted = computed(() =>
               />
             </Transition>
 
-            <!-- Collapsing hands the width to the creatives. Re-opening is the
-                 same button the drawer uses in the top bar, which appears there
-                 as soon as this column is gone. -->
-            <button
-              type="button"
-              class="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[var(--p2-text-muted)] transition-colors duration-200 ease-p2-expo hover:text-[var(--p2-text)]"
-              :style="{ background: 'var(--p2-surface-muted)', borderColor: 'var(--p2-border)' }"
-              title="Hide the creatives list"
-              aria-label="Hide the creatives list"
-              @click="$emit('collapse')"
-            >
-              <PanelLeftClose class="h-4 w-4" />
-            </button>
+          </div>
+
+          <div class="ml-auto min-w-0 text-right">
+            <p class="p2-label">Creatives</p>
+            <!-- Last update in place of the count (the list below shows the count). -->
+            <div class="mt-1 text-xs text-[var(--p2-text-muted)]">
+              <span v-if="lastUpdated" class="p2-mono">Updated {{ lastUpdated }}</span>
+              <template v-else>
+                <span class="p2-mono">{{ categories.length }}</span>
+                {{ categories.length === 1 ? 'creative' : 'creatives' }}
+              </template>
+            </div>
           </div>
         </div>
 
-        <div class="min-h-0 flex-1 overflow-y-auto px-3 py-3" data-category-list>
+        <div class="min-h-0 flex-1 overflow-y-auto px-2 py-3" data-category-list>
           <template v-if="isLoading">
-            <div class="space-y-2 px-2">
+            <div class="space-y-2">
               <div
                 v-for="n in 5"
                 :key="n"
@@ -350,31 +349,23 @@ const sorted = computed(() =>
           </template>
         </div>
 
-        <!-- Footer: type breakdown + last update. Sits on the card's bottom
-             edge, so a short list ends in a finished panel, not empty space. -->
+        <!-- Credit: lives here instead of floating over the creatives. The card
+             is sticky, so it stays in view at the card's bottom edge. -->
         <div
-          v-if="!isLoading && categories.length"
-          class="flex shrink-0 items-center justify-between gap-3 border-t px-5 py-3"
+          v-if="showCredit"
+          class="flex shrink-0 items-center justify-between gap-2 border-t px-2 py-2.5 text-[11px] text-[var(--p2-text-subtle)]"
           :style="{ borderColor: 'var(--p2-hairline)' }"
         >
-          <div class="flex min-w-0 flex-wrap items-center gap-1.5">
-            <span
-              v-for="t in typeCounts"
-              :key="t.type"
-              class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] text-[var(--p2-text-muted)]"
-              :style="{ background: 'var(--p2-accent-soft)' }"
-              :title="typeLabel(t.type)"
-            >
-              <component :is="typeIcon(t.type)" class="h-3 w-3" :style="{ color: 'var(--p2-accent)' }" />
-              <span class="p2-mono tabular-nums">{{ t.count }}</span>
-            </span>
-          </div>
-          <span
-            v-if="lastUpdated"
-            class="p2-mono shrink-0 text-[11px] text-[var(--p2-text-subtle)]"
+          <span>&copy; {{ currentYear }} All rights reserved.</span>
+          <a
+            href="https://www.planetnine.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Planet Nine"
+            class="flex shrink-0 items-center rounded-full px-1 py-0.5 opacity-80 transition-opacity hover:opacity-100"
           >
-            Updated {{ lastUpdated }}
-          </span>
+            <img src="/logos/planetnine.png" alt="Planet Nine" class="h-5 w-auto" />
+          </a>
         </div>
       </div>
     </aside>

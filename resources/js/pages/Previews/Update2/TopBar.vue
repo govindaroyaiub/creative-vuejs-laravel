@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { ArrowLeft, Save, ExternalLink, PanelLeft, Loader2, Copy, Check, Pencil, History, FlaskConical } from 'lucide-vue-next'
+import { ArrowLeft, Save, ExternalLink, Loader2, Copy, Check, Pencil, History, FlaskConical } from 'lucide-vue-next'
 import { ref } from 'vue'
 
 const props = defineProps<{
@@ -64,18 +64,6 @@ const dirtyLabel = computed(() => {
       <ArrowLeft class="h-4 w-4" />
     </button>
 
-    <button
-      type="button"
-      class="grid h-9 w-9 place-items-center rounded-full border transition-colors duration-300 ease-p2-expo"
-      :style="sidebarOpen
-        ? { borderColor: 'var(--p2-accent-muted)', background: 'var(--p2-accent-soft)', color: 'var(--p2-accent)' }
-        : { borderColor: 'var(--p2-border)', background: 'var(--p2-surface)', color: 'var(--p2-text-muted)' }"
-      title="Toggle sidebar"
-      aria-label="Toggle sidebar"
-      @click="$emit('toggle-sidebar')"
-    >
-      <PanelLeft class="h-4 w-4" />
-    </button>
 
     <div class="hidden h-7 w-px sm:block" :style="{ background: 'var(--p2-border)' }" />
 
