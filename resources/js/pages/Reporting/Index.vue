@@ -1159,6 +1159,20 @@ const tabs = [
                             · {{ sync.pending }} day{{ sync.pending === 1 ? '' : 's' }} to sync
                         </button>
                     </span>
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        class="h-9 w-9 max-sm:order-2"
+                        :disabled="syncing"
+                        title="Check for data"
+                        aria-label="Check for data"
+                        @click="checkForData"
+                    >
+                        <RefreshCw :class="{ 'animate-spin': syncing }" />
+                    </Button>
+                    <Button variant="outline" size="icon" class="h-9 w-9 max-sm:order-2" title="Report links" aria-label="Report links" @click="showLinks = true">
+                        <Link2 />
+                    </Button>
                     <Button variant="outline" class="h-9 max-sm:order-2" @click="openDownload"><Download /> Download reports</Button>
                     <Button class="h-9 max-sm:order-1" @click="showUpload = true">
                         <Upload /> Upload files
@@ -1169,8 +1183,6 @@ const tabs = [
                             <Button variant="outline" size="icon" class="h-9 w-9 max-sm:order-3" aria-label="More actions"><MoreHorizontal /></Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" class="w-52">
-                            <DropdownMenuItem :disabled="syncing" @select="checkForData"><RefreshCw :class="{ 'animate-spin': syncing }" /> Check for data</DropdownMenuItem>
-                            <DropdownMenuItem @select="showLinks = true"><Link2 /> Report links</DropdownMenuItem>
                             <DropdownMenuItem @select="showFormulas = true"><Calculator /> How it's calculated</DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem @select="openSettings"><Settings /> Settings</DropdownMenuItem>
