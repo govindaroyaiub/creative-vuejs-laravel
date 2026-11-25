@@ -26,7 +26,7 @@ class Extractors
         } elseif (str_contains($fname, 'adhese fl') || str_contains($fname, 'adhese festileaks')) {
             $fallbackSite = 'festileaks.com';
         } elseif (str_contains($fname, 'adhese jfk')) {
-            $fallbackSite = 'jfk.men';
+            $fallbackSite = 'jfk.nl';
         } else {
             $fallbackSite = 'f1maximaal.nl';
         }
@@ -130,11 +130,10 @@ class Extractors
      */
     public static function adsense(string $path, string $siteId): array
     {
-        $domain = Reporting::SITES[$siteId]['domain'];
         $byDate = [];
         foreach (SpreadsheetReader::rows($path) as $r) {
             $site = Reporting::pick($r, 'Site', 'Domain', 'Publisher') ?? '';
-            if (! Reporting::hostMatches($site, $domain)) continue;
+            if (! Reporting::siteHostMatches($site, $siteId)) continue;
             $d = Reporting::parseDate(Reporting::pick($r, 'Date') ?? ''); if (! $d) continue;
             $k = Reporting::dateKey($d);
             $byDate[$k] ??= ['date' => $d, 'impressions' => 0.0, 'revenue' => 0.0];
@@ -152,11 +151,10 @@ class Extractors
      */
     public static function gumgum(string $path, string $siteId): array
     {
-        $domain = Reporting::SITES[$siteId]['domain'];
         $byDate = [];
         foreach (SpreadsheetReader::rows($path) as $r) {
             $zone = Reporting::pick($r, 'Zone', 'Site', 'Domain') ?? '';
-            if (! Reporting::hostMatches($zone, $domain)) continue;
+            if (! Reporting::siteHostMatches($zone, $siteId)) continue;
             $d = Reporting::parseDate(Reporting::pick($r, 'Date') ?? ''); if (! $d) continue;
             $k = Reporting::dateKey($d);
             $byDate[$k] ??= ['date' => $d, 'impressions' => 0.0, 'revenue' => 0.0];
@@ -169,10 +167,9 @@ class Extractors
 
     public static function seedtag(string $path, string $siteId): array
     {
-        $domain = Reporting::SITES[$siteId]['domain'];
         $byDate = [];
         foreach (SpreadsheetReader::rows($path) as $r) {
-            if (! Reporting::hostMatches($r['Publisher'] ?? '', $domain)) continue;
+            if (! Reporting::siteHostMatches($r['Publisher'] ?? '', $siteId)) continue;
             $d = Reporting::parseDate($r['Date'] ?? ''); if (! $d) continue;
             $k = Reporting::dateKey($d);
             $byDate[$k] ??= ['date' => $d, 'impressions' => 0.0, 'revenue' => 0.0];
@@ -185,10 +182,9 @@ class Extractors
 
     public static function teads(string $path, string $siteId): array
     {
-        $domain = Reporting::SITES[$siteId]['domain'];
         $byDate = [];
         foreach (SpreadsheetReader::rows($path) as $r) {
-            if (! Reporting::hostMatches($r['Websites & Apps'] ?? '', $domain)) continue;
+            if (! Reporting::siteHostMatches($r['Websites & Apps'] ?? '', $siteId)) continue;
             $d = Reporting::parseDate($r['Day'] ?? ''); if (! $d) continue;
             $k = Reporting::dateKey($d);
             $byDate[$k] ??= ['date' => $d, 'impressions' => 0.0, 'revenue' => 0.0];
@@ -201,10 +197,9 @@ class Extractors
 
     public static function showheroes(string $path, string $siteId): array
     {
-        $domain = Reporting::SITES[$siteId]['domain'];
         $byDate = [];
         foreach (SpreadsheetReader::rows($path) as $r) {
-            if (! Reporting::hostMatches($r['Site'] ?? '', $domain)) continue;
+            if (! Reporting::siteHostMatches($r['Site'] ?? '', $siteId)) continue;
             $dv = $r['Date and Time'] ?? '';
             if ($dv === '' || mb_strtolower((string) $dv) === 'totals') continue;
             $d = Reporting::parseDate($dv); if (! $d) continue;

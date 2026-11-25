@@ -44,7 +44,7 @@ it('regenerates Adhese jfk.csv from the store instead of shipping the stale disk
     $csv = $zip->getFromName('Adhese jfk.csv');
     $zip->close();
 
-    expect($csv)->toBe("date,site,market.name,Paid Revenue,Impressions\n1-Oct-26,JFK.men,,0.5,223");
+    expect($csv)->toBe("date,site,market.name,Paid Revenue,Impressions\n1-Oct-26,JFK.nl,,0.5,223");
 
     foreach (array_diff(scandir($dir), ['.', '..']) as $f) unlink("$dir/$f");
     @rmdir($dir);

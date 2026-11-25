@@ -18,10 +18,10 @@ class Reporting
     public const SITES = [
         'f1maximaal' => ['name' => 'F1Maximaal.nl', 'adformPrefix' => 'F1M_', 'gamPrefix' => 'VM_F1Maximaal', 'domain' => 'f1maximaal.nl', 'oguryAsset' => 'f1maximaal.nl'],
         'topgear'    => ['name' => 'TopGear.nl', 'adformPrefix' => 'TG_', 'gamPrefix' => 'VDS_Topgear', 'domain' => 'topgear.nl', 'oguryAsset' => 'topgear.nl'],
-        // JFK.men currently only carries Adsense + GumGum data (matched by the
-        // 'domain' host); the adform/gam/ogury prefixes are placeholders that
-        // match nothing, so those extractors simply return no rows for it.
-        'jfk' => ['name' => 'JFK.men', 'adformPrefix' => 'JFK_', 'gamPrefix' => 'VDS_Jfk', 'domain' => 'jfk.men', 'oguryAsset' => 'jfk.men'],
+        // JFK renamed jfk.men -> jfk.nl in Nov 2026; partner exports (Adsense,
+        // Showheroes, Adhese) now report it as jfk.nl. 'aliases' keeps the old host
+        // matching so reprocessing pre-rename months still picks up jfk.men rows.
+        'jfk' => ['name' => 'JFK.nl', 'adformPrefix' => 'JFK_', 'gamPrefix' => 'VDS_Jfk', 'domain' => 'jfk.nl', 'aliases' => ['jfk.men'], 'oguryAsset' => 'jfk.nl'],
         'horses'     => ['name' => 'Horses.nl', 'adformPrefix' => 'OHO_', 'gamPrefix' => 'EHM_Eisma', 'domain' => 'horses.nl', 'oguryAsset' => 'horses.nl'],
         'festileaks' => ['name' => 'Festileaks.com', 'adformPrefix' => 'FL_', 'gamPrefix' => 'FL_Festileaks', 'domain' => 'festileaks.com', 'oguryAsset' => 'festileaks'],
     ];
@@ -182,6 +182,16 @@ class Reporting
         $h = trim(mb_strtolower((string) $host));
         $domain = mb_strtolower($domain);
         return $h === $domain || str_ends_with($h, '.' . $domain);
+    }
+
+    /** hostMatches() against a site's domain or any of its former domains (aliases). */
+    public static function siteHostMatches(mixed $host, string $siteId): bool
+    {
+        $site = self::SITES[$siteId];
+        foreach ([$site['domain'], ...($site['aliases'] ?? [])] as $domain) {
+            if (self::hostMatches($host, $domain)) return true;
+        }
+        return false;
     }
 
     public static function fmtAdheseDate(CarbonImmutable $d): string

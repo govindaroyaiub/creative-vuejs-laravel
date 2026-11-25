@@ -218,8 +218,8 @@ const SITE_EMAILS: Record<string, EmailCfg> = {
             { name: 'Robert Heijmans (VDS Publishers)', email: 'robert@vds-publishers.nl' },
         ],
         cc: [{ name: 'Chris Beijer', email: 'chris@planetnine.com' }, { name: 'Taco Stomps', email: 'taco@planetnine.com' }],
-        body: `Dear Martijn, Robert and Roland,\n\nHope you are doing well!\n\nPlease find this week's revenue reports for JFK.men attached. If you have any questions, please reach out.\n\nBest regards`,
-        subject: (c) => `JFK.men Ad Revenue Reports - Week ${c.week}`,
+        body: `Dear Martijn, Robert and Roland,\n\nHope you are doing well!\n\nPlease find this week's revenue reports for JFK.nl attached. If you have any questions, please reach out.\n\nBest regards`,
+        subject: (c) => `JFK.nl Ad Revenue Reports - Week ${c.week}`,
         attachment: (c) => `JFK-revenue-report-week${c.week}.xlsx`,
     },
     horses: {

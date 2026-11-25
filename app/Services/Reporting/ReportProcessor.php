@@ -204,8 +204,8 @@ class ReportProcessor
 
     private static function siteForDomain(string $domain): ?string
     {
-        foreach (Reporting::SITES as $id => $cfg) {
-            if ($cfg['domain'] === $domain) return $id;
+        foreach (array_keys(Reporting::SITES) as $id) {
+            if (Reporting::siteHostMatches($domain, $id)) return $id;
         }
         return null;
     }

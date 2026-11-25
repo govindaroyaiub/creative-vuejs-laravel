@@ -26,5 +26,5 @@ it('takes market.name from the processed Adhese file', function () {
     expect(ReportSetting::get('adhese_markets'))->toBe(['jfk' => 'SOME-market']);
 
     $csv = CsvGenerator::adhese(ReportStore::load(), 'jfk');
-    expect(explode("\n", $csv)[1])->toBe('1-Oct-26,JFK.men,SOME-market,0.5,0');
+    expect(explode("\n", $csv)[1])->toBe('1-Oct-26,JFK.nl,SOME-market,0.5,0');
 });

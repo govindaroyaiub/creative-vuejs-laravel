@@ -23,7 +23,7 @@ it('leaves market.name blank when no Adhese file has been processed for the site
         ['dateKey' => '2026-10-01', 'revenue' => ['adhese' => 0.5], 'impressions' => ['adhese' => 223]],
     ], 'jfk', null), 'jfk');
 
-    expect(explode("\n", $csv)[1])->toBe('1-Oct-26,JFK.men,,0.5,223');
+    expect(explode("\n", $csv)[1])->toBe('1-Oct-26,JFK.nl,,0.5,223');
 });
 
 it('keeps the Festileaks file revenue-only', function () {
@@ -41,7 +41,7 @@ it('includes impressions in the JFK file', function () {
         ['dateKey' => '2026-10-01', 'revenue' => ['adhese' => 0.5], 'impressions' => ['adhese' => 223]],
     ], 'jfk'), 'jfk');
 
-    expect(explode("\n", $csv)[1])->toBe('1-Oct-26,JFK.men,DALE-igmn,0.5,223');
+    expect(explode("\n", $csv)[1])->toBe('1-Oct-26,JFK.nl,DALE-igmn,0.5,223');
 });
 
 it('adds an Impressions column with the entered Adhese impressions', function () {

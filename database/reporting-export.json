@@ -1,14 +1,14 @@
 {
-    "exported_at": "2026-11-24 16:38:12",
+    "exported_at": "2026-11-25 16:19:25",
     "settings": {
         "oguryRate": 0.88,
         "last_run": {
-            "at": "2026-11-24 16:38:12",
+            "at": "2026-11-25 16:19:25",
             "missing": [
                 "Analytics (TopGear)"
             ]
         },
-        "synced_at": "2026-11-24 16:38:12",
+        "synced_at": "2026-11-25 16:19:25",
         "report_links": [
             {
                 "url": "https://publisher-panel.seedtag.com/",
@@ -79,9 +79,9 @@
         "rpm_amber": 8.5,
         "rpm_red": 9,
         "adhese_markets": {
-            "jfk": "DALE-igmn",
-            "topgear": "DALE-igmn",
-            "f1maximaal": "DALE-candid",
+            "jfk": "DALE-nativeconnect",
+            "topgear": "DALE-nativeconnect",
+            "f1maximaal": "DALE-igmn",
             "festileaks": "DALE-igmn"
         }
     },
@@ -9814,7 +9814,7 @@
                 "ogury": 6.144027978175999,
                 "teads": 48.58,
                 "adform": 46.89965192,
-                "adhese": 93.977450943199,
+                "adhese": 93.97745094319902,
                 "gumgum": 44.89,
                 "adsense": 84.45,
                 "seedtag": 24.52,
@@ -9896,7 +9896,7 @@
                 "ogury": 49.674125571135995,
                 "teads": 75.17,
                 "adform": 67.16115031999999,
-                "adhese": 256.64214497290004,
+                "adhese": 256.6421449729,
                 "gumgum": 65.73,
                 "adsense": 181.31,
                 "seedtag": 54.41,
@@ -10015,26 +10015,26 @@
             "site": "f1maximaal",
             "date": "2026-11-13",
             "revenue": {
-                "gam": 340.07551191335267,
+                "gam": 340.07162129142097,
                 "ogury": 13.341609582136003,
                 "teads": 22.2,
                 "adform": 18.56079632,
                 "adhese": 100.4791913699,
                 "gumgum": 31.97,
-                "adsense": 55.52,
+                "adsense": 55.510000000000005,
                 "seedtag": 28.98,
                 "outbrain": 0,
                 "showheroes": 65.745473,
                 "preferredDeals": 9.879165
             },
             "impressions": {
-                "gam": 208996,
+                "gam": 208989,
                 "ogury": 9673,
                 "teads": 20388,
                 "adform": 11814,
                 "adhese": 30416,
                 "gumgum": 10249,
-                "adsense": 103064,
+                "adsense": 103062,
                 "seedtag": 58042,
                 "outbrain": 0,
                 "showheroes": 30591,
@@ -10050,13 +10050,13 @@
                 "viewsPerUser": 2.6120215060687033,
                 "avgEngagement": 45.122017964650205
             },
-            "impressions_sold": 485823
+            "impressions_sold": 485814
         },
         {
             "site": "f1maximaal",
             "date": "2026-11-14",
             "revenue": {
-                "gam": 177.46749820426362,
+                "gam": 177.46431451677063,
                 "ogury": 4.839023195688001,
                 "teads": 11.92,
                 "adform": 10.448438880000005,
@@ -10069,7 +10069,7 @@
                 "preferredDeals": 5.5176750000000006
             },
             "impressions": {
-                "gam": 89897,
+                "gam": 89895,
                 "ogury": 3422,
                 "teads": 11128,
                 "adform": 5971,
@@ -10091,7 +10091,7 @@
                 "viewsPerUser": 2.7768325691874276,
                 "avgEngagement": 41.34369993923659
             },
-            "impressions_sold": 211431
+            "impressions_sold": 211429
         },
         {
             "site": "f1maximaal",
@@ -10245,7 +10245,7 @@
                 "showheroes": 18175,
                 "preferredDeals": 2730
             },
-            "total_ad_requests": 388478,
+            "total_ad_requests": 388399,
             "analytics": {
                 "views": 55127,
                 "keyEvents": 0,
@@ -10286,7 +10286,7 @@
                 "showheroes": 46238,
                 "preferredDeals": 6797
             },
-            "total_ad_requests": 794913,
+            "total_ad_requests": 794903,
             "analytics": {
                 "views": 111643,
                 "keyEvents": 0,
@@ -10302,7 +10302,7 @@
             "site": "f1maximaal",
             "date": "2026-11-20",
             "revenue": {
-                "gam": 524.9329032351156,
+                "gam": 524.9267429019817,
                 "ogury": 13.21356078064,
                 "teads": 44.76,
                 "adform": 21.788396960000004,
@@ -10315,7 +10315,7 @@
                 "preferredDeals": 32.470245
             },
             "impressions": {
-                "gam": 315688,
+                "gam": 315686,
                 "ogury": 10563,
                 "teads": 39828,
                 "adform": 13821,
@@ -10337,13 +10337,13 @@
                 "viewsPerUser": 2.8135941644562332,
                 "avgEngagement": 48.114566755084
             },
-            "impressions_sold": 757389
+            "impressions_sold": 757387
         },
         {
             "site": "f1maximaal",
             "date": "2026-11-21",
             "revenue": {
-                "gam": 856.3999464110285,
+                "gam": 856.3714211816215,
                 "ogury": 27.188444731184,
                 "teads": 80.36,
                 "adform": 31.68436656,
@@ -10353,10 +10353,10 @@
                 "seedtag": 73.47,
                 "outbrain": 0,
                 "showheroes": 208.42659,
-                "preferredDeals": 81.75645000000002
+                "preferredDeals": 81.72648000000001
             },
             "impressions": {
-                "gam": 500773,
+                "gam": 500764,
                 "ogury": 27845,
                 "teads": 72085,
                 "adform": 19755,
@@ -10366,7 +10366,7 @@
                 "seedtag": 141277,
                 "outbrain": 0,
                 "showheroes": 95571,
-                "preferredDeals": 22495
+                "preferredDeals": 22491
             },
             "total_ad_requests": 1405661,
             "analytics": {
@@ -10378,13 +10378,13 @@
                 "viewsPerUser": 3.0234261280931585,
                 "avgEngagement": 54.15997998544396
             },
-            "impressions_sold": 1242747
+            "impressions_sold": 1242734
         },
         {
             "site": "f1maximaal",
             "date": "2026-11-22",
             "revenue": {
-                "gam": 1753.1706388577468,
+                "gam": 1753.168721257956,
                 "ogury": 37.098010280055995,
                 "teads": 184.29,
                 "adform": 50.06945416000001,
@@ -10394,10 +10394,10 @@
                 "seedtag": 118.98000000000002,
                 "outbrain": 0,
                 "showheroes": 458.995238,
-                "preferredDeals": 134.17447500000003
+                "preferredDeals": 134.159805
             },
             "impressions": {
-                "gam": 1092915,
+                "gam": 1092913,
                 "ogury": 51798,
                 "teads": 166497,
                 "adform": 34276,
@@ -10407,9 +10407,9 @@
                 "seedtag": 299766,
                 "outbrain": 0,
                 "showheroes": 238797,
-                "preferredDeals": 36475
+                "preferredDeals": 36473
             },
-            "total_ad_requests": 3087851,
+            "total_ad_requests": 3087849,
             "analytics": {
                 "views": 422751,
                 "keyEvents": 0,
@@ -10419,13 +10419,13 @@
                 "viewsPerUser": 3.412171596916744,
                 "avgEngagement": 69.5833003753178
             },
-            "impressions_sold": 2806100
+            "impressions_sold": 2806096
         },
         {
             "site": "f1maximaal",
             "date": "2026-11-23",
             "revenue": {
-                "gam": 1609.6862792792126,
+                "gam": 1609.6834420928951,
                 "ogury": 46.67003428322401,
                 "teads": 146.69,
                 "adform": 69.67825479999996,
@@ -10438,13 +10438,13 @@
                 "preferredDeals": 120.028365
             },
             "impressions": {
-                "gam": 1011925,
+                "gam": 1011922,
                 "ogury": 63909,
                 "teads": 133519,
                 "adform": 44370,
                 "adhese": 80207,
                 "gumgum": 67058,
-                "adsense": 703089,
+                "adsense": 703088,
                 "seedtag": 256127,
                 "outbrain": 0,
                 "showheroes": 188620,
@@ -10452,15 +10452,56 @@
             },
             "total_ad_requests": 2908421,
             "analytics": {
-                "views": 349950,
+                "views": 349944,
                 "keyEvents": 0,
-                "eventCount": 808417,
-                "activeUsers": 107492,
+                "eventCount": 808409,
+                "activeUsers": 107336,
                 "totalRevenue": 0,
-                "viewsPerUser": 3.255591113757303,
-                "avgEngagement": 82.01020541063521
+                "viewsPerUser": 3.2602668256689276,
+                "avgEngagement": 82.12936014012074
             },
-            "impressions_sold": 2581068
+            "impressions_sold": 2581064
+        },
+        {
+            "site": "f1maximaal",
+            "date": "2026-11-24",
+            "revenue": {
+                "gam": 996.4738334151764,
+                "ogury": 41.460047126872,
+                "teads": 91.51,
+                "adform": 56.02282576,
+                "adhese": 215.76462062502,
+                "gumgum": 109.54,
+                "adsense": 184.76,
+                "seedtag": 74.34,
+                "outbrain": 0,
+                "showheroes": 283.422913,
+                "preferredDeals": 86.77732499999999
+            },
+            "impressions": {
+                "gam": 607506,
+                "ogury": 37355,
+                "teads": 80215,
+                "adform": 31017,
+                "adhese": 62590,
+                "gumgum": 47523,
+                "adsense": 390346,
+                "seedtag": 155402,
+                "outbrain": 0,
+                "showheroes": 120873,
+                "preferredDeals": 22043
+            },
+            "total_ad_requests": 1773868,
+            "analytics": {
+                "views": 223036,
+                "keyEvents": 0,
+                "eventCount": 522152,
+                "activeUsers": 76841,
+                "totalRevenue": 0,
+                "viewsPerUser": 2.9025650368943663,
+                "avgEngagement": 79.20574953475358
+            },
+            "impressions_sold": 1554870
         },
         {
             "site": "festileaks",
@@ -18695,6 +18736,39 @@
             "impressions_sold": 91644
         },
         {
+            "site": "festileaks",
+            "date": "2026-11-24",
+            "revenue": {
+                "gam": 182.99993934896293,
+                "ogury": 2.7136119835439994,
+                "teads": 5.03,
+                "adform": 0.7049363200000001,
+                "adhese": 1.20733,
+                "gumgum": 2.74,
+                "adsense": 9.34,
+                "seedtag": 7.69,
+                "outbrain": 0,
+                "showheroes": 10.502871,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "gam": 0,
+                "ogury": 3962,
+                "teads": 8381,
+                "adform": 750,
+                "adhese": null,
+                "gumgum": 1328,
+                "adsense": 65819,
+                "seedtag": 14862,
+                "outbrain": 0,
+                "showheroes": 4475,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 99577
+        },
+        {
             "site": "horses",
             "date": "2026-03-01",
             "revenue": {
@@ -26567,13 +26641,13 @@
             "site": "horses",
             "date": "2026-11-13",
             "revenue": {
-                "gam": 24.752469198946503,
+                "gam": 24.750972361119903,
                 "ogury": 0,
                 "teads": 1.45,
                 "adform": 0.6516822400000001,
                 "adhese": 0,
                 "gumgum": 0,
-                "adsense": 7.21,
+                "adsense": 7.2,
                 "seedtag": 2.73,
                 "outbrain": 0,
                 "showheroes": 2.131898,
@@ -26586,7 +26660,7 @@
                 "adform": 1101,
                 "adhese": null,
                 "gumgum": 0,
-                "adsense": 46374,
+                "adsense": 46370,
                 "seedtag": 16025,
                 "outbrain": 0,
                 "showheroes": 1187,
@@ -26594,13 +26668,13 @@
             },
             "total_ad_requests": 0,
             "analytics": null,
-            "impressions_sold": 66593
+            "impressions_sold": 66589
         },
         {
             "site": "horses",
             "date": "2026-11-14",
             "revenue": {
-                "gam": 19.51845516576784,
+                "gam": 19.51816956174414,
                 "ogury": 0,
                 "teads": 0.72,
                 "adform": 0.7599662399999999,
@@ -26925,6 +26999,39 @@
             "total_ad_requests": 0,
             "analytics": null,
             "impressions_sold": 47486
+        },
+        {
+            "site": "horses",
+            "date": "2026-11-24",
+            "revenue": {
+                "gam": 17.81841149712763,
+                "ogury": 0,
+                "teads": 1.31,
+                "adform": 0.50528808,
+                "adhese": 0,
+                "gumgum": 0,
+                "adsense": 4.75,
+                "seedtag": 4.58,
+                "outbrain": 0,
+                "showheroes": 1.673263,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "gam": 0,
+                "ogury": 0,
+                "teads": 1439,
+                "adform": 874,
+                "adhese": null,
+                "gumgum": 0,
+                "adsense": 23358,
+                "seedtag": 17629,
+                "outbrain": 0,
+                "showheroes": 989,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 0,
+            "analytics": null,
+            "impressions_sold": 44289
         },
         {
             "site": "jfk",
@@ -29972,10 +30079,10 @@
                 "adform": 0.0025344,
                 "adhese": 0.32212,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 2.11,
+                "seedtag": 0.01,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.307327,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -29985,15 +30092,15 @@
                 "adform": 5,
                 "adhese": 87,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 9735,
+                "seedtag": 35,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 146,
                 "preferredDeals": 0
             },
             "total_ad_requests": 41034,
             "analytics": null,
-            "impressions_sold": 14683
+            "impressions_sold": 24599
         },
         {
             "site": "jfk",
@@ -30005,10 +30112,10 @@
                 "adform": 0.00299552,
                 "adhese": 0.19596,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 1.8,
+                "seedtag": 0.01,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.630336,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30018,15 +30125,15 @@
                 "adform": 5,
                 "adhese": 58,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 8930,
+                "seedtag": 35,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 300,
                 "preferredDeals": 0
             },
             "total_ad_requests": 36985,
             "analytics": null,
-            "impressions_sold": 14195
+            "impressions_sold": 23460
         },
         {
             "site": "jfk",
@@ -30038,10 +30145,10 @@
                 "adform": 0.00492096,
                 "adhese": 0.5074400022000001,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 2.12,
+                "seedtag": 0.02,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.530996,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30051,15 +30158,15 @@
                 "adform": 4,
                 "adhese": 152,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 11032,
+                "seedtag": 72,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 239,
                 "preferredDeals": 0
             },
             "total_ad_requests": 52346,
             "analytics": null,
-            "impressions_sold": 22438
+            "impressions_sold": 33781
         },
         {
             "site": "jfk",
@@ -30071,10 +30178,10 @@
                 "adform": 0.024926,
                 "adhese": 0.50699,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 1.37,
+                "seedtag": 0.02,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.412241,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30084,15 +30191,15 @@
                 "adform": 12,
                 "adhese": 146,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 7348,
+                "seedtag": 44,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 192,
                 "preferredDeals": 0
             },
             "total_ad_requests": 37492,
             "analytics": null,
-            "impressions_sold": 14243
+            "impressions_sold": 21827
         },
         {
             "site": "jfk",
@@ -30104,10 +30211,10 @@
                 "adform": 0.00094336,
                 "adhese": 1.08521,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 2.04,
+                "seedtag": 0.02,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.518025,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30117,15 +30224,15 @@
                 "adform": 2,
                 "adhese": 288,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 9582,
+                "seedtag": 40,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 224,
                 "preferredDeals": 0
             },
             "total_ad_requests": 49632,
             "analytics": null,
-            "impressions_sold": 21497
+            "impressions_sold": 31343
         },
         {
             "site": "jfk",
@@ -30137,10 +30244,10 @@
                 "adform": 0.02461184,
                 "adhese": 1.459470004,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 3.47,
+                "seedtag": 0.02,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.57347,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30150,15 +30257,15 @@
                 "adform": 17,
                 "adhese": 386,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 18239,
+                "seedtag": 48,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 281,
                 "preferredDeals": 0
             },
             "total_ad_requests": 59836,
             "analytics": null,
-            "impressions_sold": 20910
+            "impressions_sold": 39478
         },
         {
             "site": "jfk",
@@ -30170,10 +30277,10 @@
                 "adform": 0.02740496,
                 "adhese": 0.41141,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 1.16,
+                "seedtag": 0.01,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.435228,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30183,15 +30290,15 @@
                 "adform": 8,
                 "adhese": 115,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 5834,
+                "seedtag": 31,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 205,
                 "preferredDeals": 0
             },
             "total_ad_requests": 24271,
             "analytics": null,
-            "impressions_sold": 9722
+            "impressions_sold": 15792
         },
         {
             "site": "jfk",
@@ -30203,10 +30310,10 @@
                 "adform": 0.00236456,
                 "adhese": 0.41325,
                 "gumgum": 0,
-                "adsense": 0,
+                "adsense": 0.72,
                 "seedtag": 0,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.21991,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30216,15 +30323,15 @@
                 "adform": 5,
                 "adhese": 120,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 3830,
+                "seedtag": 15,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 108,
                 "preferredDeals": 0
             },
             "total_ad_requests": 24861,
             "analytics": null,
-            "impressions_sold": 9568
+            "impressions_sold": 13521
         },
         {
             "site": "jfk",
@@ -30236,10 +30343,10 @@
                 "adform": 0.00056496,
                 "adhese": 0.14256,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 2.23,
+                "seedtag": 0.02,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.145845,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30249,15 +30356,15 @@
                 "adform": 1,
                 "adhese": 44,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 10225,
+                "seedtag": 37,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 69,
                 "preferredDeals": 0
             },
             "total_ad_requests": 33860,
             "analytics": null,
-            "impressions_sold": 13382
+            "impressions_sold": 23713
         },
         {
             "site": "jfk",
@@ -30269,10 +30376,10 @@
                 "adform": 0.00451352,
                 "adhese": 0.31041,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 1.24,
+                "seedtag": 0.01,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.172412,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30282,15 +30389,15 @@
                 "adform": 3,
                 "adhese": 82,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 6435,
+                "seedtag": 16,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 76,
                 "preferredDeals": 0
             },
             "total_ad_requests": 27391,
             "analytics": null,
-            "impressions_sold": 9840
+            "impressions_sold": 16367
         },
         {
             "site": "jfk",
@@ -30302,10 +30409,10 @@
                 "adform": 0.00023232,
                 "adhese": 0.35474000000000006,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 0.98,
+                "seedtag": 0.01,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.156953,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30315,15 +30422,15 @@
                 "adform": 1,
                 "adhese": 97,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 4754,
+                "seedtag": 19,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 73,
                 "preferredDeals": 0
             },
             "total_ad_requests": 27808,
             "analytics": null,
-            "impressions_sold": 9592
+            "impressions_sold": 14438
         },
         {
             "site": "jfk",
@@ -30335,10 +30442,10 @@
                 "adform": 0.00046464,
                 "adhese": 0.47787,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 0.73,
+                "seedtag": 0.02,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.18794,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30348,15 +30455,15 @@
                 "adform": 1,
                 "adhese": 126,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 3121,
+                "seedtag": 18,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 89,
                 "preferredDeals": 0
             },
             "total_ad_requests": 29981,
             "analytics": null,
-            "impressions_sold": 11510
+            "impressions_sold": 14738
         },
         {
             "site": "jfk",
@@ -30368,10 +30475,10 @@
                 "adform": 0,
                 "adhese": 0.43027,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 1.63,
+                "seedtag": 0.02,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.130925,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30381,15 +30488,15 @@
                 "adform": 0,
                 "adhese": 127,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 6890,
+                "seedtag": 29,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 66,
                 "preferredDeals": 0
             },
             "total_ad_requests": 34365,
             "analytics": null,
-            "impressions_sold": 12091
+            "impressions_sold": 19076
         },
         {
             "site": "jfk",
@@ -30401,10 +30508,10 @@
                 "adform": 0.02825944,
                 "adhese": 0.62534,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 8.34,
+                "seedtag": 0.05,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 1.269036,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30414,15 +30521,15 @@
                 "adform": 16,
                 "adhese": 202,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 25216,
+                "seedtag": 90,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 669,
                 "preferredDeals": 0
             },
             "total_ad_requests": 78787,
             "analytics": null,
-            "impressions_sold": 25765
+            "impressions_sold": 51740
         },
         {
             "site": "jfk",
@@ -30434,10 +30541,10 @@
                 "adform": 0,
                 "adhese": 0.37492,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 1.72,
+                "seedtag": 0.02,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.312538,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30447,15 +30554,15 @@
                 "adform": 0,
                 "adhese": 116,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 8318,
+                "seedtag": 32,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 157,
                 "preferredDeals": 0
             },
             "total_ad_requests": 28564,
             "analytics": null,
-            "impressions_sold": 9333
+            "impressions_sold": 17840
         },
         {
             "site": "jfk",
@@ -30467,10 +30574,10 @@
                 "adform": 0.00070136,
                 "adhese": 0.54346,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 0.87,
+                "seedtag": 0.03,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.205237,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30480,15 +30587,15 @@
                 "adform": 1,
                 "adhese": 204,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 4350,
+                "seedtag": 40,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 91,
                 "preferredDeals": 0
             },
             "total_ad_requests": 27678,
             "analytics": null,
-            "impressions_sold": 9736
+            "impressions_sold": 14217
         },
         {
             "site": "jfk",
@@ -30500,10 +30607,10 @@
                 "adform": 0.0074272,
                 "adhese": 1.04362,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 2.21,
+                "seedtag": 0.01,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.141665,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30513,15 +30620,15 @@
                 "adform": 2,
                 "adhese": 302,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 7898,
+                "seedtag": 15,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 64,
                 "preferredDeals": 0
             },
             "total_ad_requests": 38898,
             "analytics": null,
-            "impressions_sold": 12348
+            "impressions_sold": 20325
         },
         {
             "site": "jfk",
@@ -30533,10 +30640,10 @@
                 "adform": 0.001298,
                 "adhese": 0.2965100033,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 0.35,
+                "seedtag": 0.02,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.155633,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30546,15 +30653,15 @@
                 "adform": 2,
                 "adhese": 79,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 1431,
+                "seedtag": 36,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 75,
                 "preferredDeals": 0
             },
             "total_ad_requests": 33640,
             "analytics": null,
-            "impressions_sold": 6506
+            "impressions_sold": 8048
         },
         {
             "site": "jfk",
@@ -30566,10 +30673,10 @@
                 "adform": 0.0130548,
                 "adhese": 0.12336,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 0.17,
+                "seedtag": 0.01,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.106256,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30579,15 +30686,15 @@
                 "adform": 3,
                 "adhese": 42,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 601,
+                "seedtag": 17,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 57,
                 "preferredDeals": 0
             },
             "total_ad_requests": 22730,
             "analytics": null,
-            "impressions_sold": 4838
+            "impressions_sold": 5513
         },
         {
             "site": "jfk",
@@ -30599,10 +30706,10 @@
                 "adform": 0.0042636,
                 "adhese": 0.04678,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 0.23,
+                "seedtag": 0.01,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.196787,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30612,15 +30719,15 @@
                 "adform": 4,
                 "adhese": 13,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 774,
+                "seedtag": 30,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 105,
                 "preferredDeals": 0
             },
             "total_ad_requests": 25018,
             "analytics": null,
-            "impressions_sold": 5228
+            "impressions_sold": 6137
         },
         {
             "site": "jfk",
@@ -30632,10 +30739,10 @@
                 "adform": 0.00741312,
                 "adhese": 0.00568,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 0.37,
+                "seedtag": 0.02,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.20984,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30645,15 +30752,15 @@
                 "adform": 2,
                 "adhese": 4,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 1040,
+                "seedtag": 25,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 113,
                 "preferredDeals": 0
             },
             "total_ad_requests": 19209,
             "analytics": null,
-            "impressions_sold": 3637
+            "impressions_sold": 4815
         },
         {
             "site": "jfk",
@@ -30665,10 +30772,10 @@
                 "adform": 0.00352528,
                 "adhese": 0.028,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 0.52,
+                "seedtag": 0.04,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.223158,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30678,15 +30785,15 @@
                 "adform": 3,
                 "adhese": 7,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 1981,
+                "seedtag": 24,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 107,
                 "preferredDeals": 0
             },
             "total_ad_requests": 28080,
             "analytics": null,
-            "impressions_sold": 4721
+            "impressions_sold": 6833
         },
         {
             "site": "jfk",
@@ -30698,10 +30805,10 @@
                 "adform": 0.01915848,
                 "adhese": 0.02923,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 0.4,
+                "seedtag": 0.02,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 0.155957,
                 "preferredDeals": 0
             },
             "impressions": {
@@ -30711,15 +30818,48 @@
                 "adform": 7,
                 "adhese": 11,
                 "gumgum": 0,
-                "adsense": 0,
-                "seedtag": 0,
+                "adsense": 1176,
+                "seedtag": 48,
                 "outbrain": 0,
-                "showheroes": 0,
+                "showheroes": 69,
                 "preferredDeals": 0
             },
             "total_ad_requests": 26888,
             "analytics": null,
-            "impressions_sold": 5325
+            "impressions_sold": 6618
+        },
+        {
+            "site": "jfk",
+            "date": "2026-11-24",
+            "revenue": {
+                "gam": 12.404301766766878,
+                "ogury": 0,
+                "teads": 0,
+                "adform": 0.00192016,
+                "adhese": 0.00575,
+                "gumgum": 0,
+                "adsense": 0.29,
+                "seedtag": 0.01,
+                "outbrain": 0,
+                "showheroes": 0.598928,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "gam": 5025,
+                "ogury": 0,
+                "teads": 0,
+                "adform": 1,
+                "adhese": 3,
+                "gumgum": 0,
+                "adsense": 830,
+                "seedtag": 13,
+                "outbrain": 0,
+                "showheroes": 227,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 22681,
+            "analytics": null,
+            "impressions_sold": 6099
         },
         {
             "site": "topgear",
@@ -39970,7 +40110,7 @@
             "site": "topgear",
             "date": "2026-11-13",
             "revenue": {
-                "gam": 520.2178158090227,
+                "gam": 520.2115697093137,
                 "ogury": 3.0755383986800005,
                 "teads": 0.04,
                 "adform": 0.32648792,
@@ -39983,7 +40123,7 @@
                 "preferredDeals": 0
             },
             "impressions": {
-                "gam": 168645,
+                "gam": 168642,
                 "ogury": 1008,
                 "teads": 19,
                 "adform": 136,
@@ -39997,7 +40137,7 @@
             },
             "total_ad_requests": 349291,
             "analytics": null,
-            "impressions_sold": 190162
+            "impressions_sold": 190159
         },
         {
             "site": "topgear",
@@ -40160,7 +40300,7 @@
                 "showheroes": 107,
                 "preferredDeals": 0
             },
-            "total_ad_requests": 197789,
+            "total_ad_requests": 197762,
             "analytics": null,
             "impressions_sold": 44016
         },
@@ -40193,7 +40333,7 @@
                 "showheroes": 438,
                 "preferredDeals": 0
             },
-            "total_ad_requests": 444017,
+            "total_ad_requests": 444012,
             "analytics": null,
             "impressions_sold": 134706
         },
@@ -40328,6 +40468,39 @@
             "total_ad_requests": 250059,
             "analytics": null,
             "impressions_sold": 70269
+        },
+        {
+            "site": "topgear",
+            "date": "2026-11-24",
+            "revenue": {
+                "gam": 496.1739417335572,
+                "ogury": 0.62643679956,
+                "teads": 0,
+                "adform": 0.052813200000000005,
+                "adhese": 0.10075,
+                "gumgum": 4.96,
+                "adsense": 0.03,
+                "seedtag": 0.55,
+                "outbrain": 0,
+                "showheroes": 0.282055,
+                "preferredDeals": 0
+            },
+            "impressions": {
+                "gam": 87938,
+                "ogury": 153,
+                "teads": 1,
+                "adform": 21,
+                "adhese": 41,
+                "gumgum": 787,
+                "adsense": 106,
+                "seedtag": 396,
+                "outbrain": 0,
+                "showheroes": 140,
+                "preferredDeals": 0
+            },
+            "total_ad_requests": 308217,
+            "analytics": null,
+            "impressions_sold": 89583
         }
     ]
 }
