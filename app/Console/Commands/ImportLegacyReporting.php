@@ -10,8 +10,9 @@ use Illuminate\Console\Command;
  *
  *   php artisan reporting:import-legacy /path/to/f1-maximaal-code/data
  *
- * Expects that directory to contain months/YYYY-MM.json files and an optional
- * config.json (for oguryRate), exactly as the Express app stored them.
+ * Expects that directory to contain months/YYYY-MM.json files, exactly as the
+ * Express app stored them. (Its config.json only held the old flat Ogury rate,
+ * which is no longer used — Ogury now converts with daily USD→EUR rates.)
  */
 class ImportLegacyReporting extends Command
 {
@@ -30,13 +31,6 @@ class ImportLegacyReporting extends Command
         }
 
         $store = ReportStore::empty();
-
-        // Config (oguryRate)
-        $configFile = $dir . '/config.json';
-        if (is_file($configFile)) {
-            $config = json_decode(file_get_contents($configFile), true) ?: [];
-            if (isset($config['oguryRate'])) $store['config']['oguryRate'] = $config['oguryRate'];
-        }
 
         // Merge every month file into the store.
         $files = glob($monthsDir . '/*.json') ?: [];

@@ -20,7 +20,9 @@ class ReportProcessor
         $today ??= CarbonImmutable::now();
 
         $store = ReportStore::load();
-        $oguryRate = $store['config']['oguryRate'] ?? ReportStore::DEFAULT_OGURY_RATE;
+        // Ogury is in USD: convert per day with the ECB USD→EUR rate (see CurrencyRates).
+        $usdToEur = fn (string $dateKey): float => CurrencyRates::usdToEur($dateKey);
+        $errors = [];
         $filePatterns = (array) \App\Models\ReportSetting::get('file_patterns', []);
 
         $fileTypes = [];
@@ -121,7 +123,15 @@ class ReportProcessor
                 if (isset($pathByType['showheroes'])) $parsed['showheroes'] = Extractors::showheroes($pathByType['showheroes'], $siteId);
                 if (isset($pathByType['gam'])) $parsed['gam'] = Extractors::gam($pathByType['gam'], $siteId);
                 if (isset($pathByType['adform'])) $parsed['adform'] = Extractors::adform($pathByType['adform'], $siteId);
-                if (isset($pathByType['ogury'])) $parsed['ogury'] = Extractors::ogury($pathByType['ogury'], $siteId, $oguryRate);
+                // Own try: a failed rate lookup must skip only Ogury, not the whole
+                // site, and is reported back instead of silently dropping the data.
+                if (isset($pathByType['ogury'])) {
+                    try {
+                        $parsed['ogury'] = Extractors::ogury($pathByType['ogury'], $siteId, $usdToEur);
+                    } catch (\Throwable $e) {
+                        $errors['ogury'] = 'Ogury not processed: ' . $e->getMessage();
+                    }
+                }
                 // Adsense + GumGum: one multi-site file each; the extractor filters
                 // to this site's host, so they slot straight into the per-site loop.
                 if (isset($pathByType['adsense'])) $parsed['adsense'] = Extractors::adsense($pathByType['adsense'], $siteId);
@@ -196,6 +206,7 @@ class ReportProcessor
 
         return [
             'fileTypes' => $fileTypes,
+            'errors' => array_values($errors),
             'store' => $store,
             'analyticsCSV' => CsvGenerator::analytics($store),
             'adheseCSV' => CsvGenerator::adhese($store, 'f1maximaal'),

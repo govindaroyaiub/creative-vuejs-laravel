@@ -13,8 +13,6 @@ use App\Models\ReportSetting;
  */
 class ReportStore
 {
-    public const DEFAULT_OGURY_RATE = 0.85;
-
     /** A blank store with every site present and config loaded. */
     public static function empty(): array
     {
@@ -30,7 +28,6 @@ class ReportStore
     {
         $store = self::empty();
         $store['config'] = [
-            'oguryRate' => ReportSetting::get('oguryRate', self::DEFAULT_OGURY_RATE),
             // site => market.name, captured from the last processed Adhese file.
             'adheseMarkets' => (array) ReportSetting::get('adhese_markets', []),
         ];
@@ -53,13 +50,9 @@ class ReportStore
         return $store;
     }
 
-    /** Persist the store. Upserts every present day; config is written too. */
+    /** Persist the store. Upserts every present day. */
     public static function save(array $store): void
     {
-        if (isset($store['config']['oguryRate'])) {
-            ReportSetting::put('oguryRate', $store['config']['oguryRate']);
-        }
-
         // Build every day-row first, then persist in a single upsert instead of
         // one SELECT+UPSERT round-trip per day. upsert() bypasses attribute casting,
         // so the JSON columns must be encoded here; timestamps are handled by Eloquent.

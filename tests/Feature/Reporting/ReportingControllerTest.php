@@ -2,8 +2,10 @@
 
 use App\Models\ReportDay;
 use App\Models\ReportSetting;
+use App\Services\Reporting\CurrencyRates;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
 
 /**
  * HTTP-level coverage for the Reporting module endpoints: upload processing,
@@ -18,7 +20,24 @@ beforeEach(function () {
     // wiped once the real clock moves past that window and the assertions see 0 rows.
     $this->travelTo(CarbonImmutable::create(2026, 6, 25));
     createAuthenticatedUser(['permissions' => ['*'], 'email_verified_at' => now()]);
+
+    // Ogury converts with daily ECB USD→EUR rates: never hit the real API.
+    CurrencyRates::flush();
+    Http::fake(['api.frankfurter.app/*' => fakeEcbRates(0.9)]);
 });
+
+/** Frankfurter-style range response: $rate on every weekday in the requested range. */
+function fakeEcbRates(float $rate): \Closure
+{
+    return function (\Illuminate\Http\Client\Request $req) use ($rate) {
+        preg_match('#/(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})#', $req->url(), $m);
+        $rates = [];
+        for ($d = CarbonImmutable::parse($m[1]); $d->lte(CarbonImmutable::parse($m[2])); $d = $d->addDay()) {
+            if (! $d->isWeekend()) $rates[$d->format('Y-m-d')] = ['EUR' => $rate];
+        }
+        return Http::response(['amount' => 1.0, 'base' => 'USD', 'rates' => $rates]);
+    };
+}
 
 $uploadFile = fn (string $path, string $name) => new UploadedFile($path, $name, null, null, true);
 
@@ -107,9 +126,37 @@ it('verifies the monthly Planetnine report for a non-f1 site', function () use (
     expect(abs($sh['pn'] - $sh['us']))->toBeLessThan(0.5);
 });
 
-it('updates the ogury rate', function () {
-    $this->post('/reporting/config', ['oguryRate' => 0.9])->assertRedirect(route('reporting'));
-    expect((float) ReportSetting::get('oguryRate'))->toEqual(0.9);
+it('converts Ogury USD revenue with the daily rate, rounded per row like the Go server', function () use ($partnerFiles, $fixtures) {
+    $this->post('/reporting/process', ['files' => $partnerFiles()])->assertRedirect(route('reporting'));
+
+    // Expected: Σ round(round(usd, 2) × 0.9, 2) over the fixture's f1maximaal rows on 2026-06-01.
+    $expected = 0.0;
+    foreach (\App\Services\Reporting\SpreadsheetReader::rows("$fixtures/uploads/Ogury.xlsx", ['contains' => 'statistics']) as $r) {
+        if (! str_contains(mb_strtolower((string) ($r['Asset'] ?? '')), 'f1maximaal.nl')) continue;
+        $d = \App\Services\Reporting\Reporting::parseDate($r['Date'] ?? '');
+        if (! $d || $d->format('Y-m-d') !== '2026-06-01') continue;
+        $expected += round(round(\App\Services\Reporting\Reporting::stripNum($r['Revenues']), 2) * 0.9, 2);
+    }
+
+    $day = ReportDay::firstWhere(['site' => 'f1maximaal', 'date' => '2026-06-01']);
+    expect($expected)->toBeGreaterThan(0);
+    expect($day->revenue['ogury'])->toEqualWithDelta($expected, 1e-6);
+    // Rates are cached for reuse (and exported with the report data).
+    expect(ReportSetting::get('usd_eur_rates'))->toHaveKey('2026-06-01');
+});
+
+it('skips only Ogury and flashes an error when no USD→EUR rate is available', function () use ($partnerFiles) {
+    // Replace the beforeEach fake (its stub would match first) with a failing API.
+    Http::swap(new \Illuminate\Http\Client\Factory);
+    Http::fake(['api.frankfurter.app/*' => Http::response('down', 503)]);
+
+    $this->post('/reporting/process', ['files' => $partnerFiles()])
+        ->assertRedirect(route('reporting'))
+        ->assertSessionHas('error');
+
+    $day = ReportDay::firstWhere(['site' => 'f1maximaal', 'date' => '2026-06-01']);
+    expect($day->revenue['ogury'] ?? 0)->toEqual(0);
+    expect(round($day->revenue['showheroes'], 2))->toBe(20.27); // other partners still processed
 });
 
 it('updates the RPM anomaly thresholds', function () {

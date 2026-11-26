@@ -215,6 +215,11 @@ class ReportingController extends Controller
             Artisan::call('reporting:export');
         }
 
+        // Partner data that couldn't be processed (e.g. no USD→EUR rate for Ogury).
+        if (! empty($result['errors'])) {
+            return redirect()->route('reporting')->with('error', implode("\n", $result['errors']));
+        }
+
         return redirect()->route('reporting');
     }
 
@@ -383,11 +388,10 @@ class ReportingController extends Controller
         ]));
     }
 
-    /** Update config (e.g. oguryRate). */
+    /** Update config (reminder day, RPM thresholds, file patterns, …). */
     public function config(Request $request)
     {
         $data = $request->validate([
-            'oguryRate' => 'nullable|numeric',
             'reminderDay' => 'nullable|integer|between:0,6',
             'rpmAmber' => 'nullable|numeric|min:0',
             'rpmRed' => 'nullable|numeric|min:0',
@@ -395,9 +399,6 @@ class ReportingController extends Controller
             'filePatterns' => 'nullable|array',
             'filePatterns.*' => 'nullable|string|max:255',
         ]);
-        if (array_key_exists('oguryRate', $data) && $data['oguryRate'] !== null) {
-            ReportSetting::put('oguryRate', (float) $data['oguryRate']);
-        }
         if (array_key_exists('reminderDay', $data) && $data['reminderDay'] !== null) {
             ReportSetting::put('reminder_day', (int) $data['reminderDay']);
         }
@@ -421,8 +422,8 @@ class ReportingController extends Controller
             ReportSetting::put('file_patterns', $clean);
         }
 
-        // Refresh the committed snapshot so setting changes (rpm thresholds, ogury
-        // rate, file patterns, …) land in the JSON and sync to other machines,
+        // Refresh the committed snapshot so setting changes (rpm thresholds,
+        // file patterns, …) land in the JSON and sync to other machines,
         // mirroring the upload flow. Skipped in tests.
         if (! app()->runningUnitTests()) {
             Artisan::call('reporting:export');

@@ -103,7 +103,7 @@ onMounted(() => {
 // so the numbers on this page can be explained on the spot. ─────────────────────
 const showFormulas = ref(false);
 
-// ─── Settings modal (Ogury rate + reminder day + upload file names) ─────────────
+// ─── Settings modal (reminder day + RPM thresholds + upload file names) ─────────
 const showSettings = ref(false);
 const settingsDay = ref(reminderDay.value);
 // Editable upload-recognition patterns per partner (comma-separated substrings).
@@ -127,7 +127,7 @@ function openSettings() {
     showSettings.value = true;
 }
 function saveSettings() {
-    router.post('/reporting/config', { oguryRate: oguryRate.value, reminderDay: settingsDay.value, rpmAmber: rpmAmber.value, rpmRed: rpmRed.value, oguryOldFormat: oguryOldFormat.value, filePatterns: filePatterns.value }, {
+    router.post('/reporting/config', { reminderDay: settingsDay.value, rpmAmber: rpmAmber.value, rpmRed: rpmRed.value, oguryOldFormat: oguryOldFormat.value, filePatterns: filePatterns.value }, {
         preserveScroll: true, preserveState: true,
         onSuccess: () => { showSettings.value = false; Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Settings saved', timer: 1300, showConfirmButton: false }); },
     });
@@ -295,7 +295,6 @@ watch(selectedSite, () => {
     verifyFile.value = null;
     verifyPond.value?.removeFiles();
 });
-const oguryRate = ref<number>(store.value?.config?.oguryRate ?? 0.85);
 const processing = ref(false);
 // Optional YYYY-MM: process/backfill that whole month instead of the default
 // "current month + last 7 days" window.
@@ -900,6 +899,13 @@ function processFiles() {
         onSuccess: () => {
             selectedUploadFiles.value = [];
             showUpload.value = false;
+            // A partner the run had to skip (e.g. Ogury with no USD→EUR rate) —
+            // say so instead of a plain "Processed".
+            const runError = (page.props.flash as any)?.error;
+            if (runError) {
+                Swal.fire({ icon: 'warning', title: 'Processed with problems', text: runError });
+                return;
+            }
             // Prompt for any day left with Adhese revenue but no impressions —
             // covers brand-new dates and any that slipped through earlier.
             promptMissingAdhese();
@@ -1770,7 +1776,7 @@ const tabs = [
                                         <tr><td class="px-3 py-1.5 font-medium">Showheroes</td><td class="px-3 py-1.5">"Premium Revenue"</td></tr>
                                         <tr><td class="px-3 py-1.5 font-medium">GAM</td><td class="px-3 py-1.5">"AdSense revenue" + "Ad Exchange revenue"</td></tr>
                                         <tr><td class="px-3 py-1.5 font-medium">Adform</td><td class="px-3 py-1.5">revenue column (auto-detected)</td></tr>
-                                        <tr><td class="px-3 py-1.5 font-medium">Ogury</td><td class="px-3 py-1.5">"Revenues" × rate (<b>{{ oguryRate }}</b>) — the only adjusted partner</td></tr>
+                                        <tr><td class="px-3 py-1.5 font-medium">Ogury</td><td class="px-3 py-1.5">"Revenues" (USD) × that day's ECB USD→EUR rate, per row — the only converted partner</td></tr>
                                         <tr><td class="px-3 py-1.5 font-medium">Adhese</td><td class="px-3 py-1.5">Adhese export, summed per site</td></tr>
                                         <tr><td class="px-3 py-1.5 font-medium">Outbrain</td><td class="px-3 py-1.5">"Revenue"</td></tr>
                                         <tr><td class="px-3 py-1.5 font-medium">Preferred Deals</td><td class="px-3 py-1.5">GAM preferred-deals file</td></tr>
@@ -1848,10 +1854,6 @@ const tabs = [
                         <section class="flex flex-col gap-3">
                             <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">General</h3>
                             <div class="grid gap-3 sm:grid-cols-2">
-                                <label class="flex flex-col gap-1">
-                                    <span class="text-sm font-medium">Ogury € rate</span>
-                                    <Input v-model.number="oguryRate" type="number" step="0.001" />
-                                </label>
                                 <label class="flex flex-col gap-1">
                                     <span class="text-sm font-medium">Deliverables reminder day</span>
                                     <select v-model.number="settingsDay" class="rounded-md border bg-background px-2 py-2 text-sm outline-none focus:ring-2 focus:ring-[#e2483d]/40">

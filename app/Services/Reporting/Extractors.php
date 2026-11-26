@@ -260,11 +260,20 @@ class Extractors
         return array_values($byDate);
     }
 
-    public static function ogury(string $path, string $siteId, float $rate = 0.85): array
+    /**
+     * Ogury revenue is in USD. $rate is either a callable (dateKey => USD→EUR
+     * rate) — the live path, converting each row the way the Go ReportingServer
+     * does: round(round(usd, 2) × rate, 2) — or a flat multiplier, kept for the
+     * legacy parity fixture generated with a fixed rate.
+     */
+    public static function ogury(string $path, string $siteId, float|callable $rate): array
     {
-        $assetMatch = mb_strtolower(Reporting::SITES[$siteId]['oguryAsset']);
+        $site = Reporting::SITES[$siteId];
+        // Ogury may still report a renamed site under its old host (jfk.men), so
+        // match the site's former domains (aliases) as well.
+        $assetMatches = array_map('mb_strtolower', [$site['oguryAsset'], ...($site['aliases'] ?? [])]);
         // New "Full Report" export: one row per ad unit, dated by "UTC Date", with
-        // the publisher in "App bundle". Older exports used a "Statistics 1" sheet
+        // the publisher in "Asset name". Older exports used a "Statistics 1" sheet
         // keyed by "Asset"/"Date"; pick() tolerates either naming so both parse.
         // The selector still targets "statistics" (old data sheet) and otherwise
         // falls through to the new export's sole "Full Report" sheet — crucially
@@ -272,13 +281,20 @@ class Extractors
         $rows = SpreadsheetReader::rows($path, ['contains' => 'statistics', 'fallbackIndex' => 1]);
         $byDate = [];
         foreach ($rows as $r) {
-            $publisher = (string) (Reporting::pick($r, 'App bundle', 'Asset name', 'Asset') ?? '');
-            if (! str_contains(mb_strtolower($publisher), $assetMatch)) continue;
+            $publisher = mb_strtolower((string) (Reporting::pick($r, 'Asset name', 'Asset') ?? ''));
+            $matched = false;
+            foreach ($assetMatches as $m) {
+                if (str_contains($publisher, $m)) { $matched = true; break; }
+            }
+            if (! $matched) continue;
             $d = Reporting::parseDate(Reporting::pick($r, 'UTC Date', 'Date') ?? ''); if (! $d) continue;
             $k = Reporting::dateKey($d);
             $byDate[$k] ??= ['date' => $d, 'impressions' => 0.0, 'revenue' => 0.0];
             $byDate[$k]['impressions'] += Reporting::stripNum(Reporting::pick($r, 'Impressions'));
-            $byDate[$k]['revenue'] += Reporting::stripNum(Reporting::pick($r, 'Revenues', 'Revenue')) * $rate;
+            $usd = Reporting::stripNum(Reporting::pick($r, 'Revenues', 'Revenue'));
+            $byDate[$k]['revenue'] += is_callable($rate)
+                ? round(round($usd, 2) * $rate($k), 2)
+                : $usd * $rate;
         }
 
         return array_values($byDate);

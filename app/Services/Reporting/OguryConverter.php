@@ -91,7 +91,7 @@ class OguryConverter
                     'date' => $date,
                     'assetKey' => (string) ($r['Asset key'] ?? ''),
                     'asset' => (string) ($r['Asset name'] ?? ''),
-                    'bundle' => (string) ($r['App bundle'] ?? ''),
+                    'bundle' => (string) (Reporting::pick($r, 'Web domain / App bundle', 'App bundle') ?? ''),
                     'assetTypeKey' => (string) ($r['Asset type'] ?? ''),
                     'adUnitId' => (string) ($r['Ad unit id'] ?? ''),
                     'adUnit' => (string) ($r['Ad unit name'] ?? ''),

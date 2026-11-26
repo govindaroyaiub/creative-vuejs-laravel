@@ -16,7 +16,6 @@ $rate = 0.855;
 
 $buildStore = function () use ($uploads, $rate): array {
     $store = ReportStore::empty();
-    $store['config']['oguryRate'] = $rate;
 
     // Adhese grouped per site across all adhese files (mirrors /process).
     $domainToId = ['f1maximaal.nl' => 'f1maximaal', 'topgear.nl' => 'topgear', 'horses.nl' => 'horses', 'festileaks.com' => 'festileaks'];
@@ -69,9 +68,6 @@ it('persists and reloads the merged store with matching numbers', function () us
     // DB stores impressions_sold as an integer column; in-memory it's a float sum.
     expect($dbDay['impressionsSold'])->toEqual((int) round($memDay['impressionsSold']));
     expect($dbDay['impressionsSold'])->toBeGreaterThan(0);
-
-    // Config persisted.
-    expect($reloaded['config']['oguryRate'])->toEqual(0.855);
 });
 
 it('carries forward a partner that is missing from a later run', function () use ($buildStore) {
