@@ -122,12 +122,10 @@ function openSettings() {
     settingsDay.value = reminderDay.value;
     filePatterns.value = { ...((page.props.filePatterns as Record<string, string>) ?? {}) };
     oguryOldFormat.value = !!(page.props.oguryOldFormat as boolean);
-    rpmAmber.value = (page.props.rpmAmber as number) ?? 7.5;
-    rpmRed.value = (page.props.rpmRed as number) ?? 8;
     showSettings.value = true;
 }
 function saveSettings() {
-    router.post('/reporting/config', { reminderDay: settingsDay.value, rpmAmber: rpmAmber.value, rpmRed: rpmRed.value, oguryOldFormat: oguryOldFormat.value, filePatterns: filePatterns.value }, {
+    router.post('/reporting/config', { reminderDay: settingsDay.value, oguryOldFormat: oguryOldFormat.value, filePatterns: filePatterns.value }, {
         preserveScroll: true, preserveState: true,
         onSuccess: () => { showSettings.value = false; Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Settings saved', timer: 1300, showConfirmButton: false }); },
     });
@@ -362,17 +360,16 @@ const partnerTotals = computed(() => {
     const totals: Record<string, number> = {};
     const impTotals: Record<string, number> = {};
     let grand = 0;
-    let impGrand = 0;
     for (const p of PARTNERS.value) { totals[p.key] = 0; impTotals[p.key] = 0; }
     for (const d of days.value) {
         for (const p of PARTNERS.value) {
             const v = d.revenue?.[p.key] ?? 0;
             totals[p.key] += v; grand += v;
             const iv = d.impressions?.[p.key] ?? 0;
-            impTotals[p.key] += iv; impGrand += iv;
+            impTotals[p.key] += iv;
         }
     }
-    return { totals, grand, impTotals, impGrand };
+    return { totals, grand, impTotals };
 });
 
 // Adhese impressions / RPM / Impr. sold / Ad requests — this whole bundle is
@@ -399,21 +396,26 @@ const displayPartners = computed(() =>
         : PARTNERS.value,
 );
 
-// RPM (revenue per 1000 pageviews). A high RPM means analytics pageviews are
-// under-reported (incomplete/late-finalized GA4 data) — the day's analytics file
-// likely needs re-uploading. rpmFor() itself works for any site with analytics
-// merged; anomaly tinting (rpmTier, below) stays F1Maximaal-only for now until
-// Topgear's analytics upload cadence is as proven as F1's.
-// Editable in Settings; default to amber >=7.5, red >=8. Reactive so the table
-// re-tints immediately after the thresholds are saved.
-const rpmAmber = ref<number>((page.props.rpmAmber as number) ?? 7.5);
-const rpmRed = ref<number>((page.props.rpmRed as number) ?? 8);
+// RPM (revenue per 1000 pageviews). Higher is better for the business.
+// Bands (frontend-only constants, not stored):
+//   < 4  very low (dark red)     < 5  low (light red)
+//   5–8  normal (no tint)
+//   > 8  good (light green)      > 9  top (dark green)
+// Revenue with zero pageviews = missing analytics, tints violet (data issue,
+// kept apart from the red "bad RPM" bands).
+const RPM_VERY_LOW = 4;
+const RPM_LOW = 5;
+const RPM_GOOD = 8;
+const RPM_TOP = 9;
+type RpmTier = 'top' | 'good' | 'low' | 'verylow' | 'nodata' | null;
+const tierForRpm = (rpm: number): RpmTier =>
+    rpm > RPM_TOP ? 'top' : rpm > RPM_GOOD ? 'good' : rpm < RPM_VERY_LOW ? 'verylow' : rpm < RPM_LOW ? 'low' : null;
 const dayRevenue = (d: any) => PARTNERS.value.reduce((t, p) => t + (d.revenue?.[p.key] ?? 0), 0);
 const rpmFor = (d: any): number | null => {
     const views = d.analytics?.views ?? 0;
     return views > 0 ? (dayRevenue(d) / views) * 1000 : null;
 };
-const rpmTier = (d: any): 'red' | 'amber' | null => {
+const rpmTier = (d: any): RpmTier => {
     // Anomaly tinting applies to whichever sites carry Adhese/RPM at all
     // (F1Maximaal + Topgear) — Topgear's analytics cadence is proven now,
     // same bundle gate as everywhere else on this page.
@@ -421,10 +423,8 @@ const rpmTier = (d: any): 'red' | 'amber' | null => {
     const rpm = rpmFor(d);
     // Missing/zero pageviews on a day that has revenue is itself the "re-upload
     // analytics" signal (RPM is effectively infinite) — flag red.
-    if (rpm === null) return dayRevenue(d) > 0 ? 'red' : null;
-    if (rpm >= rpmRed.value) return 'red';
-    if (rpm >= rpmAmber.value) return 'amber';
-    return null;
+    if (rpm === null) return dayRevenue(d) > 0 ? 'nodata' : null;
+    return tierForRpm(rpm);
 };
 // Click-to-highlight on the Table tab — purely visual, no selection semantics
 // elsewhere on the page. Re-clicking the same row clears it.
@@ -434,8 +434,24 @@ function toggleRow(dateKey: string) {
 }
 const rpmRowClass = (d: any) => {
     const t = rpmTier(d);
-    return t === 'red' ? 'bg-red-500/10' : t === 'amber' ? 'bg-amber-400/10' : '';
+    return RPM_ROW[t ?? 'none'];
 };
+const RPM_ROW: Record<string, string> = {
+    top: 'bg-emerald-500/20', good: 'bg-emerald-400/10',
+    low: 'bg-red-400/10', verylow: 'bg-red-600/20',
+    nodata: 'bg-violet-500/10', none: '',
+};
+const RPM_TEXT: Record<string, string> = {
+    top: 'text-emerald-600 dark:text-emerald-400', good: 'text-emerald-600 dark:text-emerald-300',
+    low: 'text-red-500 dark:text-red-300', verylow: 'text-red-700 dark:text-red-400',
+    nodata: 'text-violet-600 dark:text-violet-400', none: '',
+};
+const RPM_PILL: Record<string, string> = {
+    top: 'rpt-pill-top', good: 'rpt-pill-pos', low: 'rpt-pill-neg', verylow: 'rpt-pill-neg-strong',
+    nodata: 'rpt-pill-nodata', none: 'rpt-pill-flat',
+};
+const rpmTextClass = (t: RpmTier) => RPM_TEXT[t ?? 'none'];
+const rpmPillClass = (t: RpmTier) => RPM_PILL[t ?? 'none'];
 // Most recent day in the active date-range filter — the Summary tab's
 // "Latest day" panel answers the page's question: did that day come in, and
 // does its RPM look right?
@@ -444,13 +460,10 @@ const blendedRpm = computed<number | null>(() => {
     const views = days.value.reduce((t, d) => t + (d.analytics?.views ?? 0), 0);
     return views > 0 ? (partnerTotals.value.grand / views) * 1000 : null;
 });
-// Same amber/red banding as the table rows, applied to the range-wide blended
-// RPM so the range strip signals when the period as a whole looks off.
-const blendedRpmTier = computed<'red' | 'amber' | null>(() => {
+// Same banding as the table rows, applied to the range-wide blended RPM.
+const blendedRpmTier = computed<RpmTier>(() => {
     if (blendedRpm.value === null) return null;
-    if (blendedRpm.value >= rpmRed.value) return 'red';
-    if (blendedRpm.value >= rpmAmber.value) return 'amber';
-    return null;
+    return tierForRpm(blendedRpm.value);
 });
 const impressionsSoldTotal = computed(() =>
     days.value.reduce((t, d) => t + (d.impressionsSold || 0), 0));
@@ -537,24 +550,45 @@ const latestRows = computed(() => {
     return rows;
 });
 
-const tierText = (t: 'red' | 'amber' | null, r: number | null) =>
-    t === 'red' ? (r === null ? 'No pageviews' : 'Over the alert') : t === 'amber' ? 'Over the watch line' : 'Normal';
+const tierText = (t: RpmTier) =>
+    ({ top: 'Top RPM', good: 'Good RPM', low: 'Low RPM', verylow: 'Very low RPM', nodata: 'No pageviews' } as Record<string, string>)[t ?? ''] ?? 'Normal';
 
 // ─── Charts ──────────────────────────────────────────────────────────────────
 // One hue on the screen's main data: the latest day, in the brand red. Every
-// other day is grey; amber and red are kept for the RPM alert levels.
+// other day is grey; greens mark the RPM good/top levels.
 const HUE = '#e2483d';
 const BAR = 'rgba(128,128,128,0.32)';
 const BAR_STRONG = 'rgba(128,128,128,0.85)';
-const WATCH = '#e3a23b';
-const ALERT = '#c4242a';
+const TOP = '#10b981';     // RPM > 9  (rich emerald)
+const GOOD = '#6fcf97';    // RPM > 8  (light green)
+const LOW = '#f08a8a';     // RPM < 5  (light red)
+const VERYLOW = '#c4242a'; // RPM < 4  (dark red)
+const RPM_BAR: Record<string, string> = { top: TOP, good: GOOD, low: LOW, verylow: VERYLOW };
+const NODATA = '#8b5cf6'; // revenue but no pageviews (violet)
+
+// Daily revenue bands (€), F1Maximaal only. Frontend-only constants.
+//   < 500 dark red · < 1000 light red · 1000–2500 normal · > 2500 light green · > 3000 dark green
+const REV_VERY_LOW = 500;
+const REV_LOW = 1000;
+const REV_GOOD = 2500;
+const REV_TOP = 3000;
+const revTier = (v: number): 'top' | 'good' | 'low' | 'verylow' | null =>
+    v > REV_TOP ? 'top' : v > REV_GOOD ? 'good' : v < REV_VERY_LOW ? 'verylow' : v < REV_LOW ? 'low' : null;
+const revenueBanded = computed(() => selectedSite.value === 'f1maximaal');
 
 const revenueChart = computed(() => ({
     labels: days.value.map((d) => fmtDayShort(d.dateKey)),
     datasets: [{
         label: 'Revenue',
         data: days.value.map(dayRevenue),
-        backgroundColor: days.value.map((d) => (d.dateKey === latestDay.value?.dateKey ? HUE : BAR)),
+        // F1Maximaal: tint each day by its revenue band (same palette as RPM).
+        // Other sites earn far less, so the € bands don't fit — grey + latest in brand red.
+        backgroundColor: days.value.map((d) => {
+            const isLatest = d.dateKey === latestDay.value?.dateKey;
+            if (!revenueBanded.value) return isLatest ? HUE : BAR;
+            const t = revTier(dayRevenue(d));
+            return t ? RPM_BAR[t] : isLatest ? BAR_STRONG : BAR;
+        }),
         borderRadius: 0, barPercentage: 0.8, categoryPercentage: 0.9,
     }],
 }));
@@ -581,12 +615,15 @@ const stripChart = computed(() => {
                 data: ds.map((d) => rpmFor(d)),
                 backgroundColor: ds.map((d, i) => {
                     const t = rpmTier(d);
-                    return t === 'red' ? ALERT : t === 'amber' ? WATCH : i === last ? BAR_STRONG : BAR;
+                    if (t === 'nodata') return NODATA;
+                    return t ? RPM_BAR[t] : i === last ? BAR_STRONG : BAR;
                 }),
                 borderRadius: 0, barPercentage: 0.75, categoryPercentage: 0.9,
             },
-            flat(rpmAmber.value, 'Watch', WATCH),
-            flat(rpmRed.value, 'Alert', ALERT),
+            flat(RPM_VERY_LOW, 'Very low', VERYLOW),
+            flat(RPM_LOW, 'Low', LOW),
+            flat(RPM_GOOD, 'Good', GOOD),
+            flat(RPM_TOP, 'Top', TOP),
         ],
     };
 });
@@ -623,6 +660,23 @@ const chartOptions = {
 };
 const revenueOptions = computed(() => ({
     ...chartOptions,
+    plugins: {
+        ...chartOptions.plugins,
+        tooltip: {
+            ...tip,
+            callbacks: {
+                label: (c: any) => {
+                    const lines = [eur(c.parsed.y)];
+                    if (supportsRpm.value) {  // RPM as extra context in the tooltip
+                        const d = days.value[c.dataIndex];
+                        const r = d ? rpmFor(d) : null;
+                        lines.push(r === null ? 'No pageviews' : 'RPM ' + r.toFixed(2));
+                    }
+                    return lines;
+                },
+            },
+        },
+    },
     scales: { ...chartOptions.scales, x: { ...axisX, ticks: stepTicks(revenueChart.value.labels, 8) } },
 }));
 const stripOptions = computed(() => {
@@ -641,7 +695,7 @@ const stripOptions = computed(() => {
         scales: {
             x: { ...axisX, ticks: stepTicks(stripChart.value.labels, 5) },
             y: rpm
-                ? { beginAtZero: true, max: Math.ceil((Math.max(rpmRed.value, ...vals) + 0.25) / 2) * 2, grid: { color: gridColor }, border: { display: false }, ticks: { stepSize: 2, color: tickColor, font: { size: 11 }, callback: (v: any) => Number(v).toFixed(0) } }
+                ? { beginAtZero: true, max: Math.ceil((Math.max(RPM_TOP, ...vals) + 0.25) / 2) * 2, grid: { color: gridColor }, border: { display: false }, ticks: { stepSize: 2, color: tickColor, font: { size: 11 }, callback: (v: any) => Number(v).toFixed(0) } }
                 : chartOptions.scales.y,
         },
     };
@@ -1179,10 +1233,10 @@ const tabs = [
                     <Button variant="outline" size="icon" class="h-9 w-9 max-sm:order-2" title="Report links" aria-label="Report links" @click="showLinks = true">
                         <Link2 />
                     </Button>
-                    <Button variant="outline" class="h-9 max-sm:order-2" @click="openDownload"><Download /> Download reports</Button>
-                    <Button class="h-9 max-sm:order-1" @click="showUpload = true">
-                        <Upload /> Upload files
-                        <span v-if="selectedUploadFiles.length" class="rounded bg-primary-foreground/20 px-1.5 text-xs tabular-nums">{{ selectedUploadFiles.length }}</span>
+                    <Button variant="outline" size="icon" class="h-9 w-9 max-sm:order-2" title="Download reports" aria-label="Download reports" @click="openDownload"><Download /></Button>
+                    <Button variant="outline" :size="selectedUploadFiles.length ? 'default' : 'icon'" :class="['h-9 max-sm:order-1', selectedUploadFiles.length ? 'px-2.5' : 'w-9']" title="Upload files" aria-label="Upload files" @click="showUpload = true">
+                        <Upload />
+                        <span v-if="selectedUploadFiles.length" class="rounded bg-muted px-1.5 text-xs tabular-nums">{{ selectedUploadFiles.length }}</span>
                     </Button>
                     <DropdownMenu>
                         <DropdownMenuTrigger as-child>
@@ -1275,7 +1329,7 @@ const tabs = [
                         <template v-if="supportsRpm">
                             <div class="mt-5 flex items-baseline gap-2">
                                 <span class="text-4xl font-semibold tabular-nums tracking-tight"
-                                    :class="rpmTier(latestDay) === 'red' ? 'text-red-600 dark:text-red-400' : rpmTier(latestDay) === 'amber' ? 'text-amber-600 dark:text-amber-400' : ''">
+                                    :class="rpmTextClass(rpmTier(latestDay))">
                                     {{ rpmFor(latestDay) === null ? '—' : rpmFor(latestDay)!.toFixed(2) }}
                                 </span>
                                 <span class="text-sm text-muted-foreground">RPM</span>
@@ -1283,10 +1337,10 @@ const tabs = [
                             <div class="mt-1 text-xs text-muted-foreground">€ per 1,000 pageviews</div>
                             <div class="mt-3">
                                 <span class="rpt-pill"
-                                    :class="rpmTier(latestDay) === 'red' ? 'rpt-pill-neg' : rpmTier(latestDay) === 'amber' ? 'rpt-pill-warn' : 'rpt-pill-pos'">
-                                    {{ tierText(rpmTier(latestDay), rpmFor(latestDay)) }}
+                                    :class="rpmPillClass(rpmTier(latestDay))">
+                                    {{ tierText(rpmTier(latestDay)) }}
                                 </span>
-                                <span class="ml-2 text-xs text-muted-foreground tabular-nums">watch {{ rpmAmber.toFixed(2) }} · alert {{ rpmRed.toFixed(2) }}</span>
+                                <span class="ml-2 text-xs text-muted-foreground tabular-nums">low &lt; {{ RPM_LOW }} · good &gt; {{ RPM_GOOD }}</span>
                             </div>
                         </template>
                         <template v-else>
@@ -1323,8 +1377,10 @@ const tabs = [
                         <div class="flex items-baseline justify-between gap-3">
                             <h3 class="text-sm font-medium">{{ supportsRpm ? 'RPM, last 14 days' : 'Revenue, last 14 days' }}</h3>
                             <span v-if="supportsRpm" class="flex items-center gap-3 text-xs text-muted-foreground">
-                                <span class="flex items-center gap-1.5"><span class="rpt-dash" :style="{ color: WATCH }" />watch</span>
-                                <span class="flex items-center gap-1.5"><span class="rpt-dash" :style="{ color: ALERT }" />alert</span>
+                                <span class="flex items-center gap-1.5"><span class="rpt-dash" :style="{ color: VERYLOW }" />&lt;{{ RPM_VERY_LOW }}</span>
+                                <span class="flex items-center gap-1.5"><span class="rpt-dash" :style="{ color: LOW }" />&lt;{{ RPM_LOW }}</span>
+                                <span class="flex items-center gap-1.5"><span class="rpt-dash" :style="{ color: GOOD }" />&gt;{{ RPM_GOOD }}</span>
+                                <span class="flex items-center gap-1.5"><span class="rpt-dash" :style="{ color: TOP }" />&gt;{{ RPM_TOP }}</span>
                             </span>
                         </div>
                         <div class="relative mt-3 h-44 lg:h-auto lg:min-h-44 lg:flex-1">
@@ -1359,7 +1415,7 @@ const tabs = [
                         <div v-if="supportsRpm" class="rpt-cell">
                             <div class="text-xs text-muted-foreground">RPM, whole range</div>
                             <div class="mt-1 text-2xl font-semibold tabular-nums tracking-tight"
-                                :class="blendedRpmTier === 'red' ? 'text-red-600 dark:text-red-400' : blendedRpmTier === 'amber' ? 'text-amber-600 dark:text-amber-400' : ''">
+                                :class="rpmTextClass(blendedRpmTier)">
                                 {{ blendedRpm === null ? '—' : blendedRpm.toFixed(2) }}
                             </div>
                             <div class="mt-0.5 text-xs text-muted-foreground">€ per 1,000 pageviews</div>
@@ -1377,7 +1433,13 @@ const tabs = [
                     <section class="rpt-panel flex min-w-0 flex-col p-5 lg:col-span-2" aria-labelledby="daily-title">
                         <div class="flex items-baseline justify-between gap-3">
                             <h2 id="daily-title" class="text-sm font-medium">Revenue per day</h2>
-                            <span v-if="latestDay" class="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <span v-if="revenueBanded" class="flex flex-wrap items-center justify-end gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                                <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5" :style="{ background: VERYLOW }" />&lt;€{{ REV_VERY_LOW }}</span>
+                                <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5" :style="{ background: LOW }" />&lt;€{{ REV_LOW.toLocaleString('en-US') }}</span>
+                                <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5" :style="{ background: GOOD }" />&gt;€{{ REV_GOOD.toLocaleString('en-US') }}</span>
+                                <span class="flex items-center gap-1.5"><span class="h-2.5 w-2.5" :style="{ background: TOP }" />&gt;€{{ REV_TOP.toLocaleString('en-US') }}</span>
+                            </span>
+                            <span v-else-if="latestDay" class="flex items-center gap-1.5 text-xs text-muted-foreground">
                                 <span class="h-2.5 w-2.5" :style="{ background: HUE }" /> {{ fmtDayShort(latestDay.dateKey) }}, latest day
                             </span>
                         </div>
@@ -1453,7 +1515,8 @@ const tabs = [
                                     </template>
                                     <template v-else>{{ p.label }}</template>
                                 </th>
-                                <th class="px-1.5 py-2 text-right">Total</th>
+                                <!-- Total only on Revenue: on Impressions it equals "Impr. sold" -->
+                                <th v-if="tableMetric === 'revenue'" class="px-1.5 py-2 text-right">Total</th>
                                 <th v-if="supportsRpm && tableMetric === 'impressions'" class="px-1.5 py-2 text-right">RPM</th>
                                 <th v-if="supportsImpressions && tableMetric === 'impressions'" class="px-1.5 py-2 text-right leading-tight">Adhese<br>impr.</th>
                                 <th v-if="supportsImpressions && tableMetric === 'impressions'" class="px-1.5 py-2 text-right leading-tight">Impr.<br>sold</th>
@@ -1469,10 +1532,8 @@ const tabs = [
                                 <td v-for="p in displayPartners" :key="p.key" class="px-1.5 py-1 text-right" :class="{ 'text-muted-foreground': tableMetric === 'revenue' ? !(d.revenue?.[p.key]) : !(d.impressions?.[p.key]) }">
                                     {{ tableMetric === 'revenue' ? (d.revenue?.[p.key] ?? 0).toFixed(2) : num(d.impressions?.[p.key] ?? 0) }}
                                 </td>
-                                <td class="px-1.5 py-1 text-right font-semibold">
-                                    {{ tableMetric === 'revenue'
-                                        ? PARTNERS.reduce((t, p) => t + (d.revenue?.[p.key] ?? 0), 0).toFixed(2)
-                                        : num(PARTNERS.reduce((t, p) => t + (d.impressions?.[p.key] ?? 0), 0)) }}
+                                <td v-if="tableMetric === 'revenue'" class="px-1.5 py-1 text-right font-semibold">
+                                    {{ PARTNERS.reduce((t, p) => t + (d.revenue?.[p.key] ?? 0), 0).toFixed(2) }}
                                 </td>
                                 <td v-if="supportsRpm && tableMetric === 'impressions'" class="px-1.5 py-1 text-right tabular-nums">
                                     {{ rpmFor(d) === null ? '—' : rpmFor(d)!.toFixed(2) }}
@@ -1492,7 +1553,7 @@ const tabs = [
                                 <td v-for="p in displayPartners" :key="p.key" class="px-1.5 py-1.5 text-right">
                                     {{ tableMetric === 'revenue' ? partnerTotals.totals[p.key].toFixed(2) : num(partnerTotals.impTotals[p.key]) }}
                                 </td>
-                                <td class="px-1.5 py-1.5 text-right">{{ tableMetric === 'revenue' ? partnerTotals.grand.toFixed(2) : num(partnerTotals.impGrand) }}</td>
+                                <td v-if="tableMetric === 'revenue'" class="px-1.5 py-1.5 text-right">{{ partnerTotals.grand.toFixed(2) }}</td>
                                 <td v-if="supportsRpm && tableMetric === 'impressions'" class="px-1.5 py-1.5 text-right tabular-nums">{{ blendedRpm === null ? '—' : blendedRpm.toFixed(2) }}</td>
                                 <td v-if="supportsImpressions && tableMetric === 'impressions'" class="px-1.5 py-1.5 text-right">—</td>
                                 <td v-if="supportsImpressions && tableMetric === 'impressions'" class="px-1.5 py-1.5 text-right">{{ num(days.reduce((t, d) => t + (d.impressionsSold || 0), 0)) }}</td>
@@ -1811,10 +1872,12 @@ const tabs = [
                             <p class="rounded-md bg-muted/40 px-3 py-2 font-mono text-[12px]">RPM = (day total revenue ÷ analytics pageviews) × 1000</p>
                             <p class="rounded-md bg-muted/40 px-3 py-2 font-mono text-[12px]">Blended RPM (range) = (total revenue ÷ total pageviews) × 1000</p>
                             <p class="text-[13px] text-muted-foreground">
-                                A row/card tints <span class="font-medium text-amber-500">amber ≥ {{ rpmAmber }}</span> and
-                                <span class="font-medium text-red-500">red ≥ {{ rpmRed }}</span> (editable in Settings).
-                                A high RPM means GA4 pageviews are under-reported — re-upload that day's analytics file.
-                                Revenue present but zero pageviews also flags red.
+                                Higher RPM is better. Rows/cards tint
+                                <span class="font-medium text-red-700 dark:text-red-400">dark red &lt; {{ RPM_VERY_LOW }}</span>,
+                                <span class="font-medium text-red-500 dark:text-red-300">light red &lt; {{ RPM_LOW }}</span>,
+                                <span class="font-medium text-emerald-600 dark:text-emerald-300">light green &gt; {{ RPM_GOOD }}</span> and
+                                <span class="font-medium text-emerald-600 dark:text-emerald-400">emerald &gt; {{ RPM_TOP }}</span>.
+                                Revenue present but zero pageviews flags violet — re-upload that day's analytics file.
                             </p>
                         </section>
 
@@ -1862,17 +1925,6 @@ const tabs = [
                                 </label>
                             </div>
                             <p class="text-[11px] text-muted-foreground">The weekly deliverables reminder appears on the selected day.</p>
-                            <div class="grid gap-3 sm:grid-cols-2">
-                                <label class="flex flex-col gap-1">
-                                    <span class="text-sm font-medium">RPM warning — min (amber)</span>
-                                    <Input v-model.number="rpmAmber" type="number" step="0.1" min="0" />
-                                </label>
-                                <label class="flex flex-col gap-1">
-                                    <span class="text-sm font-medium">RPM alert — max (red)</span>
-                                    <Input v-model.number="rpmRed" type="number" step="0.1" min="0" />
-                                </label>
-                            </div>
-                            <p class="text-[11px] text-muted-foreground">A F1Maximaal day's row turns amber at or above the min and red at or above the max. A high RPM means analytics pageviews are under-reported — re-upload that day's analytics file.</p>
                             <label class="mt-1 flex items-start justify-between gap-3 rounded-md border p-3">
                                 <span class="flex flex-col gap-0.5">
                                     <span class="text-sm font-medium">Convert Ogury report to old format?</span>
@@ -2144,6 +2196,13 @@ const tabs = [
 .rpt-pill-pos  { background: #dcfae5; color: #04250e; }
 .rpt-pill-warn { background: #fef3c7; color: #92400e; }
 .rpt-pill-neg  { background: #ffedea; color: #831c1e; }
+.rpt-pill-flat { background: rgba(128,128,128,0.14); color: inherit; }
+.rpt-pill-top  { background: #a7f3d0; color: #065f46; font-weight: 600; }
+.rpt-pill-neg-strong { background: #c4242a; color: #ffffff; }
+.rpt-pill-nodata { background: #ede9fe; color: #5b21b6; }
+.dark .rpt-pill-top  { background: #064e3b; color: #6ee7b7; font-weight: 600; }
+.dark .rpt-pill-neg-strong { background: #991b1b; color: #fee2e2; }
+.dark .rpt-pill-nodata { background: #2a2140; color: #a78bfa; }
 .dark .rpt-pill-pos  { background: #172a1d; color: #3fc07a; }
 .dark .rpt-pill-warn { background: #2b2210; color: #f5b94b; }
 .dark .rpt-pill-neg  { background: #2c1a20; color: #e5566f; }

@@ -159,12 +159,6 @@ it('skips only Ogury and flashes an error when no USD→EUR rate is available', 
     expect(round($day->revenue['showheroes'], 2))->toBe(20.27); // other partners still processed
 });
 
-it('updates the RPM anomaly thresholds', function () {
-    $this->post('/reporting/config', ['rpmAmber' => 7, 'rpmRed' => 9])->assertRedirect(route('reporting'));
-    expect((float) ReportSetting::get('rpm_amber'))->toEqual(7.0);
-    expect((float) ReportSetting::get('rpm_red'))->toEqual(9.0);
-});
-
 it('saves manual adhese impressions and recomputes impressions sold', function () use ($partnerFiles) {
     $this->post('/reporting/process', ['files' => $partnerFiles()])->assertRedirect();
 

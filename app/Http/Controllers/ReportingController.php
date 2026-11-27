@@ -49,7 +49,7 @@ class ReportingController extends Controller
         // Load all page settings in one query, then read from the map (each setting
         // was previously its own SELECT).
         $settings = ReportSetting::whereIn('key', [
-            'report_links', 'reminder_day', 'rpm_amber', 'rpm_red', 'ogury_old_format', 'file_patterns',
+            'report_links', 'reminder_day', 'ogury_old_format', 'file_patterns',
         ])->get()->keyBy('key');
         $setting = fn (string $key, $default = null) => $settings->has($key) ? $settings->get($key)->value : $default;
 
@@ -59,8 +59,6 @@ class ReportingController extends Controller
             'uploadFiles' => ZipBuilder::availableFiles($this->uploadsDir()),
             'reportLinks' => $setting('report_links', self::DEFAULT_LINKS),
             'reminderDay' => (int) $setting('reminder_day', 3),
-            'rpmAmber' => (float) $setting('rpm_amber', 7.5),
-            'rpmRed' => (float) $setting('rpm_red', 8),
             'oguryOldFormat' => (bool) $setting('ogury_old_format', false),
             'filePatterns' => array_merge(Reporting::DEFAULT_FILE_PATTERNS, (array) $setting('file_patterns', [])),
             'sync' => $this->syncInfo(),
@@ -388,25 +386,17 @@ class ReportingController extends Controller
         ]));
     }
 
-    /** Update config (reminder day, RPM thresholds, file patterns, …). */
+    /** Update config (reminder day, file patterns, …). */
     public function config(Request $request)
     {
         $data = $request->validate([
             'reminderDay' => 'nullable|integer|between:0,6',
-            'rpmAmber' => 'nullable|numeric|min:0',
-            'rpmRed' => 'nullable|numeric|min:0',
             'oguryOldFormat' => 'nullable|boolean',
             'filePatterns' => 'nullable|array',
             'filePatterns.*' => 'nullable|string|max:255',
         ]);
         if (array_key_exists('reminderDay', $data) && $data['reminderDay'] !== null) {
             ReportSetting::put('reminder_day', (int) $data['reminderDay']);
-        }
-        if (array_key_exists('rpmAmber', $data) && $data['rpmAmber'] !== null) {
-            ReportSetting::put('rpm_amber', (float) $data['rpmAmber']);
-        }
-        if (array_key_exists('rpmRed', $data) && $data['rpmRed'] !== null) {
-            ReportSetting::put('rpm_red', (float) $data['rpmRed']);
         }
         if (array_key_exists('oguryOldFormat', $data) && $data['oguryOldFormat'] !== null) {
             ReportSetting::put('ogury_old_format', (bool) $data['oguryOldFormat']);
@@ -422,7 +412,7 @@ class ReportingController extends Controller
             ReportSetting::put('file_patterns', $clean);
         }
 
-        // Refresh the committed snapshot so setting changes (rpm thresholds,
+        // Refresh the committed snapshot so setting changes (reminder day,
         // file patterns, …) land in the JSON and sync to other machines,
         // mirroring the upload flow. Skipped in tests.
         if (! app()->runningUnitTests()) {
